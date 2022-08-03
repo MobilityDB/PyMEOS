@@ -1,7 +1,7 @@
 import re
 from typing import List, Optional, Tuple
 
-from src.objects import conversion_map, Conversion
+from lib.objects import conversion_map, Conversion
 
 
 def main():
@@ -10,7 +10,7 @@ def main():
     function_regex = r'extern (?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
     matches = re.finditer(function_regex, ''.join(content.splitlines()))
 
-    with open('./src/functions.py', 'w+') as file:
+    with open('lib/functions.py', 'w+') as file:
         file.write('from typing import Any\n'
                    'from datetime import datetime\n'
                    'import _meos_cffi\n'

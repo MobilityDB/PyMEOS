@@ -3,8 +3,9 @@ from datetime import datetime
 
 from dateutil.parser import parse
 
-from src.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, pg_timestamptz_out, \
-    overlaps_span_span, span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, span_out
+from lib.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, pg_timestamptz_out, \
+    overlaps_span_span, span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, span_out, \
+    period_shift_tscale, span_copy, timedelta_to_interval
 
 try:
     # Do not make psycopg2 a requirement.
@@ -42,11 +43,13 @@ class Period:
 
     __slots__ = ['_inner', '_lower', '_upper']
 
-    def __init__(self, lower, upper=None, lower_inc=None, upper_inc=None):
+    def __init__(self, lower, upper=None, lower_inc=None, upper_inc=None, _inner=False):
         assert (isinstance(lower_inc, (bool, type(None)))), "ERROR: Invalid lower bound flag"
         assert (isinstance(upper_inc, (bool, type(None)))), "ERROR: Invalid upper bound flag"
         # Constructor with a single argument of type string
-        if upper is None and isinstance(lower, str):
+        if _inner:
+            self._inner = lower
+        elif upper is None and isinstance(lower, str):
             self._inner = period_in(lower.strip())
         elif isinstance(lower, str) and isinstance(upper, str):
             _lower = pg_timestamptz_in(lower, -1)
@@ -106,7 +109,8 @@ class Period:
         """
         Shift the period by a time interval
         """
-        return Period(self._lower + timedelta, self._upper + timedelta, self.lower_inc, self.upper_inc)
+        inner = period_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        return Period(lower=inner, _inner=True)
 
     def overlap(self, other):
         """

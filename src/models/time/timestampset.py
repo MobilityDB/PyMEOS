@@ -30,9 +30,12 @@ from datetime import datetime
 import _meos_cffi
 from dateutil.parser import parse
 
+from lib.functions import pg_timestamp_in, timestamp_to_timestampset, union_timestampset_timestamp, \
+    datetime_to_timestamptz, timestampset_end_timestamp, timestampset_start_timestamp, timestampset_num_timestamps, \
+    timestampset_timestamps, \
+    timestampset_timestamp_n, \
+    timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval
 from .period import Period
-from ...functions import pg_timestamp_in, timestamp_to_timestampset, union_timestampset_timestamp, \
-    datetime_to_timestamptz
 
 try:
     # Do not make psycopg2 a requirement.
@@ -66,9 +69,11 @@ class TimestampSet:
 
     __slots__ = ['_inner']
 
-    def __init__(self, *argv):
+    def __init__(self, *argv, **kwargs):
         # Constructor with a single argument of type string
-        if len(argv) == 1 and isinstance(argv[0], str):
+        if 'inner' in kwargs:
+            self._inner = kwargs['inner']
+        elif len(argv) == 1 and isinstance(argv[0], str):
             ts = argv[0].strip()
             self._inner = _lib.timestampset_in(ts.encode('utf-8'))
         # Constructor with a single argument of type list
@@ -105,58 +110,59 @@ class TimestampSet:
         """
         Interval on which the timestamp set is defined ignoring the potential time gaps
         """
-        return self._datetimeList[-1] - self._datetimeList[0]
+        return timestamptz_to_datetime(timestampset_end_timestamp(self._inner)) - \
+               timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     @property
     def period(self):
         """
         Period on which the timestamp set is defined ignoring the potential time gaps
         """
-        return Period(self._datetimeList[0], self._datetimeList[-1], True, True)
+        return Period(pg_timestamptz_out(timestampset_start_timestamp(self._inner)),
+                      pg_timestamptz_out(timestampset_end_timestamp(self._inner)), True, True)
 
     @property
     def numTimestamps(self):
         """
         Number of timestamps
         """
-        return len(self._datetimeList)
+        return timestampset_num_timestamps(self._inner)
 
     @property
     def startTimestamp(self):
         """
         Start timestamp
         """
-        return self._datetimeList[0]
+        return timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     @property
     def endTimestamp(self):
         """
         End timestamp
         """
-        return self._datetimeList[-1]
+        return timestamptz_to_datetime(timestampset_end_timestamp(self._inner))
 
     def timestampN(self, n):
         """
         N-th timestamp
         """
         # 1-based
-        if 0 < n <= len(self._datetimeList):
-            return self._datetimeList[n - 1]
-        else:
-            raise Exception("ERROR: there is no value at this index")
+        return timestamptz_to_datetime(timestampset_timestamp_n(self._inner, n))
 
     @property
     def timestamps(self):
         """
         Distinct timestamps
         """
-        return self._datetimeList
+        tss = timestampset_timestamps(self._inner)
+        return [timestamptz_to_datetime(tss[i]) for i in range(self.numTimestamps)]
 
     def shift(self, timedelta):
         """
         Shift the timestamp set by a time interval
         """
-        return TimestampSet([datetime + timedelta for datetime in self._datetimeList])
+        tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        return TimestampSet(inner=tss)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -188,9 +194,8 @@ class TimestampSet:
         return value.__str__().strip("'")
 
     def __str__(self):
-        return "'{{{}}}'".format(', '.join('{}'.format(datetime.__str__())
-                                           for datetime in self._datetimeList))
+        return timestampset_out(self._inner)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
-                f'({self._datetimeList!r})')
+                f'({self._inner!r})')
