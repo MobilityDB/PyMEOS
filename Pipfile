@@ -1,0 +1,18 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+cffi = "*"
+invoke = "*"
+pymeos = {path = "."}
+python-dateutil = "*"
+parsec = "*"
+spans = "*"
+postgis = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"

@@ -1,0 +1,4 @@
+build/
+pymeos.egg-info/
+_meos_cffi.*
+Pipfile.lock
