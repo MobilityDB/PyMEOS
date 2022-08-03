@@ -34,7 +34,9 @@ from lib.functions import pg_timestamp_in, timestamp_to_timestampset, union_time
     datetime_to_timestamptz, timestampset_end_timestamp, timestampset_start_timestamp, timestampset_num_timestamps, \
     timestampset_timestamps, \
     timestampset_timestamp_n, \
-    timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval
+    timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
+    timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
+    timestampset_gt
 from .period import Period
 
 try:
@@ -165,11 +167,25 @@ class TimestampSet:
         return TimestampSet(inner=tss)
 
     def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            if (len(other._datetimeList) == len(self._datetimeList) and
-                    other._datetimeList == self._datetimeList):
-                return True
-        return False
+        return timestampset_eq(self._inner, other._inner)
+
+    def __ne__(self, other):
+        return timestampset_ne(self._inner, other._inner)
+
+    def __cmp__(self, other):
+        return timestampset_cmp(self._inner, other._inner)
+
+    def __lt__(self, other):
+        return timestampset_lt(self._inner, other._inner)
+
+    def __le__(self, other):
+        return timestampset_le(self._inner, other._inner)
+
+    def __ge__(self, other):
+        return timestampset_ge(self._inner, other._inner)
+
+    def __gt__(self, other):
+        return timestampset_gt(self._inner, other._inner)
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
