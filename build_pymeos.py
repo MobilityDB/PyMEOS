@@ -8,6 +8,6 @@ ffibuilder.cdef(content)
 
 ffibuilder.set_source('_meos_cffi',
                       '#include "meos_mod.h"   // the C header of the library',
-                      libraries=['meos'])  # library name, for the linker
+                      libraries=['meos'], )  # library name, for the linker
 
 ffibuilder.compile(verbose=True)

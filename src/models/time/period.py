@@ -126,22 +126,34 @@ class Period:
         return contains_period_timestamp(self._inner, ts)
 
     def __eq__(self, other):
-        return span_eq(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_eq(self._inner, other._inner)
+        return False
 
     def _cmp(self, other):
-        return span_cmp(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_cmp(self._inner, other._inner)
+        return 0
 
     def __lt__(self, other):
-        return span_lt(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_lt(self._inner, other._inner)
+        return False
 
     def __le__(self, other):
-        return span_le(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_le(self._inner, other._inner)
+        return False
 
     def __gt__(self, other):
-        return span_gt(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_gt(self._inner, other._inner)
+        return False
 
     def __ge__(self, other):
-        return span_ge(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return span_ge(self._inner, other._inner)
+        return False
 
     # Psycopg2 interface.
     def __conform__(self, protocol):

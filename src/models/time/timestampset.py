@@ -167,25 +167,39 @@ class TimestampSet:
         return TimestampSet(inner=tss)
 
     def __eq__(self, other):
-        return timestampset_eq(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_eq(self._inner, other._inner)
+        return False
 
     def __ne__(self, other):
-        return timestampset_ne(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_ne(self._inner, other._inner)
+        return False
 
     def __cmp__(self, other):
-        return timestampset_cmp(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_cmp(self._inner, other._inner)
+        return 0
 
     def __lt__(self, other):
-        return timestampset_lt(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_lt(self._inner, other._inner)
+        return False
 
     def __le__(self, other):
-        return timestampset_le(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_le(self._inner, other._inner)
+        return False
 
     def __ge__(self, other):
-        return timestampset_ge(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_ge(self._inner, other._inner)
+        return False
 
     def __gt__(self, other):
-        return timestampset_gt(self._inner, other._inner)
+        if isinstance(other, self.__class__):
+            return timestampset_gt(self._inner, other._inner)
+        return False
 
     # Psycopg2 interface.
     def __conform__(self, protocol):

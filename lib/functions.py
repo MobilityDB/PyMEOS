@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Tuple
 
 import _meos_cffi
 from dateutil.parser import parse
@@ -18,6 +18,11 @@ def timestamptz_to_datetime(ts: int) -> datetime:
 
 def timedelta_to_interval(td: timedelta) -> Any:
     return _ffi.new('Interval *', {'time': td.microseconds + td.seconds * 1000000, 'day': td.days, 'month': 0})
+
+
+def interval_to_timedelta(interval: Any) -> timedelta:
+    # TODO fix for months/years
+    return timedelta(days=interval.day, microseconds=interval.time)
 
 
 def meos_initialize() -> None:
@@ -307,8 +312,10 @@ def periodset_period_n(ps: Any, i: Any) -> Any:
     return _lib.periodset_period_n(ps, i)
 
 
-def periodset_periods(ps: Any, count: Any) -> Any:
-    return _lib.periodset_periods(ps, count)
+def periodset_periods(ps: Any) -> Tuple[Any, int]:
+    count = _ffi.new('int *')
+    result = _lib.periodset_periods(ps, count)
+    return result, count[0]
 
 
 def periodset_start_period(ps: Any) -> Any:
@@ -325,12 +332,19 @@ def periodset_timespan(ps: Any) -> Any:
     return _lib.periodset_timespan(ps)
 
 
-def periodset_timestamp_n(ps: Any, n: Any, result: Any) -> Any:
-    return _lib.periodset_timestamp_n(ps, n, result)
+def periodset_timestamp_n(ps: Any, n: Any) -> Any:
+    result = _ffi.new('TimestampTz *')
+    r = _lib.periodset_timestamp_n(ps, n, result)
+    if r:
+        return result[0]
+    else:
+        raise Exception()
 
 
-def periodset_timestamps(ps: Any, count: Any) -> Any:
-    return _lib.periodset_timestamps(ps, count)
+def periodset_timestamps(ps: Any) -> [Any, int]:
+    count = _ffi.new('int *')
+    result = _lib.periodset_timestamps(ps, count)
+    return result, count[0]
 
 
 def span_hash(s: Any) -> int:
@@ -409,7 +423,7 @@ def timestampset_timestamps(ss: Any) -> Any:
 
 
 def periodset_shift_tscale(ps: Any, start: Any, duration: Any) -> Any:
-    return _lib.periodset_shift_tscale(ps, start, duration)
+    return _lib.periodset_shift_tscale(ps, start or _ffi.NULL, duration or _ffi.NULL)
 
 
 def span_expand(s1: Any, s2: Any) -> None:

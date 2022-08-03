@@ -131,7 +131,7 @@ p4 = Period('(2019-09-14, 2019-09-15)')
 var = PeriodSet(p1, p2, p3, p4)
 print("Constructor periods:", var)
 # Constructor with a single argument of type list of strings
-var = PeriodSet(['[2019-09-08, 2019-09-10]', '[2019-09-11, 2019-09-12)', \
+var = PeriodSet(['[2019-09-08, 2019-09-10]', '[2019-09-11, 2019-09-12)',
                  '[2019-09-13,2019-09-13]', '(2019-09-14, 2019-09-15)'])
 print("Constructor list of strings:", var)
 # Constructor with a single argument of type list of periods

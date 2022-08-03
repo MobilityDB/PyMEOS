@@ -24,9 +24,15 @@
 #
 ###############################################################################
 
-import re
-from .period import Period
 import warnings
+
+from lib.functions import periodset_in, period_to_periodset, period_in, union_periodset_period, periodset_out, \
+    periodset_duration, interval_to_timedelta, timestamptz_to_datetime, periodset_start_timestamp, \
+    periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
+    periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
+    periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
+    periodset_num_timestamps
+from .period import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -55,63 +61,50 @@ class PeriodSet:
 
     """
 
-    __slots__ = ['_periodList']
+    __slots__ = ['_inner']
 
-    def __init__(self, *argv):
-        self._periodList = []
+    def __init__(self, *argv, **kwargs):
         # Constructor with a single argument of type string
-        if len(argv) == 1 and isinstance(argv[0], str):
+        if 'inner' in kwargs:
+            self._inner = kwargs['inner']
+        elif len(argv) == 1 and isinstance(argv[0], str):
             ps = argv[0].strip()
-            if ps[0] == '{' and ps[-1] == '}':
-                p = re.compile(r'[\[|\(].*?[^\]\)][\]|\)]')
-                periods = p.findall(ps)
-                for period in periods:
-                    self._periodList.append(Period(period))
-            else:
-                raise Exception("ERROR: Could not parse period set value")
+            self._inner = periodset_in(ps)
         # Constructor with a single argument of type list
         elif len(argv) == 1 and isinstance(argv[0], list):
             # List of strings representing periods
             if all(isinstance(arg, str) for arg in argv[0]):
-                for arg in argv[0]:
-                    self._periodList.append(Period(arg))
+                self._inner = period_to_periodset(period_in(argv[0][0]))
+                for arg in argv[0][1:]:
+                    self._inner = union_periodset_period(self._inner, period_in(arg))
             # List of periods
             elif all(isinstance(arg, Period) for arg in argv[0]):
-                for arg in argv[0]:
-                    self._periodList.append(arg)
+                self._inner = period_to_periodset(argv[0][0]._inner)
+                for arg in argv[0][1:]:
+                    self._inner = union_periodset_period(self._inner, arg._inner)
             else:
                 raise Exception("ERROR: Could not parse period set value")
         # Constructor with multiple arguments
         else:
             # Arguments are of type string
             if all(isinstance(arg, str) for arg in argv):
-                for arg in argv:
-                    self._periodList.append(Period(arg))
+                self._inner = period_to_periodset(period_in(argv[0]))
+                for arg in argv[1:]:
+                    self._inner = union_periodset_period(self._inner, period_in(arg))
             # Arguments are of type period
             elif all(isinstance(arg, Period) for arg in argv):
-                for arg in argv:
-                    self._periodList.append(arg)
+                self._inner = period_to_periodset(argv[0]._inner)
+                for arg in argv[1:]:
+                    self._inner = union_periodset_period(self._inner, arg._inner)
             else:
                 raise Exception("ERROR: Could not parse period set value")
-        # Verify validity of the resulting instance
-        self._valid()
-
-    def _valid(self):
-        if any(x.upper > y.lower or \
-            (x.upper == y.lower and x.upper_inc and x.lower_inc) \
-                   for x, y in zip(self._periodList, self._periodList[1:])):
-            raise Exception("ERROR: The periods of a period set cannot overlap")
-        return True
 
     @property
     def duration(self):
         """
         Time interval on which the period set is defined
         """
-        result = self._periodList[0].duration
-        for period in self._periodList[1:]:
-            result = result + period.duration
-        return result
+        return interval_to_timedelta(periodset_duration(self._inner))
 
     @property
     def timespan(self):
@@ -120,107 +113,127 @@ class PeriodSet:
         """
         return self.endTimestamp - self.startTimestamp
 
-
     @property
     def period(self):
         """
         Period on which the period set is defined ignoring the potential time gaps
         """
-        return Period((self._periodList[0]).lower, (self._periodList[-1]).upper,
-                      self._periodList[0].lower_inc, self._periodList[-1].upper_inc)
+        start = self.startPeriod
+        end = self.endPeriod
+        return Period(lower=start.lower, upper=end.upper, lower_inc=start.lower_inc, upper_inc=end.upper_inc)
 
     @property
     def numTimestamps(self):
         """
         Number of distinct timestamps
         """
-        return len(self.timestamps)
+        return periodset_num_timestamps(self._inner)
 
     @property
     def startTimestamp(self):
         """
         Start timestamp
         """
-        return self._periodList[0].lower
+        return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
     @property
     def endTimestamp(self):
         """
         End timestamp
         """
-        return self._periodList[-1].upper
+        return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
     def timestampN(self, n):
         """
         N-th distinct timestamp
         """
         # 1-based
-        if 1 <= n <= len(self.timestamps):
-            return (self.timestamps)[n - 1]
-        else:
-            raise Exception("ERROR: there is no value at this index")
+        return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n))
 
     @property
     def timestamps(self):
         """
         Distinct timestamps
         """
-        timestampList = []
-        for period in self._periodList:
-            timestampList.append(period.lower)
-            timestampList.append(period.upper)
-        # Remove duplicates
-        return list(dict.fromkeys(timestampList))
+        ts, count = periodset_timestamps(self._inner)
+        return [timestamptz_to_datetime(ts[t]) for t in range(count)]
 
     @property
     def numPeriods(self):
         """
         Number of periods
         """
-        return len(self._periodList)
+        return periodset_num_periods(self._inner)
 
     @property
     def startPeriod(self):
         """
         Start period
         """
-        return self._periodList[0]
+        return Period(lower=periodset_start_period(self._inner), _inner=True)
 
     @property
     def endPeriod(self):
         """
         End period
         """
-        return self._periodList[self.numPeriods - 1]
+        return Period(lower=periodset_end_period(self._inner), _inner=True)
 
     def periodN(self, n):
         """
         N-th period
         """
         # 1-based
-        if 1 <= n <= len(self._periodList):
-            return self._periodList[n - 1]
-        else:
-            raise Exception("ERROR: Out of range")
+        return Period(lower=periodset_period_n(self._inner, n), _inner=True)
 
     @property
     def periods(self):
         """
         Periods
         """
-        return self._periodList
+        ps, count = periodset_periods(self._inner)
+        return [Period(lower=ps[p], _inner=True) for p in range(count)]
 
     def shift(self, timedelta):
         """
         Shift the period set by a time interval
         """
-        return PeriodSet([period.shift(timedelta) for period in self._periodList])
+        tss = periodset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        return PeriodSet(inner=tss)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            if (len(other._periodList) == len(self._periodList) and
-                other._periodList == self._periodList):
-                return True
+            return periodset_eq(self._inner, other._inner)
+        return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_ne(self._inner, other._inner)
+        return False
+
+    def __cmp__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_cmp(self._inner, other._inner)
+        return 0
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_lt(self._inner, other._inner)
+        return False
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_le(self._inner, other._inner)
+        return False
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_ge(self._inner, other._inner)
+        return False
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return periodset_gt(self._inner, other._inner)
         return False
 
     # Psycopg2 interface.
@@ -230,6 +243,7 @@ class PeriodSet:
 
     def getquoted(self):
         return "{}".format(self.__str__())
+
     # End Psycopg2 interface.
 
     @staticmethod
@@ -245,9 +259,8 @@ class PeriodSet:
         return value.__str__().strip("'")
 
     def __str__(self):
-        return "'{{{}}}'".format(', '.join('{}'.format(period.__str__().replace("'", ""))
-            for period in self._periodList))
+        return periodset_out(self._inner)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
-                f'({self._periodList!r})')
+        return (f'{self.__class__.__name__}'
+                f'({self._inner!r})')
