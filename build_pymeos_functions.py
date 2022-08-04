@@ -4,6 +4,33 @@ from typing import List, Optional, Tuple
 from lib.objects import conversion_map, Conversion
 
 
+BASE = """from datetime import datetime, timedelta
+from typing import Any, Tuple
+
+import _meos_cffi
+from dateutil.parser import parse
+
+_ffi = _meos_cffi.ffi
+_lib = _meos_cffi.lib
+
+
+def datetime_to_timestamptz(dt: datetime) -> int:
+    return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)
+
+
+def timestamptz_to_datetime(ts: int) -> datetime:
+    return parse(pg_timestamptz_out(ts))
+
+
+def timedelta_to_interval(td: timedelta) -> Any:
+    return _ffi.new('Interval *', {'time': td.microseconds + td.seconds * 1000000, 'day': td.days, 'month': 0})
+
+
+def interval_to_timedelta(interval: Any) -> timedelta:
+    # TODO fix for months/years
+    return timedelta(days=interval.day, microseconds=interval.time)
+"""
+
 def main():
     with open('./sources/functions.c') as f:
         content = f.read()
@@ -11,16 +38,7 @@ def main():
     matches = re.finditer(function_regex, ''.join(content.splitlines()))
 
     with open('lib/functions.py', 'w+') as file:
-        file.write('from typing import Any\n'
-                   'from datetime import datetime\n'
-                   'import _meos_cffi\n'
-                   '\n'
-                   '_ffi = _meos_cffi.ffi\n'
-                   '_lib = _meos_cffi.lib\n'
-                   '\n\n'
-                   'def datetime_to_timestamptz(dt: datetime) -> int:\n'
-                   "    return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)\n"
-                   '\n\n')
+        file.write(BASE)
         for match in matches:
             named = match.groupdict()
             function = named['function']

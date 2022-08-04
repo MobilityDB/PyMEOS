@@ -2177,7 +2177,8 @@ def tintseqset_from_base_time(i: Any, ps: Any) -> Any:
 
 
 def tsequence_make(instants: Any, count: Any, lower_inc: Any, upper_inc: Any, linear: Any, normalize: Any) -> Any:
-    return _lib.tsequence_make(instants, count, lower_inc, upper_inc, linear, normalize)
+    instants_converted = [_ffi.cast('TInstant *', i) for i in instants]
+    return _lib.tsequence_make(instants_converted, count, lower_inc, upper_inc, linear, normalize)
 
 
 def tsequence_make_free(instants: Any, count: Any, lower_inc: Any, upper_inc: Any, linear: Any, normalize: Any) -> Any:
@@ -4369,7 +4370,8 @@ def tpoint_is_simple(temp: Any) -> Any:
 
 
 def tpoint_length(temp: Any) -> Any:
-    return _lib.tpoint_length(temp)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    return _lib.tpoint_length(temp_converted)
 
 
 def tpoint_speed(temp: Any) -> Any:

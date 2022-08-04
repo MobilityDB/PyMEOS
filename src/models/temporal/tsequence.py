@@ -23,17 +23,17 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
-from ..time import Period, PeriodSet
+from lib.functions import tpoint_length, tsequence_make, tgeogpoint_in
 from ..temporal import TemporalInstants
 from ..temporal.temporal_parser import parse_temporalseq
+from ..time import Period, PeriodSet
 
 
 class TSequence(TemporalInstants):
     """
     Abstract class for representing temporal values of sequence subtype.
     """
-    __slots__ = ['_lower_inc', '_upper_inc', '_interp']
+    __slots__ = ['_inner', '_lower_inc', '_upper_inc', '_interp']
 
     def __init__(self, instantList, lower_inc=None, upper_inc=None, interp=None):
         assert (isinstance(lower_inc, (bool, type(None)))), "ERROR: Invalid lower bound flag"
@@ -80,6 +80,8 @@ class TSequence(TemporalInstants):
             raise Exception("ERROR: Could not parse temporal sequence value")
         # Verify validity of the resulting instance
         self._valid()
+        self._inner = tsequence_make([tgeogpoint_in(f"{t}") for t in self.instants],
+                                     len(self._instantList), self.lower_inc, self.upper_inc, self._interp == 'Linear', True)
 
     def _valid(self):
         if len(self._instantList) == 1 and (not self._lower_inc or not self._lower_inc):
@@ -87,7 +89,7 @@ class TSequence(TemporalInstants):
         if any(x._time >= y._time for x, y in zip(self._instantList, self._instantList[1:])):
             raise Exception("ERROR: The timestamps of a temporal sequence must be increasing")
         if (self._interp == 'Stepwise' and len(self._instantList) > 1 and not self._upper_inc and
-                    self._instantList[-1]._value != self._instantList[-2]._value):
+                self._instantList[-1]._value != self._instantList[-2]._value):
             raise Exception(
                 "ERROR: The last two values of a temporal sequence with exclusive upper bound and stepwise interpolation must be equal")
         return True
@@ -123,7 +125,7 @@ class TSequence(TemporalInstants):
                 return None
 
             if i < len(self._instantList) - 1:
-                inst2 = self._instantList[i+1]
+                inst2 = self._instantList[i + 1]
             else:
                 inst2 = None
             if inst1._time == timestamp:
@@ -170,6 +172,13 @@ class TSequence(TemporalInstants):
         Period on which the temporal value is defined.
         """
         return Period(self.startTimestamp, self.endTimestamp, self.lower_inc, self.upper_inc)
+
+    @property
+    def numInstants(self):
+        """
+        Number of instants.
+        """
+        return self._inner.count
 
     @property
     def numSequences(self):
@@ -225,7 +234,7 @@ class TSequence(TemporalInstants):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             if self._instantList == other._instantList and self._lower_inc == other._lower_inc and \
-                            self._upper_inc == other._upper_inc and self._interp == other._interp:
+                    self._upper_inc == other._upper_inc and self._interp == other._interp:
                 return True
         return False
 
@@ -233,8 +242,12 @@ class TSequence(TemporalInstants):
         interp_str = 'Interp=Stepwise;' if self._interp == 'Stepwise' and self.__class__.BaseClassDiscrete == False else ''
         lower_str = '[' if self._lower_inc else '('
         upper_str = ']' if self._upper_inc else ')'
-        return (f"'{interp_str}{lower_str}{TemporalInstants.__str__(self)}{upper_str}'")
+        return f"{interp_str}{lower_str}{TemporalInstants.__str__(self)}{upper_str}"
 
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
+        return (f'{self.__class__.__name__}'
                 f'({self._instantList!r}, {self._lower_inc!r}, {self._upper_inc!r}, {self._interp!r})')
+
+    @property
+    def distance(self):
+        return tpoint_length(self._inner)

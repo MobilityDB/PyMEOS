@@ -27,6 +27,8 @@
 from parsec import *
 from datetime import datetime
 from dateutil.parser import parse
+
+from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 from ..temporal.temporal_parser import parse_temporalinst
 
@@ -86,29 +88,21 @@ class TBoolInst(TInstant, TBool):
     """
     def __init__(self, value, time=None):
         if time is None:
-            # Constructor with a single argument of type string
-            if isinstance(value, str):
-                couple = parse_temporalinst(value, 0)
-                value = couple[2][0]
-                time = couple[2][1]
-            # Constructor with a single argument of type tuple or list
-            elif isinstance(value, (tuple, list)):
-                value, time = value
-            else:
-                raise Exception("ERROR: Could not parse temporal instant value")
+            self._inner = tbool_in(value)
         # Now both value and time are not None
         assert(isinstance(value, (str, bool))), "ERROR: Invalid value argument"
         assert(isinstance(time, (str, datetime))), "ERROR: Invalid time argument"
         if isinstance(value, str):
             if value.lower() == 'true' or value.lower() == 't':
-                self._value = True
+                _value = True
             elif value.lower() == 'false' or value.lower() == 'f':
-                self._value = False
+                _value = False
             else:
                 raise Exception("ERROR: Could not parse temporal instant value")
         else:
-            self._value =  value
-        self._time = parse(time) if isinstance(time, str) else time
+            _value = value
+        _time = time if isinstance(time, str) else datetime_to_timestamptz(time)
+        self._inner = tboolinst_make(_value, _time)
 
 
 class TBoolInstSet(TInstantSet, TBool):

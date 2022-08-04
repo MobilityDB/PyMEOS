@@ -182,7 +182,7 @@ class STBox:
     def write(value):
         if not isinstance(value, STBox):
             raise ValueError('Value must be an instance of STBox class')
-        return value.__str__().strip("'")
+        return value.__str__()
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
@@ -275,28 +275,28 @@ class STBox:
         if self._geodetic:
             if self._tmin is not None:
                 if self._xmin is not None:
-                    return "'%sGEODSTBOX T((%s, %s, %s, %s), (%s, %s, %s, %s))'" % \
+                    return "%sGEODSTBOX T((%s, %s, %s, %s), (%s, %s, %s, %s))" % \
                         (srid_prefix, self._xmin, self._ymin, self._zmin, self._tmin, self._xmax, self._ymax, self._zmax, self._tmax)
                 else:
-                    return "'%sGEODSTBOX T((, %s), (, %s))'" % (srid_prefix, self._tmin, self._tmax)
+                    return "%sGEODSTBOX T((, %s), (, %s))" % (srid_prefix, self._tmin, self._tmax)
             else:
-                return "'%sGEODSTBOX((%s, %s, %s), (%s, %s, %s))'" % \
+                return "%sGEODSTBOX((%s, %s, %s), (%s, %s, %s))" % \
                     (srid_prefix, self._xmin, self._ymin, self._zmin, self._xmax, self._ymax, self._zmax)
         else:
             if self._xmin is not None and self._zmin is not None and self._tmin is not None:
-                return "'%sSTBOX ZT((%s, %s, %s, %s), (%s, %s, %s, %s))'" % \
+                return "%sSTBOX ZT((%s, %s, %s, %s), (%s, %s, %s, %s))" % \
                     (srid_prefix, self._xmin, self._ymin, self._zmin, self._tmin, self._xmax, self._ymax, self._zmax, self._tmax)
             elif self._xmin is not None and self._zmin is not None and self._tmin is None:
-                return "'%sSTBOX Z((%s, %s, %s), (%s, %s, %s))'" % \
+                return "%sSTBOX Z((%s, %s, %s), (%s, %s, %s))" % \
                     (srid_prefix, self._xmin, self._ymin, self._zmin, self._xmax, self._ymax, self._zmax)
             elif self._xmin is not None and self._zmin is None and self._tmin is not None:
-                return "'%sSTBOX T((%s, %s, %s), (%s, %s, %s))'" % \
+                return "%sSTBOX T((%s, %s, %s), (%s, %s, %s))" % \
                     (srid_prefix, self._xmin, self._ymin, self._tmin, self._xmax, self._ymax, self._tmax)
             elif self._xmin is not None and self._zmin is None and self._tmin is None:
-                return "'%sSTBOX ((%s, %s), (%s, %s))'" % \
+                return "%sSTBOX ((%s, %s), (%s, %s))" % \
                        (srid_prefix, self._xmin, self._ymin, self._xmax, self._ymax)
             elif self._xmin is None and self._zmin is None and self._tmin is not None:
-                return "'%sSTBOX T((, %s), (, %s))'" % (srid_prefix, self._tmin, self._tmax)
+                return "%sSTBOX T((, %s), (, %s))" % (srid_prefix, self._tmin, self._tmax)
             else:
                 raise Exception("ERROR: Wrong values")
 

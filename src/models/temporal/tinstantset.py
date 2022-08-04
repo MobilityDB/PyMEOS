@@ -146,7 +146,7 @@ class TInstantSet(TemporalInstants):
         return False
 
     def __str__(self):
-        return (f"'{{{TemporalInstants.__str__(self)}}}'")
+        return f"{{{TemporalInstants.__str__(self)}}}"
 
     def __repr__(self):
         return (f'{self.__class__.__name__ }'

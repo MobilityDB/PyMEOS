@@ -18,6 +18,7 @@ class Conversion:
 
 conversion_map: Dict[str, Conversion] = {
     'void': Conversion('void', 'None', lambda p_obj: p_obj, lambda c_obj: c_obj),
+    'bool': Conversion('bool', 'bool', lambda p_obj: p_obj, lambda c_obj: c_obj),
     'char *': Conversion('char *', 'str', lambda p_obj: f"{p_obj}.encode('utf-8')",
                          lambda c_obj: f"_ffi.string({c_obj}).decode('utf-8')"),
     'int8': Conversion('int8', 'int', lambda p_obj: f"_ffi.cast('int8', {p_obj})", lambda c_obj: f"int({c_obj})"),
@@ -35,17 +36,3 @@ conversion_map: Dict[str, Conversion] = {
     'TimeOffset': Conversion('TimeOffset', 'int', lambda p_obj: f"_ffi.cast('TimeOffset', {p_obj})",
                              lambda c_obj: f"int({c_obj})"),
 }
-
-int8 = int
-int16 = int
-int32 = int
-int64 = int
-
-uint8 = int
-uint16 = int
-uint32 = int
-uint64 = int
-
-Timestamp = int
-TimestampTz = int
-TimeOffset = int

@@ -38,24 +38,6 @@ class TInstant(Temporal):
     """
     __slots__ = ['_value', '_time']
 
-    def __init__(self, value, time=None):
-        if(time is None):
-            # Constructor with a single argument of type string
-            if isinstance(value, str):
-                couple = parse_temporalinst(value, 0)
-                value = couple[2][0]
-                time = couple[2][1]
-            # Constructor with a single argument of type tuple or list
-            elif isinstance(value, (tuple, list)):
-                value, time = value
-            else:
-                raise Exception("ERROR: Could not parse temporal instant value")
-        # Now both value and time are not None
-        assert(isinstance(value, (str, self.BaseClass))), "ERROR: Invalid value argument"
-        assert(isinstance(time, (str, datetime))), "ERROR: Invalid time argument"
-        self._value = self.BaseClass(value) if isinstance(value, str) else value
-        self._time = parse(time) if isinstance(time, str) else time
-
     @classmethod
     def tempSubtype(cls):
         """
@@ -253,7 +235,7 @@ class TInstant(Temporal):
         return False
 
     def __str__(self):
-        return (f"'{self._value!s}@{self._time!s}'")
+        return f"{self._value!s}@{self._time!s}"
 
     def __repr__(self):
         return (f'{self.__class__.__name__ }'

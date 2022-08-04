@@ -27,8 +27,8 @@
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from postgis import Point, MultiPoint, LineString, MultiLineString, GeometryCollection
-from mobilitydb.time import TimestampSet, Period, PeriodSet
-from mobilitydb.main.tpoint import TGeogPointInst, TGeogPointInstSet, TGeogPointSeq, TGeogPointSeqSet
+from ..time import TimestampSet, Period, PeriodSet
+from ..main.tpoint import TGeogPointInst, TGeogPointInstSet, TGeogPointSeq, TGeogPointSeqSet
 
 
 print("\nConstructors for TGeogPointInst")
@@ -43,18 +43,18 @@ print(inst)
 
 print("\nConstructors for TGeogPointInstSet")
 ti = TGeogPointInstSet('{Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10}')
-print(tinstset)
+print(ti)
 ti = TGeogPointInstSet('Point(10 10)@2019-09-08', 'Point(20 20)@2019-09-09', 'Point(20 20)@2019-09-10')
-print(tinstset)
+print(ti)
 ti = TGeogPointInstSet(['Point(10 10)@2019-09-08', 'Point(20 20)@2019-09-09', 'Point(20 20)@2019-09-10'])
-print(tinstset)
+print(ti)
 t1 = TGeogPointInst('Point(10 10)@2019-09-08')
 t2 = TGeogPointInst('Point(20 20)@2019-09-09')
 t3 = TGeogPointInst('Point(20 20)@2019-09-10')
 ti = TGeogPointInstSet(t1, t2, t3)
-print(tinstset)
+print(ti)
 ti = TGeogPointInstSet([t1, t2, t3])
-print(tinstset)
+print(ti)
 
 print("\nConstructors for TGeogPointSeq")
 seq = TGeogPointSeq('[Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10]')

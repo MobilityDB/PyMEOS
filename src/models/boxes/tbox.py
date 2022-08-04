@@ -181,11 +181,11 @@ class TBox:
 
     def __str__(self):
         if self._xmin is not None and self._tmin is not None:
-            return "'TBOX((%s, %s), (%s, %s))'" % (repr(self._xmin), self._tmin, repr(self._xmax), self._tmax)
+            return "TBOX((%s, %s), (%s, %s))" % (repr(self._xmin), self._tmin, repr(self._xmax), self._tmax)
         elif self._xmin is not None:
-            return "'TBOX((%s, ), (%s, ))'" % (repr(self._xmin), repr(self._xmax))
+            return "TBOX((%s, ), (%s, ))" % (repr(self._xmin), repr(self._xmax))
         elif self._tmin is not None:
-            return "'TBOX((, %s), (, %s))'" % (self._tmin, self._tmax)
+            return "TBOX((, %s), (, %s))" % (self._tmin, self._tmax)
 
     def __repr__(self):
         return (f'{self.__class__.__name__ }'

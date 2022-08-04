@@ -26,8 +26,8 @@
 
 from datetime import datetime, timedelta
 from dateutil.parser import parse
-from mobilitydb.time import TimestampSet, Period, PeriodSet
-from mobilitydb.main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet
+from ..time import TimestampSet, Period, PeriodSet
+from ..main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet
 
 
 print("\nConstructors for TBoolInst")
@@ -41,18 +41,18 @@ print(inst)
 
 print("\nConstructors for TBoolInstSet")
 ti = TBoolInstSet('{True@2019-09-08, False@2019-09-09, False@2019-09-10}')
-print(tinstset)
+print(ti)
 ti = TBoolInstSet('True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10')
-print(tinstset)
+print(ti)
 ti = TBoolInstSet(['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
-print(tinstset)
+print(ti)
 t1 = TBoolInst('True@2019-09-08')
 t2 = TBoolInst('False@2019-09-09')
 t3 = TBoolInst('False@2019-09-10')
 ti = TBoolInstSet(t1, t2, t3)
-print(tinstset)
+print(ti)
 ti = TBoolInstSet([t1, t2, t3])
-print(tinstset)
+print(ti)
 
 print("\nConstructors for TBoolSeq")
 seq = TBoolSeq('[True@2019-09-08, False@2019-09-09, False@2019-09-10]')

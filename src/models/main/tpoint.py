@@ -28,6 +28,8 @@ import re
 from datetime import datetime
 from dateutil.parser import parse
 from postgis import Geometry, Point, MultiPoint, LineString, GeometryCollection, MultiLineString
+
+from lib.functions import tgeogpoint_in, tsequence_make
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 from ..temporal.temporal_parser import parse_temporalinst, parse_temporalinstset, parse_temporalseq, parse_temporalseqset
 
@@ -232,6 +234,8 @@ class TPointSeq(TSequence):
             raise Exception("ERROR: Could not parse temporal sequence value")
         # Verify validity of the resulting instance
         self._valid()
+        self._inner = tsequence_make([tgeogpoint_in(f"{t}") for t in self.instants],
+                                     len(self._instantList), self.lower_inc, self.upper_inc, self._interp == 'Linear', True)
 
     def _valid(self):
         super()._valid()
@@ -504,7 +508,43 @@ class TGeogPointInst(TPointInst, TGeogPoint):
     """
 
     def __init__(self, value, time=None, srid=None):
-        super().__init__(value, time, srid)
+        if time is None:
+            # Constructor with a single argument of type string
+            if isinstance(value, str):
+                self._inner = tgeogpoint_in(value)
+                return
+            # Constructor with a single argument of type tuple or list
+            elif isinstance(value, (tuple, list)):
+                value, time, *extra = value
+                if extra:
+                    srid, *extra = extra
+                else:
+                    srid = 0
+            else:
+                raise Exception("ERROR: Could not parse temporal instant value")
+        if srid is None:
+            srid = 0
+        # Now value, time, and srid are not None
+        assert (isinstance(value, (str, Point))), "ERROR: Invalid value argument"
+        assert (isinstance(time, (str, datetime))), "ERROR: Invalid time argument"
+        assert (isinstance(srid, (str, int))), "ERROR: Invalid SRID"
+        if isinstance(value, str):
+            if '(' in value and ')' in value:
+                idx1 = value.find('(')
+                idx2 = value.find(')')
+                coords = (value[idx1 + 1:idx2]).split(' ')
+                self._value = Point(coords, srid=srid)
+            else:
+                self._value = Geometry.from_ewkb(value)
+        else:
+            self._value = value
+        self._time = parse(time) if isinstance(time, str) else time
+        # Verify validity of the resulting instance
+        self._valid()
+
+    def _valid(self):
+        if self._value.m is not None:
+            raise Exception("ERROR: The points composing a temporal point cannot have M dimension")
 
 
 class TGeomPointInstSet(TPointInstSet, TGeomPoint):
