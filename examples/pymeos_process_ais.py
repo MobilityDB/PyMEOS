@@ -2,7 +2,7 @@ from typing import List, Optional
 
 from postgis import Point
 
-from lib.functions import meos_initialize
+from lib.functions import meos_initialize, meos_finish
 from src.models import TInstant, TGeogPointInst, TGeogPointSeq
 
 
@@ -28,9 +28,13 @@ class MMSIInstants:
 
 
 def main():
+    # Initialize MEOS Library
+    meos_initialize()
+
+    # Create array of ships
     ships: List[MMSIInstants] = []
 
-    meos_initialize()
+    # Read input file
     with open('aisinput.csv', 'r') as file:
         lines = file.read().splitlines()
 
@@ -39,6 +43,8 @@ def main():
 
     for line in lines[1:]:
         split = line.split(',')
+
+        # Read record
         if len(split) == 5:
             rec = AISRecord(split[0], int(split[1]), float(split[2]), float(split[3]), float(split[4]))
             records += 1
@@ -49,6 +55,8 @@ def main():
 
         # Find the place to store the new instant
         ship = next((ti for ti in ships if ti.mmsi == rec.mmsi), None)
+
+        # If there is none, create a new one
         if ship is None:
             ship = MMSIInstants(mmsi=rec.mmsi)
             ships.append(ship)
@@ -63,11 +71,15 @@ def main():
     print(f"{len(ships)} trips read.\n")
 
     for ship in ships:
+        # Create Temporal Geographic Point Sequence with the ship instants
         seq = TGeogPointSeq(instantList=ship.instants, lower_inc=True, upper_inc=True, interp="Linear")
         print(f"MMSI: {ship.mmsi}, "
               f"Number of input instants: {ship.num_instants}, "
               f"Number of instants: {seq.numInstants}, "
               f"Distance travelled: {seq.distance}")
+
+    # Finalize MEOS Library
+    meos_finish()
 
 
 if __name__ == '__main__':
