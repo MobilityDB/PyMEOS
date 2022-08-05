@@ -109,7 +109,8 @@ class Period:
         """
         Shift the period by a time interval
         """
-        inner = period_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        interval = timedelta_to_interval(timedelta)
+        inner = period_shift_tscale(interval, None, self._inner)
         return Period(lower=inner, _inner=True)
 
     def overlap(self, other):

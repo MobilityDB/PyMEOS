@@ -645,14 +645,14 @@ class TGeomPointSeq(TPointSeq, TGeomPoint):
 
         duration1 = timestamp - inst1._time
         duration2 = inst2._time - inst1._time
-        ratio = duration1.total_seconds() / duration2.total_seconds();
-        x = inst1._value.x + (inst2._value.x - inst1._value.x) * ratio;
-        y = inst1._value.y + (inst2._value.y - inst1._value.y) * ratio;
+        ratio = duration1.total_seconds() / duration2.total_seconds()
+        x = inst1._value.x + (inst2._value.x - inst1._value.x) * ratio
+        y = inst1._value.y + (inst2._value.y - inst1._value.y) * ratio
         if inst1._value.z is not None and inst2._value.z is not None:
-            z = inst1._value.z + (inst2._value.z - inst1._value.z) * ratio;
-            return Point(x,y,z);
+            z = inst1._value.z + (inst2._value.z - inst1._value.z) * ratio
+            return Point(x,y,z)
         else:
-            return Point(x,y);
+            return Point(x,y)
 
 
 class TGeogPointSeq(TPointSeq, TGeogPoint):

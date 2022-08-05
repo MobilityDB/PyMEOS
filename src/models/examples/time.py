@@ -55,7 +55,7 @@ var1 = var.upper_inc
 print("upper_inc:", var1)
 var1 = var.duration
 print("duration:", var1)
-var1 = var.shift(timedelta(days=1))
+var1 = var.shift(timedelta(days=3))
 print("shift:", var1)
 
 # Comparisons
