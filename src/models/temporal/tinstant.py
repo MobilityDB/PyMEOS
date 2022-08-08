@@ -24,19 +24,17 @@
 #
 ###############################################################################
 
-from parsec import *
-from datetime import datetime, timedelta
-from dateutil.parser import parse
-from ..time import Period, PeriodSet
+from datetime import timedelta
+
 from ..temporal import Temporal
-from ..temporal.temporal_parser import parse_temporalinst
+from ..time import Period, PeriodSet
 
 
 class TInstant(Temporal):
     """
     Abstract class for representing temporal values of instant subtype.
     """
-    __slots__ = ['_value', '_time']
+    __slots__ = ['_inner']
 
     @classmethod
     def tempSubtype(cls):
@@ -50,7 +48,7 @@ class TInstant(Temporal):
         """
         Value component.
         """
-        return self._value
+        return self._inner[0]
 
     @property
     def getValues(self):
@@ -234,10 +232,6 @@ class TInstant(Temporal):
                 return True
         return False
 
-    def __str__(self):
-        return f"{self._value!s}@{self._time!s}"
-
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
+        return (f'{self.__class__.__name__}'
                 f'({self._value!r}, {self._time!r})')
-

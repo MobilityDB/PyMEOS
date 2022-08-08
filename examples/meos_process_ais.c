@@ -134,8 +134,8 @@ int main(void)
     {
       ship = numships;
       numships++;
+      trip_instants[ship].MMSI = rec.MMSI;
     }
-    trip_instants[ship].MMSI = rec.MMSI;
 
     /*
      * Create the instant and store it in the array of the corresponding ship.

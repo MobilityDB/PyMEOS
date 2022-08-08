@@ -26,16 +26,16 @@
 
 from datetime import datetime, timedelta
 from dateutil.parser import parse
-from mobilitydb.time import TimestampSet, Period, PeriodSet
-from mobilitydb.main import TTextInst, TTextInstSet, TTextSeq, TTextSeqSet
+from ..time import TimestampSet, Period, PeriodSet
+from ..main import TTextInst, TTextInstSet, TTextSeq, TTextSeqSet
 
 print("\nConstructors for TTextInst")
-inst = TTextInst('A@2019-09-08')
+inst = TTextInst(string='A@2019-09-08')
 print(inst)
-inst = TTextInst('A', '2019-09-08')
+inst = TTextInst(value='A', timestamp='2019-09-08')
 print(inst)
 t = parse('2019-09-08')
-inst = TTextInst('A', t)
+inst = TTextInst(value='A', timestamp=t)
 print(inst)
 
 print("\nConstructors for TTextInstSet")

@@ -3,7 +3,7 @@ import _meos_cffi
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
 
-import src.functions as pymeos
+import lib.functions as pymeos
 
 
 class AISRecord:

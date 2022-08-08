@@ -23,77 +23,16 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
-from ..time import Period, PeriodSet
+from lib.functions import tpoint_as_text
 from ..temporal.temporal import Temporal
-from ..temporal.temporal_parser import parse_temporalseqset
+from ..time import Period, PeriodSet
 
 
 class TSequenceSet(Temporal):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
-    __slots__ = ['_sequenceList', '_interp']
 
-    def __init__(self, sequenceList, interp=None):
-        assert (isinstance(interp, (str, type(None)))), "ERROR: Invalid interpolation"
-        if isinstance(interp, str) and interp is None:
-            assert (interp == 'Linear' or interp == 'Stepwise'), "ERROR: Invalid interpolation"
-        self._sequenceList = []
-        # Constructor with a single argument of type string
-        if isinstance(sequenceList, str):
-            elements = parse_temporalseqset(sequenceList, 0)
-            seqList = []
-            for seq in elements[2][0]:
-                instList = []
-                for inst in seq[0]:
-                    instList.append(self.ComponentClass.ComponentClass(inst[0], inst[1]))
-                if self.BaseClassDiscrete:
-                    seqList.append(self.ComponentClass(instList, seq[1], seq[2]))
-                else:
-                    seqList.append(self.ComponentClass(instList, seq[1], seq[2], elements[2][1]))
-            self._sequenceList = seqList
-            # Set interpolation with the argument or the flag from the string if given
-            if interp is not None:
-                self._interp = interp
-            else:
-                if self.BaseClassDiscrete:
-                    self._interp = 'Stepwise'
-                else:
-                    self._interp = elements[2][1] if elements[2][1] is not None else 'Linear'
-        # Constructor with a single argument of type list
-        elif isinstance(sequenceList, list):
-            # List of strings representing periods
-            if all(isinstance(sequence, str) for sequence in sequenceList):
-                for sequence in sequenceList:
-                    self._sequenceList.append(self.ComponentClass(sequence))
-            # List of periods
-            elif all(isinstance(sequence, self.ComponentClass) for sequence in sequenceList):
-                for sequence in sequenceList:
-                    self._sequenceList.append(sequence)
-            else:
-                raise Exception("ERROR: Could not parse temporal sequence set value")
-            # Set the interpolation
-            if interp is not None:
-                self._interp = interp
-            else:
-                self._interp = 'Stepwise' if self.BaseClassDiscrete else 'Linear'
-        else:
-            raise Exception("ERROR: Could not parse temporal sequence set value")
-        # Verify validity of the resulting instance
-        self._valid()
-
-    def _valid(self):
-        if any(x.endTimestamp >= y.startTimestamp or \
-                       (x.endTimestamp == y.startTimestamp and x.upper_inc and x.lower_inc) \
-               for x, y in zip(self._sequenceList, self._sequenceList[1:])):
-            raise Exception("ERROR: The sequences of a sequence set cannot overlap")
-        if any(x.interpolation != y.interpolation \
-               for x, y in zip(self._sequenceList, self._sequenceList[1:])):
-            raise Exception("ERROR: All sequences of a sequence set must have the same interpolation")
-        return True
-
-    @classmethod
     def tempSubtype(cls):
         """
         Subtype of the temporal value, that is, ``'SequenceSet'``.
@@ -334,12 +273,8 @@ class TSequenceSet(Temporal):
         return False
 
     def __str__(self):
-        interp_str = 'Interp=Stepwise;' if self._interp == 'Stepwise' and self.__class__.BaseClassDiscrete == False else ''
-        seqList_str = "{{{}}}".format(
-            ', '.join('{}'.format(sequence.__str__().replace("'", "").replace("Interp=Stepwise;", ""))
-                      for sequence in self._sequenceList))
-        return f"'{interp_str}{seqList_str}'"
+        return tpoint_as_text(self._inner, 3)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
+        return (f'{self.__class__.__name__}'
                 f'({self._sequenceList!r}, {self._interp!r})')

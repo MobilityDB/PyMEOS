@@ -1,4 +1,8 @@
 import _meos_cffi
+from postgis import Point
+
+from lib.functions import pg_timestamp_out
+from src.models import TGeogPointInst
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -6,12 +10,10 @@ _lib = _meos_cffi.lib
 
 class AISRecord:
 
-    def __init__(self, timestamp: int, mmsi: int, latitude: float, longitude: float, sog: float) -> None:
+    def __init__(self, timestamp: str, mmsi: int, latitude: float, longitude: float, sog: float) -> None:
         super().__init__()
-        self.timestamp = timestamp
         self.mmsi = mmsi
-        self.latitude = latitude
-        self.longitude = longitude
+        self.point = TGeogPointInst(string=, point=, timestamp=)
         self.sog = sog
 
 
@@ -29,7 +31,7 @@ def main():
         split = line.split(',')
         if len(split) == 5:
             rec = AISRecord(
-                _lib.pg_timestamp_in(split[0].encode('utf-8'), -1),
+                split[0],
                 int(split[1]),
                 float(split[2]),
                 float(split[3]),
@@ -42,7 +44,7 @@ def main():
             continue
         # Print only 1 out of 1000 records
         if records % 1000 == 0:
-            t_out = _ffi.string(_lib.pg_timestamp_out(rec.timestamp)).decode('utf-8')
+            t_out = pg_timestamp_out(rec.timestamp)
             buffer = f"SRID=4326;Point({rec.longitude} {rec.latitude})@{t_out}+00".encode('utf-8')
             inst1 = _lib.tgeogpoint_in(buffer)
             inst1_out = _lib.tpoint_as_text(inst1, 2)

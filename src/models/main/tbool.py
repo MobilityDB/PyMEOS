@@ -23,14 +23,14 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
-from parsec import *
 from datetime import datetime
+from typing import Optional, Union, List
+
 from dateutil.parser import parse
 
-from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make
+from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
+    tinstantset_make, tsequence_make
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
-from ..temporal.temporal_parser import parse_temporalinst
 
 
 class TBool(Temporal):
@@ -62,6 +62,9 @@ class TBool(Temporal):
             raise ValueError('Value must be an instance of a subclass of TBool')
         return value.__str__().strip("'")
 
+    def __str__(self):
+        return tbool_out(self._inner)
+
 
 class TBoolInst(TInstant, TBool):
     """
@@ -86,23 +89,17 @@ class TBoolInst(TInstant, TBool):
     It is not possible to call super().__init__(value, time) since bool('False') == True
     and eval('False') == False. Furthermore eval('false') gives an error
     """
-    def __init__(self, value, time=None):
-        if time is None:
-            self._inner = tbool_in(value)
-        # Now both value and time are not None
-        assert(isinstance(value, (str, bool))), "ERROR: Invalid value argument"
-        assert(isinstance(time, (str, datetime))), "ERROR: Invalid time argument"
-        if isinstance(value, str):
-            if value.lower() == 'true' or value.lower() == 't':
-                _value = True
-            elif value.lower() == 'false' or value.lower() == 'f':
-                _value = False
-            else:
-                raise Exception("ERROR: Could not parse temporal instant value")
+
+    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, bool]] = None,
+                 timestamp: Optional[Union[str, datetime]] = None):
+        assert (string is not None) != (value is not None and timestamp is not None), \
+            "Either string must be not None or both point and timestamp must be not"
+        if string is not None:
+            self._inner = tbool_in(string)
         else:
-            _value = value
-        _time = time if isinstance(time, str) else datetime_to_timestamptz(time)
-        self._inner = tboolinst_make(_value, _time)
+            ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
+                else pg_timestamptz_in(timestamp, -1)
+            self._inner = tboolinst_make(bool(value), ts)
 
 
 class TBoolInstSet(TInstantSet, TBool):
@@ -126,8 +123,15 @@ class TBoolInstSet(TInstantSet, TBool):
 
     ComponentClass = TBoolInst
 
-    def __init__(self,  *argv):
-        super().__init__(*argv)
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+                 merge: bool = True):
+        assert (string is not None) != (instant_list is not None), \
+            "Either string must be not None or instant_list must be not"
+        if string is not None:
+            self._inner = tbool_in(string)
+        else:
+            instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
+            self._inner = tinstantset_make(instants, len(instants), merge)
 
 
 class TBoolSeq(TSequence, TBool):
@@ -158,8 +162,15 @@ class TBoolSeq(TSequence, TBool):
 
     ComponentClass = TBoolInst
 
-    def __init__(self, instantList, lower_inc=None, upper_inc=None):
-        super().__init__(instantList, lower_inc, upper_inc)
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True):
+        assert (string is not None) != (instant_list is not None), \
+            "Either string must be not None or instant_list must be not"
+        if string is not None:
+            self._inner = tbool_in(string)
+        else:
+            instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
+            self._inner = tsequence_make(instants, len(instants), lower_inc, upper_inc, False, normalize)
 
     @classmethod
     @property
@@ -200,4 +211,3 @@ class TBoolSeqSet(TSequenceSet, TBool):
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
-

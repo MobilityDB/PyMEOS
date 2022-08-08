@@ -25,43 +25,40 @@
 ###############################################################################
 
 from datetime import datetime, timedelta
-from dateutil.parser import parse
-from ..time import TimestampSet, Period, PeriodSet
-from ..main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet
 
+from dateutil.parser import parse
+
+from ..main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet
+from ..time import TimestampSet, Period, PeriodSet
 
 print("\nConstructors for TBoolInst")
-inst = TBoolInst('True@2019-09-08')
-print(inst)
-inst = TBoolInst('True', '2019-09-08')
+# inst = TBoolInst(string='t@2019-09-08')
+# print(inst)
+inst = TBoolInst(value='True', timestamp='2019-09-08')
 print(inst)
 t = parse('2019-09-08')
-inst = TBoolInst('True', t)
+inst = TBoolInst(value='True', timestamp=t)
 print(inst)
 
 print("\nConstructors for TBoolInstSet")
-ti = TBoolInstSet('{True@2019-09-08, False@2019-09-09, False@2019-09-10}')
-print(ti)
-ti = TBoolInstSet('True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10')
-print(ti)
-ti = TBoolInstSet(['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
-print(ti)
-t1 = TBoolInst('True@2019-09-08')
-t2 = TBoolInst('False@2019-09-09')
-t3 = TBoolInst('False@2019-09-10')
-ti = TBoolInstSet(t1, t2, t3)
-print(ti)
-ti = TBoolInstSet([t1, t2, t3])
+# ti = TBoolInstSet(string='{True@2019-09-08, False@2019-09-09, False@2019-09-10}')
+# print(ti)
+# ti = TBoolInstSet(instant_list=['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
+# print(ti)
+t1 = TBoolInst(value=True, timestamp='2019-09-08')
+t2 = TBoolInst(value=False, timestamp='2019-09-09')
+t3 = TBoolInst(value=False, timestamp='2019-09-10')
+ti = TBoolInstSet(instant_list=[t1, t2, t3])
 print(ti)
 
 print("\nConstructors for TBoolSeq")
-seq = TBoolSeq('[True@2019-09-08, False@2019-09-09, False@2019-09-10]')
+# seq = TBoolSeq(string='[True@2019-09-08, False@2019-09-09, False@2019-09-10]')
+# print(seq)
+# seq = TBoolSeq(instant_list=['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
+# print(seq)
+seq = TBoolSeq(instant_list=[t1, t2, t3])
 print(seq)
-seq = TBoolSeq(['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
-print(seq)
-seq = TBoolSeq([t1, t2, t3])
-print(seq)
-seq = TBoolSeq([t1, t2, t3], False, True)
+seq = TBoolSeq(instant_list=[t1, t2, t3], lower_inc=False, upper_inc=True)
 print(seq)
 
 print("\nConstructors for TBoolSeqSet")
@@ -73,7 +70,6 @@ seq1 = TBoolSeq('[True@2019-09-08, False@2019-09-09, False@2019-09-10]')
 seq2 = TBoolSeq('[False@2019-09-11, True@2019-09-12]')
 ts = TBoolSeqSet([seq1, seq2])
 print(ts)
-
 
 print("\n__class__ ")
 print(inst.__class__.__name__)

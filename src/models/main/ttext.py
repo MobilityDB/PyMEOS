@@ -25,8 +25,11 @@
 ###############################################################################
 
 from datetime import datetime
+from typing import Optional, Union
+
 from dateutil.parser import parse
-from ..temporal.temporal_parser import parse_temporalinst
+
+from lib.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -59,6 +62,9 @@ class TText(Temporal):
             raise ValueError('Value must be an instance of a subclass of TText')
         return value.__str__().strip("'")
 
+    def __str__(self):
+        return ttext_out(self._inner)
+
 
 class TTextInst(TInstant, TText):
     """
@@ -83,26 +89,16 @@ class TTextInst(TInstant, TText):
     to strip the eventual double quotes enclosing the value
     """
 
-    def __init__(self, value, time=None):
-        if(time is None):
-            # Constructor with a single argument of type string
-            if (isinstance(value, str)):
-                couple = parse_temporalinst(value, 0)
-                value = couple[2][0]
-                time = couple[2][1]
-            # Constructor with a single argument of type tuple or list
-            elif (isinstance(value, (tuple, list))):
-                value, time = value
-            else:
-                raise Exception("ERROR: Could not parse temporal instant value")
-        # Now both value and time are not None
-        assert(isinstance(value, str)), "ERROR: Invalid value argument"
-        assert(isinstance(time, (str, datetime))), "ERROR: Invalid time argument"
-        # Remove double quotes if present
-        if value[0] == '"' and value[-1] == '"':
-            value = value[1:-1]
-        self._value = value
-        self._time = parse(time) if isinstance(time, str) else time
+    def __init__(self, *, string: Optional[str] = None, value: Optional[str] = None,
+                 timestamp: Optional[Union[str, datetime]] = None):
+        assert (string is not None) != (value is not None and timestamp is not None), \
+            "Either string must be not None or both point and timestamp must be not"
+        if string is not None:
+            self._inner = ttext_in(string)
+        else:
+            ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
+                else pg_timestamptz_in(timestamp, -1)
+            self._inner = ttextinst_make(value, ts)
 
 
 class TTextInstSet(TInstantSet, TText):
@@ -126,7 +122,7 @@ class TTextInstSet(TInstantSet, TText):
 
     ComponentClass = TTextInst
 
-    def __init__(self,  *argv):
+    def __init__(self, *argv):
         super().__init__(*argv)
 
 
@@ -199,5 +195,3 @@ class TTextSeqSet(TSequenceSet, TText):
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
-
-

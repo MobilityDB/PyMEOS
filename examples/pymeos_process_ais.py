@@ -11,16 +11,16 @@ class AISRecord:
     def __init__(self, timestamp: str, mmsi: int, latitude: float, longitude: float, sog: float) -> None:
         super().__init__()
         self.mmsi = mmsi
-        self.point = TGeogPointInst(value=Point(longitude, latitude), time=timestamp)
+        self.point = TGeogPointInst(point=Point(latitude, longitude), timestamp=timestamp)
         self.sog = sog
 
 
 class MMSIInstants:
 
-    def __init__(self, mmsi: Optional[int] = None, instants: Optional[List[TInstant]] = None) -> None:
+    def __init__(self, mmsi: Optional[int] = None, instants: Optional[List[TGeogPointInst]] = None) -> None:
         super().__init__()
         self.mmsi = mmsi
-        self.instants: List[TInstant] = instants or []
+        self.instants: List[TGeogPointInst] = instants or []
 
     @property
     def num_instants(self):
@@ -72,7 +72,7 @@ def main():
 
     for ship in ships:
         # Create Temporal Geographic Point Sequence with the ship instants
-        seq = TGeogPointSeq(instantList=ship.instants, lower_inc=True, upper_inc=True, interp="Linear")
+        seq = TGeogPointSeq(instant_list=ship.instants, lower_inc=True, upper_inc=True, interp="Linear")
         print(f"MMSI: {ship.mmsi}, "
               f"Number of input instants: {ship.num_instants}, "
               f"Number of instants: {seq.numInstants}, "

@@ -153,6 +153,3 @@ class TemporalInstants(Temporal):
             inst._time += timedelta
         return self
 
-    def __str__(self):
-        return "{}".format(', '.join('{}'.format(instant.__str__().replace("'", ""))
-            for instant in self._instantList))

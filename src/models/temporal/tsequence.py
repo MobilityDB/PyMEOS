@@ -23,9 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from lib.functions import tpoint_length, tsequence_make, tgeogpoint_in
+from lib.functions import tpoint_length, tpoint_as_text
 from ..temporal import TemporalInstants
-from ..temporal.temporal_parser import parse_temporalseq
 from ..time import Period, PeriodSet
 
 
@@ -33,66 +32,6 @@ class TSequence(TemporalInstants):
     """
     Abstract class for representing temporal values of sequence subtype.
     """
-    __slots__ = ['_inner', '_lower_inc', '_upper_inc', '_interp']
-
-    def __init__(self, instantList, lower_inc=None, upper_inc=None, interp=None):
-        assert (isinstance(lower_inc, (bool, type(None)))), "ERROR: Invalid lower bound flag"
-        assert (isinstance(upper_inc, (bool, type(None)))), "ERROR: Invalid upper bound flag"
-        assert (isinstance(interp, (str, type(None)))), "ERROR: Invalid interpolation"
-        if isinstance(interp, str):
-            assert (interp == 'Linear' or interp == 'Stepwise'), "ERROR: Invalid interpolation"
-        self._instantList = []
-        # Constructor with a first argument of type string and optional arguments for the bounds and interpolation
-        if isinstance(instantList, str):
-            elements = parse_temporalseq(instantList, 0)
-            for inst in elements[2][0]:
-                self._instantList.append(self.ComponentClass(inst[0], inst[1]))
-            self._lower_inc = elements[2][1]
-            self._upper_inc = elements[2][2]
-            # Set interpolation with the argument or the flag from the string if given
-            if interp is not None:
-                self._interp = interp
-            else:
-                if self.BaseClassDiscrete:
-                    self._interp = 'Stepwise'
-                else:
-                    self._interp = elements[2][3] if elements[2][3] is not None else 'Linear'
-        # Constructor with a first argument of type list and optional arguments for the bounds and interpolation
-        elif isinstance(instantList, list):
-            # List of strings representing instant values
-            if all(isinstance(arg, str) for arg in instantList):
-                for arg in instantList:
-                    self._instantList.append(self.ComponentClass(arg))
-            # List of instant values
-            elif all(isinstance(arg, self.ComponentClass) for arg in instantList):
-                for arg in instantList:
-                    self._instantList.append(arg)
-            else:
-                raise Exception("ERROR: Could not parse temporal sequence value")
-            self._lower_inc = lower_inc if lower_inc is not None else True
-            self._upper_inc = upper_inc if upper_inc is not None else False
-            # Set the interpolation
-            if interp is not None:
-                self._interp = interp
-            else:
-                self._interp = 'Stepwise' if self.BaseClassDiscrete else 'Linear'
-        else:
-            raise Exception("ERROR: Could not parse temporal sequence value")
-        # Verify validity of the resulting instance
-        self._valid()
-        self._inner = tsequence_make([tgeogpoint_in(f"{t}") for t in self.instants],
-                                     len(self._instantList), self.lower_inc, self.upper_inc, self._interp == 'Linear', True)
-
-    def _valid(self):
-        if len(self._instantList) == 1 and (not self._lower_inc or not self._lower_inc):
-            raise Exception("ERROR: The lower and upper bounds must be inclusive for an instant temporal sequence")
-        if any(x._time >= y._time for x, y in zip(self._instantList, self._instantList[1:])):
-            raise Exception("ERROR: The timestamps of a temporal sequence must be increasing")
-        if (self._interp == 'Stepwise' and len(self._instantList) > 1 and not self._upper_inc and
-                self._instantList[-1]._value != self._instantList[-2]._value):
-            raise Exception(
-                "ERROR: The last two values of a temporal sequence with exclusive upper bound and stepwise interpolation must be equal")
-        return True
 
     @classmethod
     def tempSubtype(cls):
@@ -106,7 +45,7 @@ class TSequence(TemporalInstants):
         """
         Is the lower bound inclusive?
         """
-        return self._lower_inc
+        return self._inner.lower_inc
 
     @property
     def upper_inc(self):
@@ -239,10 +178,7 @@ class TSequence(TemporalInstants):
         return False
 
     def __str__(self):
-        interp_str = 'Interp=Stepwise;' if self._interp == 'Stepwise' and self.__class__.BaseClassDiscrete == False else ''
-        lower_str = '[' if self._lower_inc else '('
-        upper_str = ']' if self._upper_inc else ')'
-        return f"{interp_str}{lower_str}{TemporalInstants.__str__(self)}{upper_str}"
+        return tpoint_as_text(self._inner, 3)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
