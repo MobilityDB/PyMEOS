@@ -3523,11 +3523,11 @@ def temporal_instant_n(temp: 'const Temporal *', n: int) -> 'const TInstant *':
     return result
 
 
-def temporal_instants(temp: 'const Temporal *', count: 'int *') -> 'const TInstant **':
+def temporal_instants(temp: 'const Temporal *') -> "Tuple['const TInstant **', 'int *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    count_converted = _ffi.cast('int *', count)
-    result = _lib.temporal_instants(temp_converted, count_converted)
-    return result
+    count = _ffi.new('int *')
+    result = _lib.temporal_instants(temp_converted, count)
+    return result, count[0]
 
 
 def temporal_interpolation(temp: 'const Temporal *') -> str:
@@ -3567,11 +3567,11 @@ def temporal_num_timestamps(temp: 'const Temporal *') -> int:
     return result
 
 
-def temporal_segments(temp: 'const Temporal *', count: 'int *') -> 'TSequence **':
+def temporal_segments(temp: 'const Temporal *') -> "Tuple['TSequence **', 'int *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    count_converted = _ffi.cast('int *', count)
-    result = _lib.temporal_segments(temp_converted, count_converted)
-    return result
+    count = _ffi.new('int *')
+    result = _lib.temporal_segments(temp_converted, count)
+    return result, count[0]
 
 
 def temporal_sequence_n(temp: 'const Temporal *', i: int) -> 'TSequence *':
@@ -3580,11 +3580,11 @@ def temporal_sequence_n(temp: 'const Temporal *', i: int) -> 'TSequence *':
     return result
 
 
-def temporal_sequences(temp: 'const Temporal *', count: 'int *') -> 'TSequence **':
+def temporal_sequences(temp: 'const Temporal *') -> "Tuple['TSequence **', 'int *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    count_converted = _ffi.cast('int *', count)
-    result = _lib.temporal_sequences(temp_converted, count_converted)
-    return result
+    count = _ffi.new('int *')
+    result = _lib.temporal_sequences(temp_converted, count)
+    return result, count[0]
 
 
 def temporal_start_instant(temp: 'const Temporal *') -> 'const TInstant *':
@@ -3633,11 +3633,11 @@ def temporal_timestamp_n(temp: 'const Temporal *', n: int) -> 'TimestampTz *':
     raise Exception(f'C call went wrong: {result}')
 
 
-def temporal_timestamps(temp: 'const Temporal *', count: 'int *') -> 'TimestampTz *':
+def temporal_timestamps(temp: 'const Temporal *') -> "Tuple['TimestampTz *', 'int *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    count_converted = _ffi.cast('int *', count)
-    result = _lib.temporal_timestamps(temp_converted, count_converted)
-    return result
+    count = _ffi.new('int *')
+    result = _lib.temporal_timestamps(temp_converted, count)
+    return result, count[0]
 
 
 def tfloat_end_value(temp: 'const Temporal *') -> float:
@@ -3775,11 +3775,11 @@ def temporal_merge_array(temparr: 'Temporal **', count: int) -> 'Temporal *':
     return result
 
 
-def temporal_shift_tscale(temp: 'const Temporal *', shift: 'const Interval *',
-                          duration: 'const Interval *') -> 'Temporal *':
+def temporal_shift_tscale(temp: 'const Temporal *', shift: "Optional['const Interval *']",
+                          duration: "Optional['const Interval *']") -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    shift_converted = _ffi.cast('const Interval *', shift)
-    duration_converted = _ffi.cast('const Interval *', duration)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
     result = _lib.temporal_shift_tscale(temp_converted, shift_converted, duration_converted)
     return result
 

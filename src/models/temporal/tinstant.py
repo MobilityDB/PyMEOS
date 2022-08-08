@@ -23,106 +23,36 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
+from abc import ABC
 from datetime import timedelta
 
+from lib.functions import temporal_timestamps, timestamptz_to_datetime, temporal_intersects_timestamp, \
+    datetime_to_timestamptz
 from ..temporal import Temporal
 from ..time import Period, PeriodSet
 
 
-class TInstant(Temporal):
+class TInstant(Temporal, ABC):
     """
     Abstract class for representing temporal values of instant subtype.
     """
     __slots__ = ['_inner']
 
     @classmethod
-    def tempSubtype(cls):
+    def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, ``'Instant'``.
         """
         return "Instant"
 
     @property
-    def getValue(self):
-        """
-        Value component.
-        """
-        return self._inner[0]
-
-    @property
-    def getValues(self):
-        """
-        List of distinct values.
-        """
-        return [self._value]
-
-    @property
-    def startValue(self):
-        """
-        Start value.
-        """
-        return self._value
-
-    @property
-    def endValue(self):
-        """
-        End value.
-        """
-        return self._value
-
-    @property
-    def minValue(self):
-        """
-        Minimum value.
-        """
-        return self._value
-
-    @property
-    def maxValue(self):
-        """
-        Maximum value.
-        """
-        return self._value
-
-    def valueAtTimestamp(self, timestamp):
-        """
-        Value at timestamp.
-        """
-        if timestamp == self._time:
-            return self._value
-        else:
-            return None
-
-    @property
-    def getTimestamp(self):
+    def timestamp(self):
         """
         Timestamp.
         """
-        return self._time
-
-    @property
-    def getTime(self):
-        """
-        Period set on which the temporal value is defined.
-        """
-        return PeriodSet([Period(self._time, self._time, True, True)])
-
-    @property
-    def duration(self):
-        """
-        Interval on which the temporal value is defined. It is zero for
-        temporal values of instant subtype.
-        """
-        return timedelta(0)
-
-    @property
-    def timespan(self):
-        """
-        Interval on which the temporal value is defined ignoring the potential
-        time gaps. It is zero for temporal values of instant subtype.
-        """
-        return timedelta(0)
+        ts, count = temporal_timestamps(self._inner)
+        assert count == 1
+        return timestamptz_to_datetime(ts[0])
 
     @property
     def period(self):
@@ -130,30 +60,23 @@ class TInstant(Temporal):
         Period on which the temporal value is defined ignoring the potential
         time gaps.
         """
-        return Period(self._time, self._time, True, True)
+        return Period(self.timestamp, self.timestamp, True, True)
 
     @property
-    def numInstants(self):
-        """
-        Number of instants.
-        """
-        return 1
-
-    @property
-    def startInstant(self):
+    def start_instant(self):
         """
         Start instant.
         """
         return self
 
     @property
-    def endInstant(self):
+    def end_instant(self):
         """
         End instant.
         """
         return self
 
-    def instantN(self, n):
+    def instant_n(self, n):
         """
         N-th instant.
         """
@@ -170,32 +93,25 @@ class TInstant(Temporal):
         return [self]
 
     @property
-    def numTimestamps(self):
-        """
-        Number of timestamps.
-        """
-        return 1
-
-    @property
-    def startTimestamp(self):
+    def start_timestamp(self):
         """
         Start timestamp.
         """
-        return self._time
+        return self.timestamp
 
     @property
-    def endTimestamp(self):
+    def end_timestamp(self):
         """
         End timestamp.
         """
-        return self._time
+        return self.timestamp
 
-    def timestampN(self, n):
+    def timestamp_n(self, n):
         """
         N-th timestamp
         """
         if n == 1:
-            return self._time
+            return self.timestamp
         else:
             raise Exception("ERROR: Out of range")
 
@@ -204,26 +120,7 @@ class TInstant(Temporal):
         """
         List of timestamps.
         """
-        return [self._time]
-
-    def shift(self, timedelta):
-        """
-        Shift the temporal value by a time interval.
-        """
-        self._time += timedelta
-        return self
-
-    def intersectsTimestamp(self, timestamp):
-        """
-        Does the temporal value intersect the timestamp?
-        """
-        return self._time == timestamp
-
-    def intersectsPeriod(self, period):
-        """
-        Does the temporal value intersect the period?
-        """
-        return period.contains_timestamp(self._time)
+        return [self.timestamp]
 
     # Comparisons are missing
     def __eq__(self, other):
@@ -231,7 +128,3 @@ class TInstant(Temporal):
             if self._value == other._value and self._time == other._time:
                 return True
         return False
-
-    def __repr__(self):
-        return (f'{self.__class__.__name__}'
-                f'({self._value!r}, {self._time!r})')

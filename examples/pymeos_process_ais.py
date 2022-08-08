@@ -75,7 +75,7 @@ def main():
         seq = TGeogPointSeq(instant_list=ship.instants, lower_inc=True, upper_inc=True, interp="Linear")
         print(f"MMSI: {ship.mmsi}, "
               f"Number of input instants: {ship.num_instants}, "
-              f"Number of instants: {seq.numInstants}, "
+              f"Number of instants: {seq.num_instants}, "
               f"Distance travelled: {seq.distance}")
 
     # Finalize MEOS Library

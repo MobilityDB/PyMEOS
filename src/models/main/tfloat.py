@@ -42,7 +42,7 @@ class TFloat(Temporal):
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
-        return floatrange(self.minValue, self.maxValue, True, True)
+        return floatrange(self.min_value, self.max_value, True, True)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
@@ -95,7 +95,7 @@ class TFloatInst(TInstant, TFloat):
         super().__init__(value, time)
 
     @property
-    def getValues(self):
+    def values(self):
         """
         List of ranges representing the values taken by the temporal value
         """
@@ -127,11 +127,11 @@ class TFloatInstSet(TInstantSet, TFloat):
         super().__init__(*argv)
 
     @property
-    def getValues(self):
+    def values(self):
         """
         List of ranges representing the values taken by the temporal value.
         """
-        values = super().getValues
+        values = super().values
         return [floatrange(value, value, True, True) for value in values]
 
 
@@ -192,14 +192,14 @@ class TFloatSeq(TSequence, TFloat):
         return inst1._value + (inst2._value - inst1._value) * ratio;
 
     @property
-    def getValues(self):
+    def values(self):
         """
         List of ranges representing the values taken by the temporal value.
         """
-        min = self.minValue
-        max = self.maxValue
-        lower = self.startValue
-        upper = self.endValue
+        min = self.min_value
+        max = self.max_value
+        lower = self.start_value
+        upper = self.end_value
         min_inc = min < lower or (min == lower and self.lower_inc)
         max_inc = max > upper or (max == upper and self.upper_inc)
         if not min_inc:
@@ -250,7 +250,7 @@ class TFloatSeqSet(TSequenceSet, TFloat):
         return self._interp
 
     @property
-    def getValues(self):
+    def values(self):
         """
         List of ranges representing the values taken by the temporal value
         """

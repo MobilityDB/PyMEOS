@@ -24,10 +24,7 @@
 #
 ###############################################################################
 
-from datetime import timedelta
-
 from ..temporal import TemporalInstants
-from ..time import Period, PeriodSet
 
 
 class TInstantSet(TemporalInstants):
@@ -36,18 +33,13 @@ class TInstantSet(TemporalInstants):
     """
 
     @classmethod
-    def tempSubtype(cls):
+    def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, ``'InstantSet'``.
         """
         return "InstantSet"
 
-    def valueAtTimestamp(self, timestamp):
-        """
-        Value at timestamp.
-        """
-
-    def valueAtTimestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
@@ -57,49 +49,6 @@ class TInstantSet(TemporalInstants):
             if inst._time == timestamp:
                 return inst._value
         return None
-
-    @property
-    def getTime(self):
-        """
-        Period set on which the temporal value is defined.
-        """
-        return PeriodSet([inst.period for inst in self._instantList])
-
-    @property
-    def duration(self):
-        """
-        Interval on which the temporal value is defined. It is zero for
-        temporal values of instant set subtype.
-        """
-        return timedelta(0)
-
-    @property
-    def timespan(self):
-        """
-        Interval on which the temporal value is defined ignoring the potential
-        time gaps.
-        """
-        return self.endTimestamp - self.startTimestamp
-
-    @property
-    def period(self):
-        """
-        Period on which the temporal value is defined ignoring the potential
-        time gaps.
-        """
-        return Period(self.startTimestamp, self.endTimestamp, True, True)
-
-    def intersectsTimestamp(self, timestamp):
-        """
-        Does the temporal value intersect the timestamp?
-        """
-        return any(inst._time == timestamp for inst in self._instantList)
-
-    def intersectsPeriod(self, period):
-        """
-        Does the temporal value intersect the period?
-        """
-        return any(period.contains_timestamp(inst._time) for inst in self._instantList)
 
     # Comparisons are missing
     def __eq__(self, other):

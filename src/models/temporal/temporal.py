@@ -24,8 +24,15 @@
 #
 ###############################################################################
 
-from abc import abstractmethod
 import warnings
+from abc import ABC, abstractmethod
+
+from lib.functions import temporal_intersects_timestamp, datetime_to_timestamptz, temporal_intersects_timestampset, \
+    temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
+    temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
+    temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
+    timedelta_to_interval
+from ..time import Period, PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -34,7 +41,8 @@ except ImportError:
     warnings.warn('psycopg2 not installed', ImportWarning)
 
 
-class Temporal:
+class Temporal(ABC):
+    __slots__ = ['_inner']
     """
     Abstract class for representing temporal values of any subtype.
     """
@@ -60,7 +68,7 @@ class Temporal:
 
     @classmethod
     @abstractmethod
-    def tempSubtype(cls):
+    def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, one of ``'Instant'``,
         ``'InstantSet'``, ``'Sequence'``, or ``'SequenceSet'``.
@@ -69,7 +77,7 @@ class Temporal:
 
     @property
     @abstractmethod
-    def getValues(self):
+    def values(self):
         """
         List of distinct values taken by the temporal value.
         """
@@ -77,7 +85,7 @@ class Temporal:
 
     @property
     @abstractmethod
-    def startValue(self):
+    def start_value(self):
         """
         Start value.
         """
@@ -85,7 +93,7 @@ class Temporal:
 
     @property
     @abstractmethod
-    def endValue(self):
+    def end_value(self):
         """
         End value.
         """
@@ -93,7 +101,7 @@ class Temporal:
 
     @property
     @abstractmethod
-    def minValue(self):
+    def min_value(self):
         """
         Minimum value.
         """
@@ -101,64 +109,59 @@ class Temporal:
 
     @property
     @abstractmethod
-    def maxValue(self):
+    def max_value(self):
         """
         Maximum value.
         """
         pass
 
     @abstractmethod
-    def valueAtTimestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
         pass
 
     @property
-    @abstractmethod
-    def getTime(self):
+    def time(self):
         """
         Period set on which the temporal value is defined.
         """
-        pass
+        return PeriodSet(inner=temporal_time(self._inner))
 
     @property
-    @abstractmethod
     def duration(self):
         """
         Interval on which the temporal value is defined.
         """
-        pass
+        return interval_to_timedelta(temporal_duration(self._inner))
 
     @property
-    @abstractmethod
     def timespan(self):
         """
         Interval on which the temporal value is defined ignoring potential
         time gaps.
         """
-        pass
+        return interval_to_timedelta(temporal_timespan(self._inner))
 
     @property
-    @abstractmethod
     def period(self):
         """
         Period on which the temporal value is defined ignoring potential
         time gaps.
         """
-        pass
+        return Period(lower=periodset_to_period(temporal_time(self._inner)), _inner=True)
 
     @property
-    @abstractmethod
-    def numInstants(self):
+    def num_instants(self):
         """
         Number of distinct instants.
         """
-        pass
+        return temporal_num_instants(self._inner)
 
     @property
     @abstractmethod
-    def startInstant(self):
+    def start_instant(self):
         """
          Start instant.
         """
@@ -166,14 +169,14 @@ class Temporal:
 
     @property
     @abstractmethod
-    def endInstant(self):
+    def end_instant(self):
         """
         End instant.
         """
         pass
 
     @abstractmethod
-    def instantN(self, n):
+    def instant_n(self, n):
         """
         N-th instant.
         """
@@ -188,76 +191,70 @@ class Temporal:
         pass
 
     @property
-    @abstractmethod
-    def numTimestamps(self):
+    def num_timestamps(self):
         """
         Number of distinct timestamps.
         """
-        pass
+        return temporal_num_timestamps(self._inner)
 
     @property
-    @abstractmethod
-    def startTimestamp(self):
+    def start_timestamp(self):
         """
         Start timestamp.
         """
-        pass
+        return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
 
     @property
-    @abstractmethod
-    def endTimestamp(self):
+    def end_timestamp(self):
         """
         End timestamp.
         """
-        pass
+        return timestamptz_to_datetime(temporal_end_timestamp(self._inner))
 
-    @abstractmethod
-    def timestampN(self, n):
+    def timestamp_n(self, n):
         """
         N-th timestamp.
         """
-        pass
+        return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
 
     @property
-    @abstractmethod
     def timestamps(self):
         """
         List of timestamps.
         """
-        pass
+        ts, count = temporal_timestamps(self._inner)
+        return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    @abstractmethod
     def shift(self, timedelta):
         """
         Shift the temporal value by a time interval
         """
-        pass
+        new_inner = temporal_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        return self.__class__(_inner=new_inner)
 
-    @abstractmethod
-    def intersectsTimestamp(self, datetime):
+    def intersects_timestamp(self, datetime):
         """
         Does the temporal value intersect the timestamp?
         """
-        pass
+        return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(datetime))
 
-    def intersectsTimestampSet(self, timestampset):
+    def intersects_timestamp_set(self, timestamp_set):
         """
         Does the temporal value intersect the timestamp set?
         """
-        return any(self.intersectsTimestamp(timestamp) for timestamp in timestampset.timestamps)
+        return temporal_intersects_timestampset(self._inner, timestamp_set._inner)
 
-    @abstractmethod
-    def intersectsPeriod(self, period):
+    def intersects_period(self, period):
         """
         Does the temporal value intersect the period?
         """
-        pass
+        return temporal_intersects_period(self._inner, period._inner)
 
-    def intersectsPeriodSet(self, periodset):
+    def intersects_period_set(self, period_set):
         """
         Does the temporal value intersect the period set?
         """
-        return any(self.intersectsPeriod(period) for period in periodset.periods)
+        return temporal_intersects_periodset(self._inner, period_set._inner)
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
@@ -266,6 +263,7 @@ class Temporal:
 
     def getquoted(self):
         return "{}".format(self.__str__())
+
     # End Psycopg2 interface.
 
     # Comparisons are missing
@@ -282,7 +280,5 @@ class Temporal:
         pass
 
     def __repr__(self):
-        """
-        Representation
-        """
-        pass
+        return (f'{self.__class__.__name__}'
+                f'({self})')

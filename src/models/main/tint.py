@@ -62,7 +62,7 @@ class TInt(Temporal):
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
-        return intrange(self.minValue, self.maxValue, True, True)
+        return intrange(self.min_value, self.max_value, True, True)
 
 
 class TIntInst(TInstant, TInt):

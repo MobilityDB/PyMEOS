@@ -35,9 +35,15 @@ manual_functions = {
     'period_shift_tscale': 'result parameter is also input. start and duration parameters can be null.',
     'timestampset_shift_tscale': 'start and duration parameters can be null.',
     'periodset_shift_tscale': 'start and duration parameters can be null.',
+    'temporal_shift_tscale': 'start and duration parameters can be null.',
     'periodset_timestamps': 'count is an output parameter.',
     'periodset_periods': 'count is an output parameter.',
+    'temporal_timestamps': 'count is an output parameter.',
+    'temporal_instants': 'count is an output parameter.',
+    'temporal_segments': 'count is an output parameter.',
+    'temporal_sequences': 'count is an output parameter.',
 }
+
 
 def main():
     with open('./sources/functions.c') as f:

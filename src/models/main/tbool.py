@@ -29,7 +29,7 @@ from typing import Optional, Union, List
 from dateutil.parser import parse
 
 from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
-    tinstantset_make, tsequence_make
+    tinstantset_make, tsequence_make, tsequenceset_make, tbool_values, tbool_start_value, tbool_end_value
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -62,6 +62,43 @@ class TBool(Temporal):
             raise ValueError('Value must be an instance of a subclass of TBool')
         return value.__str__().strip("'")
 
+    @property
+    def start_value(self):
+        """
+        Start value.
+        """
+        return tbool_start_value(self._inner)
+
+    @property
+    def end_value(self):
+        """
+        End value.
+        """
+        return tbool_end_value(self._inner)
+
+    @property
+    def min_value(self):
+        """
+        Minimum value.
+        """
+        return min(self.values)
+
+    @property
+    def max_value(self):
+        """
+        Maximum value.
+        """
+        return max(self.values)
+
+    def value_at_timestamp(self, timestamp):
+        """
+        Value at timestamp.
+        """
+        if timestamp == self._time:
+            return self._value
+        else:
+            return None
+
     def __str__(self):
         return tbool_out(self._inner)
 
@@ -91,15 +128,32 @@ class TBoolInst(TInstant, TBool):
     """
 
     def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, bool]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None):
-        assert (string is not None) != (value is not None and timestamp is not None), \
+                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tbool_in(string)
         else:
             ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = tboolinst_make(bool(value), ts)
+
+    @property
+    def value(self) -> bool:
+        """
+        Value component.
+        """
+        return tbool_values(self._inner)[0]
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        return [self.value]
 
 
 class TBoolInstSet(TInstantSet, TBool):
@@ -124,14 +178,27 @@ class TBoolInstSet(TInstantSet, TBool):
     ComponentClass = TBoolInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 merge: bool = True):
-        assert (string is not None) != (instant_list is not None), \
+                 merge: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tbool_in(string)
         else:
             instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
             self._inner = tinstantset_make(instants, len(instants), merge)
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO fix due to missing duplicates
+        return [True, False]
+        # values = tbool_values(self._inner)
+        # return [values[i] for i in range(self._inner.count)]
 
 
 class TBoolSeq(TSequence, TBool):
@@ -163,22 +230,34 @@ class TBoolSeq(TSequence, TBool):
     ComponentClass = TBoolInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True):
-        assert (string is not None) != (instant_list is not None), \
+                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tbool_in(string)
         else:
-            instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
-            self._inner = tsequence_make(instants, len(instants), lower_inc, upper_inc, False, normalize)
+            self._instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
+            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc, False, normalize)
 
-    @classmethod
     @property
     def interpolation(self):
         """
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO fix due to missing duplicates
+        return [True, False]
+        # values = tbool_values(self._inner)
+        # return [values[i] for i in range(self._inner.count)]
 
 
 class TBoolSeqSet(TSequenceSet, TBool):
@@ -201,13 +280,32 @@ class TBoolSeqSet(TSequenceSet, TBool):
 
     ComponentClass = TBoolSeq
 
-    def __init__(self, sequenceList):
-        super().__init__(sequenceList)
+    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
+            "Either string must be not None or sequence_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = tbool_in(string)
+        else:
+            sequences = [x._inner if isinstance(x, TBoolSeq) else tbool_in(x) for x in sequence_list]
+            self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
-    @classmethod
     @property
     def interpolation(self):
         """
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO fix due to missing duplicates
+        return [True, False]
+        # values = tbool_values(self._inner)
+        # return [values[i] for i in range(self._inner.count)]
