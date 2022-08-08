@@ -28,8 +28,7 @@ from spans.types import intrange
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 from datetime import datetime
-from lib.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, pg_timestamptz_in, tbool_out, \
-    tinstantset_make, tsequence_make
+from lib.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, pg_timestamptz_in
 
 class TInt(Temporal):
     """
