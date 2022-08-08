@@ -28,7 +28,10 @@ from spans.types import intrange
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 from datetime import datetime
-from lib.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, pg_timestamptz_in
+from lib.functions import tinstantset_make, tint_in, tint_out, tintinst_make, datetime_to_timestamptz, \
+    pg_timestamptz_in, tint_values, tint_start_value, tint_end_value, tsequence_make, temporal_subtype, \
+        tsequenceset_make
+
 
 class TInt(Temporal):
     """
@@ -66,6 +69,44 @@ class TInt(Temporal):
         """
         return intrange(self.min_value, self.max_value, True, True)
 
+    @property
+    def start_value(self):
+        """
+        Start value.
+        """
+        return tint_start_value(self._inner)
+
+    @property
+    def end_value(self):
+        """
+        End value.
+        """
+        return tint_end_value(self._inner)
+
+    @property
+    def min_value(self):
+        """
+        Minimum value.
+        """
+        return min(self.values)
+
+    @property
+    def max_value(self):
+        """
+        Maximum value.
+        """
+        return max(self.values)
+
+    def value_at_timestamp(self, timestamp):
+        """
+        Value at timestamp.
+        """
+        # TODO check here
+        if timestamp == self._time:
+            return self._value
+        else:
+            return None
+
     def __str__(self):
         return tint_out(self._inner)
 
@@ -83,22 +124,38 @@ class TIntInst(TInstant, TInt):
     which can be instances of ``str``, ``int`` or ``datetime``.
 
         >>> TIntInst('10', '2019-09-08 00:00:00+01')
-        >>> TIntInst(['10', '2019-09-08 00:00:00+01'])  # It's werid for me to provide this format of initialization
+        >>> TIntInst(['10', '2019-09-08 00:00:00+01'])
         >>> TIntInst(10, parse('2019-09-08 00:00:00+01'))
         >>> TIntInst([10, parse('2019-09-08 00:00:00+01')])
 
     """
 
     def __init__(self, value, time=None):
+        super().__init__()
         if time is None:
-            assert isinstance(value, str), "Single argument should be string"
             self._inner = tint_in(value)
         else:
             value = int(value)
             ts = datetime_to_timestamptz(time) if isinstance(time, datetime) \
                 else pg_timestamptz_in(time, -1)
             self._inner = tintinst_make(value, ts)
+        assert temporal_subtype(self._inner) == "Instant", "Internal error"
 
+    @property
+    def value(self) -> int:
+        """
+        Value component.
+        """
+        # TODO check
+        return tint_values(self._inner)[0]
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO check
+        return [self.value]
 
 class TIntInstSet(TInstantSet, TInt):
     """
@@ -121,9 +178,28 @@ class TIntInstSet(TInstantSet, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self,  *argv):
-        super().__init__(*argv)
+    def __init__(self,  *argv, merge:bool=True):
+        super().__init__()
+        instants = list()
+        for item in argv:
+            if isinstance(item, (tuple, list)):
+                for inst in item:
+                    instants.append(inst._inner if isinstance(inst, TIntInst) else tint_in(inst))
+            else:
+                instants.append(item._inner if isinstance(item, TIntInst) else tint_in(item))
+        if len(instants) == 1 and temporal_subtype(instants[0]) == "InstantSet":
+            self._inner = instants[0]
+        else:
+            self._inner = tinstantset_make(instants, len(instants), merge)
+        assert temporal_subtype(self._inner) == "InstantSet", "Internal error"
 
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO check
+        return [True, False]
 
 class TIntSeq(TSequence, TInt):
     """
@@ -153,8 +229,17 @@ class TIntSeq(TSequence, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self, instantList, lower_inc=None, upper_inc=None):
-        super().__init__(instantList, lower_inc, upper_inc)
+    def __init__(self, instantList, lower_inc=True, upper_inc=False, normalize=True):
+        # TODO Should the __init__ function also accept vairable-length arguments
+        # like that for TIntInstSet?
+        super().__init__()
+        if isinstance(instantList, str):
+            self._inner = tint_in(instantList)
+        else:
+            instants = [x._inner if isinstance(x, TIntInst) else tint_in(x) for x in instantList]
+            # TODO The parameter linear of tsequence_make can be inferred from interpolation() of the given data type
+            self._inner = tsequence_make(instants, len(instants), lower_inc, upper_inc, False, normalize)
+        assert temporal_subtype(self._inner) == "Sequence", "Internal error"
 
     @classmethod
     @property
@@ -164,6 +249,13 @@ class TIntSeq(TSequence, TInt):
         """
         return 'Stepwise'
 
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO 
+        return [True, False]
 
 class TIntSeqSet(TSequenceSet, TInt):
     """
@@ -185,8 +277,16 @@ class TIntSeqSet(TSequenceSet, TInt):
 
     ComponentClass = TIntSeq
 
-    def __init__(self, sequenceList):
-        super().__init__(sequenceList)
+    def __init__(self, sequenceList, normalize=True):
+        # TODO Should the __init__ function also accept vairable-length arguments
+        # like that for TIntInstSet?
+        super().__init__()
+        if isinstance(sequenceList, str):
+            self._inner = tint_in(sequenceList)
+        else:
+            seqs = [x._inner if isinstance(x, TIntSeq) else tint_in(x) for x in sequenceList]
+            self._inner = tsequenceset_make(seqs, len(seqs), normalize)
+        assert temporal_subtype(self._inner) == "SequenceSet", "Internal error"
 
     @classmethod
     @property
@@ -196,3 +296,10 @@ class TIntSeqSet(TSequenceSet, TInt):
         """
         return 'Stepwise'
 
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        # TODO check
+        return [True, False]
