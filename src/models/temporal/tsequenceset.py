@@ -23,9 +23,9 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from lib.functions import tpoint_as_text
+from lib.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
+    temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences
 from ..temporal.temporal import Temporal
-from ..time import Period, PeriodSet
 
 
 class TSequenceSet(Temporal):
@@ -33,49 +33,21 @@ class TSequenceSet(Temporal):
     Abstract class for representing temporal values of sequence set subtype.
     """
 
-    def tempSubtype(cls):
+    def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, ``'SequenceSet'``.
         """
         return "SequenceSet"
 
     @property
-    def getValues(self):
+    def values(self):
         """
         List of distinct values taken by the temporal value.
         """
-        values = [seq.getValues for seq in self._sequenceList]
+        values = [seq.values for seq in self._sequenceList]
         return list(dict.fromkeys([item for sublist in values for item in sublist]))
 
-    @property
-    def startValue(self):
-        """
-        Start value.
-        """
-        return self._sequenceList[0].startInstant._value
-
-    @property
-    def endValue(self):
-        """
-        End value.
-        """
-        return self._sequenceList[-1].endInstant._value
-
-    @property
-    def minValue(self):
-        """
-        Minimum value.
-        """
-        return min(seq.minValue for seq in self._sequenceList)
-
-    @property
-    def maxValue(self):
-        """
-        Maximum value.
-        """
-        return max(seq.maxValue for seq in self._sequenceList)
-
-    def valueAtTimestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
@@ -84,186 +56,73 @@ class TSequenceSet(Temporal):
             if per.lower > timestamp:
                 return None
             if per.contains_timestamp(timestamp):
-                return seq.valueAtTimestamp(timestamp)
+                return seq.value_at_timestamp(timestamp)
         return None
 
     @property
-    def getTime(self):
-        """
-        Period set on which the temporal value is defined.
-        """
-        return PeriodSet([seq.period for seq in self._sequenceList])
-
-    @property
-    def duration(self):
-        """
-        Interval on which the period set is defined.
-        """
-        result = self._sequenceList[0].period.duration
-        for sequence in self._sequenceList[1:]:
-            result = result + sequence.period.duration
-        return result
-
-    @property
-    def timespan(self):
-        """
-        Interval on which the period set is defined ignoring the potential
-        time gaps.
-        """
-        return self.endTimestamp - self.startTimestamp
-
-    @property
-    def period(self):
-        """
-        Period on which the temporal value is defined ignoring the potential
-        time gaps.
-        """
-        return Period(self.startTimestamp, self.endTimestamp,
-                      self._sequenceList[0]._lower_inc, self._sequenceList[-1]._upper_inc)
-
-    @property
-    def numInstants(self):
-        """
-        Number of distinct instants.
-        """
-        return len(self.instants)
-
-    @property
-    def startInstant(self):
+    def start_instant(self):
         """
         Start instant.
         """
-        return self._sequenceList[0].startInstant
+        return self.ComponentClass.ComponentClass(_inner=temporal_start_instant(self._inner))
 
     @property
-    def endInstant(self):
+    def end_instant(self):
         """
         End instant.
         """
-        return self._sequenceList[-1].endInstant
+        return self.ComponentClass.ComponentClass(_inner=temporal_end_instant(self._inner))
 
-    def instantN(self, n):
+    def instant_n(self, n):
         """
         N-th distinct instant.
         """
         # 1-based
-        if 1 <= n <= len(self.instants):
-            return (self.instants)[n - 1]
-        else:
-            raise Exception("ERROR: Out of range")
+        return self.ComponentClass.ComponentClass(_inner=temporal_instant_n(self._inner, n))
 
     @property
     def instants(self):
         """
         List of instants.
         """
-        instantList = []
-        for sequence in self._sequenceList:
-            for instant in sequence._instantList:
-                instantList.append(instant)
-        return instantList
+        ts, count = temporal_instants(self._inner)
+        return [self.ComponentClass.ComponentClass(_inner=ts[i]) for i in range(count)]
 
     @property
-    def numTimestamps(self):
-        """
-        Number of distinct timestamps.
-        """
-        return len(self.timestamps)
-
-    @property
-    def startTimestamp(self):
-        """
-        Start timestamp.
-        """
-        return self._sequenceList[0].startInstant.getTimestamp
-
-    @property
-    def endTimestamp(self):
-        """
-        End timestamp.
-        """
-        return self._sequenceList[-1].endInstant.getTimestamp
-
-    def timestampN(self, n):
-        """
-        N-th distinct timestamp.
-        """
-        # 1-based
-        if 1 <= n <= len(self.timestamps):
-            return (self.timestamps)[n - 1]
-        else:
-            raise Exception("ERROR: Out of range")
-
-    @property
-    def timestamps(self):
-        """
-        List of timestamps.
-        """
-        timestampList = []
-        for sequence in self._sequenceList:
-            for instant in sequence._instantList:
-                timestampList.append(instant.getTimestamp)
-        # Remove duplicates
-        timestampList = list(dict.fromkeys(timestampList))
-        return timestampList
-
-    @property
-    def numSequences(self):
+    def num_sequences(self):
         """
         Number of sequences.
         """
-        return len(self._sequenceList)
+        return temporal_num_sequences(self._inner)
 
     @property
-    def startSequence(self):
+    def start_sequence(self):
         """
         Start sequence.
         """
-        return self._sequenceList[0]
+        return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     @property
-    def endSequence(self):
+    def end_sequence(self):
         """
         End sequence.
         """
-        return self._sequenceList[-1]
+        return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
-    def sequenceN(self, n):
+    def sequence_n(self, n):
         """
         N-th sequence.
         """
         # 1-based
-        if 1 <= n <= len(self._sequenceList):
-            return self._sequenceList[n - 1]
-        else:
-            raise Exception("ERROR: Out of range")
+        return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
     def sequences(self):
         """
         List of sequences.
         """
-        return self._sequenceList
-
-    def shift(self, timedelta):
-        """
-        Shift the temporal value by a time interval.
-        """
-        for seq in self._sequenceList:
-            seq = seq.shift(timedelta)
-        return self
-
-    def intersectsTimestamp(self, timestamp):
-        """
-        Does the temporal value intersect the timestamp?
-        """
-        return any(seq.intersectsTimestamp(timestamp) for seq in self._sequenceList)
-
-    def intersectsPeriod(self, period):
-        """
-        Does the temporal value intersect the period?
-        """
-        return any(seq.intersectsPeriod(period) for seq in self._sequenceList)
+        ss, count = temporal_sequences(self._inner)
+        return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
     # Comparisons are missing
     def __eq__(self, other):
@@ -271,9 +130,6 @@ class TSequenceSet(Temporal):
             if self._sequenceList == other._sequenceList and self._interp == other._interp:
                 return True
         return False
-
-    def __str__(self):
-        return tpoint_as_text(self._inner, 3)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'

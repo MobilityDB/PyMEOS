@@ -69,7 +69,7 @@ class TPointInst(TPoint, TInstant):
         return [Point.from_ewkb(string.split(';')[1].split('@')[0])]
 
     @property
-    def getValues(self):
+    def values(self):
         """
         Geometry representing the values taken by the temporal value.
         """
@@ -82,11 +82,11 @@ class TPointInstSet(TPoint, TInstantSet):
     """
 
     @property
-    def getValues(self):
+    def values(self):
         """
         Geometry representing the values taken by the temporal value.
         """
-        values = super().getValues
+        values = super().values
         return MultiPoint(values)
 
 
@@ -105,7 +105,7 @@ class TPointSeq(TSequence):
         return temporal_interpolation(self._inner)
 
     @property
-    def getValues(self):
+    def values(self):
         """
         Geometry representing the values taken by the temporal value.
         """
@@ -127,11 +127,11 @@ class TPointSeqSet(TSequenceSet):
         return temporal_interpolation(self._inner)
 
     @property
-    def getValues(self):
+    def values(self):
         """
         Geometry representing the values taken by the temporal value.
         """
-        values = [seq.getValues for seq in self._sequenceList]
+        values = [seq.values for seq in self._sequenceList]
         points = [geo for geo in values if isinstance(geo, Point)]
         lines = [geo for geo in values if isinstance(geo, LineString)]
         if len(points) != 0 and len(points) != 0:
@@ -182,14 +182,14 @@ class TGeomPoint(Temporal):
         """
         Does the temporal point has Z dimension?
         """
-        return self.startValue.z is not None
+        return self.start_value.z is not None
 
     @property
     def srid(self):
         """
         Returns the SRID.
         """
-        result = self.startValue.srid if hasattr(self.startValue, "srid") else None
+        result = self.start_value.srid if hasattr(self.start_value, "srid") else None
         return result
 
 
@@ -233,14 +233,14 @@ class TGeogPoint(Temporal):
         """
         Does the temporal point has Z dimension?
         """
-        return self.startValue.z is not None
+        return self.start_value.z is not None
 
     @property
     def srid(self):
         """
         Returns the SRID.
         """
-        result = self.startValue.srid if hasattr(self.startValue, "srid") else None
+        result = self.start_value.srid if hasattr(self.start_value, "srid") else None
         return result
 
 

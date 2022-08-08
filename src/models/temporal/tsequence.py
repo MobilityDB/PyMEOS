@@ -23,7 +23,7 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from lib.functions import tpoint_length, tpoint_as_text
+from lib.functions import tpoint_length
 from ..temporal import TemporalInstants
 from ..time import Period, PeriodSet
 
@@ -34,7 +34,7 @@ class TSequence(TemporalInstants):
     """
 
     @classmethod
-    def tempSubtype(cls):
+    def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, ``'Sequence'``.
         """
@@ -54,7 +54,7 @@ class TSequence(TemporalInstants):
         """
         return self._upper_inc
 
-    def valueAtTimestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
@@ -85,62 +85,27 @@ class TSequence(TemporalInstants):
         return None
 
     @property
-    def getTime(self):
-        """
-        Period set on which the temporal value is defined.
-        """
-        return PeriodSet([self.period])
-
-    @property
-    def duration(self):
-        """
-        Interval on which the temporal value is defined.
-        """
-        return self.period.upper - self.period.lower
-
-    @property
-    def timespan(self):
-        """
-        Interval on which the temporal value is defined.
-        """
-        return self.period.upper - self.period.lower
-
-    @property
-    def period(self):
-        """
-        Period on which the temporal value is defined.
-        """
-        return Period(self.startTimestamp, self.endTimestamp, self.lower_inc, self.upper_inc)
-
-    @property
-    def numInstants(self):
-        """
-        Number of instants.
-        """
-        return self._inner.count
-
-    @property
-    def numSequences(self):
+    def num_sequences(self):
         """
         Number of sequences.
         """
         return 1
 
     @property
-    def startSequence(self):
+    def start_sequence(self):
         """
         Start sequence.
         """
         return self
 
     @property
-    def endSequence(self):
+    def end_sequence(self):
         """
         End sequence.
         """
         return self
 
-    def sequenceN(self, n):
+    def sequence_n(self, n):
         """
         N-th sequence.
         """
@@ -157,18 +122,6 @@ class TSequence(TemporalInstants):
         """
         return [self]
 
-    def intersectsTimestamp(self, timestamp):
-        """
-        Does the temporal value intersect the timestamp?
-        """
-        return self.period.contains_timestamp(timestamp)
-
-    def intersectsPeriod(self, period):
-        """
-        Does the temporal value intersect the period?
-        """
-        return self.period.overlap(period)
-
     # Comparisons are missing
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -176,13 +129,6 @@ class TSequence(TemporalInstants):
                     self._upper_inc == other._upper_inc and self._interp == other._interp:
                 return True
         return False
-
-    def __str__(self):
-        return tpoint_as_text(self._inner, 3)
-
-    def __repr__(self):
-        return (f'{self.__class__.__name__}'
-                f'({self._instantList!r}, {self._lower_inc!r}, {self._upper_inc!r}, {self._interp!r})')
 
     @property
     def distance(self):
