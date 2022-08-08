@@ -27,11 +27,10 @@
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from spans.types import intrange
-from mobilitydb.time import TimestampSet, Period, PeriodSet
-from mobilitydb.main import TIntInst, TIntInstSet, TIntSeq, TIntSeqSet
+from ..time import TimestampSet, Period, PeriodSet
+from ..main import TIntInst, TIntInstSet, TIntSeq, TIntSeqSet
 
-
-print("\nConstructors for TFloatInst")
+print("\nConstructors for TIntInst")
 inst = TIntInst('10@2019-09-08')
 print(inst)
 inst = TIntInst('10', '2019-09-08')
@@ -42,18 +41,18 @@ print(inst)
 
 print("\nConstructors for TIntInstSet")
 ti = TIntInstSet('{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
-print(tinstset)
+print(ti)
 ti = TIntInstSet('10@2019-09-08', '20@2019-09-09', '20@2019-09-10')
-print(tinstset)
+print(ti)
 ti = TIntInstSet(['10@2019-09-08', '20@2019-09-09', '20@2019-09-10'])
-print(tinstset)
+print(ti)
 t1 = TIntInst('10@2019-09-08')
 t2 = TIntInst('20@2019-09-09')
 t3 = TIntInst('20@2019-09-10')
 ti = TIntInstSet(t1, t2, t3)
-print(tinstset)
+print(ti)
 ti = TIntInstSet([t1, t2, t3])
-print(tinstset)
+print(ti)
 
 print("\nConstructors for TIntSeq")
 seq = TIntSeq('[10@2019-09-08, 20@2019-09-09, 20@2019-09-10]')

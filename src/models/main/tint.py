@@ -27,6 +27,9 @@
 from spans.types import intrange
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
+from datetime import datetime
+from lib.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, pg_timestamptz_in, tbool_out, \
+    tinstantset_make, tsequence_make
 
 class TInt(Temporal):
     """
@@ -64,6 +67,9 @@ class TInt(Temporal):
         """
         return intrange(self.minValue, self.maxValue, True, True)
 
+    def __str__(self):
+        return tint_out(self._inner)
+
 
 class TIntInst(TInstant, TInt):
     """
@@ -78,14 +84,21 @@ class TIntInst(TInstant, TInt):
     which can be instances of ``str``, ``int`` or ``datetime``.
 
         >>> TIntInst('10', '2019-09-08 00:00:00+01')
-        >>> TIntInst(['10', '2019-09-08 00:00:00+01'])
+        >>> TIntInst(['10', '2019-09-08 00:00:00+01'])  # It's werid for me to provide this format of initialization
         >>> TIntInst(10, parse('2019-09-08 00:00:00+01'))
         >>> TIntInst([10, parse('2019-09-08 00:00:00+01')])
 
     """
 
     def __init__(self, value, time=None):
-        super().__init__(value, time)
+        if time is None:
+            assert isinstance(value, str), "Single argument should be string"
+            self._inner = tint_in(value)
+        else:
+            value = int(value)
+            ts = datetime_to_timestamptz(time) if isinstance(time, datetime) \
+                else pg_timestamptz_in(time, -1)
+            self._inner = tintinst_make(value, ts)
 
 
 class TIntInstSet(TInstantSet, TInt):
