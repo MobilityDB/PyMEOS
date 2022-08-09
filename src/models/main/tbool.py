@@ -24,12 +24,14 @@
 #
 ###############################################################################
 from datetime import datetime
+from functools import cached_property
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
 
 from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
-    tinstantset_make, tsequence_make, tsequenceset_make, tbool_values, tbool_start_value, tbool_end_value
+    tinstantset_make, tsequence_make, tsequenceset_make, tbool_values, tbool_start_value, tbool_end_value, \
+    tbool_value_at_timestamp
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -62,7 +64,7 @@ class TBool(Temporal):
             raise ValueError('Value must be an instance of a subclass of TBool')
         return value.__str__().strip("'")
 
-    @property
+    @cached_property
     def values(self):
         """
         List of distinct values.
@@ -70,14 +72,14 @@ class TBool(Temporal):
         values, count = tbool_values(self._inner)
         return [values[i] for i in range(count)]
 
-    @property
+    @cached_property
     def start_value(self):
         """
         Start value.
         """
         return tbool_start_value(self._inner)
 
-    @property
+    @cached_property
     def end_value(self):
         """
         End value.
@@ -88,10 +90,7 @@ class TBool(Temporal):
         """
         Value at timestamp.
         """
-        if timestamp == self._time:
-            return self._value
-        else:
-            return None
+        return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     def __str__(self):
         return tbool_out(self._inner)

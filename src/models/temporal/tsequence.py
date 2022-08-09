@@ -23,6 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from functools import cached_property
+
 from lib.functions import tpoint_length
 from ..temporal import TemporalInstants
 from ..time import Period, PeriodSet
@@ -52,7 +54,7 @@ class TSequence(TemporalInstants):
         """
         Is the upper bound inclusive?
         """
-        return self._upper_inc
+        return self._inner._upper_inc
 
     def value_at_timestamp(self, timestamp):
         """
@@ -122,14 +124,6 @@ class TSequence(TemporalInstants):
         """
         return [self]
 
-    # Comparisons are missing
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            if self._instantList == other._instantList and self._lower_inc == other._lower_inc and \
-                    self._upper_inc == other._upper_inc and self._interp == other._interp:
-                return True
-        return False
-
-    @property
+    @cached_property
     def distance(self):
         return tpoint_length(self._inner)

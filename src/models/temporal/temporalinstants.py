@@ -23,6 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from functools import cached_property
+
 from lib.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants
 from .temporal import Temporal
 
@@ -33,14 +35,14 @@ class TemporalInstants(Temporal):
     sequence subtype.
     """
 
-    @property
+    @cached_property
     def start_instant(self):
         """
         Start instant.
         """
         return self.ComponentClass(_inner=temporal_start_instant(self._inner))
 
-    @property
+    @cached_property
     def end_instant(self):
         """
         End instant.
@@ -54,7 +56,7 @@ class TemporalInstants(Temporal):
         # 1-based
         return self.ComponentClass(_inner=temporal_instant_n(self._inner, n))
 
-    @property
+    @cached_property
     def instants(self):
         """
         List of instants.

@@ -39,24 +39,6 @@ class TInstantSet(TemporalInstants):
         """
         return "InstantSet"
 
-    def value_at_timestamp(self, timestamp):
-        """
-        Value at timestamp.
-        """
-        for inst in self._instantList:
-            if inst._time > timestamp:
-                return None
-            if inst._time == timestamp:
-                return inst._value
-        return None
-
-    # Comparisons are missing
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            if self._instantList == other._instantList:
-                return True
-        return False
-
     def __repr__(self):
         return (f'{self.__class__.__name__}'
-                f'({self._instantList!r})')
+                f'({self})')

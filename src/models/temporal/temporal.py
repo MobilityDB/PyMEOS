@@ -26,12 +26,13 @@
 
 import warnings
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 from lib.functions import temporal_intersects_timestamp, datetime_to_timestamptz, temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
-    timedelta_to_interval
+    timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp
 from ..time import Period, PeriodSet
 
 try:
@@ -99,14 +100,14 @@ class Temporal(ABC):
         """
         pass
 
-    @property
+    @cached_property
     def min_value(self):
         """
         Minimum value.
         """
         return min(self.values)
 
-    @property
+    @cached_property
     def max_value(self):
         """
         Maximum value.
@@ -120,21 +121,21 @@ class Temporal(ABC):
         """
         pass
 
-    @property
+    @cached_property
     def time(self):
         """
         Period set on which the temporal value is defined.
         """
         return PeriodSet(inner=temporal_time(self._inner))
 
-    @property
+    @cached_property
     def duration(self):
         """
         Interval on which the temporal value is defined.
         """
         return interval_to_timedelta(temporal_duration(self._inner))
 
-    @property
+    @cached_property
     def timespan(self):
         """
         Interval on which the temporal value is defined ignoring potential
@@ -142,7 +143,7 @@ class Temporal(ABC):
         """
         return interval_to_timedelta(temporal_timespan(self._inner))
 
-    @property
+    @cached_property
     def period(self):
         """
         Period on which the temporal value is defined ignoring potential
@@ -150,7 +151,7 @@ class Temporal(ABC):
         """
         return Period(lower=periodset_to_period(temporal_time(self._inner)), _inner=True)
 
-    @property
+    @cached_property
     def num_instants(self):
         """
         Number of distinct instants.
@@ -188,21 +189,21 @@ class Temporal(ABC):
         """
         pass
 
-    @property
+    @cached_property
     def num_timestamps(self):
         """
         Number of distinct timestamps.
         """
         return temporal_num_timestamps(self._inner)
 
-    @property
+    @cached_property
     def start_timestamp(self):
         """
         Start timestamp.
         """
         return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
 
-    @property
+    @cached_property
     def end_timestamp(self):
         """
         End timestamp.
@@ -215,7 +216,7 @@ class Temporal(ABC):
         """
         return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
 
-    @property
+    @cached_property
     def timestamps(self):
         """
         List of timestamps.
@@ -264,12 +265,61 @@ class Temporal(ABC):
 
     # End Psycopg2 interface.
 
-    # Comparisons are missing
+    def __cmp__(self, other):
+        """
+        Comparison
+        """
+        if self.__class__ == other.__class__:
+            return temporal_cmp(self._inner, other._inner)
+        return 0
+
+    def __lt__(self, other):
+        """
+        Less than
+        """
+        if self.__class__ == other.__class__:
+            return temporal_lt(self._inner, other._inner)
+        raise ComparisonError(self.__class__, other.__class__)
+
+    def __le__(self, other):
+        """
+        Less or equal
+        """
+        if self.__class__ == other.__class__:
+            return temporal_le(self._inner, other._inner)
+        raise ComparisonError(self.__class__, other.__class__)
+
     def __eq__(self, other):
         """
         Equality
         """
-        pass
+        if self.__class__ == other.__class__:
+            return temporal_eq(self._inner, other._inner)
+        return False
+
+    def __ne__(self, other):
+        """
+        Inequality
+        """
+        if self.__class__ == other.__class__:
+            return temporal_ne(self._inner, other._inner)
+        return True
+
+    def __ge__(self, other):
+        """
+        Greater or equal
+        """
+        if self.__class__ == other.__class__:
+            return temporal_ge(self._inner, other._inner)
+        raise ComparisonError(self.__class__, other.__class__)
+
+    def __gt__(self, other):
+        """
+        Greater than
+        """
+        if self.__class__ == other.__class__:
+            return temporal_gt(self._inner, other._inner)
+        raise ComparisonError(self.__class__, other.__class__)
 
     def __str__(self):
         """
@@ -280,3 +330,8 @@ class Temporal(ABC):
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+
+class ComparisonError(TypeError):
+    def __init__(self, type1, type2) -> None:
+        super().__init__(f'Comparison not supported between types {type1} and {type2}')

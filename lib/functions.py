@@ -1550,7 +1550,8 @@ def intersection_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> i
     raise Exception(f'C call went wrong: {result}')
 
 
-def intersection_timestampset_timestampset(ts1: 'const TimestampSet *', ts2: 'const TimestampSet *') -> 'TimestampSet *':
+def intersection_timestampset_timestampset(ts1: 'const TimestampSet *',
+                                           ts2: 'const TimestampSet *') -> 'TimestampSet *':
     ts1_converted = _ffi.cast('const TimestampSet *', ts1)
     ts2_converted = _ffi.cast('const TimestampSet *', ts2)
     result = _lib.intersection_timestampset_timestampset(ts1_converted, ts2_converted)
@@ -2182,20 +2183,24 @@ def tbox_copy(box: 'const TBOX *') -> 'TBOX *':
     return result
 
 
-def stbox_make(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float, tmin: int, tmax: int) -> 'STBOX *':
+def stbox_make(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float,
+               ymax: float, zmin: float, zmax: float, tmin: int, tmax: int) -> 'STBOX *':
     srid_converted = _ffi.cast('int32', srid)
     tmin_converted = _ffi.cast('TimestampTz', tmin)
     tmax_converted = _ffi.cast('TimestampTz', tmax)
-    result = _lib.stbox_make(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, tmin_converted, tmax_converted)
+    result = _lib.stbox_make(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax,
+                             tmin_converted, tmax_converted)
     return result
 
 
-def stbox_set(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float, tmin: int, tmax: int, box: 'STBOX *') -> None:
+def stbox_set(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float,
+              ymax: float, zmin: float, zmax: float, tmin: int, tmax: int, box: 'STBOX *') -> None:
     srid_converted = _ffi.cast('int32', srid)
     tmin_converted = _ffi.cast('TimestampTz', tmin)
     tmax_converted = _ffi.cast('TimestampTz', tmax)
     box_converted = _ffi.cast('STBOX *', box)
-    _lib.stbox_set(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, tmin_converted, tmax_converted, box_converted)
+    _lib.stbox_set(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, tmin_converted,
+                   tmax_converted, box_converted)
 
 
 def stbox_copy(box: 'const STBOX *') -> 'STBOX *':
@@ -3241,7 +3246,8 @@ def tgeogpointseqset_from_base(gs: 'const GSERIALIZED *', ss: 'const TSequenceSe
     return result
 
 
-def tgeogpointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *', linear: bool) -> 'TSequenceSet *':
+def tgeogpointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *',
+                                    linear: bool) -> 'TSequenceSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     result = _lib.tgeogpointseqset_from_base_time(gs_converted, ps_converted, linear)
@@ -3297,7 +3303,8 @@ def tgeompointseqset_from_base(gs: 'const GSERIALIZED *', ss: 'const TSequenceSe
     return result
 
 
-def tgeompointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *', linear: bool) -> 'TSequenceSet *':
+def tgeompointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *',
+                                    linear: bool) -> 'TSequenceSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     result = _lib.tgeompointseqset_from_base_time(gs_converted, ps_converted, linear)
@@ -3364,13 +3371,15 @@ def tintseqset_from_base_time(i: int, ps: 'const PeriodSet *') -> 'TSequenceSet 
     return result
 
 
-def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
+def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool,
+                   normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     result = _lib.tsequence_make(instants_converted, count, lower_inc, upper_inc, linear, normalize)
     return result
 
 
-def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
+def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool,
+                        normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('TInstant *', x) for x in instants]
     result = _lib.tsequence_make_free(instants_converted, count, lower_inc, upper_inc, linear, normalize)
     return result
@@ -3388,7 +3397,8 @@ def tsequenceset_make_free(sequences: 'TSequence **', count: int, normalize: boo
     return result
 
 
-def tsequenceset_make_gaps(instants: 'const TInstant **', count: int, linear: bool, maxdist: 'float', maxt: 'Interval *') -> 'TSequenceSet *':
+def tsequenceset_make_gaps(instants: 'const TInstant **', count: int, linear: bool, maxdist: 'float',
+                           maxt: 'Interval *') -> 'TSequenceSet *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     maxdist_converted = _ffi.cast('float', maxdist)
     maxt_converted = _ffi.cast('Interval *', maxt)
@@ -3635,7 +3645,7 @@ def temporal_timestamp_n(temp: 'const Temporal *', n: int) -> 'TimestampTz *':
     raise Exception(f'C call went wrong: {result}')
 
 
-def temporal_timestamps(temp: 'const Temporal *') -> "Tuple[int, 'int *']":
+def temporal_timestamps(temp: 'const Temporal *') -> "Tuple['TimestampTz *', 'int *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
     count = _ffi.new('int *')
     result = _lib.temporal_timestamps(temp_converted, count)
@@ -3850,12 +3860,15 @@ def tbool_minus_values(temp: 'const Temporal *', values: 'bool *', count: int) -
     return result
 
 
-def tbool_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool, value: 'bool *') -> bool:
+def tbool_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> bool:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
-    value_converted = _ffi.cast('bool *', value)
-    result = _lib.tbool_value_at_timestamp(temp_converted, t_converted, strict, value_converted)
-    return result
+    value = _ffi.new('bool *')
+    result = _lib.tbool_value_at_timestamp(temp_converted, t_converted, strict, value)
+    if result:
+        return value[0]
+    else:
+        raise Exception(f'C call went wrong: {result}')
 
 
 def temporal_at_max(temp: 'const Temporal *') -> 'Temporal *':
@@ -4140,12 +4153,15 @@ def ttext_minus_values(temp: 'const Temporal *', values: 'text **', count: int) 
     return result
 
 
-def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool, value: 'text **') -> bool:
+def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> str:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
-    value_converted = [_ffi.cast('text *', x) for x in value]
-    result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, value_converted)
-    return result
+    value = _ffi.new('text **')
+    result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, value)
+    if result:
+        return cstring2text(value[0])
+    else:
+        raise Exception(f'C call went wrong: {result}')
 
 
 def tand_bool_tbool(b: bool, temp: 'const Temporal *') -> 'Temporal *':
@@ -7105,35 +7121,40 @@ def intersects_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *
     return result
 
 
-def tcontains_geo_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *', restr: bool, atvalue: bool) -> 'Temporal *':
+def tcontains_geo_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *', restr: bool,
+                         atvalue: bool) -> 'Temporal *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tcontains_geo_tpoint(gs_converted, temp_converted, restr, atvalue)
     return result
 
 
-def tdisjoint_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
+def tdisjoint_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool,
+                         atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     geo_converted = _ffi.cast('const GSERIALIZED *', geo)
     result = _lib.tdisjoint_tpoint_geo(temp_converted, geo_converted, restr, atvalue)
     return result
 
 
-def tdwithin_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', dist: float, restr: bool, atvalue: bool) -> 'Temporal *':
+def tdwithin_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', dist: float, restr: bool,
+                        atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     result = _lib.tdwithin_tpoint_geo(temp_converted, gs_converted, dist, restr, atvalue)
     return result
 
 
-def tdwithin_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *', dist: float, restr: bool, atvalue: bool) -> 'Temporal *':
+def tdwithin_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *', dist: float, restr: bool,
+                           atvalue: bool) -> 'Temporal *':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.tdwithin_tpoint_tpoint(temp1_converted, temp2_converted, dist, restr, atvalue)
     return result
 
 
-def tintersects_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
+def tintersects_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool,
+                           atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     geo_converted = _ffi.cast('const GSERIALIZED *', geo)
     result = _lib.tintersects_tpoint_geo(temp_converted, geo_converted, restr, atvalue)
@@ -7147,7 +7168,8 @@ def touches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> i
     return result
 
 
-def ttouches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
+def ttouches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', restr: bool,
+                        atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     result = _lib.ttouches_tpoint_geo(temp_converted, gs_converted, restr, atvalue)
@@ -7200,7 +7222,8 @@ def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
     return result
 
 
-def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int, buckets: 'TimestampTz **', newcount: 'int *') -> 'Temporal **':
+def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int,
+                        buckets: 'TimestampTz **', newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     start_converted = _ffi.cast('TimestampTz', start)
     end_converted = _ffi.cast('TimestampTz', end)
@@ -7208,11 +7231,13 @@ def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: 
     torigin_converted = _ffi.cast('TimestampTz', torigin)
     buckets_converted = [_ffi.cast('TimestampTz *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
-    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted, torigin_converted, count, buckets_converted, newcount_converted)
+    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted,
+                                      torigin_converted, count, buckets_converted, newcount_converted)
     return result
 
 
-def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int, buckets: 'int **', newcount: 'int *') -> 'Temporal **':
+def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int, buckets: 'int **',
+                     newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     buckets_converted = [_ffi.cast('int *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
@@ -7220,7 +7245,8 @@ def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, cou
     return result
 
 
-def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int, buckets: 'float **', newcount: 'int *') -> 'Temporal **':
+def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int, buckets: 'float **',
+                       newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     buckets_converted = [_ffi.cast('float *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
@@ -7256,5 +7282,3 @@ def temporal_dyntimewarp_path(temp1: 'const Temporal *', temp2: 'const Temporal 
     count = _ffi.new('int *')
     result = _lib.temporal_dyntimewarp_path(temp1_converted, temp2_converted, count)
     return result, count[0]
-
-

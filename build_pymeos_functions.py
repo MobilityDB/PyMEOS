@@ -40,6 +40,8 @@ manual_functions = {
     'temporal_shift_tscale': 'start and duration parameters can be null.',
     'cstring2text': "return type should be 'text *'. result shouldn't be converted using text2cstring",
     'text2cstring': "parameter type should be 'text *'. parameter shouldn't be converted using cstring2text",
+    'tbool_value_at_timestamp': 'value parameter is output',
+    'ttext_value_at_timestamp': 'value parameter is output',
 }
 
 

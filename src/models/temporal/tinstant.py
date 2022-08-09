@@ -24,6 +24,7 @@
 #
 ###############################################################################
 from abc import ABC
+from functools import cached_property
 
 from lib.functions import temporal_timestamps, timestamptz_to_datetime
 from ..temporal import Temporal
@@ -43,7 +44,7 @@ class TInstant(Temporal, ABC):
         """
         return "Instant"
 
-    @property
+    @cached_property
     def timestamp(self):
         """
         Timestamp.
@@ -52,7 +53,7 @@ class TInstant(Temporal, ABC):
         assert count == 1
         return timestamptz_to_datetime(ts[0])
 
-    @property
+    @cached_property
     def period(self):
         """
         Period on which the temporal value is defined ignoring the potential
@@ -60,7 +61,7 @@ class TInstant(Temporal, ABC):
         """
         return Period(self.timestamp, self.timestamp, True, True)
 
-    @property
+    @cached_property
     def value(self) -> bool:
         """
         Value component.
@@ -126,10 +127,3 @@ class TInstant(Temporal, ABC):
         List of timestamps.
         """
         return [self.timestamp]
-
-    # Comparisons are missing
-    def __eq__(self, other):
-        if isinstance(other, self.__class__):
-            if self._value == other._value and self._time == other._time:
-                return True
-        return False
