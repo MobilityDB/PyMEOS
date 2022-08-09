@@ -25,11 +25,13 @@
 ###############################################################################
 
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional, Union, List
 
 from dateutil.parser import parse
 
-from lib.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out
+from lib.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out, \
+    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, tinstantset_make, tsequence_make, \
+    tsequenceset_make, text2cstring
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -62,6 +64,22 @@ class TText(Temporal):
             raise ValueError('Value must be an instance of a subclass of TText')
         return value.__str__().strip("'")
 
+    @property
+    def values(self):
+        values, count = ttext_values(self._inner)
+        return [text2cstring(values[i]) for i in range(count)]
+
+    @property
+    def start_value(self):
+        return ttext_start_value(self._inner)
+
+    @property
+    def end_value(self):
+        return ttext_end_value(self._inner)
+
+    def value_at_timestamp(self, timestamp):
+        return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+
     def __str__(self):
         return ttext_out(self._inner)
 
@@ -90,15 +108,24 @@ class TTextInst(TInstant, TText):
     """
 
     def __init__(self, *, string: Optional[str] = None, value: Optional[str] = None,
-                 timestamp: Optional[Union[str, datetime]] = None):
-        assert (string is not None) != (value is not None and timestamp is not None), \
+                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
+        assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = ttext_in(string)
         else:
             ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = ttextinst_make(value, ts)
+
+    @property
+    def value(self):
+        """
+        Geometry representing the values taken by the temporal value.
+        """
+        return self.values[0]
 
 
 class TTextInstSet(TInstantSet, TText):
@@ -122,8 +149,17 @@ class TTextInstSet(TInstantSet, TText):
 
     ComponentClass = TTextInst
 
-    def __init__(self, *argv):
-        super().__init__(*argv)
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
+                 merge: bool = True, _inner=None):
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
+            "Either string must be not None or instant_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = ttext_in(string)
+        else:
+            instants = [x._inner if isinstance(x, TTextInst) else ttext_in(x) for x in instant_list]
+            self._inner = tinstantset_make(instants, len(instants), merge)
 
 
 class TTextSeq(TSequence, TText):
@@ -154,10 +190,19 @@ class TTextSeq(TSequence, TText):
 
     ComponentClass = TTextInst
 
-    def __init__(self, instantList, lower_inc=None, upper_inc=None):
-        super().__init__(instantList, lower_inc, upper_inc)
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
+            "Either string must be not None or instant_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = ttext_in(string)
+        else:
+            self._instants = [x._inner if isinstance(x, TTextInst) else ttext_in(x) for x in instant_list]
+            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc, False, normalize)
 
-    @classmethod
     @property
     def interpolation(self):
         """
@@ -185,10 +230,19 @@ class TTextSeqSet(TSequenceSet, TText):
 
     ComponentClass = TTextSeq
 
-    def __init__(self, sequenceList):
-        super().__init__(sequenceList)
+    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
+            "Either string must be not None or sequence_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = ttext_in(string)
+        else:
+            sequences = [x._inner if isinstance(x, TTextSeq) else ttext_in(x) for x in sequence_list]
+            self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
-    @classmethod
     @property
     def interpolation(self):
         """

@@ -97,7 +97,7 @@ print(seq.interpolation)
 print(ts.interpolation)
 
 print("\ngetValue")
-print(inst.getValue)
+print(inst.value)
 
 print("\ngetValues")
 print(inst.values)

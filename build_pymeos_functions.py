@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from lib.objects import conversion_map, Conversion
 
 BASE = """from datetime import datetime, timedelta
-from typing import Any, Tuple
+from typing import Any, Tuple, Optional
 
 import _meos_cffi
 from dateutil.parser import parse
@@ -29,6 +29,8 @@ def timedelta_to_interval(td: timedelta) -> Any:
 def interval_to_timedelta(interval: Any) -> timedelta:
     # TODO fix for months/years
     return timedelta(days=interval.day, microseconds=interval.time)
+
+
 """
 
 manual_functions = {
@@ -36,12 +38,8 @@ manual_functions = {
     'timestampset_shift_tscale': 'start and duration parameters can be null.',
     'periodset_shift_tscale': 'start and duration parameters can be null.',
     'temporal_shift_tscale': 'start and duration parameters can be null.',
-    'periodset_timestamps': 'count is an output parameter.',
-    'periodset_periods': 'count is an output parameter.',
-    'temporal_timestamps': 'count is an output parameter.',
-    'temporal_instants': 'count is an output parameter.',
-    'temporal_segments': 'count is an output parameter.',
-    'temporal_sequences': 'count is an output parameter.',
+    'cstring2text': "return type should be 'text *'. result shouldn't be converted using text2cstring",
+    'text2cstring': "parameter type should be 'text *'. parameter shouldn't be converted using cstring2text",
 }
 
 
@@ -65,11 +63,11 @@ def main():
             file.write('\n\n\n')
 
 
-def get_params(inner_params: str) -> List[Tuple[str, str, str, str]]:
+def get_params(inner_params: str) -> List[Tuple[str, str, str, str, str]]:
     return [p for p in (get_param(param.strip()) for param in inner_params.split(',')) if p is not None]
 
 
-def get_param(inner_param: str) -> Optional[Tuple[str, str, Optional[str], str]]:
+def get_param(inner_param: str) -> Optional[Tuple[str, str, Optional[str], str, str]]:
     split = inner_param.split(' ')
     param_type = ' '.join(split[:-1])
     if split[-1].startswith('**'):
@@ -85,10 +83,10 @@ def get_param(inner_param: str) -> Optional[Tuple[str, str, Optional[str], str]]
         return None
     conversion = get_param_conversion(param_type)
     if conversion is None:
-        return param_name, 'Any', '', param_name
+        return param_name, 'Any', '', param_name, param_type
     if conversion.p_to_c is None:
-        return param_name, conversion.p_type, None, param_name
-    return param_name, conversion.p_type, f'{param_name}_converted = {conversion.p_to_c(param_name)}', f'{param_name}_converted'
+        return param_name, conversion.p_type, None, param_name, param_type
+    return param_name, conversion.p_type, f'{param_name}_converted = {conversion.p_to_c(param_name)}', f'{param_name}_converted', param_type
 
 
 def get_param_conversion(param_type: str) -> Optional[Conversion]:
@@ -110,7 +108,7 @@ def get_return_type(inner_return_type) -> Tuple[str, Optional[str]]:
     return conversion.p_type, conversion.c_to_p('result') if conversion.c_to_p else None
 
 
-def build_function_string(function_name: str, return_type: str, parameters: List[Tuple[str, str, str, str]],
+def build_function_string(function_name: str, return_type: str, parameters: List[Tuple[str, str, str, str, str]],
                           result_conversion: Optional[str]) -> str:
     result_param = None
     if len(parameters) > 1 and parameters[-1][0] == 'result':
@@ -118,7 +116,7 @@ def build_function_string(function_name: str, return_type: str, parameters: List
 
     out_params = []
     if len(parameters) > 1:
-        out_params = [p for p in parameters if p[0].endswith('_out')]
+        out_params = [p for p in parameters if p[0].endswith('_out') or (p[0] == 'count' and p[1].endswith("*'"))]
 
     params = ', '.join(f'{p[0]}: {p[1]}' for p in parameters if p not in out_params)
     param_conversions = '\n    '.join(p[2] for p in parameters if p[2] is not None and p not in out_params)
@@ -141,9 +139,9 @@ def build_function_string(function_name: str, return_type: str, parameters: List
         result_manipulation = (result_manipulation or '') + '    return result'
 
     for out_param in out_params:
-        param_conversions += f'\n    {out_param[0]} = _ffi.new({out_param[1]})'
+        param_conversions += f'\n    {out_param[0]} = _ffi.new({out_param[4]})'
         return_type += f', {out_param[1]}'
-        result_manipulation += f', {out_param[0]}'
+        result_manipulation += f', {out_param[0] + ("[0]" if out_param[0] == "count" else "")}'
 
     if len(out_params) > 0:
         return_type = f'"Tuple[{return_type}]"'

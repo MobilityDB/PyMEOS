@@ -24,12 +24,10 @@
 #
 ###############################################################################
 from abc import ABC
-from datetime import timedelta
 
-from lib.functions import temporal_timestamps, timestamptz_to_datetime, temporal_intersects_timestamp, \
-    datetime_to_timestamptz
+from lib.functions import temporal_timestamps, timestamptz_to_datetime
 from ..temporal import Temporal
-from ..time import Period, PeriodSet
+from ..time import Period
 
 
 class TInstant(Temporal, ABC):
@@ -61,6 +59,13 @@ class TInstant(Temporal, ABC):
         time gaps.
         """
         return Period(self.timestamp, self.timestamp, True, True)
+
+    @property
+    def value(self) -> bool:
+        """
+        Value component.
+        """
+        return self.values[0]
 
     @property
     def start_instant(self):

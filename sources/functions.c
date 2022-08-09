@@ -1,4 +1,11 @@
 /*****************************************************************************
+ * Additional functions
+ *****************************************************************************/
+
+extern char *text2cstring(const text *textptr);
+extern text *cstring2text(const char *cstring);
+
+/*****************************************************************************
  * Initialization of the MEOS library
  *****************************************************************************/
 
@@ -634,7 +641,7 @@ extern Span *tnumber_to_span(const Temporal *temp);
 
 extern bool tbool_end_value(const Temporal *temp);
 extern bool tbool_start_value(const Temporal *temp);
-extern bool *tbool_values(const Temporal *temp);
+extern bool *tbool_values(const Temporal *temp, int *count);
 extern Interval *temporal_duration(const Temporal *temp);
 extern const TInstant *temporal_end_instant(const Temporal *temp);
 extern TSequence *temporal_end_sequence(const Temporal *temp);
@@ -664,20 +671,20 @@ extern double tfloat_max_value(const Temporal *temp);
 extern double tfloat_min_value(const Temporal *temp);
 extern Span **tfloat_spans(const Temporal *temp, int *count);
 extern double tfloat_start_value(const Temporal *temp);
-extern double *tfloat_values(const Temporal *temp);
+extern double *tfloat_values(const Temporal *temp, int *count);
 extern int tint_end_value(const Temporal *temp);
 extern int tint_max_value(const Temporal *temp);
 extern int tint_min_value(const Temporal *temp);
 extern int tint_start_value(const Temporal *temp);
-extern int *tint_values(const Temporal *temp);
+extern int *tint_values(const Temporal *temp, int *count);
 extern GSERIALIZED *tpoint_end_value(const Temporal *temp);
 extern GSERIALIZED *tpoint_start_value(const Temporal *temp);
-extern GSERIALIZED **tpoint_values(const Temporal *temp);
+extern GSERIALIZED **tpoint_values(const Temporal *temp, int *count);
 extern text *ttext_end_value(const Temporal *temp);
 extern text *ttext_max_value(const Temporal *temp);
 extern text *ttext_min_value(const Temporal *temp);
 extern text *ttext_start_value(const Temporal *temp);
-extern text **ttext_values(const Temporal *temp);
+extern text **ttext_values(const Temporal *temp, int *count);
 
 /*****************************************************************************/
 

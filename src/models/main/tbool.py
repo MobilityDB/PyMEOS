@@ -63,6 +63,14 @@ class TBool(Temporal):
         return value.__str__().strip("'")
 
     @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        values, count = tbool_values(self._inner)
+        return [values[i] for i in range(count)]
+
+    @property
     def start_value(self):
         """
         Start value.
@@ -75,20 +83,6 @@ class TBool(Temporal):
         End value.
         """
         return tbool_end_value(self._inner)
-
-    @property
-    def min_value(self):
-        """
-        Minimum value.
-        """
-        return min(self.values)
-
-    @property
-    def max_value(self):
-        """
-        Maximum value.
-        """
-        return max(self.values)
 
     def value_at_timestamp(self, timestamp):
         """
@@ -141,20 +135,6 @@ class TBoolInst(TInstant, TBool):
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = tboolinst_make(bool(value), ts)
 
-    @property
-    def value(self) -> bool:
-        """
-        Value component.
-        """
-        return tbool_values(self._inner)[0]
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        return [self.value]
-
 
 class TBoolInstSet(TInstantSet, TBool):
     """
@@ -189,16 +169,6 @@ class TBoolInstSet(TInstantSet, TBool):
         else:
             instants = [x._inner if isinstance(x, TBoolInst) else tbool_in(x) for x in instant_list]
             self._inner = tinstantset_make(instants, len(instants), merge)
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO fix due to missing duplicates
-        return [True, False]
-        # values = tbool_values(self._inner)
-        # return [values[i] for i in range(self._inner.count)]
 
 
 class TBoolSeq(TSequence, TBool):
@@ -249,16 +219,6 @@ class TBoolSeq(TSequence, TBool):
         """
         return 'Stepwise'
 
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO fix due to missing duplicates
-        return [True, False]
-        # values = tbool_values(self._inner)
-        # return [values[i] for i in range(self._inner.count)]
-
 
 class TBoolSeqSet(TSequenceSet, TBool):
     """
@@ -299,13 +259,3 @@ class TBoolSeqSet(TSequenceSet, TBool):
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO fix due to missing duplicates
-        return [True, False]
-        # values = tbool_values(self._inner)
-        # return [values[i] for i in range(self._inner.count)]

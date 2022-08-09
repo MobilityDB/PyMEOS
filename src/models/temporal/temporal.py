@@ -100,20 +100,18 @@ class Temporal(ABC):
         pass
 
     @property
-    @abstractmethod
     def min_value(self):
         """
         Minimum value.
         """
-        pass
+        return min(self.values)
 
     @property
-    @abstractmethod
     def max_value(self):
         """
         Maximum value.
         """
-        pass
+        return max(self.values)
 
     @abstractmethod
     def value_at_timestamp(self, timestamp):

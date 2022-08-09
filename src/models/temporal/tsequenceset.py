@@ -39,14 +39,6 @@ class TSequenceSet(Temporal):
         """
         return "SequenceSet"
 
-    @property
-    def values(self):
-        """
-        List of distinct values taken by the temporal value.
-        """
-        values = [seq.values for seq in self._sequenceList]
-        return list(dict.fromkeys([item for sublist in values for item in sublist]))
-
     def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.

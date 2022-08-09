@@ -26,6 +26,7 @@
 
 from __future__ import annotations
 
+from abc import ABC
 from ctypes import Union
 from datetime import datetime
 from typing import Optional, List, Literal
@@ -34,7 +35,8 @@ from dateutil.parser import parse
 from postgis import Point, MultiPoint, LineString, GeometryCollection, MultiLineString
 
 from lib.functions import tgeogpoint_in, tsequence_make, tpoint_as_text, tgeompoint_in, tinstantset_make, \
-    tsequenceset_make, temporal_interpolation, tpoint_as_ewkt
+    tsequenceset_make, temporal_interpolation, tpoint_as_ewkt, tpoint_start_value, tpoint_end_value, \
+    tpoint_value_at_timestamp, tpoint_values
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -46,37 +48,43 @@ def __hash__(self):
 setattr(Point, '__hash__', __hash__)
 
 
-class TPoint:
+class TPoint(Temporal, ABC):
 
-    def __init__(self):
-        self._inner = None
+    @property
+    def start_value(self):
+        return tpoint_start_value(self._inner)
+
+    @property
+    def end_value(self):
+        return tpoint_end_value(self._inner)
+
+    @property
+    def values(self):
+        return tpoint_values(self._inner)
+
+    def value_at_timestamp(self, timestamp):
+        # TODO: Fix due to GSerialized problems
+        # tpoint_value_at_timestamp()
+        return None
 
     def __str__(self):
         return tpoint_as_text(self._inner, 3)
 
 
-class TPointInst(TPoint, TInstant):
+class TPointInst(TPoint, TInstant, ABC):
     """
     Abstract class for representing temporal points of instant subtype.
     """
 
     @property
-    def getValue(self):
+    def value(self):
         """
         Geometry representing the values taken by the temporal value.
         """
-        string = tpoint_as_ewkt(self._inner, 3)
-        return [Point.from_ewkb(string.split(';')[1].split('@')[0])]
-
-    @property
-    def values(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        return [self.getValue]
+        return self.values[0]
 
 
-class TPointInstSet(TPoint, TInstantSet):
+class TPointInstSet(TPoint, TInstantSet, ABC):
     """
     Abstract class for representing temporal points of instant set subtype.
     """
@@ -90,7 +98,7 @@ class TPointInstSet(TPoint, TInstantSet):
         return MultiPoint(values)
 
 
-class TPointSeq(TSequence):
+class TPointSeq(TSequence, ABC):
     """
     Abstract class for representing temporal points of sequence subtype.
     """
@@ -114,7 +122,7 @@ class TPointSeq(TSequence):
         return result
 
 
-class TPointSeqSet(TSequenceSet):
+class TPointSeqSet(TSequenceSet, ABC):
     """
     Abstract class for representing temporal points of sequence set subtype.
     """
@@ -142,7 +150,7 @@ class TPointSeqSet(TSequenceSet):
             return MultiLineString(lines)
 
 
-class TGeomPoint(Temporal):
+class TGeomPoint(TPoint, ABC):
     """
     Abstract class for representing temporal geometric or geographic points of any subtype.
     """
@@ -193,7 +201,7 @@ class TGeomPoint(Temporal):
         return result
 
 
-class TGeogPoint(Temporal):
+class TGeogPoint(TPoint, ABC):
     """
     Abstract class for representing temporal geographic points of any subtype.
     """
@@ -267,12 +275,13 @@ class TGeomPointInst(TGeomPoint, TPointInst):
     """
 
     def __init__(self, *, string: Optional[str] = None, point: Optional[Union[str, Point]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0) -> None:
+                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__()
-        assert (string is not None) != (point is not None and timestamp is not None), \
+        assert (_inner is not None) or ((string is not None) != (point is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
-
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeompoint_in(string)
         else:
             self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
@@ -298,12 +307,13 @@ class TGeogPointInst(TGeogPoint, TPointInst):
     """
 
     def __init__(self, *, string: Optional[str] = None, point: Optional[Union[str, Point]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0) -> None:
+                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__()
-        assert (string is not None) != (point is not None and timestamp is not None), \
+        assert (_inner is not None) or ((string is not None) != (point is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
-
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeogpoint_in(string)
         else:
             self._inner = tgeogpoint_in(f"SRID={srid};{point}@{timestamp}")
@@ -332,11 +342,13 @@ class TGeomPointInstSet(TGeomPoint, TPointInstSet):
     ComponentClass = TGeomPointInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
-                 merge: bool = True):
+                 merge: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (instant_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeompoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeomPointInst) else tgeompoint_in(x) for x in instant_list]
@@ -366,11 +378,13 @@ class TGeogPointInstSet(TGeogPoint, TPointInstSet):
     ComponentClass = TGeogPointInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
-                 merge: bool = True):
+                 merge: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (instant_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeogpoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeogPointInst) else tgeogpoint_in(x) for x in instant_list]
@@ -410,12 +424,14 @@ class TGeomPointSeq(TGeomPoint, TPointSeq):
     ComponentClass = TGeomPointInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
-                 lower_inc: Optional[bool] = None, upper_inc: Optional[bool] = None,
-                 interp: Literal['Linear', 'Stepwise'] = None, normalize: Optional[bool] = None):
+                 lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
+                 normalize: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (instant_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeompoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeomPointInst) else tgeompoint_in(x) for x in instant_list]
@@ -457,11 +473,13 @@ class TGeogPointSeq(TGeogPoint, TPointSeq):
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
-                 normalize: bool = True):
+                 normalize: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (instant_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeogpoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeogPointInst) else tgeogpoint_in(x) for x in instant_list]
@@ -502,11 +520,13 @@ class TGeomPointSeqSet(TGeomPoint, TPointSeqSet):
 
     def __init__(self, *, string: Optional[str] = None,
                  sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
-                 normalize: bool = True):
+                 normalize: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (sequence_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeompoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeomPointSeq) else tgeompoint_in(x) for x in sequence_list]
@@ -547,11 +567,13 @@ class TGeogPointSeqSet(TGeogPoint, TPointSeqSet):
 
     def __init__(self, *, string: Optional[str] = None,
                  sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
-                 normalize: bool = True):
+                 normalize: bool = True, _inner=None):
         super().__init__()
-        assert (string is not None) != (sequence_list is not None), \
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
-        if string is not None:
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
             self._inner = tgeogpoint_in(string)
         else:
             instants = [x._inner if isinstance(x, TGeogPointSeq) else tgeogpoint_in(x) for x in sequence_list]
