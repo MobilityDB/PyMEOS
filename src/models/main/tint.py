@@ -25,12 +25,14 @@
 ###############################################################################
 
 from spans.types import intrange
+from functools import cached_property
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 from datetime import datetime
-from lib.functions import tinstantset_make, tint_in, tint_out, tintinst_make, datetime_to_timestamptz, \
-    pg_timestamptz_in, tint_values, tint_start_value, tint_end_value, tsequence_make, temporal_subtype, \
-        tsequenceset_make
+from lib.functions import tinstantset_make, tint_in, tint_out, tintinst_make, \
+    datetime_to_timestamptz, pg_timestamptz_in, tint_values, tint_start_value, \
+        tint_end_value, tsequence_make, temporal_subtype, tsequenceset_make, \
+            tint_value_at_timestamp
 
 
 class TInt(Temporal):
@@ -97,15 +99,19 @@ class TInt(Temporal):
         """
         return max(self.values)
 
+    @cached_property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        values, count = tint_values(self._inner)
+        return [values[i] for i in range(count)]
+
     def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
-        # TODO check here
-        if timestamp == self._time:
-            return self._value
-        else:
-            return None
+        return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     def __str__(self):
         return tint_out(self._inner)
@@ -130,9 +136,11 @@ class TIntInst(TInstant, TInt):
 
     """
 
-    def __init__(self, value, time=None):
+    def __init__(self, value=None, time=None, _inner=None):
         super().__init__()
-        if time is None:
+        if _inner != None:
+            self._inner = _inner
+        elif time is None:
             self._inner = tint_in(value)
         else:
             value = int(value)
@@ -141,21 +149,6 @@ class TIntInst(TInstant, TInt):
             self._inner = tintinst_make(value, ts)
         assert temporal_subtype(self._inner) == "Instant", "Internal error"
 
-    @property
-    def value(self) -> int:
-        """
-        Value component.
-        """
-        # TODO check
-        return tint_values(self._inner)[0]
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO check
-        return [self.value]
 
 class TIntInstSet(TInstantSet, TInt):
     """
@@ -178,8 +171,10 @@ class TIntInstSet(TInstantSet, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self,  *argv, merge:bool=True):
-        super().__init__()
+    def __init__(self,  *argv, merge:bool=True, _inner=None):
+        if _inner != None:
+            self._inner = _inner
+            return
         instants = list()
         for item in argv:
             if isinstance(item, (tuple, list)):
@@ -193,13 +188,6 @@ class TIntInstSet(TInstantSet, TInt):
             self._inner = tinstantset_make(instants, len(instants), merge)
         assert temporal_subtype(self._inner) == "InstantSet", "Internal error"
 
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO check
-        return [True, False]
 
 class TIntSeq(TSequence, TInt):
     """
@@ -229,10 +217,13 @@ class TIntSeq(TSequence, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self, instantList, lower_inc=True, upper_inc=False, normalize=True):
+    def __init__(self, instantList=None, lower_inc=True, upper_inc=False, normalize=True, _inner=None):
         # TODO Should the __init__ function also accept vairable-length arguments
         # like that for TIntInstSet?
         super().__init__()
+        if _inner != None:
+            self._inner = _inner
+            return
         if isinstance(instantList, str):
             self._inner = tint_in(instantList)
         else:
@@ -249,13 +240,6 @@ class TIntSeq(TSequence, TInt):
         """
         return 'Stepwise'
 
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO 
-        return [True, False]
 
 class TIntSeqSet(TSequenceSet, TInt):
     """
@@ -277,10 +261,13 @@ class TIntSeqSet(TSequenceSet, TInt):
 
     ComponentClass = TIntSeq
 
-    def __init__(self, sequenceList, normalize=True):
+    def __init__(self, sequenceList=None, normalize=True, _inner=None):
         # TODO Should the __init__ function also accept vairable-length arguments
         # like that for TIntInstSet?
         super().__init__()
+        if _inner != None:
+            self._inner = _inner
+            return
         if isinstance(sequenceList, str):
             self._inner = tint_in(sequenceList)
         else:
@@ -295,11 +282,3 @@ class TIntSeqSet(TSequenceSet, TInt):
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
         return 'Stepwise'
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        # TODO check
-        return [True, False]
