@@ -23,11 +23,12 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from abc import ABC
 
 from ..temporal import TemporalInstants
 
 
-class TInstantSet(TemporalInstants):
+class TInstantSet(TemporalInstants, ABC):
     """
     Abstract class for representing temporal values of instant set subtype.
     """
@@ -38,7 +39,3 @@ class TInstantSet(TemporalInstants):
         Subtype of the temporal value, that is, ``'InstantSet'``.
         """
         return "InstantSet"
-
-    def __repr__(self):
-        return (f'{self.__class__.__name__}'
-                f'({self})')

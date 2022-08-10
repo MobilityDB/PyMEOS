@@ -63,6 +63,9 @@ class TPoint(Temporal, ABC):
         return tpoint_values(self._inner)
 
     def value_at_timestamp(self, timestamp):
+        """
+        Value at timestamp.
+        """
         # TODO: Fix due to GSerialized problems
         # tpoint_value_at_timestamp()
         return None

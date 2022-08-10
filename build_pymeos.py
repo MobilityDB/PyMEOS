@@ -1,9 +1,13 @@
 from cffi import FFI
 
+from build_helpers import ADDITIONAL_DEFINITIONS
+
 ffibuilder = FFI()
 
-with open('sources/types.c', 'r') as t, open('sources/functions.c', 'r') as f:
-    content = t.read() + f.read()
+with open('/usr/local/include/meos.h', 'r') as f:
+    content = f.read()
+    content = content.replace('#', '//#')
+    content = content.replace(*ADDITIONAL_DEFINITIONS)
 ffibuilder.cdef(content)
 
 ffibuilder.set_source('_meos_cffi',

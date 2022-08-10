@@ -23,13 +23,13 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
+from abc import ABC
 from datetime import datetime
 from spans.types import floatrange
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
-class TFloat(Temporal):
+class TFloat(Temporal, ABC):
     """
     Abstract class for representing temporal floats of any subtype.
     """

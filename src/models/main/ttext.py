@@ -23,7 +23,7 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
+from abc import ABC
 from datetime import datetime
 from typing import Optional, Union, List
 
@@ -35,7 +35,7 @@ from lib.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
-class TText(Temporal):
+class TText(Temporal, ABC):
     """
     Abstract class for representing temporal strings of any subtype.
     """
@@ -78,6 +78,9 @@ class TText(Temporal):
         return ttext_end_value(self._inner)
 
     def value_at_timestamp(self, timestamp):
+        """
+        Value at timestamp.
+        """
         return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     def __str__(self):

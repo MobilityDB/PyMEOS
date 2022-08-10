@@ -23,26 +23,26 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from functools import cached_property
+from abc import ABC
 
 from lib.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants
 from .temporal import Temporal
 
 
-class TemporalInstants(Temporal):
+class TemporalInstants(Temporal, ABC):
     """
     Abstract class for representing temporal values of instant set or
     sequence subtype.
     """
 
-    @cached_property
+    @property
     def start_instant(self):
         """
         Start instant.
         """
         return self.ComponentClass(_inner=temporal_start_instant(self._inner))
 
-    @cached_property
+    @property
     def end_instant(self):
         """
         End instant.
@@ -56,7 +56,7 @@ class TemporalInstants(Temporal):
         # 1-based
         return self.ComponentClass(_inner=temporal_instant_n(self._inner, n))
 
-    @cached_property
+    @property
     def instants(self):
         """
         List of instants.

@@ -26,17 +26,17 @@
 
 import warnings
 from datetime import datetime
+from typing import Optional, List, Union
 
-import _meos_cffi
 from dateutil.parser import parse
 
-from lib.functions import pg_timestamp_in, timestamp_to_timestampset, union_timestampset_timestamp, \
-    datetime_to_timestamptz, timestampset_end_timestamp, timestampset_start_timestamp, timestampset_num_timestamps, \
+from lib.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset_end_timestamp, \
+    timestampset_start_timestamp, timestampset_num_timestamps, \
     timestampset_timestamps, \
     timestampset_timestamp_n, \
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
-    timestampset_gt
+    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash
 from .period import Period
 
 try:
@@ -44,9 +44,6 @@ try:
     from psycopg2.extensions import ISQLQuote
 except ImportError:
     warnings.warn('psycopg2 not installed', ImportWarning)
-
-_ffi = _meos_cffi.ffi
-_lib = _meos_cffi.lib
 
 
 class TimestampSet:
@@ -56,56 +53,32 @@ class TimestampSet:
     ``TimestampSet`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> TimestampSet('{2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01, 2019-09-11 00:00:00+01}')
+        >>> TimestampSet(string='{2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01, 2019-09-11 00:00:00+01}')
 
     Another possibility is to give a tuple or list of composing timestamps,
     which can be instances of ``str`` or ``datetime``. The composing timestamps
     must be given in increasing order.
 
-        >>> TimestampSet(['2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', '2019-09-11 00:00:00+01'])
-        >>> TimestampSet([parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), parse('2019-09-11 00:00:00+01')])
-        >>> TimestampSet('2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', '2019-09-11 00:00:00+01')
-        >>> TimestampSet(parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), parse('2019-09-11 00:00:00+01'))
+        >>> TimestampSet(timestamp_list=['2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', '2019-09-11 00:00:00+01'])
+        >>> TimestampSet(timestamp_list=[parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), parse('2019-09-11 00:00:00+01')])
 
     """
 
     __slots__ = ['_inner']
 
-    def __init__(self, *argv, **kwargs):
-        # Constructor with a single argument of type string
-        if 'inner' in kwargs:
-            self._inner = kwargs['inner']
-        elif len(argv) == 1 and isinstance(argv[0], str):
-            ts = argv[0].strip()
-            self._inner = _lib.timestampset_in(ts.encode('utf-8'))
-        # Constructor with a single argument of type list
-        elif len(argv) == 1 and isinstance(argv[0], list):
-            # List of strings representing datetime values
-            if all(isinstance(arg, str) for arg in argv[0]):
-                self._inner = timestamp_to_timestampset(pg_timestamp_in(argv[0][0], -1))
-                for arg in argv[0][1:]:
-                    self._inner = union_timestampset_timestamp(self._inner, pg_timestamp_in(arg, -1))
-            # List of datetimes
-            elif all(isinstance(arg, datetime) for arg in argv[0]):
-                self._inner = timestamp_to_timestampset(datetime_to_timestamptz(argv[0][0]))
-                for arg in argv[0][1:]:
-                    self._inner = union_timestampset_timestamp(self._inner, datetime_to_timestamptz(arg))
-            else:
-                raise Exception("ERROR: Could not parse timestamp set value")
-        # Constructor with multiple arguments
+    def __init__(self, *, string: Optional[str] = None, timestamp_list: Optional[List[Union[str, datetime]]] = None,
+                 _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (timestamp_list is not None)), \
+            "Either string must be not None or timestamp_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = timestampset_in(string)
         else:
-            # Arguments are of type string
-            if all(isinstance(arg, str) for arg in argv):
-                self._inner = timestamp_to_timestampset(pg_timestamp_in(argv[0], -1))
-                for arg in argv[1:]:
-                    self._inner = union_timestampset_timestamp(self._inner, pg_timestamp_in(arg, -1))
-            # Arguments are of type datetime
-            elif all(isinstance(arg, datetime) for arg in argv):
-                self._inner = timestamp_to_timestampset(datetime_to_timestamptz(argv[0]))
-                for arg in argv[1:]:
-                    self._inner = union_timestampset_timestamp(self._inner, datetime_to_timestamptz(arg))
-            else:
-                raise Exception("ERROR: Could not parse timestamp set value")
+            times = [pg_timestamp_in(ts, -1) if isinstance(ts, str) else datetime_to_timestamptz(ts)
+                     for ts in timestamp_list]
+            self._inner = timestampset_make(times, len(times))
 
     @property
     def timespan(self):
@@ -120,31 +93,32 @@ class TimestampSet:
         """
         Period on which the timestamp set is defined ignoring the potential time gaps
         """
-        return Period(pg_timestamptz_out(timestampset_start_timestamp(self._inner)),
-                      pg_timestamptz_out(timestampset_end_timestamp(self._inner)), True, True)
+        return Period(lower=pg_timestamptz_out(timestampset_start_timestamp(self._inner)),
+                      upper=pg_timestamptz_out(timestampset_end_timestamp(self._inner)),
+                      lower_inc=True, upper_inc=True)
 
     @property
-    def numTimestamps(self):
+    def num_timestamps(self):
         """
         Number of timestamps
         """
         return timestampset_num_timestamps(self._inner)
 
     @property
-    def startTimestamp(self):
+    def start_timestamp(self):
         """
         Start timestamp
         """
         return timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     @property
-    def endTimestamp(self):
+    def end_timestamp(self):
         """
         End timestamp
         """
         return timestamptz_to_datetime(timestampset_end_timestamp(self._inner))
 
-    def timestampN(self, n):
+    def timestamp_n(self, n):
         """
         N-th timestamp
         """
@@ -157,14 +131,14 @@ class TimestampSet:
         Distinct timestamps
         """
         tss = timestampset_timestamps(self._inner)
-        return [timestamptz_to_datetime(tss[i]) for i in range(self.numTimestamps)]
+        return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
     def shift(self, timedelta):
         """
         Shift the timestamp set by a time interval
         """
         tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
-        return TimestampSet(inner=tss)
+        return TimestampSet(_inner=tss)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -215,7 +189,7 @@ class TimestampSet:
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
-        return TimestampSet(value)
+        return TimestampSet(string=value)
 
     @staticmethod
     def write(value):
@@ -226,6 +200,9 @@ class TimestampSet:
     def __str__(self):
         return timestampset_out(self._inner)
 
+    def __hash__(self) -> int:
+        return timestampset_hash(self._inner)
+
     def __repr__(self):
         return (f'{self.__class__.__name__}'
-                f'({self._inner!r})')
+                f'({self})')

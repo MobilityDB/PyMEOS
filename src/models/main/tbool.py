@@ -23,8 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from abc import ABC
 from datetime import datetime
-from functools import cached_property
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
@@ -35,7 +35,7 @@ from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
-class TBool(Temporal):
+class TBool(Temporal, ABC):
     """
     Abstract class for representing temporal Booleans of any subtype.
     """
@@ -64,7 +64,7 @@ class TBool(Temporal):
             raise ValueError('Value must be an instance of a subclass of TBool')
         return value.__str__().strip("'")
 
-    @cached_property
+    @property
     def values(self):
         """
         List of distinct values.
@@ -72,14 +72,14 @@ class TBool(Temporal):
         values, count = tbool_values(self._inner)
         return [values[i] for i in range(count)]
 
-    @cached_property
+    @property
     def start_value(self):
         """
         Start value.
         """
         return tbool_start_value(self._inner)
 
-    @cached_property
+    @property
     def end_value(self):
         """
         End value.

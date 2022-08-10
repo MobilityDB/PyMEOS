@@ -23,14 +23,14 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from functools import cached_property
+from abc import ABC
 
 from lib.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
     temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences
 from ..temporal.temporal import Temporal
 
 
-class TSequenceSet(Temporal):
+class TSequenceSet(Temporal, ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
@@ -41,14 +41,14 @@ class TSequenceSet(Temporal):
         """
         return "SequenceSet"
 
-    @cached_property
+    @property
     def start_instant(self):
         """
         Start instant.
         """
         return self.ComponentClass.ComponentClass(_inner=temporal_start_instant(self._inner))
 
-    @cached_property
+    @property
     def end_instant(self):
         """
         End instant.
@@ -62,7 +62,7 @@ class TSequenceSet(Temporal):
         # 1-based
         return self.ComponentClass.ComponentClass(_inner=temporal_instant_n(self._inner, n))
 
-    @cached_property
+    @property
     def instants(self):
         """
         List of instants.
@@ -70,21 +70,21 @@ class TSequenceSet(Temporal):
         ts, count = temporal_instants(self._inner)
         return [self.ComponentClass.ComponentClass(_inner=ts[i]) for i in range(count)]
 
-    @cached_property
+    @property
     def num_sequences(self):
         """
         Number of sequences.
         """
         return temporal_num_sequences(self._inner)
 
-    @cached_property
+    @property
     def start_sequence(self):
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
-    @cached_property
+    @property
     def end_sequence(self):
         """
         End sequence.
@@ -98,14 +98,10 @@ class TSequenceSet(Temporal):
         # 1-based
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
-    @cached_property
+    @property
     def sequences(self):
         """
         List of sequences.
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
-
-    def __repr__(self):
-        return (f'{self.__class__.__name__}'
-                f'({self._sequenceList!r}, {self._interp!r})')

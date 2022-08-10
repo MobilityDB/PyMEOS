@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional
+from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
 from dateutil.parser import parse
@@ -7,6 +7,9 @@ from dateutil.parser import parse
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
 
+
+def create_pointer(object: 'Any', type: str) -> 'Any *':
+    return _ffi.new(f'{type} *', object)
 
 def datetime_to_timestamptz(dt: datetime) -> int:
     return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)
@@ -162,10 +165,9 @@ def span_from_wkb(wkb: 'uint8_t *', size: int) -> 'Span *':
     return result
 
 
-def span_out(s: 'const Span *', arg: 'Datum') -> str:
+def period_out(s: 'const Span *') -> str:
     s_converted = _ffi.cast('const Span *', s)
-    arg_converted = _ffi.cast('Datum', arg)
-    result = _lib.span_out(s_converted, arg_converted)
+    result = _lib.period_out(s_converted)
     result = _ffi.string(result).decode('utf-8')
     return result
 
@@ -259,14 +261,14 @@ def timestampset_copy(ts: 'const TimestampSet *') -> 'TimestampSet *':
     return result
 
 
-def timestampset_make(times: int, count: int) -> 'TimestampSet *':
-    times_converted = _ffi.cast('const TimestampTz *', times)
+def timestampset_make(times: List[int], count: int) -> 'TimestampSet *':
+    times_converted = [_ffi.cast('const TimestampTz', x) for x in times]
     result = _lib.timestampset_make(times_converted, count)
     return result
 
 
-def timestampset_make_free(times: int, count: int) -> 'TimestampSet *':
-    times_converted = _ffi.cast('TimestampTz *', times)
+def timestampset_make_free(times: List[int], count: int) -> 'TimestampSet *':
+    times_converted = [_ffi.cast('const TimestampTz', x) for x in times]
     result = _lib.timestampset_make_free(times_converted, count)
     return result
 
@@ -441,14 +443,14 @@ def periodset_timespan(ps: 'const PeriodSet *') -> 'Interval *':
 
 def periodset_timestamp_n(ps: 'const PeriodSet *', n: int) -> int:
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.periodset_timestamp_n(ps_converted, n, out_result)
     if result:
         return out_result[0]
     raise Exception(f'C call went wrong: {result}')
 
 
-def periodset_timestamps(ps: 'const PeriodSet *') -> "Tuple[int, 'int *']":
+def periodset_timestamps(ps: 'const PeriodSet *') -> "Tuple['int *', int]":
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     count = _ffi.new('int *')
     result = _lib.periodset_timestamps(ps_converted, count)
@@ -531,14 +533,14 @@ def timestampset_timespan(ss: 'const TimestampSet *') -> 'Interval *':
 
 def timestampset_timestamp_n(ss: 'const TimestampSet *', n: int) -> int:
     ss_converted = _ffi.cast('const TimestampSet *', ss)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.timestampset_timestamp_n(ss_converted, n, out_result)
     if result:
         return out_result[0]
     raise Exception(f'C call went wrong: {result}')
 
 
-def timestampset_timestamps(ss: 'const TimestampSet *') -> int:
+def timestampset_timestamps(ss: 'const TimestampSet *') -> 'TimestampTz *':
     ss_converted = _ffi.cast('const TimestampSet *', ss)
     result = _lib.timestampset_timestamps(ss_converted)
     return result
@@ -1434,7 +1436,7 @@ def intersection_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') 
 def intersection_period_timestamp(p: 'const Period *', t: int) -> int:
     p_converted = _ffi.cast('const Period *', p)
     t_converted = _ffi.cast('TimestampTz', t)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_period_timestamp(p_converted, t_converted, out_result)
     if result:
         return out_result[0]
@@ -1465,7 +1467,7 @@ def intersection_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const Perio
 def intersection_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> int:
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     t_converted = _ffi.cast('TimestampTz', t)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_periodset_timestamp(ps_converted, t_converted, out_result)
     if result:
         return out_result[0]
@@ -1489,7 +1491,7 @@ def intersection_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
 def intersection_timestamp_period(t: int, p: 'const Period *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_period(t_converted, p_converted, out_result)
     if result:
         return out_result[0]
@@ -1499,7 +1501,7 @@ def intersection_timestamp_period(t: int, p: 'const Period *') -> int:
 def intersection_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_periodset(t_converted, ps_converted, out_result)
     if result:
         return out_result[0]
@@ -1509,7 +1511,7 @@ def intersection_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
 def intersection_timestamp_timestamp(t1: int, t2: int) -> int:
     t1_converted = _ffi.cast('TimestampTz', t1)
     t2_converted = _ffi.cast('TimestampTz', t2)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_timestamp(t1_converted, t2_converted, out_result)
     if result:
         return out_result[0]
@@ -1519,7 +1521,7 @@ def intersection_timestamp_timestamp(t1: int, t2: int) -> int:
 def intersection_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_timestampset(t_converted, ts_converted, out_result)
     if result:
         return out_result[0]
@@ -1543,7 +1545,7 @@ def intersection_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const P
 def intersection_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> int:
     ts_converted = _ffi.cast('const TimestampSet *', ts)
     t_converted = _ffi.cast('const TimestampTz', t)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestampset_timestamp(ts_converted, t_converted, out_result)
     if result:
         return out_result[0]
@@ -1624,7 +1626,7 @@ def minus_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
 def minus_timestamp_period(t: int, p: 'const Period *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_period(t_converted, p_converted, out_result)
     if result:
         return out_result[0]
@@ -1634,7 +1636,7 @@ def minus_timestamp_period(t: int, p: 'const Period *') -> int:
 def minus_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_periodset(t_converted, ps_converted, out_result)
     if result:
         return out_result[0]
@@ -1644,7 +1646,7 @@ def minus_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
 def minus_timestamp_timestamp(t1: int, t2: int) -> int:
     t1_converted = _ffi.cast('TimestampTz', t1)
     t2_converted = _ffi.cast('TimestampTz', t2)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_timestamp(t1_converted, t2_converted, out_result)
     if result:
         return out_result[0]
@@ -1654,7 +1656,7 @@ def minus_timestamp_timestamp(t1: int, t2: int) -> int:
 def minus_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> int:
     t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_timestampset(t_converted, ts_converted, out_result)
     if result:
         return out_result[0]
@@ -2405,7 +2407,7 @@ def tbox_xmax(box: 'const TBOX *') -> 'double *':
 
 def tbox_tmin(box: 'const TBOX *') -> int:
     box_converted = _ffi.cast('const TBOX *', box)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.tbox_tmin(box_converted, out_result)
     if result:
         return out_result[0]
@@ -2414,7 +2416,7 @@ def tbox_tmin(box: 'const TBOX *') -> int:
 
 def tbox_tmax(box: 'const TBOX *') -> int:
     box_converted = _ffi.cast('const TBOX *', box)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.tbox_tmax(box_converted, out_result)
     if result:
         return out_result[0]
@@ -2501,7 +2503,7 @@ def stbox_zmax(box: 'const STBOX *') -> 'double *':
 
 def stbox_tmin(box: 'const STBOX *') -> int:
     box_converted = _ffi.cast('const STBOX *', box)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.stbox_tmin(box_converted, out_result)
     if result:
         return out_result[0]
@@ -2510,7 +2512,7 @@ def stbox_tmin(box: 'const STBOX *') -> int:
 
 def stbox_tmax(box: 'const STBOX *') -> int:
     box_converted = _ffi.cast('const STBOX *', box)
-    out_result = _ffi.new(int)
+    out_result = _ffi.new('TimestampTz *')
     result = _lib.stbox_tmax(box_converted, out_result)
     if result:
         return out_result[0]

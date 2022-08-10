@@ -1,11 +1,13 @@
 import warnings
 from datetime import datetime
+from typing import Optional, Union
 
 from dateutil.parser import parse
 
-from lib.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, pg_timestamptz_out, \
-    overlaps_span_span, span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, span_out, \
-    period_shift_tscale, span_copy, timedelta_to_interval
+from lib.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, overlaps_span_span, \
+    span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
+    timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
+    period_out
 
 try:
     # Do not make psycopg2 a requirement.
@@ -22,7 +24,7 @@ class Period:
     ``Period`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> Period('(2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01)')
+        >>> Period(string='(2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01)')
 
     Another possibility is to give a tuple of arguments as follows:
 
@@ -34,55 +36,43 @@ class Period:
 
     Some examples are given next.
 
-        >>> Period('2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01')
-        >>> Period('2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', False, True)
-        >>> Period(parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'))
-        >>> Period(parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), False, True)
+        >>> Period(lower='2019-09-08 00:00:00+01', upper='2019-09-10 00:00:00+01')
+        >>> Period(lower='2019-09-08 00:00:00+01', upper='2019-09-10 00:00:00+01', lower_inc=False, upper_inc=True)
+        >>> Period(lower=parse('2019-09-08 00:00:00+01'), upper=parse('2019-09-10 00:00:00+01'))
+        >>> Period(lower=parse('2019-09-08 00:00:00+01'), upper=parse('2019-09-10 00:00:00+01'), lower_inc=False, upper_inc=True)
 
     """
 
-    __slots__ = ['_inner', '_lower', '_upper']
+    __slots__ = ['_inner']
 
-    def __init__(self, lower, upper=None, lower_inc=None, upper_inc=None, _inner=False):
-        assert (isinstance(lower_inc, (bool, type(None)))), "ERROR: Invalid lower bound flag"
-        assert (isinstance(upper_inc, (bool, type(None)))), "ERROR: Invalid upper bound flag"
-        # Constructor with a single argument of type string
-        if _inner:
-            self._inner = lower
-        elif upper is None and isinstance(lower, str):
-            self._inner = period_in(lower.strip())
-        elif isinstance(lower, str) and isinstance(upper, str):
-            _lower = pg_timestamptz_in(lower, -1)
-            _upper = pg_timestamptz_in(upper, -1)
-            _lower_inc = lower_inc or True
-            _upper_inc = upper_inc or False
-            self._inner = period_make(_lower, _upper, _lower_inc, _upper_inc)
-        # Constructor with two arguments of type datetime and optional arguments for the bounds
-        elif isinstance(lower, datetime) and isinstance(upper, datetime):
-            _lower = datetime_to_timestamptz(lower)
-            _upper = datetime_to_timestamptz(upper)
-            _lower_inc = lower_inc or True
-            _upper_inc = upper_inc or False
-            self._inner = period_make(_lower, _upper, _lower_inc, _upper_inc)
+    def __init__(self, *, string: Optional[str] = None, lower: Optional[Union[str, datetime]] = None,
+                 upper: Optional[Union[str, datetime]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (lower is not None and upper is not None)), \
+            "Either string must be not None or both lower and upper must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = period_in(string)
         else:
-            raise Exception("ERROR: Could not parse period value")
-
-        self._lower = parse(pg_timestamptz_out(self._inner.lower))
-        self._upper = parse(pg_timestamptz_out(self._inner.upper))
+            lower_ts = pg_timestamptz_in(lower, -1) if isinstance(lower, str) else datetime_to_timestamptz(lower)
+            upper_ts = pg_timestamptz_in(upper, -1) if isinstance(upper, str) else datetime_to_timestamptz(upper)
+            self._inner = period_make(lower_ts, upper_ts, lower_inc, upper_inc)
 
     @property
     def lower(self) -> datetime:
         """
         Lower bound
         """
-        return self._lower
+        return timestamptz_to_datetime(period_lower(self._inner))
 
     @property
     def upper(self) -> datetime:
         """
         Upper bound
         """
-        return self._upper
+        return timestamptz_to_datetime(period_upper(self._inner))
 
     @property
     def lower_inc(self):
@@ -111,7 +101,7 @@ class Period:
         """
         interval = timedelta_to_interval(timedelta)
         inner = period_shift_tscale(interval, None, self._inner)
-        return Period(lower=inner, _inner=True)
+        return Period(_inner=inner)
 
     def overlap(self, other):
         """
@@ -131,7 +121,7 @@ class Period:
             return span_eq(self._inner, other._inner)
         return False
 
-    def _cmp(self, other):
+    def __cmp__(self, other):
         if isinstance(other, self.__class__):
             return span_cmp(self._inner, other._inner)
         return 0
@@ -170,7 +160,7 @@ class Period:
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
-        return Period(value)
+        return Period(string=value)
 
     @staticmethod
     def write(value):
@@ -179,8 +169,11 @@ class Period:
         return value.__str__().strip("'")
 
     def __str__(self):
-        return span_out(self._inner, 0)
+        return period_out(self._inner)
+
+    def __hash__(self) -> int:
+        return span_hash(self._inner)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
-                f'({self._lower!r}, {self._upper!r}, {self.lower_inc!r}, {self.upper_inc!r})')
+                f'({self})')

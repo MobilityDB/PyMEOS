@@ -25,13 +25,14 @@
 ###############################################################################
 
 import warnings
+from typing import Optional, Union, List
 
-from lib.functions import periodset_in, period_to_periodset, period_in, union_periodset_period, periodset_out, \
-    periodset_duration, interval_to_timedelta, timestamptz_to_datetime, periodset_start_timestamp, \
+from lib.functions import periodset_in, period_in, periodset_duration, interval_to_timedelta, timestamptz_to_datetime, \
+    periodset_start_timestamp, \
     periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
     periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
-    periodset_num_timestamps
+    periodset_num_timestamps, periodset_make, periodset_hash, create_pointer, span_copy, periodset_out
 from .period import Period
 
 try:
@@ -48,56 +49,31 @@ class PeriodSet:
     ``PeriodSet`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> PeriodSet('{[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01], [2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]}')
+        >>> PeriodSet(string='{[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01], [2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]}')
 
     Another possibility is to give a list or tuple specifying the composing
     periods, which can be instances  of ``str`` or ``Period``. The composing
     periods must be given in increasing order.
 
-        >>> PeriodSet(['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
-        >>> PeriodSet([Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
-        >>> PeriodSet('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')
-        >>> PeriodSet(Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'))
+        >>> PeriodSet(period_list=['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
+        >>> PeriodSet(period_list=[Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
 
     """
 
     __slots__ = ['_inner']
 
-    def __init__(self, *argv, **kwargs):
-        # Constructor with a single argument of type string
-        if 'inner' in kwargs:
-            self._inner = kwargs['inner']
-        elif len(argv) == 1 and isinstance(argv[0], str):
-            ps = argv[0].strip()
-            self._inner = periodset_in(ps)
-        # Constructor with a single argument of type list
-        elif len(argv) == 1 and isinstance(argv[0], list):
-            # List of strings representing periods
-            if all(isinstance(arg, str) for arg in argv[0]):
-                self._inner = period_to_periodset(period_in(argv[0][0]))
-                for arg in argv[0][1:]:
-                    self._inner = union_periodset_period(self._inner, period_in(arg))
-            # List of periods
-            elif all(isinstance(arg, Period) for arg in argv[0]):
-                self._inner = period_to_periodset(argv[0][0]._inner)
-                for arg in argv[0][1:]:
-                    self._inner = union_periodset_period(self._inner, arg._inner)
-            else:
-                raise Exception("ERROR: Could not parse period set value")
-        # Constructor with multiple arguments
+    def __init__(self, *, string: Optional[str] = None, period_list: Optional[List[Union[str, Period]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (period_list is not None)), \
+            "Either string must be not None or period_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = periodset_in(string)
         else:
-            # Arguments are of type string
-            if all(isinstance(arg, str) for arg in argv):
-                self._inner = period_to_periodset(period_in(argv[0]))
-                for arg in argv[1:]:
-                    self._inner = union_periodset_period(self._inner, period_in(arg))
-            # Arguments are of type period
-            elif all(isinstance(arg, Period) for arg in argv):
-                self._inner = period_to_periodset(argv[0]._inner)
-                for arg in argv[1:]:
-                    self._inner = union_periodset_period(self._inner, arg._inner)
-            else:
-                raise Exception("ERROR: Could not parse period set value")
+            periods = [period_in(period) if isinstance(period, str) else period._inner for period in period_list]
+            self._inner = periodset_make(periods, len(periods), normalize)
 
     @property
     def duration(self):
@@ -111,39 +87,39 @@ class PeriodSet:
         """
         Time interval on which the period set is defined
         """
-        return self.endTimestamp - self.startTimestamp
+        return self.end_timestamp - self.start_timestamp
 
     @property
     def period(self):
         """
         Period on which the period set is defined ignoring the potential time gaps
         """
-        start = self.startPeriod
-        end = self.endPeriod
-        return Period(lower=start.lower, upper=end.upper, lower_inc=start.lower_inc, upper_inc=end.upper_inc)
+        pointer = create_pointer(self._inner.period, 'Span')
+        period_inner = span_copy(pointer)
+        return Period(_inner=period_inner)
 
     @property
-    def numTimestamps(self):
+    def num_timestamps(self):
         """
         Number of distinct timestamps
         """
         return periodset_num_timestamps(self._inner)
 
     @property
-    def startTimestamp(self):
+    def start_timestamp(self):
         """
         Start timestamp
         """
         return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
     @property
-    def endTimestamp(self):
+    def end_timestamp(self):
         """
         End timestamp
         """
         return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
-    def timestampN(self, n):
+    def timestamp_n(self, n):
         """
         N-th distinct timestamp
         """
@@ -156,35 +132,35 @@ class PeriodSet:
         Distinct timestamps
         """
         ts, count = periodset_timestamps(self._inner)
-        return [timestamptz_to_datetime(ts[t]) for t in range(count)]
+        return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     @property
-    def numPeriods(self):
+    def num_periods(self):
         """
         Number of periods
         """
         return periodset_num_periods(self._inner)
 
     @property
-    def startPeriod(self):
+    def start_period(self):
         """
         Start period
         """
-        return Period(lower=periodset_start_period(self._inner), _inner=True)
+        return Period(_inner=periodset_start_period(self._inner))
 
     @property
-    def endPeriod(self):
+    def end_period(self):
         """
         End period
         """
-        return Period(lower=periodset_end_period(self._inner), _inner=True)
+        return Period(_inner=periodset_end_period(self._inner))
 
-    def periodN(self, n):
+    def period_n(self, n):
         """
         N-th period
         """
         # 1-based
-        return Period(lower=periodset_period_n(self._inner, n), _inner=True)
+        return Period(_inner=periodset_period_n(self._inner, n))
 
     @property
     def periods(self):
@@ -192,14 +168,14 @@ class PeriodSet:
         Periods
         """
         ps, count = periodset_periods(self._inner)
-        return [Period(lower=ps[p], _inner=True) for p in range(count)]
+        return [Period(_inner=ps[i]) for i in range(count)]
 
     def shift(self, timedelta):
         """
         Shift the period set by a time interval
         """
         tss = periodset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
-        return PeriodSet(inner=tss)
+        return PeriodSet(_inner=tss)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
@@ -250,7 +226,7 @@ class PeriodSet:
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
-        return PeriodSet(value)
+        return PeriodSet(string=value)
 
     @staticmethod
     def write(value):
@@ -261,6 +237,9 @@ class PeriodSet:
     def __str__(self):
         return periodset_out(self._inner)
 
+    def __hash__(self) -> int:
+        return periodset_hash(self._inner)
+
     def __repr__(self):
         return (f'{self.__class__.__name__}'
-                f'({self._inner!r})')
+                f'({self})')

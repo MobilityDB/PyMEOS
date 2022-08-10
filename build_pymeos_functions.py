@@ -2,6 +2,7 @@ import re
 from re import RegexFlag
 from typing import List, Optional, Tuple
 
+from build_helpers import ADDITIONAL_DEFINITIONS
 from lib.objects import conversion_map, Conversion
 
 BASE = """from datetime import datetime, timedelta
@@ -12,6 +13,10 @@ from dateutil.parser import parse
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
+
+
+def create_pointer(object: 'Any', type: str) -> 'Any *':
+    return _ffi.new(f'{type} *', object)
 
 
 def datetime_to_timestamptz(dt: datetime) -> int:
@@ -38,16 +43,20 @@ manual_functions = {
     'timestampset_shift_tscale': 'start and duration parameters can be null.',
     'periodset_shift_tscale': 'start and duration parameters can be null.',
     'temporal_shift_tscale': 'start and duration parameters can be null.',
+    'periodset_timestamps': 'return type should be int * and int.',
     'cstring2text': "return type should be 'text *'. result shouldn't be converted using text2cstring",
     'text2cstring': "parameter type should be 'text *'. parameter shouldn't be converted using cstring2text",
     'tbool_value_at_timestamp': 'value parameter is output',
     'ttext_value_at_timestamp': 'value parameter is output',
+    'timestampset_make': "times parameter cast must be to an array of integers: [_ffi.cast('const TimestampTz', x) for x in times]",
 }
 
 
 def main():
-    with open('./sources/functions.c') as f:
+    with open('/usr/local/include/meos.h') as f:
         content = f.read()
+        content = content.replace('#', '//#')
+        content = content.replace(*ADDITIONAL_DEFINITIONS)
     f_regex = r'extern (?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 

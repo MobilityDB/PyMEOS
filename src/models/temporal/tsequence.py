@@ -23,14 +23,13 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from functools import cached_property
+from abc import ABC
 
 from lib.functions import tpoint_length
 from ..temporal import TemporalInstants
-from ..time import Period, PeriodSet
 
 
-class TSequence(TemporalInstants):
+class TSequence(TemporalInstants, ABC):
     """
     Abstract class for representing temporal values of sequence subtype.
     """
@@ -55,36 +54,6 @@ class TSequence(TemporalInstants):
         Is the upper bound inclusive?
         """
         return self._inner._upper_inc
-
-    def value_at_timestamp(self, timestamp):
-        """
-        Value at timestamp.
-        """
-        for i in range(len(self._instantList)):
-            inst1 = self._instantList[i]
-            if inst1._time > timestamp:
-                return None
-
-            if i < len(self._instantList) - 1:
-                inst2 = self._instantList[i + 1]
-            else:
-                inst2 = None
-            if inst1._time == timestamp:
-                if inst2 is not None or self._upper_inc:
-                    return inst1._value
-                else:
-                    return None
-            # We know that inst1._time < timestamp
-            # if inst1 is the last instant
-            if inst2 is None:
-                return None
-            else:
-                if timestamp < inst2._time:
-                    if self._interp == 'Stepwise':
-                        return inst1._value
-                    else:
-                        return self._interpolate(inst1, inst2, timestamp)
-        return None
 
     @property
     def num_sequences(self):
@@ -124,6 +93,6 @@ class TSequence(TemporalInstants):
         """
         return [self]
 
-    @cached_property
+    @property
     def distance(self):
         return tpoint_length(self._inner)
