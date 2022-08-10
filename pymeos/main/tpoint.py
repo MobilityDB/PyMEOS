@@ -296,7 +296,6 @@ class TGeogPointInst(TGeogPoint, TPointInst):
 
     def __init__(self, *, string: Optional[str] = None, point: Optional[Union[str, Point]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (point is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
         if _inner is not None:
@@ -462,7 +461,6 @@ class TGeogPointSeq(TGeogPoint, TPointSeq):
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
