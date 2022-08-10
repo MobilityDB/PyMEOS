@@ -27,7 +27,8 @@
 import warnings
 from abc import ABC, abstractmethod
 
-from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, temporal_intersects_timestampset, \
+from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
+    temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \

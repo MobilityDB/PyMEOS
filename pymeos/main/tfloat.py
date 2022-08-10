@@ -51,18 +51,18 @@ class TFloat(Temporal, ABC):
         if value.startswith('Interp=Stepwise;'):
             value1 = value.replace('Interp=Stepwise;', '')
             if value1[0] == '{':
-                return TFloatSeqSet(value)
+                return TFloatSeqSet(string=value)
             else:
-                return TFloatSeq(value)
+                return TFloatSeq(string=value)
         elif value[0] != '{' and value[0] != '[' and value[0] != '(':
-            return TFloatInst(value)
+            return TFloatInst(string=value)
         elif value[0] == '[' or value[0] == '(':
-            return TFloatSeq(value)
+            return TFloatSeq(string=value)
         elif value[0] == '{':
             if value[1] == '[' or value[1] == '(':
-                return TFloatSeqSet(value)
+                return TFloatSeqSet(string=value)
             else:
-                return TFloatInstSet(value)
+                return TFloatInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal float value")
 
     @staticmethod

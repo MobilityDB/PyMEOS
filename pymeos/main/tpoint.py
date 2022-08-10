@@ -154,18 +154,18 @@ class TGeomPoint(TPoint, ABC):
         if value.startswith('Interp=Stepwise;'):
             value1 = value.replace('Interp=Stepwise;', '')
             if value1[0] == '{':
-                return TGeomPointSeqSet(value)
+                return TGeomPointSeqSet(string=value)
             else:
-                return TGeomPointSeq(value)
+                return TGeomPointSeq(string=value)
         elif value[0] != '{' and value[0] != '[' and value[0] != '(':
-            return TGeomPointInst(value)
+            return TGeomPointInst(string=value)
         elif value[0] == '[' or value[0] == '(':
-            return TGeomPointSeq(value)
+            return TGeomPointSeq(string=value)
         elif value[0] == '{':
             if value[1] == '[' or value[1] == '(':
-                return TGeomPointSeqSet(value)
+                return TGeomPointSeqSet(string=value)
             else:
-                return TGeomPointInstSet(value)
+                return TGeomPointInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
 
     @staticmethod
@@ -205,18 +205,18 @@ class TGeogPoint(TPoint, ABC):
         if value.startswith('Interp=Stepwise;'):
             value1 = value.replace('Interp=Stepwise;', '')
             if value1[0] == '{':
-                return TGeogPointSeqSet(value)
+                return TGeogPointSeqSet(string=value)
             else:
-                return TGeogPointSeq(value)
+                return TGeogPointSeq(string=value)
         elif value[0] != '{' and value[0] != '[' and value[0] != '(':
             return TGeogPointInst(string=value)
         elif value[0] == '[' or value[0] == '(':
-            return TGeogPointSeq(value)
+            return TGeogPointSeq(string=value)
         elif value[0] == '{':
             if value[1] == '[' or value[1] == '(':
-                return TGeogPointSeqSet(value)
+                return TGeogPointSeqSet(string=value)
             else:
-                return TGeogPointInstSet(value)
+                return TGeogPointInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
 
     @staticmethod

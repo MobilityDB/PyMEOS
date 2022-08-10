@@ -51,14 +51,14 @@ class TInt(Temporal, ABC):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
-            return TIntInst(value)
+            return TIntInst(string=value)
         elif value[0] == '[' or value[0] == '(':
-            return TIntSeq(value)
+            return TIntSeq(string=value)
         elif value[0] == '{':
             if value[1] == '[' or value[1] == '(':
-                return TIntSeqSet(value)
+                return TIntSeqSet(string=value)
             else:
-                return TIntInstSet(value)
+                return TIntInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal integer value")
 
     @staticmethod

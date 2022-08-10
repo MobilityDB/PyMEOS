@@ -13,6 +13,8 @@ spans = "*"
 postgis = "*"
 
 [dev-packages]
+psycopg2 = "*"
+tqdm = "*"
 
 [requires]
 python_version = "3.8"

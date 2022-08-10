@@ -50,14 +50,14 @@ class TBool(Temporal, ABC):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
-            return TBoolInst(value)
+            return TBoolInst(string=value)
         elif value[0] == '[' or value[0] == '(':
-            return TBoolSeq(value)
+            return TBoolSeq(string=value)
         elif value[0] == '{':
             if value[1] == '[' or value[1] == '(':
-                return TBoolSeqSet(value)
+                return TBoolSeqSet(string=value)
             else:
-                return TBoolInstSet(value)
+                return TBoolInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
 
     @staticmethod
