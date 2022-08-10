@@ -2992,9 +2992,9 @@ def temporal_as_hexwkb(temp: 'const Temporal *', variant: int) -> "Tuple[str, 's
     return result, size_out
 
 
-def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, precision: int, srs: str) -> str:
+def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, precision: int, srs: Optional[str]) -> str:
     temp_converted = _ffi.cast('const Temporal *', temp)
-    srs_converted = srs.encode('utf-8')
+    srs_converted = srs.encode('utf-8') if srs else _ffi.NULL
     result = _lib.temporal_as_mfjson(temp_converted, with_bbox, flags, precision, srs_converted)
     result = _ffi.string(result).decode('utf-8')
     return result

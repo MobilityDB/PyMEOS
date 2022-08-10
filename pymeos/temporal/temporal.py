@@ -26,6 +26,7 @@
 
 import warnings
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
@@ -33,7 +34,7 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp, \
-    temporal_hash, temporal_copy
+    temporal_hash, temporal_copy, temporal_as_mfjson
 from ..time import Period, PeriodSet
 
 try:
@@ -332,6 +333,9 @@ class Temporal(ABC):
         String
         """
         pass
+
+    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None):
+        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'

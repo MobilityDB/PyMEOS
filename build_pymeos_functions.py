@@ -52,6 +52,7 @@ manual_functions = {
     'tfloat_value_at_timestamp': 'value parameter is output',
     'tpoint_value_at_timestamp': 'value parameter is output',
     'timestampset_make': "times parameter cast must be to an array of integers: [_ffi.cast('const TimestampTz', x) for x in times]",
+    'temporal_as_mfjson': 'srs can be null.'
 }
 
 
