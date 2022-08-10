@@ -25,104 +25,74 @@
 ###############################################################################
 from abc import ABC
 
-from lib.functions import temporal_timestamps, timestamptz_to_datetime
-from ..temporal import Temporal
-from ..time import Period
+from pymeos_cffi.functions import tpoint_length
+from ..temporal import TemporalInstants
 
 
-class TInstant(Temporal, ABC):
+class TSequence(TemporalInstants, ABC):
     """
-    Abstract class for representing temporal values of instant subtype.
+    Abstract class for representing temporal values of sequence subtype.
     """
-    __slots__ = ['_inner']
 
     @classmethod
     def temp_subtype(cls):
         """
-        Subtype of the temporal value, that is, ``'Instant'``.
+        Subtype of the temporal value, that is, ``'Sequence'``.
         """
-        return "Instant"
+        return "Sequence"
 
     @property
-    def timestamp(self):
+    def lower_inc(self):
         """
-        Timestamp.
+        Is the lower bound inclusive?
         """
-        ts, count = temporal_timestamps(self._inner)
-        assert count == 1
-        return timestamptz_to_datetime(ts[0])
+        return self._inner.lower_inc
 
     @property
-    def period(self):
+    def upper_inc(self):
         """
-        Period on which the temporal value is defined ignoring the potential
-        time gaps.
+        Is the upper bound inclusive?
         """
-        return Period(lower=self.timestamp, upper=self.timestamp, lower_inc=True, upper_inc=True)
+        return self._inner._upper_inc
 
     @property
-    def value(self) -> bool:
+    def num_sequences(self):
         """
-        Value component.
+        Number of sequences.
         """
-        return self.values[0]
+        return 1
 
     @property
-    def start_instant(self):
+    def start_sequence(self):
         """
-        Start instant.
+        Start sequence.
         """
         return self
 
     @property
-    def end_instant(self):
+    def end_sequence(self):
         """
-        End instant.
+        End sequence.
         """
         return self
 
-    def instant_n(self, n):
+    def sequence_n(self, n):
         """
-        N-th instant.
+        N-th sequence.
         """
+        # 1-based
         if n == 1:
             return self
         else:
             raise Exception("ERROR: Out of range")
 
     @property
-    def instants(self):
+    def sequences(self):
         """
-        List of instants.
+        List of sequences.
         """
         return [self]
 
     @property
-    def start_timestamp(self):
-        """
-        Start timestamp.
-        """
-        return self.timestamp
-
-    @property
-    def end_timestamp(self):
-        """
-        End timestamp.
-        """
-        return self.timestamp
-
-    def timestamp_n(self, n):
-        """
-        N-th timestamp
-        """
-        if n == 1:
-            return self.timestamp
-        else:
-            raise Exception("ERROR: Out of range")
-
-    @property
-    def timestamps(self):
-        """
-        List of timestamps.
-        """
-        return [self.timestamp]
+    def distance(self):
+        return tpoint_length(self._inner)

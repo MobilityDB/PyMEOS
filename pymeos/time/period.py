@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from dateutil.parser import parse
 
-from lib.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, overlaps_span_span, \
+from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, overlaps_span_span, \
     span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
     period_out, span_copy

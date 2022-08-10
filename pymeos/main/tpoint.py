@@ -34,7 +34,7 @@ from typing import Optional, List, Literal
 from dateutil.parser import parse
 from postgis import Point, MultiPoint, LineString, GeometryCollection, MultiLineString
 
-from lib.functions import tgeogpoint_in, tsequence_make, tpoint_as_text, tgeompoint_in, tinstantset_make, \
+from pymeos_cffi.functions import tgeogpoint_in, tsequence_make, tpoint_as_text, tgeompoint_in, tinstantset_make, \
     tsequenceset_make, temporal_interpolation, tpoint_as_ewkt, tpoint_start_value, tpoint_end_value, \
     tpoint_value_at_timestamp, tpoint_values
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet

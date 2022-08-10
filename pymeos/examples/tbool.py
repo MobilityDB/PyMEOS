@@ -270,3 +270,7 @@ print(inst.intersects_period_set(ps))
 print(ti.intersects_period_set(ps))
 print(seq.intersects_period_set(ps))
 print(ts.intersects_period_set(ps))
+
+
+print("\nNOT")
+print(-inst)

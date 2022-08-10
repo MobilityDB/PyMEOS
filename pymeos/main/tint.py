@@ -29,7 +29,7 @@ from functools import cached_property
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 from datetime import datetime
-from lib.functions import tinstantset_make, tint_in, tint_out, tintinst_make, \
+from pymeos_cffi.functions import tinstantset_make, tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, pg_timestamptz_in, tint_values, tint_start_value, \
         tint_end_value, tsequence_make, temporal_subtype, tsequenceset_make, \
             tint_value_at_timestamp

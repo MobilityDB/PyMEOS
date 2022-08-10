@@ -1,8 +1,9 @@
+from functools import cached_property
 from typing import List, Optional
 
 from postgis import Point
 
-from lib.functions import meos_initialize, meos_finish
+from pymeos_cffi.functions import meos_initialize, meos_finish
 from src.models import TGeogPointInst, TGeogPointSeq
 
 
@@ -26,7 +27,7 @@ class MMSIInstants:
     def num_instants(self):
         return len(self.instants)
 
-    @property
+    @cached_property
     def sequence(self):
         return TGeogPointSeq(instant_list=self.instants, lower_inc=True, upper_inc=True)
 

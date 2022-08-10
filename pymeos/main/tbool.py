@@ -29,9 +29,10 @@ from typing import Optional, Union, List
 
 from dateutil.parser import parse
 
-from lib.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
+from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
     tinstantset_make, tsequence_make, tsequenceset_make, tbool_values, tbool_start_value, tbool_end_value, \
-    tbool_value_at_timestamp
+    tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
+    tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -91,6 +92,42 @@ class TBool(Temporal, ABC):
         Value at timestamp.
         """
         return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+
+    def always(self, value: bool) -> bool:
+        return tbool_always_eq(self._inner, value)
+
+    def ever(self, value: bool) -> bool:
+        return tbool_ever_eq(self._inner, value)
+
+    def __eq__(self, other):
+        if isinstance(other, bool):
+            return teq_tbool_bool(self._inner, other)
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, bool):
+            return tne_tbool_bool(self._inner, other)
+        return super().__ne__(other)
+
+    def __neg__(self):
+        return self.__class__(_inner=tnot_tbool(self._inner))
+
+    def __invert__(self):
+        return self.__class__(_inner=tnot_tbool(self._inner))
+
+    def __and__(self, other):
+        if isinstance(other, bool):
+            return self.__class__(_inner=tand_tbool_bool(self._inner, other))
+        elif isinstance(other, TBool):
+            return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
+        raise TypeError()
+
+    def __or__(self, other):
+        if isinstance(other, bool):
+            return self.__class__(_inner=tor_tbool_bool(self._inner, other))
+        elif isinstance(other, TBool):
+            return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
+        raise TypeError()
 
     def __str__(self):
         return tbool_out(self._inner)

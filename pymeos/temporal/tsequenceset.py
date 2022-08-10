@@ -25,7 +25,7 @@
 ###############################################################################
 from abc import ABC
 
-from lib.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
+from pymeos_cffi.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
     temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences
 from ..temporal.temporal import Temporal
 

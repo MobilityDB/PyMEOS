@@ -29,7 +29,7 @@ from typing import Optional, Union, List
 
 from dateutil.parser import parse
 
-from lib.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out, \
+from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, tinstantset_make, tsequence_make, \
     tsequenceset_make, text2cstring
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet

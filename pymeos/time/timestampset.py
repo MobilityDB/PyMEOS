@@ -30,7 +30,7 @@ from typing import Optional, List, Union
 
 from dateutil.parser import parse
 
-from lib.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset_end_timestamp, \
+from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset_end_timestamp, \
     timestampset_start_timestamp, timestampset_num_timestamps, \
     timestampset_timestamps, \
     timestampset_timestamp_n, \

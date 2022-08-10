@@ -3,7 +3,7 @@ from re import RegexFlag
 from typing import List, Optional, Tuple
 
 from build_helpers import ADDITIONAL_DEFINITIONS
-from lib.objects import conversion_map, Conversion
+from pymeos_cffi.objects import conversion_map, Conversion
 
 BASE = """from datetime import datetime, timedelta
 from typing import Any, Tuple, Optional
@@ -12,7 +12,7 @@ import _meos_cffi
 from dateutil.parser import parse
 
 _ffi = _meos_cffi.ffi
-_lib = _meos_cffi.lib
+_lib = _meos_cffi.pymeos_cffi
 
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
@@ -60,7 +60,7 @@ def main():
     f_regex = r'extern (?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
-    with open('lib/functions.py', 'w+') as file:
+    with open('pymeos_cffi/functions.py', 'w+') as file:
         file.write(BASE)
         for match in matches:
             named = match.groupdict()
