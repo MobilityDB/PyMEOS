@@ -102,7 +102,7 @@ class TInt(Temporal, ABC):
         """
         return max(self.values)
 
-    @cached_property
+    @property
     def values(self):
         """
         List of distinct values.
@@ -165,7 +165,6 @@ class TIntInstSet(TInstantSet, TInt):
     which can be instances of ``str`` or ``TIntInst``.
 
         >>> TIntInstSet('10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01')
-        >>> TIntInstSet(TIntInst('10@2019-09-01 00:00:00+01'), TIntInst('20@2019-09-02 00:00:00+01'), TIntInst('10@2019-09-03 00:00:00+01'))
         >>> TIntInstSet(['10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01'])
         >>> TIntInstSet([TIntInst('10@2019-09-01 00:00:00+01'), TIntInst('20@2019-09-02 00:00:00+01'), TIntInst('10@2019-09-03 00:00:00+01')])
 
@@ -209,7 +208,7 @@ class TIntSeq(TSequence, TInt):
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         normalize=normalize, _inner=_inner)
+                         interpolation= 'Stepwise', normalize=normalize, _inner=_inner)
 
 
 class TIntSeqSet(TSequenceSet, TInt):

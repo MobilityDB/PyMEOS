@@ -24,9 +24,9 @@
 #
 ###############################################################################
 from abc import ABC
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, Literal
 
-from pymeos_cffi.functions import tpoint_length, tsequence_make
+from pymeos_cffi.functions import tpoint_length, tsequence_make, temporal_interpolation
 from ..temporal import TemporalInstants
 
 
@@ -36,7 +36,8 @@ class TSequence(TemporalInstants, ABC):
     """
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, Any]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
@@ -47,7 +48,8 @@ class TSequence(TemporalInstants, ABC):
         else:
             self._instants = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x) for
                               x in instant_list]
-            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc, False, normalize)
+            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc,
+                                         interpolation == 'Linear', normalize)
 
     @classmethod
     def temp_subtype(cls):
@@ -111,3 +113,10 @@ class TSequence(TemporalInstants, ABC):
     @property
     def distance(self):
         return tpoint_length(self._inner)
+
+    @property
+    def interpolation(self):
+        """
+        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
+        """
+        return temporal_interpolation(self._inner)

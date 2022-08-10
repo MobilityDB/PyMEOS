@@ -28,7 +28,7 @@ from typing import Optional, List, Union, Any
 
 from pymeos_cffi.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
     temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences, \
-    tsequenceset_make
+    tsequenceset_make, temporal_interpolation
 from ..temporal.temporal import Temporal
 
 
@@ -121,3 +121,11 @@ class TSequenceSet(Temporal, ABC):
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
+
+    @property
+    def interpolation(self):
+        """
+        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
+        """
+        return temporal_interpolation(self._inner)
+

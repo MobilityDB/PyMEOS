@@ -109,13 +109,6 @@ class TPointSeq(TSequence, ABC):
     __slots__ = ['_inner']
 
     @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return temporal_interpolation(self._inner)
-
-    @property
     def values(self):
         """
         Geometry representing the values taken by the temporal value.
@@ -129,13 +122,6 @@ class TPointSeqSet(TSequenceSet, ABC):
     """
     Abstract class for representing temporal points of sequence set subtype.
     """
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return temporal_interpolation(self._inner)
 
     @property
     def values(self):

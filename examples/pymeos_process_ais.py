@@ -27,7 +27,7 @@ class MMSIInstants:
     def num_instants(self):
         return len(self.instants)
 
-    @cached_property
+    @property
     def sequence(self):
         return TGeogPointSeq(instant_list=self.instants, lower_inc=True, upper_inc=True)
 

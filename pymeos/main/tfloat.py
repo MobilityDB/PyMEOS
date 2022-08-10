@@ -25,7 +25,13 @@
 ###############################################################################
 from abc import ABC
 from datetime import datetime
+from typing import Optional, List, Literal, Union
+
+from dateutil.parser import parse
 from spans.types import floatrange
+
+from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
+    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -36,13 +42,7 @@ class TFloat(Temporal, ABC):
 
     BaseClass = float
     BaseClassDiscrete = False
-
-    @property
-    def value_range(self):
-        """
-        Range of values taken by the temporal value as defined by its minimum and maximum value
-        """
-        return floatrange(self.min_value, self.max_value, True, True)
+    _parse_function = tfloat_in
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
@@ -71,6 +71,61 @@ class TFloat(Temporal, ABC):
             raise ValueError('Value must be an instance of a subclass of TFloat')
         return value.__str__().strip("'")
 
+    @property
+    def value_range(self):
+        """
+        Range of values taken by the temporal value as defined by its minimum and maximum value
+        """
+        return floatrange(self.min_value, self.max_value, True, True)
+
+    @property
+    def start_value(self):
+        """
+        Start value.
+        """
+        return tfloat_start_value(self._inner)
+
+    @property
+    def end_value(self):
+        """
+        End value.
+        """
+        return tfloat_end_value(self._inner)
+
+    @property
+    def min_value(self):
+        """
+        Minimum value.
+        """
+        return min(self.values)
+
+    @property
+    def max_value(self):
+        """
+        Maximum value.
+        """
+        return max(self.values)
+
+    @property
+    def values(self):
+        """
+        List of distinct values.
+        """
+        values, count = tfloat_values(self._inner)
+        return [values[i] for i in range(count)]
+
+    def value_at_timestamp(self, timestamp):
+        """
+        Value at timestamp.
+        """
+        return tfloat_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+
+    def to_str(self, max_decimals=5):
+        return tfloat_out(self._inner, max_decimals)
+
+    def __str__(self):
+        return tfloat_out(self._inner, 5)
+
 
 class TFloatInst(TInstant, TFloat):
     """
@@ -79,27 +134,22 @@ class TFloatInst(TInstant, TFloat):
     ``TFloatInst`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> TFloatInst('10.0@2019-09-01')
+        >>> TFloatInst(string='10.0@2019-09-01')
 
     Another possibility is to give the ``value`` and the ``time`` arguments,
     which can be instances of ``str``, ``float`` or ``datetime``.
 
-        >>> TFloatInst('10.0', '2019-09-08 00:00:00+01')
-        >>> TFloatInst(['10.0', '2019-09-08 00:00:00+01'])
-        >>> TFloatInst(10.0, parse('2019-09-08 00:00:00+01'))
-        >>> TFloatInst([10.0, parse('2019-09-08 00:00:00+01')])
+        >>> TFloatInst(value='10.0', timestamp='2019-09-08 00:00:00+01')
+        >>> TFloatInst(value=10.0, timestamp=parse('2019-09-08 00:00:00+01'))
 
     """
 
-    def __init__(self, value, time=None):
-        super().__init__(value, time)
+    _make_function = tfloatinst_make
+    _cast_function = int
 
-    @property
-    def values(self):
-        """
-        List of ranges representing the values taken by the temporal value
-        """
-        return [floatrange(self._value, self._value, True, True)]
+    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, float]] = None,
+                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
 class TFloatInstSet(TInstantSet, TFloat):
@@ -109,30 +159,21 @@ class TFloatInstSet(TInstantSet, TFloat):
     ``TFloatInstSet`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> TFloatInstSet('10.0@2019-09-01')
+        >>> TFloatInstSet(string='10.0@2019-09-01')
 
     Another possibility is to give a tuple or list of composing instants,
     which can be instances of ``str`` or ``TFloatInst``.
 
-        >>> TFloatInstSet('10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01')
-        >>> TFloatInstSet(TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01'))
-        >>> TFloatInstSet(['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'])
-        >>> TFloatInstSet([TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01')])
+        >>> TFloatInstSet(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'])
+        >>> TFloatInstSet(instant_list=[TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01')])
 
     """
 
     ComponentClass = TFloatInst
 
-    def __init__(self,  *argv):
-        super().__init__(*argv)
-
-    @property
-    def values(self):
-        """
-        List of ranges representing the values taken by the temporal value.
-        """
-        values = super().values
-        return [floatrange(value, value, True, True) for value in values]
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
+                 merge: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TFloatSeq(TSequence, TFloat):
@@ -166,47 +207,11 @@ class TFloatSeq(TSequence, TFloat):
 
     ComponentClass = TFloatInst
 
-    def __init__(self, instantList, lower_inc=None, upper_inc=None, interp=None):
-        super().__init__(instantList, lower_inc, upper_inc, interp)
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return self._interp
-
-    def _interpolate(self, inst1, inst2, timestamp):
-        """
-        Interpolate the temporal value at a timestamp between inst1 and inst2.
-        """
-        # preconditions
-        if not (isinstance(inst1, TFloatInst) and
-            isinstance(inst2, TFloatInst) and isinstance(timestamp, datetime) and
-            inst1._time < timestamp and timestamp < inst2._time):
-            Exception("Erroneous arguments for function TFloatSeq._interpolate")
-
-        duration1 = timestamp - inst1._time
-        duration2 = inst2._time - inst1._time
-        ratio = duration1.total_seconds() / duration2.total_seconds()
-        return inst1._value + (inst2._value - inst1._value) * ratio
-
-    @property
-    def values(self):
-        """
-        List of ranges representing the values taken by the temporal value.
-        """
-        min = self.min_value
-        max = self.max_value
-        lower = self.start_value
-        upper = self.end_value
-        min_inc = min < lower or (min == lower and self.lower_inc)
-        max_inc = max > upper or (max == upper and self.upper_inc)
-        if not min_inc:
-            min_inc = min in self._instantList[1:-1]
-        if not max_inc:
-            max_inc = max in self._instantList[1:-1]
-        return [floatrange(min, max, min_inc, max_inc)]
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TFloatSeqSet(TSequenceSet, TFloat):
@@ -239,31 +244,6 @@ class TFloatSeqSet(TSequenceSet, TFloat):
 
     ComponentClass = TFloatSeq
 
-    def __init__(self, sequenceList, interp=None):
-        super().__init__(sequenceList, interp)
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return self._interp
-
-    @property
-    def values(self):
-        """
-        List of ranges representing the values taken by the temporal value
-        """
-        ranges = sorted([seq.value_range for seq in self._sequenceList])
-        # Normalize list of ranges
-        result = []
-        range = ranges[0]
-        for range1 in ranges[1:]:
-            if range.adjacent(range1) or range.overlap(range1):
-                range = range.union(range1)
-            else:
-                result.append(range)
-                range = range1
-        result.append(range)
-        return result
-
+    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
