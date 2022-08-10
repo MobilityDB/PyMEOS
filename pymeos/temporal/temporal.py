@@ -67,6 +67,8 @@ class Temporal(ABC):
     2. ``TFloatSeq`` for ``TFloatS``.
     """
 
+    _parse_function = None
+
     @classmethod
     @abstractmethod
     def temp_subtype(cls):

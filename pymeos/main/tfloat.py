@@ -38,7 +38,7 @@ class TFloat(Temporal, ABC):
     BaseClassDiscrete = False
 
     @property
-    def valueRange(self):
+    def value_range(self):
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
@@ -254,7 +254,7 @@ class TFloatSeqSet(TSequenceSet, TFloat):
         """
         List of ranges representing the values taken by the temporal value
         """
-        ranges = sorted([seq.valueRange for seq in self._sequenceList])
+        ranges = sorted([seq.value_range for seq in self._sequenceList])
         # Normalize list of ranges
         result = []
         range = ranges[0]

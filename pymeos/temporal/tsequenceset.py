@@ -24,9 +24,11 @@
 #
 ###############################################################################
 from abc import ABC
+from typing import Optional, List, Union, Any
 
 from pymeos_cffi.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
-    temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences
+    temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences, \
+    tsequenceset_make
 from ..temporal.temporal import Temporal
 
 
@@ -34,6 +36,20 @@ class TSequenceSet(Temporal, ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
+
+    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, Any]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
+            "Either string must be not None or sequence_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = self.__class__._parse_function(string)
+        else:
+            sequences = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x)
+                         for x in sequence_list]
+            self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
     def temp_subtype(cls):
         """

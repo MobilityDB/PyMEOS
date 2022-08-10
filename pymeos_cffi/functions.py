@@ -11,6 +11,7 @@ _lib = _meos_cffi.lib
 def create_pointer(object: 'Any', type: str) -> 'Any *':
     return _ffi.new(f'{type} *', object)
 
+
 def datetime_to_timestamptz(dt: datetime) -> int:
     return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)
 
@@ -3979,12 +3980,15 @@ def tfloat_minus_values(temp: 'const Temporal *', values: 'double *', count: int
     return result
 
 
-def tfloat_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool, value: 'double *') -> bool:
+def tfloat_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> float:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
-    value_converted = _ffi.cast('double *', value)
-    result = _lib.tfloat_value_at_timestamp(temp_converted, t_converted, strict, value_converted)
-    return result
+    value = _ffi.new('double *')
+    result = _lib.tfloat_value_at_timestamp(temp_converted, t_converted, strict, value)
+    if result:
+        return value[0]
+    else:
+        raise Exception(f'C call went wrong: {result}')
 
 
 def tint_at_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
@@ -4013,12 +4017,15 @@ def tint_minus_values(temp: 'const Temporal *', values: 'int *', count: int) -> 
     return result
 
 
-def tint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool, value: 'int *') -> bool:
+def tint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> int:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
-    value_converted = _ffi.cast('int *', value)
-    result = _lib.tint_value_at_timestamp(temp_converted, t_converted, strict, value_converted)
-    return result
+    value = _ffi.new('int *')
+    result = _lib.tint_value_at_timestamp(temp_converted, t_converted, strict, value)
+    if result:
+        return value[0]
+    else:
+        raise Exception(f'C call went wrong: {result}')
 
 
 def tnumber_at_span(temp: 'const Temporal *', span: 'Span *') -> 'Temporal *':

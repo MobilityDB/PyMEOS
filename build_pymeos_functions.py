@@ -48,6 +48,9 @@ manual_functions = {
     'text2cstring': "parameter type should be 'text *'. parameter shouldn't be converted using cstring2text",
     'tbool_value_at_timestamp': 'value parameter is output',
     'ttext_value_at_timestamp': 'value parameter is output',
+    'tint_value_at_timestamp': 'value parameter is output',
+    'tfloat_value_at_timestamp': 'value parameter is output',
+    'tpoint_value_at_timestamp': 'value parameter is output',
     'timestampset_make': "times parameter cast must be to an array of integers: [_ffi.cast('const TimestampTz', x) for x in times]",
 }
 

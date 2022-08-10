@@ -23,25 +23,28 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
-from spans.types import intrange
+from abc import ABC
+from datetime import datetime
 from functools import cached_property
+from typing import Optional, Union, List
+
+from dateutil.parser import parse
+from spans.types import intrange
+
+from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
+    datetime_to_timestamptz, tint_values, tint_start_value, \
+    tint_end_value, tint_value_at_timestamp
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
-from datetime import datetime
-from pymeos_cffi.functions import tinstantset_make, tint_in, tint_out, tintinst_make, \
-    datetime_to_timestamptz, pg_timestamptz_in, tint_values, tint_start_value, \
-        tint_end_value, tsequence_make, temporal_subtype, tsequenceset_make, \
-            tint_value_at_timestamp
 
-
-class TInt(Temporal):
+class TInt(Temporal, ABC):
     """
     Abstract class for representing temporal integers of any subtype.
     """
 
     BaseClass = int
     BaseClassDiscrete = True
+    _parse_function = tint_in
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
@@ -65,7 +68,7 @@ class TInt(Temporal):
         return value.__str__().strip("'")
 
     @property
-    def valueRange(self):
+    def value_range(self):
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
@@ -113,6 +116,13 @@ class TInt(Temporal):
         """
         return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
+    @property
+    def interpolation(self):
+        """
+        Interpolation of the temporal value, that is, ``'Stepwise'``.
+        """
+        return 'Stepwise'
+
     def __str__(self):
         return tint_out(self._inner)
 
@@ -124,30 +134,22 @@ class TIntInst(TInstant, TInt):
     ``TIntInst`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> TIntInst('10@2019-09-01')
+        >>> TIntInst(string='10@2019-09-01')
 
     Another possibility is to give the ``value`` and the ``time`` arguments,
-    which can be instances of ``str``, ``int`` or ``datetime``.
+    which can be instances of ``str`` or ``int`` and ``str`` or ``datetime`` respectively.
 
-        >>> TIntInst('10', '2019-09-08 00:00:00+01')
-        >>> TIntInst(['10', '2019-09-08 00:00:00+01'])
-        >>> TIntInst(10, parse('2019-09-08 00:00:00+01'))
-        >>> TIntInst([10, parse('2019-09-08 00:00:00+01')])
+        >>> TIntInst(value='10', timestamp='2019-09-08 00:00:00+01')
+        >>> TIntInst(value=10, timestamp=parse('2019-09-08 00:00:00+01'))
 
     """
 
-    def __init__(self, value=None, time=None, _inner=None):
-        super().__init__()
-        if _inner != None:
-            self._inner = _inner
-        elif time is None:
-            self._inner = tint_in(value)
-        else:
-            value = int(value)
-            ts = datetime_to_timestamptz(time) if isinstance(time, datetime) \
-                else pg_timestamptz_in(time, -1)
-            self._inner = tintinst_make(value, ts)
-        assert temporal_subtype(self._inner) == "Instant", "Internal error"
+    _make_function = tintinst_make
+    _cast_function = int
+
+    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, int]] = None,
+                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
 class TIntInstSet(TInstantSet, TInt):
@@ -171,22 +173,9 @@ class TIntInstSet(TInstantSet, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self,  *argv, merge:bool=True, _inner=None):
-        if _inner != None:
-            self._inner = _inner
-            return
-        instants = list()
-        for item in argv:
-            if isinstance(item, (tuple, list)):
-                for inst in item:
-                    instants.append(inst._inner if isinstance(inst, TIntInst) else tint_in(inst))
-            else:
-                instants.append(item._inner if isinstance(item, TIntInst) else tint_in(item))
-        if len(instants) == 1 and temporal_subtype(instants[0]) == "InstantSet":
-            self._inner = instants[0]
-        else:
-            self._inner = tinstantset_make(instants, len(instants), merge)
-        assert temporal_subtype(self._inner) == "InstantSet", "Internal error"
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
+                 merge: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TIntSeq(TSequence, TInt):
@@ -217,28 +206,10 @@ class TIntSeq(TSequence, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self, instantList=None, lower_inc=True, upper_inc=False, normalize=True, _inner=None):
-        # TODO Should the __init__ function also accept vairable-length arguments
-        # like that for TIntInstSet?
-        super().__init__()
-        if _inner != None:
-            self._inner = _inner
-            return
-        if isinstance(instantList, str):
-            self._inner = tint_in(instantList)
-        else:
-            instants = [x._inner if isinstance(x, TIntInst) else tint_in(x) for x in instantList]
-            # TODO The parameter linear of tsequence_make can be inferred from interpolation() of the given data type
-            self._inner = tsequence_make(instants, len(instants), lower_inc, upper_inc, False, normalize)
-        assert temporal_subtype(self._inner) == "Sequence", "Internal error"
-
-    @classmethod
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return 'Stepwise'
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
+                         normalize=normalize, _inner=_inner)
 
 
 class TIntSeqSet(TSequenceSet, TInt):
@@ -261,24 +232,6 @@ class TIntSeqSet(TSequenceSet, TInt):
 
     ComponentClass = TIntSeq
 
-    def __init__(self, sequenceList=None, normalize=True, _inner=None):
-        # TODO Should the __init__ function also accept vairable-length arguments
-        # like that for TIntInstSet?
-        super().__init__()
-        if _inner != None:
-            self._inner = _inner
-            return
-        if isinstance(sequenceList, str):
-            self._inner = tint_in(sequenceList)
-        else:
-            seqs = [x._inner if isinstance(x, TIntSeq) else tint_in(x) for x in sequenceList]
-            self._inner = tsequenceset_make(seqs, len(seqs), normalize)
-        assert temporal_subtype(self._inner) == "SequenceSet", "Internal error"
-
-    @classmethod
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return 'Stepwise'
+    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+                 normalize: bool = True, _inner=None):
+        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

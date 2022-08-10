@@ -24,8 +24,11 @@
 #
 ###############################################################################
 from abc import ABC
+from datetime import datetime
+from typing import Optional, Union, Any
 
-from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime
+from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime, datetime_to_timestamptz, \
+    pg_timestamptz_in
 from ..temporal import Temporal
 from ..time import Period
 
@@ -35,6 +38,23 @@ class TInstant(Temporal, ABC):
     Abstract class for representing temporal values of instant subtype.
     """
     __slots__ = ['_inner']
+
+    _make_function = None
+    _cast_function = None
+
+    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, Any]] = None,
+                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
+            "Either string must be not None or both point and timestamp must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = self.__class__._parse_function(string)
+        else:
+            ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
+                else pg_timestamptz_in(timestamp, -1)
+            self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 
     @classmethod
     def temp_subtype(cls):

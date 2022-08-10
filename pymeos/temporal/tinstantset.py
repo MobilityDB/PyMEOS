@@ -24,7 +24,9 @@
 #
 ###############################################################################
 from abc import ABC
+from typing import Optional, List, Union, Any
 
+from pymeos_cffi.functions import tinstantset_make
 from ..temporal import TemporalInstants
 
 
@@ -32,6 +34,20 @@ class TInstantSet(TemporalInstants, ABC):
     """
     Abstract class for representing temporal values of instant set subtype.
     """
+
+    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, Any]]] = None,
+                 merge: bool = True, _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
+            "Either string must be not None or instant_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = self.__class__._parse_function(string)
+        else:
+            instants = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x) for x in
+                        instant_list]
+            self._inner = tinstantset_make(instants, len(instants), merge)
 
     @classmethod
     def temp_subtype(cls):

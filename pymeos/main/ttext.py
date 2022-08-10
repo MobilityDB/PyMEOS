@@ -29,9 +29,8 @@ from typing import Optional, Union, List
 
 from dateutil.parser import parse
 
-from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, pg_timestamptz_in, ttext_out, \
-    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, tinstantset_make, tsequence_make, \
-    tsequenceset_make, text2cstring
+from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
+    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -42,6 +41,8 @@ class TText(Temporal, ABC):
 
     BaseClass = str
     BaseClassDiscrete = True
+
+    _parse_function = ttext_in
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
@@ -83,6 +84,13 @@ class TText(Temporal, ABC):
         """
         return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
+    @property
+    def interpolation(self):
+        """
+        Interpolation of the temporal value, that is, ``'Stepwise'``.
+        """
+        return 'Stepwise'
+
     def __str__(self):
         return ttext_out(self._inner)
 
@@ -110,18 +118,12 @@ class TTextInst(TInstant, TText):
     to strip the eventual double quotes enclosing the value
     """
 
+    _make_function = ttextinst_make
+    _cast_function = str
+
     def __init__(self, *, string: Optional[str] = None, value: Optional[str] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
-            "Either string must be not None or both point and timestamp must be not"
-        if _inner is not None:
-            self._inner = _inner
-        elif string is not None:
-            self._inner = ttext_in(string)
-        else:
-            ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
-                else pg_timestamptz_in(timestamp, -1)
-            self._inner = ttextinst_make(value, ts)
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
     @property
     def value(self):
@@ -154,15 +156,7 @@ class TTextInstSet(TInstantSet, TText):
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
                  merge: bool = True, _inner=None):
-        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
-            "Either string must be not None or instant_list must be not"
-        if _inner is not None:
-            self._inner = _inner
-        elif string is not None:
-            self._inner = ttext_in(string)
-        else:
-            instants = [x._inner if isinstance(x, TTextInst) else ttext_in(x) for x in instant_list]
-            self._inner = tinstantset_make(instants, len(instants), merge)
+        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TTextSeq(TSequence, TText):
@@ -195,23 +189,8 @@ class TTextSeq(TSequence, TText):
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
-        super().__init__()
-        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
-            "Either string must be not None or instant_list must be not"
-        if _inner is not None:
-            self._inner = _inner
-        elif string is not None:
-            self._inner = ttext_in(string)
-        else:
-            self._instants = [x._inner if isinstance(x, TTextInst) else ttext_in(x) for x in instant_list]
-            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc, False, normalize)
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return 'Stepwise'
+        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
+                         normalize=normalize, _inner=_inner)
 
 
 class TTextSeqSet(TSequenceSet, TText):
@@ -235,20 +214,4 @@ class TTextSeqSet(TSequenceSet, TText):
 
     def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__()
-        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
-            "Either string must be not None or sequence_list must be not"
-        if _inner is not None:
-            self._inner = _inner
-        elif string is not None:
-            self._inner = ttext_in(string)
-        else:
-            sequences = [x._inner if isinstance(x, TTextSeq) else ttext_in(x) for x in sequence_list]
-            self._inner = tsequenceset_make(sequences, len(sequences), normalize)
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return 'Stepwise'
+        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
