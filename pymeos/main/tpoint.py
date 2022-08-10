@@ -330,7 +330,6 @@ class TGeomPointInstSet(TGeomPoint, TPointInstSet):
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
                  merge: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
@@ -366,7 +365,6 @@ class TGeogPointInstSet(TGeogPoint, TPointInstSet):
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  merge: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
@@ -413,7 +411,6 @@ class TGeomPointSeq(TGeomPoint, TPointSeq):
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
@@ -507,7 +504,6 @@ class TGeomPointSeqSet(TGeomPoint, TPointSeqSet):
     def __init__(self, *, string: Optional[str] = None,
                  sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
         if _inner is not None:
@@ -554,7 +550,6 @@ class TGeogPointSeqSet(TGeogPoint, TPointSeqSet):
     def __init__(self, *, string: Optional[str] = None,
                  sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
         if _inner is not None:
