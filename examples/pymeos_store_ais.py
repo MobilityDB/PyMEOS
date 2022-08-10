@@ -37,9 +37,9 @@ def main():
     connection = MobilityDB.connect(host=host, port=port, database=db, user=user, password=password)
     cursor = connection.cursor()
 
-    # cursor.execute("DROP TABLE IF EXISTS public.MEOS_demo;")
-    # cursor.execute("CREATE TABLE public.MEOS_demo"
-    #                "(MMSI integer, location public.tgeogpoint, SOG public.tfloat);")
+    cursor.execute("DROP TABLE IF EXISTS public.MEOS_demo;")
+    cursor.execute("CREATE TABLE public.MEOS_demo"
+                   "(MMSI integer, location public.tgeogpoint, SOG public.tfloat);")
 
     # ----------------------------------------------------------------------
     # ------- Section 2: Initialize MEOS and read the input AIS file -------
@@ -53,21 +53,21 @@ def main():
     # - Section 3: Save each observation as a temporal point in MobilityDB -
     # ----------------------------------------------------------------------
 
-    # records = 0
-    # nulls = 0
-    # for line in tqdm(lines[1:]):
-    #     split = line.split(',')
-    #     if len(split) == 5:
-    #         rec = AISRecord.make(split[0], int(split[1]), float(split[2]), float(split[3]), float(split[4]))
-    #         records += 1
-    #     else:
-    #         print("Record with missing values ignored\n")
-    #         nulls += 1
-    #         continue
-    #     cursor.execute(f"INSERT INTO public.MEOS_demo(MMSI, location, SOG) "
-    #                    f"VALUES ({rec.mmsi}, '{rec.point}', '{rec.sog}');")
-    #
-    # print(f"{records} records read.\n {nulls} incomplete records ignored")
+    records = 0
+    nulls = 0
+    for line in tqdm(lines[1:]):
+        split = line.split(',')
+        if len(split) == 5:
+            rec = AISRecord.make(split[0], int(split[1]), float(split[2]), float(split[3]), float(split[4]))
+            records += 1
+        else:
+            print("Record with missing values ignored\n")
+            nulls += 1
+            continue
+        cursor.execute(f"INSERT INTO public.MEOS_demo(MMSI, location, SOG) "
+                       f"VALUES ({rec.mmsi}, '{rec.point}', '{rec.sog}');")
+
+    print(f"{records} records read.\n {nulls} incomplete records ignored")
 
     # ----------------------------------------------------------------------
     # -------------- Section 4: Close and wrap everything up ---------------
