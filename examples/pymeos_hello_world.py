@@ -18,44 +18,22 @@ def main():
     seq = TGeomPointSeq(string=seq_wkt)
     ss = TGeomPointSeqSet(string=ss_wkt)
 
-    # Convert result to MF-JSON
-    inst_mfson = inst.as_mf_json()
-    print("\n"
-          "--------------------\n"
-          "| Temporal Instant |\n"
-          "--------------------\n\n"
-          "WKT:\n"
-          f"----\n{inst_wkt}\n\n"
-          "MF-JSON:\n"
-          f"--------\n{inst_mfson}\n")
+    results = [
+        ('Temporal Instant', inst_wkt, inst.as_mf_json()),
+        ('Temporal Instant Set', iset_wkt, iset.as_mf_json()),
+        ('Temporal Sequence', seq_wkt, seq.as_mf_json()),
+        ('Temporal Sequence Set', ss_wkt, ss.as_mf_json()),
+    ]
 
-    iset_mfson = iset.as_mf_json()
-    print("\n"
-          "------------------------\n"
-          "| Temporal Instant Set |\n"
-          "------------------------\n\n"
-          "WKT:\n"
-          f"----\n{iset_wkt}\n\n"
-          "MF-JSON:\n"
-          f"--------\n{iset_mfson}\n")
-    seq_mfson = seq.as_mf_json()
-    print("\n"
-          "---------------------\n"
-          "| Temporal Sequence |\n"
-          "---------------------\n\n"
-          "WKT:\n"
-          f"----\n{seq_wkt}\n\n"
-          "MF-JSON:\n"
-          f"--------\n{seq_mfson}\n")
-    ss_mfson = ss.as_mf_json()
-    print("\n"
-          "-------------------------\n"
-          "| Temporal Sequence Set |\n"
-          "-------------------------\n\n"
-          "WKT:\n"
-          f"----\n{ss_wkt}\n\n"
-          "MF-JSON:\n"
-          f"--------\n{ss_mfson}\n")
+    for description, wkt, mfjson in results:
+        print("\n"
+              "--------------------\n"
+              f"| {description} |\n"
+              "--------------------\n\n"
+              "WKT:\n"
+              f"----\n{wkt}\n\n"
+              "MF-JSON:\n"
+              f"--------\n{mfjson}\n")
 
     # Finalize MEOS
     meos_finish()
