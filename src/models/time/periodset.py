@@ -32,7 +32,7 @@ from lib.functions import periodset_in, period_in, periodset_duration, interval_
     periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
     periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
-    periodset_num_timestamps, periodset_make, periodset_hash, create_pointer, span_copy, periodset_out
+    periodset_num_timestamps, periodset_make, periodset_hash, create_pointer, span_copy, periodset_out, periodset_copy
 from .period import Period
 
 try:
@@ -233,6 +233,10 @@ class PeriodSet:
         if not isinstance(value, PeriodSet):
             raise ValueError('Value must be an instance of PeriodSet class')
         return value.__str__().strip("'")
+
+    def __copy__(self):
+        inner_copy = periodset_copy(self._inner)
+        return PeriodSet(_inner=inner_copy)
 
     def __str__(self):
         return periodset_out(self._inner)

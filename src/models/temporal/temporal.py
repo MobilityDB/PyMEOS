@@ -32,7 +32,7 @@ from lib.functions import temporal_intersects_timestamp, datetime_to_timestamptz
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp, \
-    temporal_hash
+    temporal_hash, temporal_copy
 from ..time import Period, PeriodSet
 
 try:
@@ -333,6 +333,10 @@ class Temporal(ABC):
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    def __copy__(self):
+        inner_copy = temporal_copy(self._inner)
+        return self.__class__(_inner=inner_copy)
 
 
 class ComparisonError(TypeError):

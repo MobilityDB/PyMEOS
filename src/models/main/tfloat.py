@@ -188,8 +188,8 @@ class TFloatSeq(TSequence, TFloat):
 
         duration1 = timestamp - inst1._time
         duration2 = inst2._time - inst1._time
-        ratio = duration1.total_seconds() / duration2.total_seconds();
-        return inst1._value + (inst2._value - inst1._value) * ratio;
+        ratio = duration1.total_seconds() / duration2.total_seconds()
+        return inst1._value + (inst2._value - inst1._value) * ratio
 
     @property
     def values(self):

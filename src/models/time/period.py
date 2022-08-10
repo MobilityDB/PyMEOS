@@ -7,7 +7,7 @@ from dateutil.parser import parse
 from lib.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, overlaps_span_span, \
     span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
-    period_out
+    period_out, span_copy
 
 try:
     # Do not make psycopg2 a requirement.
@@ -167,6 +167,10 @@ class Period:
         if not isinstance(value, Period):
             raise ValueError('Value must be an instance of Period class')
         return value.__str__().strip("'")
+
+    def __copy__(self):
+        inner_copy = span_copy(self._inner)
+        return Period(_inner=inner_copy)
 
     def __str__(self):
         return period_out(self._inner)

@@ -36,7 +36,7 @@ from lib.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset
     timestampset_timestamp_n, \
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
-    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash
+    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy
 from .period import Period
 
 try:
@@ -196,6 +196,10 @@ class TimestampSet:
         if not isinstance(value, TimestampSet):
             raise ValueError('Value must be an instance of TimestampSet class')
         return value.__str__().strip("'")
+
+    def __copy__(self):
+        inner_copy = timestampset_copy(self._inner)
+        return TimestampSet(_inner=inner_copy)
 
     def __str__(self):
         return timestampset_out(self._inner)
