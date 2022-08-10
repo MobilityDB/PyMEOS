@@ -10,7 +10,7 @@ class AISRecord:
         super().__init__()
         self.mmsi = mmsi
         self.point = TGeogPointInst(point=Point(latitude, longitude), timestamp=timestamp)
-        self.sog = TFloatInst(sog, timestamp)
+        self.sog = TFloatInst(value=sog, timestamp=timestamp)
 
 
 def main():

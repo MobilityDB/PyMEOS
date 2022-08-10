@@ -1,10 +1,9 @@
-from functools import cached_property
 from typing import List, Optional
 
 from postgis import Point
 
+from pymeos import TGeogPointInst, TGeogPointSeq
 from pymeos_cffi.functions import meos_initialize, meos_finish
-from src.models import TGeogPointInst, TGeogPointSeq
 
 
 class AISRecord:
