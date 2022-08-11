@@ -70,7 +70,7 @@ def main():
     print(f"{records} records read.\n {nulls} incomplete records ignored")
 
     # ----------------------------------------------------------------------
-    # -------------- Section 4: Close and wrap everything up ---------------
+    # ------------------ Section 4: Read from MobilityDB -------------------
     # ----------------------------------------------------------------------
 
     cursor.execute("SELECT * FROM public.MEOS_demo WHERE MMSI = 265513270;")
@@ -78,6 +78,10 @@ def main():
     first_record = AISRecord(*cursor.fetchone())
 
     print(f"MMSI: {first_record.mmsi} | Point: {first_record.point} | SOG: {first_record.sog}")
+
+    # ----------------------------------------------------------------------
+    # -------------- Section 5: Close and wrap everything up ---------------
+    # ----------------------------------------------------------------------
 
     connection.commit()
     cursor.close()
