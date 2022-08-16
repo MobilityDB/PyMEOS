@@ -35,7 +35,7 @@ from dateutil.parser import parse
 from postgis import Point, MultiPoint
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
-    tpoint_values, tpoint_length, tpoint_speed
+    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
@@ -49,6 +49,13 @@ setattr(Point, '__hash__', __hash__)
 
 
 class TPoint(Temporal, ABC):
+
+    @property
+    def srid(self):
+        """
+        Returns the SRID.
+        """
+        return tpoint_srid(self._inner)
 
     @property
     def start_value(self):
@@ -163,14 +170,6 @@ class TGeomPoint(TPoint, ABC):
         """
         return self.start_value.z is not None
 
-    @property
-    def srid(self):
-        """
-        Returns the SRID.
-        """
-        result = self.start_value.srid if hasattr(self.start_value, "srid") else None
-        return result
-
 
 class TGeogPoint(TPoint, ABC):
     """
@@ -208,14 +207,6 @@ class TGeogPoint(TPoint, ABC):
         Does the temporal point has Z dimension?
         """
         return self.start_value.z is not None
-
-    @property
-    def srid(self):
-        """
-        Returns the SRID.
-        """
-        result = self.start_value.srid if hasattr(self.start_value, "srid") else None
-        return result
 
 
 class TGeomPointInst(TPointInst, TGeomPoint):
