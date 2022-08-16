@@ -59,12 +59,6 @@ class TText(Temporal, ABC):
                 return TTextInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal text value")
 
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TText):
-            raise ValueError('Value must be an instance of a subclass of TText')
-        return value.__str__().strip("'")
-
     @property
     def values(self):
         values, count = ttext_values(self._inner)

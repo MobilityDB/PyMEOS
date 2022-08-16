@@ -24,9 +24,14 @@
 #
 ###############################################################################
 
-from datetime import datetime
-from dateutil.parser import parse
 import warnings
+from datetime import datetime
+from typing import Optional, Union
+
+from ..time import Period
+from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
+    stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
+    stbox_zmax, stbox_tmax
 
 try:
     # Do not make psycopg2 a requirement.
@@ -79,228 +84,139 @@ class STBox:
         >>> STBox(('2001-01-03', '2001-01-03'), geodetic=True)
 
     """
-    __slots__ = ['_xmin', '_ymin', '_zmin', '_tmin', '_xmax', '_ymax', '_zmax', '_tmax', '_geodetic', '_srid']
+    __slots__ = ['_inner']
 
-    def __init__(self, bounds, dimt=None, geodetic=None, srid=None):
-        # Initialize arguments to None and set geodetic if given
-        self._xmin = self._ymin = self._zmin = self._tmin = None
-        self._xmax = self._ymax = self._zmax = self._tmax = None
-        assert(geodetic is None or isinstance(geodetic, bool)), "ERROR: Geodetic parameter must be Boolean"
-        self._geodetic = geodetic if geodetic is not None else False
-        assert(srid is None or isinstance(srid, int)), "ERROR: SRID parameter must be Integer"
-        self._srid = srid if srid is not None else False
-        # Unpack the bounds
-        if isinstance(bounds, str):
-            self.parse_from_string(bounds)
-            return
-        if isinstance(bounds, (tuple, list)):
-            xmin = ymin = zmin = tmin = None
-            xmax = ymax = zmax = tmax = None
-            if len(bounds) == 2:
-                tmin, tmax = bounds
-            elif len(bounds) == 4:
-                xmin, ymin, xmax, ymax = bounds
-            elif len(bounds) == 6:
-                if dimt:
-                    xmin, ymin, tmin, xmax, ymax, tmax = bounds
-                else:
-                    xmin, ymin, zmin, xmax, ymax, zmax = bounds
-            elif len(bounds) == 8:
-                xmin, ymin, zmin, tmin, xmax, ymax, zmax, tmax = bounds
-            else:
-                raise Exception("ERROR: Cannot parse STBox")
-        # Initialize the new instance
-        self._xmin = float(xmin) if xmin is not None else None
-        self._xmax = float(xmax) if xmax is not None else None
-        self._ymin = float(ymin) if ymin is not None else None
-        self._ymax = float(ymax) if ymax is not None else None
-        self._zmin = float(zmin) if zmin is not None else None
-        self._zmax = float(zmax) if zmax is not None else None
-        if tmin is not None and tmax is not None:
-            if isinstance(tmin, str) and isinstance(tmax, str):
-                self._tmin = parse(tmin)
-                self._tmax = parse(tmax)
-            elif isinstance(tmin, datetime) and isinstance(tmax, datetime):
-                self._tmin = tmin
-                self._tmax = tmax
-            else:
-                raise Exception("ERROR: Cannot parse STBox")
+    def __init__(self, *, string: Optional[str] = None,
+                 xmin: Optional[Union[str, float]] = None, xmax: Optional[Union[str, float]] = None,
+                 ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
+                 zmin: Optional[Union[str, float]] = None, zmax: Optional[Union[str, float]] = None,
+                 tmin: Optional[Union[str, datetime]] = None, tmax: Optional[Union[str, datetime]] = None,
+                 geodetic: bool = False, srid: Optional[int] = None,
+                 _inner=None):
 
-    def parse_from_string(self, value):
-        if value is None or not isinstance(value, str):
-            raise Exception("ERROR: Cannot parse STBox")
-        value = value.strip()
-        values = None
+        assert (_inner is not None) or (string is not None) != (
+                (xmin is not None and xmax is not None and ymin is not None and ymax is not None) or
+                (tmin is not None and tmax is not None)), \
+            "Either string must be not None or at least a bound pair (xmin/max and ymin/max, or tmin/max)" \
+            " must be not None"
 
-        # SRID, if specified would be at start of the value. Example:
-        #   SRID=4326;GEODSTBOX((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))
-        if value.startswith("SRID"):
-            srid, _stbox = value.split(";")
-            srid = int(srid.split('=')[1])
-            self._srid = srid
-            value = _stbox
-
-        if 'GEODSTBOX' in value:
-            self._geodetic = True
-            value = value.replace("GEODSTBOX", '')
-            hasz = True
-            hast = True if 'T' in value else False
-        elif 'STBOX' in value:
-            value = value.replace("STBOX", '')
-            hasz = True if 'Z' in value else False
-            hast = True if 'T' in value else False
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = stbox_in(string)
         else:
-            raise Exception("ERROR: Input must be STBOX")
-
-        values = value.replace('Z', '').replace('T', ''). replace('(', '').replace(')', '').split(',')
-        # Remove empty or only space strings
-        values = [value for value in values if value != '' and not value.isspace()]
-
-        if len(values) == 2:
-            self._tmin = parse(values[0])
-            self._tmax = parse(values[1])
-        else:
-            if len(values) >= 4:
-                self._xmin = float(values[0])
-                self._xmax = float(values[int(len(values) / 2)])
-                self._ymin = float(values[1])
-                self._ymax = float(values[1 + int(len(values) / 2)])
-            if hasz:
-                self._zmin = float(values[2])
-                self._zmax = float(values[2 + int(len(values) / 2)])
+            period = None
+            hast = tmin is not None and tmax is not None
+            hasx = xmin is not None and xmax is not None and ymin is not None and ymax is not None
+            hasz = zmin is not None and zmax is not None
             if hast:
-                self._tmin = parse(values[int(len(values) / 2) - 1])
-                self._tmax = parse(values[(int(len(values) / 2) - 1) + int(len(values) / 2)])
+                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+            self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
+                                     float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
-        return STBox(value)
-
-    @staticmethod
-    def write(value):
-        if not isinstance(value, STBox):
-            raise ValueError('Value must be an instance of STBox class')
-        return value.__str__()
+        return STBox(string=value)
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
         if protocol is ISQLQuote:
             return self
 
-    def getquoted(self):
-        return "{}".format(self.__str__())
     # End Psycopg2 interface.
 
     @property
-    def xmin(self):
-        """
-        Minimum X
-        """
-        return self._xmin
+    def has_x(self):
+        return stbox_hasx(self._inner)
 
     @property
-    def ymin(self):
-        """
-        Minimum Y
-        """
-        return self._ymin
+    def has_z(self):
+        return stbox_hasz(self._inner)
 
     @property
-    def zmin(self):
-        """
-        Minimum Z
-        """
-        return self._ymin
-
-    @property
-    def tmin(self):
-        """
-        Minimum T
-        """
-        return self._tmin
-
-    @property
-    def xmax(self):
-        """
-        Maximum X
-        """
-        return self._xmax
-
-    @property
-    def ymax(self):
-        """
-        Maximum Y
-        """
-        return self._ymax
-
-    @property
-    def zmax(self):
-        """
-        Maximum Z
-        """
-        return self._zmax
-
-    @property
-    def tmax(self):
-        """
-        Maximum T
-        """
-        return self._tmax
+    def has_t(self):
+        return stbox_hast(self._inner)
 
     @property
     def geodetic(self):
         """
         Is the box is geodetic?
         """
-        return self._geodetic
+        return stbox_isgeodetic(self._inner)
+
+    @property
+    def xmin(self):
+        """
+        Minimum X
+        """
+        return stbox_xmin(self._inner)
+
+    @property
+    def ymin(self):
+        """
+        Minimum Y
+        """
+        return stbox_ymin(self._inner)
+
+    @property
+    def zmin(self):
+        """
+        Minimum Z
+        """
+        return stbox_zmin(self._inner)
+
+    @property
+    def tmin(self):
+        """
+        Minimum T
+        """
+        return timestamptz_to_datetime(stbox_tmin(self._inner))
+
+    @property
+    def xmax(self):
+        """
+        Maximum X
+        """
+        return stbox_xmax(self._inner)
+
+    @property
+    def ymax(self):
+        """
+        Maximum Y
+        """
+        return stbox_ymax(self._inner)
+
+    @property
+    def zmax(self):
+        """
+        Maximum Z
+        """
+        return stbox_zmax(self._inner)
+
+    @property
+    def tmax(self):
+        """
+        Maximum T
+        """
+        return timestamptz_to_datetime(stbox_tmax(self._inner))
 
     @property
     def srid(self):
         """
         SRID of the geographic coordinates
         """
-        return self._srid
+        return self._inner.srid
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._xmin == other._xmin and self._ymin == other._ymin and self._zmin == other._zmin and \
-                   self._tmin == other._tmin and self._xmax == other._xmax and self._ymax == other._ymax and \
-                   self._zmax == other._zmax and self._tmax == other._tmax and self._geodetic == other._geodetic
+            return stbox_eq(self._inner, other._inner)
         return False
 
     def __str__(self):
-        srid_prefix = ('SRID=%s;' % self._srid) if self._srid else ''
-        if self._geodetic:
-            if self._tmin is not None:
-                if self._xmin is not None:
-                    return "%sGEODSTBOX T((%s, %s, %s, %s), (%s, %s, %s, %s))" % \
-                        (srid_prefix, self._xmin, self._ymin, self._zmin, self._tmin, self._xmax, self._ymax, self._zmax, self._tmax)
-                else:
-                    return "%sGEODSTBOX T((, %s), (, %s))" % (srid_prefix, self._tmin, self._tmax)
-            else:
-                return "%sGEODSTBOX((%s, %s, %s), (%s, %s, %s))" % \
-                    (srid_prefix, self._xmin, self._ymin, self._zmin, self._xmax, self._ymax, self._zmax)
-        else:
-            if self._xmin is not None and self._zmin is not None and self._tmin is not None:
-                return "%sSTBOX ZT((%s, %s, %s, %s), (%s, %s, %s, %s))" % \
-                    (srid_prefix, self._xmin, self._ymin, self._zmin, self._tmin, self._xmax, self._ymax, self._zmax, self._tmax)
-            elif self._xmin is not None and self._zmin is not None and self._tmin is None:
-                return "%sSTBOX Z((%s, %s, %s), (%s, %s, %s))" % \
-                    (srid_prefix, self._xmin, self._ymin, self._zmin, self._xmax, self._ymax, self._zmax)
-            elif self._xmin is not None and self._zmin is None and self._tmin is not None:
-                return "%sSTBOX T((%s, %s, %s), (%s, %s, %s))" % \
-                    (srid_prefix, self._xmin, self._ymin, self._tmin, self._xmax, self._ymax, self._tmax)
-            elif self._xmin is not None and self._zmin is None and self._tmin is None:
-                return "%sSTBOX ((%s, %s), (%s, %s))" % \
-                       (srid_prefix, self._xmin, self._ymin, self._xmax, self._ymax)
-            elif self._xmin is None and self._zmin is None and self._tmin is not None:
-                return "%sSTBOX T((, %s), (, %s))" % (srid_prefix, self._tmin, self._tmax)
-            else:
-                raise Exception("ERROR: Wrong values")
+        return stbox_out(self._inner, 3)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
-                f'({self._xmin!r}, {self._ymin!r}, {self._zmin!r}, {self._tmin!r}, '
-                f'{self._xmax!r}, {self._ymax!r}, {self._zmax!r}, {self._tmax!r}, {self._geodetic!r}, {self._srid!r})')
+        return (f'{self.__class__.__name__}'
+                f'({self})')

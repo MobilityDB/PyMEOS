@@ -41,12 +41,60 @@ def cstring2text(cstring: str) -> 'text *':
     return result
 
 
+def lwgeom_from_gserialized(g: 'const GSERIALIZED *') -> 'LWGEOM *':
+    g_converted = _ffi.cast('const GSERIALIZED *', g)
+    result = _lib.lwgeom_from_gserialized(g_converted)
+    return result
+
+
 def meos_initialize() -> None:
     _lib.meos_initialize()
 
 
 def meos_finish() -> None:
     _lib.meos_finish()
+
+
+def gserialized_in(input: str, geom_typmod: int) -> 'GSERIALIZED *':
+    input_converted = input.encode('utf-8')
+    geom_typmod_converted = _ffi.cast('int32', geom_typmod)
+    result = _lib.gserialized_in(input_converted, geom_typmod_converted)
+    return result
+
+
+def gserialized_out(geom: 'const GSERIALIZED *') -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    result = _lib.gserialized_out(geom_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result
+
+
+def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    type_converted = type.encode('utf-8')
+    result = _lib.gserialized_as_hexwkb(geom_converted, type_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result
+
+
+def gserialized_from_ewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
+    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.gserialized_from_ewkb(bytea_wkb_converted, srid_converted)
+    return result
+
+
+def pg_date_in(string: str) -> 'DateADT':
+    string_converted = string.encode('utf-8')
+    result = _lib.pg_date_in(string_converted)
+    return result
+
+
+def pg_date_out(date: 'DateADT') -> str:
+    date_converted = _ffi.cast('DateADT', date)
+    result = _lib.pg_date_out(date_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result
 
 
 def pg_timestamptz_in(string: str, typmod: int) -> int:
@@ -83,15 +131,36 @@ def floatspan_in(string: str) -> 'Span *':
     return result
 
 
+def floatspan_out(s: 'const Span *', maxdd: int) -> str:
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.floatspan_out(s_converted, maxdd)
+    result = _ffi.string(result).decode('utf-8')
+    return result
+
+
 def intspan_in(string: str) -> 'Span *':
     string_converted = string.encode('utf-8')
     result = _lib.intspan_in(string_converted)
     return result
 
 
+def intspan_out(s: 'const Span *') -> str:
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.intspan_out(s_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result
+
+
 def period_in(string: str) -> 'Period *':
     string_converted = string.encode('utf-8')
     result = _lib.period_in(string_converted)
+    return result
+
+
+def period_out(s: 'const Span *') -> str:
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.period_out(s_converted)
+    result = _ffi.string(result).decode('utf-8')
     return result
 
 
@@ -166,9 +235,10 @@ def span_from_wkb(wkb: 'uint8_t *', size: int) -> 'Span *':
     return result
 
 
-def period_out(s: 'const Span *') -> str:
+def span_out(s: 'const Span *', arg: 'Datum') -> str:
     s_converted = _ffi.cast('const Span *', s)
-    result = _lib.period_out(s_converted)
+    arg_converted = _ffi.cast('Datum', arg)
+    result = _lib.span_out(s_converted, arg_converted)
     result = _ffi.string(result).decode('utf-8')
     return result
 
@@ -2166,18 +2236,18 @@ def stbox_out(box: 'const STBOX *', maxdd: int) -> str:
     return result
 
 
-def tbox_make(hasx: bool, hast: bool, xmin: float, xmax: float, tmin: int, tmax: int) -> 'TBOX *':
-    tmin_converted = _ffi.cast('TimestampTz', tmin)
-    tmax_converted = _ffi.cast('TimestampTz', tmax)
-    result = _lib.tbox_make(hasx, hast, xmin, xmax, tmin_converted, tmax_converted)
+def tbox_make(p: 'const Period *', s: 'const Span *') -> 'TBOX *':
+    p_converted = _ffi.cast('const Period *', p) if p else _ffi.NULL
+    s_converted = _ffi.cast('const Span *', s) if s else _ffi.NULL
+    result = _lib.tbox_make(p_converted, s_converted)
     return result
 
 
-def tbox_set(hasx: bool, hast: bool, xmin: float, xmax: float, tmin: int, tmax: int, box: 'TBOX *') -> None:
-    tmin_converted = _ffi.cast('TimestampTz', tmin)
-    tmax_converted = _ffi.cast('TimestampTz', tmax)
+def tbox_set(p: 'const Period *', s: 'const Span *', box: 'TBOX *') -> None:
+    p_converted = _ffi.cast('const Period *', p)
+    s_converted = _ffi.cast('const Span *', s)
     box_converted = _ffi.cast('TBOX *', box)
-    _lib.tbox_set(hasx, hast, xmin, xmax, tmin_converted, tmax_converted, box_converted)
+    _lib.tbox_set(p_converted, s_converted, box_converted)
 
 
 def tbox_copy(box: 'const TBOX *') -> 'TBOX *':
@@ -2186,24 +2256,18 @@ def tbox_copy(box: 'const TBOX *') -> 'TBOX *':
     return result
 
 
-def stbox_make(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float,
-               ymax: float, zmin: float, zmax: float, tmin: int, tmax: int) -> 'STBOX *':
+def stbox_make(p: 'const Period *', hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float) -> 'STBOX *':
+    p_converted = _ffi.cast('const Period *', p) if p else _ffi.NULL
     srid_converted = _ffi.cast('int32', srid)
-    tmin_converted = _ffi.cast('TimestampTz', tmin)
-    tmax_converted = _ffi.cast('TimestampTz', tmax)
-    result = _lib.stbox_make(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax,
-                             tmin_converted, tmax_converted)
+    result = _lib.stbox_make(p_converted, hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax)
     return result
 
 
-def stbox_set(hasx: bool, hasz: bool, hast: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float,
-              ymax: float, zmin: float, zmax: float, tmin: int, tmax: int, box: 'STBOX *') -> None:
+def stbox_set(p: 'const Period *', hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float, box: 'STBOX *') -> None:
+    p_converted = _ffi.cast('const Period *', p)
     srid_converted = _ffi.cast('int32', srid)
-    tmin_converted = _ffi.cast('TimestampTz', tmin)
-    tmax_converted = _ffi.cast('TimestampTz', tmax)
     box_converted = _ffi.cast('STBOX *', box)
-    _lib.stbox_set(hasx, hasz, hast, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, tmin_converted,
-                   tmax_converted, box_converted)
+    _lib.stbox_set(p_converted, hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, box_converted)
 
 
 def stbox_copy(box: 'const STBOX *') -> 'STBOX *':
@@ -2320,9 +2384,9 @@ def tnumber_to_tbox(temp: 'const Temporal *') -> 'TBOX *':
     return result
 
 
-def stbox_to_geometry(box: 'const STBOX *') -> 'GSERIALIZED *':
+def stbox_to_geo(box: 'const STBOX *') -> 'GSERIALIZED *':
     box_converted = _ffi.cast('const STBOX *', box)
-    result = _lib.stbox_to_geometry(box_converted)
+    result = _lib.stbox_to_geo(box_converted)
     return result
 
 
@@ -3249,8 +3313,7 @@ def tgeogpointseqset_from_base(gs: 'const GSERIALIZED *', ss: 'const TSequenceSe
     return result
 
 
-def tgeogpointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *',
-                                    linear: bool) -> 'TSequenceSet *':
+def tgeogpointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *', linear: bool) -> 'TSequenceSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     result = _lib.tgeogpointseqset_from_base_time(gs_converted, ps_converted, linear)
@@ -3306,8 +3369,7 @@ def tgeompointseqset_from_base(gs: 'const GSERIALIZED *', ss: 'const TSequenceSe
     return result
 
 
-def tgeompointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *',
-                                    linear: bool) -> 'TSequenceSet *':
+def tgeompointseqset_from_base_time(gs: 'const GSERIALIZED *', ps: 'const PeriodSet *', linear: bool) -> 'TSequenceSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     result = _lib.tgeompointseqset_from_base_time(gs_converted, ps_converted, linear)
@@ -3374,15 +3436,13 @@ def tintseqset_from_base_time(i: int, ps: 'const PeriodSet *') -> 'TSequenceSet 
     return result
 
 
-def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool,
-                   normalize: bool) -> 'TSequence *':
+def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     result = _lib.tsequence_make(instants_converted, count, lower_inc, upper_inc, linear, normalize)
     return result
 
 
-def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool,
-                        normalize: bool) -> 'TSequence *':
+def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('TInstant *', x) for x in instants]
     result = _lib.tsequence_make_free(instants_converted, count, lower_inc, upper_inc, linear, normalize)
     return result
@@ -3400,8 +3460,7 @@ def tsequenceset_make_free(sequences: 'TSequence **', count: int, normalize: boo
     return result
 
 
-def tsequenceset_make_gaps(instants: 'const TInstant **', count: int, linear: bool, maxdist: 'float',
-                           maxt: 'Interval *') -> 'TSequenceSet *':
+def tsequenceset_make_gaps(instants: 'const TInstant **', count: int, linear: bool, maxdist: 'float', maxt: 'Interval *') -> 'TSequenceSet *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     maxdist_converted = _ffi.cast('float', maxdist)
     maxt_converted = _ffi.cast('Interval *', maxt)
@@ -4049,9 +4108,9 @@ def tnumber_at_tbox(temp: 'const Temporal *', box: 'const TBOX *') -> 'Temporal 
     return result
 
 
-def tnumber_minus_span(temp: 'const Temporal *', span: 'Span *') -> 'Temporal *':
+def tnumber_minus_span(temp: 'const Temporal *', span: 'const Span *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    span_converted = _ffi.cast('Span *', span)
+    span_converted = _ffi.cast('const Span *', span)
     result = _lib.tnumber_minus_span(temp_converted, span_converted)
     return result
 
@@ -4126,6 +4185,7 @@ def tpoint_minus_values(temp: 'const Temporal *', values: 'GSERIALIZED **', coun
     return result
 
 
+#TODO value parameter is output
 def tpoint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool, value: 'GSERIALIZED **') -> bool:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
@@ -7130,40 +7190,35 @@ def intersects_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *
     return result
 
 
-def tcontains_geo_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *', restr: bool,
-                         atvalue: bool) -> 'Temporal *':
+def tcontains_geo_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *', restr: bool, atvalue: bool) -> 'Temporal *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tcontains_geo_tpoint(gs_converted, temp_converted, restr, atvalue)
     return result
 
 
-def tdisjoint_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool,
-                         atvalue: bool) -> 'Temporal *':
+def tdisjoint_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     geo_converted = _ffi.cast('const GSERIALIZED *', geo)
     result = _lib.tdisjoint_tpoint_geo(temp_converted, geo_converted, restr, atvalue)
     return result
 
 
-def tdwithin_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', dist: float, restr: bool,
-                        atvalue: bool) -> 'Temporal *':
+def tdwithin_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', dist: float, restr: bool, atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     result = _lib.tdwithin_tpoint_geo(temp_converted, gs_converted, dist, restr, atvalue)
     return result
 
 
-def tdwithin_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *', dist: float, restr: bool,
-                           atvalue: bool) -> 'Temporal *':
+def tdwithin_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *', dist: float, restr: bool, atvalue: bool) -> 'Temporal *':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.tdwithin_tpoint_tpoint(temp1_converted, temp2_converted, dist, restr, atvalue)
     return result
 
 
-def tintersects_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool,
-                           atvalue: bool) -> 'Temporal *':
+def tintersects_tpoint_geo(temp: 'const Temporal *', geo: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     geo_converted = _ffi.cast('const GSERIALIZED *', geo)
     result = _lib.tintersects_tpoint_geo(temp_converted, geo_converted, restr, atvalue)
@@ -7177,8 +7232,7 @@ def touches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> i
     return result
 
 
-def ttouches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', restr: bool,
-                        atvalue: bool) -> 'Temporal *':
+def ttouches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', restr: bool, atvalue: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     result = _lib.ttouches_tpoint_geo(temp_converted, gs_converted, restr, atvalue)
@@ -7231,8 +7285,7 @@ def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
     return result
 
 
-def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int,
-                        buckets: 'TimestampTz **', newcount: 'int *') -> 'Temporal **':
+def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int, buckets: 'TimestampTz **', newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     start_converted = _ffi.cast('TimestampTz', start)
     end_converted = _ffi.cast('TimestampTz', end)
@@ -7240,13 +7293,11 @@ def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: 
     torigin_converted = _ffi.cast('TimestampTz', torigin)
     buckets_converted = [_ffi.cast('TimestampTz *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
-    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted,
-                                      torigin_converted, count, buckets_converted, newcount_converted)
+    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted, torigin_converted, count, buckets_converted, newcount_converted)
     return result
 
 
-def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int, buckets: 'int **',
-                     newcount: 'int *') -> 'Temporal **':
+def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int, buckets: 'int **', newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     buckets_converted = [_ffi.cast('int *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
@@ -7254,8 +7305,7 @@ def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, cou
     return result
 
 
-def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int, buckets: 'float **',
-                       newcount: 'int *') -> 'Temporal **':
+def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int, buckets: 'float **', newcount: 'int *') -> 'Temporal **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     buckets_converted = [_ffi.cast('float *', x) for x in buckets]
     newcount_converted = _ffi.cast('int *', newcount)
@@ -7291,3 +7341,39 @@ def temporal_dyntimewarp_path(temp1: 'const Temporal *', temp2: 'const Temporal 
     count = _ffi.new('int *')
     result = _lib.temporal_dyntimewarp_path(temp1_converted, temp2_converted, count)
     return result, count[0]
+
+
+def geo_to_tpoint(geo: 'const GSERIALIZED *') -> 'Temporal *':
+    geo_converted = _ffi.cast('const GSERIALIZED *', geo)
+    result = _lib.geo_to_tpoint(geo_converted)
+    return result
+
+
+def temporal_simplify(temp: 'const Temporal *', synchronized: bool, eps_dist: float) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_simplify(temp_converted, synchronized, eps_dist)
+    return result
+
+
+def tpoint_AsMVTGeom(temp: 'const Temporal *', bounds: 'const STBOX *', extent: 'int32_t', buffer: 'int32_t', clip_geom: bool, geom: 'GSERIALIZED **', timesarr: 'int64 **') -> "Tuple[bool, 'int *']":
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    bounds_converted = _ffi.cast('const STBOX *', bounds)
+    extent_converted = _ffi.cast('int32_t', extent)
+    buffer_converted = _ffi.cast('int32_t', buffer)
+    geom_converted = [_ffi.cast('GSERIALIZED *', x) for x in geom]
+    timesarr_converted = [_ffi.cast('int64 *', x) for x in timesarr]
+    count = _ffi.new('int *')
+    result = _lib.tpoint_AsMVTGeom(temp_converted, bounds_converted, extent_converted, buffer_converted, clip_geom, geom_converted, timesarr_converted, count)
+    return result, count[0]
+
+
+def tpoint_to_geo_measure(tpoint: 'const Temporal *', measure: 'const Temporal *', segmentize: bool) -> 'GSERIALIZED **':
+    tpoint_converted = _ffi.cast('const Temporal *', tpoint)
+    measure_converted = _ffi.cast('const Temporal *', measure)
+    out_result = _ffi.new('GSERIALIZED **')
+    result = _lib.tpoint_to_geo_measure(tpoint_converted, measure_converted, segmentize, out_result)
+    if result:
+        return out_result[0]
+    raise Exception(f'C call went wrong: {result}')
+
+

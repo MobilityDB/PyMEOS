@@ -24,9 +24,15 @@
 #
 ###############################################################################
 
-from datetime import datetime
-from dateutil.parser import parse
 import warnings
+from datetime import datetime
+from typing import Optional, Union
+
+from dateutil.parser import parse
+
+from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
+    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax
+from ..time import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -44,9 +50,9 @@ class TBox:
     ``TBox`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> TBox("TBOX((1.0, 2000-01-01), (2.0, 2000-01-02))")
-        >>> TBox("TBOX((1.0,), (2.0,))")
-        >>> TBox("TBOX((, 2000-01-01), (, 2000-01-02))")
+        >>> TBox(string="TBOX((1.0, 2000-01-01), (2.0, 2000-01-02))")
+        >>> TBox(string="TBOX((1.0,), (2.0,))")
+        >>> TBox(string="TBOX((, 2000-01-01), (, 2000-01-02))")
 
     Another possibility is to give the bounds in the following order:
     ``xmin``, ``tmin``, ``xmax``, ``tmax``, where the bounds can be
@@ -54,140 +60,92 @@ class TBox:
     optional but they must be given in pairs for each dimension and at
     least one pair must be given.
 
-        >>> TBox("1.0", "2000-01-01", "2.0", "2000-01-02")
-        >>> TBox(1.0, 2.0)
-        >>> TBox(parse("2000-01-01"), parse("2000-01-02"))
+        >>> TBox(xmin="1.0", tmin="2000-01-01", xmax="2.0", tmax="2000-01-02")
+        >>> TBox(xmin=1.0, xmax=2.0)
+        >>> TBox(tmin=parse("2000-01-01"), tmax=parse("2000-01-02"))
 
     """
-    __slots__ = ['_xmin', '_tmin', '_xmax', '_tmax']
+    __slots__ = ['_inner']
 
-    def __init__(self, xmin, tmin=None, xmax=None, tmax=None):
-        if tmin is None and isinstance(xmin, str):
-            self.parse_from_string(xmin)
-        elif tmin is None and isinstance(xmin, (tuple, list)):
-            xmin, tmin, *extra = xmin
-            if extra:
-                xmax, tmax, *extra = extra
-                if extra:
-                    raise Exception("ERROR: Cannot parse TBox")
-        elif xmax is None:
-            # Only two arguments given
-            if isinstance(xmin, str) and isinstance(tmin, str):
-                try:
-                    self._xmin = float(xmin)
-                    self._xmax = float(tmin)
-                    self._tmin = self._tmax = None
-                except:
-                    self._tmin = parse(xmin)
-                    self._tmax = parse(tmin)
-                    self._xmin = self._xmax = None
-            elif isinstance(xmin, float) and isinstance(tmin, float):
-                self._xmin = xmin
-                self._xmax = tmin
-                self._tmin = self._tmax = None
-            elif isinstance(xmin, datetime) and isinstance(tmin, datetime):
-                self._tmin = xmin
-                self._tmax = tmin
-                self._xmin = self._xmax = None
-            else:
-                raise Exception("ERROR: Cannot parse TBox")
+    def __init__(self, *, string: Optional[str] = None,
+                 xmin: Optional[Union[str, float]] = None,
+                 tmin: Optional[Union[str, datetime]] = None,
+                 xmax: Optional[Union[str, float]] = None,
+                 tmax: Optional[Union[str, datetime]] = None,
+                 _inner=None):
+        assert (_inner is not None) or (string is not None) != (
+                (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
+            "Either string must be not None or at least a bound pair (xmin/max or tmin/max) must be not None"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = tbox_in(string)
         else:
-            # Four arguments given
-            self._xmin = float(xmin)
-            self._xmax = float(xmax)
-            if isinstance(tmin, str) and isinstance(tmax, str):
-                self._tmin = parse(tmin)
-                self._tmax = parse(tmax)
-            elif isinstance(tmin, datetime) and isinstance(tmax, datetime):
-                self._tmin = tmin
-                self._tmax = tmax
-            else:
-                raise Exception("ERROR: Cannot parse TBox")
-
-    def parse_from_string(self, value):
-        values = value.replace("TBOX", '')
-        if 'T' in values:
-            time = True
-            self._xmin = None
-            self._xmax = None
-        else:
-            time = False
-        values = values.replace('T', '').replace('(', '').replace(')', '').split(',')
-        if time:
-            self._tmin = parse(values[0])
-            self._tmax = parse(values[1])
-        elif len(values) == 4:
-            self._xmin = float(values[0]) if values[0] != '' and not values[0].isspace() else None
-            self._xmax = float(values[2]) if values[2] != '' and not values[2].isspace() else None
-            self._tmin = parse(values[1]) if values[1] != '' and not values[1].isspace() else None
-            self._tmax = parse(values[3]) if values[3] != '' and not values[3].isspace() else None
-        else:
-            raise Exception("ERROR: Cannot parse TBox")
+            span = None
+            period = None
+            if xmin is not None and xmax is not None:
+                span = floatspan_make(float(xmin), float(xmax), True, True)
+            if tmin is not None and tmax is not None:
+                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+            self._inner = tbox_make(period, span)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
-        return TBox(value)
-
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TBox):
-            raise ValueError('Value must be an instance of TBox class')
-        return value.__str__().strip("'")
+        return TBox(string=value)
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
         if protocol is ISQLQuote:
             return self
 
-    def getquoted(self):
-        return "{}".format(self.__str__())
     # End Psycopg2 interface.
+
+    @property
+    def has_x(self):
+        return tbox_hasx(self._inner)
+
+    @property
+    def has_t(self):
+        return tbox_hast(self._inner)
 
     @property
     def xmin(self):
         """
         Minimum X
         """
-        return self._xmin
+        return tbox_xmin(self._inner)
 
     @property
     def tmin(self):
         """
         Minimum T
         """
-        return self._tmin
+        return timestamptz_to_datetime(tbox_tmin(self._inner))
 
     @property
     def xmax(self):
         """
         Maximum X
         """
-        return self._xmax
+        return tbox_xmax(self._inner)
 
     @property
     def tmax(self):
         """
         Maximum T
         """
-        return self._tmax
+        return timestamptz_to_datetime(tbox_tmax(self._inner))
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return self._xmin == other._xmin and self._tmin == other._tmin and self._xmax == other._xmax and \
-                self._tmax == other._tmax
+            tbox_eq(self._inner, other._inner)
         return False
 
     def __str__(self):
-        if self._xmin is not None and self._tmin is not None:
-            return "TBOX((%s, %s), (%s, %s))" % (repr(self._xmin), self._tmin, repr(self._xmax), self._tmax)
-        elif self._xmin is not None:
-            return "TBOX((%s, ), (%s, ))" % (repr(self._xmin), repr(self._xmax))
-        elif self._tmin is not None:
-            return "TBOX((, %s), (, %s))" % (self._tmin, self._tmax)
+        return tbox_out(self._inner, 3)
 
     def __repr__(self):
-        return (f'{self.__class__.__name__ }'
-                f'({self._xmin!r}, {self._tmin!r}, {self._xmax!r}, {self._tmax!r})')
-
+        return (f'{self.__class__.__name__}'
+                f'({self})')

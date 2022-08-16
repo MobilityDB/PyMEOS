@@ -35,7 +35,8 @@ from dateutil.parser import parse
 from postgis import Point, MultiPoint, LineString, GeometryCollection, MultiLineString
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
-    tpoint_values
+    tpoint_values, tpoint_length, tpoint_speed
+from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -86,6 +87,10 @@ class TPointInst(TPoint, TInstant, ABC):
         """
         return self.values[0]
 
+    @property
+    def point(self):
+        return Point(self._inner.x, self._inner.y)
+
 
 class TPointInstSet(TPoint, TInstantSet, ABC):
     """
@@ -101,12 +106,10 @@ class TPointInstSet(TPoint, TInstantSet, ABC):
         return MultiPoint(values)
 
 
-class TPointSeq(TSequence, ABC):
+class TPointSeq(TPoint, TSequence, ABC):
     """
     Abstract class for representing temporal points of sequence subtype.
     """
-
-    __slots__ = ['_inner']
 
     @property
     def values(self):
@@ -117,8 +120,16 @@ class TPointSeq(TSequence, ABC):
         result = values[0] if len(values) == 1 else LineString(values)
         return result
 
+    @property
+    def distance(self):
+        return tpoint_length(self._inner)
 
-class TPointSeqSet(TSequenceSet, ABC):
+    @property
+    def speed(self):
+        return TFloatSeq(_inner=tpoint_speed(self._inner))
+
+
+class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
     Abstract class for representing temporal points of sequence set subtype.
     """
@@ -137,6 +148,14 @@ class TPointSeqSet(TSequenceSet, ABC):
             return MultiPoint(points)
         if len(points) == 0 and len(points) != 0:
             return MultiLineString(lines)
+
+    @property
+    def distance(self):
+        return tpoint_length(self._inner)
+
+    @property
+    def speed(self):
+        return TFloatSeqSet(_inner=tpoint_speed(self._inner))
 
 
 class TGeomPoint(TPoint, ABC):
@@ -168,12 +187,6 @@ class TGeomPoint(TPoint, ABC):
             else:
                 return TGeomPointInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
-
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TGeomPoint):
-            raise ValueError('Value must an instance of a subclass of TGeomPoint')
-        return value.__str__().strip("'")
 
     @property
     def hasz(self):
@@ -220,12 +233,6 @@ class TGeogPoint(TPoint, ABC):
             else:
                 return TGeogPointInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
-
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TGeogPoint):
-            raise ValueError('Value must an instance of a subclass of TGeogPoint')
-        return value.__str__().strip("'")
 
     @property
     def hasz(self):

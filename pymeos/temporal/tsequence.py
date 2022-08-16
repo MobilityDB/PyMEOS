@@ -26,7 +26,7 @@
 from abc import ABC
 from typing import Optional, Union, List, Any, Literal
 
-from pymeos_cffi.functions import tpoint_length, tsequence_make, temporal_interpolation
+from pymeos_cffi.functions import tsequence_make, temporal_interpolation
 from ..temporal import TemporalInstants
 
 
@@ -109,10 +109,6 @@ class TSequence(TemporalInstants, ABC):
         List of sequences.
         """
         return [self]
-
-    @property
-    def distance(self):
-        return tpoint_length(self._inner)
 
     @property
     def interpolation(self):

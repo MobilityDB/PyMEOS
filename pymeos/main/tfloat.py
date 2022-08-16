@@ -65,12 +65,6 @@ class TFloat(Temporal, ABC):
                 return TFloatInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal float value")
 
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TFloat):
-            raise ValueError('Value must be an instance of a subclass of TFloat')
-        return value.__str__().strip("'")
-
     @property
     def value_range(self):
         """

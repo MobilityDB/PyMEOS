@@ -60,12 +60,6 @@ class TBool(Temporal, ABC):
                 return TBoolInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
 
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TBool):
-            raise ValueError('Value must be an instance of a subclass of TBool')
-        return value.__str__().strip("'")
-
     @property
     def values(self):
         """

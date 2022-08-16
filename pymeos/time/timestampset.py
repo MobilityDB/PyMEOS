@@ -191,12 +191,6 @@ class TimestampSet:
             return None
         return TimestampSet(string=value)
 
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TimestampSet):
-            raise ValueError('Value must be an instance of TimestampSet class')
-        return value.__str__().strip("'")
-
     def __copy__(self):
         inner_copy = timestampset_copy(self._inner)
         return TimestampSet(_inner=inner_copy)

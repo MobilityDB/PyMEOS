@@ -6,13 +6,13 @@ from build_helpers import ADDITIONAL_DEFINITIONS
 from pymeos_cffi.objects import conversion_map, Conversion
 
 BASE = """from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional
+from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
 from dateutil.parser import parse
 
 _ffi = _meos_cffi.ffi
-_lib = _meos_cffi.pymeos_cffi
+_lib = _meos_cffi.lib
 
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
@@ -43,6 +43,8 @@ manual_functions = {
     'timestampset_shift_tscale': 'start and duration parameters can be null.',
     'periodset_shift_tscale': 'start and duration parameters can be null.',
     'temporal_shift_tscale': 'start and duration parameters can be null.',
+    'tbox_make': 'p and s parameters can be null',
+    'stbox_make': 'p parameter can be null',
     'periodset_timestamps': 'return type should be int * and int.',
     'cstring2text': "return type should be 'text *'. result shouldn't be converted using text2cstring",
     'text2cstring': "parameter type should be 'text *'. parameter shouldn't be converted using cstring2text",
@@ -141,7 +143,7 @@ def build_function_string(function_name: str, return_type: str, parameters: List
         result_manipulation = f'    result = {result_conversion}\n'
 
     if result_param is not None:
-        param_conversions += f'\n    out_result = _ffi.new({result_param[1]})'
+        param_conversions += f"\n    out_result = _ffi.new('{result_param[4]}')"
         inner_params += ', out_result'
         if return_type == 'bool':
             result_manipulation = (result_manipulation or '') + "    if result:\n" \
@@ -154,7 +156,7 @@ def build_function_string(function_name: str, return_type: str, parameters: List
         result_manipulation = (result_manipulation or '') + '    return result'
 
     for out_param in out_params:
-        param_conversions += f'\n    {out_param[0]} = _ffi.new({out_param[4]})'
+        param_conversions += f"\n    {out_param[0]} = _ffi.new('{out_param[4]}')"
         return_type += f', {out_param[1]}'
         result_manipulation += f', {out_param[0] + ("[0]" if out_param[0] == "count" else "")}'
 

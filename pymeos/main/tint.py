@@ -61,12 +61,6 @@ class TInt(Temporal, ABC):
                 return TIntInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal integer value")
 
-    @staticmethod
-    def write(value):
-        if not isinstance(value, TInt):
-            raise ValueError('Value must be an instance of a subclass of TInt')
-        return value.__str__().strip("'")
-
     @property
     def value_range(self):
         """
