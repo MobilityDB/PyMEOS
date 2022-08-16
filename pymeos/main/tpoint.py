@@ -32,7 +32,7 @@ from datetime import datetime
 from typing import Optional, List, Literal
 
 from dateutil.parser import parse
-from postgis import Point, MultiPoint, LineString, GeometryCollection, MultiLineString
+from postgis import Point, MultiPoint
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed
@@ -112,15 +112,6 @@ class TPointSeq(TPoint, TSequence, ABC):
     """
 
     @property
-    def values(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        values = [inst._value for inst in self._instantList]
-        result = values[0] if len(values) == 1 else LineString(values)
-        return result
-
-    @property
     def distance(self):
         return tpoint_length(self._inner)
 
@@ -133,21 +124,6 @@ class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
     Abstract class for representing temporal points of sequence set subtype.
     """
-
-    @property
-    def values(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        values = [seq.values for seq in self._sequenceList]
-        points = [geo for geo in values if isinstance(geo, Point)]
-        lines = [geo for geo in values if isinstance(geo, LineString)]
-        if len(points) != 0 and len(points) != 0:
-            return GeometryCollection(points + lines)
-        if len(points) != 0 and len(points) == 0:
-            return MultiPoint(points)
-        if len(points) == 0 and len(points) != 0:
-            return MultiLineString(lines)
 
     @property
     def distance(self):
@@ -282,6 +258,7 @@ class TGeomPointInst(TPointInst, TGeomPoint):
             self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
 
 
+# noinspection PyTypeChecker
 class TGeogPointInst(TPointInst, TGeogPoint):
     """
     Class for representing temporal geographic points of instant subtype.
@@ -437,10 +414,11 @@ class TGeogPointSeq(TPointSeq, TGeogPoint):
     ComponentClass = TGeogPointInst
 
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: Literal['Linear', 'Stepwise'] = 'Linear',
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         normalize=normalize, _inner=_inner)
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TGeomPointSeqSet(TPointSeqSet, TGeomPoint):
