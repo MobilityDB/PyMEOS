@@ -97,14 +97,6 @@ class TPointInstSet(TPoint, TInstantSet, ABC):
     Abstract class for representing temporal points of instant set subtype.
     """
 
-    @property
-    def values(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        values = super().values
-        return MultiPoint(values)
-
 
 class TPointSeq(TPoint, TSequence, ABC):
     """
