@@ -32,10 +32,12 @@ from datetime import datetime
 from typing import Optional, List, Literal
 
 from dateutil.parser import parse
-from postgis import Point, MultiPoint
+from postgis import Point
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
-    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid
+    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, lwpoint_get_x, \
+    lwpoint_get_y, lwpoint_get_z, lwgeom_has_z, lwgeom_has_m, lwpoint_get_m, lwgeom_get_srid, lwpoint_to_point, \
+    tpoint_value_at_timestamp, datetime_to_timestamptz
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
@@ -68,15 +70,14 @@ class TPoint(Temporal, ABC):
     @property
     def values(self):
         values, count = tpoint_values(self._inner)
-        return [values[i] for i in range(count)]
+        geoms = (lwgeom_as_lwpoint(lwgeom_from_gserialized(values[i])) for i in range(count))
+        return [lwpoint_to_point(geom) for geom in geoms]
 
     def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
-        # TODO: Fix due to GSerialized problems
-        # tpoint_value_at_timestamp()
-        return None
+        return lwpoint_to_point(tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0])
 
     def __str__(self):
         return tpoint_as_text(self._inner, 3)

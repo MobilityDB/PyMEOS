@@ -342,11 +342,19 @@ typedef struct
 LWTIN;
 
 extern LWGEOM *lwgeom_from_gserialized(const GSERIALIZED *g);
-GSERIALIZED *gserialized_from_lwgeom(LWGEOM *geom, size_t *size);
+extern GSERIALIZED *gserialized_from_lwgeom(LWGEOM *geom, size_t *size);
+
+extern static inline LWPOINT *lwgeom_as_lwpoint(const LWGEOM *lwgeom);
+
+extern int32_t lwgeom_get_srid(const LWGEOM *geom);
 
 extern double lwpoint_get_x(const LWPOINT *point);
 extern double lwpoint_get_y(const LWPOINT *point);
 extern double lwpoint_get_z(const LWPOINT *point);
+extern double lwpoint_get_m(const LWPOINT *point);
+
+extern int lwgeom_has_z(const LWGEOM *geom);
+extern int lwgeom_has_m(const LWGEOM *geom);
 """
 
 ADDITIONAL_DEFINITIONS = (

@@ -84,6 +84,13 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
+def lwpoint_to_point(lwpoint: Any) -> Point:
+    return Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
+                 lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
+                 lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
+                 lwgeom_get_srid(lwpoint))
+
+
 """
 
 manual_functions = {
@@ -151,7 +158,7 @@ def main():
         content = f.read()
         content = content.replace('#', '//#')
         content = content.replace(*ADDITIONAL_DEFINITIONS)
-    f_regex = r'extern (?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
+    f_regex = r'extern (?:static )?(?:inline )?(?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
     with open('pymeos_cffi/functions.py', 'w+') as file:
