@@ -44,7 +44,18 @@ def convert_traj_2_tpointseq_v1(traj : Trajectory, normalize=False):
     if not isinstance(traj, Trajectory):
         raise ValueError("The input should be a Trajectory")
     geom_column_name = traj.get_geom_column_name()
+    # By checking the initialization function of TGeogPointInst, it still uses wkt string as input.
+    # That's might be why this function is slow
     instant_list = [TGeogPointInst(point=shapely_2_postgis_point(traj.df.iloc[i][geom_column_name]), timestamp=traj.df.iloc[i].name) for i in range(len(traj.df))]
+    seq = TGeogPointSeq(instant_list=instant_list, normalize=normalize)
+    return seq
+
+def convert_traj_2_tpointseq_v2(traj : Trajectory, normalize=False):
+    # extract the coordinates and timestampe from trajectory for conversion
+    if not isinstance(traj, Trajectory):
+        raise ValueError("The input should be a Trajectory")
+    geom_column_name = traj.get_geom_column_name()
+    instant_list = [TGeogPointInst(string=f"POINT({traj.df.iloc[i][geom_column_name].x} {traj.df.iloc[i][geom_column_name].y})@{traj.df.iloc[i].name}") for i in range(len(traj.df))]
     seq = TGeogPointSeq(instant_list=instant_list, normalize=normalize)
     return seq
 

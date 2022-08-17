@@ -10,7 +10,7 @@ import time
 import os
 
 from pymeos.utils import convert_traj_2_tpointseq, convert_tpointseq_2_traj, \
-    convert_traj_2_tpointseq_v1
+    convert_traj_2_tpointseq_v1, convert_traj_2_tpointseq_v2
 
 import warnings
 warnings.filterwarnings('ignore')
