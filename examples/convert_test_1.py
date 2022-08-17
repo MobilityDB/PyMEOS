@@ -38,6 +38,9 @@ print("traj duration:", traj.get_duration())
 meos_initialize()
 
 start = time.time()
+# convert_traj_2_tpointseq: initialize from wkt string, will normalize by default
+# convert_traj_2_tpointseq_v1: initalize from [gist point]
+# convert_traj_2_tpointseq_v2: initalize from [string of point]
 seq = convert_traj_2_tpointseq(traj)
 time_traj2tpointseq = time.time()-start
 
