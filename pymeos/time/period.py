@@ -13,7 +13,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     period_out, span_copy, period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
     adjacent_period_timestampset
 from .periodset import PeriodSet
-from .. import TimestampSet
+from .timestampset import TimestampSet
 
 try:
     # Do not make psycopg2 a requirement.

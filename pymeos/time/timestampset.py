@@ -38,7 +38,7 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
     timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, timestampset_to_periodset
 from .period import Period
-from .. import PeriodSet
+from .periodset import PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.

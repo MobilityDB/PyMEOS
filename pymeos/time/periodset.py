@@ -28,8 +28,7 @@ import warnings
 from typing import Optional, Union, List
 
 from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, interval_to_timedelta, \
-    timestamptz_to_datetime, \
-    periodset_start_timestamp, \
+    timestamptz_to_datetime, periodset_start_timestamp, \
     periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
     periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
