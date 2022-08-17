@@ -32,12 +32,15 @@ from datetime import datetime
 from typing import Optional, List, Literal
 
 from dateutil.parser import parse
+from geopandas import GeoDataFrame
+from movingpandas import Trajectory
 from postgis import Point
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
-    tpoint_value_at_timestamp, datetime_to_timestamptz
+    tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
+    lwpoint_to_shapely_point
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
@@ -71,13 +74,16 @@ class TPoint(Temporal, ABC):
     def values(self):
         values, count = tpoint_values(self._inner)
         geoms = (lwgeom_as_lwpoint(lwgeom_from_gserialized(values[i])) for i in range(count))
-        return [lwpoint_to_point(geom) for geom in geoms]
+        return [lwpoint_to_shapely_point(geom) for geom in geoms]
 
     def value_at_timestamp(self, timestamp):
         """
         Value at timestamp.
         """
         return lwpoint_to_point(tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0])
+
+    def simplify(self, tolerance: float, synchronized: bool = False):
+        return self.__class__(_inner=temporal_simplify(self._inner, synchronized, tolerance))
 
     def __str__(self):
         return tpoint_as_text(self._inner, 3)
@@ -116,8 +122,22 @@ class TPointSeq(TPoint, TSequence, ABC):
         return tpoint_length(self._inner)
 
     @property
+    def distances(self):
+        return TFloatSeq(_inner=tpoint_cumulative_length(self._inner))
+
+    @property
     def speed(self):
         return TFloatSeq(_inner=tpoint_speed(self._inner))
+
+    def to_geodataframe(self):
+        data = {
+            'time': self.timestamps,
+            'geometry': [i.value for i in self.instants]
+        }
+        return GeoDataFrame(data, crs=4326)
+
+    def to_trajectory(self):
+        return Trajectory(self.to_geodataframe(), None, t='time')
 
 
 class TPointSeqSet(TPoint, TSequenceSet, ABC):
