@@ -23,3 +23,9 @@ def timestampset_make_modifier(function: str) -> str:
         .replace('times: int', 'times: List[int]') \
         .replace("times_converted = _ffi.cast('const TimestampTz *', times)",
                  "times_converted = [_ffi.cast('const TimestampTz', x) for x in times]")
+
+
+def gserialized_from_lwgeom_modifier(function: str) -> str:
+    return function \
+        .replace(", size: 'size_t *'", '') \
+        .replace("_ffi.cast('size_t *', size)", '_ffi.NULL')

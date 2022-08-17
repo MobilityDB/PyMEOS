@@ -35,8 +35,8 @@ from dateutil.parser import parse
 from postgis import Point
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
-    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, lwpoint_get_x, \
-    lwpoint_get_y, lwpoint_get_z, lwgeom_has_z, lwgeom_has_m, lwpoint_get_m, lwgeom_get_srid, lwpoint_to_point, \
+    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
+    lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet

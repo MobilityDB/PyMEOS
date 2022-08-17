@@ -36,8 +36,9 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     timestampset_timestamp_n, \
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
-    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy
+    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, timestampset_to_periodset
 from .period import Period
+from .. import PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -139,6 +140,9 @@ class TimestampSet:
         """
         tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
         return TimestampSet(_inner=tss)
+
+    def to_periodset(self):
+        return PeriodSet(_inner=timestampset_to_periodset(self._inner))
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

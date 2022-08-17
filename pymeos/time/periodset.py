@@ -33,7 +33,8 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
     periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
-    periodset_num_timestamps, periodset_make, periodset_hash, create_pointer, span_copy, periodset_out, periodset_copy
+    periodset_num_timestamps, periodset_make, periodset_hash, periodset_out, periodset_copy, \
+    periodset_to_period
 from .period import Period
 
 try:
@@ -90,14 +91,11 @@ class PeriodSet:
         """
         return self.end_timestamp - self.start_timestamp
 
-    @property
-    def period(self):
+    def to_period(self):
         """
         Period on which the period set is defined ignoring the potential time gaps
         """
-        pointer = create_pointer(self._inner.period, 'Span')
-        period_inner = span_copy(pointer)
-        return Period(_inner=period_inner)
+        return Period(_inner=periodset_to_period(self._inner))
 
     @property
     def num_timestamps(self):

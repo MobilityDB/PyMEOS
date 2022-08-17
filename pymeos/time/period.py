@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import warnings
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
@@ -8,7 +10,10 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     overlaps_span_span, \
     span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
-    period_out, span_copy
+    period_out, span_copy, period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
+    adjacent_period_timestampset
+from .periodset import PeriodSet
+from .. import TimestampSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -76,46 +81,59 @@ class Period:
         return timestamptz_to_datetime(period_upper(self._inner))
 
     @property
-    def lower_inc(self):
+    def lower_inc(self) -> bool:
         """
         Is the lower bound inclusive?
         """
         return self._inner.lower_inc
 
     @property
-    def upper_inc(self):
+    def upper_inc(self) -> bool:
         """
         Is the upper bound inclusive?
         """
         return self._inner.upper_inc
 
     @property
-    def duration(self):
+    def duration(self) -> timedelta:
         """
         Time interval on which the period is defined
         """
         return self.upper - self.lower
 
-    def shift(self, timedelta):
+    def shift(self, time_delta) -> Period:
         """
         Shift the period by a time interval
         """
-        interval = timedelta_to_interval(timedelta)
+        interval = timedelta_to_interval(time_delta)
         inner = period_shift_tscale(interval, None, self._inner)
         return Period(_inner=inner)
 
-    def overlap(self, other):
+    def overlap(self, other) -> bool:
         """
         Do the periods share a timestamp?
         """
         return overlaps_span_span(self._inner, other._inner)
 
-    def contains_timestamp(self, date_time: datetime):
+    def contains_timestamp(self, date_time: datetime) -> bool:
         """
         Does the period contain the timestamp?
         """
         ts = datetime_to_timestamptz(date_time)
         return contains_period_timestamp(self._inner, ts)
+
+    def to_periodset(self) -> PeriodSet:
+        return PeriodSet(_inner=period_to_periodset(self._inner))
+
+    def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]):
+        if isinstance(other, PeriodSet):
+            return adjacent_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return adjacent_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

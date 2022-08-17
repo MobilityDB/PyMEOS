@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from build_helpers import ADDITIONAL_DEFINITIONS
 from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
-    timestampset_make_modifier
+    timestampset_make_modifier, gserialized_from_lwgeom_modifier
 from pymeos_cffi.objects import conversion_map, Conversion
 
 
@@ -58,6 +58,7 @@ from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
 from dateutil.parser import parse
+from postgis import Point
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -101,6 +102,7 @@ function_modifiers = {
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
+    'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)
