@@ -40,7 +40,8 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_to_period, adjacent_periodset_period, adjacent_periodset_timestamp, adjacent_periodset_timestampset, \
     datetime_to_timestamptz, adjacent_periodset_periodset, contained_periodset_period, contained_periodset_periodset, \
     contains_periodset_period, contains_periodset_periodset, contains_periodset_timestamp, \
-    contains_periodset_timestampset
+    contains_periodset_timestampset, overlaps_periodset_period, overlaps_periodset_periodset, \
+    overlaps_periodset_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -227,6 +228,18 @@ class PeriodSet:
             return contains_periodset_timestampset(self._inner, content._inner)
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def overlaps(self, other: Union[Period, PeriodSet, TimestampSet]) -> bool:
+        from .period import Period
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overlaps_periodset_period(self._inner, other._inner)
+        if isinstance(other, PeriodSet):
+            return overlaps_periodset_periodset(self._inner, other._inner)
+        elif isinstance(other, TimestampSet):
+            return overlaps_periodset_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __contains__(self, item):
         return self.contains(item)

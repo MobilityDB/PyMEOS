@@ -14,7 +14,8 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     period_out, span_copy, \
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
     adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset, \
-    contains_span_span, contains_period_periodset, contains_period_timestampset
+    contains_span_span, contains_period_periodset, contains_period_timestampset, overlaps_period_periodset, \
+    overlaps_period_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -115,12 +116,6 @@ class Period:
         inner = period_shift_tscale(interval, None, self._inner)
         return Period(_inner=inner)
 
-    def overlap(self, other) -> bool:
-        """
-        Do the periods share a timestamp?
-        """
-        return overlaps_span_span(self._inner, other._inner)
-
     def to_periodset(self) -> PeriodSet:
         from .periodset import PeriodSet
         return PeriodSet(_inner=period_to_periodset(self._inner))
@@ -161,6 +156,18 @@ class Period:
             return contains_period_timestampset(self._inner, content._inner)
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def overlaps(self, other: Union[Period, PeriodSet, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overlaps_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overlaps_period_periodset(self._inner, other._inner)
+        elif isinstance(other, TimestampSet):
+            return overlaps_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __contains__(self, item):
         return self.contains(item)
