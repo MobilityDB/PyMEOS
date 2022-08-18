@@ -13,7 +13,8 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
     period_out, span_copy, \
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
-    adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset
+    adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset, \
+    contains_span_span, contains_period_periodset, contains_period_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -120,13 +121,6 @@ class Period:
         """
         return overlaps_span_span(self._inner, other._inner)
 
-    def contains_timestamp(self, date_time: datetime) -> bool:
-        """
-        Does the period contain the timestamp?
-        """
-        ts = datetime_to_timestamptz(date_time)
-        return contains_period_timestamp(self._inner, ts)
-
     def to_periodset(self) -> PeriodSet:
         from .periodset import PeriodSet
         return PeriodSet(_inner=period_to_periodset(self._inner))
@@ -154,6 +148,22 @@ class Period:
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
+    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(content, Period):
+            return contains_span_span(self._inner, content._inner)
+        elif isinstance(content, PeriodSet):
+            return contains_period_periodset(self._inner, content._inner)
+        elif isinstance(content, datetime):
+            return contains_period_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_period_timestampset(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

@@ -38,7 +38,9 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
     periodset_num_timestamps, periodset_make, periodset_hash, periodset_out, periodset_copy, \
     periodset_to_period, adjacent_periodset_period, adjacent_periodset_timestamp, adjacent_periodset_timestampset, \
-    datetime_to_timestamptz, adjacent_periodset_periodset, contained_periodset_period, contained_periodset_periodset
+    datetime_to_timestamptz, adjacent_periodset_periodset, contained_periodset_period, contained_periodset_periodset, \
+    contains_periodset_period, contains_periodset_periodset, contains_periodset_timestamp, \
+    contains_periodset_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -211,6 +213,23 @@ class PeriodSet:
             return contained_periodset_periodset(self._inner, container._inner)
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .period import Period
+        from .timestampset import TimestampSet
+        if isinstance(content, Period):
+            return contains_periodset_period(self._inner, content._inner)
+        if isinstance(content, PeriodSet):
+            return contains_periodset_periodset(self._inner, content._inner)
+        elif isinstance(content, datetime):
+            return contains_periodset_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_periodset_timestampset(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

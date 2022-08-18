@@ -40,7 +40,8 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
     timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, \
     timestampset_to_periodset, adjacent_timestampset_period, adjacent_timestampset_periodset, \
-    contained_timestampset_period, contained_timestampset_periodset, contained_timestampset_timestampset
+    contained_timestampset_period, contained_timestampset_periodset, contained_timestampset_timestampset, \
+    contains_timestampset_timestamp, contains_timestampset_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -174,6 +175,17 @@ class TimestampSet:
             return contained_timestampset_timestampset(self._inner, container._inner)
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content: Union[datetime, TimestampSet]) -> bool:
+        if isinstance(content, datetime):
+            return contains_timestampset_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_timestampset_timestampset(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
