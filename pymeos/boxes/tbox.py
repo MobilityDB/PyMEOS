@@ -36,7 +36,7 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
     adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
     right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox
+    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge
 from ..time.period import Period
 
 try:
@@ -198,8 +198,33 @@ class TBox:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            tbox_eq(self._inner, other._inner)
-        return False
+            return tbox_eq(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __cmp__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_cmp(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_lt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_le(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_gt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_ge(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __str__(self):
         return tbox_out(self._inner, 3)

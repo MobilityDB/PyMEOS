@@ -36,7 +36,8 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     overlaps_stbox_stbox, same_stbox_stbox, overafter_stbox_stbox, after_stbox_stbox, overbefore_stbox_stbox, \
     before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
-    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox
+    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
+    stbox_le, stbox_lt, stbox_ge, stbox_cmp
 from ..time.period import Period
 
 try:
@@ -299,7 +300,32 @@ class STBox:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return stbox_eq(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __cmp__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_cmp(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_lt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_le(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_gt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_ge(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __str__(self):
         return stbox_out(self._inner, 3)
