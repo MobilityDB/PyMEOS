@@ -13,7 +13,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
     period_out, span_copy, \
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
-    adjacent_period_timestampset
+    adjacent_period_timestampset, adjacent_span_span
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -131,10 +131,12 @@ class Period:
         from .periodset import PeriodSet
         return PeriodSet(_inner=period_to_periodset(self._inner))
 
-    def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
-        if isinstance(other, PeriodSet):
+        if isinstance(other, Period):
+            return adjacent_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
             return adjacent_period_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))

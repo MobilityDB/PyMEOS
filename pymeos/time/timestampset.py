@@ -24,9 +24,11 @@
 #
 ###############################################################################
 
+from __future__ import annotations
+
 import warnings
-from datetime import datetime
-from typing import Optional, List, Union
+from datetime import datetime, timedelta
+from typing import Optional, List, Union, TYPE_CHECKING
 
 from dateutil.parser import parse
 
@@ -36,9 +38,13 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     timestampset_timestamp_n, \
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
-    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, timestampset_to_periodset
-from .period import Period
-from .periodset import PeriodSet
+    timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, \
+    timestampset_to_periodset, adjacent_timestampset_period, adjacent_timestampset_periodset
+
+if TYPE_CHECKING:
+    # Import here to use in type hints
+    from .period import Period
+    from .periodset import PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -82,7 +88,7 @@ class TimestampSet:
             self._inner = timestampset_make(times, len(times))
 
     @property
-    def timespan(self):
+    def timespan(self) -> timedelta:
         """
         Interval on which the timestamp set is defined ignoring the potential time gaps
         """
@@ -90,7 +96,7 @@ class TimestampSet:
                timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     @property
-    def period(self):
+    def period(self) -> Period:
         """
         Period on which the timestamp set is defined ignoring the potential time gaps
         """
@@ -99,27 +105,27 @@ class TimestampSet:
                       lower_inc=True, upper_inc=True)
 
     @property
-    def num_timestamps(self):
+    def num_timestamps(self) -> int:
         """
         Number of timestamps
         """
         return timestampset_num_timestamps(self._inner)
 
     @property
-    def start_timestamp(self):
+    def start_timestamp(self) -> datetime:
         """
         Start timestamp
         """
         return timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     @property
-    def end_timestamp(self):
+    def end_timestamp(self) -> datetime:
         """
         End timestamp
         """
         return timestamptz_to_datetime(timestampset_end_timestamp(self._inner))
 
-    def timestamp_n(self, n):
+    def timestamp_n(self, n) -> datetime:
         """
         N-th timestamp
         """
@@ -127,22 +133,33 @@ class TimestampSet:
         return timestamptz_to_datetime(timestampset_timestamp_n(self._inner, n))
 
     @property
-    def timestamps(self):
+    def timestamps(self) -> List[datetime]:
         """
         Distinct timestamps
         """
         tss = timestampset_timestamps(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
-    def shift(self, timedelta):
+    def shift(self, timedelta) -> TimestampSet:
         """
         Shift the timestamp set by a time interval
         """
         tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
         return TimestampSet(_inner=tss)
 
-    def to_periodset(self):
+    def to_periodset(self) -> PeriodSet:
+        from .periodset import PeriodSet
         return PeriodSet(_inner=timestampset_to_periodset(self._inner))
+
+    def is_adjacent(self, other: Union[Period, PeriodSet]) -> bool:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(other, Period):
+            return adjacent_timestampset_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return adjacent_timestampset_periodset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

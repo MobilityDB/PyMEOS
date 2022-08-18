@@ -27,7 +27,7 @@
 from __future__ import annotations
 
 import warnings
-import datetime
+from datetime import timedelta, datetime
 from typing import Optional, Union, List
 from typing import TYPE_CHECKING
 
@@ -37,11 +37,13 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_end_period, periodset_period_n, periodset_periods, periodset_shift_tscale, timedelta_to_interval, \
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
     periodset_num_timestamps, periodset_make, periodset_hash, periodset_out, periodset_copy, \
-    periodset_to_period
+    periodset_to_period, adjacent_periodset_period, adjacent_periodset_timestamp, adjacent_periodset_timestampset, \
+    datetime_to_timestamptz, adjacent_periodset_periodset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
     from .period import Period
+    from .timestampset import TimestampSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -84,14 +86,14 @@ class PeriodSet:
             self._inner = periodset_make(periods, len(periods), normalize)
 
     @property
-    def duration(self) -> datetime.timedelta:
+    def duration(self) -> timedelta:
         """
         Time interval on which the period set is defined
         """
         return interval_to_timedelta(periodset_duration(self._inner))
 
     @property
-    def timespan(self) -> datetime.timedelta:
+    def timespan(self) -> timedelta:
         """
         Time interval on which the period set is defined
         """
@@ -111,20 +113,20 @@ class PeriodSet:
         return periodset_num_timestamps(self._inner)
 
     @property
-    def start_timestamp(self) -> datetime.datetime:
+    def start_timestamp(self) -> datetime:
         """
         Start timestamp
         """
         return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
     @property
-    def end_timestamp(self) -> datetime.datetime:
+    def end_timestamp(self) -> datetime:
         """
         End timestamp
         """
         return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
-    def timestamp_n(self, n) -> datetime.datetime:
+    def timestamp_n(self, n) -> datetime:
         """
         N-th distinct timestamp
         """
@@ -132,7 +134,7 @@ class PeriodSet:
         return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n))
 
     @property
-    def timestamps(self) -> List[datetime.datetime]:
+    def timestamps(self) -> List[datetime]:
         """
         Distinct timestamps
         """
@@ -181,6 +183,20 @@ class PeriodSet:
         """
         tss = periodset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
         return PeriodSet(_inner=tss)
+
+    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .period import Period
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return adjacent_periodset_period(self._inner, other._inner)
+        if isinstance(other, PeriodSet):
+            return adjacent_periodset_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return adjacent_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return adjacent_periodset_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
