@@ -49,7 +49,8 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     intersection_periodset_period, intersection_periodset_periodset, intersection_periodset_timestamp, \
     intersection_periodset_timestampset, minus_periodset_period, minus_periodset_periodset, minus_periodset_timestamp, \
     minus_periodset_timestampset, union_periodset_period, union_periodset_periodset, union_periodset_timestamp, \
-    union_periodset_timestampset
+    union_periodset_timestampset, distance_periodset_period, distance_periodset_periodset, distance_periodset_timestamp, \
+    distance_periodset_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -302,6 +303,20 @@ class PeriodSet:
             return overbefore_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overbefore_periodset_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+        from .period import Period
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return distance_periodset_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return distance_periodset_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return distance_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return distance_periodset_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

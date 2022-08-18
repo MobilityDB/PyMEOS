@@ -51,7 +51,9 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     intersection_timestampset_period, intersection_timestampset_periodset, intersection_timestampset_timestamp, \
     intersection_timestampset_timestampset, minus_timestampset_period, minus_timestampset_periodset, \
     minus_timestampset_timestamp, minus_timestampset_timestampset, union_timestampset_period, \
-    union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset
+    union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset, \
+    distance_timestampset_period, distance_timestampset_periodset, distance_timestampset_timestamp, \
+    distance_timestampset_timestampset
 from .. import TimestampSet
 
 if TYPE_CHECKING:
@@ -260,6 +262,20 @@ class TimestampSet:
             return overbefore_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overbefore_timestampset_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(other, Period):
+            return distance_timestampset_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return distance_timestampset_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return distance_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return distance_timestampset_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

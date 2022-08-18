@@ -22,7 +22,8 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     overbefore_period_timestampset, intersection_span_span, intersection_period_periodset, \
     intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
-    union_period_periodset, union_period_period
+    union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
+    distance_period_timestamp, distance_period_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -229,6 +230,20 @@ class Period:
             return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overbefore_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return distance_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return distance_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return distance_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return distance_period_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
