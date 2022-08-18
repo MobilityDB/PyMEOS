@@ -33,7 +33,8 @@ from dateutil.parser import parse
 
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
-    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale
+    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
+    adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox
 from ..time.period import Period
 
 try:
@@ -138,6 +139,24 @@ class TBox:
 
     def shift(self, shift: timedelta) -> None:
         tbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+
+    def is_adjacent(self, container: TBox) -> bool:
+        return adjacent_tbox_tbox(self._inner, container._inner)
+
+    def is_contained_in(self, container: TBox) -> bool:
+        return contained_tbox_tbox(self._inner, container._inner)
+
+    def contains(self, content: TBox) -> bool:
+        return contains_tbox_tbox(self._inner, content._inner)
+
+    def overlaps(self, content: TBox) -> bool:
+        return overlaps_tbox_tbox(self._inner, content._inner)
+
+    def is_same(self, content: TBox) -> bool:
+        return same_tbox_tbox(self._inner, content._inner)
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

@@ -32,7 +32,8 @@ from typing import Optional, Union
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
-    stbox_shift_tscale, stbox_set_srid
+    stbox_shift_tscale, stbox_set_srid, adjacent_stbox_stbox, contained_stbox_stbox, contains_stbox_stbox, \
+    overlaps_stbox_stbox, same_stbox_stbox
 from ..time.period import Period
 
 try:
@@ -213,6 +214,24 @@ class STBox:
 
     def shift(self, shift: timedelta) -> None:
         stbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+
+    def is_adjacent(self, container: STBox) -> bool:
+        return adjacent_stbox_stbox(self._inner, container._inner)
+
+    def is_contained_in(self, container: STBox) -> bool:
+        return contained_stbox_stbox(self._inner, container._inner)
+
+    def contains(self, content: STBox) -> bool:
+        return contains_stbox_stbox(self._inner, content._inner)
+
+    def overlaps(self, content: STBox) -> bool:
+        return overlaps_stbox_stbox(self._inner, content._inner)
+
+    def is_same(self, content: STBox) -> bool:
+        return same_stbox_stbox(self._inner, content._inner)
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
