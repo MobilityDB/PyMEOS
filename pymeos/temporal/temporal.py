@@ -36,9 +36,8 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp, \
     temporal_hash, temporal_copy, temporal_as_mfjson
-from .. import TimestampSet
 from ..errors import ComparisonError
-from ..time import Period, PeriodSet
+from ..time import Period, PeriodSet, TimestampSet
 
 try:
     # Do not make psycopg2 a requirement.
