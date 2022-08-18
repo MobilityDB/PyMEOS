@@ -38,7 +38,7 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
     periodset_num_timestamps, periodset_make, periodset_hash, periodset_out, periodset_copy, \
     periodset_to_period, adjacent_periodset_period, adjacent_periodset_timestamp, adjacent_periodset_timestampset, \
-    datetime_to_timestamptz, adjacent_periodset_periodset
+    datetime_to_timestamptz, adjacent_periodset_periodset, contained_periodset_period, contained_periodset_periodset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -103,6 +103,7 @@ class PeriodSet:
         """
         Period on which the period set is defined ignoring the potential time gaps
         """
+        from .period import Period
         return Period(_inner=periodset_to_period(self._inner))
 
     @property
@@ -153,6 +154,7 @@ class PeriodSet:
         """
         Start period
         """
+        from .period import Period
         return Period(_inner=periodset_start_period(self._inner))
 
     @property
@@ -160,6 +162,7 @@ class PeriodSet:
         """
         End period
         """
+        from .period import Period
         return Period(_inner=periodset_end_period(self._inner))
 
     def period_n(self, n) -> Period:
@@ -167,6 +170,7 @@ class PeriodSet:
         N-th period
         """
         # 1-based
+        from .period import Period
         return Period(_inner=periodset_period_n(self._inner, n))
 
     @property
@@ -174,6 +178,7 @@ class PeriodSet:
         """
         Periods
         """
+        from .period import Period
         ps, count = periodset_periods(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
@@ -197,6 +202,15 @@ class PeriodSet:
             return adjacent_periodset_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container: Union[Period, PeriodSet]) -> bool:
+        from .period import Period
+        if isinstance(container, Period):
+            return contained_periodset_period(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_periodset_periodset(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

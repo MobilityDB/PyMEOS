@@ -13,7 +13,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
     period_out, span_copy, \
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
-    adjacent_period_timestampset, adjacent_span_span
+    adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -144,6 +144,16 @@ class Period:
             return adjacent_period_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container: Union[Period, PeriodSet]) -> bool:
+        from .periodset import PeriodSet
+        if isinstance(container, Period):
+            return contained_span_span(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_period_periodset(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):

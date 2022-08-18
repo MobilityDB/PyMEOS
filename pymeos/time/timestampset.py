@@ -39,7 +39,8 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
     timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, \
-    timestampset_to_periodset, adjacent_timestampset_period, adjacent_timestampset_periodset
+    timestampset_to_periodset, adjacent_timestampset_period, adjacent_timestampset_periodset, \
+    contained_timestampset_period, contained_timestampset_periodset, contained_timestampset_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -100,6 +101,7 @@ class TimestampSet:
         """
         Period on which the timestamp set is defined ignoring the potential time gaps
         """
+        from .period import Period
         return Period(lower=pg_timestamptz_out(timestampset_start_timestamp(self._inner)),
                       upper=pg_timestamptz_out(timestampset_end_timestamp(self._inner)),
                       lower_inc=True, upper_inc=True)
@@ -160,6 +162,18 @@ class TimestampSet:
             return adjacent_timestampset_periodset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container: Union[Period, PeriodSet, TimestampSet]) -> bool:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(container, Period):
+            return contained_timestampset_period(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_timestampset_periodset(self._inner, container._inner)
+        elif isinstance(container, TimestampSet):
+            return contained_timestampset_timestampset(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
