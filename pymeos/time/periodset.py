@@ -139,7 +139,7 @@ class PeriodSet:
         """
         return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
-    def timestamp_n(self, n) -> datetime:
+    def timestamp_n(self, n: int) -> datetime:
         """
         N-th distinct timestamp
         """
@@ -177,7 +177,7 @@ class PeriodSet:
         from .period import Period
         return Period(_inner=periodset_end_period(self._inner))
 
-    def period_n(self, n) -> Period:
+    def period_n(self, n: int) -> Period:
         """
         N-th period
         """
@@ -194,11 +194,11 @@ class PeriodSet:
         ps, count = periodset_periods(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
-    def shift(self, timedelta) -> PeriodSet:
+    def shift(self, time_delta: timedelta) -> PeriodSet:
         """
         Shift the period set by a time interval
         """
-        tss = periodset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        tss = periodset_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
         return PeriodSet(_inner=tss)
 
     def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:

@@ -116,7 +116,7 @@ class Period:
         """
         return self.upper - self.lower
 
-    def shift(self, time_delta) -> Period:
+    def shift(self, time_delta: timedelta) -> Period:
         """
         Shift the period by a time interval
         """

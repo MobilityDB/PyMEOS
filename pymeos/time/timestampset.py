@@ -141,7 +141,7 @@ class TimestampSet:
         """
         return timestamptz_to_datetime(timestampset_end_timestamp(self._inner))
 
-    def timestamp_n(self, n) -> datetime:
+    def timestamp_n(self, n: int) -> datetime:
         """
         N-th timestamp
         """
@@ -156,11 +156,11 @@ class TimestampSet:
         tss = timestampset_timestamps(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
-    def shift(self, timedelta) -> TimestampSet:
+    def shift(self, time_delta: timedelta) -> TimestampSet:
         """
         Shift the timestamp set by a time interval
         """
-        tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
         return TimestampSet(_inner=tss)
 
     def to_periodset(self) -> PeriodSet:
