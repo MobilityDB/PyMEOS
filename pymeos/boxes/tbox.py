@@ -35,7 +35,8 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
     adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
-    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox
+    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
+    intersection_tbox_tbox
 from ..time.period import Period
 
 try:
@@ -141,6 +142,12 @@ class TBox:
     def shift(self, shift: timedelta) -> None:
         tbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
 
+    def union(self, other: TBox) -> TBox:
+        return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
+
+    def intersection(self, other: TBox) -> TBox:
+        return TBox(_inner=intersection_tbox_tbox(self._inner, other._inner))
+
     def is_adjacent(self, container: TBox) -> bool:
         return adjacent_tbox_tbox(self._inner, container._inner)
 
@@ -179,6 +186,12 @@ class TBox:
 
     def is_over_or_after(self, content: TBox) -> bool:
         return overafter_tbox_tbox(self._inner, content._inner)
+
+    def __add__(self, other):
+        return self.union(other)
+
+    def __mul__(self, other):
+        return self.intersection(other)
 
     def __contains__(self, item):
         return self.contains(item)

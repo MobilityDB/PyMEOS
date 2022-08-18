@@ -36,7 +36,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     overlaps_stbox_stbox, same_stbox_stbox, overafter_stbox_stbox, after_stbox_stbox, overbefore_stbox_stbox, \
     before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
-    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox
+    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox
 from ..time.period import Period
 
 try:
@@ -218,6 +218,12 @@ class STBox:
     def shift(self, shift: timedelta) -> None:
         stbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
 
+    def union(self, other: STBox, strict: bool = True) -> STBox:
+        return STBox(_inner=union_stbox_stbox(self._inner, other._inner, strict))
+
+    def intersection(self, other: STBox) -> STBox:
+        return STBox(_inner=intersection_stbox_stbox(self._inner, other._inner))
+
     def is_adjacent(self, container: STBox) -> bool:
         return adjacent_stbox_stbox(self._inner, container._inner)
 
@@ -280,6 +286,12 @@ class STBox:
 
     def is_over_or_after(self, other: STBox) -> bool:
         return overafter_stbox_stbox(self._inner, other._inner)
+
+    def __add__(self, other):
+        return self.union(other)
+
+    def __mul__(self, other):
+        return self.intersection(other)
 
     def __contains__(self, item):
         return self.contains(item)
