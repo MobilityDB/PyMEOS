@@ -23,16 +23,18 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
 
 import warnings
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
 
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
-    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax
-from ..time import Period
+    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
+    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale
+from ..time.period import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -89,19 +91,6 @@ class TBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
             self._inner = tbox_make(period, span)
 
-    @staticmethod
-    def read_from_cursor(value, cursor=None):
-        if not value:
-            return None
-        return TBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.
-
     @property
     def has_x(self):
         return tbox_hasx(self._inner)
@@ -138,6 +127,18 @@ class TBox:
         """
         return timestamptz_to_datetime(tbox_tmax(self._inner))
 
+    def expand(self, other: Union[TBox, float, timedelta]) -> None:
+        if isinstance(other, TBox):
+            tbox_expand(other._inner, self._inner)
+        elif isinstance(other, float):
+            self._inner = tbox_expand_value(self._inner, other)
+        elif isinstance(other, timedelta):
+            self._inner = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def shift(self, shift: timedelta) -> None:
+        tbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             tbox_eq(self._inner, other._inner)
@@ -149,3 +150,16 @@ class TBox:
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    @staticmethod
+    def read_from_cursor(value, cursor=None):
+        if not value:
+            return None
+        return TBox(string=value)
+
+    # Psycopg2 interface.
+    def __conform__(self, protocol):
+        if protocol is ISQLQuote:
+            return self
+
+    # End Psycopg2 interface.

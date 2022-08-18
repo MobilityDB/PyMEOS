@@ -23,15 +23,17 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
 
 import warnings
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
-from ..time import Period
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
-    stbox_zmax, stbox_tmax
+    stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
+    stbox_shift_tscale, stbox_set_srid
+from ..time.period import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -113,19 +115,6 @@ class STBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
             self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
-
-    @staticmethod
-    def read_from_cursor(value, cursor=None):
-        if not value:
-            return None
-        return STBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.
 
     @property
     def has_x(self):
@@ -209,6 +198,22 @@ class STBox:
         """
         return self._inner.srid
 
+    @srid.setter
+    def srid(self, value: int):
+        self._inner = stbox_set_srid(self._inner, value)
+
+    def expand(self, other: Union[STBox, float, timedelta]) -> None:
+        if isinstance(other, STBox):
+            stbox_expand(other._inner, self._inner)
+        elif isinstance(other, float):
+            self._inner = stbox_expand_spatial(self._inner, other)
+        elif isinstance(other, timedelta):
+            self._inner = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def shift(self, shift: timedelta) -> None:
+        stbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return stbox_eq(self._inner, other._inner)
@@ -220,3 +225,16 @@ class STBox:
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    @staticmethod
+    def read_from_cursor(value, cursor=None):
+        if not value:
+            return None
+        return STBox(string=value)
+
+    # Psycopg2 interface.
+    def __conform__(self, protocol):
+        if protocol is ISQLQuote:
+            return self
+
+    # End Psycopg2 interface.
