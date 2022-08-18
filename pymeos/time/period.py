@@ -3,6 +3,7 @@ from __future__ import annotations
 import warnings
 from datetime import datetime, timedelta
 from typing import Optional, Union
+from typing import TYPE_CHECKING
 
 from dateutil.parser import parse
 
@@ -10,12 +11,14 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     overlaps_span_span, \
     span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
-    period_out, span_copy
-    # period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
-    # adjacent_period_timestampset
+    period_out, span_copy, \
+    period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
+    adjacent_period_timestampset
 
-# from .periodset import PeriodSet
-# from .timestampset import TimestampSet
+if TYPE_CHECKING:
+    # Import here to use in type hints
+    from .periodset import PeriodSet
+    from .timestampset import TimestampSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -124,18 +127,21 @@ class Period:
         ts = datetime_to_timestamptz(date_time)
         return contains_period_timestamp(self._inner, ts)
 
-    # def to_periodset(self) -> PeriodSet:
-    #     return PeriodSet(_inner=period_to_periodset(self._inner))
-    #
-    # def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]):
-    #     if isinstance(other, PeriodSet):
-    #         return adjacent_period_periodset(self._inner, other._inner)
-    #     elif isinstance(other, datetime):
-    #         return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
-    #     elif isinstance(other, TimestampSet):
-    #         return adjacent_period_timestampset(self._inner, other._inner)
-    #     else:
-    #         raise TypeError(f'Operation not supported with type {other.__class__}')
+    def to_periodset(self) -> PeriodSet:
+        from .periodset import PeriodSet
+        return PeriodSet(_inner=period_to_periodset(self._inner))
+
+    def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]):
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, PeriodSet):
+            return adjacent_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return adjacent_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
