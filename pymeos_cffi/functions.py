@@ -39,9 +39,8 @@ def lwpoint_to_point(lwpoint: Any) -> Point:
 
 
 def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
-                     lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) else \
-        spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
+    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
+        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
 
 
 def text2cstring(textptr: 'text *') -> str:
