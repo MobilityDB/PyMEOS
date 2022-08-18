@@ -131,7 +131,7 @@ class Period:
         from .periodset import PeriodSet
         return PeriodSet(_inner=period_to_periodset(self._inner))
 
-    def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]):
+    def is_adjacent(self, other: Union[PeriodSet, datetime, TimestampSet]) -> bool:
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
         if isinstance(other, PeriodSet):

@@ -24,8 +24,12 @@
 #
 ###############################################################################
 
+from __future__ import annotations
+
 import warnings
+import datetime
 from typing import Optional, Union, List
+from typing import TYPE_CHECKING
 
 from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, interval_to_timedelta, \
     timestamptz_to_datetime, periodset_start_timestamp, \
@@ -34,7 +38,10 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     periodset_eq, periodset_ne, periodset_cmp, periodset_lt, periodset_le, periodset_ge, periodset_gt, \
     periodset_num_timestamps, periodset_make, periodset_hash, periodset_out, periodset_copy, \
     periodset_to_period
-from .period import Period
+
+if TYPE_CHECKING:
+    # Import here to use in type hints
+    from .period import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -77,47 +84,47 @@ class PeriodSet:
             self._inner = periodset_make(periods, len(periods), normalize)
 
     @property
-    def duration(self):
+    def duration(self) -> datetime.timedelta:
         """
         Time interval on which the period set is defined
         """
         return interval_to_timedelta(periodset_duration(self._inner))
 
     @property
-    def timespan(self):
+    def timespan(self) -> datetime.timedelta:
         """
         Time interval on which the period set is defined
         """
         return self.end_timestamp - self.start_timestamp
 
-    def to_period(self):
+    def to_period(self) -> Period:
         """
         Period on which the period set is defined ignoring the potential time gaps
         """
         return Period(_inner=periodset_to_period(self._inner))
 
     @property
-    def num_timestamps(self):
+    def num_timestamps(self) -> int:
         """
         Number of distinct timestamps
         """
         return periodset_num_timestamps(self._inner)
 
     @property
-    def start_timestamp(self):
+    def start_timestamp(self) -> datetime.datetime:
         """
         Start timestamp
         """
         return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
     @property
-    def end_timestamp(self):
+    def end_timestamp(self) -> datetime.datetime:
         """
         End timestamp
         """
         return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
-    def timestamp_n(self, n):
+    def timestamp_n(self, n) -> datetime.datetime:
         """
         N-th distinct timestamp
         """
@@ -125,7 +132,7 @@ class PeriodSet:
         return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n))
 
     @property
-    def timestamps(self):
+    def timestamps(self) -> List[datetime.datetime]:
         """
         Distinct timestamps
         """
@@ -133,27 +140,27 @@ class PeriodSet:
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     @property
-    def num_periods(self):
+    def num_periods(self) -> int:
         """
         Number of periods
         """
         return periodset_num_periods(self._inner)
 
     @property
-    def start_period(self):
+    def start_period(self) -> Period:
         """
         Start period
         """
         return Period(_inner=periodset_start_period(self._inner))
 
     @property
-    def end_period(self):
+    def end_period(self) -> Period:
         """
         End period
         """
         return Period(_inner=periodset_end_period(self._inner))
 
-    def period_n(self, n):
+    def period_n(self, n) -> Period:
         """
         N-th period
         """
@@ -161,14 +168,14 @@ class PeriodSet:
         return Period(_inner=periodset_period_n(self._inner, n))
 
     @property
-    def periods(self):
+    def periods(self) -> List[Period]:
         """
         Periods
         """
         ps, count = periodset_periods(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
-    def shift(self, timedelta):
+    def shift(self, timedelta) -> PeriodSet:
         """
         Shift the period set by a time interval
         """
