@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional, List, Union, TYPE_CHECKING
+from typing import Optional, List, Union, TYPE_CHECKING, overload
 
 from dateutil.parser import parse
 
@@ -47,7 +47,12 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     before_timestampset_period, before_timestampset_periodset, before_timestampset_timestamp, \
     before_timestampset_timestampset, overbefore_timestampset_timestampset, overbefore_timestampset_timestamp, \
     overbefore_timestampset_periodset, overbefore_timestampset_period, overafter_timestampset_timestampset, \
-    overafter_timestampset_timestamp, overafter_timestampset_periodset, overafter_timestampset_period
+    overafter_timestampset_timestamp, overafter_timestampset_periodset, overafter_timestampset_period, \
+    intersection_timestampset_period, intersection_timestampset_periodset, intersection_timestampset_timestamp, \
+    intersection_timestampset_timestampset, minus_timestampset_period, minus_timestampset_periodset, \
+    minus_timestampset_timestamp, minus_timestampset_timestampset, union_timestampset_period, \
+    union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset
+from .. import TimestampSet
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -257,6 +262,75 @@ class TimestampSet:
             return overbefore_timestampset_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    @overload
+    def intersection(self, other: datetime) -> datetime:
+        ...
+
+    @overload
+    def intersection(self, other: Union[Period, PeriodSet, TimestampSet]) -> TimestampSet:
+        ...
+
+    def intersection(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> \
+            Union[datetime, TimestampSet]:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(other, Period):
+            return TimestampSet(_inner=intersection_timestampset_period(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return TimestampSet(_inner=intersection_timestampset_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return timestamptz_to_datetime(
+                intersection_timestampset_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return TimestampSet(_inner=intersection_timestampset_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def minus(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> TimestampSet:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(other, Period):
+            return TimestampSet(_inner=minus_timestampset_period(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return TimestampSet(_inner=minus_timestampset_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return TimestampSet(_inner=minus_timestampset_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return TimestampSet(_inner=minus_timestampset_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    @overload
+    def union(self, other: Union[Period, PeriodSet]) -> PeriodSet:
+        ...
+
+    @overload
+    def union(self, other: Union[datetime, TimestampSet]) -> TimestampSet:
+        ...
+
+    def union(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> Union[PeriodSet, TimestampSet]:
+        from .period import Period
+        from .periodset import PeriodSet
+        if isinstance(other, Period):
+            return PeriodSet(_inner=union_timestampset_period(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return PeriodSet(_inner=union_timestampset_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return TimestampSet(_inner=union_timestampset_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return TimestampSet(_inner=union_timestampset_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __mul__(self, other):
+        return self.intersection(other)
+
+    def __add__(self, other):
+        return self.union(other)
+
+    def __sub__(self, other):
+        return self.minus(other)
 
     def __contains__(self, item):
         return self.contains(item)
