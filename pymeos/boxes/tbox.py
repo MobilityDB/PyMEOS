@@ -23,16 +23,21 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
 
 import warnings
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
 
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
-    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax
-from ..time import Period
+    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
+    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
+    adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
+    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
+    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge
+from ..time.period import Period
 
 try:
     # Do not make psycopg2 a requirement.
@@ -89,19 +94,6 @@ class TBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
             self._inner = tbox_make(period, span)
 
-    @staticmethod
-    def read_from_cursor(value, cursor=None):
-        if not value:
-            return None
-        return TBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.
-
     @property
     def has_x(self):
         return tbox_hasx(self._inner)
@@ -138,10 +130,101 @@ class TBox:
         """
         return timestamptz_to_datetime(tbox_tmax(self._inner))
 
+    def expand(self, other: Union[TBox, float, timedelta]) -> None:
+        if isinstance(other, TBox):
+            tbox_expand(other._inner, self._inner)
+        elif isinstance(other, float):
+            self._inner = tbox_expand_value(self._inner, other)
+        elif isinstance(other, timedelta):
+            self._inner = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def shift(self, shift: timedelta) -> None:
+        tbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+
+    def union(self, other: TBox) -> TBox:
+        return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
+
+    def intersection(self, other: TBox) -> TBox:
+        return TBox(_inner=intersection_tbox_tbox(self._inner, other._inner))
+
+    def is_adjacent(self, container: TBox) -> bool:
+        return adjacent_tbox_tbox(self._inner, container._inner)
+
+    def is_contained_in(self, container: TBox) -> bool:
+        return contained_tbox_tbox(self._inner, container._inner)
+
+    def contains(self, content: TBox) -> bool:
+        return contains_tbox_tbox(self._inner, content._inner)
+
+    def overlaps(self, content: TBox) -> bool:
+        return overlaps_tbox_tbox(self._inner, content._inner)
+
+    def is_same(self, content: TBox) -> bool:
+        return same_tbox_tbox(self._inner, content._inner)
+
+    def is_left(self, content: TBox) -> bool:
+        return left_tbox_tbox(self._inner, content._inner)
+
+    def is_over_or_left(self, content: TBox) -> bool:
+        return overleft_tbox_tbox(self._inner, content._inner)
+
+    def is_right(self, content: TBox) -> bool:
+        return right_tbox_tbox(self._inner, content._inner)
+
+    def is_over_or_right(self, content: TBox) -> bool:
+        return overright_tbox_tbox(self._inner, content._inner)
+
+    def is_before(self, content: TBox) -> bool:
+        return before_tbox_tbox(self._inner, content._inner)
+
+    def is_over_or_before(self, content: TBox) -> bool:
+        return overbefore_tbox_tbox(self._inner, content._inner)
+
+    def is_after(self, content: TBox) -> bool:
+        return after_tbox_tbox(self._inner, content._inner)
+
+    def is_over_or_after(self, content: TBox) -> bool:
+        return overafter_tbox_tbox(self._inner, content._inner)
+
+    def __add__(self, other):
+        return self.union(other)
+
+    def __mul__(self, other):
+        return self.intersection(other)
+
+    def __contains__(self, item):
+        return self.contains(item)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            tbox_eq(self._inner, other._inner)
-        return False
+            return tbox_eq(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __cmp__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_cmp(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __lt__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_lt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __le__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_le(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __gt__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_gt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __ge__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_ge(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __str__(self):
         return tbox_out(self._inner, 3)
@@ -149,3 +232,16 @@ class TBox:
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    @staticmethod
+    def read_from_cursor(value, cursor=None):
+        if not value:
+            return None
+        return TBox(string=value)
+
+    # Psycopg2 interface.
+    def __conform__(self, protocol):
+        if protocol is ISQLQuote:
+            return self
+
+    # End Psycopg2 interface.

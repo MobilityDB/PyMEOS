@@ -23,13 +23,15 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Literal
 
 from dateutil.parser import parse
 
-from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, pg_timestamptz_in, tbool_out, \
+from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
     tbool_values, tbool_start_value, tbool_end_value, \
     tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
     tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool
@@ -45,6 +47,89 @@ class TBool(Temporal, ABC):
     BaseClassDiscrete = True
     _parse_function = tbool_in
 
+    @property
+    def values(self) -> List[bool]:
+        """
+        List of distinct values.
+        """
+        values, count = tbool_values(self._inner)
+        return [values[i] for i in range(count)]
+
+    @property
+    def start_value(self) -> bool:
+        """
+        Start value.
+        """
+        return tbool_start_value(self._inner)
+
+    @property
+    def end_value(self) -> bool:
+        """
+        End value.
+        """
+        return tbool_end_value(self._inner)
+
+    def value_at_timestamp(self, timestamp) -> bool:
+        """
+        Value at timestamp.
+        """
+        return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+
+    @property
+    def interpolation(self) -> Literal['Stepwise']:
+        """
+        Interpolation of the temporal value, that is, ``'Stepwise'``.
+        """
+        return 'Stepwise'
+
+    def always(self, value: bool) -> bool:
+        return tbool_always_eq(self._inner, value)
+
+    def ever(self, value: bool) -> bool:
+        return tbool_ever_eq(self._inner, value)
+
+    def tnot(self) -> TBool:
+        return self.__class__(_inner=tnot_tbool(self._inner))
+
+    def tand(self, other: Union[bool, TBool]) -> TBool:
+        if isinstance(other, bool):
+            return self.__class__(_inner=tand_tbool_bool(self._inner, other))
+        elif isinstance(other, TBool):
+            return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def tor(self, other: Union[bool, TBool]) -> TBool:
+        if isinstance(other, bool):
+            return self.__class__(_inner=tor_tbool_bool(self._inner, other))
+        elif isinstance(other, TBool):
+            return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __neg__(self):
+        return self.tnot()
+
+    def __invert__(self):
+        return self.tnot()
+
+    def __and__(self, other):
+        return self.tand(other)
+
+    def __or__(self, other):
+        return self.tor(other)
+
+    def __eq__(self, other):
+        if isinstance(other, bool):
+            return teq_tbool_bool(self._inner, other)
+        return super().__eq__(other)
+
+    def __ne__(self, other):
+        if isinstance(other, bool):
+            return tne_tbool_bool(self._inner, other)
+        return super().__ne__(other)
+
+    def __str__(self):
+        return tbool_out(self._inner)
+
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
@@ -59,80 +144,6 @@ class TBool(Temporal, ABC):
             else:
                 return TBoolInstSet(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
-
-    @property
-    def values(self):
-        """
-        List of distinct values.
-        """
-        values, count = tbool_values(self._inner)
-        return [values[i] for i in range(count)]
-
-    @property
-    def start_value(self):
-        """
-        Start value.
-        """
-        return tbool_start_value(self._inner)
-
-    @property
-    def end_value(self):
-        """
-        End value.
-        """
-        return tbool_end_value(self._inner)
-
-    def value_at_timestamp(self, timestamp):
-        """
-        Value at timestamp.
-        """
-        return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return 'Stepwise'
-
-    def always(self, value: bool) -> bool:
-        return tbool_always_eq(self._inner, value)
-
-    def ever(self, value: bool) -> bool:
-        return tbool_ever_eq(self._inner, value)
-
-    def __eq__(self, other):
-        if isinstance(other, bool):
-            return teq_tbool_bool(self._inner, other)
-        return super().__eq__(other)
-
-    def __ne__(self, other):
-        if isinstance(other, bool):
-            return tne_tbool_bool(self._inner, other)
-        return super().__ne__(other)
-
-    def __neg__(self):
-        return self.__class__(_inner=tnot_tbool(self._inner))
-
-    def __invert__(self):
-        return self.__class__(_inner=tnot_tbool(self._inner))
-
-    def __and__(self, other):
-        if isinstance(other, bool):
-            return self.__class__(_inner=tand_tbool_bool(self._inner, other))
-        elif isinstance(other, TBool):
-            return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
-        raise TypeError()
-
-    def __or__(self, other):
-        if isinstance(other, bool):
-            return self.__class__(_inner=tor_tbool_bool(self._inner, other))
-        elif isinstance(other, TBool):
-            return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
-        raise TypeError()
-
-    def __str__(self):
-        return tbool_out(self._inner)
 
 
 class TBoolInst(TInstant, TBool):
@@ -224,7 +235,7 @@ class TBoolSeq(TSequence, TBool):
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation= 'Stepwise', normalize=normalize, _inner=_inner)
+                         interpolation='Stepwise', normalize=normalize, _inner=_inner)
 
 
 class TBoolSeqSet(TSequenceSet, TBool):

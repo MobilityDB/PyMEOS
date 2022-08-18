@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import warnings
 from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Optional, Union, overload
 from typing import TYPE_CHECKING
 
 from dateutil.parser import parse
@@ -13,7 +13,17 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
     period_out, span_copy, \
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
-    adjacent_period_timestampset, adjacent_span_span
+    adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset, \
+    contains_span_span, contains_period_periodset, contains_period_timestampset, overlaps_period_periodset, \
+    overlaps_period_timestampset, right_span_span, after_period_periodset, after_period_timestamp, \
+    after_period_timestampset, left_span_span, before_period_timestampset, before_period_timestamp, \
+    before_period_periodset, overright_span_span, overafter_period_periodset, overafter_period_timestamp, \
+    overafter_period_timestampset, overleft_span_span, overbefore_period_periodset, overbefore_period_timestamp, \
+    overbefore_period_timestampset, intersection_span_span, intersection_period_periodset, \
+    intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
+    minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
+    union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
+    distance_period_timestamp, distance_period_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -106,26 +116,13 @@ class Period:
         """
         return self.upper - self.lower
 
-    def shift(self, time_delta) -> Period:
+    def shift(self, time_delta: timedelta) -> Period:
         """
         Shift the period by a time interval
         """
         interval = timedelta_to_interval(time_delta)
         inner = period_shift_tscale(interval, None, self._inner)
         return Period(_inner=inner)
-
-    def overlap(self, other) -> bool:
-        """
-        Do the periods share a timestamp?
-        """
-        return overlaps_span_span(self._inner, other._inner)
-
-    def contains_timestamp(self, date_time: datetime) -> bool:
-        """
-        Does the period contain the timestamp?
-        """
-        ts = datetime_to_timestamptz(date_time)
-        return contains_period_timestamp(self._inner, ts)
 
     def to_periodset(self) -> PeriodSet:
         from .periodset import PeriodSet
@@ -145,35 +142,211 @@ class Period:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def is_contained_in(self, container: Union[Period, PeriodSet]) -> bool:
+        from .periodset import PeriodSet
+        if isinstance(container, Period):
+            return contained_span_span(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_period_periodset(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(content, Period):
+            return contains_span_span(self._inner, content._inner)
+        elif isinstance(content, PeriodSet):
+            return contains_period_periodset(self._inner, content._inner)
+        elif isinstance(content, datetime):
+            return contains_period_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_period_timestampset(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def overlaps(self, other: Union[Period, PeriodSet, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overlaps_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overlaps_period_periodset(self._inner, other._inner)
+        elif isinstance(other, TimestampSet):
+            return overlaps_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return right_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return after_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return after_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return after_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return left_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return before_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return before_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return before_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overright_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overafter_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overafter_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overafter_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overleft_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overbefore_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overbefore_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return distance_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return distance_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return distance_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return distance_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    @overload
+    def intersection(self, other: Period) -> Period:
+        ...
+
+    @overload
+    def intersection(self, other: PeriodSet) -> PeriodSet:
+        ...
+
+    @overload
+    def intersection(self, other: datetime) -> datetime:
+        ...
+
+    @overload
+    def intersection(self, other: TimestampSet) -> TimestampSet:
+        ...
+
+    def intersection(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> \
+            Union[Period, PeriodSet, datetime, TimestampSet]:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return Period(_inner=intersection_span_span(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return PeriodSet(_inner=intersection_period_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return timestamptz_to_datetime(intersection_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return TimestampSet(_inner=intersection_period_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def minus(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> PeriodSet:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return PeriodSet(_inner=minus_period_period(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return PeriodSet(_inner=minus_period_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return PeriodSet(_inner=minus_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return PeriodSet(_inner=minus_period_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def union(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> PeriodSet:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return PeriodSet(_inner=union_period_period(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return PeriodSet(_inner=union_period_periodset(self._inner, other._inner))
+        elif isinstance(other, datetime):
+            return PeriodSet(_inner=union_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return PeriodSet(_inner=union_period_timestampset(self._inner, other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __mul__(self, other):
+        return self.intersection(other)
+
+    def __add__(self, other):
+        return self.union(other)
+
+    def __sub__(self, other):
+        return self.minus(other)
+
+    def __contains__(self, item):
+        return self.contains(item)
+
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return span_eq(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
             return span_cmp(self._inner, other._inner)
-        return 0
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
             return span_lt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
             return span_le(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
             return span_gt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
             return span_ge(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     # Psycopg2 interface.
     def __conform__(self, protocol):

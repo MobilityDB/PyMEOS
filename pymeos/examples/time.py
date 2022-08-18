@@ -163,9 +163,9 @@ print("shift:", var1)
 
 p1 = Period(string='[2019-09-08, 2019-09-10]')
 p2 = Period(string='[2019-09-11, 2019-09-12)')
-print("overlap:", p1.overlap(p2))
+print("overlap:", p1.overlaps(p2))
 p2 = Period(string='[2019-09-09, 2019-09-12)')
-print("overlap:", p1.overlap(p2))
+print("overlap:", p1.overlaps(p2))
 
 p1 = Period(string='[2019-09-08, 2019-09-10]')
 p2 = Period(string='[2019-09-08, 2019-09-10]')

@@ -71,7 +71,7 @@ class TSequenceSet(Temporal, ABC):
         """
         return self.ComponentClass.ComponentClass(_inner=temporal_end_instant(self._inner))
 
-    def instant_n(self, n):
+    def instant_n(self, n: int):
         """
         N-th distinct instant.
         """

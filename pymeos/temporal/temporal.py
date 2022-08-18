@@ -23,10 +23,11 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-
+from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
-from typing import Optional
+from datetime import timedelta, datetime
+from typing import Optional, List
 
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
@@ -35,6 +36,8 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp, \
     temporal_hash, temporal_copy, temporal_as_mfjson
+from .. import TimestampSet
+from ..errors import ComparisonError
 from ..time import Period, PeriodSet
 
 try:
@@ -126,21 +129,21 @@ class Temporal(ABC):
         pass
 
     @property
-    def time(self):
+    def time(self) -> PeriodSet:
         """
         Period set on which the temporal value is defined.
         """
         return PeriodSet(_inner=temporal_time(self._inner))
 
     @property
-    def duration(self):
+    def duration(self) -> timedelta:
         """
         Interval on which the temporal value is defined.
         """
         return interval_to_timedelta(temporal_duration(self._inner))
 
     @property
-    def timespan(self):
+    def timespan(self) -> timedelta:
         """
         Interval on which the temporal value is defined ignoring potential
         time gaps.
@@ -148,7 +151,7 @@ class Temporal(ABC):
         return interval_to_timedelta(temporal_timespan(self._inner))
 
     @property
-    def period(self):
+    def period(self) -> Period:
         """
         Period on which the temporal value is defined ignoring potential
         time gaps.
@@ -156,7 +159,7 @@ class Temporal(ABC):
         return Period(_inner=periodset_to_period(temporal_time(self._inner)))
 
     @property
-    def num_instants(self):
+    def num_instants(self) -> int:
         """
         Number of distinct instants.
         """
@@ -179,7 +182,7 @@ class Temporal(ABC):
         pass
 
     @abstractmethod
-    def instant_n(self, n):
+    def instant_n(self, n: int):
         """
         N-th instant.
         """
@@ -194,80 +197,70 @@ class Temporal(ABC):
         pass
 
     @property
-    def num_timestamps(self):
+    def num_timestamps(self) -> int:
         """
         Number of distinct timestamps.
         """
         return temporal_num_timestamps(self._inner)
 
     @property
-    def start_timestamp(self):
+    def start_timestamp(self) -> datetime:
         """
         Start timestamp.
         """
         return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
 
     @property
-    def end_timestamp(self):
+    def end_timestamp(self) -> datetime:
         """
         End timestamp.
         """
         return timestamptz_to_datetime(temporal_end_timestamp(self._inner))
 
-    def timestamp_n(self, n):
+    def timestamp_n(self, n: int) -> datetime:
         """
         N-th timestamp.
         """
         return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
 
     @property
-    def timestamps(self):
+    def timestamps(self) -> List[datetime]:
         """
         List of timestamps.
         """
         ts, count = temporal_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    def shift(self, timedelta):
+    def shift(self, time_delta: timedelta) -> Temporal:
         """
         Shift the temporal value by a time interval
         """
-        new_inner = temporal_shift_tscale(self._inner, timedelta_to_interval(timedelta), None)
+        new_inner = temporal_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
         return self.__class__(_inner=new_inner)
 
-    def intersects_timestamp(self, datetime):
+    def intersects_timestamp(self, timestamp: datetime) -> bool:
         """
         Does the temporal value intersect the timestamp?
         """
-        return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(datetime))
+        return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(timestamp))
 
-    def intersects_timestamp_set(self, timestamp_set):
+    def intersects_timestamp_set(self, timestamp_set: TimestampSet) -> bool:
         """
         Does the temporal value intersect the timestamp set?
         """
         return temporal_intersects_timestampset(self._inner, timestamp_set._inner)
 
-    def intersects_period(self, period):
+    def intersects_period(self, period: Period) -> bool:
         """
         Does the temporal value intersect the period?
         """
         return temporal_intersects_period(self._inner, period._inner)
 
-    def intersects_period_set(self, period_set):
+    def intersects_period_set(self, period_set: PeriodSet) -> bool:
         """
         Does the temporal value intersect the period set?
         """
         return temporal_intersects_periodset(self._inner, period_set._inner)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    def getquoted(self):
-        return "{}".format(self.__str__())
-
-    # End Psycopg2 interface.
 
     def __cmp__(self, other):
         """
@@ -275,7 +268,7 @@ class Temporal(ABC):
         """
         if self.__class__ == other.__class__:
             return temporal_cmp(self._inner, other._inner)
-        return 0
+        raise ComparisonError(self.__class__, other.__class__)
 
     def __lt__(self, other):
         """
@@ -299,7 +292,7 @@ class Temporal(ABC):
         """
         if self.__class__ == other.__class__:
             return temporal_eq(self._inner, other._inner)
-        return False
+        raise ComparisonError(self.__class__, other.__class__)
 
     def __ne__(self, other):
         """
@@ -307,7 +300,7 @@ class Temporal(ABC):
         """
         if self.__class__ == other.__class__:
             return temporal_ne(self._inner, other._inner)
-        return True
+        raise ComparisonError(self.__class__, other.__class__)
 
     def __ge__(self, other):
         """
@@ -345,7 +338,13 @@ class Temporal(ABC):
         inner_copy = temporal_copy(self._inner)
         return self.__class__(_inner=inner_copy)
 
+    # Psycopg2 interface.
+    def __conform__(self, protocol):
+        if protocol is ISQLQuote:
+            return self
 
-class ComparisonError(TypeError):
-    def __init__(self, type1, type2) -> None:
-        super().__init__(f'Comparison not supported between types {type1} and {type2}')
+    def getquoted(self):
+        return "{}".format(self.__str__())
+
+    # End Psycopg2 interface.
+
