@@ -33,7 +33,10 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
     stbox_shift_tscale, stbox_set_srid, adjacent_stbox_stbox, contained_stbox_stbox, contains_stbox_stbox, \
-    overlaps_stbox_stbox, same_stbox_stbox
+    overlaps_stbox_stbox, same_stbox_stbox, overafter_stbox_stbox, after_stbox_stbox, overbefore_stbox_stbox, \
+    before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
+    overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
+    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox
 from ..time.period import Period
 
 try:
@@ -224,11 +227,59 @@ class STBox:
     def contains(self, content: STBox) -> bool:
         return contains_stbox_stbox(self._inner, content._inner)
 
-    def overlaps(self, content: STBox) -> bool:
-        return overlaps_stbox_stbox(self._inner, content._inner)
+    def overlaps(self, other: STBox) -> bool:
+        return overlaps_stbox_stbox(self._inner, other._inner)
 
-    def is_same(self, content: STBox) -> bool:
-        return same_stbox_stbox(self._inner, content._inner)
+    def is_same(self, other: STBox) -> bool:
+        return same_stbox_stbox(self._inner, other._inner)
+
+    def is_left(self, other: STBox) -> bool:
+        return left_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_left(self, other: STBox) -> bool:
+        return overleft_stbox_stbox(self._inner, other._inner)
+
+    def is_right(self, other: STBox) -> bool:
+        return right_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_right(self, other: STBox) -> bool:
+        return overright_stbox_stbox(self._inner, other._inner)
+
+    def is_below(self, other: STBox) -> bool:
+        return below_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_below(self, other: STBox) -> bool:
+        return overbelow_stbox_stbox(self._inner, other._inner)
+
+    def is_above(self, other: STBox) -> bool:
+        return above_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_above(self, other: STBox) -> bool:
+        return overabove_stbox_stbox(self._inner, other._inner)
+
+    def is_front(self, other: STBox) -> bool:
+        return front_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_front(self, other: STBox) -> bool:
+        return overfront_stbox_stbox(self._inner, other._inner)
+
+    def is_back(self, other: STBox) -> bool:
+        return back_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_back(self, other: STBox) -> bool:
+        return overback_stbox_stbox(self._inner, other._inner)
+
+    def is_before(self, other: STBox) -> bool:
+        return before_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_before(self, other: STBox) -> bool:
+        return overbefore_stbox_stbox(self._inner, other._inner)
+
+    def is_after(self, other: STBox) -> bool:
+        return after_stbox_stbox(self._inner, other._inner)
+
+    def is_over_or_after(self, other: STBox) -> bool:
+        return overafter_stbox_stbox(self._inner, other._inner)
 
     def __contains__(self, item):
         return self.contains(item)
