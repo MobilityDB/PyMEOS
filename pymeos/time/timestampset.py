@@ -338,37 +338,37 @@ class TimestampSet:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_eq(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_ne(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_cmp(self._inner, other._inner)
-        return 0
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_lt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_le(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_ge(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
             return timestampset_gt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     # Psycopg2 interface.
     def __conform__(self, protocol):

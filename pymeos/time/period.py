@@ -306,32 +306,32 @@ class Period:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return span_eq(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
             return span_cmp(self._inner, other._inner)
-        return 0
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
             return span_lt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
             return span_le(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
             return span_gt(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
             return span_ge(self._inner, other._inner)
-        return False
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     # Psycopg2 interface.
     def __conform__(self, protocol):
