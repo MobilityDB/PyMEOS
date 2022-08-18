@@ -54,7 +54,6 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset, \
     distance_timestampset_period, distance_timestampset_periodset, distance_timestampset_timestamp, \
     distance_timestampset_timestampset
-from .. import TimestampSet
 
 if TYPE_CHECKING:
     # Import here to use in type hints
