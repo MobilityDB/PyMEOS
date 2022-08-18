@@ -15,7 +15,11 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
     adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset, \
     contains_span_span, contains_period_periodset, contains_period_timestampset, overlaps_period_periodset, \
-    overlaps_period_timestampset
+    overlaps_period_timestampset, right_span_span, after_period_periodset, after_period_timestamp, \
+    after_period_timestampset, left_span_span, before_period_timestampset, before_period_timestamp, \
+    before_period_periodset, overright_span_span, overafter_period_periodset, overafter_period_timestamp, \
+    overafter_period_timestampset, overleft_span_span, overbefore_period_periodset, overbefore_period_timestamp, \
+    overbefore_period_timestampset
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -168,6 +172,63 @@ class Period:
             return overlaps_period_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return right_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return after_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return after_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return after_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return left_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return before_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return before_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return before_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overright_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overafter_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overafter_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overafter_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        from .periodset import PeriodSet
+        from .timestampset import TimestampSet
+        if isinstance(other, Period):
+            return overleft_span_span(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overbefore_period_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overbefore_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
 
     def __contains__(self, item):
         return self.contains(item)
