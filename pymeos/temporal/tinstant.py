@@ -101,7 +101,7 @@ class TInstant(Temporal, ABC):
         """
         return self
 
-    def instant_n(self, n):
+    def instant_n(self, n: int):
         """
         N-th instant.
         """

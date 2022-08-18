@@ -49,7 +49,7 @@ class TemporalInstants(Temporal, ABC):
         """
         return self.ComponentClass(_inner=temporal_end_instant(self._inner))
 
-    def instant_n(self, n):
+    def instant_n(self, n: int):
         """
         N-th instant.
         """
