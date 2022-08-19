@@ -23,6 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
 from datetime import datetime
 from typing import Optional, Union, List
@@ -30,7 +32,8 @@ from typing import Optional, Union, List
 from dateutil.parser import parse
 
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
-    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring
+    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
+    textcat_ttext_text, textcat_ttext_ttext
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
@@ -44,21 +47,6 @@ class TText(Temporal, ABC):
 
     _parse_function = ttext_in
 
-    @staticmethod
-    def read_from_cursor(value, cursor=None):
-        if not value:
-            return None
-        if value[0] != '{' and value[0] != '[' and value[0] != '(':
-            return TTextInst(string=value)
-        elif value[0] == '[' or value[0] == '(':
-            return TTextSeq(string=value)
-        elif value[0] == '{':
-            if value[1] == '[' or value[1] == '(':
-                return TTextSeqSet(string=value)
-            else:
-                return TTextInstSet(string=value)
-        raise Exception("ERROR: Could not parse temporal text value")
-
     @property
     def values(self):
         values, count = ttext_values(self._inner)
@@ -71,6 +59,22 @@ class TText(Temporal, ABC):
     @property
     def end_value(self):
         return ttext_end_value(self._inner)
+
+    def upper(self) -> TText:
+        return self.__class__(_inner=ttext_upper(self._inner))
+
+    def lower(self) -> TText:
+        return self.__class__(_inner=ttext_lower(self._inner))
+
+    def concatenate(self, other: Union[str, TText]):
+        if isinstance(other, str):
+            return self.__class__(_inner=textcat_ttext_text(self._inner, other))
+        elif isinstance(other, TText):
+            return self.__class__(_inner=textcat_ttext_ttext(self._inner, other._inner))
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __add__(self, other):
+        return self.concatenate(other)
 
     def value_at_timestamp(self, timestamp):
         """
@@ -87,6 +91,21 @@ class TText(Temporal, ABC):
 
     def __str__(self):
         return ttext_out(self._inner)
+
+    @staticmethod
+    def read_from_cursor(value, cursor=None):
+        if not value:
+            return None
+        if value[0] != '{' and value[0] != '[' and value[0] != '(':
+            return TTextInst(string=value)
+        elif value[0] == '[' or value[0] == '(':
+            return TTextSeq(string=value)
+        elif value[0] == '{':
+            if value[1] == '[' or value[1] == '(':
+                return TTextSeqSet(string=value)
+            else:
+                return TTextInstSet(string=value)
+        raise Exception("ERROR: Could not parse temporal text value")
 
 
 class TTextInst(TInstant, TText):
