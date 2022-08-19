@@ -28,7 +28,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
@@ -238,29 +238,16 @@ class Temporal(ABC):
         new_inner = temporal_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
         return self.__class__(_inner=new_inner)
 
-    def intersects_timestamp(self, timestamp: datetime) -> bool:
-        """
-        Does the temporal value intersect the timestamp?
-        """
-        return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(timestamp))
-
-    def intersects_timestamp_set(self, timestamp_set: TimestampSet) -> bool:
-        """
-        Does the temporal value intersect the timestamp set?
-        """
-        return temporal_intersects_timestampset(self._inner, timestamp_set._inner)
-
-    def intersects_period(self, period: Period) -> bool:
-        """
-        Does the temporal value intersect the period?
-        """
-        return temporal_intersects_period(self._inner, period._inner)
-
-    def intersects_period_set(self, period_set: PeriodSet) -> bool:
-        """
-        Does the temporal value intersect the period set?
-        """
-        return temporal_intersects_periodset(self._inner, period_set._inner)
+    def intersects(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+        if isinstance(other, Period):
+            return temporal_intersects_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return temporal_intersects_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return temporal_intersects_timestampset(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __cmp__(self, other):
         """
