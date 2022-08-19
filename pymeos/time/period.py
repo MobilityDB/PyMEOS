@@ -23,7 +23,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
     union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
-    distance_period_timestamp, distance_period_timestampset
+    distance_period_timestamp, distance_period_timestampset, span_ne
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -321,7 +321,12 @@ class Period:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return span_eq(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return span_ne(self._inner, other._inner)
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):

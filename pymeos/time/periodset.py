@@ -395,12 +395,12 @@ class PeriodSet:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return periodset_eq(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        return False
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
             return periodset_ne(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):

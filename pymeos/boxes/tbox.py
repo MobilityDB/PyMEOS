@@ -199,7 +199,7 @@ class TBox:
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return tbox_eq(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        return False
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):

@@ -24,6 +24,7 @@
 #
 ###############################################################################
 from __future__ import annotations
+
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
@@ -289,17 +290,13 @@ class Temporal(ABC):
         """
         Equality
         """
-        if self.__class__ == other.__class__:
-            return temporal_eq(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        return temporal_eq(self._inner, other._inner)
 
     def __ne__(self, other):
         """
         Inequality
         """
-        if self.__class__ == other.__class__:
-            return temporal_ne(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        return temporal_ne(self._inner, other._inner)
 
     def __ge__(self, other):
         """
@@ -346,4 +343,3 @@ class Temporal(ABC):
         return "{}".format(self.__str__())
 
     # End Psycopg2 interface.
-
