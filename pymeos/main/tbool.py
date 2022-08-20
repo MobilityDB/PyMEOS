@@ -117,15 +117,49 @@ class TBool(Temporal, ABC):
     def __or__(self, other):
         return self.tor(other)
 
+    def __lt__(self, other):
+        """
+        Less than
+        """
+        return NotImplemented
+
+    def __le__(self, other):
+        """
+        Less or equal
+        """
+        return NotImplemented
+
     def __eq__(self, other):
+        """
+        Equality
+        """
         if isinstance(other, bool):
-            return self.__class__(_inner=teq_tbool_bool(self._inner, other))
+            from ..factory import _TemporalFactory
+            result = teq_tbool_bool(self._inner, other)
+            return _TemporalFactory.create_temporal(result)
         return super().__eq__(other)
 
     def __ne__(self, other):
+        """
+        Inequality
+        """
         if isinstance(other, bool):
-            return self.__class__(_inner=tne_tbool_bool(self._inner, other))
-        return super().__ne__(other)
+            from ..factory import _TemporalFactory
+            result = tne_tbool_bool(self._inner, other)
+            return _TemporalFactory.create_temporal(result)
+        return super().__eq__(other)
+
+    def __ge__(self, other):
+        """
+        Greater or equal
+        """
+        return NotImplemented
+
+    def __gt__(self, other):
+        """
+        Greater than
+        """
+        return NotImplemented
 
     def __str__(self):
         return tbool_out(self._inner)
