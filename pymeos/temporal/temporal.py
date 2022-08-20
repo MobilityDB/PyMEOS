@@ -36,7 +36,13 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_hash, temporal_copy, temporal_as_mfjson, teq_temporal_temporal, \
-    tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal
+    tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal, \
+    after_temporal_period, after_temporal_periodset, after_temporal_timestamp, after_temporal_timestampset, \
+    after_temporal_temporal, before_temporal_temporal, before_temporal_timestampset, before_temporal_timestamp, \
+    before_temporal_periodset, before_temporal_period, overafter_temporal_period, overafter_temporal_periodset, \
+    overafter_temporal_timestamp, overafter_temporal_timestampset, overafter_temporal_temporal, \
+    overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
+    overbefore_temporal_timestampset, overbefore_temporal_temporal
 from ..errors import ComparisonError
 from ..time import Period, PeriodSet, TimestampSet
 
@@ -251,6 +257,58 @@ class Temporal(ABC):
 
     def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None):
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
+
+    def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return after_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return after_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return after_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return after_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return after_temporal_temporal(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return before_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return before_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return before_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return before_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return before_temporal_temporal(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return overafter_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overafter_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overafter_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overafter_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overafter_temporal_temporal(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return overbefore_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overbefore_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overbefore_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overbefore_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overbefore_temporal_temporal(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
         """
