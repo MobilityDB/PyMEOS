@@ -310,11 +310,18 @@ class Temporal(ABC):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def __comparable(self, other) -> bool:
+        if self.BaseClass == other.BaseClass:
+            return True
+        if self.BaseClass in [int, float] and other.BaseClass in [int, float]:
+            return True
+        return False
+        
     def __lt__(self, other):
         """
         Less than
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = tlt_temporal_temporal(self._inner, other._inner)
@@ -324,7 +331,7 @@ class Temporal(ABC):
         """
         Less or equal
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = tle_temporal_temporal(self._inner, other._inner)
@@ -334,7 +341,7 @@ class Temporal(ABC):
         """
         Equality
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = teq_temporal_temporal(self._inner, other._inner)
@@ -344,7 +351,7 @@ class Temporal(ABC):
         """
         Inequality
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = tne_temporal_temporal(self._inner, other._inner)
@@ -354,7 +361,7 @@ class Temporal(ABC):
         """
         Greater or equal
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = tge_temporal_temporal(self._inner, other._inner)
@@ -364,7 +371,7 @@ class Temporal(ABC):
         """
         Greater than
         """
-        if self.BaseClass != other.BaseClass:
+        if not self.__comparable(other):
             raise ComparisonError(self.__class__, other.__class__)
         from ..factory import _TemporalFactory
         result = tgt_temporal_temporal(self._inner, other._inner)
