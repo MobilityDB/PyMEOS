@@ -57,6 +57,7 @@ BASE = """from datetime import datetime, timedelta
 from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
+import shapely.geometry as spg
 from dateutil.parser import parse
 from postgis import Point
 
@@ -90,6 +91,11 @@ def lwpoint_to_point(lwpoint: Any) -> Point:
                  lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
                  lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
                  lwgeom_get_srid(lwpoint))
+
+
+def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
+    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
+        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
 
 
 """
@@ -303,16 +309,18 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         # If original C function returned bool, use it to return it when result is True, or raise exception when False
         if return_type.return_type == 'bool':
             result_manipulation = (result_manipulation or '') + "    if result:\n" \
-                                                                f"        return {returning_object}\n" \
+                                                                f"        return {returning_object} if " \
+                                                                f"{returning_object} != _ffi.NULL else None\n" \
                                                                 "    raise Exception(f'C call went wrong: {result}')"
         # Otherwise, just return it normally
         else:
-            result_manipulation = (result_manipulation or '') + f'    return {returning_object}\n'
+            result_manipulation = (result_manipulation or '') + f'    return {returning_object} if {returning_object}' \
+                                                                f'!= _ffi.NULL else None\n'
         # Set the return type as the Python type, removing the pointer modifier if necessary
         function_return_type = result_param.get_ptype_without_pointers()
     # Otherwise, return the result normally (if needed)
     elif return_type.return_type != 'None':
-        result_manipulation = (result_manipulation or '') + '    return result'
+        result_manipulation = (result_manipulation or '') + '    return result if result != _ffi.NULL else None'
 
     # For each output param
     for out_param in out_params:
