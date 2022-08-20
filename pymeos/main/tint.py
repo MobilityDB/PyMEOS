@@ -34,10 +34,11 @@ from spans.types import intrange
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, tint_values, tint_start_value, \
     tint_end_value, tint_value_at_timestamp
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+from .tnumber import TNumber
+from ..temporal import TInstant, TInstantSet, TSequence, TSequenceSet
 
 
-class TInt(Temporal, ABC):
+class TInt(TNumber, ABC):
     """
     Abstract class for representing temporal integers of any subtype.
     """
@@ -81,20 +82,6 @@ class TInt(Temporal, ABC):
         End value.
         """
         return tint_end_value(self._inner)
-
-    @property
-    def min_value(self):
-        """
-        Minimum value.
-        """
-        return min(self.values)
-
-    @property
-    def max_value(self):
-        """
-        Maximum value.
-        """
-        return max(self.values)
 
     @property
     def values(self):

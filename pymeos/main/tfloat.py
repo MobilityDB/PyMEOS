@@ -32,10 +32,11 @@ from spans.types import floatrange
 
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
     datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+from .tnumber import TNumber
+from ..temporal import TInstant, TInstantSet, TSequence, TSequenceSet
 
 
-class TFloat(Temporal, ABC):
+class TFloat(TNumber, ABC):
     """
     Abstract class for representing temporal floats of any subtype.
     """
@@ -85,20 +86,6 @@ class TFloat(Temporal, ABC):
         End value.
         """
         return tfloat_end_value(self._inner)
-
-    @property
-    def min_value(self):
-        """
-        Minimum value.
-        """
-        return min(self.values)
-
-    @property
-    def max_value(self):
-        """
-        Maximum value.
-        """
-        return max(self.values)
 
     @property
     def values(self):
