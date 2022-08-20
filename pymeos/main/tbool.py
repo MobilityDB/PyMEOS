@@ -119,12 +119,12 @@ class TBool(Temporal, ABC):
 
     def __eq__(self, other):
         if isinstance(other, bool):
-            return teq_tbool_bool(self._inner, other)
+            return self.__class__(_inner=teq_tbool_bool(self._inner, other))
         return super().__eq__(other)
 
     def __ne__(self, other):
         if isinstance(other, bool):
-            return tne_tbool_bool(self._inner, other)
+            return self.__class__(_inner=tne_tbool_bool(self._inner, other))
         return super().__ne__(other)
 
     def __str__(self):

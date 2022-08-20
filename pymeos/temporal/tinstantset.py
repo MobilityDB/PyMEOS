@@ -23,11 +23,16 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
-from typing import Optional, List, Union, Any
+from typing import Optional, List, Union, Any, TYPE_CHECKING
 
 from pymeos_cffi.functions import tinstantset_make
 from ..temporal import TemporalInstants
+
+if TYPE_CHECKING:
+    pass
 
 
 class TInstantSet(TemporalInstants, ABC):

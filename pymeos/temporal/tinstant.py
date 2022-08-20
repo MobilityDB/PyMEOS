@@ -23,14 +23,23 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, Any
+from typing import Optional, Union, Any, TYPE_CHECKING
 
 from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime, datetime_to_timestamptz, \
-    pg_timestamptz_in
-from ..temporal import Temporal
+    pg_timestamptz_in, tlt_temporal_temporal, tgt_temporal_temporal, tge_temporal_temporal, tne_temporal_temporal, \
+    teq_temporal_temporal, tle_temporal_temporal
+from .temporal import Temporal
+from ..errors import ComparisonError
 from ..time import Period
+
+if TYPE_CHECKING:
+    from .tinstantset import TInstantSet
+    from .tsequence import TSequence
+    from .tsequenceset import TSequenceSet
 
 
 class TInstant(Temporal, ABC):

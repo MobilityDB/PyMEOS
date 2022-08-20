@@ -35,8 +35,8 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
-    timedelta_to_interval, temporal_eq, temporal_le, temporal_lt, temporal_ge, temporal_gt, temporal_ne, temporal_cmp, \
-    temporal_hash, temporal_copy, temporal_as_mfjson
+    timedelta_to_interval, temporal_hash, temporal_copy, temporal_as_mfjson, teq_temporal_temporal, \
+    tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal
 from ..errors import ComparisonError
 from ..time import Period, PeriodSet, TimestampSet
 
@@ -249,57 +249,68 @@ class Temporal(ABC):
             return temporal_intersects_timestampset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __cmp__(self, other):
-        """
-        Comparison
-        """
-        if self.__class__ == other.__class__:
-            return temporal_cmp(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None):
+        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
     def __lt__(self, other):
         """
         Less than
         """
-        if self.__class__ == other.__class__:
-            return temporal_lt(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = tlt_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __le__(self, other):
         """
         Less or equal
         """
-        if self.__class__ == other.__class__:
-            return temporal_le(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = tle_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __eq__(self, other):
         """
         Equality
         """
-        return temporal_eq(self._inner, other._inner)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = teq_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __ne__(self, other):
         """
         Inequality
         """
-        return temporal_ne(self._inner, other._inner)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = tne_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __ge__(self, other):
         """
         Greater or equal
         """
-        if self.__class__ == other.__class__:
-            return temporal_ge(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = tge_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __gt__(self, other):
         """
         Greater than
         """
-        if self.__class__ == other.__class__:
-            return temporal_gt(self._inner, other._inner)
-        raise ComparisonError(self.__class__, other.__class__)
+        if self.BaseClass != other.BaseClass:
+            raise ComparisonError(self.__class__, other.__class__)
+        from ..factory import _TemporalFactory
+        result = tgt_temporal_temporal(self._inner, other._inner)
+        return _TemporalFactory.create_temporal(result)
 
     def __hash__(self) -> int:
         return temporal_hash(self._inner)
@@ -309,9 +320,6 @@ class Temporal(ABC):
         String
         """
         pass
-
-    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None):
-        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'

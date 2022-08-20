@@ -134,7 +134,7 @@ class TPointSeq(TPoint, TSequence, ABC):
             'time': self.timestamps,
             'geometry': [i.value for i in self.instants]
         }
-        return GeoDataFrame(data, crs=4326)
+        return GeoDataFrame(data, crs=self.srid)
 
     def to_trajectory(self):
         return Trajectory(self.to_geodataframe(), None, t='time')

@@ -23,11 +23,20 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from abc import ABC
-from typing import Optional, Union, List, Any, Literal
+from __future__ import annotations
 
-from pymeos_cffi.functions import tsequence_make, temporal_interpolation
+from abc import ABC
+from typing import Optional, Union, List, Any, Literal, TYPE_CHECKING
+
+from pymeos_cffi.functions import tsequence_make, temporal_interpolation, tlt_temporal_temporal, tle_temporal_temporal, \
+    teq_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal
+from ..errors import ComparisonError
 from ..temporal import TemporalInstants
+
+if TYPE_CHECKING:
+    from .tinstant import TInstant
+    from .tinstantset import TInstantSet
+    from .tsequenceset import TSequenceSet
 
 
 class TSequence(TemporalInstants, ABC):
