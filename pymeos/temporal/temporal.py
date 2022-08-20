@@ -255,7 +255,7 @@ class Temporal(ABC):
             return temporal_intersects_timestampset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None):
+    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
     def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
