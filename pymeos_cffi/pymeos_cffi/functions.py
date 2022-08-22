@@ -3345,13 +3345,13 @@ def tgeogpointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     return result if result != _ffi.NULL else None
 
 
-def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
-    srid_converted = _ffi.cast('int32_t', srid)
-    p_converted = _ffi.cast('const POINT4D *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
-    return result if result != _ffi.NULL else None
-
+# def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
+#     srid_converted = _ffi.cast('int32_t', srid)
+#     p_converted = _ffi.cast('const POINT4D *', p)
+#     t_converted = _ffi.cast('TimestampTz', t)
+#     result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
+#     return result if result != _ffi.NULL else None
+#
 
 def tgeogpointinstset_from_base(gs: 'const GSERIALIZED *', iset: 'const TInstantSet *') -> 'TInstantSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)

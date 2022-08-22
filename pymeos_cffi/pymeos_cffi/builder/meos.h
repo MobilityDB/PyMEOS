@@ -1215,7 +1215,7 @@ extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, bool
 extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, bool linear);
 extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, bool linear);
 extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);
-extern TInstant *tgeogpointinst_make_source(int32_t srid, int hasz, int hasm, const POINT4D *p, TimestampTz t);
+//extern TInstant *tgeogpointinst_make_source(int32_t srid, int hasz, int hasm, const POINT4D *p, TimestampTz t);
 extern TInstantSet *tgeogpointinstset_from_base(const GSERIALIZED *gs, const TInstantSet *is);
 extern TInstantSet *tgeogpointinstset_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
 extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, bool linear);
