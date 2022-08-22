@@ -33,7 +33,7 @@ from typing import Optional, List, Literal
 
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
-from movingpandas import Trajectory
+# from movingpandas import Trajectory
 from postgis import Point, Geometry
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
@@ -141,16 +141,16 @@ class TPointSeq(TPoint, TSequence, ABC):
     def speed(self):
         return TFloatSeq(_inner=tpoint_speed(self._inner))
 
-    def to_geodataframe(self):
+    def to_geodataframe(self) -> GeoDataFrame:
         data = {
             'time': self.timestamps,
             'geometry': [i.value for i in self.instants]
         }
         return GeoDataFrame(data, crs=self.srid)
 
-    def to_trajectory(self):
-        return Trajectory(self.to_geodataframe(), None, t='time')
-
+    # def to_trajectory(self):
+    #     return Trajectory(self.to_geodataframe(), None, t='time')
+#
 
 class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
