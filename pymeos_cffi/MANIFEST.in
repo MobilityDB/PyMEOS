@@ -1,0 +1,1 @@
+include pymeos_cffi/builder/meos.h

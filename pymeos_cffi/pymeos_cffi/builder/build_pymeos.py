@@ -1,3 +1,5 @@
+import os
+
 from cffi import FFI
 
 LIBLWGEOM_DEFINITIONS = """
@@ -414,15 +416,13 @@ extern text *cstring2text(const char *cstring);
 
 ffibuilder = FFI()
 
-with open('/usr/local/include/meos.h', 'r') as f:
+with open('./pymeos_cffi/builder/meos.h', 'r') as f:
     content = f.read()
-    content = content.replace('#', '//#')
-    content = content.replace(*ADDITIONAL_DEFINITIONS)
 ffibuilder.cdef(content)
 
 ffibuilder.set_source('_meos_cffi',
                       '#include "meos_mod.h"   // the C header of the library',
                       libraries=['meos'], )  # library name, for the linker
 
-if __name__ == "__main__":    # not when running with setuptools
+if __name__ == "__main__":  # not when running with setuptools
     ffibuilder.compile(verbose=True)
