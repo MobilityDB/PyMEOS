@@ -3,8 +3,8 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pymeos-diviloper"
-version = "0.0.3"
+name = "pymeos-temp"
+version = "0.0.1"
 authors = [
     { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
 ]
