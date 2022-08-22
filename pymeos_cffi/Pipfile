@@ -1,0 +1,16 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+cffi = "*"
+python-dateutil = "*"
+postgis = "*"
+shapely = "*"
+
+[dev-packages]
+build = "*"
+
+[requires]
+python_version = "3.8"

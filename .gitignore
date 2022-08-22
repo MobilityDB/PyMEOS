@@ -1,4 +1,2 @@
-build/
-pymeos.egg-info/
-_meos_cffi.*
+.idea
 Pipfile.lock

@@ -1,0 +1,1 @@
+exclude pymeos/examples pymeos/utils.py

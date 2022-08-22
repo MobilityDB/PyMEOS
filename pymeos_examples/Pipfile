@@ -1,0 +1,23 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+cffi = "*"
+#pymeos = {path = "."}
+python-dateutil = "*"
+parsec = "*"
+spans = "*"
+postgis = "*"
+cartopy = "==0.19.0.post1"
+movingpandas = "*"
+pymeos = {path = "."}
+pymeos-test = "*"
+
+[dev-packages]
+psycopg2 = "*"
+tqdm = "*"
+
+[requires]
+python_version = "3.8"

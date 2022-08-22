@@ -1,0 +1,9 @@
+.idea
+build
+dist
+
+pymeos_cffi.egg-info
+
+*.c
+*.o
+*.so
