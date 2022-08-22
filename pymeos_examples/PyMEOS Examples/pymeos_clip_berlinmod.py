@@ -17,13 +17,13 @@ if __name__ == '__main__':
 
     # read csv files
     communes = pd.read_csv('../data/communes.csv', converters={'geom': geom_converter})
-    print("%d commune records read." % len(communes));
+    print("%d commune records read." % len(communes))
 
     brussels_region = pd.read_csv('../data/brussels_region.csv', converters={'geom': geom_converter})
-    print("Brussels region record read.");
+    print("Brussels region record read.")
 
     trips = pd.read_csv('../data/trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
-    print("%d trip records read.\n\n" % len(trips));
+    print("%d trip records read.\n\n" % len(trips))
 
     # Construct distance matrix
     num_communes = len(communes['id'].unique())
@@ -32,8 +32,8 @@ if __name__ == '__main__':
 
     for _, trip in trips.iterrows():
         vehicle_id = trip['vehicle']
-        # Compute the trip distance
         trip_seq = trip['trip']
+        # Compute the trip distance
         trip_length = trip_seq.distance / 1000.0
         # Add to the vehicle total
         distance[vehicle_id-1][0] += trip_length
