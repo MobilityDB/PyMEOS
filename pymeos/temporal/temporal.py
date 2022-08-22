@@ -42,7 +42,7 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     before_temporal_periodset, before_temporal_period, overafter_temporal_period, overafter_temporal_periodset, \
     overafter_temporal_timestamp, overafter_temporal_timestampset, overafter_temporal_temporal, \
     overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
-    overbefore_temporal_timestampset, overbefore_temporal_temporal
+    overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb
 from ..errors import ComparisonError
 from ..time import Period, PeriodSet, TimestampSet
 
@@ -403,3 +403,9 @@ class Temporal(ABC):
         return "{}".format(self.__str__())
 
     # End Psycopg2 interface.
+
+    @staticmethod
+    def temporal_from_hexwkb(hexwkb: str):
+        result = temporal_from_hexwkb(hexwkb)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
