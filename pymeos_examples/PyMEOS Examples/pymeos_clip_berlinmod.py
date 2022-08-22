@@ -16,13 +16,13 @@ if __name__ == '__main__':
     hexwkb_converter = Temporal.temporal_from_hexwkb
 
     # read csv files
-    communes = pd.read_csv('communes.csv', converters={'geom': geom_converter})
+    communes = pd.read_csv('../data/communes.csv', converters={'geom': geom_converter})
     print("%d commune records read." % len(communes));
 
-    brussels_region = pd.read_csv('brussels_region.csv', converters={'geom': geom_converter})
+    brussels_region = pd.read_csv('../data/brussels_region.csv', converters={'geom': geom_converter})
     print("Brussels region record read.");
 
-    trips = pd.read_csv('trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
+    trips = pd.read_csv('../data/trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
     print("%d trip records read.\n\n" % len(trips));
 
     # Construct distance matrix
