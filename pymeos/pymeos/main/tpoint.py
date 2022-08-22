@@ -34,13 +34,13 @@ from typing import Optional, List, Literal
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
 from movingpandas import Trajectory
-from postgis import Point
+from postgis import Point, Geometry
 
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
-    lwpoint_to_shapely_point
+    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
@@ -84,6 +84,18 @@ class TPoint(Temporal, ABC):
 
     def simplify(self, tolerance: float, synchronized: bool = False):
         return self.__class__(_inner=temporal_simplify(self._inner, synchronized, tolerance))
+
+    def tpoint_at_geometry(self, geom: Geometry):
+        gs = gserialized_in(geom.to_ewkb(), -1)
+        result = tpoint_at_geometry(self._inner, gs)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def tpoint_minus_geometry(self, geom: Geometry):
+        gs = gserialized_in(geom.to_ewkb(), -1)
+        result = tpoint_minus_geometry(self._inner, gs)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def __str__(self):
         return tpoint_as_text(self._inner, 3)

@@ -1,31 +1,28 @@
-from .._pymeos_cffi.functions import meos_initialize, meos_finish, gserialized_in, \
-    temporal_from_hexwkb, tpoint_length, tpoint_at_geometry, tpoint_minus_geometry
+from pymeos import Temporal
+from pymeos_cffi import meos_initialize, meos_finish
+from postgis import Geometry
 import pandas as pd
 import numpy as np
 from tabulate import tabulate
 
-import _meos_cffi
-_ffi = _meos_cffi.ffi
-
 import warnings
 warnings.filterwarnings("ignore")
-
 
 if __name__ == '__main__':
     meos_initialize()
 
     # define converters for parsing csv files
-    geom_converter = lambda x: gserialized_in(x, -1)
-    hexwkb_converter = temporal_from_hexwkb
+    geom_converter = Geometry.from_ewkb
+    hexwkb_converter = Temporal.temporal_from_hexwkb
 
     # read csv files
-    communes = pd.read_csv('../data/communes.csv', converters={'geom': geom_converter})
+    communes = pd.read_csv('communes.csv', converters={'geom': geom_converter})
     print("%d commune records read." % len(communes));
 
-    brussels_region = pd.read_csv('../data/brussels_region.csv', converters={'geom': geom_converter})
+    brussels_region = pd.read_csv('brussels_region.csv', converters={'geom': geom_converter})
     print("Brussels region record read.");
 
-    trips = pd.read_csv('../data/trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
+    trips = pd.read_csv('trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
     print("%d trip records read.\n\n" % len(trips));
 
     # Construct distance matrix
@@ -36,7 +33,8 @@ if __name__ == '__main__':
     for _, trip in trips.iterrows():
         vehicle_id = trip['vehicle']
         # Compute the trip distance
-        trip_length = tpoint_length(trip['trip']) / 1000.0
+        trip_seq = trip['trip']
+        trip_length = trip_seq.distance / 1000.0
         # Add to the vehicle total
         distance[vehicle_id-1][0] += trip_length
         # Add to the column total
@@ -44,10 +42,10 @@ if __name__ == '__main__':
 
         for _, commune in communes.iterrows():
             commune_id = commune['id']
-            atgeom = tpoint_at_geometry(trip['trip'], commune['geom'])
-            if atgeom != _ffi.NULL:
+            atgeom = trip_seq.tpoint_at_geometry(commune['geom'])
+            if atgeom:
                 # Compute the length of the trip projected to the commune
-                inside_length = tpoint_length(atgeom) / 1000.0
+                inside_length = atgeom.distance / 1000.0
                 # Add to the cell
                 distance[vehicle_id-1][commune_id] += inside_length
                 # Add to the row total
@@ -57,9 +55,9 @@ if __name__ == '__main__':
                 # Add to the inside total
                 distance[num_vehicles][num_communes+2] += inside_length
         
-        minusgeom = tpoint_minus_geometry(trip['trip'], brussels_region['geom'][0])
-        if minusgeom != _ffi.NULL:
-            outside_length = tpoint_length(minusgeom) / 1000.0
+        minusgeom = trip_seq.tpoint_at_geometry(brussels_region['geom'][0])
+        if minusgeom:
+            outside_length = minusgeom.distance / 1000.0
             # Add to the row 
             distance[vehicle_id-1][num_communes+1] += outside_length
             # Add to the column total
@@ -75,8 +73,8 @@ if __name__ == '__main__':
     filter_zero = True
     if filter_zero:
         left_cols = [col for col in df_distance.columns if df_distance[col].any()]
-        print(tabulate(df_distance[left_cols], headers='keys', tablefmt='psql'))
+        print(tabulate(df_distance[left_cols], headers='keys', tablefmt='psql', floatfmt='.3f'))
     else:
-        print(tabulate(df_distance, headers='keys', tablefmt='psql'))
+        print(tabulate(df_distance, headers='keys', tablefmt='psql', floatfmt='.3f'))
 
     meos_finish()
