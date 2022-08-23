@@ -1,4 +1,4 @@
-# PyMEOS
+# PyMEOS CFFI
 
 This repository contains 3 Projects:
 - [PyMEOS CFFI](./pymeos_cffi):  
