@@ -1,7 +1,7 @@
 from postgis import Point
 
-from pymeos.pymeos_lib import TGeogPointInst, TFloatInst
-from .._pymeos_cffi.functions import meos_initialize, meos_finish
+from pymeos import TGeogPointInst, TFloatInst
+from pymeos_cffi import meos_initialize, meos_finish
 
 
 class AISRecord:

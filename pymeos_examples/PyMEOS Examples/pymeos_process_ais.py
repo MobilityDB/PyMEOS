@@ -2,8 +2,8 @@ from typing import List, Optional
 
 from postgis import Point
 
-from pymeos.pymeos_lib import TGeogPointInst, TGeogPointSeq
-from .._pymeos_cffi.functions import meos_initialize, meos_finish
+from pymeos import TGeogPointInst, TGeogPointSeq
+from pymeos_cffi import meos_initialize, meos_finish
 
 
 class AISRecord:

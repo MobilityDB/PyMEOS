@@ -1,5 +1,5 @@
-from pymeos.pymeos_lib import TGeomPointInst, TGeomPointInstSet, TGeomPointSeqSet, TGeomPointSeq
-from .._pymeos_cffi.functions import meos_initialize, meos_finish
+from pymeos import TGeomPointInst, TGeomPointInstSet, TGeomPointSeqSet, TGeomPointSeq
+from pymeos_cffi import meos_initialize, meos_finish
 
 
 def main():
