@@ -1,5 +1,5 @@
-cffi = "*"
-python-dateutil = "*"
-postgis = "*"
-shapely = "*"
-build = "*"
+cffi
+python-dateutil
+postgis
+shapely
+build
