@@ -1,5 +1,4 @@
-# PyMEOS
-
+# Py![MEOS Logo](./doc/images/meos-logo.png)
 This repository contains 3 Projects:
 - [PyMEOS CFFI](./pymeos_cffi):  
   Wrapper of the MEOS C Library built using CFFI, not meant to be used directly.
