@@ -2,5 +2,4 @@
 build
 dist
 
-pymeos_diviloper.egg-info
-pymeos.egg-info
+*.egg-info
