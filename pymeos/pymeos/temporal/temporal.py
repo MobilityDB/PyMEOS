@@ -28,7 +28,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import Optional, List, Union
+from typing import Optional, List, Union, TYPE_CHECKING
 
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
@@ -44,9 +44,12 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
     overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
     temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
-    temporal_min_instant
+    temporal_min_instant, temporal_segments
 
 from ..time import Period, PeriodSet, TimestampSet
+
+if TYPE_CHECKING:
+    from .tsequence import TSequence
 
 try:
     # Do not make psycopg2 a requirement.
@@ -263,12 +266,23 @@ class Temporal(ABC):
         ts, count = temporal_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    def shift(self, time_delta: timedelta) -> Temporal:
+    @property
+    def segments(self) -> List[TSequence]:
+        seqs, count = temporal_segments(self._inner)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
+
+    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> Temporal:
         """
         Shift the temporal value by a time interval
         """
-        new_inner = temporal_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
-        return self.__class__(_inner=new_inner)
+        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        scaled = temporal_shift_tscale(self._inner,
+                                       timedelta_to_interval(shift_delta) if shift_delta else None,
+                                       timedelta_to_interval(scale_delta) if scale_delta else None
+                                       )
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(scaled)
 
     def intersects(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
         if isinstance(other, Period):

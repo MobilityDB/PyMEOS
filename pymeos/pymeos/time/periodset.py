@@ -200,9 +200,9 @@ class PeriodSet:
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
         ps = periodset_shift_tscale(self._inner,
-                                     timedelta_to_interval(shift_delta) if shift_delta else None,
-                                     timedelta_to_interval(scale_delta) if scale_delta else None
-                                     )
+                                    timedelta_to_interval(shift_delta) if shift_delta else None,
+                                    timedelta_to_interval(scale_delta) if scale_delta else None
+                                    )
         return PeriodSet(_inner=ps)
 
     def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
