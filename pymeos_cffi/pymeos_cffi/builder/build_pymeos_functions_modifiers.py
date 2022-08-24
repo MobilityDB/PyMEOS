@@ -1,7 +1,8 @@
 def period_shift_tscale_modifier(function: str) -> str:
     return function \
         .replace(') ->', ', result: "Optional[\'Period *\']") ->') \
-        .replace("out_result = _ffi.new('Period *')", "out_result = _ffi.cast('Period *', result)")
+        .replace("out_result = _ffi.new('Period *')",
+                 "out_result = _ffi.cast('Period *', result) if result is not None else _ffi.new('Period *')")
 
 
 def cstring2text_modifier(_: str) -> str:
