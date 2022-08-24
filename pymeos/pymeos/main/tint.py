@@ -28,13 +28,14 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
-from spans.types import intrange
-
+from pymeos_cffi import tint_value_split
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, tint_values, tint_start_value, \
     tint_end_value, tint_value_at_timestamp
+from spans.types import intrange
+
 from .tnumber import TNumber
-from ..temporal import TInstant, TInstantSet, TSequence, TSequenceSet
+from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
 class TInt(TNumber, ABC):
@@ -95,6 +96,11 @@ class TInt(TNumber, ABC):
         Value at timestamp.
         """
         return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+
+    def value_split(self, start: int, size: int, count: int) -> List[Temporal]:
+        tiles, buckets, new_count = tint_value_split(self._inner, start, size, count)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
     @property
     def interpolation(self):
@@ -188,7 +194,7 @@ class TIntSeq(TSequence, TInt):
     def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation= 'Stepwise', normalize=normalize, _inner=_inner)
+                         interpolation='Stepwise', normalize=normalize, _inner=_inner)
 
 
 class TIntSeqSet(TSequenceSet, TInt):

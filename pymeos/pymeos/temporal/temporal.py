@@ -30,7 +30,7 @@ from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
-from pymeos_cffi import temporal_frechet_distance
+from pymeos_cffi import temporal_frechet_distance, temporal_time_split
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
@@ -380,7 +380,16 @@ class Temporal(ABC):
         matches, count = temporal_dyntimewarp_path(self._inner, other._inner)
         return [(matches[i].i, matches[i].j) for i in range(count)]
 
+    def time_split(self, start: datetime, end: datetime, units: int, origin: datetime, count: int) -> List[Temporal]:
+        tiles, buckets, new_count = temporal_time_split(self._inner,
+                                                        datetime_to_timestamptz(start),
+                                                        datetime_to_timestamptz(end),
+                                                        units,
+                                                        datetime_to_timestamptz(origin),
+                                                        count)
 
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
     def __comparable(self, other) -> bool:
         if self.BaseClass == other.BaseClass:

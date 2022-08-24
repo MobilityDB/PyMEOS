@@ -31,9 +31,9 @@ from dateutil.parser import parse
 from spans.types import floatrange
 
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
-    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in
+    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split
 from .tnumber import TNumber
-from ..temporal import TInstant, TInstantSet, TSequence, TSequenceSet
+from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
 
 class TFloat(TNumber, ABC):
@@ -103,6 +103,11 @@ class TFloat(TNumber, ABC):
 
     def to_str(self, max_decimals=5):
         return tfloat_out(self._inner, max_decimals)
+
+    def value_split(self, start: float, size: float, count: int) -> List[Temporal]:
+        tiles, buckets, new_count = tfloat_value_split(self._inner, start, size, count)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
     def __str__(self):
         return tfloat_out(self._inner, 5)
