@@ -3345,13 +3345,13 @@ def tgeogpointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     return result if result != _ffi.NULL else None
 
 
-# def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
-#     srid_converted = _ffi.cast('int32_t', srid)
-#     p_converted = _ffi.cast('const POINT4D *', p)
-#     t_converted = _ffi.cast('TimestampTz', t)
-#     result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
-#     return result if result != _ffi.NULL else None
-#
+def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
+    srid_converted = _ffi.cast('int32_t', srid)
+    p_converted = _ffi.cast('const POINT4D *', p)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
 
 def tgeogpointinstset_from_base(gs: 'const GSERIALIZED *', iset: 'const TInstantSet *') -> 'TInstantSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
@@ -7356,32 +7356,32 @@ def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int, buckets: 'TimestampTz **', newcount: 'int *') -> 'Temporal **':
+def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int) -> "Tuple['Temporal **', 'TimestampTz **', 'int']":
     temp_converted = _ffi.cast('const Temporal *', temp)
     start_converted = _ffi.cast('TimestampTz', start)
     end_converted = _ffi.cast('TimestampTz', end)
     tunits_converted = _ffi.cast('int64', tunits)
     torigin_converted = _ffi.cast('TimestampTz', torigin)
-    buckets_converted = [_ffi.cast('TimestampTz *', x) for x in buckets]
-    newcount_converted = _ffi.cast('int *', newcount)
-    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted, torigin_converted, count, buckets_converted, newcount_converted)
-    return result if result != _ffi.NULL else None
+    buckets = _ffi.new('TimestampTz **')
+    newcount = _ffi.new('int *')
+    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted, torigin_converted, count, buckets, newcount)
+    return result if result != _ffi.NULL else None, buckets, newcount
 
 
-def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int, buckets: 'int **', newcount: 'int *') -> 'Temporal **':
+def tint_value_split(temp: 'const Temporal *', start_bucket: int, size: int, count: int) -> "Tuple['Temporal **', 'int *', 'int']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    buckets_converted = [_ffi.cast('int *', x) for x in buckets]
-    newcount_converted = _ffi.cast('int *', newcount)
-    result = _lib.tint_value_split(temp_converted, start_bucket, size, count, buckets_converted, newcount_converted)
-    return result if result != _ffi.NULL else None
+    buckets = _ffi.new('int **')
+    newcount = _ffi.new('int *')
+    result = _lib.tint_value_split(temp_converted, start_bucket, size, count, buckets, newcount)
+    return result if result != _ffi.NULL else None, buckets, newcount
 
 
-def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int, buckets: 'float **', newcount: 'int *') -> 'Temporal **':
+def tfloat_value_split(temp: 'const Temporal *', start_bucket: float, size: float, count: int) -> "Tuple['Temporal **', 'float **', 'int']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    buckets_converted = [_ffi.cast('float *', x) for x in buckets]
-    newcount_converted = _ffi.cast('int *', newcount)
-    result = _lib.tfloat_value_split(temp_converted, start_bucket, size, count, buckets_converted, newcount_converted)
-    return result if result != _ffi.NULL else None
+    buckets = _ffi.new('float **')
+    newcount = _ffi.new('int *')
+    result = _lib.tfloat_value_split(temp_converted, start_bucket, size, count, buckets, newcount)
+    return result if result != _ffi.NULL else None, buckets, newcount
 
 
 def temporal_frechet_distance(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'double':

@@ -122,7 +122,14 @@ result_parameters = {
 
 # List of output function parameters in tuples of (function, parameter). All parameters named result are assumed
 # to be output parameters, and it's not necessary to list them here.
-output_parameters = {}
+output_parameters = {
+    ('temporal_time_split', 'buckets'),
+    ('temporal_time_split', 'newcount'),
+    ('tint_value_split', 'buckets'),
+    ('tint_value_split', 'newcount'),
+    ('tfloat_value_split', 'buckets'),
+    ('tfloat_value_split', 'newcount'),
+}
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
