@@ -27,12 +27,6 @@ class TNumber(Temporal, ABC):
         """
         return max(self.values)
 
-    def integral(self) -> float:
-        return tnumber_integral(self._inner)
-
-    def time_weighted_average(self) -> float:
-        return tnumber_twavg(self._inner)
-
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         from ..factory import _TemporalFactory
         if isinstance(other, int):
@@ -80,6 +74,12 @@ class TNumber(Temporal, ABC):
     def derivative(self) -> TNumber:
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tnumber_derivative(self._inner))
+
+    def integral(self) -> float:
+        return tnumber_integral(self._inner)
+
+    def time_weighted_average(self) -> float:
+        return tnumber_twavg(self._inner)
 
     def __add__(self, other):
         return self.add(other)
