@@ -28,8 +28,9 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import Optional, List, Union, TYPE_CHECKING
+from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
+from pymeos_cffi import temporal_frechet_distance
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
@@ -44,7 +45,8 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
     overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
     temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
-    temporal_min_instant, temporal_segments
+    temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
+    temporal_frechet_path
 
 from ..time import Period, PeriodSet, TimestampSet
 
@@ -351,6 +353,34 @@ class Temporal(ABC):
         elif isinstance(other, Temporal):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def frechet_distance(self, other: Temporal) -> float:
+        """
+        Compute the Frechet distance between two temporal values.
+        """
+        return temporal_frechet_distance(self._inner, other._inner)
+
+    def dyntimewarp_distance(self, other: Temporal) -> float:
+        """
+        Computes the Dynamic Time Warp distance between two temporal values.
+        """
+        return temporal_dyntimewarp_distance(self._inner, other._inner)
+
+    def frechet_path(self, other: Temporal) -> List[Tuple[int, int]]:
+        """
+        Compute the Frechet path between two temporal values.
+        """
+        matches, count = temporal_frechet_path(self._inner, other._inner)
+        return [(matches[i].i, matches[i].j) for i in range(count)]
+
+    def dyntimewarp_path(self, other: Temporal) -> List[Tuple[int, int]]:
+        """
+        Computes the Dynamic Time Warp path between two temporal values.
+        """
+        matches, count = temporal_dyntimewarp_path(self._inner, other._inner)
+        return [(matches[i].i, matches[i].j) for i in range(count)]
+
+
 
     def __comparable(self, other) -> bool:
         if self.BaseClass == other.BaseClass:
