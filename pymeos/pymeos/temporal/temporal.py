@@ -28,7 +28,7 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Literal
 
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
@@ -42,7 +42,9 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     before_temporal_periodset, before_temporal_period, overafter_temporal_period, overafter_temporal_periodset, \
     overafter_temporal_timestamp, overafter_temporal_timestampset, overafter_temporal_temporal, \
     overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
-    overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb
+    overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
+    temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation
+
 from ..time import Period, PeriodSet, TimestampSet
 
 try:
@@ -87,6 +89,13 @@ class Temporal(ABC):
         ``'InstantSet'``, ``'Sequence'``, or ``'SequenceSet'``.
         """
         pass
+
+    @property
+    def interpolation(self) -> str:
+        """
+        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
+        """
+        return temporal_interpolation(self._inner)
 
     @property
     @abstractmethod
@@ -176,7 +185,8 @@ class Temporal(ABC):
         """
          Start instant.
         """
-        pass
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
     @property
     @abstractmethod
@@ -184,14 +194,16 @@ class Temporal(ABC):
         """
         End instant.
         """
-        pass
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
     @abstractmethod
     def instant_n(self, n: int):
         """
         N-th instant.
         """
-        pass
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
 
     @property
     @abstractmethod
@@ -199,7 +211,9 @@ class Temporal(ABC):
         """
         List of instants.
         """
-        pass
+        from ..factory import _TemporalFactory
+        ins, count = temporal_instants(self._inner)
+        return [_TemporalFactory.create_temporal(ins[i]) for i in range(count)]
 
     @property
     def num_timestamps(self) -> int:

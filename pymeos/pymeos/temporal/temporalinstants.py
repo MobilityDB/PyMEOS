@@ -35,32 +35,3 @@ class TemporalInstants(Temporal, ABC):
     sequence subtype.
     """
 
-    @property
-    def start_instant(self):
-        """
-        Start instant.
-        """
-        return self.ComponentClass(_inner=temporal_start_instant(self._inner))
-
-    @property
-    def end_instant(self):
-        """
-        End instant.
-        """
-        return self.ComponentClass(_inner=temporal_end_instant(self._inner))
-
-    def instant_n(self, n: int):
-        """
-        N-th instant.
-        """
-        # 1-based
-        return self.ComponentClass(_inner=temporal_instant_n(self._inner, n))
-
-    @property
-    def instants(self):
-        """
-        List of instants.
-        """
-        ts, count = temporal_instants(self._inner)
-        return [self.ComponentClass(_inner=ts[i]) for i in range(count)]
-

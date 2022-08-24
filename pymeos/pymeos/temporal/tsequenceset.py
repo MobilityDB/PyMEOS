@@ -26,9 +26,10 @@
 from abc import ABC
 from typing import Optional, List, Union, Any
 
-from pymeos_cffi.functions import temporal_start_instant, temporal_end_instant, temporal_instant_n, temporal_instants, \
-    temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, temporal_sequence_n, temporal_sequences, \
-    tsequenceset_make, temporal_interpolation
+from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, \
+    temporal_sequence_n, temporal_sequences, \
+    tsequenceset_make
+
 from ..temporal.temporal import Temporal
 
 
@@ -56,35 +57,6 @@ class TSequenceSet(Temporal, ABC):
         Subtype of the temporal value, that is, ``'SequenceSet'``.
         """
         return "SequenceSet"
-
-    @property
-    def start_instant(self):
-        """
-        Start instant.
-        """
-        return self.ComponentClass.ComponentClass(_inner=temporal_start_instant(self._inner))
-
-    @property
-    def end_instant(self):
-        """
-        End instant.
-        """
-        return self.ComponentClass.ComponentClass(_inner=temporal_end_instant(self._inner))
-
-    def instant_n(self, n: int):
-        """
-        N-th distinct instant.
-        """
-        # 1-based
-        return self.ComponentClass.ComponentClass(_inner=temporal_instant_n(self._inner, n))
-
-    @property
-    def instants(self):
-        """
-        List of instants.
-        """
-        ts, count = temporal_instants(self._inner)
-        return [self.ComponentClass.ComponentClass(_inner=ts[i]) for i in range(count)]
 
     @property
     def num_sequences(self):
@@ -121,11 +93,3 @@ class TSequenceSet(Temporal, ABC):
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return temporal_interpolation(self._inner)
-

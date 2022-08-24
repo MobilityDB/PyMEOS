@@ -114,10 +114,3 @@ class TSequence(TemporalInstants, ABC):
         List of sequences.
         """
         return [self]
-
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
-        """
-        return temporal_interpolation(self._inner)
