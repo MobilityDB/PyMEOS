@@ -39,7 +39,7 @@ def lwpoint_to_point(lwpoint: Any) -> Point:
 
 
 def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
+    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
         else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
 
 
@@ -718,7 +718,7 @@ def lower_upper_shift_tscale(shift: 'const Interval *', duration: 'const Interva
 def period_shift_tscale(start: "Optional['const Interval *']", duration: "Optional['const Interval *']", result: "Optional['Period *']") -> 'Period *':
     start_converted = _ffi.cast('const Interval *', start) if start else _ffi.NULL
     duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
-    out_result = _ffi.cast('Period *', result)
+    out_result = _ffi.cast('Period *', result) if result is not None else _ffi.new('Period *')
     _lib.period_shift_tscale(start_converted, duration_converted, out_result)
     return out_result if out_result!= _ffi.NULL else None
 
@@ -2717,6 +2717,13 @@ def stbox_expand_temporal(box: 'const STBOX *', interval: 'const Interval *') ->
     return result if result != _ffi.NULL else None
 
 
+def adjacent_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
+    box1_converted = _ffi.cast('const TBOX *', box1)
+    box2_converted = _ffi.cast('const TBOX *', box2)
+    result = _lib.adjacent_tbox_tbox(box1_converted, box2_converted)
+    return result if result != _ffi.NULL else None
+
+
 def contains_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
     box1_converted = _ffi.cast('const TBOX *', box1)
     box2_converted = _ffi.cast('const TBOX *', box2)
@@ -2745,10 +2752,10 @@ def same_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
-def adjacent_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
-    box1_converted = _ffi.cast('const TBOX *', box1)
-    box2_converted = _ffi.cast('const TBOX *', box2)
-    result = _lib.adjacent_tbox_tbox(box1_converted, box2_converted)
+def adjacent_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
+    box1_converted = _ffi.cast('const STBOX *', box1)
+    box2_converted = _ffi.cast('const STBOX *', box2)
+    result = _lib.adjacent_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2777,13 +2784,6 @@ def same_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
     box1_converted = _ffi.cast('const STBOX *', box1)
     box2_converted = _ffi.cast('const STBOX *', box2)
     result = _lib.same_stbox_stbox(box1_converted, box2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def adjacent_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
-    box1_converted = _ffi.cast('const STBOX *', box1)
-    box2_converted = _ffi.cast('const STBOX *', box2)
-    result = _lib.adjacent_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
 
 

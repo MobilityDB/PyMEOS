@@ -94,7 +94,7 @@ def lwpoint_to_point(lwpoint: Any) -> Point:
 
 
 def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
+    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \\
         else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
 
 
@@ -120,7 +120,8 @@ result_parameters = {
     ('tpoint_value_at_timestamp', 'value'),
 }
 
-# List of output function parameters in tuples of (function, parameter)
+# List of output function parameters in tuples of (function, parameter). All parameters named result are assumed
+# to be output parameters, and it's not necessary to list them here.
 output_parameters = {}
 
 # List of nullable function parameters in tuples of (function, parameter)
@@ -166,7 +167,13 @@ def main():
         content = f.read()
         content = content.replace('#', '//#')
         content = content.replace(*ADDITIONAL_DEFINITIONS)
-    f_regex = r'extern (?:static )?(?:inline )?(?P<returnType>(?:const )?\w+(?: \*+)?) ?(?P<function>\w+)\((?P<params>[\w ,\*]*)\);'
+        # Remove comments
+        content = re.sub(r'//.*', '', content)
+        content = re.sub(r'/\*.*?\*/', '', content, flags=RegexFlag.MULTILINE)
+    f_regex = r'extern (?:static )?(?:inline )?' \
+              r'(?P<returnType>(?:const )?\w+(?: \*+)?)' \
+              r'\s*(?P<function>\w+)' \
+              r'\((?P<params>[\w\s,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
     with open('../functions.py', 'w+') as file:
