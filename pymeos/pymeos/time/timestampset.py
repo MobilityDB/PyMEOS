@@ -53,7 +53,7 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     minus_timestampset_timestamp, minus_timestampset_timestampset, union_timestampset_period, \
     union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset, \
     distance_timestampset_period, distance_timestampset_periodset, distance_timestampset_timestamp, \
-    distance_timestampset_timestampset
+    distance_timestampset_timestampset, timestampset_timespan, interval_to_timedelta
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -106,8 +106,7 @@ class TimestampSet:
         """
         Interval on which the timestamp set is defined ignoring the potential time gaps
         """
-        return timestamptz_to_datetime(timestampset_end_timestamp(self._inner)) - \
-               timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
+        return interval_to_timedelta(timestampset_timespan(self._inner))
 
     @property
     def period(self) -> Period:

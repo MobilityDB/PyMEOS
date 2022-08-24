@@ -6,7 +6,6 @@ from typing import Optional, Union, overload
 from typing import TYPE_CHECKING
 
 from dateutil.parser import parse
-
 from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, \
     overlaps_span_span, \
     span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
@@ -23,7 +22,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
     union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
-    distance_period_timestamp, distance_period_timestampset, span_ne
+    distance_period_timestamp, distance_period_timestampset, span_ne, span_width
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -115,6 +114,10 @@ class Period:
         Time interval on which the period is defined
         """
         return self.upper - self.lower
+
+    @property
+    def width(self) -> float:
+        return span_width(self._inner)
 
     def shift(self, time_delta: timedelta) -> Period:
         """
