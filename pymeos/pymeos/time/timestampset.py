@@ -31,7 +31,6 @@ from datetime import datetime, timedelta
 from typing import Optional, List, Union, TYPE_CHECKING, overload
 
 from dateutil.parser import parse
-
 from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset_end_timestamp, \
     timestampset_start_timestamp, timestampset_num_timestamps, \
     timestampset_timestamps, \
@@ -154,11 +153,15 @@ class TimestampSet:
         tss = timestampset_timestamps(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
-    def shift(self, time_delta: timedelta) -> TimestampSet:
+    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> TimestampSet:
         """
         Shift the timestamp set by a time interval
         """
-        tss = timestampset_shift_tscale(self._inner, timedelta_to_interval(time_delta), None)
+        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        tss = timestampset_shift_tscale(self._inner,
+                                        timedelta_to_interval(shift_delta) if shift_delta else None,
+                                        timedelta_to_interval(scale_delta) if scale_delta else None
+                                        )
         return TimestampSet(_inner=tss)
 
     def to_periodset(self) -> PeriodSet:

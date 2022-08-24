@@ -22,7 +22,7 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
     union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
-    distance_period_timestamp, distance_period_timestampset, span_ne, span_width
+    distance_period_timestamp, distance_period_timestampset, span_ne, span_width, span_expand
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -119,13 +119,19 @@ class Period:
     def width(self) -> float:
         return span_width(self._inner)
 
-    def shift(self, time_delta: timedelta) -> Period:
+    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> Period:
         """
         Shift the period by a time interval
         """
-        interval = timedelta_to_interval(time_delta)
-        inner = period_shift_tscale(interval, None, self._inner)
-        return Period(_inner=inner)
+        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        p = period_shift_tscale(self._inner,
+                                timedelta_to_interval(shift_delta) if shift_delta else None,
+                                timedelta_to_interval(scale_delta) if scale_delta else None
+                                )
+        return Period(_inner=p)
+
+    def expand(self, other: Period) -> None:
+        span_expand(other._inner, self._inner)
 
     def to_periodset(self) -> PeriodSet:
         from .periodset import PeriodSet
