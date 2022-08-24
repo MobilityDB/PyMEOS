@@ -3,9 +3,11 @@ from __future__ import annotations
 from abc import ABC
 from typing import Union
 
+from pymeos_cffi import tnumber_integral, tnumber_twavg
 from pymeos_cffi.functions import add_tint_int, add_tfloat_float, add_tnumber_tnumber, div_tint_int, div_tfloat_float, \
     div_tnumber_tnumber, sub_tnumber_tnumber, sub_tfloat_float, sub_tint_int, mult_tint_int, mult_tfloat_float, \
     mult_tnumber_tnumber, tnumber_degrees, tnumber_derivative
+
 from ..temporal import Temporal
 
 
@@ -24,6 +26,12 @@ class TNumber(Temporal, ABC):
         Maximum value.
         """
         return max(self.values)
+
+    def integral(self) -> float:
+        return tnumber_integral(self._inner)
+
+    def time_weighted_average(self) -> float:
+        return tnumber_twavg(self._inner)
 
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         from ..factory import _TemporalFactory
@@ -72,8 +80,6 @@ class TNumber(Temporal, ABC):
     def derivative(self) -> TNumber:
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tnumber_derivative(self._inner))
-
-
 
     def __add__(self, other):
         return self.add(other)
