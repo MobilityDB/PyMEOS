@@ -37,7 +37,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
-    stbox_le, stbox_lt, stbox_ge, stbox_cmp
+    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy
 from ..time.period import Period
 
 try:
@@ -326,6 +326,10 @@ class STBox:
         if isinstance(other, self.__class__):
             return stbox_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __copy__(self) -> STBox:
+        inner_copy = stbox_copy(self._inner)
+        return STBox(_inner=inner_copy)
 
     def __str__(self):
         return stbox_out(self._inner, 3)
