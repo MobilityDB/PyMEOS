@@ -119,15 +119,16 @@ class Period:
     def width(self) -> float:
         return span_width(self._inner)
 
-    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> Period:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None) -> Period:
         """
         Shift the period by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
-        p = period_shift_tscale(self._inner,
-                                timedelta_to_interval(shift_delta) if shift_delta else None,
-                                timedelta_to_interval(scale_delta) if scale_delta else None
-                                )
+        p = period_shift_tscale(
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None,
+            self._inner
+        )
         return Period(_inner=p)
 
     def expand(self, other: Period) -> None:

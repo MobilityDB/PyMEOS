@@ -272,15 +272,17 @@ class Temporal(ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> Temporal:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None,
+                     scale_delta: Optional[timedelta] = None) -> Temporal:
         """
         Shift the temporal value by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
-        scaled = temporal_shift_tscale(self._inner,
-                                       timedelta_to_interval(shift_delta) if shift_delta else None,
-                                       timedelta_to_interval(scale_delta) if scale_delta else None
-                                       )
+        scaled = temporal_shift_tscale(
+            self._inner,
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None
+        )
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(scaled)
 

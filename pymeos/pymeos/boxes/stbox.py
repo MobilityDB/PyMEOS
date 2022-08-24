@@ -38,6 +38,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
     stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy
+
 from ..time.period import Period
 
 try:
@@ -216,8 +217,16 @@ class STBox:
             self._inner = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def shift(self, shift: timedelta) -> None:
-        stbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
+        """
+        Shift the spatio-temporal box by a time interval
+        """
+        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        stbox_shift_tscale(
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None,
+            self._inner
+        )
 
     def union(self, other: STBox, strict: bool = True) -> STBox:
         return STBox(_inner=union_stbox_stbox(self._inner, other._inner, strict))

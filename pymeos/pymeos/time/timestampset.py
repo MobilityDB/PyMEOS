@@ -153,15 +153,16 @@ class TimestampSet:
         tss = timestampset_timestamps(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> TimestampSet:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None) -> TimestampSet:
         """
         Shift the timestamp set by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
-        tss = timestampset_shift_tscale(self._inner,
-                                        timedelta_to_interval(shift_delta) if shift_delta else None,
-                                        timedelta_to_interval(scale_delta) if scale_delta else None
-                                        )
+        tss = timestampset_shift_tscale(
+            self._inner,
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None
+        )
         return TimestampSet(_inner=tss)
 
     def to_periodset(self) -> PeriodSet:

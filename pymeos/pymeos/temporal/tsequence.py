@@ -26,16 +26,14 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Any, Literal, TYPE_CHECKING
+from typing import Optional, Union, List, Any, Literal
 
-from pymeos_cffi.functions import tsequence_make, temporal_interpolation
-from ..temporal import TemporalInstants
+from pymeos_cffi.functions import tsequence_make
 
-if TYPE_CHECKING:
-    pass
+from .temporal import Temporal
 
 
-class TSequence(TemporalInstants, ABC):
+class TSequence(Temporal, ABC):
     """
     Abstract class for representing temporal values of sequence subtype.
     """

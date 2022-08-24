@@ -57,7 +57,7 @@ var1 = var.duration
 print("duration:", var1)
 var1 = var.to_periodset()
 print("periodset:", var1)
-var1 = var.shift(timedelta(days=3))
+var1 = var.shift_tscale(timedelta(days=3))
 print("shift:", var1)
 
 # Comparisons
@@ -105,7 +105,7 @@ var1 = var.timestamp_n(4)
 print("timestampN(4):", var1)
 var1 = var.timestamps
 print("timestamps:", var1)
-var1 = var.shift(timedelta(days=1))
+var1 = var.shift_tscale(timedelta(days=1))
 print("shift:", var1)
 
 print("\n# PeriodSet")
@@ -158,7 +158,7 @@ var1 = var.period_n(1)
 print("periodN(1):", var1)
 var1 = var.periods
 print("periods:", var1)
-var1 = var.shift(timedelta(days=1))
+var1 = var.shift_tscale(timedelta(days=1))
 print("shift:", var1)
 
 p1 = Period(string='[2019-09-08, 2019-09-10]')

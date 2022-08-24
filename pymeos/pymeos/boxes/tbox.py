@@ -30,13 +30,13 @@ from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
-
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
     adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
     right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
     intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy
+
 from ..time.period import Period
 
 try:
@@ -139,8 +139,16 @@ class TBox:
             self._inner = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def shift(self, shift: timedelta) -> None:
-        tbox_shift_tscale(timedelta_to_interval(shift), None, self._inner)
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
+        """
+        Shift the temporal box by a time interval
+        """
+        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        tbox_shift_tscale(
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None,
+            self._inner
+        )
 
     def union(self, other: TBox) -> TBox:
         return TBox(_inner=union_tbox_tbox(self._inner, other._inner))

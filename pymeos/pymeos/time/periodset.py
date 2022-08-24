@@ -194,15 +194,16 @@ class PeriodSet:
         ps, count = periodset_periods(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta], scale_delta: Optional[timedelta]) -> PeriodSet:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None) -> PeriodSet:
         """
         Shift the period set by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
-        ps = periodset_shift_tscale(self._inner,
-                                    timedelta_to_interval(shift_delta) if shift_delta else None,
-                                    timedelta_to_interval(scale_delta) if scale_delta else None
-                                    )
+        ps = periodset_shift_tscale(
+            self._inner,
+            timedelta_to_interval(shift_delta) if shift_delta else None,
+            timedelta_to_interval(scale_delta) if scale_delta else None
+        )
         return PeriodSet(_inner=ps)
 
     def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
