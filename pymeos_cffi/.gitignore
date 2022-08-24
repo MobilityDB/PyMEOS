@@ -1,8 +1,9 @@
 .idea
+.eggs
 build
 dist
 
-pymeos_cffi.egg-info
+*.egg-info
 
 *.c
 *.o
