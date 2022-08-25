@@ -19,7 +19,7 @@ pip install pymeos-temp
 
 > :warning: PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
 > not available for PyMEOS CFFI for some OS/Architecture.  
-> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](./pymeos_cffi#installation) 
+> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation) 
 > on how to proceed
 
 ## Sample code
