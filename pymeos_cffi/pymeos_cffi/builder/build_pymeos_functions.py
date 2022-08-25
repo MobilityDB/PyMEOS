@@ -177,7 +177,7 @@ def main():
         # Remove comments
         content = re.sub(r'//.*', '', content)
         content = re.sub(r'/\*.*?\*/', '', content, flags=RegexFlag.MULTILINE)
-    f_regex = r'extern (?:static )?(?:inline )?' \
+    f_regex = r'(?:extern )?(?:static )?(?:inline )?' \
               r'(?P<returnType>(?:const )?\w+(?: \*+)?)' \
               r'\s*(?P<function>\w+)' \
               r'\((?P<params>[\w\s,\*]*)\);'

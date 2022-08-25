@@ -131,35 +131,6 @@ def meos_finish() -> None:
     _lib.meos_finish()
 
 
-def gserialized_in(input: str, geom_typmod: int) -> 'GSERIALIZED *':
-    input_converted = input.encode('utf-8')
-    geom_typmod_converted = _ffi.cast('int32', geom_typmod)
-    result = _lib.gserialized_in(input_converted, geom_typmod_converted)
-    return result if result != _ffi.NULL else None
-
-
-def gserialized_out(geom: 'const GSERIALIZED *') -> str:
-    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
-    result = _lib.gserialized_out(geom_converted)
-    result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None
-
-
-def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
-    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
-    type_converted = type.encode('utf-8')
-    result = _lib.gserialized_as_hexwkb(geom_converted, type_converted)
-    result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None
-
-
-def gserialized_from_ewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
-    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.gserialized_from_ewkb(bytea_wkb_converted, srid_converted)
-    return result if result != _ffi.NULL else None
-
-
 def pg_date_in(string: str) -> 'DateADT':
     string_converted = string.encode('utf-8')
     result = _lib.pg_date_in(string_converted)
@@ -169,6 +140,20 @@ def pg_date_in(string: str) -> 'DateADT':
 def pg_date_out(date: 'DateADT') -> str:
     date_converted = _ffi.cast('DateADT', date)
     result = _lib.pg_date_out(date_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def pg_time_in(string: str, typmod: int) -> 'TimeADT':
+    string_converted = string.encode('utf-8')
+    typmod_converted = _ffi.cast('int32', typmod)
+    result = _lib.pg_time_in(string_converted, typmod_converted)
+    return result if result != _ffi.NULL else None
+
+
+def pg_time_out(time: 'TimeADT') -> str:
+    time_converted = _ffi.cast('TimeADT', time)
+    result = _lib.pg_time_out(time_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
@@ -197,6 +182,94 @@ def pg_timestamptz_out(dt: int) -> str:
 def pg_timestamp_out(dt: int) -> str:
     dt_converted = _ffi.cast('Timestamp', dt)
     result = _lib.pg_timestamp_out(dt_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def pg_interval_in(string: str, typmod: int) -> 'Interval *':
+    string_converted = string.encode('utf-8')
+    typmod_converted = _ffi.cast('int32', typmod)
+    result = _lib.pg_interval_in(string_converted, typmod_converted)
+    return result if result != _ffi.NULL else None
+
+
+def pg_interval_make(years: int, months: int, weeks: int, days: int, hours: int, mins: int, secs: float) -> 'Interval *':
+    years_converted = _ffi.cast('int32', years)
+    months_converted = _ffi.cast('int32', months)
+    weeks_converted = _ffi.cast('int32', weeks)
+    days_converted = _ffi.cast('int32', days)
+    hours_converted = _ffi.cast('int32', hours)
+    mins_converted = _ffi.cast('int32', mins)
+    result = _lib.pg_interval_make(years_converted, months_converted, weeks_converted, days_converted, hours_converted, mins_converted, secs)
+    return result if result != _ffi.NULL else None
+
+
+def pg_interval_out(span: 'Interval *') -> str:
+    span_converted = _ffi.cast('Interval *', span)
+    result = _lib.pg_interval_out(span_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_in(input: str, geom_typmod: int) -> 'GSERIALIZED *':
+    input_converted = input.encode('utf-8')
+    geom_typmod_converted = _ffi.cast('int32', geom_typmod)
+    result = _lib.gserialized_in(input_converted, geom_typmod_converted)
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_out(geom: 'const GSERIALIZED *') -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    result = _lib.gserialized_out(geom_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_from_text(wkt: str, srid: int) -> 'GSERIALIZED *':
+    wkt_converted = wkt.encode('utf-8')
+    result = _lib.gserialized_from_text(wkt_converted, srid)
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_as_text(geom: 'const GSERIALIZED *', precision: int) -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    result = _lib.gserialized_as_text(geom_converted, precision)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_from_hexewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
+    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.gserialized_from_hexewkb(bytea_wkb_converted, srid_converted)
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    type_converted = type.encode('utf-8')
+    result = _lib.gserialized_as_hexwkb(geom_converted, type_converted)
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_from_ewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
+    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.gserialized_from_ewkb(bytea_wkb_converted, srid_converted)
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_from_geojson(geojson: str) -> 'GSERIALIZED *':
+    geojson_converted = geojson.encode('utf-8')
+    result = _lib.gserialized_from_geojson(geojson_converted)
+    return result if result != _ffi.NULL else None
+
+
+def gserialized_as_geojson(geom: 'const GSERIALIZED *', option: int, precision: int, srs: str) -> str:
+    geom_converted = _ffi.cast('const GSERIALIZED *', geom)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.gserialized_as_geojson(geom_converted, option, precision, srs_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
@@ -2717,13 +2790,6 @@ def stbox_expand_temporal(box: 'const STBOX *', interval: 'const Interval *') ->
     return result if result != _ffi.NULL else None
 
 
-def adjacent_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
-    box1_converted = _ffi.cast('const TBOX *', box1)
-    box2_converted = _ffi.cast('const TBOX *', box2)
-    result = _lib.adjacent_tbox_tbox(box1_converted, box2_converted)
-    return result if result != _ffi.NULL else None
-
-
 def contains_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
     box1_converted = _ffi.cast('const TBOX *', box1)
     box2_converted = _ffi.cast('const TBOX *', box2)
@@ -2752,10 +2818,10 @@ def same_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
-def adjacent_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
-    box1_converted = _ffi.cast('const STBOX *', box1)
-    box2_converted = _ffi.cast('const STBOX *', box2)
-    result = _lib.adjacent_stbox_stbox(box1_converted, box2_converted)
+def adjacent_tbox_tbox(box1: 'const TBOX *', box2: 'const TBOX *') -> 'bool':
+    box1_converted = _ffi.cast('const TBOX *', box1)
+    box2_converted = _ffi.cast('const TBOX *', box2)
+    result = _lib.adjacent_tbox_tbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2784,6 +2850,13 @@ def same_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
     box1_converted = _ffi.cast('const STBOX *', box1)
     box2_converted = _ffi.cast('const STBOX *', box2)
     result = _lib.same_stbox_stbox(box1_converted, box2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_stbox_stbox(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
+    box1_converted = _ffi.cast('const STBOX *', box1)
+    box2_converted = _ffi.cast('const STBOX *', box2)
+    result = _lib.adjacent_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3345,14 +3418,6 @@ def tgeogpointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     return result if result != _ffi.NULL else None
 
 
-def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
-    srid_converted = _ffi.cast('int32_t', srid)
-    p_converted = _ffi.cast('const POINT4D *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tgeogpointinstset_from_base(gs: 'const GSERIALIZED *', iset: 'const TInstantSet *') -> 'TInstantSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     iset_converted = _ffi.cast('const TInstantSet *', iset)
@@ -3514,6 +3579,16 @@ def tintseqset_from_base_time(i: int, ps: 'const PeriodSet *') -> 'TSequenceSet 
 def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     result = _lib.tsequence_make(instants_converted, count, lower_inc, upper_inc, linear, normalize)
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: 'const double *', times: int, count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
+    xcoords_converted = _ffi.cast('const double *', xcoords)
+    ycoords_converted = _ffi.cast('const double *', ycoords)
+    zcoords_converted = _ffi.cast('const double *', zcoords)
+    times_converted = _ffi.cast('const TimestampTz *', times)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.tpointseq_make_coords(xcoords_converted, ycoords_converted, zcoords_converted, times_converted, count, srid_converted, geodetic, lower_inc, upper_inc, linear, normalize)
     return result if result != _ffi.NULL else None
 
 
@@ -7420,9 +7495,9 @@ def geo_to_tpoint(geo: 'const GSERIALIZED *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_simplify(temp: 'const Temporal *', synchronized: bool, eps_dist: float) -> 'Temporal *':
+def temporal_simplify(temp: 'const Temporal *', eps_dist: float, synchronized: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.temporal_simplify(temp_converted, synchronized, eps_dist)
+    result = _lib.temporal_simplify(temp_converted, eps_dist, synchronized)
     return result if result != _ffi.NULL else None
 
 

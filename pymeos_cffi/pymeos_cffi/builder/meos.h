@@ -37,25 +37,7 @@
 /* C */
 //#include <stdbool.h>
 /* PostgreSQL */
-//#include "../postgres/postgres.h"
-//#include "../postgres/utils/timestamp_def.h"
-//#include "../postgres/utils/date.h"
-/* PostGIS */
-//#include <liblwgeom.h>
-
-
-/*****************************************************************************
- * Additional definitions
- *****************************************************************************/
-
-typedef struct varlena
-{
-    char        vl_len_[4];        /* Do not touch this field directly! */
-    char        vl_dat[];    /* Data content is here */
-} varlena;
-
-typedef varlena text;
-typedef struct varlena bytea;
+typedef uintptr_t Datum;
 
 typedef signed char int8;
 typedef signed short int16;
@@ -68,23 +50,38 @@ typedef unsigned int uint32;
 typedef unsigned long int uint64;
 
 typedef int32 DateADT;
+typedef int64 TimeADT;
 typedef int64 Timestamp;
 typedef int64 TimestampTz;
 typedef int64 TimeOffset;
+typedef int32 fsec_t;      /* fractional seconds (in microseconds) */
+
 typedef struct
 {
-    TimeOffset    time;            /* all time units other than days, months and
-                                 * years */
-    int32        day;            /* days, after time for alignment */
-    int32        month;            /* months and years, after time for alignment */
+  TimeOffset time;  /* all time units other than days, months and years */
+  int32 day;        /* days, after time for alignment */
+  int32 month;      /* months and years, after time for alignment */
 } Interval;
 
-typedef uintptr_t Datum;
+typedef struct varlena
+{
+  char vl_len_[4];  /* Do not touch this field directly! */
+  char vl_dat[];    /* Data content is here */
+} varlena;
+
+typedef varlena text;
+typedef struct varlena bytea;
 
 extern char *text2cstring(const text *textptr);
 extern text *cstring2text(const char *cstring);
+/* PostGIS */
+//#include <liblwgeom.h>
 
 typedef uint16_t lwflags_t;
+
+/*****************************************************************************
+ * Additional definitions
+ *****************************************************************************/
 
 /******************************************************************/
 
@@ -623,25 +620,39 @@ extern void meos_initialize(void);
 extern void meos_finish(void);
 
 /*****************************************************************************
- * Functions for input/output base types
- *****************************************************************************/
-
-extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod);
-extern char *gserialized_out(const GSERIALIZED *geom);
-extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
-
-extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
-
-/*****************************************************************************
  * Functions for input/output PostgreSQL time types
  *****************************************************************************/
 
 extern DateADT pg_date_in(char *str);
 extern char *pg_date_out(DateADT date);
+extern TimeADT pg_time_in(char *str, int32 typmod);
+extern char *pg_time_out(TimeADT time);
 extern TimestampTz pg_timestamptz_in(char *str, int32 typmod);
 extern Timestamp pg_timestamp_in(char *str, int32 typmod);
 extern char *pg_timestamptz_out(TimestampTz dt);
 extern char *pg_timestamp_out(Timestamp dt);
+extern Interval *pg_interval_in(char *str, int32 typmod);
+extern Interval *pg_interval_make(int32 years, int32 months, int32 weeks,
+  int32 days, int32 hours, int32 mins, double secs);
+extern char *pg_interval_out(Interval *span);
+
+/*****************************************************************************
+ * Functions for input/output PostGIS types
+ *****************************************************************************/
+
+extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod); // const char *input ?
+extern char *gserialized_out(const GSERIALIZED *geom);
+
+extern GSERIALIZED *gserialized_from_text(const char *wkt, int srid);
+extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
+
+extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
+extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
+
+extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
+extern GSERIALIZED *gserialized_from_geojson(char *geojson);
+
+extern char *gserialized_as_geojson(const GSERIALIZED *geom, int option, int precision, char *srs);
 
 /*****************************************************************************
  * Functions for span and time types
@@ -694,12 +705,12 @@ extern TimestampSet *timestampset_make_free(TimestampTz *times, int count);
 
 extern Span *float_to_floaspan(double d);
 extern Span *int_to_intspan(int i);
-extern PeriodSet *period_to_periodset(const Period *period);//
-extern Period *periodset_to_period(const PeriodSet *ps);//
+extern PeriodSet *period_to_periodset(const Period *period);
+extern Period *periodset_to_period(const PeriodSet *ps);
 extern Period *timestamp_to_period(TimestampTz t);
 extern PeriodSet *timestamp_to_periodset(TimestampTz t);
 extern TimestampSet *timestamp_to_timestampset(TimestampTz t);
-extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);//
+extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);
 
 /*****************************************************************************/
 
@@ -709,9 +720,9 @@ extern double floatspan_lower(Span *s);
 extern double floatspan_upper(Span *s);
 extern int intspan_lower(Span *s);
 extern int intspan_upper(Span *s);
-extern Interval *period_duration(const Span *s);//
-extern TimestampTz period_lower(Period *p);//
-extern TimestampTz period_upper(Period *p);//
+extern Interval *period_duration(const Span *s);
+extern TimestampTz period_lower(Period *p);
+extern TimestampTz period_upper(Period *p);
 extern Interval *periodset_duration(const PeriodSet *ps);
 extern Period *periodset_end_period(const PeriodSet *ps);
 extern TimestampTz periodset_end_timestamp(const PeriodSet *ps);
@@ -749,7 +760,7 @@ extern TimestampTz *timestampset_timestamps(const TimestampSet *ss);
 extern PeriodSet *periodset_shift_tscale(const PeriodSet *ps, const Interval *start, const Interval *duration);
 extern void span_expand(const Span *s1, Span *s2);
 extern void lower_upper_shift_tscale(const Interval *shift, const Interval *duration, TimestampTz *lower, TimestampTz *upper);
-extern void period_shift_tscale(const Interval *start, const Interval *duration, Period *result);//
+extern void period_shift_tscale(const Interval *start, const Interval *duration, Period *result);
 extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Interval *start, const Interval *duration);
 
 /*****************************************************************************
@@ -758,238 +769,238 @@ extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Int
 
 /* Topological functions for span and time types */
 
-extern bool adjacent_floatspan_float(const Span *s, double d);
+bool adjacent_floatspan_float(const Span *s, double d);
 extern bool adjacent_intspan_int(const Span *s, int i);
-extern bool adjacent_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool adjacent_period_timestamp(const Period *p, TimestampTz t);//
-extern bool adjacent_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool adjacent_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool adjacent_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool adjacent_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool adjacent_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern bool adjacent_span_span(const Span *s1, const Span *s2);//
+extern bool adjacent_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool adjacent_period_timestamp(const Period *p, TimestampTz t);
+extern bool adjacent_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool adjacent_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool adjacent_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool adjacent_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool adjacent_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern bool adjacent_span_span(const Span *s1, const Span *s2);
 extern bool adjacent_timestamp_period(TimestampTz t, const Period *p);
 extern bool adjacent_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
-extern bool adjacent_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool adjacent_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
+extern bool adjacent_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool adjacent_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
 extern bool contained_float_floatspan(double d, const Span *s);
 extern bool contained_int_intspan(int i, const Span *s);
-extern bool contained_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool contained_periodset_period(const PeriodSet *ps, const Period *p);//
+extern bool contained_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool contained_periodset_period(const PeriodSet *ps, const Period *p);
 extern bool contained_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
-extern bool contained_span_span(const Span *s1, const Span *s2);//
+extern bool contained_span_span(const Span *s1, const Span *s2);
 extern bool contained_timestamp_period(TimestampTz t, const Period *p);
 extern bool contained_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern bool contained_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern bool contained_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool contained_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool contained_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern bool contained_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool contained_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool contained_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 extern bool contains_floatspan_float(const Span *s, double d);
 extern bool contains_intspan_int(const Span *s, int i);
-extern bool contains_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool contains_period_timestamp(const Period *p, TimestampTz t);//
-extern bool contains_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool contains_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool contains_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool contains_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool contains_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern bool contains_span_span(const Span *s1, const Span *s2);//
-extern bool contains_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern bool contains_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
-extern bool overlaps_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool overlaps_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool overlaps_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool overlaps_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool overlaps_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern bool overlaps_span_span(const Span *s1, const Span *s2);//
-extern bool overlaps_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool overlaps_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern bool contains_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool contains_period_timestamp(const Period *p, TimestampTz t);
+extern bool contains_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool contains_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool contains_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool contains_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool contains_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern bool contains_span_span(const Span *s1, const Span *s2);
+extern bool contains_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern bool contains_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
+extern bool overlaps_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool overlaps_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool overlaps_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool overlaps_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool overlaps_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern bool overlaps_span_span(const Span *s1, const Span *s2);
+extern bool overlaps_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool overlaps_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 /*****************************************************************************/
 
 /* Position functions for span and time types */
 
-extern bool after_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool after_period_timestamp(const Period *p, TimestampTz t);//
-extern bool after_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool after_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool after_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool after_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool after_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
+extern bool after_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool after_period_timestamp(const Period *p, TimestampTz t);
+extern bool after_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool after_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool after_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool after_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool after_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
 extern bool after_timestamp_period(TimestampTz t, const Period *p);
 extern bool after_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern bool after_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern bool after_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool after_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool after_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern bool after_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
-extern bool before_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool before_period_timestamp(const Period *p, TimestampTz t);//
-extern bool before_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool before_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool before_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool before_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool before_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
+extern bool after_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool after_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool after_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern bool after_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
+extern bool before_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool before_period_timestamp(const Period *p, TimestampTz t);
+extern bool before_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool before_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool before_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool before_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool before_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
 extern bool before_timestamp_period(TimestampTz t, const Period *p);
 extern bool before_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern bool before_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern bool before_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool before_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool before_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern bool before_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern bool before_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool before_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool before_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern bool before_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 extern bool left_float_floatspan(double d, const Span *s);
 extern bool left_floatspan_float(const Span *s, double d);
 extern bool left_int_intspan(int i, const Span *s);
 extern bool left_intspan_int(const Span *s, int i);
-extern bool left_span_span(const Span *s1, const Span *s2);//
-extern bool overafter_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool overafter_period_timestamp(const Period *p, TimestampTz t);//
-extern bool overafter_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool overafter_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool overafter_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool overafter_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool overafter_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
+extern bool left_span_span(const Span *s1, const Span *s2);
+extern bool overafter_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool overafter_period_timestamp(const Period *p, TimestampTz t);
+extern bool overafter_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool overafter_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool overafter_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool overafter_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool overafter_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
 extern bool overafter_timestamp_period(TimestampTz t, const Period *p);
 extern bool overafter_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern bool overafter_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern bool overafter_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool overafter_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool overafter_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern bool overafter_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
-extern bool overbefore_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool overbefore_period_timestamp(const Period *p, TimestampTz t);//
-extern bool overbefore_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern bool overbefore_periodset_period(const PeriodSet *ps, const Period *p);//
-extern bool overbefore_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool overbefore_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern bool overbefore_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
+extern bool overafter_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool overafter_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool overafter_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern bool overafter_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
+extern bool overbefore_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool overbefore_period_timestamp(const Period *p, TimestampTz t);
+extern bool overbefore_period_timestampset(const Period *p, const TimestampSet *ts);
+extern bool overbefore_periodset_period(const PeriodSet *ps, const Period *p);
+extern bool overbefore_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool overbefore_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern bool overbefore_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
 extern bool overbefore_timestamp_period(TimestampTz t, const Period *p);
 extern bool overbefore_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern bool overbefore_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern bool overbefore_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern bool overbefore_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool overbefore_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern bool overbefore_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern bool overbefore_timestampset_period(const TimestampSet *ts, const Period *p);
+extern bool overbefore_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool overbefore_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern bool overbefore_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 extern bool overleft_float_floatspan(double d, const Span *s);
 extern bool overleft_floatspan_float(const Span *s, double d);
 extern bool overleft_int_intspan(int i, const Span *s);
 extern bool overleft_intspan_int(const Span *s, int i);
-extern bool overleft_span_span(const Span *s1, const Span *s2);//
+extern bool overleft_span_span(const Span *s1, const Span *s2);
 extern bool overright_float_floatspan(double d, const Span *s);
 extern bool overright_floatspan_float(const Span *s, double d);
 extern bool overright_int_intspan(int i, const Span *s);
 extern bool overright_intspan_int(const Span *s, int i);
-extern bool overright_span_span(const Span *s1, const Span *s2);//
+extern bool overright_span_span(const Span *s1, const Span *s2);
 extern bool right_float_floatspan(double d, const Span *s);
 extern bool right_floatspan_float(const Span *s, double d);
 extern bool right_int_intspan(int i, const Span *s);
 extern bool right_intspan_int(const Span *s, int i);
-extern bool right_span_span(const Span *s1, const Span *s2);//
+extern bool right_span_span(const Span *s1, const Span *s2);
 
 
 /*****************************************************************************/
 
 /* Set functions for span and time types */
 
-extern PeriodSet *intersection_period_periodset(const Period *p, const PeriodSet *ps);//
-extern bool intersection_period_timestamp(const Period *p, TimestampTz t, TimestampTz *result);//
-extern TimestampSet *intersection_period_timestampset(const Period *ps, const TimestampSet *ts);//
-extern PeriodSet *intersection_periodset_period(const PeriodSet *ps, const Period *p);//
-extern PeriodSet *intersection_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool intersection_periodset_timestamp(const PeriodSet *ps, TimestampTz t, TimestampTz *result);//
-extern TimestampSet *intersection_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern Span *intersection_span_span(const Span *s1, const Span *s2);//
+extern PeriodSet *intersection_period_periodset(const Period *p, const PeriodSet *ps);
+extern bool intersection_period_timestamp(const Period *p, TimestampTz t, TimestampTz *result);
+extern TimestampSet *intersection_period_timestampset(const Period *ps, const TimestampSet *ts);
+extern PeriodSet *intersection_periodset_period(const PeriodSet *ps, const Period *p);
+extern PeriodSet *intersection_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool intersection_periodset_timestamp(const PeriodSet *ps, TimestampTz t, TimestampTz *result);
+extern TimestampSet *intersection_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern Span *intersection_span_span(const Span *s1, const Span *s2);
 extern bool intersection_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);
 extern bool intersection_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);
 extern bool intersection_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);
 extern bool intersection_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);
-extern TimestampSet *intersection_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern TimestampSet *intersection_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern bool intersection_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t, TimestampTz *result);//
-extern TimestampSet *intersection_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
-extern PeriodSet *minus_period_period(const Period *p1, const Period *p2);//
-extern PeriodSet *minus_period_periodset(const Period *p, const PeriodSet *ps);//
-extern PeriodSet *minus_period_timestamp(const Period *p, TimestampTz t);//
-extern PeriodSet *minus_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern PeriodSet *minus_periodset_period(const PeriodSet *ps, const Period *p);//
-extern PeriodSet *minus_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern PeriodSet *minus_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern PeriodSet *minus_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern Span *minus_span_span(const Span *s1, const Span *s2);//
+extern TimestampSet *intersection_timestampset_period(const TimestampSet *ts, const Period *p);
+extern TimestampSet *intersection_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern bool intersection_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t, TimestampTz *result);
+extern TimestampSet *intersection_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
+extern PeriodSet *minus_period_period(const Period *p1, const Period *p2);
+extern PeriodSet *minus_period_periodset(const Period *p, const PeriodSet *ps);
+extern PeriodSet *minus_period_timestamp(const Period *p, TimestampTz t);
+extern PeriodSet *minus_period_timestampset(const Period *p, const TimestampSet *ts);
+extern PeriodSet *minus_periodset_period(const PeriodSet *ps, const Period *p);
+extern PeriodSet *minus_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern PeriodSet *minus_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern PeriodSet *minus_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern Span *minus_span_span(const Span *s1, const Span *s2);
 extern bool minus_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);
 extern bool minus_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);
 extern bool minus_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);
 extern bool minus_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);
-extern TimestampSet *minus_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern TimestampSet *minus_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern TimestampSet *minus_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern TimestampSet *minus_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
-extern PeriodSet *union_period_period(const Period *p1, const Period *p2);//
-extern PeriodSet *union_period_periodset(const Period *p, const PeriodSet *ps);//
-extern PeriodSet *union_period_timestamp(const Period *p, TimestampTz t);//
-extern PeriodSet *union_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern PeriodSet *union_periodset_period(const PeriodSet *ps, const Period *p);//
-extern PeriodSet *union_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern PeriodSet *union_periodset_timestamp(PeriodSet *ps, TimestampTz t);//
-extern PeriodSet *union_periodset_timestampset(PeriodSet *ps, TimestampSet *ts);//
-extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);//
+extern TimestampSet *minus_timestampset_period(const TimestampSet *ts, const Period *p);
+extern TimestampSet *minus_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern TimestampSet *minus_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern TimestampSet *minus_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
+extern PeriodSet *union_period_period(const Period *p1, const Period *p2);
+extern PeriodSet *union_period_periodset(const Period *p, const PeriodSet *ps);
+extern PeriodSet *union_period_timestamp(const Period *p, TimestampTz t);
+extern PeriodSet *union_period_timestampset(const Period *p, const TimestampSet *ts);
+extern PeriodSet *union_periodset_period(const PeriodSet *ps, const Period *p);
+extern PeriodSet *union_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern PeriodSet *union_periodset_timestamp(PeriodSet *ps, TimestampTz t);
+extern PeriodSet *union_periodset_timestampset(PeriodSet *ps, TimestampSet *ts);
+extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);
 extern PeriodSet *union_timestamp_period(TimestampTz t, const Period *p);
 extern PeriodSet *union_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern TimestampSet *union_timestamp_timestamp(TimestampTz t1, TimestampTz t2);
 extern TimestampSet *union_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern PeriodSet *union_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern PeriodSet *union_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern TimestampSet *union_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t);//
-extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern PeriodSet *union_timestampset_period(const TimestampSet *ts, const Period *p);
+extern PeriodSet *union_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern TimestampSet *union_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t);
+extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 
 /*****************************************************************************/
 
 /* Distance functions for span and time types */
 
-extern double distance_floatspan_float(const Span *s, double d);
+double distance_floatspan_float(const Span *s, double d);
 extern double distance_intspan_int(const Span *s, int i);
-extern double distance_period_periodset(const Period *p, const PeriodSet *ps);//
-extern double distance_period_timestamp(const Period *p, TimestampTz t);//
-extern double distance_period_timestampset(const Period *p, const TimestampSet *ts);//
-extern double distance_periodset_period(const PeriodSet *ps, const Period *p);//
-extern double distance_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern double distance_periodset_timestamp(const PeriodSet *ps, TimestampTz t);//
-extern double distance_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);//
-extern double distance_span_span(const Span *s1, const Span *s2);//
+extern double distance_period_periodset(const Period *p, const PeriodSet *ps);
+extern double distance_period_timestamp(const Period *p, TimestampTz t);
+extern double distance_period_timestampset(const Period *p, const TimestampSet *ts);
+extern double distance_periodset_period(const PeriodSet *ps, const Period *p);
+extern double distance_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);
+extern double distance_periodset_timestamp(const PeriodSet *ps, TimestampTz t);
+extern double distance_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);
+extern double distance_span_span(const Span *s1, const Span *s2);
 extern double distance_timestamp_period(TimestampTz t, const Period *p);
 extern double distance_timestamp_periodset(TimestampTz t, const PeriodSet *ps);
 extern double distance_timestamp_timestamp(TimestampTz t1, TimestampTz t2);
 extern double distance_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);
-extern double distance_timestampset_period(const TimestampSet *ts, const Period *p);//
-extern double distance_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);//
-extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);//
-extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);//
+extern double distance_timestampset_period(const TimestampSet *ts, const Period *p);
+extern double distance_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
+extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
+extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 
 /*****************************************************************************/
 
 /* Comparison functions for span and time types */
 
-extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern int periodset_cmp(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool periodset_lt(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool periodset_le(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool periodset_ge(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool periodset_gt(const PeriodSet *ps1, const PeriodSet *ps2);//
-extern bool span_eq(const Span *s1, const Span *s2);//
-extern bool span_ne(const Span *s1, const Span *s2);//
-extern int span_cmp(const Span *s1, const Span *s2);//
-extern bool span_lt(const Span *s1, const Span *s2);//
-extern bool span_le(const Span *s1, const Span *s2);//
-extern bool span_ge(const Span *s1, const Span *s2);//
-extern bool span_gt(const Span *s1, const Span *s2);//
-extern bool timestampset_eq(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern bool timestampset_ne(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern int timestampset_cmp(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern bool timestampset_lt(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern bool timestampset_le(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern bool timestampset_ge(const TimestampSet *ss1, const TimestampSet *ss2);//
-extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);//
+extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);
+extern int periodset_cmp(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool periodset_lt(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool periodset_le(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool periodset_ge(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool periodset_gt(const PeriodSet *ps1, const PeriodSet *ps2);
+extern bool span_eq(const Span *s1, const Span *s2);
+extern bool span_ne(const Span *s1, const Span *s2);
+extern int span_cmp(const Span *s1, const Span *s2);
+extern bool span_lt(const Span *s1, const Span *s2);
+extern bool span_le(const Span *s1, const Span *s2);
+extern bool span_ge(const Span *s1, const Span *s2);
+extern bool span_gt(const Span *s1, const Span *s2);
+extern bool timestampset_eq(const TimestampSet *ss1, const TimestampSet *ss2);
+extern bool timestampset_ne(const TimestampSet *ss1, const TimestampSet *ss2);
+extern int timestampset_cmp(const TimestampSet *ss1, const TimestampSet *ss2);
+extern bool timestampset_lt(const TimestampSet *ss1, const TimestampSet *ss2);
+extern bool timestampset_le(const TimestampSet *ss1, const TimestampSet *ss2);
+extern bool timestampset_ge(const TimestampSet *ss1, const TimestampSet *ss2);
+extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);
 
 /******************************************************************************
  * Functions for box types
@@ -997,7 +1008,7 @@ extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);//
 
 /* Input/output functions for box types */
 
-extern TBOX *tbox_in(char *str);//
+extern TBOX *tbox_in(char *str);
 extern char *tbox_out(const TBOX *box, int maxdd);
 extern TBOX *tbox_from_wkb(uint8_t *wkb, int size);
 extern TBOX *tbox_from_hexwkb(const char *hexwkb);
@@ -1007,18 +1018,18 @@ extern uint8_t *tbox_as_wkb(const TBOX *box, uint8_t variant, size_t *size_out);
 extern char *tbox_as_hexwkb(const TBOX *box, uint8_t variant, size_t *size);
 extern uint8_t *stbox_as_wkb(const STBOX *box, uint8_t variant, size_t *size_out);
 extern char *stbox_as_hexwkb(const STBOX *box, uint8_t variant, size_t *size);
-extern STBOX *stbox_in(char *str);//
+extern STBOX *stbox_in(char *str);
 extern char *stbox_out(const STBOX *box, int maxdd);
 
 /*****************************************************************************/
 
 /* Constructor functions for box types */
 
-extern TBOX *tbox_make(const Period *p, const Span *s);//
+extern TBOX *tbox_make(const Period *p, const Span *s);
 extern void tbox_set(const Period *p, const Span *s, TBOX *box);
 extern TBOX *tbox_copy(const TBOX *box);
-extern STBOX * stbox_make(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid,//
-  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);//
+extern STBOX * stbox_make(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid,
+  double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
 extern void stbox_set(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid, double xmin, double xmax,
   double ymin, double ymax, double zmin, double zmax, STBOX *box);
 extern STBOX *stbox_copy(const STBOX *box);
@@ -1058,113 +1069,113 @@ extern STBOX *geo_period_to_stbox(const GSERIALIZED *gs, const Period *p);
 
 /* Accessor functions for box types */
 
-extern bool tbox_hasx(const TBOX *box);//
-extern bool tbox_hast(const TBOX *box);//
-extern bool tbox_xmin(const TBOX *box, double *result);//
-extern bool tbox_xmax(const TBOX *box, double *result);//
-extern bool tbox_tmin(const TBOX *box, TimestampTz *result);//
-extern bool tbox_tmax(const TBOX *box, TimestampTz *result);//
-extern bool stbox_hasx(const STBOX *box);//
-extern bool stbox_hasz(const STBOX *box);//
-extern bool stbox_hast(const STBOX *box);//
-extern bool stbox_isgeodetic(const STBOX *box);//
-extern bool stbox_xmin(const STBOX *box, double *result);//
-extern bool stbox_xmax(const STBOX *box, double *result);//
-extern bool stbox_ymin(const STBOX *box, double *result);//
-extern bool stbox_ymax(const STBOX *box, double *result);//
-extern bool stbox_zmin(const STBOX *box, double *result);//
-extern bool stbox_zmax(const STBOX *box, double *result);//
-extern bool stbox_tmin(const STBOX *box, TimestampTz *result);//
-extern bool stbox_tmax(const STBOX *box, TimestampTz *result);//
-extern int32 stbox_get_srid(const STBOX *box);//
+extern bool tbox_hasx(const TBOX *box);
+extern bool tbox_hast(const TBOX *box);
+extern bool tbox_xmin(const TBOX *box, double *result);
+extern bool tbox_xmax(const TBOX *box, double *result);
+extern bool tbox_tmin(const TBOX *box, TimestampTz *result);
+extern bool tbox_tmax(const TBOX *box, TimestampTz *result);
+extern bool stbox_hasx(const STBOX *box);
+extern bool stbox_hasz(const STBOX *box);
+extern bool stbox_hast(const STBOX *box);
+extern bool stbox_isgeodetic(const STBOX *box);
+extern bool stbox_xmin(const STBOX *box, double *result);
+extern bool stbox_xmax(const STBOX *box, double *result);
+extern bool stbox_ymin(const STBOX *box, double *result);
+extern bool stbox_ymax(const STBOX *box, double *result);
+extern bool stbox_zmin(const STBOX *box, double *result);
+extern bool stbox_zmax(const STBOX *box, double *result);
+extern bool stbox_tmin(const STBOX *box, TimestampTz *result);
+extern bool stbox_tmax(const STBOX *box, TimestampTz *result);
+extern int32 stbox_get_srid(const STBOX *box);
 
 /*****************************************************************************/
 
 /* Transformation functions for box types */
 
-extern void tbox_expand(const TBOX *box1, TBOX *box2);//
-extern void tbox_shift_tscale(const Interval *start, const Interval *duration, TBOX *box);//
-extern TBOX *tbox_expand_value(const TBOX *box, const double d);//
-extern TBOX *tbox_expand_temporal(const TBOX *box, const Interval *interval);//
-extern void stbox_expand(const STBOX *box1, STBOX *box2);//
-extern void stbox_shift_tscale(const Interval *start, const Interval *duration, STBOX *box);//
-extern STBOX *stbox_set_srid(const STBOX *box, int32 srid);//
-extern STBOX *stbox_expand_spatial(const STBOX *box, double d);//
-extern STBOX *stbox_expand_temporal(const STBOX *box, const Interval *interval);//
+extern void tbox_expand(const TBOX *box1, TBOX *box2);
+extern void tbox_shift_tscale(const Interval *start, const Interval *duration, TBOX *box);
+extern TBOX *tbox_expand_value(const TBOX *box, const double d);
+extern TBOX *tbox_expand_temporal(const TBOX *box, const Interval *interval);
+extern void stbox_expand(const STBOX *box1, STBOX *box2);
+extern void stbox_shift_tscale(const Interval *start, const Interval *duration, STBOX *box);
+extern STBOX *stbox_set_srid(const STBOX *box, int32 srid);
+extern STBOX *stbox_expand_spatial(const STBOX *box, double d);
+extern STBOX *stbox_expand_temporal(const STBOX *box, const Interval *interval);
 
 /*****************************************************************************/
 
 /* Topological functions for box types */
 
-extern bool adjacent_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool contains_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool contained_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool overlaps_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool same_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool adjacent_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool contains_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool contained_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overlaps_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool same_stbox_stbox(const STBOX *box1, const STBOX *box2);//
+extern bool contains_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool contained_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool overlaps_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool same_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool adjacent_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool contains_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool contained_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overlaps_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool same_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool adjacent_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
 /*****************************************************************************/
 
 /* Position functions for box types */
 
-extern bool left_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool overleft_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool right_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool overright_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool before_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool overbefore_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool after_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool overafter_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool left_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overleft_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool right_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overright_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool below_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overbelow_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool above_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overabove_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool front_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overfront_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool back_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overback_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool before_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overbefore_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool after_stbox_stbox(const STBOX *box1, const STBOX *box2);//
-extern bool overafter_stbox_stbox(const STBOX *box1, const STBOX *box2);//
+extern bool left_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool overleft_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool right_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool overright_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool before_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool overbefore_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool after_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool overafter_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool left_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overleft_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool right_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overright_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool below_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overbelow_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool above_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overabove_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool front_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overfront_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool back_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overback_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool before_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overbefore_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool after_stbox_stbox(const STBOX *box1, const STBOX *box2);
+extern bool overafter_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
 /*****************************************************************************/
 
 /* Set functions for box types */
 
-extern TBOX *union_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern bool inter_tbox_tbox(const TBOX *box1, const TBOX *box2, TBOX *result);//
-extern TBOX *intersection_tbox_tbox(const TBOX *box1, const TBOX *box2);//
-extern STBOX *union_stbox_stbox(const STBOX *box1, const STBOX *box2, bool strict);//
-extern bool inter_stbox_stbox(const STBOX *box1, const STBOX *box2, STBOX *result);//
-extern STBOX *intersection_stbox_stbox(const STBOX *box1, const STBOX *box2);//
+extern TBOX *union_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern bool inter_tbox_tbox(const TBOX *box1, const TBOX *box2, TBOX *result);
+extern TBOX *intersection_tbox_tbox(const TBOX *box1, const TBOX *box2);
+extern STBOX *union_stbox_stbox(const STBOX *box1, const STBOX *box2, bool strict);
+extern bool inter_stbox_stbox(const STBOX *box1, const STBOX *box2, STBOX *result);
+extern STBOX *intersection_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
 /*****************************************************************************/
 
 /* Comparison functions for box types */
 
-extern bool tbox_eq(const TBOX *box1, const TBOX *box2);//
-extern bool tbox_ne(const TBOX *box1, const TBOX *box2);//
-extern int tbox_cmp(const TBOX *box1, const TBOX *box2);//
-extern bool tbox_lt(const TBOX *box1, const TBOX *box2);//
-extern bool tbox_le(const TBOX *box1, const TBOX *box2);//
-extern bool tbox_ge(const TBOX *box1, const TBOX *box2);//
-extern bool tbox_gt(const TBOX *box1, const TBOX *box2);//
-extern bool stbox_eq(const STBOX *box1, const STBOX *box2);//
-extern bool stbox_ne(const STBOX *box1, const STBOX *box2);//
-extern int stbox_cmp(const STBOX *box1, const STBOX *box2);//
-extern bool stbox_lt(const STBOX *box1, const STBOX *box2);//
-extern bool stbox_le(const STBOX *box1, const STBOX *box2);//
-extern bool stbox_ge(const STBOX *box1, const STBOX *box2);//
-extern bool stbox_gt(const STBOX *box1, const STBOX *box2);//
+extern bool tbox_eq(const TBOX *box1, const TBOX *box2);
+extern bool tbox_ne(const TBOX *box1, const TBOX *box2);
+extern int tbox_cmp(const TBOX *box1, const TBOX *box2);
+extern bool tbox_lt(const TBOX *box1, const TBOX *box2);
+extern bool tbox_le(const TBOX *box1, const TBOX *box2);
+extern bool tbox_ge(const TBOX *box1, const TBOX *box2);
+extern bool tbox_gt(const TBOX *box1, const TBOX *box2);
+extern bool stbox_eq(const STBOX *box1, const STBOX *box2);
+extern bool stbox_ne(const STBOX *box1, const STBOX *box2);
+extern int stbox_cmp(const STBOX *box1, const STBOX *box2);
+extern bool stbox_lt(const STBOX *box1, const STBOX *box2);
+extern bool stbox_le(const STBOX *box1, const STBOX *box2);
+extern bool stbox_ge(const STBOX *box1, const STBOX *box2);
+extern bool stbox_gt(const STBOX *box1, const STBOX *box2);
 
 /*****************************************************************************
  * Functions for temporal types
@@ -1241,6 +1252,8 @@ extern TSequence *tintseq_from_base_time(int i, const Period *p);
 extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);
 extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);
 extern TSequence *tsequence_make(const TInstant **instants, int count, bool lower_inc, bool upper_inc, bool linear, bool normalize);
+extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
+  const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, bool linear, bool normalize);
 extern TSequence *tsequence_make_free(TInstant **instants, int count, bool lower_inc, bool upper_inc, bool linear, bool normalize);
 extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);
@@ -1266,15 +1279,15 @@ extern Span *tnumber_to_span(const Temporal *temp);
 
 /* Accessor functions for temporal types */
 
-extern bool tbool_end_value(const Temporal *temp);//
-extern bool tbool_start_value(const Temporal *temp);//
-extern bool *tbool_values(const Temporal *temp, int *count);//
-extern Interval *temporal_duration(const Temporal *temp);//
-extern const TInstant *temporal_end_instant(const Temporal *temp);//
-extern TSequence *temporal_end_sequence(const Temporal *temp);//
-extern TimestampTz temporal_end_timestamp(const Temporal *temp);//
-extern uint32 temporal_hash(const Temporal *temp);//
-extern const TInstant *temporal_instant_n(const Temporal *temp, int n);//
+extern bool tbool_end_value(const Temporal *temp);
+extern bool tbool_start_value(const Temporal *temp);
+extern bool *tbool_values(const Temporal *temp, int *count);
+extern Interval *temporal_duration(const Temporal *temp);
+extern const TInstant *temporal_end_instant(const Temporal *temp);
+extern TSequence *temporal_end_sequence(const Temporal *temp);
+extern TimestampTz temporal_end_timestamp(const Temporal *temp);
+extern uint32 temporal_hash(const Temporal *temp);
+extern const TInstant *temporal_instant_n(const Temporal *temp, int n);
 extern const TInstant **temporal_instants(const Temporal *temp, int *count);
 extern char *temporal_interpolation(const Temporal *temp);
 extern const TInstant *temporal_max_instant(const Temporal *temp);
@@ -1383,13 +1396,13 @@ extern bool ttext_value_at_timestamp(const Temporal *temp, TimestampTz t, bool s
 
 /* Boolean functions for temporal types */
 
-extern Temporal *tand_bool_tbool(bool b, const Temporal *temp);//
-extern Temporal *tand_tbool_bool(const Temporal *temp, bool b);//
-extern Temporal *tand_tbool_tbool(const Temporal *temp1, const Temporal *temp2);//
-extern Temporal *tnot_tbool(const Temporal *temp);//
-extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);//
-extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);//
-extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tand_bool_tbool(bool b, const Temporal *temp);
+extern Temporal *tand_tbool_bool(const Temporal *temp, bool b);
+extern Temporal *tand_tbool_tbool(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *tnot_tbool(const Temporal *temp);
+extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);
+extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);
+extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);
 
 /*****************************************************************************/
 
@@ -1423,11 +1436,11 @@ extern Temporal *tnumber_derivative(const Temporal *temp);
 
 /* Text functions for temporal types */
 
-extern Temporal *textcat_text_ttext(const text *txt, const Temporal *temp);//
-extern Temporal *textcat_ttext_text(const Temporal *temp, const text *txt);//
-extern Temporal *textcat_ttext_ttext(const Temporal *temp1, const Temporal *temp2);//
-extern Temporal *ttext_upper(const Temporal *temp);//
-extern Temporal *ttext_lower(const Temporal *temp);//
+extern Temporal *textcat_text_ttext(const text *txt, const Temporal *temp);
+extern Temporal *textcat_ttext_text(const Temporal *temp, const text *txt);
+extern Temporal *textcat_ttext_ttext(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *ttext_upper(const Temporal *temp);
+extern Temporal *ttext_lower(const Temporal *temp);
 
 /*****************************************************************************
  * Bounding box functions for temporal types
@@ -1576,17 +1589,17 @@ extern bool above_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool above_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool above_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool above_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
-extern bool after_period_temporal(const Period *p, const Temporal *temp);//
-extern bool after_periodset_temporal(const PeriodSet *ps, const Temporal *temp);//
+extern bool after_period_temporal(const Period *p, const Temporal *temp);
+extern bool after_periodset_temporal(const PeriodSet *ps, const Temporal *temp);
 extern bool after_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool after_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);
-extern bool after_temporal_period(const Temporal *temp, const Period *p);//
-extern bool after_temporal_periodset(const Temporal *temp, const PeriodSet *ps);//
-extern bool after_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
-extern bool after_temporal_timestamp(const Temporal *temp, TimestampTz t);//
-extern bool after_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);//
-extern bool after_timestamp_temporal(TimestampTz t, const Temporal *temp);//
-extern bool after_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);//
+extern bool after_temporal_period(const Temporal *temp, const Period *p);
+extern bool after_temporal_periodset(const Temporal *temp, const PeriodSet *ps);
+extern bool after_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
+extern bool after_temporal_timestamp(const Temporal *temp, TimestampTz t);
+extern bool after_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);
+extern bool after_timestamp_temporal(TimestampTz t, const Temporal *temp);
+extern bool after_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);
 extern bool after_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);
 extern bool after_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
 extern bool after_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
@@ -1596,17 +1609,17 @@ extern bool back_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool back_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool back_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool back_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
-extern bool before_period_temporal(const Period *p, const Temporal *temp);//
-extern bool before_periodset_temporal(const PeriodSet *ps, const Temporal *temp);//
+extern bool before_period_temporal(const Period *p, const Temporal *temp);
+extern bool before_periodset_temporal(const PeriodSet *ps, const Temporal *temp);
 extern bool before_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool before_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);
-extern bool before_temporal_period(const Temporal *temp, const Period *p);//
-extern bool before_temporal_periodset(const Temporal *temp, const PeriodSet *ps);//
-extern bool before_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
-extern bool before_temporal_timestamp(const Temporal *temp, TimestampTz t);//
-extern bool before_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);//
-extern bool before_timestamp_temporal(TimestampTz t, const Temporal *temp);//
-extern bool before_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);//
+extern bool before_temporal_period(const Temporal *temp, const Period *p);
+extern bool before_temporal_periodset(const Temporal *temp, const PeriodSet *ps);
+extern bool before_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
+extern bool before_temporal_timestamp(const Temporal *temp, TimestampTz t);
+extern bool before_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);
+extern bool before_timestamp_temporal(TimestampTz t, const Temporal *temp);
+extern bool before_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);
 extern bool before_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);
 extern bool before_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
 extern bool before_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
@@ -1636,17 +1649,17 @@ extern bool overabove_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool overabove_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool overabove_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool overabove_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
-extern bool overafter_period_temporal(const Period *p, const Temporal *temp);//
-extern bool overafter_periodset_temporal(const PeriodSet *ps, const Temporal *temp);//
+extern bool overafter_period_temporal(const Period *p, const Temporal *temp);
+extern bool overafter_periodset_temporal(const PeriodSet *ps, const Temporal *temp);
 extern bool overafter_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool overafter_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);
-extern bool overafter_temporal_period(const Temporal *temp, const Period *p);//
-extern bool overafter_temporal_periodset(const Temporal *temp, const PeriodSet *ps);//
-extern bool overafter_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
-extern bool overafter_temporal_timestamp(const Temporal *temp, TimestampTz t);//
-extern bool overafter_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);//
-extern bool overafter_timestamp_temporal(TimestampTz t, const Temporal *temp);//
-extern bool overafter_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);//
+extern bool overafter_temporal_period(const Temporal *temp, const Period *p);
+extern bool overafter_temporal_periodset(const Temporal *temp, const PeriodSet *ps);
+extern bool overafter_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
+extern bool overafter_temporal_timestamp(const Temporal *temp, TimestampTz t);
+extern bool overafter_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);
+extern bool overafter_timestamp_temporal(TimestampTz t, const Temporal *temp);
+extern bool overafter_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);
 extern bool overafter_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);
 extern bool overafter_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
 extern bool overafter_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
@@ -1656,17 +1669,17 @@ extern bool overback_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool overback_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool overback_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool overback_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
-extern bool overbefore_period_temporal(const Period *p, const Temporal *temp);//
-extern bool overbefore_periodset_temporal(const PeriodSet *ps, const Temporal *temp);//
+extern bool overbefore_period_temporal(const Period *p, const Temporal *temp);
+extern bool overbefore_periodset_temporal(const PeriodSet *ps, const Temporal *temp);
 extern bool overbefore_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
 extern bool overbefore_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);
-extern bool overbefore_temporal_period(const Temporal *temp, const Period *p);//
-extern bool overbefore_temporal_periodset(const Temporal *temp, const PeriodSet *ps);//
-extern bool overbefore_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
-extern bool overbefore_temporal_timestamp(const Temporal *temp, TimestampTz t);//
-extern bool overbefore_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);//
-extern bool overbefore_timestamp_temporal(TimestampTz t, const Temporal *temp);//
-extern bool overbefore_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);//
+extern bool overbefore_temporal_period(const Temporal *temp, const Period *p);
+extern bool overbefore_temporal_periodset(const Temporal *temp, const PeriodSet *ps);
+extern bool overbefore_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
+extern bool overbefore_temporal_timestamp(const Temporal *temp, TimestampTz t);
+extern bool overbefore_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);
+extern bool overbefore_timestamp_temporal(TimestampTz t, const Temporal *temp);
+extern bool overbefore_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);
 extern bool overbefore_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);
 extern bool overbefore_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
 extern bool overbefore_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
@@ -1736,6 +1749,7 @@ extern TInstant *nai_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);
 extern TInstant *nai_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);
 extern bool shortestline_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, GSERIALIZED **result);
 extern bool shortestline_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, GSERIALIZED **result);
+
 /*****************************************************************************/
 
 /* Ever/always functions for temporal types */
@@ -1769,21 +1783,21 @@ extern bool ttext_ever_lt(const Temporal *temp, text *txt);
 
 /* Comparison functions for temporal types */
 
-extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);// -- B-Tree, No Pymeos
-extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);//
+extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);
+extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *teq_float_tfloat(double d, const Temporal *temp);
 extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
 extern Temporal *teq_int_tint(int i, const Temporal *temp);
 extern Temporal *teq_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *teq_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);
-extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);//
-extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);
+extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *teq_tfloat_float(const Temporal *temp, double d);
 extern Temporal *teq_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);
@@ -1793,28 +1807,28 @@ extern Temporal *teq_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tge_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tge_int_tint(int i, const Temporal *temp);
-extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tge_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tge_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tge_tint_int(const Temporal *temp, int i);
 extern Temporal *tge_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tgt_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tgt_int_tint(int i, const Temporal *temp);
-extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tgt_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tgt_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tgt_tint_int(const Temporal *temp, int i);
 extern Temporal *tgt_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tle_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tle_int_tint(int i, const Temporal *temp);
-extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tle_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tle_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tle_tint_int(const Temporal *temp, int i);
 extern Temporal *tle_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tlt_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tlt_int_tint(int i, const Temporal *temp);
-extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tlt_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tlt_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tlt_tint_int(const Temporal *temp, int i);
@@ -1826,7 +1840,7 @@ extern Temporal *tne_int_tint(int i, const Temporal *temp);
 extern Temporal *tne_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *tne_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *tne_tbool_bool(const Temporal *temp, bool b);
-extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);//
+extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tne_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tne_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);
@@ -1887,10 +1901,10 @@ extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs
 
 /* Time functions for temporal types */
 
-extern bool temporal_intersects_period(const Temporal *temp, const Period *p);//
-extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);//
-extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);//
-extern bool temporal_intersects_timestampset(const Temporal *temp, const TimestampSet *ss);//
+extern bool temporal_intersects_period(const Temporal *temp, const Period *p);
+extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);
+extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);
+extern bool temporal_intersects_timestampset(const Temporal *temp, const TimestampSet *ss);
 
 /*****************************************************************************/
 
@@ -1926,8 +1940,9 @@ extern Match *temporal_dyntimewarp_path(const Temporal *temp1, const Temporal *t
 /* Analytics functions for temporal types */
 
 extern Temporal *geo_to_tpoint(const GSERIALIZED *geo);
-extern Temporal *temporal_simplify(const Temporal *temp, bool synchronized, double eps_dist);
-extern bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent, int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);
+extern Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);
+extern bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
+  int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);
 extern bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
 
 /*****************************************************************************/
