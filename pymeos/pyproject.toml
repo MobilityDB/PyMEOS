@@ -3,15 +3,16 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "pymeos-temp"
-version = "0.0.5"
+name = "pymeos"
+version = "1.0.0"
 authors = [
     { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
+    { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
+    { name = "Krishna Chaitanya Bommakanti", email = "bkchaitan94@gmail.com" },
 ]
-description = "PyMEOS wrapper for the MEOS C Library."
+description = "Python wrapper for the MEOS C Library."
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
