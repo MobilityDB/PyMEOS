@@ -35,12 +35,13 @@ from dateutil.parser import parse
 from geopandas import GeoDataFrame
 # from movingpandas import Trajectory
 from postgis import Point, Geometry
-
+from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
     lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in
+
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
 
@@ -129,6 +130,17 @@ class TPointSeq(TPoint, TSequence, ABC):
     Abstract class for representing temporal points of sequence subtype.
     """
 
+    @staticmethod
+    def from_arrays(t: List[Union[datetime, str]], x: List[float], y: List[float], z: Optional[List[float]] = None,
+                    srid: int = 0, geodetic: bool = False, lower_inc: bool = True, upper_inc: bool = False,
+                    linear: bool = True, normalize: bool = True) -> TPointSeq:
+        from ..factory import _TemporalFactory
+        assert len(t) == len(x) == len(y)
+        times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else pg_timestamptz_in(ti, -1) for ti in t]
+        return _TemporalFactory.create_temporal(
+            tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, linear, normalize)
+        )
+
     @property
     def distance(self):
         return tpoint_length(self._inner)
@@ -150,6 +162,8 @@ class TPointSeq(TPoint, TSequence, ABC):
 
     # def to_trajectory(self):
     #     return Trajectory(self.to_geodataframe(), None, t='time')
+
+
 #
 
 class TPointSeqSet(TPoint, TSequenceSet, ABC):
