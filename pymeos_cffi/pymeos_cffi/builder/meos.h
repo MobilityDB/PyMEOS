@@ -646,7 +646,7 @@ extern char *gserialized_out(const GSERIALIZED *geom);
 extern GSERIALIZED *gserialized_from_text(const char *wkt, int srid);
 extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
 
-extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
+//extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
 extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
 
 extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);

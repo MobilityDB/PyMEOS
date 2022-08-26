@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e -u -x
+set -e -u
 #
 # Command: docker run --rm -ti -v <path-to-pymeos-project>:/PyMEOS -v <path-to-store-wheels>:/wheelhouse pymeos/builder
 #
@@ -12,7 +12,6 @@ function repair_wheel {
   fi
 }
 
-# Compile wheels
 for PYBIN in /opt/python/*/bin; do
   echo "================$PYBIN================"
   echo "================COMPILE================"
@@ -20,7 +19,6 @@ for PYBIN in /opt/python/*/bin; do
   "${PYBIN}/pip" wheel /PyMEOS/pymeos_cffi/ --no-deps -w /wheelhouse_int/
 
   echo "==============REPAIR=============="
-  # Bundle external shared libraries into the wheels
   for whl in wheelhouse_int/*.whl; do
     repair_wheel "$whl"
     rm "$whl"
