@@ -36,7 +36,7 @@ def tpointseq_make_coords_modifier(function: str) -> str:
     return function \
         .replace("    xcoords_converted = _ffi.cast('const double *', xcoords)\n", '') \
         .replace("    ycoords_converted = _ffi.cast('const double *', ycoords)\n", '') \
-        .replace("    times_converted = _ffi.cast('const TimestampTz *', times))\n", '') \
+        .replace("    times_converted = _ffi.cast('const TimestampTz *', times)\n", '') \
         .replace("_ffi.cast('const double *', zcoords)", 'zcoords') \
         .replace('xcoords_converted', 'xcoords') \
         .replace('ycoords_converted', 'ycoords') \
