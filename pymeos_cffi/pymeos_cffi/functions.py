@@ -3582,7 +3582,7 @@ def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, u
     return result if result != _ffi.NULL else None
 
 
-def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: "Optional['const double *']", times: int, count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
+def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: "Optional['const double *']", times: 'const TimestampTz *', count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
     zcoords_converted = zcoords if zcoords else _ffi.NULL
     srid_converted = _ffi.cast('int32', srid)
     result = _lib.tpointseq_make_coords(xcoords, ycoords, zcoords_converted, times, count, srid_converted, geodetic, lower_inc, upper_inc, linear, normalize)

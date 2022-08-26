@@ -5,7 +5,7 @@ from typing import List, Optional
 from build_helpers import ADDITIONAL_DEFINITIONS
 from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
     timestampset_make_modifier, gserialized_from_lwgeom_modifier, tpointseq_make_coords_modifier
-from pymeos_cffi.builder.objects import conversion_map, Conversion
+from objects import conversion_map, Conversion
 
 
 class Parameter:
