@@ -31,12 +31,13 @@
  * @brief API of the Mobility Engine Open Source (MEOS) library.
  */
 
-//#ifndef __MEOS_H__
-//#define __MEOS_H__
 
-/* C */
-//#include <stdbool.h>
-/* PostgreSQL */
+
+
+
+
+
+
 typedef uintptr_t Datum;
 
 typedef signed char int8;
@@ -54,48 +55,44 @@ typedef int64 TimeADT;
 typedef int64 Timestamp;
 typedef int64 TimestampTz;
 typedef int64 TimeOffset;
-typedef int32 fsec_t;      /* fractional seconds (in microseconds) */
+typedef int32 fsec_t;      
 
 typedef struct
 {
-  TimeOffset time;  /* all time units other than days, months and years */
-  int32 day;        /* days, after time for alignment */
-  int32 month;      /* months and years, after time for alignment */
+  TimeOffset time;  
+  int32 day;        
+  int32 month;      
 } Interval;
 
 typedef struct varlena
 {
-  char vl_len_[4];  /* Do not touch this field directly! */
-  char vl_dat[];    /* Data content is here */
+  char vl_len_[4];  
+  char vl_dat[];    
 } varlena;
 
 typedef varlena text;
 typedef struct varlena bytea;
 
+
+
+
+
+
 extern char *text2cstring(const text *textptr);
 extern text *cstring2text(const char *cstring);
-/* PostGIS */
-//#include <liblwgeom.h>
 
-typedef uint16_t lwflags_t;
-
-/*****************************************************************************
- * Additional definitions
- *****************************************************************************/
-
-/******************************************************************/
 
 typedef struct {
-    double afac, bfac, cfac, dfac, efac, ffac, gfac, hfac, ifac, xoff, yoff, zoff;
+	double afac, bfac, cfac, dfac, efac, ffac, gfac, hfac, ifac, xoff, yoff, zoff;
 } AFFINE;
 
-/******************************************************************/
+
 
 typedef struct
 {
-    double xmin, ymin, zmin;
-    double xmax, ymax, zmax;
-    int32_t srid;
+	double xmin, ymin, zmin;
+	double xmax, ymax, zmax;
+	int32_t srid;
 }
 BOX3D;
 
@@ -107,15 +104,15 @@ BOX3D;
 */
 typedef struct
 {
-    lwflags_t flags;
-    double xmin;
-    double xmax;
-    double ymin;
-    double ymax;
-    double zmin;
-    double zmax;
-    double mmin;
-    double mmax;
+	uint8_t flags;
+	double xmin;
+	double xmax;
+	double ymin;
+	double ymax;
+	double zmin;
+	double zmax;
+	double mmin;
+	double mmax;
 } GBOX;
 
 
@@ -129,13 +126,13 @@ typedef struct
 */
 typedef struct
 {
-    double  a;  /* semimajor axis */
-    double  b;  /* semiminor axis b = (a - fa) */
-    double  f;  /* flattening f = (a-b)/a */
-    double  e;  /* eccentricity (first) */
-    double  e_sq;   /* eccentricity squared (first) e_sq = (a*a-b*b)/(a*a) */
-    double  radius;  /* spherical average radius = (2*a+b)/3 */
-    char    name[20];  /* name of ellipse */
+	double	a;	
+	double	b; 	
+	double	f;	
+	double	e;	
+	double	e_sq;	
+	double  radius;  
+	char	name[20];  
 }
 SPHEROID;
 
@@ -144,31 +141,31 @@ SPHEROID;
 */
 typedef struct
 {
-    double x, y;
+	double x, y;
 }
 POINT2D;
 
 typedef struct
 {
-    double x, y, z;
+	double x, y, z;
 }
 POINT3DZ;
 
 typedef struct
 {
-    double x, y, z;
+	double x, y, z;
 }
 POINT3D;
 
 typedef struct
 {
-    double x, y, m;
+	double x, y, m;
 }
 POINT3DM;
 
 typedef struct
 {
-    double x, y, z, m;
+	double x, y, z, m;
 }
 POINT4D;
 
@@ -181,28 +178,28 @@ POINT4D;
 */
 typedef struct
 {
-    uint32_t npoints;   /* how many points we are currently storing */
-    uint32_t maxpoints; /* how many points we have space for in serialized_pointlist */
+	
+	uint8_t *serialized_pointlist;
 
-    /* Use FLAGS_* macros to handle */
-    lwflags_t flags;
+	
+	uint8_t  flags;
 
-    /* Array of POINT 2D, 3D or 4D, possibly misaligned. */
-    uint8_t *serialized_pointlist;
+	uint32_t npoints;   
+	uint32_t maxpoints; 
 }
 POINTARRAY;
 
 /******************************************************************
 * GSERIALIZED
 */
-
 typedef struct
 {
-    uint32_t size; /* For PgSQL use only, use VAR* macros to manipulate. */
-    uint8_t srid[3]; /* 24 bits of SRID */
-    uint8_t gflags; /* HasZ, HasM, HasBBox, IsGeodetic */
-    uint8_t data[1]; /* See gserialized.txt */
+	uint32_t size; 
+	uint8_t srid[3]; 
+	uint8_t flags; 
+	uint8_t data[1]; 
 } GSERIALIZED;
+
 
 /******************************************************************
 * LWGEOM (any geometry type)
@@ -212,216 +209,201 @@ typedef struct
 */
 typedef struct
 {
-    GBOX *bbox;
-    void *data;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type;
-    char pad[1]; /* Padding to 24 bytes (unused) */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	void *data;
 }
 LWGEOM;
 
-/* POINTYPE */
-typedef struct
-{
-    GBOX *bbox;
-    POINTARRAY *point;  /* hide 2d/3d (this will be an array of 1 point) */
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* POINTTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-}
-LWPOINT; /* "light-weight point" */
 
-/* LINETYPE */
 typedef struct
 {
-    GBOX *bbox;
-    POINTARRAY *points; /* array of POINT3D */
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* LINETYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	POINTARRAY *point;  
 }
-LWLINE; /* "light-weight line" */
+LWPOINT; 
 
-/* TRIANGLE */
+
 typedef struct
 {
-    GBOX *bbox;
-    POINTARRAY *points;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type;
-    char pad[1]; /* Padding to 24 bytes (unused) */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	POINTARRAY *points; 
+}
+LWLINE; 
+
+
+typedef struct
+{
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	POINTARRAY *points;
 }
 LWTRIANGLE;
 
-/* CIRCSTRINGTYPE */
-typedef struct
-{
-    GBOX *bbox;
-    POINTARRAY *points; /* array of POINT(3D/3DM) */
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* CIRCSTRINGTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-}
-LWCIRCSTRING; /* "light-weight circularstring" */
 
-/* POLYGONTYPE */
 typedef struct
 {
-    GBOX *bbox;
-    POINTARRAY **rings; /* list of rings (list of points) */
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* POLYGONTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t nrings;   /* how many rings we are currently storing */
-    uint32_t maxrings; /* how many rings we have space for in **rings */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	POINTARRAY *points; 
 }
-LWPOLY; /* "light-weight polygon" */
+LWCIRCSTRING; 
 
-/* MULTIPOINTTYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWPOINT **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* MULTYPOINTTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t nrings;   
+	uint32_t maxrings; 
+	POINTARRAY **rings; 
+}
+LWPOLY; 
+
+
+typedef struct
+{
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWPOINT **geoms;
 }
 LWMPOINT;
 
-/* MULTILINETYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWLINE **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* MULTILINETYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWLINE **geoms;
 }
 LWMLINE;
 
-/* MULTIPOLYGONTYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWPOLY **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* MULTIPOLYGONTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWPOLY **geoms;
 }
 LWMPOLY;
 
-/* COLLECTIONTYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWGEOM **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* COLLECTIONTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWGEOM **geoms;
 }
 LWCOLLECTION;
 
-/* COMPOUNDTYPE */
-typedef struct
-{
-    GBOX *bbox;
-    LWGEOM **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* COLLECTIONTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
-}
-LWCOMPOUND; /* "light-weight compound line" */
 
-/* CURVEPOLYTYPE */
 typedef struct
 {
-    GBOX *bbox;
-    LWGEOM **rings;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* CURVEPOLYTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t nrings;    /* how many rings we are currently storing */
-    uint32_t maxrings;  /* how many rings we have space for in **rings */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWGEOM **geoms;
 }
-LWCURVEPOLY; /* "light-weight polygon" */
+LWCOMPOUND; 
 
-/* MULTICURVE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWGEOM **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* MULTICURVE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type; 
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t nrings;    
+	uint32_t maxrings;  
+	LWGEOM **rings; 
+}
+LWCURVEPOLY; 
+
+
+typedef struct
+{
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWGEOM **geoms;
 }
 LWMCURVE;
 
-/* MULTISURFACETYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWGEOM **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* MULTISURFACETYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWGEOM **geoms;
 }
 LWMSURFACE;
 
-/* POLYHEDRALSURFACETYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWPOLY **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* POLYHEDRALSURFACETYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWPOLY **geoms;
 }
 LWPSURFACE;
 
-/* TINTYPE */
+
 typedef struct
 {
-    GBOX *bbox;
-    LWTRIANGLE **geoms;
-    int32_t srid;
-    lwflags_t flags;
-    uint8_t type; /* TINTYPE */
-    char pad[1]; /* Padding to 24 bytes (unused) */
-    uint32_t ngeoms;   /* how many geometries we are currently storing */
-    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
+	uint8_t type;
+	uint8_t flags;
+	GBOX *bbox;
+	int32_t srid;
+	uint32_t ngeoms;   
+	uint32_t maxgeoms; 
+	LWTRIANGLE **geoms;
 }
 LWTIN;
+
 
 extern LWPOINT *lwpoint_make(int32_t srid, int hasz, int hasm, const POINT4D *p);
 
@@ -449,12 +431,12 @@ extern int lwgeom_has_m(const LWGEOM *geom);
  */
 typedef struct
 {
-  Datum lower;          /**< lower bound value */
-  Datum upper;          /**< upper bound value */
-  bool lower_inc;       /**< lower bound is inclusive (vs exclusive) */
-  bool upper_inc;       /**< upper bound is inclusive (vs exclusive) */
-  uint8 spantype;       /**< span type */
-  uint8 basetype;       /**< span basetype */
+  Datum lower;          
+  Datum upper;          
+  bool lower_inc;       
+  bool upper_inc;       
+  uint8 spantype;       
+  uint8 basetype;       
 } Span;
 
 /**
@@ -468,10 +450,10 @@ typedef Span Period;
  */
 typedef struct
 {
-  int32 vl_len_;        /**< Varlena header (do not touch directly!) */
-  int32 count;          /**< Number of TimestampTz elements */
-  Period period;        /**< Bounding period */
-  TimestampTz elems[1]; /**< Beginning of variable-length data */
+  int32 vl_len_;        
+  int32 count;          
+  Period period;        
+  TimestampTz elems[1]; 
 } TimestampSet;
 
 /**
@@ -479,10 +461,10 @@ typedef struct
  */
 typedef struct
 {
-  int32 vl_len_;        /**< Varlena header (do not touch directly!) */
-  int32 count;          /**< Number of Period elements */
-  Period period;        /**< Bounding period */
-  Period elems[1];      /**< Beginning of variable-length data */
+  int32 vl_len_;        
+  int32 count;          
+  Period period;        
+  Period elems[1];      
 } PeriodSet;
 
 /**
@@ -490,9 +472,9 @@ typedef struct
  */
 typedef struct
 {
-  Period      period; /**< time span */
-  Span        span;   /**< value span */
-  int16       flags;  /**< flags */
+  Period      period; 
+  Span        span;   
+  int16       flags;  
 } TBOX;
 
 /**
@@ -500,15 +482,15 @@ typedef struct
  */
 typedef struct
 {
-  Period      period; /**< time span */
-  double      xmin;   /**< minimum x value */
-  double      xmax;   /**< maximum x value */
-  double      ymin;   /**< minimum y value */
-  double      ymax;   /**< maximum y value */
-  double      zmin;   /**< minimum z value */
-  double      zmax;   /**< maximum z value */
-  int32       srid;   /**< SRID */
-  int16       flags;  /**< flags */
+  Period      period; 
+  double      xmin;   
+  double      xmax;   
+  double      ymin;   
+  double      ymax;   
+  double      zmin;   
+  double      zmax;   
+  int32       srid;   
+  int16       flags;  
 } STBOX;
 
 /**
@@ -517,11 +499,11 @@ typedef struct
  */
 typedef struct
 {
-  int32         vl_len_;      /**< Varlena header (do not touch directly!) */
-  uint8         temptype;     /**< Temporal type */
-  uint8         subtype;      /**< Temporal subtype */
-  int16         flags;        /**< Flags */
-  /* variable-length data follows, if any */
+  int32         vl_len_;      
+  uint8         temptype;     
+  uint8         subtype;      
+  int16         flags;        
+  
 } Temporal;
 
 /**
@@ -529,16 +511,16 @@ typedef struct
  */
 typedef struct
 {
-  int32         vl_len_;      /**< Varlena header (do not touch directly!) */
-  uint8         temptype;     /**< Temporal type */
-  uint8         subtype;      /**< Temporal subtype */
-  int16         flags;        /**< Flags */
-  TimestampTz   t;            /**< Timestamp (8 bytes) */
+  int32         vl_len_;      
+  uint8         temptype;     
+  uint8         subtype;      
+  int16         flags;        
+  TimestampTz   t;            
   Datum         value;        /**< Base value for types passed by value,
                                    first 8 bytes of the base value for values
                                    passed by reference. The extra bytes
                                    needed are added upon creation. */
-  /* variable-length data follows */
+  
 } TInstant;
 
 /**
@@ -546,62 +528,62 @@ typedef struct
  */
 typedef struct
 {
-  int32         vl_len_;      /**< Varlena header (do not touch directly!) */
-  uint8         temptype;     /**< Temporal type */
-  uint8         subtype;      /**< Temporal subtype */
-  int16         flags;        /**< Flags */
-  int32         count;        /**< Number of TInstant elements */
-  int16         bboxsize;     /**< Size of the bounding box */
+  int32         vl_len_;      
+  uint8         temptype;     
+  uint8         subtype;      
+  int16         flags;        
+  int32         count;        
+  int16         bboxsize;     
   Period        period;       /**< Time span (24 bytes). All bounding boxes
                                    start with a period so actually it is also
                                    the begining of the bounding box. The extra
                                    bytes needed are added upon creation. */
-  /* variable-length data follows */
+  
 } TInstantSet;
 
-//#define TINSTANTSET_BBOX_PTR(is)      ((void *)(&(is)->period))
+
 
 /**
  * Structure to represent temporal values of sequence subtype
  */
 typedef struct
 {
-  int32         vl_len_;      /**< Varlena header (do not touch directly!) */
-  uint8         temptype;     /**< Temporal type */
-  uint8         subtype;      /**< Temporal subtype */
-  int16         flags;        /**< Flags */
-  int32         count;        /**< Number of TInstant elements */
-  int16         bboxsize;     /**< Size of the bounding box */
+  int32         vl_len_;      
+  uint8         temptype;     
+  uint8         subtype;      
+  int16         flags;        
+  int32         count;        
+  int16         bboxsize;     
   Period        period;       /**< Time span (24 bytes). All bounding boxes
                                    start with a period so actually it is also
                                    the begining of the bounding box. The extra
                                    bytes needed are added upon creation. */
-  /* variable-length data follows */
+  
 } TSequence;
 
-//#define TSEQUENCE_BBOX_PTR(seq)      ((void *)(&(seq)->period))
+
 
 /**
  * Structure to represent temporal values of sequence set subtype
  */
 typedef struct
 {
-  int32         vl_len_;      /**< Varlena header (do not touch directly!) */
-  uint8         temptype;     /**< Temporal type */
-  uint8         subtype;      /**< Temporal subtype */
-  int16         flags;        /**< Flags */
-  int32         count;        /**< Number of TSequence elements */
+  int32         vl_len_;      
+  uint8         temptype;     
+  uint8         subtype;      
+  int16         flags;        
+  int32         count;        
   int32         totalcount;   /**< Total number of TInstant elements in all
                                    composing TSequence elements */
-  int16         bboxsize;     /**< Size of the bounding box */
+  int16         bboxsize;     
   Period        period;       /**< Time span (24 bytes). All bounding boxes
                                    start with a period so actually it is also
                                    the begining of the bounding box. The extra
                                    bytes needed are added upon creation. */
-  /* variable-length data follows */
+  
 } TSequenceSet;
 
-//#define TSEQUENCESET_BBOX_PTR(ss)      ((void *)(&(ss)->period))
+
 
 /**
  * Struct for storing a similarity match
@@ -640,13 +622,13 @@ extern char *pg_interval_out(Interval *span);
  * Functions for input/output PostGIS types
  *****************************************************************************/
 
-extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod); // const char *input ?
+extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod); 
 extern char *gserialized_out(const GSERIALIZED *geom);
 
 extern GSERIALIZED *gserialized_from_text(const char *wkt, int srid);
 extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
 
-//extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
+extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
 extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
 
 extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
@@ -658,7 +640,7 @@ extern char *gserialized_as_geojson(const GSERIALIZED *geom, int option, int pre
  * Functions for span and time types
  *****************************************************************************/
 
-/* Input/output functions for span and time types */
+
 
 extern Span *floatspan_in(char *str);
 extern char *floatspan_out(const Span *s, int maxdd);
@@ -684,9 +666,9 @@ extern TimestampSet *timestampset_from_wkb(uint8_t *wkb, int size);
 extern TimestampSet *timestampset_in(char *str);
 extern char *timestampset_out(const TimestampSet *ts);
 
-/*****************************************************************************/
 
-/* Constructor functions for span and time types */
+
+
 
 extern Span *floatspan_make(double lower, double upper, bool lower_inc, bool upper_inc);
 extern Span *intspan_make(int lower, int upper, bool lower_inc, bool upper_inc);
@@ -699,9 +681,9 @@ extern TimestampSet *timestampset_copy(const TimestampSet *ts);
 extern TimestampSet *timestampset_make(const TimestampTz *times, int count);
 extern TimestampSet *timestampset_make_free(TimestampTz *times, int count);
 
-/*****************************************************************************/
 
-/* Cast functions for span and time types */
+
+
 
 extern Span *float_to_floaspan(double d);
 extern Span *int_to_intspan(int i);
@@ -712,9 +694,9 @@ extern PeriodSet *timestamp_to_periodset(TimestampTz t);
 extern TimestampSet *timestamp_to_timestampset(TimestampTz t);
 extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);
 
-/*****************************************************************************/
 
-/* Accessor functions for span and time types */
+
+
 
 extern double floatspan_lower(Span *s);
 extern double floatspan_upper(Span *s);
@@ -753,9 +735,9 @@ extern Interval *timestampset_timespan(const TimestampSet *ss);
 extern bool timestampset_timestamp_n(const TimestampSet *ss, int n, TimestampTz *result);
 extern TimestampTz *timestampset_timestamps(const TimestampSet *ss);
 
-/*****************************************************************************/
 
-/* Transformation functions for span and time types */
+
+
 
 extern PeriodSet *periodset_shift_tscale(const PeriodSet *ps, const Interval *start, const Interval *duration);
 extern void span_expand(const Span *s1, Span *s2);
@@ -767,7 +749,7 @@ extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Int
  * Bounding box functions for span and time types
  *****************************************************************************/
 
-/* Topological functions for span and time types */
+
 
 bool adjacent_floatspan_float(const Span *s, double d);
 extern bool adjacent_intspan_int(const Span *s, int i);
@@ -816,9 +798,9 @@ extern bool overlaps_span_span(const Span *s1, const Span *s2);
 extern bool overlaps_timestampset_period(const TimestampSet *ts, const Period *p);
 extern bool overlaps_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);
 extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
-/*****************************************************************************/
 
-/* Position functions for span and time types */
+
+
 
 extern bool after_period_periodset(const Period *p, const PeriodSet *ps);
 extern bool after_period_timestamp(const Period *p, TimestampTz t);
@@ -898,9 +880,9 @@ extern bool right_intspan_int(const Span *s, int i);
 extern bool right_span_span(const Span *s1, const Span *s2);
 
 
-/*****************************************************************************/
 
-/* Set functions for span and time types */
+
+
 
 extern PeriodSet *intersection_period_periodset(const Period *p, const PeriodSet *ps);
 extern bool intersection_period_timestamp(const Period *p, TimestampTz t, TimestampTz *result);
@@ -953,9 +935,9 @@ extern PeriodSet *union_timestampset_periodset(const TimestampSet *ts, const Per
 extern TimestampSet *union_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t);
 extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 
-/*****************************************************************************/
 
-/* Distance functions for span and time types */
+
+
 
 double distance_floatspan_float(const Span *s, double d);
 extern double distance_intspan_int(const Span *s, int i);
@@ -976,9 +958,9 @@ extern double distance_timestampset_periodset(const TimestampSet *ts, const Peri
 extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);
 extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);
 
-/*****************************************************************************/
 
-/* Comparison functions for span and time types */
+
+
 
 extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);
 extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);
@@ -1006,7 +988,7 @@ extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);
  * Functions for box types
  *****************************************************************************/
 
-/* Input/output functions for box types */
+
 
 extern TBOX *tbox_in(char *str);
 extern char *tbox_out(const TBOX *box, int maxdd);
@@ -1021,9 +1003,9 @@ extern char *stbox_as_hexwkb(const STBOX *box, uint8_t variant, size_t *size);
 extern STBOX *stbox_in(char *str);
 extern char *stbox_out(const STBOX *box, int maxdd);
 
-/*****************************************************************************/
 
-/* Constructor functions for box types */
+
+
 
 extern TBOX *tbox_make(const Period *p, const Span *s);
 extern void tbox_set(const Period *p, const Span *s, TBOX *box);
@@ -1034,9 +1016,9 @@ extern void stbox_set(const Period *p, bool hasx, bool hasz, bool geodetic, int3
   double ymin, double ymax, double zmin, double zmax, STBOX *box);
 extern STBOX *stbox_copy(const STBOX *box);
 
-/*****************************************************************************/
 
-/* Cast functions for box types */
+
+
 
 extern TBOX *int_to_tbox(int i);
 extern TBOX *float_to_tbox(double d);
@@ -1065,9 +1047,9 @@ extern STBOX *periodset_to_stbox(const PeriodSet *ps);
 extern STBOX *geo_timestamp_to_stbox(const GSERIALIZED *gs, TimestampTz t);
 extern STBOX *geo_period_to_stbox(const GSERIALIZED *gs, const Period *p);
 
-/*****************************************************************************/
 
-/* Accessor functions for box types */
+
+
 
 extern bool tbox_hasx(const TBOX *box);
 extern bool tbox_hast(const TBOX *box);
@@ -1089,9 +1071,9 @@ extern bool stbox_tmin(const STBOX *box, TimestampTz *result);
 extern bool stbox_tmax(const STBOX *box, TimestampTz *result);
 extern int32 stbox_get_srid(const STBOX *box);
 
-/*****************************************************************************/
 
-/* Transformation functions for box types */
+
+
 
 extern void tbox_expand(const TBOX *box1, TBOX *box2);
 extern void tbox_shift_tscale(const Interval *start, const Interval *duration, TBOX *box);
@@ -1103,9 +1085,9 @@ extern STBOX *stbox_set_srid(const STBOX *box, int32 srid);
 extern STBOX *stbox_expand_spatial(const STBOX *box, double d);
 extern STBOX *stbox_expand_temporal(const STBOX *box, const Interval *interval);
 
-/*****************************************************************************/
 
-/* Topological functions for box types */
+
+
 
 extern bool contains_tbox_tbox(const TBOX *box1, const TBOX *box2);
 extern bool contained_tbox_tbox(const TBOX *box1, const TBOX *box2);
@@ -1118,9 +1100,9 @@ extern bool overlaps_stbox_stbox(const STBOX *box1, const STBOX *box2);
 extern bool same_stbox_stbox(const STBOX *box1, const STBOX *box2);
 extern bool adjacent_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
-/*****************************************************************************/
 
-/* Position functions for box types */
+
+
 
 extern bool left_tbox_tbox(const TBOX *box1, const TBOX *box2);
 extern bool overleft_tbox_tbox(const TBOX *box1, const TBOX *box2);
@@ -1147,9 +1129,9 @@ extern bool overbefore_stbox_stbox(const STBOX *box1, const STBOX *box2);
 extern bool after_stbox_stbox(const STBOX *box1, const STBOX *box2);
 extern bool overafter_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
-/*****************************************************************************/
 
-/* Set functions for box types */
+
+
 
 extern TBOX *union_tbox_tbox(const TBOX *box1, const TBOX *box2);
 extern bool inter_tbox_tbox(const TBOX *box1, const TBOX *box2, TBOX *result);
@@ -1158,9 +1140,9 @@ extern STBOX *union_stbox_stbox(const STBOX *box1, const STBOX *box2, bool stric
 extern bool inter_stbox_stbox(const STBOX *box1, const STBOX *box2, STBOX *result);
 extern STBOX *intersection_stbox_stbox(const STBOX *box1, const STBOX *box2);
 
-/*****************************************************************************/
 
-/* Comparison functions for box types */
+
+
 
 extern bool tbox_eq(const TBOX *box1, const TBOX *box2);
 extern bool tbox_ne(const TBOX *box1, const TBOX *box2);
@@ -1181,7 +1163,7 @@ extern bool stbox_gt(const STBOX *box1, const STBOX *box2);
  * Functions for temporal types
  *****************************************************************************/
 
-/* Input/output functions for temporal types */
+
 
 extern Temporal *tbool_in(char *str);
 extern char *tbool_out(const Temporal *temp);
@@ -1203,9 +1185,9 @@ extern char *tpoint_out(const Temporal *temp, int maxdd);
 extern Temporal *ttext_in(char *str);
 extern char *ttext_out(const Temporal *temp);
 
-/*****************************************************************************/
 
-/* Constructor functions for temporal types */
+
+
 
 extern Temporal *tbool_from_base(bool b, const Temporal *temp);
 extern TInstant *tboolinst_make(bool b, TimestampTz t);
@@ -1226,7 +1208,6 @@ extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, bool
 extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, bool linear);
 extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, bool linear);
 extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);
-//extern TInstant *tgeogpointinst_make_source(int32_t srid, int hasz, int hasm, const POINT4D *p, TimestampTz t);
 extern TInstantSet *tgeogpointinstset_from_base(const GSERIALIZED *gs, const TInstantSet *is);
 extern TInstantSet *tgeogpointinstset_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
 extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, bool linear);
@@ -1267,17 +1248,17 @@ extern TSequence *ttextseq_from_base_time(const text *txt, const Period *p);
 extern TSequenceSet *ttextseqset_from_base(const text *txt, const TSequenceSet *ss);
 extern TSequenceSet *ttextseqset_from_base_time(const text *txt, const PeriodSet *ps);
 
-/*****************************************************************************/
 
-/* Cast functions for temporal types */
+
+
 
 extern Temporal *tfloat_to_tint(const Temporal *temp);
 extern Temporal *tint_to_tfloat(const Temporal *temp);
 extern Span *tnumber_to_span(const Temporal *temp);
 
-/*****************************************************************************/
 
-/* Accessor functions for temporal types */
+
+
 
 extern bool tbool_end_value(const Temporal *temp);
 extern bool tbool_start_value(const Temporal *temp);
@@ -1326,9 +1307,9 @@ extern text *ttext_min_value(const Temporal *temp);
 extern text *ttext_start_value(const Temporal *temp);
 extern text **ttext_values(const Temporal *temp, int *count);
 
-/*****************************************************************************/
 
-/* Transformation functions for temporal types */
+
+
 
 extern Temporal *temporal_append_tinstant(const Temporal *temp, const TInstant *inst);
 extern Temporal *temporal_merge(const Temporal *temp1, const Temporal *temp2);
@@ -1340,9 +1321,9 @@ extern Temporal *temporal_to_tinstantset(const Temporal *temp);
 extern Temporal *temporal_to_tsequence(const Temporal *temp);
 extern Temporal *temporal_to_tsequenceset(const Temporal *temp);
 
-/*****************************************************************************/
 
-/* Restriction functions for temporal types */
+
+
 
 extern Temporal *tbool_at_value(const Temporal *temp, bool b);
 extern Temporal *tbool_at_values(const Temporal *temp, bool *values, int count);
@@ -1392,9 +1373,9 @@ extern Temporal *ttext_minus_value(const Temporal *temp, text *txt);
 extern Temporal *ttext_minus_values(const Temporal *temp, text **values, int count);
 extern bool ttext_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, text **value);
 
-/*****************************************************************************/
 
-/* Boolean functions for temporal types */
+
+
 
 extern Temporal *tand_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *tand_tbool_bool(const Temporal *temp, bool b);
@@ -1404,9 +1385,9 @@ extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);
 extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);
 
-/*****************************************************************************/
 
-/* Mathematical functions for temporal types */
+
+
 
 extern Temporal *add_float_tfloat(double d, const Temporal *tnumber);
 extern Temporal *add_int_tint(int i, const Temporal *tnumber);
@@ -1432,9 +1413,9 @@ extern Temporal *tnumber_degrees(const Temporal *temp);
 extern Temporal *tnumber_derivative(const Temporal *temp);
 
 
-/*****************************************************************************/
 
-/* Text functions for temporal types */
+
+
 
 extern Temporal *textcat_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *textcat_ttext_text(const Temporal *temp, const text *txt);
@@ -1446,7 +1427,7 @@ extern Temporal *ttext_lower(const Temporal *temp);
  * Bounding box functions for temporal types
  *****************************************************************************/
 
-/* Topological functions for temporal types */
+
 
 extern bool adjacent_float_tfloat(double d, const Temporal *tnumber);
 extern bool adjacent_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
@@ -1580,9 +1561,9 @@ extern bool same_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool same_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool same_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
 
-/*****************************************************************************/
 
-/* Position functions for temporal types */
+
+
 
 extern bool above_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
 extern bool above_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);
@@ -1725,9 +1706,9 @@ extern bool right_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern bool right_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);
 extern bool right_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);
 
-/*****************************************************************************/
 
-/* Distance functions for temporal types */
+
+
 
 extern Temporal *distance_tfloat_float(const Temporal *temp, double d);
 extern Temporal *distance_tint_int(const Temporal *temp, int i);
@@ -1750,9 +1731,9 @@ extern TInstant *nai_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2)
 extern bool shortestline_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, GSERIALIZED **result);
 extern bool shortestline_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, GSERIALIZED **result);
 
-/*****************************************************************************/
 
-/* Ever/always functions for temporal types */
+
+
 
 extern bool tbool_always_eq(const Temporal *temp, bool b);
 extern bool tbool_ever_eq(const Temporal *temp, bool b);
@@ -1779,9 +1760,9 @@ extern bool ttext_ever_eq(const Temporal *temp, text *txt);
 extern bool ttext_ever_le(const Temporal *temp, text *txt);
 extern bool ttext_ever_lt(const Temporal *temp, text *txt);
 
-/*****************************************************************************/
 
-/* Comparison functions for temporal types */
+
+
 
 extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);
 extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);
@@ -1853,7 +1834,7 @@ extern Temporal *tne_ttext_text(const Temporal *temp, const text *txt);
   Spatial functions for temporal point types
  *****************************************************************************/
 
-/* Spatial accessor functions for temporal point types */
+
 
 extern bool bearing_point_point(const GSERIALIZED *geo1, const GSERIALIZED *geo2, double *result);
 extern Temporal *bearing_tpoint_point(const Temporal *temp, const GSERIALIZED *gs, bool invert);
@@ -1868,9 +1849,9 @@ extern int tpoint_srid(const Temporal *temp);
 extern STBOX *tpoint_stboxes(const Temporal *temp, int *count);
 extern GSERIALIZED *tpoint_trajectory(const Temporal *temp);
 
-/*****************************************************************************/
 
-/* Spatial transformation functions for temporal point types */
+
+
 
 extern STBOX *geo_expand_spatial(const GSERIALIZED *gs, double d);
 extern Temporal *tgeompoint_tgeogpoint(const Temporal *temp, bool oper);
@@ -1878,9 +1859,9 @@ extern STBOX *tpoint_expand_spatial(const Temporal *temp, double d);
 extern Temporal **tpoint_make_simple(const Temporal *temp, int *count);
 extern Temporal *tpoint_set_srid(const Temporal *temp, int32 srid);
 
-/*****************************************************************************/
 
-/* Spatial relationship functions for temporal point types */
+
+
 
 extern int contains_geo_tpoint(const GSERIALIZED *geo, const Temporal *temp);
 extern int disjoint_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);
@@ -1897,26 +1878,26 @@ extern Temporal *tintersects_tpoint_geo(const Temporal *temp, const GSERIALIZED 
 extern int touches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);
 extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, bool restr, bool atvalue);
 
-/*****************************************************************************/
 
-/* Time functions for temporal types */
+
+
 
 extern bool temporal_intersects_period(const Temporal *temp, const Period *p);
 extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);
 extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);
 extern bool temporal_intersects_timestampset(const Temporal *temp, const TimestampSet *ss);
 
-/*****************************************************************************/
 
-/* Local aggregate functions for temporal types */
+
+
 
 extern double tnumber_integral(const Temporal *temp);
 extern double tnumber_twavg(const Temporal *temp);
 extern GSERIALIZED *tpoint_twcentroid(const Temporal *temp);
 
-/*****************************************************************************/
 
-/* Tile functions for temporal types */
+
+
 
 extern Temporal **temporal_time_split(const Temporal *temp, TimestampTz start,
   TimestampTz end, int64 tunits, TimestampTz torigin, int count,
@@ -1926,25 +1907,25 @@ extern Temporal **tint_value_split(const Temporal *temp, int start_bucket,
 extern Temporal **tfloat_value_split(const Temporal *temp, double start_bucket,
   double size, int count, float **buckets, int *newcount);
 
-/*****************************************************************************/
 
-/* Similarity functions for temporal types */
+
+
 
 extern double temporal_frechet_distance(const Temporal *temp1, const Temporal *temp2);
 extern double temporal_dyntimewarp_distance(const Temporal *temp1, const Temporal *temp2);
 extern Match *temporal_frechet_path(const Temporal *temp1, const Temporal *temp2, int *count);
 extern Match *temporal_dyntimewarp_path(const Temporal *temp1, const Temporal *temp2, int *count);
 
-/*****************************************************************************/
 
-/* Analytics functions for temporal types */
 
-extern Temporal *geo_to_tpoint(const GSERIALIZED *geo);
-extern Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);
-extern bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
+
+
+Temporal *geo_to_tpoint(const GSERIALIZED *geo);
+Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);
+bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
   int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);
-extern bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
+bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
 
-/*****************************************************************************/
 
-//#endif
+
+
