@@ -13,22 +13,19 @@ function repair_wheel {
 }
 
 # Compile wheels
-echo "==============COMPILE=============="
 for PYBIN in /opt/python/*/bin; do
+  echo "================$PYBIN================"
+  echo "================COMPILE================"
   "${PYBIN}/pip" install -r /PyMEOS/pymeos_cffi/dev-requirements.txt
-  #    "${PYBIN}/pip" wheel /PyMEOS/pymeos_cffi/ -w /wheelhouse_int/
   "${PYBIN}/pip" wheel /PyMEOS/pymeos_cffi/ --no-deps -w /wheelhouse_int/
-done
 
-echo "==============REPAIR=============="
-# Bundle external shared libraries into the wheels
-for whl in wheelhouse_int/*.whl; do
-  repair_wheel "$whl"
-done
-
-echo "==============TEST=============="
-# Install and test package
-for PYBIN in /opt/python/*/bin; do
+  echo "==============REPAIR=============="
+  # Bundle external shared libraries into the wheels
+  for whl in wheelhouse_int/*.whl; do
+    repair_wheel "$whl"
+    rm "$whl"
+  done
+  echo "==============TEST=============="
   "${PYBIN}/pip" install pymeos_cffi -f /wheelhouse
   "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finish; meos_initialize(); meos_finish()"
 done

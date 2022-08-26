@@ -238,11 +238,11 @@ def gserialized_as_text(geom: 'const GSERIALIZED *', precision: int) -> str:
     return result if result != _ffi.NULL else None
 
 
-def gserialized_from_hexewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
-    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.gserialized_from_hexewkb(bytea_wkb_converted, srid_converted)
-    return result if result != _ffi.NULL else None
+# def gserialized_from_hexewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
+#     bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
+#     srid_converted = _ffi.cast('int32', srid)
+#     result = _lib.gserialized_from_hexewkb(bytea_wkb_converted, srid_converted)
+#     return result if result != _ffi.NULL else None
 
 
 def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
