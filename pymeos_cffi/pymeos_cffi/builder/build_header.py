@@ -1,8 +1,10 @@
+import sys
+
 from pymeos_cffi.builder.build_helpers import ADDITIONAL_DEFINITIONS
 
 
-def main():
-    with open('/usr/local/include/meos.h', 'r') as f:
+def main(header_path):
+    with open(header_path, 'r') as f:
         content = f.read()
         content = content.replace('#', '//#')
         content = content.replace(*ADDITIONAL_DEFINITIONS)
@@ -11,4 +13,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    print(sys.argv)
+    if len(sys.argv) > 1:
+        main(sys.argv[1])
+    else:
+        main('/usr/local/include/meos.h')
