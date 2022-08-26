@@ -245,7 +245,7 @@ print(seq.sequences)
 print(ts.sequences)
 
 print("\nshift")
-Addprint(inst.shift_tscale(timedelta(days=1)))
+print(inst.shift_tscale(timedelta(days=1)))
 print(ti.shift_tscale(timedelta(days=1)))
 print(seq.shift_tscale(timedelta(days=1)))
 print(ts.shift_tscale(timedelta(days=1)))
