@@ -1,10 +1,5 @@
 from typing import Callable, Dict, Optional
 
-import _meos_cffi
-
-_ffi = _meos_cffi.ffi
-_lib = _meos_cffi.lib
-
 
 class Conversion:
 
