@@ -99,7 +99,7 @@ def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
 
 """
 
-manual_functions = {
+function_notes = {
 }
 
 function_modifiers = {
@@ -360,10 +360,10 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     if len(param_conversions) > 0:
         param_conversions = f'    {param_conversions}\n'
 
-    # Add TO DO note if the function is listed in the manual_functions dictionary
+    # Add TO DO note if the function is listed in the function_notes dictionary
     note = ''
-    if function_name in manual_functions:
-        note = f'#TODO {manual_functions[function_name]}\n'
+    if function_name in function_notes:
+        note = f'#TODO {function_notes[function_name]}\n'
 
     # Create common part of function string (note, name, parameters, return type and parameter conversions).
     base = f'{note}def {function_name}({params}) -> {function_return_type}:\n' \
