@@ -10,11 +10,8 @@ information
 ## Installation
 
 ````shell
-pip install pymeos-temp
+pip install pymeos
 ````
-> :warning: The package name is likely to change in the future to become `pymeos` once it is merged with the existing
-> PyMEOS Python package.
-
 > :warning: PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
 > not available for PyMEOS CFFI for some OS/Architecture.  
 > If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation) 
