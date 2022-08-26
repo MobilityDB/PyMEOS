@@ -768,8 +768,8 @@ def timestampset_timestamps(ss: 'const TimestampSet *') -> 'TimestampTz *':
 
 def periodset_shift_tscale(ps: 'const PeriodSet *', start: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'PeriodSet *':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    start_converted = _ffi.cast('const Interval *', start) if start else _ffi.NULL
-    duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
+    start_converted = _ffi.cast('const Interval *', start) if start is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.periodset_shift_tscale(ps_converted, start_converted, duration_converted)
     return result if result != _ffi.NULL else None
 
@@ -789,8 +789,8 @@ def lower_upper_shift_tscale(shift: 'const Interval *', duration: 'const Interva
 
 
 def period_shift_tscale(start: "Optional['const Interval *']", duration: "Optional['const Interval *']", result: "Optional['Period *']") -> 'Period *':
-    start_converted = _ffi.cast('const Interval *', start) if start else _ffi.NULL
-    duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
+    start_converted = _ffi.cast('const Interval *', start) if start is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     out_result = _ffi.cast('Period *', result) if result is not None else _ffi.new('Period *')
     _lib.period_shift_tscale(start_converted, duration_converted, out_result)
     return out_result if out_result!= _ffi.NULL else None
@@ -799,8 +799,8 @@ def period_shift_tscale(start: "Optional['const Interval *']", duration: "Option
 
 def timestampset_shift_tscale(ss: 'const TimestampSet *', start: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'TimestampSet *':
     ss_converted = _ffi.cast('const TimestampSet *', ss)
-    start_converted = _ffi.cast('const Interval *', start) if start else _ffi.NULL
-    duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
+    start_converted = _ffi.cast('const Interval *', start) if start is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.timestampset_shift_tscale(ss_converted, start_converted, duration_converted)
     return result if result != _ffi.NULL else None
 
@@ -2383,8 +2383,8 @@ def stbox_out(box: 'const STBOX *', maxdd: int) -> str:
 
 
 def tbox_make(p: "Optional['const Period *']", s: "Optional['const Span *']") -> 'TBOX *':
-    p_converted = _ffi.cast('const Period *', p) if p else _ffi.NULL
-    s_converted = _ffi.cast('const Span *', s) if s else _ffi.NULL
+    p_converted = _ffi.cast('const Period *', p) if p is not None else _ffi.NULL
+    s_converted = _ffi.cast('const Span *', s) if s is not None else _ffi.NULL
     result = _lib.tbox_make(p_converted, s_converted)
     return result if result != _ffi.NULL else None
 
@@ -2403,7 +2403,7 @@ def tbox_copy(box: 'const TBOX *') -> 'TBOX *':
 
 
 def stbox_make(p: "Optional['const Period *']", hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float) -> 'STBOX *':
-    p_converted = _ffi.cast('const Period *', p) if p else _ffi.NULL
+    p_converted = _ffi.cast('const Period *', p) if p is not None else _ffi.NULL
     srid_converted = _ffi.cast('int32', srid)
     result = _lib.stbox_make(p_converted, hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax)
     return result if result != _ffi.NULL else None
@@ -3198,7 +3198,7 @@ def temporal_as_hexwkb(temp: 'const Temporal *', variant: int) -> "Tuple[str, 's
 
 def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, precision: int, srs: "Optional[str]") -> str:
     temp_converted = _ffi.cast('const Temporal *', temp)
-    srs_converted = srs.encode('utf-8') if srs else _ffi.NULL
+    srs_converted = srs.encode('utf-8') if srs is not None else _ffi.NULL
     result = _lib.temporal_as_mfjson(temp_converted, with_bbox, flags, precision, srs_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
@@ -3418,6 +3418,14 @@ def tgeogpointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     return result if result != _ffi.NULL else None
 
 
+def tgeogpointinst_make_source(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *', t: int) -> 'TInstant *':
+    srid_converted = _ffi.cast('int32_t', srid)
+    p_converted = _ffi.cast('const POINT4D *', p)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tgeogpointinst_make_source(srid_converted, hasz, hasm, p_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
+
 def tgeogpointinstset_from_base(gs: 'const GSERIALIZED *', iset: 'const TInstantSet *') -> 'TInstantSet *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     iset_converted = _ffi.cast('const TInstantSet *', iset)
@@ -3583,7 +3591,7 @@ def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, u
 
 
 def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: "Optional['const double *']", times: 'const TimestampTz *', count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
-    zcoords_converted = zcoords if zcoords else _ffi.NULL
+    zcoords_converted = zcoords if zcoords is not None else _ffi.NULL
     srid_converted = _ffi.cast('int32', srid)
     result = _lib.tpointseq_make_coords(xcoords, ycoords, zcoords_converted, times, count, srid_converted, geodetic, lower_inc, upper_inc, linear, normalize)
     return result if result != _ffi.NULL else None
@@ -4007,7 +4015,7 @@ def temporal_merge_array(temparr: 'Temporal **', count: int) -> 'Temporal *':
 def temporal_shift_tscale(temp: 'const Temporal *', shift: 'const Interval *', duration: "Optional['const Interval *']") -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     shift_converted = _ffi.cast('const Interval *', shift)
-    duration_converted = _ffi.cast('const Interval *', duration) if duration else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.temporal_shift_tscale(temp_converted, shift_converted, duration_converted)
     return result if result != _ffi.NULL else None
 

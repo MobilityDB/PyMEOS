@@ -2,7 +2,6 @@ import re
 from re import RegexFlag
 from typing import List, Optional
 
-from build_helpers import ADDITIONAL_DEFINITIONS
 from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
     timestampset_make_modifier, gserialized_from_lwgeom_modifier, tpointseq_make_coords_modifier
 from objects import conversion_map, Conversion
@@ -37,7 +36,7 @@ class Parameter:
             return None
         conversion = self.cp_conversion
         if nullable:
-            conversion += f' if {self.name} else _ffi.NULL'
+            conversion += f' if {self.name} is not None else _ffi.NULL'
         return conversion
 
     def __str__(self) -> str:
@@ -187,7 +186,7 @@ def main():
               r'\((?P<params>[\w\s,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
-    with open('../functions.py', 'w+') as file:
+    with open('pymeos_cffi/functions.py', 'w+') as file:
         file.write(BASE)
         for match in matches:
             named = match.groupdict()
