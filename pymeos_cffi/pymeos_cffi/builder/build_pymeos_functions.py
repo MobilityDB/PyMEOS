@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from build_helpers import ADDITIONAL_DEFINITIONS
 from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
-    timestampset_make_modifier, gserialized_from_lwgeom_modifier
+    timestampset_make_modifier, gserialized_from_lwgeom_modifier, tpointseq_make_coords_modifier
 from pymeos_cffi.builder.objects import conversion_map, Conversion
 
 
@@ -109,6 +109,7 @@ function_modifiers = {
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
+    'tpointseq_make_coords': tpointseq_make_coords_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -145,6 +146,7 @@ nullable_parameters = {
     ('tbox_make', 'p'),
     ('tbox_make', 's'),
     ('stbox_make', 'p'),
+    ('tpointseq_make_coords', 'zcoords'),
 }
 
 

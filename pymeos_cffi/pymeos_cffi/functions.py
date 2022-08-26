@@ -146,8 +146,7 @@ def pg_date_out(date: 'DateADT') -> str:
 
 def pg_time_in(string: str, typmod: int) -> 'TimeADT':
     string_converted = string.encode('utf-8')
-    typmod_converted = _ffi.cast('int32', typmod)
-    result = _lib.pg_time_in(string_converted, typmod_converted)
+    result = _lib.pg_time_in(string_converted, typmod)
     return result if result != _ffi.NULL else None
 
 
@@ -160,47 +159,36 @@ def pg_time_out(time: 'TimeADT') -> str:
 
 def pg_timestamptz_in(string: str, typmod: int) -> 'TimestampTz':
     string_converted = string.encode('utf-8')
-    typmod_converted = _ffi.cast('int32', typmod)
-    result = _lib.pg_timestamptz_in(string_converted, typmod_converted)
+    result = _lib.pg_timestamptz_in(string_converted, typmod)
     return result if result != _ffi.NULL else None
 
 
 def pg_timestamp_in(string: str, typmod: int) -> 'Timestamp':
     string_converted = string.encode('utf-8')
-    typmod_converted = _ffi.cast('int32', typmod)
-    result = _lib.pg_timestamp_in(string_converted, typmod_converted)
+    result = _lib.pg_timestamp_in(string_converted, typmod)
     return result if result != _ffi.NULL else None
 
 
 def pg_timestamptz_out(dt: int) -> str:
-    dt_converted = _ffi.cast('TimestampTz', dt)
-    result = _lib.pg_timestamptz_out(dt_converted)
+    result = _lib.pg_timestamptz_out(dt)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
 
 def pg_timestamp_out(dt: int) -> str:
-    dt_converted = _ffi.cast('Timestamp', dt)
-    result = _lib.pg_timestamp_out(dt_converted)
+    result = _lib.pg_timestamp_out(dt)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
 
 def pg_interval_in(string: str, typmod: int) -> 'Interval *':
     string_converted = string.encode('utf-8')
-    typmod_converted = _ffi.cast('int32', typmod)
-    result = _lib.pg_interval_in(string_converted, typmod_converted)
+    result = _lib.pg_interval_in(string_converted, typmod)
     return result if result != _ffi.NULL else None
 
 
 def pg_interval_make(years: int, months: int, weeks: int, days: int, hours: int, mins: int, secs: float) -> 'Interval *':
-    years_converted = _ffi.cast('int32', years)
-    months_converted = _ffi.cast('int32', months)
-    weeks_converted = _ffi.cast('int32', weeks)
-    days_converted = _ffi.cast('int32', days)
-    hours_converted = _ffi.cast('int32', hours)
-    mins_converted = _ffi.cast('int32', mins)
-    result = _lib.pg_interval_make(years_converted, months_converted, weeks_converted, days_converted, hours_converted, mins_converted, secs)
+    result = _lib.pg_interval_make(years, months, weeks, days, hours, mins, secs)
     return result if result != _ffi.NULL else None
 
 
@@ -213,8 +201,7 @@ def pg_interval_out(span: 'Interval *') -> str:
 
 def gserialized_in(input: str, geom_typmod: int) -> 'GSERIALIZED *':
     input_converted = input.encode('utf-8')
-    geom_typmod_converted = _ffi.cast('int32', geom_typmod)
-    result = _lib.gserialized_in(input_converted, geom_typmod_converted)
+    result = _lib.gserialized_in(input_converted, geom_typmod)
     return result if result != _ffi.NULL else None
 
 
@@ -238,11 +225,10 @@ def gserialized_as_text(geom: 'const GSERIALIZED *', precision: int) -> str:
     return result if result != _ffi.NULL else None
 
 
-# def gserialized_from_hexewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
-#     bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
-#     srid_converted = _ffi.cast('int32', srid)
-#     result = _lib.gserialized_from_hexewkb(bytea_wkb_converted, srid_converted)
-#     return result if result != _ffi.NULL else None
+def gserialized_from_hexewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
+    bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
+    result = _lib.gserialized_from_hexewkb(bytea_wkb_converted, srid)
+    return result if result != _ffi.NULL else None
 
 
 def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
@@ -255,8 +241,7 @@ def gserialized_as_hexwkb(geom: 'const GSERIALIZED *', type: str) -> str:
 
 def gserialized_from_ewkb(bytea_wkb: 'const bytea *', srid: int) -> 'GSERIALIZED *':
     bytea_wkb_converted = _ffi.cast('const bytea *', bytea_wkb)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.gserialized_from_ewkb(bytea_wkb_converted, srid_converted)
+    result = _lib.gserialized_from_ewkb(bytea_wkb_converted, srid)
     return result if result != _ffi.NULL else None
 
 
@@ -315,18 +300,16 @@ def period_out(s: 'const Span *') -> str:
 
 def periodset_as_hexwkb(ps: 'const PeriodSet *', variant: int) -> "Tuple[str, 'size_t *']":
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.periodset_as_hexwkb(ps_converted, variant_converted, size_out)
+    result = _lib.periodset_as_hexwkb(ps_converted, variant, size_out)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None, size_out
 
 
 def periodset_as_wkb(ps: 'const PeriodSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.periodset_as_wkb(ps_converted, variant_converted, size_out)
+    result = _lib.periodset_as_wkb(ps_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
@@ -357,18 +340,16 @@ def periodset_out(ps: 'const PeriodSet *') -> str:
 
 def span_as_hexwkb(s: 'const Span *', variant: int) -> "Tuple[str, 'size_t *']":
     s_converted = _ffi.cast('const Span *', s)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.span_as_hexwkb(s_converted, variant_converted, size_out)
+    result = _lib.span_as_hexwkb(s_converted, variant, size_out)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None, size_out
 
 
 def span_as_wkb(s: 'const Span *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     s_converted = _ffi.cast('const Span *', s)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.span_as_wkb(s_converted, variant_converted, size_out)
+    result = _lib.span_as_wkb(s_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
@@ -394,18 +375,16 @@ def span_out(s: 'const Span *', arg: 'Datum') -> str:
 
 def timestampset_as_hexwkb(ts: 'const TimestampSet *', variant: int) -> "Tuple[str, 'size_t *']":
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.timestampset_as_hexwkb(ts_converted, variant_converted, size_out)
+    result = _lib.timestampset_as_hexwkb(ts_converted, variant, size_out)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None, size_out
 
 
 def timestampset_as_wkb(ts: 'const TimestampSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.timestampset_as_wkb(ts_converted, variant_converted, size_out)
+    result = _lib.timestampset_as_wkb(ts_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
@@ -445,9 +424,7 @@ def intspan_make(lower: int, upper: int, lower_inc: bool, upper_inc: bool) -> 'S
 
 
 def period_make(lower: int, upper: int, lower_inc: bool, upper_inc: bool) -> 'Period *':
-    lower_converted = _ffi.cast('TimestampTz', lower)
-    upper_converted = _ffi.cast('TimestampTz', upper)
-    result = _lib.period_make(lower_converted, upper_converted, lower_inc, upper_inc)
+    result = _lib.period_make(lower, upper, lower_inc, upper_inc)
     return result if result != _ffi.NULL else None
 
 
@@ -482,14 +459,12 @@ def timestampset_copy(ts: 'const TimestampSet *') -> 'TimestampSet *':
 
 
 def timestampset_make(times: List[int], count: int) -> 'TimestampSet *':
-    times_converted = [_ffi.cast('const TimestampTz', x) for x in times]
-    result = _lib.timestampset_make(times_converted, count)
+    result = _lib.timestampset_make(times, count)
     return result if result != _ffi.NULL else None
 
 
 def timestampset_make_free(times: int, count: int) -> 'TimestampSet *':
-    times_converted = _ffi.cast('TimestampTz *', times)
-    result = _lib.timestampset_make_free(times_converted, count)
+    result = _lib.timestampset_make_free(times, count)
     return result if result != _ffi.NULL else None
 
 
@@ -516,20 +491,17 @@ def periodset_to_period(ps: 'const PeriodSet *') -> 'Period *':
 
 
 def timestamp_to_period(t: int) -> 'Period *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.timestamp_to_period(t_converted)
+    result = _lib.timestamp_to_period(t)
     return result if result != _ffi.NULL else None
 
 
 def timestamp_to_periodset(t: int) -> 'PeriodSet *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.timestamp_to_periodset(t_converted)
+    result = _lib.timestamp_to_periodset(t)
     return result if result != _ffi.NULL else None
 
 
 def timestamp_to_timestampset(t: int) -> 'TimestampSet *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.timestamp_to_timestampset(t_converted)
+    result = _lib.timestamp_to_timestampset(t)
     return result if result != _ffi.NULL else None
 
 
@@ -607,8 +579,7 @@ def periodset_hash(ps: 'const PeriodSet *') -> 'uint32':
 
 def periodset_hash_extended(ps: 'const PeriodSet *', seed: int) -> 'uint64':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    seed_converted = _ffi.cast('uint64', seed)
-    result = _lib.periodset_hash_extended(ps_converted, seed_converted)
+    result = _lib.periodset_hash_extended(ps_converted, seed)
     return result if result != _ffi.NULL else None
 
 
@@ -685,8 +656,7 @@ def span_hash(s: 'const Span *') -> 'uint32':
 
 def span_hash_extended(s: 'const Span *', seed: int) -> 'uint64':
     s_converted = _ffi.cast('const Span *', s)
-    seed_converted = _ffi.cast('uint64', seed)
-    result = _lib.span_hash_extended(s_converted, seed_converted)
+    result = _lib.span_hash_extended(s_converted, seed)
     return result if result != _ffi.NULL else None
 
 
@@ -722,8 +692,7 @@ def timestampset_hash(ss: 'const TimestampSet *') -> 'uint32':
 
 def timestampset_hash_extended(ss: 'const TimestampSet *', seed: int) -> 'uint64':
     ss_converted = _ffi.cast('const TimestampSet *', ss)
-    seed_converted = _ffi.cast('uint64', seed)
-    result = _lib.timestampset_hash_extended(ss_converted, seed_converted)
+    result = _lib.timestampset_hash_extended(ss_converted, seed)
     return result if result != _ffi.NULL else None
 
 
@@ -783,9 +752,7 @@ def span_expand(s1: 'const Span *', s2: 'Span *') -> None:
 def lower_upper_shift_tscale(shift: 'const Interval *', duration: 'const Interval *', lower: int, upper: int) -> None:
     shift_converted = _ffi.cast('const Interval *', shift)
     duration_converted = _ffi.cast('const Interval *', duration)
-    lower_converted = _ffi.cast('TimestampTz *', lower)
-    upper_converted = _ffi.cast('TimestampTz *', upper)
-    _lib.lower_upper_shift_tscale(shift_converted, duration_converted, lower_converted, upper_converted)
+    _lib.lower_upper_shift_tscale(shift_converted, duration_converted, lower, upper)
 
 
 def period_shift_tscale(start: "Optional['const Interval *']", duration: "Optional['const Interval *']", result: "Optional['Period *']") -> 'Period *':
@@ -826,8 +793,7 @@ def adjacent_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> '
 
 def adjacent_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.adjacent_period_timestamp(p_converted, t_converted)
+    result = _lib.adjacent_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -854,8 +820,7 @@ def adjacent_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet
 
 def adjacent_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.adjacent_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.adjacent_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -874,16 +839,14 @@ def adjacent_span_span(s1: 'const Span *', s2: 'const Span *') -> 'bool':
 
 
 def adjacent_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.adjacent_timestamp_period(t_converted, p_converted)
+    result = _lib.adjacent_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def adjacent_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.adjacent_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.adjacent_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -942,23 +905,20 @@ def contained_span_span(s1: 'const Span *', s2: 'const Span *') -> 'bool':
 
 
 def contained_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.contained_timestamp_period(t_converted, p_converted)
+    result = _lib.contained_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def contained_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.contained_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.contained_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def contained_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.contained_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.contained_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1004,8 +964,7 @@ def contains_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> '
 
 def contains_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contains_period_timestamp(p_converted, t_converted)
+    result = _lib.contains_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1032,8 +991,7 @@ def contains_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet
 
 def contains_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contains_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.contains_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1053,8 +1011,7 @@ def contains_span_span(s1: 'const Span *', s2: 'const Span *') -> 'bool':
 
 def contains_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'bool':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contains_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.contains_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1137,8 +1094,7 @@ def after_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> 'boo
 
 def after_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.after_period_timestamp(p_converted, t_converted)
+    result = _lib.after_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1165,8 +1121,7 @@ def after_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet *'
 
 def after_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.after_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.after_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1178,23 +1133,20 @@ def after_periodset_timestampset(ps: 'const PeriodSet *', ts: 'const TimestampSe
 
 
 def after_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.after_timestamp_period(t_converted, p_converted)
+    result = _lib.after_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def after_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.after_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.after_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def after_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.after_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.after_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1214,8 +1166,7 @@ def after_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const PeriodSe
 
 def after_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'bool':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.after_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.after_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1235,8 +1186,7 @@ def before_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> 'bo
 
 def before_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.before_period_timestamp(p_converted, t_converted)
+    result = _lib.before_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1263,8 +1213,7 @@ def before_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet *
 
 def before_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.before_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.before_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1276,23 +1225,20 @@ def before_periodset_timestampset(ps: 'const PeriodSet *', ts: 'const TimestampS
 
 
 def before_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.before_timestamp_period(t_converted, p_converted)
+    result = _lib.before_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def before_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.before_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.before_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def before_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.before_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.before_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1312,8 +1258,7 @@ def before_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const PeriodS
 
 def before_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'bool':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.before_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.before_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1364,8 +1309,7 @@ def overafter_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> 
 
 def overafter_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overafter_period_timestamp(p_converted, t_converted)
+    result = _lib.overafter_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1392,8 +1336,7 @@ def overafter_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSe
 
 def overafter_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overafter_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.overafter_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1405,23 +1348,20 @@ def overafter_periodset_timestampset(ps: 'const PeriodSet *', ts: 'const Timesta
 
 
 def overafter_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.overafter_timestamp_period(t_converted, p_converted)
+    result = _lib.overafter_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def overafter_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.overafter_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.overafter_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def overafter_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.overafter_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.overafter_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1441,8 +1381,7 @@ def overafter_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const Peri
 
 def overafter_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'bool':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overafter_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.overafter_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1462,8 +1401,7 @@ def overbefore_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') ->
 
 def overbefore_period_timestamp(p: 'const Period *', t: int) -> 'bool':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overbefore_period_timestamp(p_converted, t_converted)
+    result = _lib.overbefore_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1490,8 +1428,7 @@ def overbefore_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodS
 
 def overbefore_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overbefore_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.overbefore_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1503,23 +1440,20 @@ def overbefore_periodset_timestampset(ps: 'const PeriodSet *', ts: 'const Timest
 
 
 def overbefore_timestamp_period(t: int, p: 'const Period *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.overbefore_timestamp_period(t_converted, p_converted)
+    result = _lib.overbefore_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def overbefore_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.overbefore_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.overbefore_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def overbefore_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.overbefore_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.overbefore_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1539,8 +1473,7 @@ def overbefore_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const Per
 
 def overbefore_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'bool':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overbefore_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.overbefore_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1653,9 +1586,8 @@ def intersection_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') 
 
 def intersection_period_timestamp(p: 'const Period *', t: int) -> int:
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_period_timestamp(p_converted, t_converted, out_result)
+    result = _lib.intersection_period_timestamp(p_converted, t, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -1684,9 +1616,8 @@ def intersection_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const Perio
 
 def intersection_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> int:
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_periodset_timestamp(ps_converted, t_converted, out_result)
+    result = _lib.intersection_periodset_timestamp(ps_converted, t, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -1707,40 +1638,36 @@ def intersection_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
 
 
 def intersection_timestamp_period(t: int, p: 'const Period *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_timestamp_period(t_converted, p_converted, out_result)
+    result = _lib.intersection_timestamp_period(t, p_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def intersection_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_timestamp_periodset(t_converted, ps_converted, out_result)
+    result = _lib.intersection_timestamp_periodset(t, ps_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def intersection_timestamp_timestamp(t1: int, t2: int) -> int:
-    t1_converted = _ffi.cast('TimestampTz', t1)
-    t2_converted = _ffi.cast('TimestampTz', t2)
+    
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_timestamp_timestamp(t1_converted, t2_converted, out_result)
+    result = _lib.intersection_timestamp_timestamp(t1, t2, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def intersection_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_timestamp_timestampset(t_converted, ts_converted, out_result)
+    result = _lib.intersection_timestamp_timestampset(t, ts_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -1762,9 +1689,8 @@ def intersection_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const P
 
 def intersection_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> int:
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('const TimestampTz', t)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.intersection_timestampset_timestamp(ts_converted, t_converted, out_result)
+    result = _lib.intersection_timestampset_timestamp(ts_converted, t, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -1793,8 +1719,7 @@ def minus_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> 'Per
 
 def minus_period_timestamp(p: 'const Period *', t: int) -> 'PeriodSet *':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.minus_period_timestamp(p_converted, t_converted)
+    result = _lib.minus_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1821,8 +1746,7 @@ def minus_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet *'
 
 def minus_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'PeriodSet *':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.minus_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.minus_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1841,40 +1765,36 @@ def minus_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
 
 
 def minus_timestamp_period(t: int, p: 'const Period *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.minus_timestamp_period(t_converted, p_converted, out_result)
+    result = _lib.minus_timestamp_period(t, p_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def minus_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.minus_timestamp_periodset(t_converted, ps_converted, out_result)
+    result = _lib.minus_timestamp_periodset(t, ps_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def minus_timestamp_timestamp(t1: int, t2: int) -> int:
-    t1_converted = _ffi.cast('TimestampTz', t1)
-    t2_converted = _ffi.cast('TimestampTz', t2)
+    
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.minus_timestamp_timestamp(t1_converted, t2_converted, out_result)
+    result = _lib.minus_timestamp_timestamp(t1, t2, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
 def minus_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> int:
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
     out_result = _ffi.new('TimestampTz *')
-    result = _lib.minus_timestamp_timestampset(t_converted, ts_converted, out_result)
+    result = _lib.minus_timestamp_timestampset(t, ts_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -1896,8 +1816,7 @@ def minus_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const PeriodSe
 
 def minus_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'TimestampSet *':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.minus_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.minus_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1924,8 +1843,7 @@ def union_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> 'Per
 
 def union_period_timestamp(p: 'const Period *', t: int) -> 'PeriodSet *':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.union_period_timestamp(p_converted, t_converted)
+    result = _lib.union_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1952,8 +1870,7 @@ def union_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet *'
 
 def union_periodset_timestamp(ps: 'PeriodSet *', t: int) -> 'PeriodSet *':
     ps_converted = _ffi.cast('PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.union_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.union_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -1972,30 +1889,25 @@ def union_span_span(s1: 'const Span *', s2: 'const Span *', strict: bool) -> 'Sp
 
 
 def union_timestamp_period(t: int, p: 'const Period *') -> 'PeriodSet *':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.union_timestamp_period(t_converted, p_converted)
+    result = _lib.union_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def union_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'PeriodSet *':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.union_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.union_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def union_timestamp_timestamp(t1: int, t2: int) -> 'TimestampSet *':
-    t1_converted = _ffi.cast('TimestampTz', t1)
-    t2_converted = _ffi.cast('TimestampTz', t2)
-    result = _lib.union_timestamp_timestamp(t1_converted, t2_converted)
+    result = _lib.union_timestamp_timestamp(t1, t2)
     return result if result != _ffi.NULL else None
 
 
 def union_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'TimestampSet *':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.union_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.union_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2015,8 +1927,7 @@ def union_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const PeriodSe
 
 def union_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'TimestampSet *':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('const TimestampTz', t)
-    result = _lib.union_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.union_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2048,8 +1959,7 @@ def distance_period_periodset(p: 'const Period *', ps: 'const PeriodSet *') -> '
 
 def distance_period_timestamp(p: 'const Period *', t: int) -> 'double':
     p_converted = _ffi.cast('const Period *', p)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.distance_period_timestamp(p_converted, t_converted)
+    result = _lib.distance_period_timestamp(p_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2076,8 +1986,7 @@ def distance_periodset_periodset(ps1: 'const PeriodSet *', ps2: 'const PeriodSet
 
 def distance_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> 'double':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.distance_periodset_timestamp(ps_converted, t_converted)
+    result = _lib.distance_periodset_timestamp(ps_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2096,30 +2005,25 @@ def distance_span_span(s1: 'const Span *', s2: 'const Span *') -> 'double':
 
 
 def distance_timestamp_period(t: int, p: 'const Period *') -> 'double':
-    t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Period *', p)
-    result = _lib.distance_timestamp_period(t_converted, p_converted)
+    result = _lib.distance_timestamp_period(t, p_converted)
     return result if result != _ffi.NULL else None
 
 
 def distance_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> 'double':
-    t_converted = _ffi.cast('TimestampTz', t)
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.distance_timestamp_periodset(t_converted, ps_converted)
+    result = _lib.distance_timestamp_periodset(t, ps_converted)
     return result if result != _ffi.NULL else None
 
 
 def distance_timestamp_timestamp(t1: int, t2: int) -> 'double':
-    t1_converted = _ffi.cast('TimestampTz', t1)
-    t2_converted = _ffi.cast('TimestampTz', t2)
-    result = _lib.distance_timestamp_timestamp(t1_converted, t2_converted)
+    result = _lib.distance_timestamp_timestamp(t1, t2)
     return result if result != _ffi.NULL else None
 
 
 def distance_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> 'double':
-    t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.distance_timestamp_timestampset(t_converted, ts_converted)
+    result = _lib.distance_timestamp_timestampset(t, ts_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2139,8 +2043,7 @@ def distance_timestampset_periodset(ts: 'const TimestampSet *', ps: 'const Perio
 
 def distance_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> 'double':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.distance_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.distance_timestampset_timestamp(ts_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2337,34 +2240,30 @@ def stbox_from_hexwkb(hexwkb: str) -> 'STBOX *':
 
 def tbox_as_wkb(box: 'const TBOX *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     box_converted = _ffi.cast('const TBOX *', box)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.tbox_as_wkb(box_converted, variant_converted, size_out)
+    result = _lib.tbox_as_wkb(box_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
 def tbox_as_hexwkb(box: 'const TBOX *', variant: int, size: 'size_t *') -> str:
     box_converted = _ffi.cast('const TBOX *', box)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_converted = _ffi.cast('size_t *', size)
-    result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size_converted)
+    result = _lib.tbox_as_hexwkb(box_converted, variant, size_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
 
 def stbox_as_wkb(box: 'const STBOX *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     box_converted = _ffi.cast('const STBOX *', box)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.stbox_as_wkb(box_converted, variant_converted, size_out)
+    result = _lib.stbox_as_wkb(box_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
 def stbox_as_hexwkb(box: 'const STBOX *', variant: int, size: 'size_t *') -> str:
     box_converted = _ffi.cast('const STBOX *', box)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_converted = _ffi.cast('size_t *', size)
-    result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size_converted)
+    result = _lib.stbox_as_hexwkb(box_converted, variant, size_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None
 
@@ -2404,16 +2303,14 @@ def tbox_copy(box: 'const TBOX *') -> 'TBOX *':
 
 def stbox_make(p: "Optional['const Period *']", hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float) -> 'STBOX *':
     p_converted = _ffi.cast('const Period *', p) if p else _ffi.NULL
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.stbox_make(p_converted, hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax)
+    result = _lib.stbox_make(p_converted, hasx, hasz, geodetic, srid, xmin, xmax, ymin, ymax, zmin, zmax)
     return result if result != _ffi.NULL else None
 
 
 def stbox_set(p: 'const Period *', hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float, box: 'STBOX *') -> None:
     p_converted = _ffi.cast('const Period *', p)
-    srid_converted = _ffi.cast('int32', srid)
     box_converted = _ffi.cast('STBOX *', box)
-    _lib.stbox_set(p_converted, hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, box_converted)
+    _lib.stbox_set(p_converted, hasx, hasz, geodetic, srid, xmin, xmax, ymin, ymax, zmin, zmax, box_converted)
 
 
 def stbox_copy(box: 'const STBOX *') -> 'STBOX *':
@@ -2439,8 +2336,7 @@ def span_to_tbox(span: 'const Span *') -> 'TBOX *':
 
 
 def timestamp_to_tbox(t: int) -> 'TBOX *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.timestamp_to_tbox(t_converted)
+    result = _lib.timestamp_to_tbox(t)
     return result if result != _ffi.NULL else None
 
 
@@ -2463,14 +2359,12 @@ def periodset_to_tbox(ps: 'const PeriodSet *') -> 'TBOX *':
 
 
 def int_timestamp_to_tbox(i: int, t: int) -> 'TBOX *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.int_timestamp_to_tbox(i, t_converted)
+    result = _lib.int_timestamp_to_tbox(i, t)
     return result if result != _ffi.NULL else None
 
 
 def float_timestamp_to_tbox(d: float, t: int) -> 'TBOX *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.float_timestamp_to_tbox(d, t_converted)
+    result = _lib.float_timestamp_to_tbox(d, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2488,8 +2382,7 @@ def float_period_to_tbox(d: float, p: 'const Period *') -> 'TBOX *':
 
 def span_timestamp_to_tbox(span: 'const Span *', t: int) -> 'TBOX *':
     span_converted = _ffi.cast('const Span *', span)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.span_timestamp_to_tbox(span_converted, t_converted)
+    result = _lib.span_timestamp_to_tbox(span_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2543,8 +2436,7 @@ def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBOX *':
 
 
 def timestamp_to_stbox(t: int) -> 'STBOX *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.timestamp_to_stbox(t_converted)
+    result = _lib.timestamp_to_stbox(t)
     return result if result != _ffi.NULL else None
 
 
@@ -2568,8 +2460,7 @@ def periodset_to_stbox(ps: 'const PeriodSet *') -> 'STBOX *':
 
 def geo_timestamp_to_stbox(gs: 'const GSERIALIZED *', t: int) -> 'STBOX *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.geo_timestamp_to_stbox(gs_converted, t_converted)
+    result = _lib.geo_timestamp_to_stbox(gs_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -2772,8 +2663,7 @@ def stbox_shift_tscale(start: 'const Interval *', duration: 'const Interval *', 
 
 def stbox_set_srid(box: 'const STBOX *', srid: int) -> 'STBOX *':
     box_converted = _ffi.cast('const STBOX *', box)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.stbox_set_srid(box_converted, srid_converted)
+    result = _lib.stbox_set_srid(box_converted, srid)
     return result if result != _ffi.NULL else None
 
 
@@ -3189,9 +3079,8 @@ def tbool_out(temp: 'const Temporal *') -> str:
 
 def temporal_as_hexwkb(temp: 'const Temporal *', variant: int) -> "Tuple[str, 'size_t *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.temporal_as_hexwkb(temp_converted, variant_converted, size_out)
+    result = _lib.temporal_as_hexwkb(temp_converted, variant, size_out)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None, size_out
 
@@ -3206,9 +3095,8 @@ def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, pr
 
 def temporal_as_wkb(temp: 'const Temporal *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
-    result = _lib.temporal_as_wkb(temp_converted, variant_converted, size_out)
+    result = _lib.temporal_as_wkb(temp_converted, variant, size_out)
     return result if result != _ffi.NULL else None, size_out
 
 
@@ -3309,8 +3197,7 @@ def tbool_from_base(b: bool, temp: 'const Temporal *') -> 'Temporal *':
 
 
 def tboolinst_make(b: bool, t: int) -> 'TInstant *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tboolinst_make(b, t_converted)
+    result = _lib.tboolinst_make(b, t)
     return result if result != _ffi.NULL else None
 
 
@@ -3363,8 +3250,7 @@ def tfloat_from_base(b: bool, temp: 'const Temporal *', linear: bool) -> 'Tempor
 
 
 def tfloatinst_make(d: float, t: int) -> 'TInstant *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tfloatinst_make(d, t_converted)
+    result = _lib.tfloatinst_make(d, t)
     return result if result != _ffi.NULL else None
 
 
@@ -3413,8 +3299,7 @@ def tgeogpoint_from_base(gs: 'const GSERIALIZED *', temp: 'const Temporal *', li
 
 def tgeogpointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tgeogpointinst_make(gs_converted, t_converted)
+    result = _lib.tgeogpointinst_make(gs_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -3469,8 +3354,7 @@ def tgeompoint_from_base(gs: 'const GSERIALIZED *', temp: 'const Temporal *', li
 
 def tgeompointinst_make(gs: 'const GSERIALIZED *', t: int) -> 'TInstant *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tgeompointinst_make(gs_converted, t_converted)
+    result = _lib.tgeompointinst_make(gs_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -3535,8 +3419,7 @@ def tint_from_base(i: int, temp: 'const Temporal *') -> 'Temporal *':
 
 
 def tintinst_make(i: int, t: int) -> 'TInstant *':
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.tintinst_make(i, t_converted)
+    result = _lib.tintinst_make(i, t)
     return result if result != _ffi.NULL else None
 
 
@@ -3582,13 +3465,9 @@ def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, u
     return result if result != _ffi.NULL else None
 
 
-def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: 'const double *', times: int, count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
-    xcoords_converted = _ffi.cast('const double *', xcoords)
-    ycoords_converted = _ffi.cast('const double *', ycoords)
-    zcoords_converted = _ffi.cast('const double *', zcoords)
-    times_converted = _ffi.cast('const TimestampTz *', times)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.tpointseq_make_coords(xcoords_converted, ycoords_converted, zcoords_converted, times_converted, count, srid_converted, geodetic, lower_inc, upper_inc, linear, normalize)
+def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: "Optional['const double *']", times: int, count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, linear: bool, normalize: bool) -> 'TSequence *':
+    zcoords_converted = zcoords if zcoords else _ffi.NULL
+    result = _lib.tpointseq_make_coords(xcoords, ycoords, zcoords_converted, times, count, srid, geodetic, lower_inc, upper_inc, linear, normalize)
     return result if result != _ffi.NULL else None
 
 
@@ -3627,8 +3506,7 @@ def ttext_from_base(txt: str, temp: 'const Temporal *') -> 'Temporal *':
 
 def ttextinst_make(txt: str, t: int) -> 'TInstant *':
     txt_converted = cstring2text(txt)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.ttextinst_make(txt_converted, t_converted)
+    result = _lib.ttextinst_make(txt_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -4073,9 +3951,8 @@ def tbool_minus_values(temp: 'const Temporal *', values: 'bool *', count: int) -
 
 def tbool_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('bool *')
-    result = _lib.tbool_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    result = _lib.tbool_value_at_timestamp(temp_converted, t, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -4109,8 +3986,7 @@ def temporal_at_periodset(temp: 'const Temporal *', ps: 'const PeriodSet *') -> 
 
 def temporal_at_timestamp(temp: 'const Temporal *', t: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.temporal_at_timestamp(temp_converted, t_converted)
+    result = _lib.temporal_at_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -4149,8 +4025,7 @@ def temporal_minus_periodset(temp: 'const Temporal *', ps: 'const PeriodSet *') 
 
 def temporal_minus_timestamp(temp: 'const Temporal *', t: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.temporal_minus_timestamp(temp_converted, t_converted)
+    result = _lib.temporal_minus_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -4189,9 +4064,8 @@ def tfloat_minus_values(temp: 'const Temporal *', values: 'double *', count: int
 
 def tfloat_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'double':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('double *')
-    result = _lib.tfloat_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    result = _lib.tfloat_value_at_timestamp(temp_converted, t, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -4225,9 +4099,8 @@ def tint_minus_values(temp: 'const Temporal *', values: 'int *', count: int) -> 
 
 def tint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'int':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('int *')
-    result = _lib.tint_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    result = _lib.tint_value_at_timestamp(temp_converted, t, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -4333,9 +4206,8 @@ def tpoint_minus_values(temp: 'const Temporal *', values: 'GSERIALIZED **', coun
 
 def tpoint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'GSERIALIZED **':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('GSERIALIZED **')
-    result = _lib.tpoint_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    result = _lib.tpoint_value_at_timestamp(temp_converted, t, strict, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -4371,9 +4243,8 @@ def ttext_minus_values(temp: 'const Temporal *', values: 'text **', count: int) 
 
 def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'text **':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('text **')
-    result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    result = _lib.ttext_value_at_timestamp(temp_converted, t, strict, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
@@ -4669,8 +4540,7 @@ def adjacent_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal
 
 def adjacent_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.adjacent_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.adjacent_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -4688,9 +4558,8 @@ def adjacent_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'bool':
 
 
 def adjacent_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.adjacent_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.adjacent_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -4826,8 +4695,7 @@ def contained_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Tempora
 
 def contained_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contained_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.contained_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -4845,9 +4713,8 @@ def contained_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'bool':
 
 
 def contained_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.contained_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.contained_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -4983,8 +4850,7 @@ def contains_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal
 
 def contains_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contains_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.contains_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5002,9 +4868,8 @@ def contains_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'bool':
 
 
 def contains_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.contains_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.contains_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5164,8 +5029,7 @@ def overlaps_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal
 
 def overlaps_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overlaps_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.overlaps_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5183,9 +5047,8 @@ def overlaps_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'bool':
 
 
 def overlaps_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.overlaps_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.overlaps_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5393,8 +5256,7 @@ def same_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal *')
 
 def same_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.same_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.same_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5412,9 +5274,8 @@ def same_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'bool':
 
 
 def same_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.same_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.same_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5559,8 +5420,7 @@ def after_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal *'
 
 def after_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.after_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.after_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5572,9 +5432,8 @@ def after_temporal_timestampset(temp: 'const Temporal *', ts: 'const TimestampSe
 
 
 def after_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.after_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.after_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5699,8 +5558,7 @@ def before_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Temporal *
 
 def before_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.before_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.before_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5712,9 +5570,8 @@ def before_temporal_timestampset(temp: 'const Temporal *', ts: 'const TimestampS
 
 
 def before_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.before_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.before_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5979,8 +5836,7 @@ def overafter_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Tempora
 
 def overafter_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overafter_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.overafter_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -5992,9 +5848,8 @@ def overafter_temporal_timestampset(temp: 'const Temporal *', ts: 'const Timesta
 
 
 def overafter_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.overafter_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.overafter_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -6119,8 +5974,7 @@ def overbefore_temporal_temporal(temp1: 'const Temporal *', temp2: 'const Tempor
 
 def overbefore_temporal_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.overbefore_temporal_timestamp(temp_converted, t_converted)
+    result = _lib.overbefore_temporal_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -6132,9 +5986,8 @@ def overbefore_temporal_timestampset(temp: 'const Temporal *', ts: 'const Timest
 
 
 def overbefore_timestamp_temporal(t: int, temp: 'const Temporal *') -> 'bool':
-    t_converted = _ffi.cast('TimestampTz', t)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.overbefore_timestamp_temporal(t_converted, temp_converted)
+    result = _lib.overbefore_timestamp_temporal(t, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -7282,8 +7135,7 @@ def tpoint_make_simple(temp: 'const Temporal *') -> "Tuple['Temporal **', 'int']
 
 def tpoint_set_srid(temp: 'const Temporal *', srid: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.tpoint_set_srid(temp_converted, srid_converted)
+    result = _lib.tpoint_set_srid(temp_converted, srid)
     return result if result != _ffi.NULL else None
 
 
@@ -7401,8 +7253,7 @@ def temporal_intersects_periodset(temp: 'const Temporal *', ps: 'const PeriodSet
 
 def temporal_intersects_timestamp(temp: 'const Temporal *', t: int) -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.temporal_intersects_timestamp(temp_converted, t_converted)
+    result = _lib.temporal_intersects_timestamp(temp_converted, t)
     return result if result != _ffi.NULL else None
 
 
@@ -7433,13 +7284,9 @@ def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
 
 def temporal_time_split(temp: 'const Temporal *', start: int, end: int, tunits: int, torigin: int, count: int) -> "Tuple['Temporal **', 'TimestampTz **', 'int']":
     temp_converted = _ffi.cast('const Temporal *', temp)
-    start_converted = _ffi.cast('TimestampTz', start)
-    end_converted = _ffi.cast('TimestampTz', end)
-    tunits_converted = _ffi.cast('int64', tunits)
-    torigin_converted = _ffi.cast('TimestampTz', torigin)
     buckets = _ffi.new('TimestampTz **')
     newcount = _ffi.new('int *')
-    result = _lib.temporal_time_split(temp_converted, start_converted, end_converted, tunits_converted, torigin_converted, count, buckets, newcount)
+    result = _lib.temporal_time_split(temp_converted, start, end, tunits, torigin, count, buckets, newcount)
     return result if result != _ffi.NULL else None, buckets, newcount
 
 
