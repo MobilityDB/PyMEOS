@@ -26,4 +26,5 @@ for PYBIN in /opt/python/*/bin; do
   echo "==============TEST=============="
   "${PYBIN}/pip" install pymeos_cffi -f /wheelhouse
   "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finish; meos_initialize(); meos_finish()"
+  echo "=========FINISH $PYBIN========="
 done
