@@ -34,6 +34,7 @@ def gserialized_from_lwgeom_modifier(function: str) -> str:
 
 def tpointseq_make_coords_modifier(function: str) -> str:
     return function \
+        .replace('times: int', "times: 'const TimestampTz *'") \
         .replace("    xcoords_converted = _ffi.cast('const double *', xcoords)\n", '') \
         .replace("    ycoords_converted = _ffi.cast('const double *', ycoords)\n", '') \
         .replace("    times_converted = _ffi.cast('const TimestampTz *', times)\n", '') \
