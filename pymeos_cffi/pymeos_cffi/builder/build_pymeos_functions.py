@@ -172,13 +172,15 @@ def is_output_parameter(function: str, parameter: Parameter) -> bool:
 
 
 def main():
-    with open('/usr/local/include/meos.h') as f:
+    with open('pymeos_cffi/builder/meos.h') as f:
         content = f.read()
-        content = content.replace('#', '//#')
-        content = content.replace(*ADDITIONAL_DEFINITIONS)
-        # Remove comments
-        content = re.sub(r'//.*', '', content)
-        content = re.sub(r'/\*.*?\*/', '', content, flags=RegexFlag.MULTILINE)
+    # Regex lines:
+    # 1st line: Match beginning of function with optional "extern", "static" and "inline"
+    # 2nd line: Match the return type as any alphanumeric string with optional "const" modifier (before the type) or
+    #             pointer modifier (after the type)
+    # 3rd line: Match the name of the function as any alphanumeric string
+    # 4th line: Match the parameters as any sequence of alphanumeric characters, commas, spaces and asterisks between
+    #             parenthesis and end with a semicolon. (Parameter decomposition will be performed later)
     f_regex = r'(?:extern )?(?:static )?(?:inline )?' \
               r'(?P<returnType>(?:const )?\w+(?: \*+)?)' \
               r'\s*(?P<function>\w+)' \
