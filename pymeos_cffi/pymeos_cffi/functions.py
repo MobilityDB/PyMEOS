@@ -4012,9 +4012,9 @@ def temporal_merge_array(temparr: 'Temporal **', count: int) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_shift_tscale(temp: 'const Temporal *', shift: 'const Interval *', duration: "Optional['const Interval *']") -> 'Temporal *':
+def temporal_shift_tscale(temp: 'const Temporal *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    shift_converted = _ffi.cast('const Interval *', shift)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.temporal_shift_tscale(temp_converted, shift_converted, duration_converted)
     return result if result != _ffi.NULL else None
