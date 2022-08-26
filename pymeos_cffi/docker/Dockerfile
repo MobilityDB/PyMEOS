@@ -5,6 +5,7 @@ RUN yum -y update
 RUN yum -y install gcc gcc-c++ make cmake postgresql13-devel proj-devel json-c-devel geos39-devel
 RUN git clone --branch meos https://github.com/estebanzimanyi/MobilityDB
 WORKDIR MobilityDB/build
+RUN git checkout cf7630bb6f3053897afc0bd384bb53a333500790
 RUN cmake .. -DMEOS=on -DDOC_DEV=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so
 RUN make -j
 RUN make install

@@ -81,18 +81,21 @@ typedef struct varlena bytea;
 extern char *text2cstring(const text *textptr);
 extern text *cstring2text(const char *cstring);
 
+typedef uint16_t lwflags_t;
+
+
 
 typedef struct {
-	double afac, bfac, cfac, dfac, efac, ffac, gfac, hfac, ifac, xoff, yoff, zoff;
+    double afac, bfac, cfac, dfac, efac, ffac, gfac, hfac, ifac, xoff, yoff, zoff;
 } AFFINE;
 
 
 
 typedef struct
 {
-	double xmin, ymin, zmin;
-	double xmax, ymax, zmax;
-	int32_t srid;
+    double xmin, ymin, zmin;
+    double xmax, ymax, zmax;
+    int32_t srid;
 }
 BOX3D;
 
@@ -104,15 +107,15 @@ BOX3D;
 */
 typedef struct
 {
-	uint8_t flags;
-	double xmin;
-	double xmax;
-	double ymin;
-	double ymax;
-	double zmin;
-	double zmax;
-	double mmin;
-	double mmax;
+    lwflags_t flags;
+    double xmin;
+    double xmax;
+    double ymin;
+    double ymax;
+    double zmin;
+    double zmax;
+    double mmin;
+    double mmax;
 } GBOX;
 
 
@@ -126,13 +129,13 @@ typedef struct
 */
 typedef struct
 {
-	double	a;	
-	double	b; 	
-	double	f;	
-	double	e;	
-	double	e_sq;	
-	double  radius;  
-	char	name[20];  
+    double  a;  
+    double  b;  
+    double  f;  
+    double  e;  
+    double  e_sq;   
+    double  radius;  
+    char    name[20];  
 }
 SPHEROID;
 
@@ -141,31 +144,31 @@ SPHEROID;
 */
 typedef struct
 {
-	double x, y;
+    double x, y;
 }
 POINT2D;
 
 typedef struct
 {
-	double x, y, z;
+    double x, y, z;
 }
 POINT3DZ;
 
 typedef struct
 {
-	double x, y, z;
+    double x, y, z;
 }
 POINT3D;
 
 typedef struct
 {
-	double x, y, m;
+    double x, y, m;
 }
 POINT3DM;
 
 typedef struct
 {
-	double x, y, z, m;
+    double x, y, z, m;
 }
 POINT4D;
 
@@ -178,28 +181,28 @@ POINT4D;
 */
 typedef struct
 {
-	
-	uint8_t *serialized_pointlist;
+    uint32_t npoints;   
+    uint32_t maxpoints; 
 
-	
-	uint8_t  flags;
+    
+    lwflags_t flags;
 
-	uint32_t npoints;   
-	uint32_t maxpoints; 
+    
+    uint8_t *serialized_pointlist;
 }
 POINTARRAY;
 
 /******************************************************************
 * GSERIALIZED
 */
+
 typedef struct
 {
-	uint32_t size; 
-	uint8_t srid[3]; 
-	uint8_t flags; 
-	uint8_t data[1]; 
+    uint32_t size; 
+    uint8_t srid[3]; 
+    uint8_t gflags; 
+    uint8_t data[1]; 
 } GSERIALIZED;
-
 
 /******************************************************************
 * LWGEOM (any geometry type)
@@ -209,201 +212,216 @@ typedef struct
 */
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	void *data;
+    GBOX *bbox;
+    void *data;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type;
+    char pad[1]; 
 }
 LWGEOM;
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	POINTARRAY *point;  
+    GBOX *bbox;
+    POINTARRAY *point;  
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
 }
 LWPOINT; 
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	POINTARRAY *points; 
+    GBOX *bbox;
+    POINTARRAY *points; 
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
 }
 LWLINE; 
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	POINTARRAY *points;
+    GBOX *bbox;
+    POINTARRAY *points;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type;
+    char pad[1]; 
 }
 LWTRIANGLE;
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	POINTARRAY *points; 
+    GBOX *bbox;
+    POINTARRAY *points; 
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
 }
 LWCIRCSTRING; 
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t nrings;   
-	uint32_t maxrings; 
-	POINTARRAY **rings; 
+    GBOX *bbox;
+    POINTARRAY **rings; 
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t nrings;   
+    uint32_t maxrings; 
 }
 LWPOLY; 
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWPOINT **geoms;
+    GBOX *bbox;
+    LWPOINT **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWMPOINT;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWLINE **geoms;
+    GBOX *bbox;
+    LWLINE **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWMLINE;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWPOLY **geoms;
+    GBOX *bbox;
+    LWPOLY **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWMPOLY;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWGEOM **geoms;
+    GBOX *bbox;
+    LWGEOM **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWCOLLECTION;
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWGEOM **geoms;
+    GBOX *bbox;
+    LWGEOM **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWCOMPOUND; 
 
 
 typedef struct
 {
-	uint8_t type; 
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t nrings;    
-	uint32_t maxrings;  
-	LWGEOM **rings; 
+    GBOX *bbox;
+    LWGEOM **rings;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t nrings;    
+    uint32_t maxrings;  
 }
 LWCURVEPOLY; 
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWGEOM **geoms;
+    GBOX *bbox;
+    LWGEOM **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWMCURVE;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWGEOM **geoms;
+    GBOX *bbox;
+    LWGEOM **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWMSURFACE;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWPOLY **geoms;
+    GBOX *bbox;
+    LWPOLY **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWPSURFACE;
 
 
 typedef struct
 {
-	uint8_t type;
-	uint8_t flags;
-	GBOX *bbox;
-	int32_t srid;
-	uint32_t ngeoms;   
-	uint32_t maxgeoms; 
-	LWTRIANGLE **geoms;
+    GBOX *bbox;
+    LWTRIANGLE **geoms;
+    int32_t srid;
+    lwflags_t flags;
+    uint8_t type; 
+    char pad[1]; 
+    uint32_t ngeoms;   
+    uint32_t maxgeoms; 
 }
 LWTIN;
-
 
 extern LWPOINT *lwpoint_make(int32_t srid, int hasz, int hasm, const POINT4D *p);
 
@@ -628,7 +646,7 @@ extern char *gserialized_out(const GSERIALIZED *geom);
 extern GSERIALIZED *gserialized_from_text(const char *wkt, int srid);
 extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
 
-extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
+//extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
 extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
 
 extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);

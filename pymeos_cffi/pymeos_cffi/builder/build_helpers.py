@@ -710,7 +710,7 @@ ADDITIONAL_DEFINITIONS = (
     """
 extern char *text2cstring(const text *textptr);
 extern text *cstring2text(const char *cstring);
-""" + LIBLWGEOM_DEFINITIONS_2 + """
+""" + LIBLWGEOM_DEFINITIONS + """
 /*****************************************************************************
  * Type definitions
  *****************************************************************************/"""

@@ -1,7 +1,7 @@
 import re
 import sys
 
-from pymeos_cffi.builder.build_helpers import ADDITIONAL_DEFINITIONS
+from build_helpers import ADDITIONAL_DEFINITIONS
 
 
 def main(header_path):
