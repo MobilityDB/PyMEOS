@@ -1,4 +1,4 @@
-# Py![MEOS Logo](./doc/images/meos-logo.png)
+# ![MEOS Logo](https://raw.githubusercontent.com/MobilityDB/PyMEOS/master/doc/images/PyMEOS%20Logo.png)
 
 [MEOS (Mobility Engine, Open Source)](https://www.libmeos.org/) is a C library which enables the manipulation of
 temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)'s data types and functions.
@@ -17,19 +17,16 @@ This repository contains 3 subprojects:
 ## Installation
 
 ````shell
-pip install pymeos-temp
+pip install pymeos
 ````
-> :warning: The package name is likely to change in the future to become `pymeos` once it is merged with the existing
-> PyMEOS Python package.
-
-> :warning: PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
+> PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
 > not available for PyMEOS CFFI for some OS/Architecture.  
-> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](./pymeos_cffi#installation) 
+> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation) 
 > on how to proceed
 
 ## Sample code
 
-> :warning: **IMPORTANT** Before using any PyMEOS function, always call `meos_initialize`. Otherwise, the library will 
+>  **IMPORTANT** Before using any PyMEOS function, always call `meos_initialize`. Otherwise, the library will 
 > crash with a `Segmentation Fault` error. You should also always call `meos_finish` at the end of your code.
 
 ````python
