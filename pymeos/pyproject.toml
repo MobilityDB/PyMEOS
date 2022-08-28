@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymeos"
-version = "1.0.1"
+version = "1.0.2"
 authors = [
     { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
     { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
@@ -15,7 +15,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
-readme = "README.md"
+readme = "README.pypi.md"
 license = "PostgreSQL"
 
 requires-python = ">=3.7"
