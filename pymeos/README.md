@@ -12,14 +12,14 @@ information
 ````shell
 pip install pymeos
 ````
-> :warning: PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
+> PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
 > not available for PyMEOS CFFI for some OS/Architecture.  
 > If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation) 
 > on how to proceed
 
 ## Sample code
 
-> :warning: **IMPORTANT** Before using any PyMEOS function, always call `meos_initialize`. Otherwise, the library will 
+>  **IMPORTANT** Before using any PyMEOS function, always call `meos_initialize`. Otherwise, the library will 
 > crash with a `Segmentation Fault` error. You should also always call `meos_finish` at the end of your code.
 
 ````python
