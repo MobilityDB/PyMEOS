@@ -512,6 +512,18 @@ typedef struct
 } STBOX;
 
 /**
+ * @brief Enumeration that defines the interpolation types used in
+ * MobilityDB.
+ */
+typedef enum
+{
+  INTERP_NONE =    0,
+  DISCRETE =       1,
+  STEPWISE =       2,
+  LINEAR =         3,
+} interpType;
+
+/**
  * Structure to represent the common structure of temporal values of
  * any temporal subtype
  */
@@ -542,7 +554,7 @@ typedef struct
 } TInstant;
 
 /**
- * Structure to represent temporal values of instant set subtype
+ * Structure to represent temporal values of instant set or sequence subtype
  */
 typedef struct
 {
@@ -551,26 +563,7 @@ typedef struct
   uint8         subtype;      
   int16         flags;        
   int32         count;        
-  int16         bboxsize;     
-  Period        period;       /**< Time span (24 bytes). All bounding boxes
-                                   start with a period so actually it is also
-                                   the begining of the bounding box. The extra
-                                   bytes needed are added upon creation. */
-  
-} TInstantSet;
-
-
-
-/**
- * Structure to represent temporal values of sequence subtype
- */
-typedef struct
-{
-  int32         vl_len_;      
-  uint8         temptype;     
-  uint8         subtype;      
-  int16         flags;        
-  int32         count;        
+  int32         maxcount;     
   int16         bboxsize;     
   Period        period;       /**< Time span (24 bytes). All bounding boxes
                                    start with a period so actually it is also
@@ -623,36 +616,40 @@ extern void meos_finish(void);
  * Functions for input/output PostgreSQL time types
  *****************************************************************************/
 
-extern DateADT pg_date_in(char *str);
+extern bool bool_in(const char *in_str);
+extern char *bool_out(bool b);
+extern DateADT pg_date_in(const char *str);
 extern char *pg_date_out(DateADT date);
-extern TimeADT pg_time_in(char *str, int32 typmod);
-extern char *pg_time_out(TimeADT time);
-extern TimestampTz pg_timestamptz_in(char *str, int32 typmod);
-extern Timestamp pg_timestamp_in(char *str, int32 typmod);
-extern char *pg_timestamptz_out(TimestampTz dt);
-extern char *pg_timestamp_out(Timestamp dt);
-extern Interval *pg_interval_in(char *str, int32 typmod);
-extern Interval *pg_interval_make(int32 years, int32 months, int32 weeks,
-  int32 days, int32 hours, int32 mins, double secs);
+extern int pg_interval_cmp(const Interval *interval1, const Interval *interval2);
+extern Interval *pg_interval_in(const char *str, int32 typmod);
+extern Interval *pg_interval_make(int32 years, int32 months, int32 weeks, int32 days, int32 hours, int32 mins, double secs);
 extern char *pg_interval_out(Interval *span);
+extern Interval *pg_interval_pl(const Interval *span1, const Interval *span2);
+extern TimeADT pg_time_in(const char *str, int32 typmod);
+extern char *pg_time_out(TimeADT time);
+extern Timestamp pg_timestamp_in(const char *str, int32 typmod);
+extern Interval *pg_timestamp_mi(TimestampTz dt1, TimestampTz dt2);
+extern TimestampTz pg_timestamp_mi_interval(TimestampTz timestamp, const Interval *span);
+extern char *pg_timestamp_out(Timestamp dt);
+extern TimestampTz pg_timestamp_pl_interval(TimestampTz timestamp, const Interval *span);
+extern TimestampTz pg_timestamptz_in(const char *str, int32 typmod);
+extern char *pg_timestamptz_out(TimestampTz dt);
 
 /*****************************************************************************
- * Functions for input/output PostGIS types
+ * Functions for input/output and manipulation of PostGIS types
  *****************************************************************************/
 
-extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod); 
-extern char *gserialized_out(const GSERIALIZED *geom);
-
-extern GSERIALIZED *gserialized_from_text(const char *wkt, int srid);
-extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
-
-//extern GSERIALIZED *gserialized_from_hexewkb(const bytea *bytea_wkb, int32 srid);
-extern char *gserialized_as_hexwkb(const GSERIALIZED *geom, const char *type);
-
-extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
-extern GSERIALIZED *gserialized_from_geojson(char *geojson);
-
+extern bytea *gserialized_as_ewkb(const GSERIALIZED *geom, char *type);
 extern char *gserialized_as_geojson(const GSERIALIZED *geom, int option, int precision, char *srs);
+extern char *gserialized_as_hexewkb(const GSERIALIZED *geom, const char *type);
+extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
+extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
+extern GSERIALIZED *gserialized_from_geojson(const char *geojson);
+extern GSERIALIZED *gserialized_from_hexewkb(const char *wkt);
+extern GSERIALIZED *gserialized_from_text(char *wkt, int srid);
+extern GSERIALIZED *gserialized_in(char *input, int32 geom_typmod);
+extern char *gserialized_out(const GSERIALIZED *geom);
+extern bool gserialized_same(const GSERIALIZED *geom1, const GSERIALIZED *geom2);
 
 /*****************************************************************************
  * Functions for span and time types
@@ -660,28 +657,28 @@ extern char *gserialized_as_geojson(const GSERIALIZED *geom, int option, int pre
 
 
 
-extern Span *floatspan_in(char *str);
+extern Span *floatspan_in(const char *str);
 extern char *floatspan_out(const Span *s, int maxdd);
-extern Span *intspan_in(char *str);
+extern Span *intspan_in(const char *str);
 extern char *intspan_out(const Span *s);
-extern Period *period_in(char *str);
+extern Period *period_in(const char *str);
 extern char *period_out(const Span *s);
 extern char *periodset_as_hexwkb(const PeriodSet *ps, uint8_t variant, size_t *size_out);
 extern uint8_t *periodset_as_wkb(const PeriodSet *ps, uint8_t variant, size_t *size_out);
 extern PeriodSet *periodset_from_hexwkb(const char *hexwkb);
-extern PeriodSet *periodset_from_wkb(uint8_t *wkb, int size);
-extern PeriodSet *periodset_in(char *str);
+extern PeriodSet *periodset_from_wkb(const uint8_t *wkb, int size);
+extern PeriodSet *periodset_in(const char *str);
 extern char *periodset_out(const PeriodSet *ps);
 extern char *span_as_hexwkb(const Span *s, uint8_t variant, size_t *size_out);
 extern uint8_t *span_as_wkb(const Span *s, uint8_t variant, size_t *size_out);
 extern Span *span_from_hexwkb(const char *hexwkb);
-extern Span *span_from_wkb(uint8_t *wkb, int size);
+extern Span *span_from_wkb(const uint8_t *wkb, int size);
 extern char *span_out(const Span *s, Datum arg);
 extern char *timestampset_as_hexwkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);
 extern uint8_t *timestampset_as_wkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);
 extern TimestampSet *timestampset_from_hexwkb(const char *hexwkb);
-extern TimestampSet *timestampset_from_wkb(uint8_t *wkb, int size);
-extern TimestampSet *timestampset_in(char *str);
+extern TimestampSet *timestampset_from_wkb(const uint8_t *wkb, int size);
+extern TimestampSet *timestampset_in(const char *str);
 extern char *timestampset_out(const TimestampSet *ts);
 
 
@@ -716,13 +713,13 @@ extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);
 
 
 
-extern double floatspan_lower(Span *s);
-extern double floatspan_upper(Span *s);
-extern int intspan_lower(Span *s);
-extern int intspan_upper(Span *s);
+extern double floatspan_lower(const Span *s);
+extern double floatspan_upper(const Span *s);
+extern int intspan_lower(const Span *s);
+extern int intspan_upper(const Span *s);
 extern Interval *period_duration(const Span *s);
-extern TimestampTz period_lower(Period *p);
-extern TimestampTz period_upper(Period *p);
+extern TimestampTz period_lower(const Period *p);
+extern TimestampTz period_upper(const Period *p);
 extern Interval *periodset_duration(const PeriodSet *ps);
 extern Period *periodset_end_period(const PeriodSet *ps);
 extern TimestampTz periodset_end_timestamp(const PeriodSet *ps);
@@ -740,8 +737,8 @@ extern bool periodset_timestamp_n(const PeriodSet *ps, int n, TimestampTz *resul
 extern TimestampTz *periodset_timestamps(const PeriodSet *ps, int *count);
 extern uint32 span_hash(const Span *s);
 extern uint64 span_hash_extended(const Span *s, uint64 seed);
-extern bool span_lower_inc(Span *s);
-extern bool span_upper_inc(Span *s);
+extern bool span_lower_inc(const Span *s);
+extern bool span_upper_inc(const Span *s);
 extern double span_width(const Span *s);
 extern TimestampTz timestampset_end_timestamp(const TimestampSet *ss);
 extern uint32 timestampset_hash(const TimestampSet *ss);
@@ -759,7 +756,6 @@ extern TimestampTz *timestampset_timestamps(const TimestampSet *ss);
 
 extern PeriodSet *periodset_shift_tscale(const PeriodSet *ps, const Interval *start, const Interval *duration);
 extern void span_expand(const Span *s1, Span *s2);
-extern void lower_upper_shift_tscale(const Interval *shift, const Interval *duration, TimestampTz *lower, TimestampTz *upper);
 extern void period_shift_tscale(const Interval *start, const Interval *duration, Period *result);
 extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Interval *start, const Interval *duration);
 
@@ -769,7 +765,7 @@ extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Int
 
 
 
-bool adjacent_floatspan_float(const Span *s, double d);
+extern bool adjacent_floatspan_float(const Span *s, double d);
 extern bool adjacent_intspan_int(const Span *s, int i);
 extern bool adjacent_period_periodset(const Period *p, const PeriodSet *ps);
 extern bool adjacent_period_timestamp(const Period *p, TimestampTz t);
@@ -957,7 +953,7 @@ extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, co
 
 
 
-double distance_floatspan_float(const Span *s, double d);
+extern double distance_floatspan_float(const Span *s, double d);
 extern double distance_intspan_int(const Span *s, int i);
 extern double distance_period_periodset(const Period *p, const PeriodSet *ps);
 extern double distance_period_timestamp(const Period *p, TimestampTz t);
@@ -1008,17 +1004,17 @@ extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);
 
 
 
-extern TBOX *tbox_in(char *str);
+extern TBOX *tbox_in(const char *str);
 extern char *tbox_out(const TBOX *box, int maxdd);
-extern TBOX *tbox_from_wkb(uint8_t *wkb, int size);
+extern TBOX *tbox_from_wkb(const uint8_t *wkb, int size);
 extern TBOX *tbox_from_hexwkb(const char *hexwkb);
-extern STBOX *stbox_from_wkb(uint8_t *wkb, int size);
+extern STBOX *stbox_from_wkb(const uint8_t *wkb, int size);
 extern STBOX *stbox_from_hexwkb(const char *hexwkb);
 extern uint8_t *tbox_as_wkb(const TBOX *box, uint8_t variant, size_t *size_out);
 extern char *tbox_as_hexwkb(const TBOX *box, uint8_t variant, size_t *size);
 extern uint8_t *stbox_as_wkb(const STBOX *box, uint8_t variant, size_t *size_out);
 extern char *stbox_as_hexwkb(const STBOX *box, uint8_t variant, size_t *size);
-extern STBOX *stbox_in(char *str);
+extern STBOX *stbox_in(const char *str);
 extern char *stbox_out(const STBOX *box, int maxdd);
 
 
@@ -1087,7 +1083,7 @@ extern bool stbox_zmin(const STBOX *box, double *result);
 extern bool stbox_zmax(const STBOX *box, double *result);
 extern bool stbox_tmin(const STBOX *box, TimestampTz *result);
 extern bool stbox_tmax(const STBOX *box, TimestampTz *result);
-extern int32 stbox_get_srid(const STBOX *box);
+extern int32 stbox_srid(const STBOX *box);
 
 
 
@@ -1183,24 +1179,24 @@ extern bool stbox_gt(const STBOX *box1, const STBOX *box2);
 
 
 
-extern Temporal *tbool_in(char *str);
+extern Temporal *tbool_in(const char *str);
 extern char *tbool_out(const Temporal *temp);
 extern char *temporal_as_hexwkb(const Temporal *temp, uint8_t variant, size_t *size_out);
 extern char *temporal_as_mfjson(const Temporal *temp, bool with_bbox, int flags, int precision, char *srs);
 extern uint8_t *temporal_as_wkb(const Temporal *temp, uint8_t variant, size_t *size_out);
 extern Temporal *temporal_from_hexwkb(const char *hexwkb);
-extern Temporal *temporal_from_mfjson(char *mfjson);
-extern Temporal *temporal_from_wkb(uint8_t *wkb, int size);
-extern Temporal *tfloat_in(char *str);
+extern Temporal *temporal_from_mfjson(const char *mfjson);
+extern Temporal *temporal_from_wkb(const uint8_t *wkb, int size);
+extern Temporal *tfloat_in(const char *str);
 extern char *tfloat_out(const Temporal *temp, int maxdd);
-extern Temporal *tgeogpoint_in(char *str);
-extern Temporal *tgeompoint_in(char *str);
-extern Temporal *tint_in(char *str);
+extern Temporal *tgeogpoint_in(const char *str);
+extern Temporal *tgeompoint_in(const char *str);
+extern Temporal *tint_in(const char *str);
 extern char *tint_out(const Temporal *temp);
 extern char *tpoint_as_ewkt(const Temporal *temp, int maxdd);
 extern char *tpoint_as_text(const Temporal *temp, int maxdd);
 extern char *tpoint_out(const Temporal *temp, int maxdd);
-extern Temporal *ttext_in(char *str);
+extern Temporal *ttext_in(const char *str);
 extern char *ttext_out(const Temporal *temp);
 
 
@@ -1209,58 +1205,51 @@ extern char *ttext_out(const Temporal *temp);
 
 extern Temporal *tbool_from_base(bool b, const Temporal *temp);
 extern TInstant *tboolinst_make(bool b, TimestampTz t);
-extern TInstantSet *tboolinstset_from_base(bool b, const TInstantSet *is);
-extern TInstantSet *tboolinstset_from_base_time(bool b, const TimestampSet *ts);
+
+extern TSequence *tbooldiscseq_from_base_time(bool b, const TimestampSet *ts);
 extern TSequence *tboolseq_from_base(bool b, const TSequence *seq);
 extern TSequence *tboolseq_from_base_time(bool b, const Period *p);
 extern TSequenceSet *tboolseqset_from_base(bool b, const TSequenceSet *ss);
 extern TSequenceSet *tboolseqset_from_base_time(bool b, const PeriodSet *ps);
 extern Temporal *temporal_copy(const Temporal *temp);
-extern Temporal *tfloat_from_base(bool b, const Temporal *temp, bool linear);
+extern Temporal *tfloat_from_base(bool b, const Temporal *temp, interpType interp);
 extern TInstant *tfloatinst_make(double d, TimestampTz t);
-extern TInstantSet *tfloatinstset_from_base(bool b, const TInstantSet *is);
-extern TInstantSet *tfloatinstset_from_base_time(bool b, const TimestampSet *ts);
-extern TSequence *tfloatseq_from_base(bool b, const TSequence *seq, bool linear);
-extern TSequence *tfloatseq_from_base_time(bool b, const Period *p, bool linear);
-extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, bool linear);
-extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, bool linear);
-extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, bool linear);
+extern TSequence *tfloatdiscseq_from_base_time(bool b, const TimestampSet *ts);
+extern TSequence *tfloatseq_from_base(bool b, const TSequence *seq, interpType interp);
+extern TSequence *tfloatseq_from_base_time(bool b, const Period *p, interpType interp);
+extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, interpType interp);
+extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, interpType interp);
+extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);
 extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);
-extern TInstantSet *tgeogpointinstset_from_base(const GSERIALIZED *gs, const TInstantSet *is);
-extern TInstantSet *tgeogpointinstset_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
-extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, bool linear);
-extern TSequence *tgeogpointseq_from_base_time(const GSERIALIZED *gs, const Period *p, bool linear);
-extern TSequenceSet *tgeogpointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, bool linear);
-extern TSequenceSet *tgeogpointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, bool linear);
-extern Temporal *tgeompoint_from_base(const GSERIALIZED *gs, const Temporal *temp, bool linear);
+extern TSequence *tgeogpointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
+extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);
+extern TSequence *tgeogpointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);
+extern TSequenceSet *tgeogpointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);
+extern TSequenceSet *tgeogpointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);
+extern Temporal *tgeompoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);
 extern TInstant *tgeompointinst_make(const GSERIALIZED *gs, TimestampTz t);
-extern TInstantSet *tgeompointinstset_from_base(const GSERIALIZED *gs, const TInstantSet *is);
-extern TInstantSet *tgeompointinstset_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
-extern TSequence *tgeompointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, bool linear);
-extern TSequence *tgeompointseq_from_base_time(const GSERIALIZED *gs, const Period *p, bool linear);
-extern TSequenceSet *tgeompointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, bool linear);
-extern TSequenceSet *tgeompointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, bool linear);
-extern TInstantSet *tinstantset_make(const TInstant **instants, int count, bool merge);
-extern TInstantSet *tinstantset_make_free(TInstant **instants, int count, bool merge);
+extern TSequence *tgeompointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);
+extern TSequence *tgeompointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);
+extern TSequence *tgeompointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);
+extern TSequenceSet *tgeompointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);
+extern TSequenceSet *tgeompointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);
 extern Temporal *tint_from_base(int i, const Temporal *temp);
 extern TInstant *tintinst_make(int i, TimestampTz t);
-extern TInstantSet *tintinstset_from_base(int i, const TInstantSet *is);
-extern TInstantSet *tintinstset_from_base_time(int i, const TimestampSet *ts);
+extern TSequence *tintdiscseq_from_base_time(int i, const TimestampSet *ts);
 extern TSequence *tintseq_from_base(int i, const TSequence *seq);
 extern TSequence *tintseq_from_base_time(int i, const Period *p);
 extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);
 extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);
-extern TSequence *tsequence_make(const TInstant **instants, int count, bool lower_inc, bool upper_inc, bool linear, bool normalize);
+extern TSequence *tsequence_make(const TInstant **instants, int count,  int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
-  const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, bool linear, bool normalize);
-extern TSequence *tsequence_make_free(TInstant **instants, int count, bool lower_inc, bool upper_inc, bool linear, bool normalize);
+  const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make_free(TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);
-extern TSequenceSet *tsequenceset_make_gaps(const TInstant **instants, int count, bool linear, float maxdist, Interval *maxt);
+extern TSequenceSet *tsequenceset_make_gaps(const TInstant **instants, int count, interpType interp, float maxdist, Interval *maxt);
 extern Temporal *ttext_from_base(const text *txt, const Temporal *temp);
 extern TInstant *ttextinst_make(const text *txt, TimestampTz t);
-extern TInstantSet *ttextinstset_from_base(const text *txt, const TInstantSet *is);
-extern TInstantSet *ttextinstset_from_base_time(const text *txt, const TimestampSet *ts);
+extern TSequence *ttextdiscseq_from_base_time(const text *txt, const TimestampSet *ts);
 extern TSequence *ttextseq_from_base(const text *txt, const TSequence *seq);
 extern TSequence *ttextseq_from_base_time(const text *txt, const Period *p);
 extern TSequenceSet *ttextseqset_from_base(const text *txt, const TSequenceSet *ss);
@@ -1329,13 +1318,14 @@ extern text **ttext_values(const Temporal *temp, int *count);
 
 
 
-extern Temporal *temporal_append_tinstant(const Temporal *temp, const TInstant *inst);
+extern TSequence *tsequence_compact(const TSequence *seq);
+extern Temporal *temporal_append_tinstant(Temporal *temp, const TInstant *inst, bool expand);
 extern Temporal *temporal_merge(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *temporal_merge_array(Temporal **temparr, int count);
 extern Temporal *temporal_shift_tscale(const Temporal *temp, const Interval *shift, const Interval *duration);
 extern Temporal *temporal_step_to_linear(const Temporal *temp);
 extern Temporal *temporal_to_tinstant(const Temporal *temp);
-extern Temporal *temporal_to_tinstantset(const Temporal *temp);
+extern Temporal *temporal_to_tdiscseq(const Temporal *temp);
 extern Temporal *temporal_to_tsequence(const Temporal *temp);
 extern Temporal *temporal_to_tsequenceset(const Temporal *temp);
 
