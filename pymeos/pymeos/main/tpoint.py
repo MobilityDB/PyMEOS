@@ -43,6 +43,7 @@ from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, 
     lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in
 
 from .tfloat import TFloatSeq, TFloatSeqSet
+from ..time import TimestampSet, Period, PeriodSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 
 
@@ -86,15 +87,21 @@ class TPoint(Temporal, ABC):
     def simplify(self, tolerance: float, synchronized: bool = False):
         return self.__class__(_inner=temporal_simplify(self._inner, synchronized, tolerance))
 
-    def tpoint_at_geometry(self, geom: Geometry):
-        gs = gserialized_in(geom.to_ewkb(), -1)
-        result = tpoint_at_geometry(self._inner, gs)
+    def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = tpoint_at_geometry(self._inner, gs)
+        else:
+            return super().at(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def tpoint_minus_geometry(self, geom: Geometry):
-        gs = gserialized_in(geom.to_ewkb(), -1)
-        result = tpoint_minus_geometry(self._inner, gs)
+    def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = tpoint_minus_geometry(self._inner, gs)
+        else:
+            return super().minus(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
