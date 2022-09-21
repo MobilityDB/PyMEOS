@@ -28,7 +28,8 @@ from datetime import datetime, timedelta
 
 from dateutil.parser import parse
 
-from ..main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet
+from .. import TInterpolation
+from ..main import TBoolInst, TBoolSeq, TBoolSeqSet
 from ..time import TimestampSet, Period, PeriodSet
 
 print("\nConstructors for TBoolInst")
@@ -40,15 +41,15 @@ t = parse('2019-09-08')
 inst = TBoolInst(value='True', timestamp=t)
 print(inst)
 
-print("\nConstructors for TBoolInstSet")
-ti = TBoolInstSet(string='{True@2019-09-08, False@2019-09-09, False@2019-09-10}')
+print("\nConstructors for TBoolSeq")
+ti = TBoolSeq(string='{True@2019-09-08, False@2019-09-09, False@2019-09-10}')
 print(ti)
-ti = TBoolInstSet(instant_list=['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'])
+ti = TBoolSeq(instant_list=['True@2019-09-08', 'False@2019-09-09', 'False@2019-09-10'], interpolation=TInterpolation.DISCRETE)
 print(ti)
 t1 = TBoolInst(value=True, timestamp='2019-09-08')
 t2 = TBoolInst(value=False, timestamp='2019-09-09')
 t3 = TBoolInst(value=False, timestamp='2019-09-10')
-ti = TBoolInstSet(instant_list=[t1, t2, t3])
+ti = TBoolSeq(instant_list=[t1, t2, t3], interpolation=TInterpolation.DISCRETE)
 print(ti)
 
 print("\nConstructors for TBoolSeq")

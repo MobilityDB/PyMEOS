@@ -28,7 +28,8 @@ from datetime import datetime, timedelta
 
 from dateutil.parser import parse
 
-from ..main import TIntInst, TIntInstSet, TIntSeq, TIntSeqSet
+from .. import TInterpolation
+from ..main import TIntInst, TIntSeq, TIntSeqSet
 from ..time import TimestampSet, Period, PeriodSet
 
 print("\nConstructors for TIntInst")
@@ -40,15 +41,15 @@ t = parse('2019-09-08')
 inst = TIntInst(value=10, timestamp=t)
 print(inst)
 
-print("\nConstructors for TIntInstSet")
-ti = TIntInstSet(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
+print("\nConstructors for TIntSeq")
+ti = TIntSeq(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
 print(ti)
-ti = TIntInstSet(instant_list=['10@2019-09-08', '20@2019-09-09', '20@2019-09-10'])
+ti = TIntSeq(instant_list=['10@2019-09-08', '20@2019-09-09', '20@2019-09-10'], interpolation=TInterpolation.DISCRETE)
 print(ti)
 t1 = TIntInst(string='10@2019-09-08')
 t2 = TIntInst(string='20@2019-09-09')
 t3 = TIntInst(string='20@2019-09-10')
-ti = TIntInstSet(instant_list=[t1, t2, t3])
+ti = TIntSeq(instant_list=[t1, t2, t3], interpolation=TInterpolation.DISCRETE)
 print(ti)
 
 print("\nConstructors for TIntSeq")

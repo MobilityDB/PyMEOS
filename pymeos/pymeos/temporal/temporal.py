@@ -48,6 +48,7 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
     temporal_frechet_path
 
+from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
 
 if TYPE_CHECKING:
@@ -97,11 +98,19 @@ class Temporal(ABC):
         pass
 
     @property
-    def interpolation(self) -> str:
+    def interpolation(self) -> TInterpolation:
         """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
+        Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
         """
-        return temporal_interpolation(self._inner)
+        val = temporal_interpolation(self._inner)
+        if val == 'Discrete':
+            return TInterpolation.DISCRETE
+        elif val == 'Linear':
+            return TInterpolation.LINEAR
+        elif val == 'Stepwise':
+            return TInterpolation.STEPWISE
+        else:
+            return TInterpolation.NONE
 
     @property
     @abstractmethod

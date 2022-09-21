@@ -26,8 +26,10 @@
 
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+
+from pymeos import TInterpolation
 from pymeos.time import TimestampSet, Period, PeriodSet
-from pymeos.main import TFloatInst, TFloatInstSet, TFloatSeq, TFloatSeqSet
+from pymeos.main import TFloatInst, TFloatSeq, TFloatSeqSet
 
 
 print("\nConstructors for TFloatInst")
@@ -40,14 +42,14 @@ inst = TFloatInst(value=10.0, timestamp=t)
 print(inst)
 
 print("\nConstructors for TFloatInstSet")
-ti = TFloatInstSet(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
+ti = TFloatSeq(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
 print(ti)
-ti = TFloatInstSet(instant_list=['10@2019-09-08', '20@2019-09-09', '20@2019-09-10'])
+ti = TFloatSeq(instant_list=['10@2019-09-08', '20@2019-09-09', '20@2019-09-10'], interpolation=TInterpolation.DISCRETE)
 print(ti)
 t1 = TFloatInst(string='10@2019-09-08')
 t2 = TFloatInst(string='20@2019-09-09')
 t3 = TFloatInst(string='20@2019-09-10')
-ti = TFloatInstSet(instant_list=[t1, t2, t3])
+ti = TFloatSeq(instant_list=[t1, t2, t3], interpolation=TInterpolation.DISCRETE)
 print(ti)
 
 print("\nConstructors for TFloatSeq")
@@ -288,9 +290,9 @@ print(inst1 == inst3)
 print(inst1 == inst4)
 
 print("\nequality for TInstantSet")
-ti1 = TFloatInstSet(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
-ti2 = TFloatInstSet(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
-ti3 = TFloatInstSet(string='{10@2019-09-08, 20@2019-09-10}')
+ti1 = TFloatSeq(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
+ti2 = TFloatSeq(string='{10@2019-09-08, 20@2019-09-09, 20@2019-09-10}')
+ti3 = TFloatSeq(string='{10@2019-09-08, 20@2019-09-10}')
 print(ti1 == ti2)
 print(ti1 == ti3)
 
@@ -317,11 +319,11 @@ print(ts1 == ts3)
 print(ts1 == ts4)
 
 print("*** Manual ***")
-p = TFloatInstSet(string='{10.0@2019-09-01 00:00:00+01, 20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01}')
+p = TFloatSeq(string='{10.0@2019-09-01 00:00:00+01, 20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01}')
 print(p)
-p = TFloatInstSet(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'])
+p = TFloatSeq(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'], interpolation=TInterpolation.DISCRETE)
 print(p)
-p = TFloatInstSet(instant_list=[TFloatInst(string='10.0@2019-09-01 00:00:00+01'), TFloatInst(string='20.0@2019-09-02 00:00:00+01'), TFloatInst(string='10.0@2019-09-03 00:00:00+01')])
+p = TFloatSeq(instant_list=[TFloatInst(string='10.0@2019-09-01 00:00:00+01'), TFloatInst(string='20.0@2019-09-02 00:00:00+01'), TFloatInst(string='10.0@2019-09-03 00:00:00+01')], interpolation=TInterpolation.DISCRETE)
 print(p)
 
 print("*** Manual ***")
@@ -333,9 +335,9 @@ p = TFloatSeq(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:0
 print(p)
 p = TFloatSeq(instant_list=[TFloatInst(string='10.0@2019-09-01 00:00:00+01'), TFloatInst(string='20.0@2019-09-02 00:00:00+01'), TFloatInst(string='10.0@2019-09-03 00:00:00+01')])
 print(p)
-p = TFloatSeq(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'], lower_inc=True, upper_inc=True, interpolation='Stepwise')
+p = TFloatSeq(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'], lower_inc=True, upper_inc=True, interpolation=TInterpolation.STEPWISE)
 print(p)
-p = TFloatSeq(instant_list=[TFloatInst(string='10.0@2019-09-01 00:00:00+01'), TFloatInst(string='20.0@2019-09-02 00:00:00+01'), TFloatInst(string='10.0@2019-09-03 00:00:00+01')], lower_inc=True, upper_inc=True, interpolation='Stepwise')
+p = TFloatSeq(instant_list=[TFloatInst(string='10.0@2019-09-01 00:00:00+01'), TFloatInst(string='20.0@2019-09-02 00:00:00+01'), TFloatInst(string='10.0@2019-09-03 00:00:00+01')], lower_inc=True, upper_inc=True, interpolation=TInterpolation.STEPWISE)
 print(p)
 
 print("*** Manual ***")
