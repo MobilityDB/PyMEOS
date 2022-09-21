@@ -42,7 +42,7 @@ if __name__ == '__main__':
 
         for _, commune in communes.iterrows():
             commune_id = commune['id']
-            atgeom = trip_seq.tpoint_at_geometry(commune['geom'])
+            atgeom = trip_seq.at(commune['geom'])
             if atgeom:
                 # Compute the length of the trip projected to the commune
                 inside_length = atgeom.distance / 1000.0
@@ -55,7 +55,7 @@ if __name__ == '__main__':
                 # Add to the inside total
                 distance[num_vehicles][num_communes+2] += inside_length
         
-        minusgeom = trip_seq.tpoint_at_geometry(brussels_region['geom'][0])
+        minusgeom = trip_seq.minus(brussels_region['geom'][0])
         if minusgeom:
             outside_length = minusgeom.distance / 1000.0
             # Add to the row 
