@@ -38,7 +38,7 @@ class TSequence(Temporal, ABC):
     Abstract class for representing temporal values of sequence subtype.
     """
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, Any]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, Any]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
                  interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
         super().__init__()

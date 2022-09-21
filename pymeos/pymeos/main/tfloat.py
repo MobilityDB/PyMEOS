@@ -133,7 +133,7 @@ class TFloatInst(TInstant, TFloat):
     _make_function = tfloatinst_make
     _cast_function = int
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, float]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, float]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
@@ -157,7 +157,7 @@ class TFloatInstSet(TInstantSet, TFloat):
 
     ComponentClass = TFloatInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
                  merge: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
@@ -193,7 +193,7 @@ class TFloatSeq(TSequence, TFloat):
 
     ComponentClass = TFloatInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
                  interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
@@ -230,6 +230,6 @@ class TFloatSeqSet(TSequenceSet, TFloat):
 
     ComponentClass = TFloatSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

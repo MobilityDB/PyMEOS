@@ -38,7 +38,7 @@ class TInstantSet(Temporal, ABC):
     Abstract class for representing temporal values of instant set subtype.
     """
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, Any]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, Any]]] = None,
                  merge: bool = True, _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \

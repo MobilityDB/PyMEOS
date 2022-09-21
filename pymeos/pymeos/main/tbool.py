@@ -207,7 +207,7 @@ class TBoolInst(TInstant, TBool):
     _make_function = tboolinst_make
     _cast_function = bool
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, bool]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, bool]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
@@ -233,7 +233,7 @@ class TBoolInstSet(TInstantSet, TBool):
 
     ComponentClass = TBoolInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
                  merge: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
@@ -266,7 +266,7 @@ class TBoolSeq(TSequence, TBool):
 
     ComponentClass = TBoolInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
                          interpolation='Stepwise', normalize=normalize, _inner=_inner)
@@ -292,6 +292,6 @@ class TBoolSeqSet(TSequenceSet, TBool):
 
     ComponentClass = TBoolSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

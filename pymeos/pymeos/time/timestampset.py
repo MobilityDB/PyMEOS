@@ -86,7 +86,7 @@ class TimestampSet:
 
     __slots__ = ['_inner']
 
-    def __init__(self, *, string: Optional[str] = None, timestamp_list: Optional[List[Union[str, datetime]]] = None,
+    def __init__(self, string: Optional[str] = None, *, timestamp_list: Optional[List[Union[str, datetime]]] = None,
                  _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (timestamp_list is not None)), \

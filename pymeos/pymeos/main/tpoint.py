@@ -281,7 +281,7 @@ class TGeomPointInst(TPointInst, TGeomPoint):
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, *, string: Optional[str] = None, point: Optional[Union[str, Point]] = None,
+    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, Point]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
@@ -311,7 +311,7 @@ class TGeogPointInst(TPointInst, TGeogPoint):
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, *, string: Optional[str] = None, point: Optional[Union[str, Point]] = None,
+    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, Point]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
@@ -340,7 +340,7 @@ class TGeomPointInstSet(TPointInstSet, TGeomPoint):
 
     ComponentClass = TGeomPointInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
                  merge: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
@@ -367,7 +367,7 @@ class TGeogPointInstSet(TPointInstSet, TGeogPoint):
 
     ComponentClass = TGeogPointInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  merge: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
@@ -404,7 +404,7 @@ class TGeomPointSeq(TPointSeq, TGeomPoint):
 
     ComponentClass = TGeomPointInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, interp: Literal['Linear', 'Stepwise'] = 'Linear',
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
@@ -443,7 +443,7 @@ class TGeogPointSeq(TPointSeq, TGeogPoint):
 
     ComponentClass = TGeogPointInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
                  interpolation: Literal['Linear', 'Stepwise'] = 'Linear',
                  normalize: bool = True, _inner=None):
@@ -483,7 +483,7 @@ class TGeomPointSeqSet(TPointSeqSet, TGeomPoint):
 
     ComponentClass = TGeomPointSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
 
@@ -520,6 +520,6 @@ class TGeogPointSeqSet(TPointSeqSet, TGeogPoint):
 
     ComponentClass = TGeogPointSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
