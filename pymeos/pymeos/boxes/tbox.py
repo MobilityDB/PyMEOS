@@ -72,7 +72,7 @@ class TBox:
     """
     __slots__ = ['_inner']
 
-    def __init__(self, *, string: Optional[str] = None,
+    def __init__(self, string: Optional[str] = None, *,
                  xmin: Optional[Union[str, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None,
                  xmax: Optional[Union[str, float]] = None,

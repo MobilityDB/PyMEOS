@@ -84,7 +84,7 @@ class PeriodSet:
 
     __slots__ = ['_inner']
 
-    def __init__(self, *, string: Optional[str] = None, period_list: Optional[List[Union[str, Period]]] = None,
+    def __init__(self, string: Optional[str] = None, *, period_list: Optional[List[Union[str, Period]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (period_list is not None)), \

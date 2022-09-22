@@ -26,8 +26,10 @@
 
 from datetime import datetime, timedelta
 from dateutil.parser import parse
+
+from .. import TInterpolation
 from ..time import TimestampSet, Period, PeriodSet
-from ..main import TTextInst, TTextInstSet, TTextSeq, TTextSeqSet
+from ..main import TTextInst, TTextSeq, TTextSeqSet
 
 print("\nConstructors for TTextInst")
 inst = TTextInst(string='A@2019-09-08')
@@ -39,14 +41,14 @@ inst = TTextInst(value='A', timestamp=t)
 print(inst)
 
 print("\nConstructors for TTextInstSet")
-ti = TTextInstSet(string='{A@2019-09-08, B@2019-09-09, B@2019-09-10}')
+ti = TTextSeq(string='{A@2019-09-08, B@2019-09-09, B@2019-09-10}')
 print(ti)
-ti = TTextInstSet(instant_list=['A@2019-09-08', 'B@2019-09-09', 'B@2019-09-10'])
+ti = TTextSeq(instant_list=['A@2019-09-08', 'B@2019-09-09', 'B@2019-09-10'], interpolation=TInterpolation.DISCRETE)
 print(ti)
 t1 = TTextInst(string='A@2019-09-08')
 t2 = TTextInst(string='B@2019-09-09')
 t3 = TTextInst(string='B@2019-09-10')
-ti = TTextInstSet(instant_list=[t1, t2, t3])
+ti = TTextSeq(instant_list=[t1, t2, t3], interpolation=TInterpolation.DISCRETE)
 print(ti)
 
 print("\nConstructors for TTextSeq")

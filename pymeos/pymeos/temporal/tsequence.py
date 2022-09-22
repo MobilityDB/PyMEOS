@@ -31,6 +31,7 @@ from typing import Optional, Union, List, Any, Literal
 from pymeos_cffi.functions import tsequence_make
 
 from .temporal import Temporal
+from .interpolation import TInterpolation
 
 
 class TSequence(Temporal, ABC):
@@ -38,9 +39,9 @@ class TSequence(Temporal, ABC):
     Abstract class for representing temporal values of sequence subtype.
     """
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, Any]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, Any]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
+                 interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
@@ -51,8 +52,9 @@ class TSequence(Temporal, ABC):
         else:
             self._instants = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x) for
                               x in instant_list]
-            self._inner = tsequence_make(self._instants, len(self._instants), lower_inc, upper_inc,
-                                         interpolation == 'Linear', normalize)
+            # TODO Fix maxcount parameter value
+            self._inner = tsequence_make(self._instants, len(self._instants), 10000000, lower_inc, upper_inc,
+                                         interpolation.value, normalize)
 
     @classmethod
     def temp_subtype(cls):

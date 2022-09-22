@@ -34,7 +34,7 @@ from dateutil.parser import parse
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 
 class TText(Temporal, ABC):
@@ -83,11 +83,11 @@ class TText(Temporal, ABC):
         return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     @property
-    def interpolation(self):
+    def interpolation(self) -> TInterpolation:
         """
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
-        return 'Stepwise'
+        return TInterpolation.STEPWISE
 
     def __str__(self):
         return ttext_out(self._inner)
@@ -104,7 +104,7 @@ class TText(Temporal, ABC):
             if value[1] == '[' or value[1] == '(':
                 return TTextSeqSet(string=value)
             else:
-                return TTextInstSet(string=value)
+                return TTextSeq(string=value)
         raise Exception("ERROR: Could not parse temporal text value")
 
 
@@ -134,7 +134,7 @@ class TTextInst(TInstant, TText):
     _make_function = ttextinst_make
     _cast_function = str
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[str] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[str] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
@@ -144,32 +144,6 @@ class TTextInst(TInstant, TText):
         Geometry representing the values taken by the temporal value.
         """
         return self.values[0]
-
-
-class TTextInstSet(TInstantSet, TText):
-    """
-    Class for representing temporal strings of instant set subtype.
-
-    ``TTextInstSet`` objects can be created 
-    with a single argument of type string as in MobilityDB.
-
-        >>> TTextInstSet('AA@2019-09-01')
-
-    Another possibility is to give a tuple or list of composing instants,
-    which can be instances of ``str`` or ``TTextInst``.
-
-        >>> TTextInstSet('AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01')
-        >>> TTextInstSet(TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01'))
-        >>> TTextInstSet(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'])
-        >>> TTextInstSet([TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01')])
-
-    """
-
-    ComponentClass = TTextInst
-
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
-                 merge: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TTextSeq(TSequence, TText):
@@ -200,10 +174,11 @@ class TTextSeq(TSequence, TText):
 
     ComponentClass = TTextInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TTextInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TTextInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation='Stepwise', normalize=normalize, _inner=_inner)
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TTextSeqSet(TSequenceSet, TText):
@@ -225,6 +200,6 @@ class TTextSeqSet(TSequenceSet, TText):
 
     ComponentClass = TTextSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

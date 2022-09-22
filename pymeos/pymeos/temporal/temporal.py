@@ -30,7 +30,8 @@ from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
-from pymeos_cffi import temporal_frechet_distance, temporal_time_split
+from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
+    temporal_at_periodset, temporal_at_period
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
@@ -46,8 +47,10 @@ from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_tim
     overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
     temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
     temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
-    temporal_frechet_path
+    temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
+    temporal_minus_timestampset
 
+from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
 
 if TYPE_CHECKING:
@@ -97,11 +100,19 @@ class Temporal(ABC):
         pass
 
     @property
-    def interpolation(self) -> str:
+    def interpolation(self) -> TInterpolation:
         """
-        Interpolation of the temporal value, which is either ``'Linear'`` or ``'Stepwise'``.
+        Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
         """
-        return temporal_interpolation(self._inner)
+        val = temporal_interpolation(self._inner)
+        if val == 'Discrete':
+            return TInterpolation.DISCRETE
+        elif val == 'Linear':
+            return TInterpolation.LINEAR
+        elif val == 'Stepwise':
+            return TInterpolation.STEPWISE
+        else:
+            return TInterpolation.NONE
 
     @property
     @abstractmethod
@@ -353,6 +364,34 @@ class Temporal(ABC):
         elif isinstance(other, Temporal):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, Period):
+            result = temporal_at_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            result = temporal_at_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            result = temporal_at_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, Period):
+            result = temporal_minus_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            result = temporal_minus_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            result = temporal_minus_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            result = temporal_minus_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def frechet_distance(self, other: Temporal) -> float:
         """

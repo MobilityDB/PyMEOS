@@ -25,31 +25,34 @@
 ###############################################################################
 
 from datetime import datetime, timedelta
-from dateutil.parser import parse
-from postgis import Point, MultiPoint, LineString, MultiLineString, GeometryCollection
-from ..time import TimestampSet, Period, PeriodSet
-from ..main.tpoint import TGeogPointInst, TGeogPointInstSet, TGeogPointSeq, TGeogPointSeqSet
 
+from dateutil.parser import parse
+from postgis import Point
+
+from .. import TInterpolation
+from ..main.tpoint import TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet
+from ..time import TimestampSet, Period, PeriodSet
 
 print("\nConstructors for TGeogPointInst")
 inst = TGeogPointInst(string='Point(10 10)@2019-09-08')
 print(inst)
 inst = TGeogPointInst(point='Point(10 10)', timestamp='2019-09-08')
 print(inst)
-p = Point(10,10)
+p = Point(10, 10)
 t = parse('2019-09-08')
 inst = TGeogPointInst(point=p, timestamp=t)
 print(inst)
 
 print("\nConstructors for TGeogPointInstSet")
-ti = TGeogPointInstSet(string='{Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10}')
+ti = TGeogPointSeq(string='{Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10}')
 print(ti)
-ti = TGeogPointInstSet(instant_list=['Point(10 10)@2019-09-08', 'Point(20 20)@2019-09-09', 'Point(20 20)@2019-09-10'])
+ti = TGeogPointSeq(instant_list=['Point(10 10)@2019-09-08', 'Point(20 20)@2019-09-09', 'Point(20 20)@2019-09-10'],
+                   interpolation=TInterpolation.DISCRETE)
 print(ti)
 t1 = TGeogPointInst(string='Point(10 10)@2019-09-08')
 t2 = TGeogPointInst(string='Point(20 20)@2019-09-09')
 t3 = TGeogPointInst(string='Point(20 20)@2019-09-10')
-ti = TGeogPointInstSet(instant_list=[t1, t2, t3])
+ti = TGeogPointSeq(instant_list=[t1, t2, t3], interpolation=TInterpolation.DISCRETE)
 print(ti)
 
 print("\nConstructors for TGeogPointSeq")
@@ -63,7 +66,8 @@ seq = TGeogPointSeq(instant_list=[t1, t2, t3], lower_inc=False, upper_inc=True)
 print(seq)
 
 print("\nConstructors for TGeogPointSeqSet")
-ts = TGeogPointSeqSet(string='{[Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10],[Point(15 15)@2019-09-11, Point(30 30)@2019-09-12]}')
+ts = TGeogPointSeqSet(
+    string='{[Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10],[Point(15 15)@2019-09-11, Point(30 30)@2019-09-12]}')
 print(ts)
 seq1 = TGeogPointSeq(string='[Point(10 10)@2019-09-08, Point(20 20)@2019-09-09, Point(20 20)@2019-09-10]')
 seq2 = TGeogPointSeq(string='[Point(15 15)@2019-09-11, Point(30 30)@2019-09-12]')

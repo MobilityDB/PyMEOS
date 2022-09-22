@@ -33,7 +33,7 @@ from spans.types import floatrange
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
     datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split
 from .tnumber import TNumber
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 
 class TFloat(TNumber, ABC):
@@ -63,7 +63,7 @@ class TFloat(TNumber, ABC):
             if value[1] == '[' or value[1] == '(':
                 return TFloatSeqSet(string=value)
             else:
-                return TFloatInstSet(string=value)
+                return TFloatSeq(string=value)
         raise Exception("ERROR: Could not parse temporal float value")
 
     @property
@@ -133,33 +133,9 @@ class TFloatInst(TInstant, TFloat):
     _make_function = tfloatinst_make
     _cast_function = int
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, float]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, float]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
-
-
-class TFloatInstSet(TInstantSet, TFloat):
-    """
-    Class for representing temporal floats of instant set subtype.
-
-    ``TFloatInstSet`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TFloatInstSet(string='10.0@2019-09-01')
-
-    Another possibility is to give a tuple or list of composing instants,
-    which can be instances of ``str`` or ``TFloatInst``.
-
-        >>> TFloatInstSet(instant_list=['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'])
-        >>> TFloatInstSet(instant_list=[TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01')])
-
-    """
-
-    ComponentClass = TFloatInst
-
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
-                 merge: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TFloatSeq(TSequence, TFloat):
@@ -179,7 +155,7 @@ class TFloatSeq(TSequence, TFloat):
     * ``lower_inc`` and ``upper_inc`` are instances of ``bool`` specifying
       whether the bounds are inclusive or not. By default ``lower_inc``
       is ``True`` and ``upper_inc`` is ``False``.
-    * ``interp`` which is either ``'Linear'`` or ``'Stepwise'``, the former being
+    * ``interp`` which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``, the first being
       the default.
 
     Some pymeos_examples are shown next.
@@ -193,9 +169,9 @@ class TFloatSeq(TSequence, TFloat):
 
     ComponentClass = TFloatInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: Literal['Linear', 'Stepwise'] = 'Linear', normalize: bool = True, _inner=None):
+                 interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
                          interpolation=interpolation, normalize=normalize, _inner=_inner)
 
@@ -214,7 +190,7 @@ class TFloatSeqSet(TSequenceSet, TFloat):
 
     * ``sequenceList`` is a list of composing sequences, which can be
       instances of ``str`` or ``TFloatSeq``,
-    * ``interp`` can be ``'Linear'`` or ``'Stepwise'``, the former being
+    * ``interp`` can be ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``, the first being
       the default.
 
     Some pymeos_examples are shown next.
@@ -230,6 +206,6 @@ class TFloatSeqSet(TSequenceSet, TFloat):
 
     ComponentClass = TFloatSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

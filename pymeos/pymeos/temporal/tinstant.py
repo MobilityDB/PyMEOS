@@ -47,7 +47,7 @@ class TInstant(Temporal, ABC):
     _make_function = None
     _cast_function = None
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, Any]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, Any]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \

@@ -1,11 +1,11 @@
 from enum import Enum
 
-from .main import TBoolInst, TBoolInstSet, TBoolSeq, TBoolSeqSet, \
-    TIntInst, TIntInstSet, TIntSeq, TIntSeqSet, \
-    TFloatInst, TFloatInstSet, TFloatSeq, TFloatSeqSet, \
-    TTextInst, TTextInstSet, TTextSeq, TTextSeqSet, \
-    TGeomPointInst, TGeomPointInstSet, TGeomPointSeq, TGeomPointSeqSet, \
-    TGeogPointInst, TGeogPointInstSet, TGeogPointSeq, TGeogPointSeqSet
+from .main import TBoolInst, TBoolSeq, TBoolSeqSet, \
+    TIntInst, TIntSeq, TIntSeqSet, \
+    TFloatInst, TFloatSeq, TFloatSeqSet, \
+    TTextInst, TTextSeq, TTextSeqSet, \
+    TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, \
+    TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet
 
 
 class TempType(Enum):
@@ -44,10 +44,8 @@ class TempType(Enum):
         if subtype == 1:
             return cls.INSTANT
         elif subtype == 2:
-            return cls.INSTANT_SET
-        elif subtype == 3:
             return cls.SEQUENCE
-        elif subtype == 4:
+        elif subtype == 3:
             return cls.SEQUENCE_SET
         raise Exception()
 
@@ -59,32 +57,26 @@ class TempType(Enum):
 class _TemporalFactory:
     _mapper = {
         (TempType.BOOL, TempType.INSTANT): TBoolInst,
-        (TempType.BOOL, TempType.INSTANT_SET): TBoolInstSet,
         (TempType.BOOL, TempType.SEQUENCE): TBoolSeq,
         (TempType.BOOL, TempType.SEQUENCE_SET): TBoolSeqSet,
 
         (TempType.INT, TempType.INSTANT): TIntInst,
-        (TempType.INT, TempType.INSTANT_SET): TIntInstSet,
         (TempType.INT, TempType.SEQUENCE): TIntSeq,
         (TempType.INT, TempType.SEQUENCE_SET): TIntSeqSet,
 
         (TempType.FLOAT, TempType.INSTANT): TFloatInst,
-        (TempType.FLOAT, TempType.INSTANT_SET): TFloatInstSet,
         (TempType.FLOAT, TempType.SEQUENCE): TFloatSeq,
         (TempType.FLOAT, TempType.SEQUENCE_SET): TFloatSeqSet,
 
         (TempType.TEXT, TempType.INSTANT): TTextInst,
-        (TempType.TEXT, TempType.INSTANT_SET): TTextInstSet,
         (TempType.TEXT, TempType.SEQUENCE): TTextSeq,
         (TempType.TEXT, TempType.SEQUENCE_SET): TTextSeqSet,
 
         (TempType.GM_POINT, TempType.INSTANT): TGeomPointInst,
-        (TempType.GM_POINT, TempType.INSTANT_SET): TGeomPointInstSet,
         (TempType.GM_POINT, TempType.SEQUENCE): TGeomPointSeq,
         (TempType.GM_POINT, TempType.SEQUENCE_SET): TGeomPointSeqSet,
 
         (TempType.GG_POINT, TempType.INSTANT): TGeogPointInst,
-        (TempType.GG_POINT, TempType.INSTANT_SET): TGeogPointInstSet,
         (TempType.GG_POINT, TempType.SEQUENCE): TGeogPointSeq,
         (TempType.GG_POINT, TempType.SEQUENCE_SET): TGeogPointSeqSet,
     }

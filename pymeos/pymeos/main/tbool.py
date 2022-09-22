@@ -27,15 +27,15 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List, Literal
+from typing import Optional, Union, List
 
 from dateutil.parser import parse
-
 from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
     tbool_values, tbool_start_value, tbool_end_value, \
     tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
     tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 
 class TBool(Temporal, ABC):
@@ -76,11 +76,11 @@ class TBool(Temporal, ABC):
         return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     @property
-    def interpolation(self) -> Literal['Stepwise']:
+    def interpolation(self) -> TInterpolation:
         """
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
-        return 'Stepwise'
+        return TInterpolation.STEPWISE
 
     def always(self, value: bool) -> bool:
         return tbool_always_eq(self._inner, value)
@@ -176,7 +176,7 @@ class TBool(Temporal, ABC):
             if value[1] == '[' or value[1] == '(':
                 return TBoolSeqSet(string=value)
             else:
-                return TBoolInstSet(string=value)
+                return TBoolSeq(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
 
 
@@ -207,35 +207,9 @@ class TBoolInst(TInstant, TBool):
     _make_function = tboolinst_make
     _cast_function = bool
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, bool]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, bool]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
-
-
-class TBoolInstSet(TInstantSet, TBool):
-    """
-    Class for representing temporal Booleans of instant set subtype.
-
-    ``TBoolInstSet`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TBoolInstSet('AA@2019-09-01')
-
-    Another possibility is to give a tuple or list of arguments,
-    which can be instances of ``str`` or ``TBoolInst``.
-
-        >>> TBoolInstSet('AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01')
-        >>> TBoolInstSet(TBoolInst('AA@2019-09-01 00:00:00+01'), TBoolInst('BB@2019-09-02 00:00:00+01'), TBoolInst('AA@2019-09-03 00:00:00+01'))
-        >>> TBoolInstSet(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'])
-        >>> TBoolInstSet([TBoolInst('AA@2019-09-01 00:00:00+01'), TBoolInst('BB@2019-09-02 00:00:00+01'), TBoolInst('AA@2019-09-03 00:00:00+01')])
-
-    """
-
-    ComponentClass = TBoolInst
-
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 merge: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TBoolSeq(TSequence, TBool):
@@ -266,10 +240,11 @@ class TBoolSeq(TSequence, TBool):
 
     ComponentClass = TBoolInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation='Stepwise', normalize=normalize, _inner=_inner)
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TBoolSeqSet(TSequenceSet, TBool):
@@ -292,6 +267,6 @@ class TBoolSeqSet(TSequenceSet, TBool):
 
     ComponentClass = TBoolSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)

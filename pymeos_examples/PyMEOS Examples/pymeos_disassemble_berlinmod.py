@@ -50,7 +50,7 @@ if __name__ == '__main__':
         row = trips.iloc[selected_trip_idx]
         selected_trip = row['trip']
         curr_inst = selected_trip.instant_n(curr_inst_idx[selected_trip_idx])
-        inst_str = curr_inst.__str__()
+        inst_str = str(curr_inst)
         str_split = inst_str.split('@')
         f.write(f'{row.vehicle},{row.day},{row.seq},{str_split[0]},{str_split[1]}\n')
         count += 1

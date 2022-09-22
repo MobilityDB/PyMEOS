@@ -94,7 +94,7 @@ class STBox:
     """
     __slots__ = ['_inner']
 
-    def __init__(self, *, string: Optional[str] = None,
+    def __init__(self, string: Optional[str] = None, *,
                  xmin: Optional[Union[str, float]] = None, xmax: Optional[Union[str, float]] = None,
                  ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
                  zmin: Optional[Union[str, float]] = None, zmax: Optional[Union[str, float]] = None,

@@ -35,7 +35,7 @@ from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
 from spans.types import intrange
 
 from .tnumber import TNumber
-from ..temporal import Temporal, TInstant, TInstantSet, TSequence, TSequenceSet
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 
 class TInt(TNumber, ABC):
@@ -59,7 +59,7 @@ class TInt(TNumber, ABC):
             if value[1] == '[' or value[1] == '(':
                 return TIntSeqSet(string=value)
             else:
-                return TIntInstSet(string=value)
+                return TIntSeq(string=value)
         raise Exception("ERROR: Could not parse temporal integer value")
 
     @property
@@ -107,7 +107,7 @@ class TInt(TNumber, ABC):
         """
         Interpolation of the temporal value, that is, ``'Stepwise'``.
         """
-        return 'Stepwise'
+        return TInterpolation.STEPWISE
 
     def __str__(self):
         return tint_out(self._inner)
@@ -133,34 +133,9 @@ class TIntInst(TInstant, TInt):
     _make_function = tintinst_make
     _cast_function = int
 
-    def __init__(self, *, string: Optional[str] = None, value: Optional[Union[str, int]] = None,
+    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, int]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
-
-
-class TIntInstSet(TInstantSet, TInt):
-    """
-    Class for representing temporal integers of instant set subtype.
-
-    ``TIntInstSet`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TIntInstSet('10@2019-09-01')
-
-    Another possibility is to give a tuple or list of composing instants,
-    which can be instances of ``str`` or ``TIntInst``.
-
-        >>> TIntInstSet('10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01')
-        >>> TIntInstSet(['10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01'])
-        >>> TIntInstSet([TIntInst('10@2019-09-01 00:00:00+01'), TIntInst('20@2019-09-02 00:00:00+01'), TIntInst('10@2019-09-03 00:00:00+01')])
-
-    """
-
-    ComponentClass = TIntInst
-
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
-                 merge: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, merge=merge, _inner=_inner)
 
 
 class TIntSeq(TSequence, TInt):
@@ -191,10 +166,11 @@ class TIntSeq(TSequence, TInt):
 
     ComponentClass = TIntInst
 
-    def __init__(self, *, string: Optional[str] = None, instant_list: Optional[List[Union[str, TIntInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, normalize: bool = True, _inner=None):
+    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TIntInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation='Stepwise', normalize=normalize, _inner=_inner)
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TIntSeqSet(TSequenceSet, TInt):
@@ -217,6 +193,6 @@ class TIntSeqSet(TSequenceSet, TInt):
 
     ComponentClass = TIntSeq
 
-    def __init__(self, *, string: Optional[str] = None, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
