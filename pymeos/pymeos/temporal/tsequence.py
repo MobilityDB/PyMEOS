@@ -52,8 +52,7 @@ class TSequence(Temporal, ABC):
         else:
             self._instants = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x) for
                               x in instant_list]
-            # TODO Fix maxcount parameter value
-            self._inner = tsequence_make(self._instants, len(self._instants), 10000000, lower_inc, upper_inc,
+            self._inner = tsequence_make(self._instants, len(self._instants), len(self._instants), lower_inc, upper_inc,
                                          interpolation.value, normalize)
 
     @classmethod
