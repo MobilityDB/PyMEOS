@@ -525,7 +525,7 @@ class Temporal(ABC):
     # End Psycopg2 interface.
 
     @staticmethod
-    def temporal_from_hexwkb(hexwkb: str):
+    def from_hexwkb(hexwkb: str):
         result = temporal_from_hexwkb(hexwkb)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
