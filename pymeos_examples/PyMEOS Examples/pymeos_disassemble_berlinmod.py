@@ -1,21 +1,19 @@
 import datetime
+import warnings
+
+import pandas as pd
+from postgis import Geometry
 from pymeos import Temporal
 from pymeos_cffi import meos_initialize, meos_finish
-from postgis import Geometry
-import pandas as pd
 
-import warnings
 warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
     meos_initialize()
 
-    # define converters for parsing csv files
-    geom_converter = Geometry.from_ewkb
-    hexwkb_converter = Temporal.temporal_from_hexwkb
-
     # read csv files
-    trips = pd.read_csv('../data/trips.csv', converters={'trip': hexwkb_converter, 'trajectory': geom_converter})
+    trips = pd.read_csv('../data/trips.csv',
+                        converters={'trip': Temporal.from_hexwkb, 'trajectory': Geometry.from_ewkb})
     print("%d trip records read.\n\n" % len(trips))
 
     # record the index of current instant of each trip
@@ -24,7 +22,7 @@ if __name__ == '__main__':
     curr_inst_idx = [1 for i in range(len(trips))]
     num_insts = [t.num_instants for t in trips['trip']]
     MAX_DATETIME = datetime.datetime.max.replace(tzinfo=datetime.timezone.utc)
-    
+
     # initialize the list of timestamp of current instance of each trip
     curr_inst_ts = list()
     for i in range(len(trips)):
@@ -34,15 +32,15 @@ if __name__ == '__main__':
             curr_inst_ts.append(curr_inst.timestamp)
         else:
             curr_inst_ts.append(MAX_DATETIME)
-    
+
     count = 0
-    
+
     # output
     f = open('trip_instants.csv', 'w')
     f.write('vehicle,day,seq,geom,t\n')
     print(f"There are supposed to be {sum(num_insts)} obeservations, which might take a while...")
 
-    while(True):
+    while (True):
         if len([ts for ts in curr_inst_ts if ts < MAX_DATETIME]) == 0:
             break
         # write the instance to file

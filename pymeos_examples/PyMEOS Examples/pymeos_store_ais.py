@@ -1,11 +1,9 @@
 import os
 
 from postgis import Point
+from pymeos import TGeogPointInst, TFloatInst, meos_initialize, meos_finish
+from pymeos.db import MobilityDB
 from tqdm import tqdm
-
-from pymeos.pymeos_lib import TGeogPointInst, TFloatInst
-from pymeos.pymeos_lib.db import MobilityDB
-from .._pymeos_cffi.functions import meos_initialize, meos_finish
 
 
 class AISRecord:
@@ -42,7 +40,7 @@ def main():
                    "(MMSI integer, location public.tgeogpoint, SOG public.tfloat);")
 
     # ----------------------------------------------------------------------
-    # ------- Section 2: Initialize MEOS and read the input PyMEOS Examples file -------
+    # - Section 2: Initialize MEOS and read the input PyMEOS Examples file -
     # ----------------------------------------------------------------------
     meos_initialize()
 

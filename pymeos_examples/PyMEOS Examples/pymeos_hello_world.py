@@ -1,4 +1,4 @@
-from pymeos import TGeomPointInst, TGeomPointInstSet, TGeomPointSeqSet, TGeomPointSeq
+from pymeos import TGeomPointInst, TGeomPointSeqSet, TGeomPointSeq
 from pymeos_cffi import meos_initialize, meos_finish
 
 
@@ -14,13 +14,13 @@ def main():
 
     # Read WKT into temporal point object
     inst = TGeomPointInst(string=inst_wkt)
-    iset = TGeomPointInstSet(string=iset_wkt)
+    iset = TGeomPointSeq(string=iset_wkt)
     seq = TGeomPointSeq(string=seq_wkt)
     ss = TGeomPointSeqSet(string=ss_wkt)
 
     results = [
         ('Temporal Instant', inst_wkt, inst.as_mf_json()),
-        ('Temporal Instant Set', iset_wkt, iset.as_mf_json()),
+        ('Temporal Instant Set (Sequence with discrete interpolation)', iset_wkt, iset.as_mf_json()),
         ('Temporal Sequence', seq_wkt, seq.as_mf_json()),
         ('Temporal Sequence Set', ss_wkt, ss.as_mf_json()),
     ]
