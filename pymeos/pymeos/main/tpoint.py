@@ -29,22 +29,22 @@ from __future__ import annotations
 from abc import ABC
 from ctypes import Union
 from datetime import datetime
-from typing import Optional, List, Literal
+from typing import Optional, List
 
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
 # from movingpandas import Trajectory
 from postgis import Point, Geometry
-from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in
+from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory
 from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
-    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in
+    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text
 
 from .tfloat import TFloatSeq, TFloatSeqSet
-from ..time import TimestampSet, Period, PeriodSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
+from ..time import TimestampSet, Period, PeriodSet
 
 
 # Add method to Point to make the class hashable
@@ -104,6 +104,13 @@ class TPoint(Temporal, ABC):
             return super().minus(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
+
+    def as_geojson(self, option: int = 1, precision: int = 6, srs: Optional[str] = None) -> str:
+        return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
+
+    def to_shapely_geometry(self, precision: int = 6):
+        import shapely.wkt
+        return shapely.wkt.loads(gserialized_as_text(tpoint_trajectory(self._inner), precision))
 
     def __str__(self):
         return tpoint_as_text(self._inner, 3)

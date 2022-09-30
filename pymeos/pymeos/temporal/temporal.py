@@ -310,7 +310,7 @@ class Temporal(ABC):
             return temporal_intersects_timestampset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
+    def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
     def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
@@ -420,12 +420,14 @@ class Temporal(ABC):
         return [(matches[i].i, matches[i].j) for i in range(count)]
 
     def time_split(self, start: datetime, end: datetime, units: int, origin: datetime, count: int) -> List[Temporal]:
-        tiles, buckets, new_count = temporal_time_split(self._inner,
-                                                        datetime_to_timestamptz(start),
-                                                        datetime_to_timestamptz(end),
-                                                        units,
-                                                        datetime_to_timestamptz(origin),
-                                                        count)
+        tiles, buckets, new_count = temporal_time_split(
+            self._inner,
+            datetime_to_timestamptz(start),
+            datetime_to_timestamptz(end),
+            units,
+            datetime_to_timestamptz(origin),
+            count
+        )
 
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
