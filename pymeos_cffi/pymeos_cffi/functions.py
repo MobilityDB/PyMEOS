@@ -123,8 +123,8 @@ def lwgeom_has_m(geom: 'const LWGEOM *') -> 'int':
     return result if result != _ffi.NULL else None
 
 
-def meos_initialize(tz_str: str) -> None:
-    tz_str_converted = tz_str.encode('utf-8')
+def meos_initialize(tz_str: "Optional[str]") -> None:
+    tz_str_converted = tz_str.encode('utf-8') if tz_str is not None else _ffi.NULL
     _lib.meos_initialize(tz_str_converted)
 
 
