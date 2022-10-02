@@ -1,4 +1,4 @@
-from pymeos import TGeomPointInst, TGeomPointSeqSet, TGeomPointSeq, pymeos_initialize, pymeos_finalize
+from pymeos import TGeomPointInst, TGeomPointSeq, pymeos_initialize, pymeos_finalize, TGeomPointSeqSet
 
 
 def main():
@@ -7,21 +7,28 @@ def main():
 
     # Input temporal points in WKT format
     inst_wkt = "POINT(1 1)@2000-01-01"
-    iset_wkt = "{POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02}"
-    seq_wkt = "[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02]"
-    ss_wkt = "{[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02],[POINT(3 3)@2000-01-03, POINT(3 3)@2000-01-04]}"
+    seq_disc_wkt = "{POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02}"
+    seq_linear_wkt = "[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02]"
+    seq_step_wkt = "Interp=Stepwise;[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02]"
+    ss_linear_wkt = "{[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02],[POINT(3 3)@2000-01-03, POINT(3 3)@2000-01-04]}"
+    ss_step_wkt = "Interp=Stepwise;{[POINT(1 1)@2000-01-01, POINT(2 2)@2000-01-02]," \
+                  "[POINT(3 3)@2000-01-03, POINT(3 3)@2000-01-04]}"
 
     # Read WKT into temporal point object
-    inst = TGeomPointInst(string=inst_wkt)
-    iset = TGeomPointSeq(string=iset_wkt)
-    seq = TGeomPointSeq(string=seq_wkt)
-    ss = TGeomPointSeqSet(string=ss_wkt)
+    inst = TGeomPointInst(inst_wkt)
+    seq_disc = TGeomPointSeq(seq_disc_wkt)
+    seq_linear = TGeomPointSeq(seq_linear_wkt)
+    seq_step = TGeomPointSeq(seq_step_wkt)
+    ss_linear = TGeomPointSeqSet(ss_linear_wkt)
+    ss_step = TGeomPointSeqSet(ss_step_wkt)
 
     results = [
-        ('Temporal Instant', inst_wkt, inst.as_mf_json()),
-        ('Temporal Instant Set (Sequence with discrete interpolation)', iset_wkt, iset.as_mf_json()),
-        ('Temporal Sequence', seq_wkt, seq.as_mf_json()),
-        ('Temporal Sequence Set', ss_wkt, ss.as_mf_json()),
+        ('Temporal Instant', inst_wkt, inst.as_mfjson()),
+        ('Temporal Sequence with Discrete Interpolation', seq_disc, seq_disc.as_mfjson()),
+        ('Temporal Sequence with Linear Interpolation', seq_linear, seq_linear.as_mfjson()),
+        ('Temporal Sequence with Stepwise Interpolation', seq_step, seq_step.as_mfjson()),
+        ('Temporal Sequence Set with Linear Interpolation', ss_linear, ss_linear.as_mfjson()),
+        ('Temporal Sequence Set with Stepwise Interpolation', ss_step, ss_step.as_mfjson()),
     ]
 
     for description, wkt, mfjson in results:
