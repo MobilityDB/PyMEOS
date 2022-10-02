@@ -20,5 +20,7 @@ __all__ = [
     # temporal
     'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
     # time
-    'Period', 'TimestampSet', 'PeriodSet'
+    'Period', 'TimestampSet', 'PeriodSet',
+    # extras
+    'TInterpolation'
     ]
