@@ -112,6 +112,9 @@ class TInt(TNumber, ABC):
     def __str__(self):
         return tint_out(self._inner)
 
+    def as_wkt(self):
+        return tint_out(self._inner)
+
 
 class TIntInst(TInstant, TInt):
     """

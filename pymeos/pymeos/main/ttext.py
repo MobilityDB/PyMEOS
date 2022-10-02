@@ -92,6 +92,9 @@ class TText(Temporal, ABC):
     def __str__(self):
         return ttext_out(self._inner)
 
+    def as_wkt(self):
+        return ttext_out(self._inner)
+
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:

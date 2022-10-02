@@ -35,12 +35,13 @@ from dateutil.parser import parse
 from geopandas import GeoDataFrame
 # from movingpandas import Trajectory
 from postgis import Point, Geometry
-from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory
-from pymeos_cffi.functions import tgeogpoint_in, tpoint_as_text, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
+from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
+    tpoint_as_ewkt
+from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
-    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text
+    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text, tpoint_out
 
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
@@ -113,7 +114,13 @@ class TPoint(Temporal, ABC):
         return shapely.wkt.loads(gserialized_as_text(tpoint_trajectory(self._inner), precision))
 
     def __str__(self):
-        return tpoint_as_text(self._inner, 3)
+        return tpoint_out(self._inner, 5)
+
+    def as_wkt(self, precision: int = 6):
+        return tpoint_out(self._inner, precision)
+
+    def as_ewkt(self, precision: int = 6):
+        return tpoint_as_ewkt(self._inner, precision)
 
 
 class TPointInst(TPoint, TInstant, ABC):

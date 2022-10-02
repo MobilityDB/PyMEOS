@@ -112,6 +112,9 @@ class TFloat(TNumber, ABC):
     def __str__(self):
         return tfloat_out(self._inner, 5)
 
+    def as_wkt(self, precision: int = 6):
+        return tfloat_out(self._inner, precision)
+
 
 class TFloatInst(TInstant, TFloat):
     """

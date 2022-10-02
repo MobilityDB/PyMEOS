@@ -31,10 +31,8 @@ from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
-    temporal_at_periodset, temporal_at_period, temporal_from_wkb, temporal_from_mfjson, temporal_as_hexwkb, \
-    temporal_as_wkb
-from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
-    temporal_intersects_timestampset, \
+    temporal_at_periodset, temporal_at_period, temporal_from_mfjson, temporal_as_hexwkb, temporal_intersects_timestamp, \
+    datetime_to_timestamptz, temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
     temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
@@ -523,6 +521,10 @@ class Temporal(ABC):
         return "{}".format(self.__str__())
 
     # End Psycopg2 interface.
+
+    @abstractmethod
+    def as_wkt(self):
+        pass
 
     def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
