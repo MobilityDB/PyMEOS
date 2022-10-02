@@ -20,7 +20,7 @@ license = {text = "PostgreSQL"}
 
 requires-python = ">=3.7"
 dependencies = [
-    'pymeos-cffi==0.0.16',
+    'pymeos-cffi==0.0.17',
     'python-dateutil',
     'spans',
     'postgis',
