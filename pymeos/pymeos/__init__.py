@@ -1,12 +1,12 @@
 from .boxes import *
 from .main import *
+from .meos_init import *
 from .temporal import *
 from .time import *
-from pymeos_cffi.functions import meos_initialize, meos_finish
 
 __all__ = [
-    #initialization
-    'meos_initialize', 'meos_finish',
+    # initialization
+    'pymeos_initialize', 'pymeos_finalize',
     # boxes
     'TBox', 'STBox',
     # main
@@ -23,4 +23,4 @@ __all__ = [
     'Period', 'TimestampSet', 'PeriodSet',
     # extras
     'TInterpolation'
-    ]
+]
