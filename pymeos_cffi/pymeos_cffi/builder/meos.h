@@ -586,6 +586,7 @@ typedef struct
   int32         count;        
   int32         totalcount;   /**< Total number of TInstant elements in all
                                    composing TSequence elements */
+  int32         maxcount;     
   int16         bboxsize;     
   Period        period;       /**< Time span (24 bytes). All bounding boxes
                                    start with a period so actually it is also
@@ -609,7 +610,7 @@ typedef struct
  * Initialization of the MEOS library
  *****************************************************************************/
 
-extern void meos_initialize(void);
+extern void meos_initialize(const char *tz_str);
 extern void meos_finish(void);
 
 /*****************************************************************************

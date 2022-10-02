@@ -3,7 +3,7 @@ FROM quay.io/pypa/manylinux2014_x86_64
 RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
 RUN yum -y update
 RUN yum -y install gcc gcc-c++ make cmake postgresql13-devel proj-devel json-c-devel geos39-devel
-RUN git clone --branch libmeos https://github.com/estebanzimanyi/MobilityDB
+RUN git clone --branch meos https://github.com/estebanzimanyi/MobilityDB
 WORKDIR MobilityDB/build
 
 RUN sed -i 's/extern TSequence \*tbooldiscseq_from_base(/\/\//' ../meos/include/meos.in.h
