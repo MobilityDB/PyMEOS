@@ -86,7 +86,7 @@ class TPoint(Temporal, ABC):
         return lwpoint_to_point(tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0])
 
     def simplify(self, tolerance: float, synchronized: bool = False):
-        return self.__class__(_inner=temporal_simplify(self._inner, synchronized, tolerance))
+        return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
 
     def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
         if isinstance(other, Geometry):
