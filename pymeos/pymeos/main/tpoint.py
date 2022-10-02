@@ -148,12 +148,13 @@ class TPointSeq(TPoint, TSequence, ABC):
     @staticmethod
     def from_arrays(t: List[Union[datetime, str]], x: List[float], y: List[float], z: Optional[List[float]] = None,
                     srid: int = 0, geodetic: bool = False, lower_inc: bool = True, upper_inc: bool = False,
-                    linear: bool = True, normalize: bool = True) -> TPointSeq:
+                    interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True) -> TPointSeq:
         from ..factory import _TemporalFactory
         assert len(t) == len(x) == len(y)
         times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else pg_timestamptz_in(ti, -1) for ti in t]
         return _TemporalFactory.create_temporal(
-            tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, linear, normalize)
+            tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, interpolation,
+                                  normalize)
         )
 
     @property
