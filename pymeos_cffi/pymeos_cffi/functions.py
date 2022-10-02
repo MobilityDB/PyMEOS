@@ -265,9 +265,9 @@ def gserialized_as_ewkb(geom: 'const GSERIALIZED *', type: str) -> 'bytea *':
     return result if result != _ffi.NULL else None
 
 
-def gserialized_as_geojson(geom: 'const GSERIALIZED *', option: int, precision: int, srs: str) -> str:
+def gserialized_as_geojson(geom: 'const GSERIALIZED *', option: int, precision: int, srs: "Optional[str]") -> str:
     geom_converted = _ffi.cast('const GSERIALIZED *', geom)
-    srs_converted = srs.encode('utf-8')
+    srs_converted = srs.encode('utf-8') if srs is not None else _ffi.NULL
     result = _lib.gserialized_as_geojson(geom_converted, option, precision, srs_converted)
     result = _ffi.string(result).decode('utf-8')
     return result if result != _ffi.NULL else None

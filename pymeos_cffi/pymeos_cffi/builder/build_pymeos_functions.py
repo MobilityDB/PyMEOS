@@ -134,6 +134,7 @@ output_parameters = {
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
     ('temporal_as_mfjson', 'srs'),
+    ('gserialized_as_geojson', 'srs'),
     ('period_shift_tscale', 'duration'),
     ('period_shift_tscale', 'start'),
     ('period_shift_tscale', 'start'),
