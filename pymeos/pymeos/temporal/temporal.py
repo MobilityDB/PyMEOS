@@ -31,7 +31,8 @@ from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
-    temporal_at_periodset, temporal_at_period
+    temporal_at_periodset, temporal_at_period, temporal_from_wkb, temporal_from_mfjson, temporal_as_hexwkb, \
+    temporal_as_wkb
 from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
     temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
@@ -310,9 +311,6 @@ class Temporal(ABC):
             return temporal_intersects_timestampset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
-        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
-
     def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
         if isinstance(other, Period):
             return after_temporal_period(self._inner, other._inner)
@@ -526,8 +524,20 @@ class Temporal(ABC):
 
     # End Psycopg2 interface.
 
+    def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
+        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
+
+    def as_hexwkb(self) -> str:
+        return temporal_as_hexwkb(self._inner, 0)[0]
+
     @staticmethod
-    def from_hexwkb(hexwkb: str):
+    def from_hexwkb(hexwkb: str) -> Temporal:
         result = temporal_from_hexwkb(hexwkb)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_mfjson(mfjson: str) -> Temporal:
+        result = temporal_from_mfjson(mfjson)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
