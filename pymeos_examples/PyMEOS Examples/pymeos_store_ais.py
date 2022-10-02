@@ -1,7 +1,7 @@
 import os
 
 from postgis import Point
-from pymeos import TGeogPointInst, TFloatInst, meos_initialize, meos_finish
+from pymeos import TGeogPointInst, TFloatInst, pymeos_initialize, pymeos_finalize
 from pymeos.db import MobilityDB
 from tqdm import tqdm
 
@@ -42,7 +42,7 @@ def main():
     # ----------------------------------------------------------------------
     # - Section 2: Initialize MEOS and read the input PyMEOS Examples file -
     # ----------------------------------------------------------------------
-    meos_initialize()
+    pymeos_initialize()
 
     with open('../data/aisinput.csv', 'r') as file:
         lines = file.read().splitlines()
@@ -83,7 +83,7 @@ def main():
 
     connection.commit()
     cursor.close()
-    meos_finish()
+    pymeos_finalize()
 
 
 if __name__ == '__main__':

@@ -1,12 +1,12 @@
 import pandas as pd
 from postgis import Geometry
-from pymeos import Temporal, meos_initialize, meos_finish
+from pymeos import Temporal, pymeos_initialize, pymeos_finalize
 
 DELTA_DISTANCE = 1
 
 
 def main():
-    meos_initialize()
+    pymeos_initialize()
     trips = pd.read_csv('../data/trips.csv',
                         converters={
                             'trip': Temporal.from_hexwkb,
@@ -22,7 +22,7 @@ def main():
               f"No. of instants DP: {trip['simplfied_dp'].num_instants},",
               f"No. of instants SED: {trip['simplfied_sed'].num_instants}")
 
-    meos_finish()
+    pymeos_finalize()
 
 
 if __name__ == '__main__':

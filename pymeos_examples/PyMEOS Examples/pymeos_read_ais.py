@@ -1,7 +1,6 @@
 from postgis import Point
 
-from pymeos import TGeogPointInst, TFloatInst
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import TGeogPointInst, TFloatInst, pymeos_initialize, pymeos_finalize
 
 
 class AISRecord:
@@ -14,7 +13,7 @@ class AISRecord:
 
 
 def main():
-    meos_initialize()
+    pymeos_initialize()
 
     with open('../data/aisinput.csv', 'r') as file:
         lines = file.read().splitlines()
@@ -38,7 +37,7 @@ def main():
     print(f"{records} records read.\n {nulls} incomplete records ignored")
 
     # Finalize MEOS
-    meos_finish()
+    pymeos_finalize()
 
 
 if __name__ == '__main__':

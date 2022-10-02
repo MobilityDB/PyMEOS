@@ -2,8 +2,7 @@ from typing import List, Optional
 
 from postgis import Point
 
-from pymeos import TGeogPointInst, TGeogPointSeq
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import TGeogPointInst, TGeogPointSeq, pymeos_initialize, pymeos_finalize
 
 
 class AISRecord:
@@ -33,7 +32,7 @@ class MMSIInstants:
 
 def main():
     # Initialize MEOS Library
-    meos_initialize()
+    pymeos_initialize()
 
     # Create array of ships
     ships: List[MMSIInstants] = []
@@ -85,7 +84,7 @@ def main():
               f"Distance travelled: {ship.sequence.distance}")
 
     # Finalize MEOS Library
-    meos_finish()
+    pymeos_finalize()
 
 
 if __name__ == '__main__':

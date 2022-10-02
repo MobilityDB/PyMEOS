@@ -3,14 +3,13 @@ import warnings
 import numpy as np
 import pandas as pd
 from postgis import Geometry
-from pymeos import Temporal
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import Temporal, pymeos_initialize, pymeos_finalize
 from tabulate import tabulate
 
 warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
-    meos_initialize()
+    pymeos_initialize()
 
     # read csv files
     communes = pd.read_csv('../data/communes.csv', converters={'geom': Geometry.from_ewkb})
@@ -75,4 +74,4 @@ if __name__ == '__main__':
     else:
         print(tabulate(df_distance, headers='keys', tablefmt='psql', floatfmt='.3f'))
 
-    meos_finish()
+    pymeos_finalize()

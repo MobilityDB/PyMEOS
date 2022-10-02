@@ -3,13 +3,12 @@ import warnings
 
 import pandas as pd
 from postgis import Geometry
-from pymeos import Temporal
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import Temporal, pymeos_initialize, pymeos_finalize
 
 warnings.filterwarnings("ignore")
 
 if __name__ == '__main__':
-    meos_initialize()
+    pymeos_initialize()
 
     # read csv files
     trips = pd.read_csv('../data/trips.csv',
@@ -65,4 +64,4 @@ if __name__ == '__main__':
 
     print(f"{count} observation records written.")
     f.close()
-    meos_finish()
+    pymeos_finalize()

@@ -1,10 +1,9 @@
-from pymeos import TGeomPointInst, TGeomPointSeqSet, TGeomPointSeq
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import TGeomPointInst, TGeomPointSeqSet, TGeomPointSeq, pymeos_initialize, pymeos_finalize
 
 
 def main():
     # Initialize session_timezone
-    meos_initialize()
+    pymeos_initialize()
 
     # Input temporal points in WKT format
     inst_wkt = "POINT(1 1)@2000-01-01"
@@ -36,7 +35,7 @@ def main():
               f"--------\n{mfjson}\n")
 
     # Finalize MEOS
-    meos_finish()
+    pymeos_finalize()
 
 
 if __name__ == '__main__':
