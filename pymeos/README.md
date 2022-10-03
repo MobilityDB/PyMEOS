@@ -19,14 +19,14 @@ pip install pymeos
 
 ## Sample code
 
->  **IMPORTANT** Before using any PyMEOS function, always call `meos_initialize`. Otherwise, the library will 
-> crash with a `Segmentation Fault` error. You should also always call `meos_finish` at the end of your code.
+>  **IMPORTANT** Before using any PyMEOS function, always call `pymeos_initialize`. Otherwise, the library will 
+> crash with a `Segmentation Fault` error. You should also always call `pymeos_finalize` at the end of your code.
 
 ````python
-from pymeos import meos_initialize, meos_finish, TGeogPointInst, TGeogPointSeq
+from pymeos import pymeos_initialize, pymeos_finalize, TGeogPointInst, TGeogPointSeq
 
 # Important: Always initialize MEOS library
-meos_initialize()
+pymeos_initialize()
 
 sequence_from_string = TGeogPointSeq(string='[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]')
 print(f'Output: {sequence_from_string}')
@@ -36,5 +36,5 @@ speed = sequence_from_points.speed
 print(f'Speeds: {speed}')
 
 # Call finish at the end of your code
-meos_finish()
+pymeos_finalize()
 ````
