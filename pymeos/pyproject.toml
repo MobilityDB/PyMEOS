@@ -31,3 +31,4 @@ dependencies = [
 [project.urls]
 "Homepage" = "https://github.com/MobilityDB/PyMEOS"
 "Bug Tracker" = "https://github.com/MobilityDB/PyMEOS/issues"
+"Changelog" = "https://github.com/MobilityDB/PyMEOS/blob/master/pymeos/CHANGELOG.md"
