@@ -287,56 +287,56 @@
 
 ### Set functions for span and time types
 
-- [ ] `extern PeriodSet *intersection_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool intersection_period_timestamp(const Period *p, TimestampTz t, TimestampTz *result);`
-- [ ] `extern TimestampSet *intersection_period_timestampset(const Period *ps, const TimestampSet *ts);`
-- [ ] `extern PeriodSet *intersection_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern PeriodSet *intersection_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool intersection_periodset_timestamp(const PeriodSet *ps, TimestampTz t, TimestampTz *result);`
-- [ ] `extern TimestampSet *intersection_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern Span *intersection_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool intersection_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);`
-- [ ] `extern bool intersection_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);`
-- [ ] `extern bool intersection_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);`
-- [ ] `extern bool intersection_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);`
-- [ ] `extern TimestampSet *intersection_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern TimestampSet *intersection_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool intersection_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t, TimestampTz *result);`
-- [ ] `extern TimestampSet *intersection_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern PeriodSet *minus_period_period(const Period *p1, const Period *p2);`
-- [ ] `extern PeriodSet *minus_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern PeriodSet *minus_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern PeriodSet *minus_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern PeriodSet *minus_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern PeriodSet *minus_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern PeriodSet *minus_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern PeriodSet *minus_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern Span *minus_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool minus_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);`
-- [ ] `extern bool minus_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);`
-- [ ] `extern bool minus_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);`
-- [ ] `extern bool minus_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);`
-- [ ] `extern TimestampSet *minus_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern TimestampSet *minus_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern TimestampSet *minus_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern TimestampSet *minus_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern PeriodSet *union_period_period(const Period *p1, const Period *p2);`
-- [ ] `extern PeriodSet *union_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern PeriodSet *union_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern PeriodSet *union_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern PeriodSet *union_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern PeriodSet *union_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern PeriodSet *union_periodset_timestamp(PeriodSet *ps, TimestampTz t);`
-- [ ] `extern PeriodSet *union_periodset_timestampset(PeriodSet *ps, TimestampSet *ts);`
-- [ ] `extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);`
-- [ ] `extern PeriodSet *union_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern PeriodSet *union_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern TimestampSet *union_timestamp_timestamp(TimestampTz t1, TimestampTz t2);`
-- [ ] `extern TimestampSet *union_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern PeriodSet *union_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern PeriodSet *union_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern TimestampSet *union_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t);`
-- [ ] `extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern PeriodSet *intersection_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool intersection_period_timestamp(const Period *p, TimestampTz t, TimestampTz *result);`
+- [x] `extern TimestampSet *intersection_period_timestampset(const Period *ps, const TimestampSet *ts);`
+- [x] `extern PeriodSet *intersection_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern PeriodSet *intersection_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool intersection_periodset_timestamp(const PeriodSet *ps, TimestampTz t, TimestampTz *result);`
+- [x] `extern TimestampSet *intersection_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern Span *intersection_span_span(const Span *s1, const Span *s2);`
+- [ ] `extern bool intersection_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool intersection_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool intersection_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool intersection_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);` Class not defined in PyMEOS
+- [x] `extern TimestampSet *intersection_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern TimestampSet *intersection_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool intersection_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t, TimestampTz *result);`
+- [x] `extern TimestampSet *intersection_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern PeriodSet *minus_period_period(const Period *p1, const Period *p2);`
+- [x] `extern PeriodSet *minus_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern PeriodSet *minus_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern PeriodSet *minus_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern PeriodSet *minus_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern PeriodSet *minus_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern PeriodSet *minus_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern PeriodSet *minus_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [ ] `extern Span *minus_span_span(const Span *s1, const Span *s2);` minus_period_period used instead 
+- [ ] `extern bool minus_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool minus_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool minus_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);` Class not defined in PyMEOS
+- [ ] `extern bool minus_timestamp_timestampset(TimestampTz t, const TimestampSet *ts, TimestampTz *result);` Class not defined in PyMEOS
+- [x] `extern TimestampSet *minus_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern TimestampSet *minus_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern TimestampSet *minus_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern TimestampSet *minus_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern PeriodSet *union_period_period(const Period *p1, const Period *p2);`
+- [x] `extern PeriodSet *union_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern PeriodSet *union_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern PeriodSet *union_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern PeriodSet *union_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern PeriodSet *union_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern PeriodSet *union_periodset_timestamp(PeriodSet *ps, TimestampTz t);`
+- [x] `extern PeriodSet *union_periodset_timestampset(PeriodSet *ps, TimestampSet *ts);`
+- [ ] `extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);` union_period_period used instead 
+- [ ] `extern PeriodSet *union_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
+- [ ] `extern PeriodSet *union_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern TimestampSet *union_timestamp_timestamp(TimestampTz t1, TimestampTz t2);` Class not defined in PyMEOS
+- [ ] `extern TimestampSet *union_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [x] `extern PeriodSet *union_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern PeriodSet *union_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern TimestampSet *union_timestampset_timestamp(const TimestampSet *ts, const TimestampTz t);`
+- [x] `extern TimestampSet *union_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
 
 
 
