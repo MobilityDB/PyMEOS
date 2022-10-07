@@ -27,19 +27,22 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, TYPE_CHECKING
 
 from dateutil.parser import parse
-from pymeos_cffi import tint_value_split
+from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_lower, intspan_upper
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, tint_values, tint_start_value, \
     tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, tintseq_from_base_time, \
-    tintseqset_from_base_time
+    tintseqset_from_base_time, tnumber_to_span
 from spans.types import intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
+
+if TYPE_CHECKING:
+    from .tfloat import TFloat
 
 
 class TInt(TNumber, ABC):
@@ -50,6 +53,14 @@ class TInt(TNumber, ABC):
     BaseClass = int
     BaseClassDiscrete = True
     _parse_function = tint_in
+
+    def to_tint(self) -> TFloat:
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
+
+    def to_intrange(self) -> intrange:
+        span = tnumber_to_span(self._inner)
+        return intrange(intspan_lower(span), intspan_upper(span), span.lower_inc, span.upper_inc)
 
     @staticmethod
     def from_base(value: int, base: Temporal) -> TInt:

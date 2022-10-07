@@ -646,9 +646,9 @@
 
 ### Cast functions for temporal types
 
-- [ ] `extern Temporal *tfloat_to_tint(const Temporal *temp);`
-- [ ] `extern Temporal *tint_to_tfloat(const Temporal *temp);`
-- [ ] `extern Span *tnumber_to_span(const Temporal *temp);`
+- [x] `extern Temporal *tfloat_to_tint(const Temporal *temp);`
+- [x] `extern Temporal *tint_to_tfloat(const Temporal *temp);`
+- [x] `extern Span *tnumber_to_span(const Temporal *temp);`
 
 
 
