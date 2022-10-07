@@ -31,6 +31,7 @@ from datetime import timedelta, datetime
 from typing import Optional, Union, List, overload
 from typing import TYPE_CHECKING
 
+from pymeos_cffi import periodset_from_hexwkb, periodset_as_hexwkb
 from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, interval_to_timedelta, \
     timestamptz_to_datetime, periodset_start_timestamp, \
     periodset_end_timestamp, periodset_timestamp_n, periodset_timestamps, periodset_num_periods, periodset_start_period, \
@@ -96,6 +97,14 @@ class PeriodSet:
         else:
             periods = [period_in(period) if isinstance(period, str) else period._inner for period in period_list]
             self._inner = periodset_make(periods, len(periods), normalize)
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> PeriodSet:
+        result = periodset_from_hexwkb(hexwkb)
+        return PeriodSet(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return periodset_as_hexwkb(self._inner, -1)[0]
 
     @property
     def duration(self) -> timedelta:
