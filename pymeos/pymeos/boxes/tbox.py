@@ -209,14 +209,17 @@ class TBox:
         """
         return timestamptz_to_datetime(tbox_tmax(self._inner))
 
-    def expand(self, other: Union[TBox, float, timedelta]) -> None:
+    def expand(self, other: Union[TBox, float, timedelta]) -> TBox:
         if isinstance(other, TBox):
-            tbox_expand(other._inner, self._inner)
+            result = tbox_copy(self._inner)
+            tbox_expand(other._inner, result)
         elif isinstance(other, float):
-            self._inner = tbox_expand_value(self._inner, other)
+            result = tbox_expand_value(self._inner, other)
         elif isinstance(other, timedelta):
-            self._inner = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return TBox(_inner=result)
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
         """

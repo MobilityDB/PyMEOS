@@ -477,15 +477,15 @@
 
 ### Transformation functions for box types
 
-- [ ] `extern void tbox_expand(const TBOX *box1, TBOX *box2);`
-- [ ] `extern void tbox_shift_tscale(const Interval *start, const Interval *duration, TBOX *box);`
-- [ ] `extern TBOX *tbox_expand_value(const TBOX *box, const double d);`
-- [ ] `extern TBOX *tbox_expand_temporal(const TBOX *box, const Interval *interval);`
-- [ ] `extern void stbox_expand(const STBOX *box1, STBOX *box2);`
-- [ ] `extern void stbox_shift_tscale(const Interval *start, const Interval *duration, STBOX *box);`
-- [ ] `extern STBOX *stbox_set_srid(const STBOX *box, int32 srid);`
-- [ ] `extern STBOX *stbox_expand_spatial(const STBOX *box, double d);`
-- [ ] `extern STBOX *stbox_expand_temporal(const STBOX *box, const Interval *interval);`
+- [x] `extern void tbox_expand(const TBOX *box1, TBOX *box2);`
+- [x] `extern void tbox_shift_tscale(const Interval *start, const Interval *duration, TBOX *box);`
+- [x] `extern TBOX *tbox_expand_value(const TBOX *box, const double d);`
+- [x] `extern TBOX *tbox_expand_temporal(const TBOX *box, const Interval *interval);`
+- [x] `extern void stbox_expand(const STBOX *box1, STBOX *box2);`
+- [x] `extern void stbox_shift_tscale(const Interval *start, const Interval *duration, STBOX *box);`
+- [x] `extern STBOX *stbox_set_srid(const STBOX *box, int32 srid);`
+- [x] `extern STBOX *stbox_expand_spatial(const STBOX *box, double d);`
+- [x] `extern STBOX *stbox_expand_temporal(const STBOX *box, const Interval *interval);`
 
 
 

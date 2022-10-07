@@ -267,18 +267,20 @@ class STBox:
         """
         return self._inner.srid
 
-    @srid.setter
-    def srid(self, value: int):
-        self._inner = stbox_set_srid(self._inner, value)
+    def set_srid(self, value: int) -> STBox:
+        return STBox(_inner=stbox_set_srid(self._inner, value))
 
-    def expand(self, other: Union[STBox, float, timedelta]) -> None:
+    def expand(self, other: Union[STBox, float, timedelta]) -> STBox:
         if isinstance(other, STBox):
-            stbox_expand(other._inner, self._inner)
+            result = stbox_copy(self._inner)
+            stbox_expand(other._inner, result)
         elif isinstance(other, float):
-            self._inner = stbox_expand_spatial(self._inner, other)
+            result = stbox_expand_spatial(self._inner, other)
         elif isinstance(other, timedelta):
-            self._inner = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return STBox(_inner=result)
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
         """
