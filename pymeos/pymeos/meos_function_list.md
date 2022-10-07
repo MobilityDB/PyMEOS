@@ -154,53 +154,53 @@
 
 ### Topological functions for span and time types
 
-- [ ] `extern bool adjacent_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool adjacent_intspan_int(const Span *s, int i);`
-- [ ] `extern bool adjacent_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool adjacent_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool adjacent_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool adjacent_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool adjacent_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool adjacent_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool adjacent_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool adjacent_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool adjacent_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool adjacent_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool adjacent_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool adjacent_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool contained_float_floatspan(double d, const Span *s);`
-- [ ] `extern bool contained_int_intspan(int i, const Span *s);`
-- [ ] `extern bool contained_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool contained_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool contained_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool contained_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool contained_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool contained_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool contained_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern bool contained_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool contained_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool contained_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool contains_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool contains_intspan_int(const Span *s, int i);`
-- [ ] `extern bool contains_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool contains_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool contains_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool contains_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool contains_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool contains_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool contains_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool contains_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool contains_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern bool contains_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool overlaps_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool overlaps_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool overlaps_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool overlaps_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool overlaps_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool overlaps_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool overlaps_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool overlaps_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [ ] `extern bool adjacent_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern bool adjacent_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern bool adjacent_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool adjacent_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool adjacent_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool adjacent_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool adjacent_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool adjacent_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool adjacent_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern bool adjacent_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool adjacent_timestamp_period(TimestampTz t, const Period *p);`
+- [x] `extern bool adjacent_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
+- [x] `extern bool adjacent_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool adjacent_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [ ] `extern bool contained_float_floatspan(double d, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool contained_int_intspan(int i, const Span *s);` Class not defined in PyMEOS
+- [x] `extern bool contained_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool contained_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool contained_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool contained_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool contained_timestamp_period(TimestampTz t, const Period *p);`
+- [x] `extern bool contained_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
+- [x] `extern bool contained_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
+- [x] `extern bool contained_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool contained_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool contained_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [ ] `extern bool contains_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern bool contains_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern bool contains_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool contains_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool contains_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool contains_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool contains_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool contains_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool contains_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern bool contains_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool contains_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern bool contains_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern bool overlaps_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool overlaps_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool overlaps_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool overlaps_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool overlaps_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern bool overlaps_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool overlaps_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool overlaps_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
 
 
 ### Position functions for span and time types
