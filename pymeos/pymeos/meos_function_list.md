@@ -365,27 +365,27 @@
 
 ### Comparison functions for span and time types
 
-- [ ] `extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern int periodset_cmp(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool periodset_lt(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool periodset_le(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool periodset_ge(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool periodset_gt(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool span_eq(const Span *s1, const Span *s2);`
-- [ ] `extern bool span_ne(const Span *s1, const Span *s2);`
-- [ ] `extern int span_cmp(const Span *s1, const Span *s2);`
-- [ ] `extern bool span_lt(const Span *s1, const Span *s2);`
-- [ ] `extern bool span_le(const Span *s1, const Span *s2);`
-- [ ] `extern bool span_ge(const Span *s1, const Span *s2);`
-- [ ] `extern bool span_gt(const Span *s1, const Span *s2);`
-- [ ] `extern bool timestampset_eq(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern bool timestampset_ne(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern int timestampset_cmp(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern bool timestampset_lt(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern bool timestampset_le(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern bool timestampset_ge(const TimestampSet *ss1, const TimestampSet *ss2);`
-- [ ] `extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern int periodset_cmp(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool periodset_lt(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool periodset_le(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool periodset_ge(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool periodset_gt(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool span_eq(const Span *s1, const Span *s2);`
+- [x] `extern bool span_ne(const Span *s1, const Span *s2);`
+- [x] `extern int span_cmp(const Span *s1, const Span *s2);`
+- [x] `extern bool span_lt(const Span *s1, const Span *s2);`
+- [x] `extern bool span_le(const Span *s1, const Span *s2);`
+- [x] `extern bool span_ge(const Span *s1, const Span *s2);`
+- [x] `extern bool span_gt(const Span *s1, const Span *s2);`
+- [x] `extern bool timestampset_eq(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool timestampset_ne(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern int timestampset_cmp(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool timestampset_lt(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool timestampset_le(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool timestampset_ge(const TimestampSet *ss1, const TimestampSet *ss2);`
+- [x] `extern bool timestampset_gt(const TimestampSet *ss1, const TimestampSet *ss2);`
 
 ## Functions for box types
  
