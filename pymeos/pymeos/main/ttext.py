@@ -30,11 +30,13 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
-
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
-    textcat_ttext_text, textcat_ttext_ttext
+    textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
+    ttextseqset_from_base_time
+
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class TText(Temporal, ABC):
@@ -46,6 +48,24 @@ class TText(Temporal, ABC):
     BaseClassDiscrete = True
 
     _parse_function = ttext_in
+
+    @staticmethod
+    def from_base(value: str, base: Temporal) -> TText:
+        result = ttext_from_base(value, base._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: str, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TText:
+        if isinstance(base, datetime):
+            return TTextInst(_inner=ttextinst_make(value, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TTextSeq(_inner=ttextdiscseq_from_base_time(value, base._inner))
+        elif isinstance(base, Period):
+            return TTextSeq(_inner=ttextseq_from_base_time(value, base._inner))
+        elif isinstance(base, PeriodSet):
+            return TTextSeqSet(_inner=ttextseqset_from_base_time(value, base._inner))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @property
     def values(self):

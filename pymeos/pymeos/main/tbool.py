@@ -30,12 +30,15 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
+from pymeos_cffi import tbooldiscseq_from_base_time
 from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
     tbool_values, tbool_start_value, tbool_end_value, \
     tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
-    tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool
+    tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool, tbool_from_base, tboolseq_from_base_time, \
+    tboolseqset_from_base_time
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class TBool(Temporal, ABC):
@@ -46,6 +49,24 @@ class TBool(Temporal, ABC):
     BaseClass = bool
     BaseClassDiscrete = True
     _parse_function = tbool_in
+
+    @staticmethod
+    def from_base(value: bool, base: Temporal) -> TBool:
+        result = tbool_from_base(value, base._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: bool, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBool:
+        if isinstance(base, datetime):
+            return TBoolInst(_inner=tboolinst_make(value, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TBoolSeq(_inner=tbooldiscseq_from_base_time(value, base._inner))
+        elif isinstance(base, Period):
+            return TBoolSeq(_inner=tboolseq_from_base_time(value, base._inner))
+        elif isinstance(base, PeriodSet):
+            return TBoolSeqSet(_inner=tboolseqset_from_base_time(value, base._inner))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @property
     def values(self) -> List[bool]:

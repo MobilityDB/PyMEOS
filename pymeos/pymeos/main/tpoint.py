@@ -41,7 +41,10 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
-    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text, tpoint_out
+    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text, \
+    tpoint_out, tgeompoint_from_base, tgeompointinst_make, tgeompointdiscseq_from_base_time, \
+    tgeompointseq_from_base_time, tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, \
+    tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -207,6 +210,27 @@ class TGeomPoint(TPoint, ABC):
     _parse_function = tgeompoint_in
 
     @staticmethod
+    def from_base(value: Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        result = tgeompoint_from_base(gs, base._inner, interpolation)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
+                       interpolation: TInterpolation = None) -> TGeomPoint:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        if isinstance(base, datetime):
+            return TGeomPointInst(_inner=tgeompointinst_make(gs, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TGeomPointSeq(_inner=tgeompointdiscseq_from_base_time(gs, base._inner))
+        elif isinstance(base, Period):
+            return TGeomPointSeq(_inner=tgeompointseq_from_base_time(gs, base._inner, interpolation))
+        elif isinstance(base, PeriodSet):
+            return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_time(gs, base._inner, interpolation))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
+
+    @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
@@ -243,6 +267,27 @@ class TGeogPoint(TPoint, ABC):
     BaseClass = Point
     BaseClassDiscrete = False
     _parse_function = tgeogpoint_in
+
+    @staticmethod
+    def from_base(value: Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        result = tgeogpoint_from_base(gs, base._inner, interpolation)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
+                       interpolation: TInterpolation = None) -> TGeogPoint:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        if isinstance(base, datetime):
+            return TGeogPointInst(_inner=tgeogpointinst_make(gs, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TGeogPointSeq(_inner=tgeogpointdiscseq_from_base_time(gs, base._inner))
+        elif isinstance(base, Period):
+            return TGeogPointSeq(_inner=tgeogpointseq_from_base_time(gs, base._inner, interpolation))
+        elif isinstance(base, PeriodSet):
+            return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_time(gs, base._inner, interpolation))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

@@ -23,6 +23,8 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
 from datetime import datetime
 from typing import Optional, Union, List
@@ -31,11 +33,13 @@ from dateutil.parser import parse
 from pymeos_cffi import tint_value_split
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, tint_values, tint_start_value, \
-    tint_end_value, tint_value_at_timestamp
+    tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, tintseq_from_base_time, \
+    tintseqset_from_base_time
 from spans.types import intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class TInt(TNumber, ABC):
@@ -46,6 +50,24 @@ class TInt(TNumber, ABC):
     BaseClass = int
     BaseClassDiscrete = True
     _parse_function = tint_in
+
+    @staticmethod
+    def from_base(value: int, base: Temporal) -> TInt:
+        result = tint_from_base(value, base._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: int, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TInt:
+        if isinstance(base, datetime):
+            return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TIntSeq(_inner=tintdiscseq_from_base_time(value, base._inner))
+        elif isinstance(base, Period):
+            return TIntSeq(_inner=tintseq_from_base_time(value, base._inner))
+        elif isinstance(base, PeriodSet):
+            return TIntSeqSet(_inner=tintseqset_from_base_time(value, base._inner))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

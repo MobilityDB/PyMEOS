@@ -23,17 +23,21 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
+from __future__ import annotations
+
 from abc import ABC
 from datetime import datetime
-from typing import Optional, List, Literal, Union
+from typing import Optional, List, Union
 
 from dateutil.parser import parse
+from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
+    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
+    tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time
 from spans.types import floatrange
 
-from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
-    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class TFloat(TNumber, ABC):
@@ -44,6 +48,25 @@ class TFloat(TNumber, ABC):
     BaseClass = float
     BaseClassDiscrete = False
     _parse_function = tfloat_in
+
+    @staticmethod
+    def from_base(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
+        result = tfloat_from_base(value, base._inner, interpolation)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_base_time(value: float, base: Union[datetime, TimestampSet, Period, PeriodSet],
+                       interpolation: TInterpolation = None) -> TFloat:
+        if isinstance(base, datetime):
+            return TFloatInst(_inner=tfloatinst_make(value, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TFloatSeq(_inner=tfloatdiscseq_from_base_time(value, base._inner))
+        elif isinstance(base, Period):
+            return TFloatSeq(_inner=tfloatseq_from_base_time(value, base._inner, interpolation))
+        elif isinstance(base, PeriodSet):
+            return TFloatSeqSet(_inner=tfloatseqset_from_base_time(value, base._inner, interpolation))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

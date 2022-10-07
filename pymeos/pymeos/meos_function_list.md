@@ -590,57 +590,57 @@
 
 ### Constructor functions for temporal types
 
-- [ ] `extern Temporal *tbool_from_base(bool b, const Temporal *temp);`
-- [ ] `extern TInstant *tboolinst_make(bool b, TimestampTz t);`
-- [ ] `extern TSequence *tbooldiscseq_from_base(bool b, const TSequence *is);`
-- [ ] `extern TSequence *tbooldiscseq_from_base_time(bool b, const TimestampSet *ts);`
-- [ ] `extern TSequence *tboolseq_from_base(bool b, const TSequence *seq);`
-- [ ] `extern TSequence *tboolseq_from_base_time(bool b, const Period *p);`
-- [ ] `extern TSequenceSet *tboolseqset_from_base(bool b, const TSequenceSet *ss);`
-- [ ] `extern TSequenceSet *tboolseqset_from_base_time(bool b, const PeriodSet *ps);`
-- [ ] `extern Temporal *temporal_copy(const Temporal *temp);`
-- [ ] `extern Temporal *tfloat_from_base(bool b, const Temporal *temp, interpType interp);`
-- [ ] `extern TInstant *tfloatinst_make(double d, TimestampTz t);`
-- [ ] `extern TSequence *tfloatdiscseq_from_base_time(bool b, const TimestampSet *ts);`
-- [ ] `extern TSequence *tfloatseq_from_base(bool b, const TSequence *seq, interpType interp);`
-- [ ] `extern TSequence *tfloatseq_from_base_time(bool b, const Period *p, interpType interp);`
-- [ ] `extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, interpType interp);`
-- [ ] `extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, interpType interp);`
-- [ ] `extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);`
-- [ ] `extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);`
-- [ ] `extern TSequence *tgeogpointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);`
-- [ ] `extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);`
-- [ ] `extern TSequence *tgeogpointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);`
-- [ ] `extern TSequenceSet *tgeogpointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);`
-- [ ] `extern TSequenceSet *tgeogpointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);`
-- [ ] `extern Temporal *tgeompoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);`
-- [ ] `extern TInstant *tgeompointinst_make(const GSERIALIZED *gs, TimestampTz t);`
-- [ ] `extern TSequence *tgeompointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);`
-- [ ] `extern TSequence *tgeompointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);`
-- [ ] `extern TSequence *tgeompointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);`
-- [ ] `extern TSequenceSet *tgeompointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);`
-- [ ] `extern TSequenceSet *tgeompointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);`
-- [ ] `extern Temporal *tint_from_base(int i, const Temporal *temp);`
-- [ ] `extern TInstant *tintinst_make(int i, TimestampTz t);`
-- [ ] `extern TSequence *tintdiscseq_from_base_time(int i, const TimestampSet *ts);`
-- [ ] `extern TSequence *tintseq_from_base(int i, const TSequence *seq);`
-- [ ] `extern TSequence *tintseq_from_base_time(int i, const Period *p);`
-- [ ] `extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);`
-- [ ] `extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);`
-- [ ] `extern TSequence *tsequence_make(const TInstant **instants, int count,  int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);`
-- [ ] `extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
+- [x] `extern Temporal *tbool_from_base(bool b, const Temporal *temp);`
+- [x] `extern TInstant *tboolinst_make(bool b, TimestampTz t);`
+- [ ] `extern TSequence *tbooldiscseq_from_base(bool b, const TSequence *is);` Not implemented in MEOS
+- [x] `extern TSequence *tbooldiscseq_from_base_time(bool b, const TimestampSet *ts);`
+- [ ] `extern TSequence *tboolseq_from_base(bool b, const TSequence *seq);` `tbool_from_base` used instead
+- [x] `extern TSequence *tboolseq_from_base_time(bool b, const Period *p);`
+- [ ] `extern TSequenceSet *tboolseqset_from_base(bool b, const TSequenceSet *ss);` `tbool_from_base` used instead
+- [x] `extern TSequenceSet *tboolseqset_from_base_time(bool b, const PeriodSet *ps);`
+- [x] `extern Temporal *temporal_copy(const Temporal *temp);`
+- [x] `extern Temporal *tfloat_from_base(bool b, const Temporal *temp, interpType interp);`
+- [x] `extern TInstant *tfloatinst_make(double d, TimestampTz t);`
+- [x] `extern TSequence *tfloatdiscseq_from_base_time(bool b, const TimestampSet *ts);`
+- [ ] `extern TSequence *tfloatseq_from_base(bool b, const TSequence *seq, interpType interp);` `tfloat_from_base` used instead
+- [x] `extern TSequence *tfloatseq_from_base_time(bool b, const Period *p, interpType interp);`
+- [ ] `extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, interpType interp);` `tfloat_from_base` used instead
+- [x] `extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, interpType interp);`
+- [x] `extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);`
+- [x] `extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);`
+- [x] `extern TSequence *tgeogpointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);`
+- [ ] `extern TSequence *tgeogpointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);` `tgeogpoint_from_base` used instead
+- [x] `extern TSequence *tgeogpointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);`
+- [ ] `extern TSequenceSet *tgeogpointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);` `tgeogpoint_from_base` used instead
+- [x] `extern TSequenceSet *tgeogpointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);`
+- [x] `extern Temporal *tgeompoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);`
+- [x] `extern TInstant *tgeompointinst_make(const GSERIALIZED *gs, TimestampTz t);`
+- [x] `extern TSequence *tgeompointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);`
+- [ ] `extern TSequence *tgeompointseq_from_base(const GSERIALIZED *gs, const TSequence *seq, interpType interp);` `tgeompoint_from_base` used instead
+- [x] `extern TSequence *tgeompointseq_from_base_time(const GSERIALIZED *gs, const Period *p, interpType interp);`
+- [ ] `extern TSequenceSet *tgeompointseqset_from_base(const GSERIALIZED *gs, const TSequenceSet *ss, interpType interp);` `tgeompoint_from_base` used instead
+- [x] `extern TSequenceSet *tgeompointseqset_from_base_time(const GSERIALIZED *gs, const PeriodSet *ps, interpType interp);`
+- [x] `extern Temporal *tint_from_base(int i, const Temporal *temp);`
+- [x] `extern TInstant *tintinst_make(int i, TimestampTz t);`
+- [x] `extern TSequence *tintdiscseq_from_base_time(int i, const TimestampSet *ts);`
+- [ ] `extern TSequence *tintseq_from_base(int i, const TSequence *seq);` `tint_from_base` used instead
+- [x] `extern TSequence *tintseq_from_base_time(int i, const Period *p);`
+- [ ] `extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);` `tint_from_base` used instead
+- [x] `extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);`
+- [x] `extern TSequence *tsequence_make(const TInstant **instants, int count,  int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);`
+- [x] `extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
   const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, interpType interp, bool normalize);`
-- [ ] `extern TSequence *tsequence_make_free(TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);`
-- [ ] `extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);`
-- [ ] `extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);`
+- [ ] `extern TSequence *tsequence_make_free(TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);` Not necessary in PyMEOS
+- [x] `extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);`
+- [ ] `extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);` Not necessary in PyMEOS
 - [ ] `extern TSequenceSet *tsequenceset_make_gaps(const TInstant **instants, int count, interpType interp, float maxdist, Interval *maxt);`
-- [ ] `extern Temporal *ttext_from_base(const text *txt, const Temporal *temp);`
-- [ ] `extern TInstant *ttextinst_make(const text *txt, TimestampTz t);`
-- [ ] `extern TSequence *ttextdiscseq_from_base_time(const text *txt, const TimestampSet *ts);`
-- [ ] `extern TSequence *ttextseq_from_base(const text *txt, const TSequence *seq);`
-- [ ] `extern TSequence *ttextseq_from_base_time(const text *txt, const Period *p);`
-- [ ] `extern TSequenceSet *ttextseqset_from_base(const text *txt, const TSequenceSet *ss);`
-- [ ] `extern TSequenceSet *ttextseqset_from_base_time(const text *txt, const PeriodSet *ps);`
+- [x] `extern Temporal *ttext_from_base(const text *txt, const Temporal *temp);`
+- [x] `extern TInstant *ttextinst_make(const text *txt, TimestampTz t);`
+- [x] `extern TSequence *ttextdiscseq_from_base_time(const text *txt, const TimestampSet *ts);`
+- [ ] `extern TSequence *ttextseq_from_base(const text *txt, const TSequence *seq);` `ttext_from_base` used instead
+- [x] `extern TSequence *ttextseq_from_base_time(const text *txt, const Period *p);`
+- [ ] `extern TSequenceSet *ttextseqset_from_base(const text *txt, const TSequenceSet *ss);` `ttext_from_base` used instead
+- [x] `extern TSequenceSet *ttextseqset_from_base_time(const text *txt, const PeriodSet *ps);`
 
 
 
