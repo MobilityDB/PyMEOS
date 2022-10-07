@@ -566,25 +566,25 @@
 
 ### Input/output functions for temporal types
 
-- [ ] `extern Temporal *tbool_in(const char *str);`
-- [ ] `extern char *tbool_out(const Temporal *temp);`
-- [ ] `extern char *temporal_as_hexwkb(const Temporal *temp, uint8_t variant, size_t *size_out);`
-- [ ] `extern char *temporal_as_mfjson(const Temporal *temp, bool with_bbox, int flags, int precision, char *srs);`
-- [ ] `extern uint8_t *temporal_as_wkb(const Temporal *temp, uint8_t variant, size_t *size_out);`
-- [ ] `extern Temporal *temporal_from_hexwkb(const char *hexwkb);`
-- [ ] `extern Temporal *temporal_from_mfjson(const char *mfjson);`
-- [ ] `extern Temporal *temporal_from_wkb(const uint8_t *wkb, int size);`
-- [ ] `extern Temporal *tfloat_in(const char *str);`
-- [ ] `extern char *tfloat_out(const Temporal *temp, int maxdd);`
-- [ ] `extern Temporal *tgeogpoint_in(const char *str);`
-- [ ] `extern Temporal *tgeompoint_in(const char *str);`
-- [ ] `extern Temporal *tint_in(const char *str);`
-- [ ] `extern char *tint_out(const Temporal *temp);`
-- [ ] `extern char *tpoint_as_ewkt(const Temporal *temp, int maxdd);`
-- [ ] `extern char *tpoint_as_text(const Temporal *temp, int maxdd);`
-- [ ] `extern char *tpoint_out(const Temporal *temp, int maxdd);`
-- [ ] `extern Temporal *ttext_in(const char *str);`
-- [ ] `extern char *ttext_out(const Temporal *temp);`
+- [x] `extern Temporal *tbool_in(const char *str);`
+- [x] `extern char *tbool_out(const Temporal *temp);`
+- [x] `extern char *temporal_as_hexwkb(const Temporal *temp, uint8_t variant, size_t *size_out);`
+- [x] `extern char *temporal_as_mfjson(const Temporal *temp, bool with_bbox, int flags, int precision, char *srs);`
+- [ ] `extern uint8_t *temporal_as_wkb(const Temporal *temp, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern Temporal *temporal_from_hexwkb(const char *hexwkb);`
+- [x] `extern Temporal *temporal_from_mfjson(const char *mfjson);`
+- [ ] `extern Temporal *temporal_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern Temporal *tfloat_in(const char *str);`
+- [x] `extern char *tfloat_out(const Temporal *temp, int maxdd);`
+- [x] `extern Temporal *tgeogpoint_in(const char *str);`
+- [x] `extern Temporal *tgeompoint_in(const char *str);`
+- [x] `extern Temporal *tint_in(const char *str);`
+- [x] `extern char *tint_out(const Temporal *temp);`
+- [x] `extern char *tpoint_as_ewkt(const Temporal *temp, int maxdd);`
+- [ ] `extern char *tpoint_as_text(const Temporal *temp, int maxdd);` `tpoint_out` used instead
+- [x] `extern char *tpoint_out(const Temporal *temp, int maxdd);`
+- [x] `extern Temporal *ttext_in(const char *str);`
+- [x] `extern char *ttext_out(const Temporal *temp);`
 
 
 
