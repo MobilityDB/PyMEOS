@@ -2396,13 +2396,13 @@ def tbox_as_wkb(box: 'const TBOX *', variant: int) -> "Tuple['uint8_t *', 'size_
     return result if result != _ffi.NULL else None, size_out
 
 
-def tbox_as_hexwkb(box: 'const TBOX *', variant: int, size: 'size_t *') -> str:
+def tbox_as_hexwkb(box: 'const TBOX *', variant: int) -> "Tuple[str, 'size_t *']":
     box_converted = _ffi.cast('const TBOX *', box)
     variant_converted = _ffi.cast('uint8_t', variant)
-    size_converted = _ffi.cast('size_t *', size)
-    result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size_converted)
+    size = _ffi.new('size_t *')
+    result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None, size
 
 
 def stbox_as_wkb(box: 'const STBOX *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
@@ -2413,13 +2413,13 @@ def stbox_as_wkb(box: 'const STBOX *', variant: int) -> "Tuple['uint8_t *', 'siz
     return result if result != _ffi.NULL else None, size_out
 
 
-def stbox_as_hexwkb(box: 'const STBOX *', variant: int, size: 'size_t *') -> str:
+def stbox_as_hexwkb(box: 'const STBOX *', variant: int) -> "Tuple[str, 'size_t *']":
     box_converted = _ffi.cast('const STBOX *', box)
     variant_converted = _ffi.cast('uint8_t', variant)
-    size_converted = _ffi.cast('size_t *', size)
-    result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size_converted)
+    size = _ffi.new('size_t *')
+    result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None, size
 
 
 def stbox_in(string: str) -> 'STBOX *':

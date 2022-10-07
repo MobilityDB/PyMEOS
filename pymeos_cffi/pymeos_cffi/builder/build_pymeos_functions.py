@@ -129,6 +129,8 @@ output_parameters = {
     ('tint_value_split', 'newcount'),
     ('tfloat_value_split', 'buckets'),
     ('tfloat_value_split', 'newcount'),
+    ('tbox_as_hexwkb', 'size'),
+    ('stbox_as_hexwkb', 'size'),
 }
 
 # List of nullable function parameters in tuples of (function, parameter)
