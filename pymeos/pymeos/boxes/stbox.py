@@ -37,7 +37,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
-    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy
+    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb
 
 from ..time.period import Period
 
@@ -121,6 +121,14 @@ class STBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
             self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> STBox:
+        result = stbox_from_hexwkb(hexwkb)
+        return STBox(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return stbox_as_hexwkb(self._inner, -1)[0]
 
     @property
     def has_x(self):

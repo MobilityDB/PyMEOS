@@ -35,7 +35,7 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
     adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
     right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy
+    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb
 
 from ..time.period import Period
 
@@ -93,6 +93,14 @@ class TBox:
             if tmin is not None and tmax is not None:
                 period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
             self._inner = tbox_make(period, span)
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> TBox:
+        result = tbox_from_hexwkb(hexwkb)
+        return TBox(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return tbox_as_hexwkb(self._inner, -1)[0]
 
     @property
     def has_x(self):

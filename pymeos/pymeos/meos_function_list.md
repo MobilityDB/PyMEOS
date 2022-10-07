@@ -392,18 +392,18 @@
 
 ### Input/output functions for box types
 
-- [ ] `extern TBOX *tbox_in(const char *str);`
-- [ ] `extern char *tbox_out(const TBOX *box, int maxdd);`
-- [ ] `extern TBOX *tbox_from_wkb(const uint8_t *wkb, int size);`
-- [ ] `extern TBOX *tbox_from_hexwkb(const char *hexwkb);`
-- [ ] `extern STBOX *stbox_from_wkb(const uint8_t *wkb, int size);`
-- [ ] `extern STBOX *stbox_from_hexwkb(const char *hexwkb);`
-- [ ] `extern uint8_t *tbox_as_wkb(const TBOX *box, uint8_t variant, size_t *size_out);`
-- [ ] `extern char *tbox_as_hexwkb(const TBOX *box, uint8_t variant, size_t *size);`
-- [ ] `extern uint8_t *stbox_as_wkb(const STBOX *box, uint8_t variant, size_t *size_out);`
-- [ ] `extern char *stbox_as_hexwkb(const STBOX *box, uint8_t variant, size_t *size);`
-- [ ] `extern STBOX *stbox_in(const char *str);`
-- [ ] `extern char *stbox_out(const STBOX *box, int maxdd);`
+- [x] `extern TBOX *tbox_in(const char *str);`
+- [x] `extern char *tbox_out(const TBOX *box, int maxdd);`
+- [ ] `extern TBOX *tbox_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern TBOX *tbox_from_hexwkb(const char *hexwkb);`
+- [ ] `extern STBOX *stbox_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern STBOX *stbox_from_hexwkb(const char *hexwkb);`
+- [ ] `extern uint8_t *tbox_as_wkb(const TBOX *box, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern char *tbox_as_hexwkb(const TBOX *box, uint8_t variant, size_t *size);`
+- [ ] `extern uint8_t *stbox_as_wkb(const STBOX *box, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
+- [x] `extern char *stbox_as_hexwkb(const STBOX *box, uint8_t variant, size_t *size);`
+- [x] `extern STBOX *stbox_in(const char *str);`
+- [x] `extern char *stbox_out(const STBOX *box, int maxdd);`
 
 
 
