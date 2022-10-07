@@ -47,27 +47,27 @@
 
 ### Input/output functions for span and time types
 
-- [ ] `extern Span *floatspan_in(const char *str);`
-- [ ] `extern char *floatspan_out(const Span *s, int maxdd);`
-- [ ] `extern Span *intspan_in(const char *str);`
-- [ ] `extern char *intspan_out(const Span *s);`
+- [ ] `extern Span *floatspan_in(const char *str);` Class not defined in PyMEOS
+- [ ] `extern char *floatspan_out(const Span *s, int maxdd);` Class not defined in PyMEOS
+- [ ] `extern Span *intspan_in(const char *str);` Class not defined in PyMEOS
+- [ ] `extern char *intspan_out(const Span *s);` Class not defined in PyMEOS
 - [x] `extern Period *period_in(const char *str);`
 - [x] `extern char *period_out(const Span *s);`
 - [x] `extern char *periodset_as_hexwkb(const PeriodSet *ps, uint8_t variant, size_t *size_out);`
-- [ ] `extern uint8_t *periodset_as_wkb(const PeriodSet *ps, uint8_t variant, size_t *size_out);`
+- [ ] `extern uint8_t *periodset_as_wkb(const PeriodSet *ps, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern PeriodSet *periodset_from_hexwkb(const char *hexwkb);`
-- [ ] `extern PeriodSet *periodset_from_wkb(const uint8_t *wkb, int size);`
+- [ ] `extern PeriodSet *periodset_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern PeriodSet *periodset_in(const char *str);`
 - [x] `extern char *periodset_out(const PeriodSet *ps);`
 - [x] `extern char *span_as_hexwkb(const Span *s, uint8_t variant, size_t *size_out);`
-- [ ] `extern uint8_t *span_as_wkb(const Span *s, uint8_t variant, size_t *size_out);`
+- [ ] `extern uint8_t *span_as_wkb(const Span *s, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern Span *span_from_hexwkb(const char *hexwkb);`
-- [ ] `extern Span *span_from_wkb(const uint8_t *wkb, int size);`
+- [ ] `extern Span *span_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern char *span_out(const Span *s, Datum arg);`
 - [x] `extern char *timestampset_as_hexwkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);`
-- [ ] `extern uint8_t *timestampset_as_wkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);`
+- [ ] `extern uint8_t *timestampset_as_wkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern TimestampSet *timestampset_from_hexwkb(const char *hexwkb);`
-- [ ] `extern TimestampSet *timestampset_from_wkb(const uint8_t *wkb, int size);`
+- [ ] `extern TimestampSet *timestampset_from_wkb(const uint8_t *wkb, int size);` WKB is not being implemented directly (only HexWKB)
 - [x] `extern TimestampSet *timestampset_in(const char *str);`
 - [x] `extern char *timestampset_out(const TimestampSet *ts);`
 
@@ -75,23 +75,23 @@
 
 ### Constructor functions for span and time types
 
-- [ ] `extern Span *floatspan_make(double lower, double upper, bool lower_inc, bool upper_inc);`
-- [ ] `extern Span *intspan_make(int lower, int upper, bool lower_inc, bool upper_inc);`
+- [ ] `extern Span *floatspan_make(double lower, double upper, bool lower_inc, bool upper_inc);` Class not defined in PyMEOS
+- [ ] `extern Span *intspan_make(int lower, int upper, bool lower_inc, bool upper_inc);` Class not defined in PyMEOS
 - [x] `extern Period *period_make(TimestampTz lower, TimestampTz upper, bool lower_inc, bool upper_inc);`
 - [x] `extern PeriodSet *periodset_copy(const PeriodSet *ps);`
 - [x] `extern PeriodSet *periodset_make(const Period **periods, int count, bool normalize);`
-- [ ] `extern PeriodSet *periodset_make_free(Period **periods, int count, bool normalize);`
+- [ ] `extern PeriodSet *periodset_make_free(Period **periods, int count, bool normalize);` Not necessary in PyMEOS
 - [x] `extern Span *span_copy(const Span *s);`
 - [x] `extern TimestampSet *timestampset_copy(const TimestampSet *ts);`
 - [x] `extern TimestampSet *timestampset_make(const TimestampTz *times, int count);`
-- [ ] `extern TimestampSet *timestampset_make_free(TimestampTz *times, int count);`
+- [ ] `extern TimestampSet *timestampset_make_free(TimestampTz *times, int count);` Not necessary in PyMEOS
 
 
 
 ### Cast functions for span and time types
 
-- [ ] `extern Span *float_to_floaspan(double d);`
-- [ ] `extern Span *int_to_intspan(int i);`
+- [ ] `extern Span *float_to_floaspan(double d);` Class not defined in PyMEOS
+- [ ] `extern Span *int_to_intspan(int i);` Class not defined in PyMEOS
 - [x] `extern PeriodSet *period_to_periodset(const Period *period);`
 - [x] `extern Period *periodset_to_period(const PeriodSet *ps);`
 - [x] `extern Period *timestamp_to_period(TimestampTz t);`
