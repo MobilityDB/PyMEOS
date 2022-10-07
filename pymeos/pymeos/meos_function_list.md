@@ -103,42 +103,42 @@
 
 ### Accessor functions for span and time types
 
-- [ ] `extern double floatspan_lower(const Span *s);`
-- [ ] `extern double floatspan_upper(const Span *s);`
-- [ ] `extern int intspan_lower(const Span *s);`
-- [ ] `extern int intspan_upper(const Span *s);`
-- [ ] `extern Interval *period_duration(const Span *s);`
-- [ ] `extern TimestampTz period_lower(const Period *p);`
-- [ ] `extern TimestampTz period_upper(const Period *p);`
-- [ ] `extern Interval *periodset_duration(const PeriodSet *ps);`
-- [ ] `extern Period *periodset_end_period(const PeriodSet *ps);`
-- [ ] `extern TimestampTz periodset_end_timestamp(const PeriodSet *ps);`
-- [ ] `extern uint32 periodset_hash(const PeriodSet *ps);`
+- [ ] `extern double floatspan_lower(const Span *s);` Class not defined in PyMEOS
+- [ ] `extern double floatspan_upper(const Span *s);` Class not defined in PyMEOS
+- [ ] `extern int intspan_lower(const Span *s);` Class not defined in PyMEOS
+- [ ] `extern int intspan_upper(const Span *s);` Class not defined in PyMEOS
+- [ ] `extern Interval *period_duration(const Span *s);` Implemented in python
+- [x] `extern TimestampTz period_lower(const Period *p);`
+- [x] `extern TimestampTz period_upper(const Period *p);`
+- [x] `extern Interval *periodset_duration(const PeriodSet *ps);`
+- [x] `extern Period *periodset_end_period(const PeriodSet *ps);`
+- [x] `extern TimestampTz periodset_end_timestamp(const PeriodSet *ps);`
+- [x] `extern uint32 periodset_hash(const PeriodSet *ps);`
 - [ ] `extern uint64 periodset_hash_extended(const PeriodSet *ps, uint64 seed);`
 - [ ] `extern int periodset_mem_size(const PeriodSet *ps);`
-- [ ] `extern int periodset_num_periods(const PeriodSet *ps);`
-- [ ] `extern int periodset_num_timestamps(const PeriodSet *ps);`
-- [ ] `extern Period *periodset_period_n(const PeriodSet *ps, int i);`
-- [ ] `extern const Period **periodset_periods(const PeriodSet *ps, int *count);`
-- [ ] `extern Period *periodset_start_period(const PeriodSet *ps);`
-- [ ] `extern TimestampTz periodset_start_timestamp(const PeriodSet *ps);`
-- [ ] `extern Interval *periodset_timespan(const PeriodSet *ps);`
-- [ ] `extern bool periodset_timestamp_n(const PeriodSet *ps, int n, TimestampTz *result);`
-- [ ] `extern TimestampTz *periodset_timestamps(const PeriodSet *ps, int *count);`
-- [ ] `extern uint32 span_hash(const Span *s);`
+- [x] `extern int periodset_num_periods(const PeriodSet *ps);`
+- [x] `extern int periodset_num_timestamps(const PeriodSet *ps);`
+- [x] `extern Period *periodset_period_n(const PeriodSet *ps, int i);`
+- [x] `extern const Period **periodset_periods(const PeriodSet *ps, int *count);`
+- [x] `extern Period *periodset_start_period(const PeriodSet *ps);`
+- [x] `extern TimestampTz periodset_start_timestamp(const PeriodSet *ps);`
+- [ ] `extern Interval *periodset_timespan(const PeriodSet *ps);` Implemented in python
+- [x] `extern bool periodset_timestamp_n(const PeriodSet *ps, int n, TimestampTz *result);`
+- [x] `extern TimestampTz *periodset_timestamps(const PeriodSet *ps, int *count);`
+- [x] `extern uint32 span_hash(const Span *s);`
 - [ ] `extern uint64 span_hash_extended(const Span *s, uint64 seed);`
-- [ ] `extern bool span_lower_inc(const Span *s);`
-- [ ] `extern bool span_upper_inc(const Span *s);`
-- [ ] `extern double span_width(const Span *s);`
-- [ ] `extern TimestampTz timestampset_end_timestamp(const TimestampSet *ss);`
-- [ ] `extern uint32 timestampset_hash(const TimestampSet *ss);`
+- [ ] `extern bool span_lower_inc(const Span *s);` Access information directly
+- [ ] `extern bool span_upper_inc(const Span *s);` Access information directly
+- [x] `extern double span_width(const Span *s);`
+- [x] `extern TimestampTz timestampset_end_timestamp(const TimestampSet *ss);`
+- [x] `extern uint32 timestampset_hash(const TimestampSet *ss);`
 - [ ] `extern uint64 timestampset_hash_extended(const TimestampSet *ss, uint64 seed);`
 - [ ] `extern int timestampset_mem_size(const TimestampSet *ss);`
-- [ ] `extern int timestampset_num_timestamps(const TimestampSet *ss);`
-- [ ] `extern TimestampTz timestampset_start_timestamp(const TimestampSet *ss);`
-- [ ] `extern Interval *timestampset_timespan(const TimestampSet *ss);`
-- [ ] `extern bool timestampset_timestamp_n(const TimestampSet *ss, int n, TimestampTz *result);`
-- [ ] `extern TimestampTz *timestampset_timestamps(const TimestampSet *ss);`
+- [x] `extern int timestampset_num_timestamps(const TimestampSet *ss);`
+- [x] `extern TimestampTz timestampset_start_timestamp(const TimestampSet *ss);`
+- [x] `extern Interval *timestampset_timespan(const TimestampSet *ss);`
+- [x] `extern bool timestampset_timestamp_n(const TimestampSet *ss, int n, TimestampTz *result);`
+- [x] `extern TimestampTz *timestampset_timestamps(const TimestampSet *ss);`
 
 
 
