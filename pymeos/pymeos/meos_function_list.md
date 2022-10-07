@@ -144,10 +144,10 @@
 
 ### Transformation functions for span and time types
 
-- [ ] `extern PeriodSet *periodset_shift_tscale(const PeriodSet *ps, const Interval *start, const Interval *duration);`
-- [ ] `extern void span_expand(const Span *s1, Span *s2);`
-- [ ] `extern void period_shift_tscale(const Interval *start, const Interval *duration, Period *result);`
-- [ ] `extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Interval *start, const Interval *duration);`
+- [x] `extern PeriodSet *periodset_shift_tscale(const PeriodSet *ps, const Interval *start, const Interval *duration);`
+- [x] `extern void span_expand(const Span *s1, Span *s2);`
+- [x] `extern void period_shift_tscale(const Interval *start, const Interval *duration, Period *result);`
+- [x] `extern TimestampSet *timestampset_shift_tscale(const TimestampSet *ss, const Interval *start, const Interval *duration);`
 
 ## Bounding box functions for span and time types
  

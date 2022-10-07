@@ -138,8 +138,10 @@ class Period:
         )
         return Period(_inner=p)
 
-    def expand(self, other: Period) -> None:
-        span_expand(other._inner, self._inner)
+    def expand(self, other: Period) -> Period:
+        copy = span_copy(self._inner)
+        span_expand(other._inner, copy)
+        return Period(_inner=copy)
 
     def to_periodset(self) -> PeriodSet:
         from .periodset import PeriodSet
