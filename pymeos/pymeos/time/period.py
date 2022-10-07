@@ -6,12 +6,10 @@ from typing import Optional, Union, overload
 from typing import TYPE_CHECKING
 
 from dateutil.parser import parse
-from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, \
-    overlaps_span_span, \
-    span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, period_shift_tscale, \
-    timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
-    period_out, span_copy, \
-    period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
+from pymeos_cffi import datetime_to_timestamptz, period_in, pg_timestamptz_in, period_make, \
+    overlaps_span_span, span_ge, contains_period_timestamp, span_eq, span_cmp, span_lt, span_le, span_gt, \
+    period_shift_tscale, timedelta_to_interval, timestamptz_to_datetime, period_lower, period_upper, span_hash, \
+    period_out, span_copy, period_to_periodset, adjacent_period_periodset, adjacent_period_timestamp, \
     adjacent_period_timestampset, adjacent_span_span, contained_span_span, contained_period_periodset, \
     contains_span_span, contains_period_periodset, contains_period_timestampset, overlaps_period_periodset, \
     overlaps_period_timestampset, right_span_span, after_period_periodset, after_period_timestamp, \
@@ -22,7 +20,8 @@ from pymeos_cffi.functions import datetime_to_timestamptz, period_in, pg_timesta
     intersection_period_timestamp, intersection_period_timestampset, minus_period_period, minus_period_periodset, \
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
     union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
-    distance_period_timestamp, distance_period_timestampset, span_ne, span_width, span_expand
+    distance_period_timestamp, distance_period_timestampset, span_ne, span_width, span_expand, span_from_hexwkb, \
+    span_as_hexwkb
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -79,6 +78,14 @@ class Period:
             lower_ts = pg_timestamptz_in(lower, -1) if isinstance(lower, str) else datetime_to_timestamptz(lower)
             upper_ts = pg_timestamptz_in(upper, -1) if isinstance(upper, str) else datetime_to_timestamptz(upper)
             self._inner = period_make(lower_ts, upper_ts, lower_inc, upper_inc)
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> Period:
+        result = span_from_hexwkb(hexwkb)
+        return Period(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return span_as_hexwkb(self._inner, -1)[0]
 
     @property
     def lower(self) -> datetime:

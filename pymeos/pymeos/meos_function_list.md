@@ -58,12 +58,12 @@
 - [x] `extern PeriodSet *periodset_from_hexwkb(const char *hexwkb);`
 - [ ] `extern PeriodSet *periodset_from_wkb(const uint8_t *wkb, int size);`
 - [x] `extern PeriodSet *periodset_in(const char *str);`
-- [ ] `extern char *periodset_out(const PeriodSet *ps);`
-- [ ] `extern char *span_as_hexwkb(const Span *s, uint8_t variant, size_t *size_out);`
+- [x] `extern char *periodset_out(const PeriodSet *ps);`
+- [x] `extern char *span_as_hexwkb(const Span *s, uint8_t variant, size_t *size_out);`
 - [ ] `extern uint8_t *span_as_wkb(const Span *s, uint8_t variant, size_t *size_out);`
-- [ ] `extern Span *span_from_hexwkb(const char *hexwkb);`
+- [x] `extern Span *span_from_hexwkb(const char *hexwkb);`
 - [ ] `extern Span *span_from_wkb(const uint8_t *wkb, int size);`
-- [ ] `extern char *span_out(const Span *s, Datum arg);`
+- [x] `extern char *span_out(const Span *s, Datum arg);`
 - [ ] `extern char *timestampset_as_hexwkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);`
 - [ ] `extern uint8_t *timestampset_as_wkb(const TimestampSet *ts, uint8_t variant, size_t *size_out);`
 - [ ] `extern TimestampSet *timestampset_from_hexwkb(const char *hexwkb);`
