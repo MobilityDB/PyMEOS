@@ -30,7 +30,8 @@ from datetime import datetime
 from typing import Optional, List, Union, TYPE_CHECKING
 
 from dateutil.parser import parse
-from pymeos_cffi import tfloat_to_tint, tnumber_to_span, floatspan_lower, floatspan_upper
+from pymeos_cffi import tfloat_to_tint, tnumber_to_span, floatspan_lower, floatspan_upper, tfloat_min_value, \
+    tfloat_max_value, tfloat_spans
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
     datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
     tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time
@@ -60,7 +61,6 @@ class TFloat(TNumber, ABC):
     def to_floatrange(self) -> floatrange:
         span = tnumber_to_span(self._inner)
         return floatrange(floatspan_lower(span), floatspan_upper(span), span.lower_inc, span.upper_inc)
-
 
     @staticmethod
     def from_base(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
@@ -103,41 +103,61 @@ class TFloat(TNumber, ABC):
         raise Exception("ERROR: Could not parse temporal float value")
 
     @property
-    def value_range(self):
+    def value_range(self) -> floatrange:
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
-        return floatrange(self.min_value, self.max_value, True, True)
+        return self.to_floatrange()
 
     @property
-    def start_value(self):
+    def value_ranges(self) -> List[floatrange]:
+        spans, count = tfloat_spans(self._inner)
+        return [floatrange(floatspan_lower(spans[i]), floatspan_upper(spans[i]), spans[i].lower_inc, spans[i].upper_inc)
+                for i in range(count)]
+
+    @property
+    def start_value(self) -> float:
         """
         Start value.
         """
         return tfloat_start_value(self._inner)
 
     @property
-    def end_value(self):
+    def end_value(self) -> float:
         """
         End value.
         """
         return tfloat_end_value(self._inner)
 
     @property
-    def values(self):
+    def values(self) -> List[float]:
         """
         List of distinct values.
         """
         values, count = tfloat_values(self._inner)
         return [values[i] for i in range(count)]
 
-    def value_at_timestamp(self, timestamp):
+    @property
+    def min_value(self) -> float:
+        """
+        Minimum value.
+        """
+        return tfloat_min_value(self._inner)
+
+    @property
+    def max_value(self) -> float:
+        """
+        Maximum value.
+        """
+        return tfloat_max_value(self._inner)
+
+    def value_at_timestamp(self, timestamp) -> float:
         """
         Value at timestamp.
         """
         return tfloat_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    def to_str(self, max_decimals=5):
+    def to_str(self, max_decimals=5) -> str:
         return tfloat_out(self._inner, max_decimals)
 
     def value_split(self, start: float, size: float, count: int) -> List[Temporal]:
@@ -148,7 +168,7 @@ class TFloat(TNumber, ABC):
     def __str__(self):
         return tfloat_out(self._inner, 5)
 
-    def as_wkt(self, precision: int = 6):
+    def as_wkt(self, precision: int = 6) -> str:
         return tfloat_out(self._inner, precision)
 
 

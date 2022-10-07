@@ -41,9 +41,9 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
     stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb, datetime_to_timestamptz, \
     timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
-    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text, stbox_ne
+    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text, stbox_ne, \
+    gserialized_to_shapely_geometry
 from shapely.geometry.base import BaseGeometry
-from shapely.wkt import loads
 
 from ..main import TPoint
 from ..time import TimestampSet, Period, PeriodSet
@@ -180,7 +180,7 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     def to_geometry(self, precision: int = 5) -> BaseGeometry:
-        return loads(gserialized_as_text(stbox_to_geo(self._inner), 5))
+        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
 
     def to_period(self) -> Period:
         return Period(_inner=stbox_to_period(self._inner))

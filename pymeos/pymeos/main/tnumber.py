@@ -13,20 +13,6 @@ from ..temporal import Temporal
 
 class TNumber(Temporal, ABC):
 
-    @property
-    def min_value(self):
-        """
-        Minimum value.
-        """
-        return min(self.values)
-
-    @property
-    def max_value(self):
-        """
-        Maximum value.
-        """
-        return max(self.values)
-
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         from ..factory import _TemporalFactory
         if isinstance(other, int):

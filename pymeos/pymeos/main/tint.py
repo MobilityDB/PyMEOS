@@ -34,7 +34,7 @@ from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_lower, intspan
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, \
     datetime_to_timestamptz, tint_values, tint_start_value, \
     tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, tintseq_from_base_time, \
-    tintseqset_from_base_time, tnumber_to_span
+    tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value
 from spans.types import intrange
 
 from .tnumber import TNumber
@@ -96,35 +96,49 @@ class TInt(TNumber, ABC):
         raise Exception("ERROR: Could not parse temporal integer value")
 
     @property
-    def value_range(self):
+    def value_range(self) -> intrange:
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
-        return intrange(self.min_value, self.max_value, True, True)
+        return self.to_intrange()
 
     @property
-    def start_value(self):
+    def start_value(self) -> int:
         """
         Start value.
         """
         return tint_start_value(self._inner)
 
     @property
-    def end_value(self):
+    def end_value(self) -> int:
         """
         End value.
         """
         return tint_end_value(self._inner)
 
     @property
-    def values(self):
+    def values(self) -> List[int]:
         """
         List of distinct values.
         """
         values, count = tint_values(self._inner)
         return [values[i] for i in range(count)]
 
-    def value_at_timestamp(self, timestamp):
+    @property
+    def min_value(self) -> int:
+        """
+        Minimum value.
+        """
+        return tint_min_value(self._inner)
+
+    @property
+    def max_value(self) -> int:
+        """
+        Maximum value.
+        """
+        return tint_max_value(self._inner)
+
+    def value_at_timestamp(self, timestamp) -> int:
         """
         Value at timestamp.
         """

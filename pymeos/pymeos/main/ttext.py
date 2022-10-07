@@ -33,7 +33,7 @@ from dateutil.parser import parse
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
-    ttextseqset_from_base_time
+    ttextseqset_from_base_time, ttext_max_value, ttext_min_value
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -71,6 +71,14 @@ class TText(Temporal, ABC):
     def values(self):
         values, count = ttext_values(self._inner)
         return [text2cstring(values[i]) for i in range(count)]
+
+    @property
+    def min_value(self):
+        return ttext_min_value(self._inner)
+
+    @property
+    def max_value(self):
+        return ttext_max_value(self._inner)
 
     @property
     def start_value(self):

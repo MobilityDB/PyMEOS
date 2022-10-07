@@ -38,13 +38,13 @@ from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
-    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, lwgeom_from_gserialized, lwgeom_as_lwpoint, \
-    lwpoint_to_point, \
-    tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
-    lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text, \
-    tpoint_out, tgeompoint_from_base, tgeompointinst_make, tgeompointdiscseq_from_base_time, \
+    tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
+    tpoint_cumulative_length, temporal_simplify, \
+    tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, tpoint_out, tgeompoint_from_base, tgeompointinst_make, \
+    tgeompointdiscseq_from_base_time, \
     tgeompointseq_from_base_time, tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, \
-    tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time
+    tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time, \
+    gserialized_to_shapely_geometry
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -70,26 +70,26 @@ class TPoint(Temporal, ABC):
         return tpoint_srid(self._inner)
 
     @property
-    def start_value(self):
-        return tpoint_start_value(self._inner)
+    def start_value(self, precision: int = 6) -> BaseGeometry:
+        return gserialized_to_shapely_geometry(tpoint_start_value(self._inner), precision)
 
     @property
-    def end_value(self):
-        return tpoint_end_value(self._inner)
+    def end_value(self, precision: int = 6) -> BaseGeometry:
+        return gserialized_to_shapely_geometry(tpoint_end_value(self._inner), precision)
 
     @property
-    def values(self):
+    def values(self, precision: int = 6) -> List[BaseGeometry]:
         values, count = tpoint_values(self._inner)
-        geoms = (lwgeom_as_lwpoint(lwgeom_from_gserialized(values[i])) for i in range(count))
-        return [lwpoint_to_shapely_point(geom) for geom in geoms]
+        return [gserialized_to_shapely_geometry(values[i], precision) for i in range(count)]
 
-    def value_at_timestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp: datetime, precision: int = 6) -> BaseGeometry:
         """
         Value at timestamp.
         """
-        return lwpoint_to_point(tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0])
+        return gserialized_to_shapely_geometry(
+            tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0], precision)
 
-    def simplify(self, tolerance: float, synchronized: bool = False):
+    def simplify(self, tolerance: float, synchronized: bool = False) -> TPoint:
         return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
 
     def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
@@ -114,8 +114,7 @@ class TPoint(Temporal, ABC):
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
     def to_shapely_geometry(self, precision: int = 6) -> BaseGeometry:
-        import shapely.wkt
-        return shapely.wkt.loads(gserialized_as_text(tpoint_trajectory(self._inner), precision))
+        return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner), precision)
 
     def __str__(self):
         return tpoint_out(self._inner, 5)

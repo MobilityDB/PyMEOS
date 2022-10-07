@@ -654,52 +654,52 @@
 
 ### Accessor functions for temporal types
 
-- [ ] `extern bool tbool_end_value(const Temporal *temp);`
-- [ ] `extern bool tbool_start_value(const Temporal *temp);`
-- [ ] `extern bool *tbool_values(const Temporal *temp, int *count);`
-- [ ] `extern Interval *temporal_duration(const Temporal *temp);`
-- [ ] `extern const TInstant *temporal_end_instant(const Temporal *temp);`
-- [ ] `extern TSequence *temporal_end_sequence(const Temporal *temp);`
-- [ ] `extern TimestampTz temporal_end_timestamp(const Temporal *temp);`
-- [ ] `extern uint32 temporal_hash(const Temporal *temp);`
-- [ ] `extern const TInstant *temporal_instant_n(const Temporal *temp, int n);`
-- [ ] `extern const TInstant **temporal_instants(const Temporal *temp, int *count);`
-- [ ] `extern char *temporal_interpolation(const Temporal *temp);`
-- [ ] `extern const TInstant *temporal_max_instant(const Temporal *temp);`
-- [ ] `extern const TInstant *temporal_min_instant(const Temporal *temp);`
-- [ ] `extern int temporal_num_instants(const Temporal *temp);`
-- [ ] `extern int temporal_num_sequences(const Temporal *temp);`
-- [ ] `extern int temporal_num_timestamps(const Temporal *temp);`
-- [ ] `extern TSequence **temporal_segments(const Temporal *temp, int *count);`
-- [ ] `extern TSequence *temporal_sequence_n(const Temporal *temp, int i);`
-- [ ] `extern TSequence **temporal_sequences(const Temporal *temp, int *count);`
-- [ ] `extern const TInstant *temporal_start_instant(const Temporal *temp);`
-- [ ] `extern TSequence *temporal_start_sequence(const Temporal *temp);`
-- [ ] `extern TimestampTz temporal_start_timestamp(const Temporal *temp);`
-- [ ] `extern char *temporal_subtype(const Temporal *temp);`
-- [ ] `extern PeriodSet *temporal_time(const Temporal *temp);`
-- [ ] `extern Interval *temporal_timespan(const Temporal *temp);`
-- [ ] `extern bool temporal_timestamp_n(const Temporal *temp, int n, TimestampTz *result);`
-- [ ] `extern TimestampTz *temporal_timestamps(const Temporal *temp, int *count);`
-- [ ] `extern double tfloat_end_value(const Temporal *temp);`
-- [ ] `extern double tfloat_max_value(const Temporal *temp);`
-- [ ] `extern double tfloat_min_value(const Temporal *temp);`
-- [ ] `extern Span **tfloat_spans(const Temporal *temp, int *count);`
-- [ ] `extern double tfloat_start_value(const Temporal *temp);`
-- [ ] `extern double *tfloat_values(const Temporal *temp, int *count);`
-- [ ] `extern int tint_end_value(const Temporal *temp);`
-- [ ] `extern int tint_max_value(const Temporal *temp);`
-- [ ] `extern int tint_min_value(const Temporal *temp);`
-- [ ] `extern int tint_start_value(const Temporal *temp);`
-- [ ] `extern int *tint_values(const Temporal *temp, int *count);`
-- [ ] `extern GSERIALIZED *tpoint_end_value(const Temporal *temp);`
-- [ ] `extern GSERIALIZED *tpoint_start_value(const Temporal *temp);`
-- [ ] `extern GSERIALIZED **tpoint_values(const Temporal *temp, int *count);`
-- [ ] `extern text *ttext_end_value(const Temporal *temp);`
-- [ ] `extern text *ttext_max_value(const Temporal *temp);`
-- [ ] `extern text *ttext_min_value(const Temporal *temp);`
-- [ ] `extern text *ttext_start_value(const Temporal *temp);`
-- [ ] `extern text **ttext_values(const Temporal *temp, int *count);`
+- [x] `extern bool tbool_end_value(const Temporal *temp);`
+- [x] `extern bool tbool_start_value(const Temporal *temp);`
+- [x] `extern bool *tbool_values(const Temporal *temp, int *count);`
+- [x] `extern Interval *temporal_duration(const Temporal *temp);`
+- [x] `extern const TInstant *temporal_end_instant(const Temporal *temp);`
+- [x] `extern TSequence *temporal_end_sequence(const Temporal *temp);`
+- [x] `extern TimestampTz temporal_end_timestamp(const Temporal *temp);`
+- [x] `extern uint32 temporal_hash(const Temporal *temp);`
+- [x] `extern const TInstant *temporal_instant_n(const Temporal *temp, int n);`
+- [x] `extern const TInstant **temporal_instants(const Temporal *temp, int *count);`
+- [x] `extern char *temporal_interpolation(const Temporal *temp);`
+- [x] `extern const TInstant *temporal_max_instant(const Temporal *temp);`
+- [x] `extern const TInstant *temporal_min_instant(const Temporal *temp);`
+- [x] `extern int temporal_num_instants(const Temporal *temp);`
+- [x] `extern int temporal_num_sequences(const Temporal *temp);`
+- [x] `extern int temporal_num_timestamps(const Temporal *temp);`
+- [x] `extern TSequence **temporal_segments(const Temporal *temp, int *count);`
+- [x] `extern TSequence *temporal_sequence_n(const Temporal *temp, int i);`
+- [x] `extern TSequence **temporal_sequences(const Temporal *temp, int *count);`
+- [x] `extern const TInstant *temporal_start_instant(const Temporal *temp);`
+- [x] `extern TSequence *temporal_start_sequence(const Temporal *temp);`
+- [x] `extern TimestampTz temporal_start_timestamp(const Temporal *temp);`
+- [ ] `extern char *temporal_subtype(const Temporal *temp);` Not necessary in PyMEOS
+- [x] `extern PeriodSet *temporal_time(const Temporal *temp);`
+- [x] `extern Interval *temporal_timespan(const Temporal *temp);`
+- [x] `extern bool temporal_timestamp_n(const Temporal *temp, int n, TimestampTz *result);`
+- [x] `extern TimestampTz *temporal_timestamps(const Temporal *temp, int *count);`
+- [x] `extern double tfloat_end_value(const Temporal *temp);`
+- [x] `extern double tfloat_max_value(const Temporal *temp);`
+- [x] `extern double tfloat_min_value(const Temporal *temp);`
+- [x] `extern Span **tfloat_spans(const Temporal *temp, int *count);`
+- [x] `extern double tfloat_start_value(const Temporal *temp);`
+- [x] `extern double *tfloat_values(const Temporal *temp, int *count);`
+- [x] `extern int tint_end_value(const Temporal *temp);`
+- [x] `extern int tint_max_value(const Temporal *temp);`
+- [x] `extern int tint_min_value(const Temporal *temp);`
+- [x] `extern int tint_start_value(const Temporal *temp);`
+- [x] `extern int *tint_values(const Temporal *temp, int *count);`
+- [x] `extern GSERIALIZED *tpoint_end_value(const Temporal *temp);`
+- [x] `extern GSERIALIZED *tpoint_start_value(const Temporal *temp);`
+- [x] `extern GSERIALIZED **tpoint_values(const Temporal *temp, int *count);`
+- [x] `extern text *ttext_end_value(const Temporal *temp);`
+- [x] `extern text *ttext_max_value(const Temporal *temp);`
+- [x] `extern text *ttext_min_value(const Temporal *temp);`
+- [x] `extern text *ttext_start_value(const Temporal *temp);`
+- [x] `extern text **ttext_values(const Temporal *temp, int *count);`
 
 
 
