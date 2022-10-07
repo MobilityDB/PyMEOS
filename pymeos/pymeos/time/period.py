@@ -363,16 +363,6 @@ class Period:
             return span_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    def getquoted(self):
-        return "{}".format(self.__str__())
-
-    # End Psycopg2 interface.
-
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:

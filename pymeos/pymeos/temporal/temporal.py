@@ -512,16 +512,6 @@ class Temporal(ABC):
         inner_copy = temporal_copy(self._inner)
         return self.__class__(_inner=inner_copy)
 
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    def getquoted(self):
-        return "{}".format(self.__str__())
-
-    # End Psycopg2 interface.
-
     @abstractmethod
     def as_wkt(self):
         pass

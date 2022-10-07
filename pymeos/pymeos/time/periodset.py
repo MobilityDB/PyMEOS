@@ -194,7 +194,8 @@ class PeriodSet:
         ps, count = periodset_periods(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None) -> PeriodSet:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None,
+                     scale_delta: Optional[timedelta] = None) -> PeriodSet:
         """
         Shift the period set by a time interval
         """
@@ -431,16 +432,6 @@ class PeriodSet:
         if isinstance(other, self.__class__):
             return periodset_gt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    def getquoted(self):
-        return "{}".format(self.__str__())
-
-    # End Psycopg2 interface.
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

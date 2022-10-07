@@ -153,7 +153,8 @@ class TimestampSet:
         tss = timestampset_timestamps(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None) -> TimestampSet:
+    def shift_tscale(self, shift_delta: Optional[timedelta] = None,
+                     scale_delta: Optional[timedelta] = None) -> TimestampSet:
         """
         Shift the timestamp set by a time interval
         """
@@ -387,16 +388,6 @@ class TimestampSet:
         if isinstance(other, self.__class__):
             return timestampset_gt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    def getquoted(self):
-        return "{}".format(self.__str__())
-
-    # End Psycopg2 interface.
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
