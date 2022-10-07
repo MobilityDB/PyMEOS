@@ -3403,10 +3403,10 @@ def temporal_copy(temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tfloat_from_base(b: bool, temp: 'const Temporal *', interp: 'interpType') -> 'Temporal *':
+def tfloat_from_base(d: float, temp: 'const Temporal *', interp: 'interpType') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tfloat_from_base(b, temp_converted, interp_converted)
+    result = _lib.tfloat_from_base(d, temp_converted, interp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3416,37 +3416,37 @@ def tfloatinst_make(d: float, t: int) -> 'TInstant *':
     return result if result != _ffi.NULL else None
 
 
-def tfloatdiscseq_from_base_time(b: bool, ts: 'const TimestampSet *') -> 'TSequence *':
+def tfloatdiscseq_from_base_time(d: float, ts: 'const TimestampSet *') -> 'TSequence *':
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.tfloatdiscseq_from_base_time(b, ts_converted)
+    result = _lib.tfloatdiscseq_from_base_time(d, ts_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloatseq_from_base(b: bool, seq: 'const TSequence *', interp: 'interpType') -> 'TSequence *':
+def tfloatseq_from_base(d: float, seq: 'const TSequence *', interp: 'interpType') -> 'TSequence *':
     seq_converted = _ffi.cast('const TSequence *', seq)
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tfloatseq_from_base(b, seq_converted, interp_converted)
+    result = _lib.tfloatseq_from_base(d, seq_converted, interp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloatseq_from_base_time(b: bool, p: 'const Period *', interp: 'interpType') -> 'TSequence *':
+def tfloatseq_from_base_time(d: float, p: 'const Period *', interp: 'interpType') -> 'TSequence *':
     p_converted = _ffi.cast('const Period *', p)
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tfloatseq_from_base_time(b, p_converted, interp_converted)
+    result = _lib.tfloatseq_from_base_time(d, p_converted, interp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloatseqset_from_base(b: bool, ss: 'const TSequenceSet *', interp: 'interpType') -> 'TSequenceSet *':
+def tfloatseqset_from_base(d: float, ss: 'const TSequenceSet *', interp: 'interpType') -> 'TSequenceSet *':
     ss_converted = _ffi.cast('const TSequenceSet *', ss)
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tfloatseqset_from_base(b, ss_converted, interp_converted)
+    result = _lib.tfloatseqset_from_base(d, ss_converted, interp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloatseqset_from_base_time(b: bool, ps: 'const PeriodSet *', interp: 'interpType') -> 'TSequenceSet *':
+def tfloatseqset_from_base_time(d: float, ps: 'const PeriodSet *', interp: 'interpType') -> 'TSequenceSet *':
     ps_converted = _ffi.cast('const PeriodSet *', ps)
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tfloatseqset_from_base_time(b, ps_converted, interp_converted)
+    result = _lib.tfloatseqset_from_base_time(d, ps_converted, interp_converted)
     return result if result != _ffi.NULL else None
 
 
