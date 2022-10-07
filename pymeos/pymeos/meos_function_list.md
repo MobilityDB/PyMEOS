@@ -491,16 +491,16 @@
 
 ### Topological functions for box types
 
-- [ ] `extern bool contains_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool contained_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool overlaps_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool same_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool adjacent_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool contains_stbox_stbox(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool contained_stbox_stbox(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool overlaps_stbox_stbox(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool same_stbox_stbox(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool adjacent_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool contains_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool contained_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool overlaps_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool same_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool adjacent_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool contains_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool contained_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool overlaps_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool same_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool adjacent_stbox_stbox(const STBOX *box1, const STBOX *box2);`
 
 
 
