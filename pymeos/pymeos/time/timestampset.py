@@ -32,9 +32,7 @@ from typing import Optional, List, Union, TYPE_CHECKING, overload
 
 from dateutil.parser import parse
 from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, timestampset_end_timestamp, \
-    timestampset_start_timestamp, timestampset_num_timestamps, \
-    timestampset_timestamps, \
-    timestampset_timestamp_n, \
+    timestampset_start_timestamp, timestampset_num_timestamps, timestampset_timestamps, timestampset_timestamp_n, \
     timestampset_out, timestamptz_to_datetime, pg_timestamptz_out, timestampset_shift_tscale, timedelta_to_interval, \
     timestampset_eq, timestampset_ne, timestampset_cmp, timestampset_lt, timestampset_le, timestampset_ge, \
     timestampset_gt, timestampset_make, timestampset_in, timestampset_hash, timestampset_copy, \
@@ -52,7 +50,8 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     minus_timestampset_timestamp, minus_timestampset_timestampset, union_timestampset_period, \
     union_timestampset_periodset, union_timestampset_timestamp, union_timestampset_timestampset, \
     distance_timestampset_period, distance_timestampset_periodset, distance_timestampset_timestamp, \
-    distance_timestampset_timestampset, timestampset_timespan, interval_to_timedelta
+    distance_timestampset_timestampset, timestampset_timespan, interval_to_timedelta, timestampset_from_hexwkb, \
+    timestampset_as_hexwkb
 
 if TYPE_CHECKING:
     # Import here to use in type hints
@@ -99,6 +98,14 @@ class TimestampSet:
             times = [pg_timestamp_in(ts, -1) if isinstance(ts, str) else datetime_to_timestamptz(ts)
                      for ts in timestamp_list]
             self._inner = timestampset_make(times, len(times))
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> TimestampSet:
+        result = timestampset_from_hexwkb(hexwkb)
+        return TimestampSet(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return timestampset_as_hexwkb(self._inner, -1)[0]
 
     @property
     def timespan(self) -> timedelta:
