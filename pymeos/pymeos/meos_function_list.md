@@ -409,14 +409,14 @@
 
 ### Constructor functions for box types
 
-- [ ] `extern TBOX *tbox_make(const Period *p, const Span *s);`
-- [ ] `extern void tbox_set(const Period *p, const Span *s, TBOX *box);`
-- [ ] `extern TBOX *tbox_copy(const TBOX *box);`
-- [ ] `extern STBOX * stbox_make(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid,
+- [x] `extern TBOX *tbox_make(const Period *p, const Span *s);`
+- [ ] `extern void tbox_set(const Period *p, const Span *s, TBOX *box);` Not necessary in PyMEOS
+- [x] `extern TBOX *tbox_copy(const TBOX *box);`
+- [x] `extern STBOX * stbox_make(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid,
   double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);`
 - [ ] `extern void stbox_set(const Period *p, bool hasx, bool hasz, bool geodetic, int32 srid, double xmin, double xmax,
-  double ymin, double ymax, double zmin, double zmax, STBOX *box);`
-- [ ] `extern STBOX *stbox_copy(const STBOX *box);`
+  double ymin, double ymax, double zmin, double zmax, STBOX *box);` Not necessary in PyMEOS
+- [x] `extern STBOX *stbox_copy(const STBOX *box);`
 
 
 
