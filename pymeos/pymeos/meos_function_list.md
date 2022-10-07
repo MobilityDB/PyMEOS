@@ -546,20 +546,20 @@
 
 ### Comparison functions for box types
 
-- [ ] `extern bool tbox_eq(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool tbox_ne(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern int tbox_cmp(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool tbox_lt(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool tbox_le(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool tbox_ge(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool tbox_gt(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool stbox_eq(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool stbox_ne(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern int stbox_cmp(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool stbox_lt(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool stbox_le(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool stbox_ge(const STBOX *box1, const STBOX *box2);`
-- [ ] `extern bool stbox_gt(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool tbox_eq(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool tbox_ne(const TBOX *box1, const TBOX *box2);`
+- [x] `extern int tbox_cmp(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool tbox_lt(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool tbox_le(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool tbox_ge(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool tbox_gt(const TBOX *box1, const TBOX *box2);`
+- [x] `extern bool stbox_eq(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool stbox_ne(const STBOX *box1, const STBOX *box2);`
+- [x] `extern int stbox_cmp(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool stbox_lt(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool stbox_le(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool stbox_ge(const STBOX *box1, const STBOX *box2);`
+- [x] `extern bool stbox_gt(const STBOX *box1, const STBOX *box2);`
 
 ## Functions for temporal types
  

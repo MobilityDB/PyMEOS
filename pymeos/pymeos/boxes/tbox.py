@@ -39,7 +39,8 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
     intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
     intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
-    float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox
+    float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
+    tbox_ne
 from spans import intrange, floatrange
 
 from ..main import TNumber
@@ -292,6 +293,11 @@ class TBox:
         if isinstance(other, self.__class__):
             return tbox_eq(self._inner, other._inner)
         return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_ne(self._inner, other._inner)
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):

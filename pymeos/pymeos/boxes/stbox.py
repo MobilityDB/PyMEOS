@@ -41,7 +41,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
     stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb, datetime_to_timestamptz, \
     timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
-    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text
+    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text, stbox_ne
 from shapely.geometry.base import BaseGeometry
 from shapely.wkt import loads
 
@@ -377,6 +377,11 @@ class STBox:
         if isinstance(other, self.__class__):
             return stbox_eq(self._inner, other._inner)
         return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_ne(self._inner, other._inner)
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
