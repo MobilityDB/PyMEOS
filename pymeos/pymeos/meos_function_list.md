@@ -342,24 +342,24 @@
 
 ### Distance functions for span and time types
 
-- [ ] `extern double distance_floatspan_float(const Span *s, double d);`
-- [ ] `extern double distance_intspan_int(const Span *s, int i);`
-- [ ] `extern double distance_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern double distance_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern double distance_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern double distance_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern double distance_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern double distance_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern double distance_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern double distance_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern double distance_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern double distance_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern double distance_timestamp_timestamp(TimestampTz t1, TimestampTz t2);`
-- [ ] `extern double distance_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern double distance_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern double distance_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [ ] `extern double distance_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern double distance_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern double distance_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern double distance_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern double distance_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern double distance_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern double distance_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern double distance_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern double distance_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern double distance_span_span(const Span *s1, const Span *s2);`
+- [ ] `extern double distance_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
+- [ ] `extern double distance_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern double distance_timestamp_timestamp(TimestampTz t1, TimestampTz t2);` Class not defined in PyMEOS
+- [ ] `extern double distance_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [x] `extern double distance_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern double distance_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
 
 
 
