@@ -59,6 +59,8 @@ import _meos_cffi
 import shapely.geometry as spg
 from dateutil.parser import parse
 from postgis import Point
+from shapely.wkt import loads
+from shapely.geometry.base import BaseGeometry
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -95,6 +97,10 @@ def lwpoint_to_point(lwpoint: Any) -> Point:
 def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
     return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \\
         else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
+
+
+def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int) -> BaseGeometry:
+    return loads(gserialized_as_text(geom, 5))
 
 
 """
