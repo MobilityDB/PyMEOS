@@ -205,82 +205,82 @@
 
 ### Position functions for span and time types
 
-- [ ] `extern bool after_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool after_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool after_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool after_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool after_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool after_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool after_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool after_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool after_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool after_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern bool after_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool after_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool after_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern bool after_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool before_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool before_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool before_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool before_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool before_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool before_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool before_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool before_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool before_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool before_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern bool before_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool before_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool before_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern bool before_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool left_float_floatspan(double d, const Span *s);`
-- [ ] `extern bool left_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool left_int_intspan(int i, const Span *s);`
-- [ ] `extern bool left_intspan_int(const Span *s, int i);`
-- [ ] `extern bool left_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool overafter_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool overafter_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool overafter_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool overafter_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool overafter_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool overafter_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool overafter_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool overafter_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool overafter_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool overafter_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern bool overafter_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool overafter_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool overafter_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern bool overafter_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool overbefore_period_periodset(const Period *p, const PeriodSet *ps);`
-- [ ] `extern bool overbefore_period_timestamp(const Period *p, TimestampTz t);`
-- [ ] `extern bool overbefore_period_timestampset(const Period *p, const TimestampSet *ts);`
-- [ ] `extern bool overbefore_periodset_period(const PeriodSet *ps, const Period *p);`
-- [ ] `extern bool overbefore_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
-- [ ] `extern bool overbefore_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
-- [ ] `extern bool overbefore_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern bool overbefore_timestamp_period(TimestampTz t, const Period *p);`
-- [ ] `extern bool overbefore_timestamp_periodset(TimestampTz t, const PeriodSet *ps);`
-- [ ] `extern bool overbefore_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);`
-- [ ] `extern bool overbefore_timestampset_period(const TimestampSet *ts, const Period *p);`
-- [ ] `extern bool overbefore_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
-- [ ] `extern bool overbefore_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
-- [ ] `extern bool overbefore_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
-- [ ] `extern bool overleft_float_floatspan(double d, const Span *s);`
-- [ ] `extern bool overleft_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool overleft_int_intspan(int i, const Span *s);`
-- [ ] `extern bool overleft_intspan_int(const Span *s, int i);`
-- [ ] `extern bool overleft_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool overright_float_floatspan(double d, const Span *s);`
-- [ ] `extern bool overright_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool overright_int_intspan(int i, const Span *s);`
-- [ ] `extern bool overright_intspan_int(const Span *s, int i);`
-- [ ] `extern bool overright_span_span(const Span *s1, const Span *s2);`
-- [ ] `extern bool right_float_floatspan(double d, const Span *s);`
-- [ ] `extern bool right_floatspan_float(const Span *s, double d);`
-- [ ] `extern bool right_int_intspan(int i, const Span *s);`
-- [ ] `extern bool right_intspan_int(const Span *s, int i);`
-- [ ] `extern bool right_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool after_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool after_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool after_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool after_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool after_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool after_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool after_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [ ] `extern bool after_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
+- [ ] `extern bool after_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern bool after_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [x] `extern bool after_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool after_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool after_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern bool after_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern bool before_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool before_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool before_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool before_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool before_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool before_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool before_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [ ] `extern bool before_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
+- [ ] `extern bool before_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern bool before_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [x] `extern bool before_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool before_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool before_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern bool before_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [ ] `extern bool left_float_floatspan(double d, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool left_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern bool left_int_intspan(int i, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool left_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern bool left_span_span(const Span *s1, const Span *s2);`
+- [x] `extern bool overafter_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool overafter_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool overafter_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool overafter_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool overafter_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool overafter_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool overafter_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [ ] `extern bool overafter_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
+- [ ] `extern bool overafter_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern bool overafter_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [x] `extern bool overafter_timestampset_period(const TimestampSet *ts, const Period *p);`
+- [x] `extern bool overafter_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool overafter_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern bool overafter_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [x] `extern bool overbefore_period_periodset(const Period *p, const PeriodSet *ps);`
+- [x] `extern bool overbefore_period_timestamp(const Period *p, TimestampTz t);`
+- [x] `extern bool overbefore_period_timestampset(const Period *p, const TimestampSet *ts);`
+- [x] `extern bool overbefore_periodset_period(const PeriodSet *ps, const Period *p);`
+- [x] `extern bool overbefore_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
+- [x] `extern bool overbefore_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
+- [x] `extern bool overbefore_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
+- [x] `extern bool overbefore_timestamp_period(TimestampTz t, const Period *p);`
+- [ ] `extern bool overbefore_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
+- [ ] `extern bool overbefore_timestamp_timestampset(TimestampTz t, const TimestampSet *ts);` Class not defined in PyMEOS
+- [ ] `extern bool overbefore_timestampset_period(const TimestampSet *ts, const Period *p);` Class not defined in PyMEOS
+- [x] `extern bool overbefore_timestampset_periodset(const TimestampSet *ts, const PeriodSet *ps);`
+- [x] `extern bool overbefore_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
+- [x] `extern bool overbefore_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
+- [ ] `extern bool overleft_float_floatspan(double d, const Span *s);` Class not defined in PyMEOS 
+- [ ] `extern bool overleft_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS 
+- [ ] `extern bool overleft_int_intspan(int i, const Span *s);` Class not defined in PyMEOS 
+- [ ] `extern bool overleft_intspan_int(const Span *s, int i);` Class not defined in PyMEOS 
+- [x] `extern bool overleft_span_span(const Span *s1, const Span *s2);`
+- [ ] `extern bool overright_float_floatspan(double d, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool overright_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern bool overright_int_intspan(int i, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool overright_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern bool overright_span_span(const Span *s1, const Span *s2);`
+- [ ] `extern bool right_float_floatspan(double d, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool right_floatspan_float(const Span *s, double d);` Class not defined in PyMEOS
+- [ ] `extern bool right_int_intspan(int i, const Span *s);` Class not defined in PyMEOS
+- [ ] `extern bool right_intspan_int(const Span *s, int i);` Class not defined in PyMEOS
+- [x] `extern bool right_span_span(const Span *s1, const Span *s2);`
 
 
 
