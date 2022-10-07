@@ -453,25 +453,25 @@
 
 ### Accessor functions for box types
 
-- [ ] `extern bool tbox_hasx(const TBOX *box);`
-- [ ] `extern bool tbox_hast(const TBOX *box);`
-- [ ] `extern bool tbox_xmin(const TBOX *box, double *result);`
-- [ ] `extern bool tbox_xmax(const TBOX *box, double *result);`
-- [ ] `extern bool tbox_tmin(const TBOX *box, TimestampTz *result);`
-- [ ] `extern bool tbox_tmax(const TBOX *box, TimestampTz *result);`
-- [ ] `extern bool stbox_hasx(const STBOX *box);`
-- [ ] `extern bool stbox_hasz(const STBOX *box);`
-- [ ] `extern bool stbox_hast(const STBOX *box);`
-- [ ] `extern bool stbox_isgeodetic(const STBOX *box);`
-- [ ] `extern bool stbox_xmin(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_xmax(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_ymin(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_ymax(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_zmin(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_zmax(const STBOX *box, double *result);`
-- [ ] `extern bool stbox_tmin(const STBOX *box, TimestampTz *result);`
-- [ ] `extern bool stbox_tmax(const STBOX *box, TimestampTz *result);`
-- [ ] `extern int32 stbox_srid(const STBOX *box);`
+- [x] `extern bool tbox_hasx(const TBOX *box);`
+- [x] `extern bool tbox_hast(const TBOX *box);`
+- [x] `extern bool tbox_xmin(const TBOX *box, double *result);`
+- [x] `extern bool tbox_xmax(const TBOX *box, double *result);`
+- [x] `extern bool tbox_tmin(const TBOX *box, TimestampTz *result);`
+- [x] `extern bool tbox_tmax(const TBOX *box, TimestampTz *result);`
+- [x] `extern bool stbox_hasx(const STBOX *box);`
+- [x] `extern bool stbox_hasz(const STBOX *box);`
+- [x] `extern bool stbox_hast(const STBOX *box);`
+- [x] `extern bool stbox_isgeodetic(const STBOX *box);`
+- [x] `extern bool stbox_xmin(const STBOX *box, double *result);`
+- [x] `extern bool stbox_xmax(const STBOX *box, double *result);`
+- [x] `extern bool stbox_ymin(const STBOX *box, double *result);`
+- [x] `extern bool stbox_ymax(const STBOX *box, double *result);`
+- [x] `extern bool stbox_zmin(const STBOX *box, double *result);`
+- [x] `extern bool stbox_zmax(const STBOX *box, double *result);`
+- [x] `extern bool stbox_tmin(const STBOX *box, TimestampTz *result);`
+- [x] `extern bool stbox_tmax(const STBOX *box, TimestampTz *result);`
+- [ ] `extern int32 stbox_srid(const STBOX *box);` Access information directly 
 
 
 
