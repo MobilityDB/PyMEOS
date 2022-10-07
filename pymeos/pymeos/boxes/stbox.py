@@ -29,6 +29,8 @@ import warnings
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
+from postgis import Geometry
+from pymeos_cffi import stbox_to_geo
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
@@ -37,9 +39,14 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
     overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
-    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb
+    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb, datetime_to_timestamptz, \
+    timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
+    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text
+from shapely.geometry.base import BaseGeometry
+from shapely.wkt import loads
 
-from ..time.period import Period
+from ..main import TPoint
+from ..time import TimestampSet, Period, PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -129,6 +136,54 @@ class STBox:
 
     def as_hexwkb(self) -> str:
         return stbox_as_hexwkb(self._inner, -1)[0]
+
+    @staticmethod
+    def from_value(value: Geometry) -> STBox:
+        return STBox.from_geometry(value)
+
+    @staticmethod
+    def from_geometry(geom: Geometry) -> STBox:
+        gs = gserialized_in(geom.to_ewkb(), -1)
+        return STBox(_inner=geo_to_stbox(gs))
+
+    @staticmethod
+    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> STBox:
+        if isinstance(time, datetime):
+            result = timestamp_to_stbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TimestampSet):
+            result = timestampset_to_stbox(time)
+        elif isinstance(time, Period):
+            result = period_to_stbox(time)
+        elif isinstance(time, PeriodSet):
+            result = periodset_to_stbox(time)
+        else:
+            raise TypeError(f'Operation not supported with type {time.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_value_time(value: Geometry, time: Union[datetime, Period]) -> STBox:
+        return STBox.from_geometry_time(value, time)
+
+    @staticmethod
+    def from_geometry_time(geometry: Geometry, time: Union[datetime, Period]) -> STBox:
+        gs = gserialized_in(geometry.to_ewkb(), -1)
+        if isinstance(time, datetime):
+            result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
+        elif isinstance(time, Period):
+            result = geo_period_to_stbox(gs, time._inner)
+        else:
+            raise TypeError(f'Operation not supported with types {geometry.__class__} and {time.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_tpoint(temporal: TPoint) -> STBox:
+        return STBox(_inner=tpoint_to_stbox(temporal._inner))
+
+    def to_geometry(self, precision: int = 5) -> BaseGeometry:
+        return loads(gserialized_as_text(stbox_to_geo(self._inner), 5))
+
+    def to_period(self) -> Period:
+        return Period(_inner=stbox_to_period(self._inner))
 
     @property
     def has_x(self):

@@ -30,14 +30,20 @@ from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
+from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
+    tbox_to_period
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
     adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
     right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb
+    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
+    intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
+    float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox
+from spans import intrange, floatrange
 
-from ..time.period import Period
+from ..main import TNumber
+from ..time import TimestampSet, Period, PeriodSet
 
 try:
     # Do not make psycopg2 a requirement.
@@ -101,6 +107,71 @@ class TBox:
 
     def as_hexwkb(self) -> str:
         return tbox_as_hexwkb(self._inner, -1)[0]
+
+    @staticmethod
+    def from_value(value: Union[int, float, intrange, floatrange]) -> TBox:
+        if isinstance(value, int):
+            result = int_to_tbox(value)
+        elif isinstance(value, float):
+            result = float_to_tbox(value)
+        elif isinstance(value, intrange):
+            result = span_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+        elif isinstance(value, floatrange):
+            result = span_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+        else:
+            raise TypeError(f'Operation not supported with type {value.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBox:
+        if isinstance(time, datetime):
+            result = timestamp_to_tbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TimestampSet):
+            result = timestampset_to_tbox(time)
+        elif isinstance(time, Period):
+            result = period_to_tbox(time)
+        elif isinstance(time, PeriodSet):
+            result = periodset_to_tbox(time)
+        else:
+            raise TypeError(f'Operation not supported with type {time.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_value_time(value: Union[int, float, intrange, floatrange],
+                        time: Union[datetime, Period]) -> TBox:
+        if isinstance(value, int) and isinstance(time, datetime):
+            result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, int) and isinstance(time, Period):
+            result = int_period_to_tbox(value, time)
+        elif isinstance(value, float) and isinstance(time, datetime):
+            result = float_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, float) and isinstance(time, Period):
+            result = float_period_to_tbox(value, time)
+        elif isinstance(value, intrange) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                            datetime_to_timestamptz(time))
+        elif isinstance(value, intrange) and isinstance(time, Period):
+            result = span_period_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc), time)
+        elif isinstance(value, floatrange) and isinstance(time, Period):
+            result = span_period_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                         time)
+        elif isinstance(value, floatrange) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                            datetime_to_timestamptz(time))
+        else:
+            raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_tnumber(temporal: TNumber) -> TBox:
+        return TBox(_inner=tnumber_to_tbox(temporal._inner))
+
+    def to_floatrange(self) -> floatrange:
+        # TODO: Check that a Box always has inclusive bound
+        return floatrange(self.xmin, self.xmax, True, True)
+
+    def to_period(self) -> Period:
+        return Period(_inner=tbox_to_period(self._inner))
 
     @property
     def has_x(self):

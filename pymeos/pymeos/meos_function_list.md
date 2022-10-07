@@ -422,32 +422,32 @@
 
 ### Cast functions for box types
 
-- [ ] `extern TBOX *int_to_tbox(int i);`
-- [ ] `extern TBOX *float_to_tbox(double d);`
-- [ ] `extern TBOX *span_to_tbox(const Span *span);`
-- [ ] `extern TBOX *timestamp_to_tbox(TimestampTz t);`
-- [ ] `extern TBOX *timestampset_to_tbox(const TimestampSet *ss);`
-- [ ] `extern TBOX *period_to_tbox(const Period *p);`
-- [ ] `extern TBOX *periodset_to_tbox(const PeriodSet *ps);`
-- [ ] `extern TBOX *int_timestamp_to_tbox(int i, TimestampTz t);`
-- [ ] `extern TBOX *float_timestamp_to_tbox(double d, TimestampTz t);`
-- [ ] `extern TBOX *int_period_to_tbox(int i, const Period *p);`
-- [ ] `extern TBOX *float_period_to_tbox(double d, const Period *p);`
-- [ ] `extern TBOX *span_timestamp_to_tbox(const Span *span, TimestampTz t);`
-- [ ] `extern TBOX *span_period_to_tbox(const Span *span, const Period *p);`
-- [ ] `extern Span *tbox_to_floatspan(const TBOX *box);`
-- [ ] `extern Period *tbox_to_period(const TBOX *box);`
-- [ ] `extern Period *stbox_to_period(const STBOX *box);`
-- [ ] `extern TBOX *tnumber_to_tbox(const Temporal *temp);`
-- [ ] `extern GSERIALIZED *stbox_to_geo(const STBOX *box);`
-- [ ] `extern STBOX *tpoint_to_stbox(const Temporal *temp);`
-- [ ] `extern STBOX *geo_to_stbox(const GSERIALIZED *gs);`
-- [ ] `extern STBOX *timestamp_to_stbox(TimestampTz t);`
-- [ ] `extern STBOX *timestampset_to_stbox(const TimestampSet *ts);`
-- [ ] `extern STBOX *period_to_stbox(const Period *p);`
-- [ ] `extern STBOX *periodset_to_stbox(const PeriodSet *ps);`
-- [ ] `extern STBOX *geo_timestamp_to_stbox(const GSERIALIZED *gs, TimestampTz t);`
-- [ ] `extern STBOX *geo_period_to_stbox(const GSERIALIZED *gs, const Period *p);`
+- [x] `extern TBOX *int_to_tbox(int i);`
+- [x] `extern TBOX *float_to_tbox(double d);`
+- [x] `extern TBOX *span_to_tbox(const Span *span);`
+- [x] `extern TBOX *timestamp_to_tbox(TimestampTz t);`
+- [x] `extern TBOX *timestampset_to_tbox(const TimestampSet *ss);`
+- [x] `extern TBOX *period_to_tbox(const Period *p);`
+- [x] `extern TBOX *periodset_to_tbox(const PeriodSet *ps);`
+- [x] `extern TBOX *int_timestamp_to_tbox(int i, TimestampTz t);`
+- [x] `extern TBOX *float_timestamp_to_tbox(double d, TimestampTz t);`
+- [x] `extern TBOX *int_period_to_tbox(int i, const Period *p);`
+- [x] `extern TBOX *float_period_to_tbox(double d, const Period *p);`
+- [x] `extern TBOX *span_timestamp_to_tbox(const Span *span, TimestampTz t);`
+- [x] `extern TBOX *span_period_to_tbox(const Span *span, const Period *p);`
+- [x] `extern Span *tbox_to_floatspan(const TBOX *box);`
+- [x] `extern Period *tbox_to_period(const TBOX *box);`
+- [x] `extern Period *stbox_to_period(const STBOX *box);`
+- [x] `extern TBOX *tnumber_to_tbox(const Temporal *temp);`
+- [x] `extern GSERIALIZED *stbox_to_geo(const STBOX *box);`
+- [x] `extern STBOX *tpoint_to_stbox(const Temporal *temp);`
+- [x] `extern STBOX *geo_to_stbox(const GSERIALIZED *gs);`
+- [x] `extern STBOX *timestamp_to_stbox(TimestampTz t);`
+- [x] `extern STBOX *timestampset_to_stbox(const TimestampSet *ts);`
+- [x] `extern STBOX *period_to_stbox(const Period *p);`
+- [x] `extern STBOX *periodset_to_stbox(const PeriodSet *ps);`
+- [x] `extern STBOX *geo_timestamp_to_stbox(const GSERIALIZED *gs, TimestampTz t);`
+- [x] `extern STBOX *geo_period_to_stbox(const GSERIALIZED *gs, const Period *p);`
 
 
 

@@ -42,6 +42,7 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     lwpoint_to_point, \
     tpoint_value_at_timestamp, datetime_to_timestamptz, tpoint_cumulative_length, temporal_simplify, \
     lwpoint_to_shapely_point, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, gserialized_as_text, tpoint_out
+from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
@@ -109,7 +110,7 @@ class TPoint(Temporal, ABC):
     def as_geojson(self, option: int = 1, precision: int = 6, srs: Optional[str] = None) -> str:
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
-    def to_shapely_geometry(self, precision: int = 6):
+    def to_shapely_geometry(self, precision: int = 6) -> BaseGeometry:
         import shapely.wkt
         return shapely.wkt.loads(gserialized_as_text(tpoint_trajectory(self._inner), precision))
 
