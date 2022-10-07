@@ -82,13 +82,6 @@ class TText(Temporal, ABC):
         """
         return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    @property
-    def interpolation(self) -> TInterpolation:
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return TInterpolation.STEPWISE
-
     def __str__(self):
         return ttext_out(self._inner)
 

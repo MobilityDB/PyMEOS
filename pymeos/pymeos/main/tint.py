@@ -102,13 +102,6 @@ class TInt(TNumber, ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    @property
-    def interpolation(self):
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return TInterpolation.STEPWISE
-
     def __str__(self):
         return tint_out(self._inner)
 

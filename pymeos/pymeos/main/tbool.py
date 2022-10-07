@@ -75,13 +75,6 @@ class TBool(Temporal, ABC):
         """
         return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    @property
-    def interpolation(self) -> TInterpolation:
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return TInterpolation.STEPWISE
-
     def always(self, value: bool) -> bool:
         return tbool_always_eq(self._inner, value)
 
