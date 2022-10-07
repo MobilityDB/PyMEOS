@@ -235,8 +235,10 @@ class TBox:
     def union(self, other: TBox) -> TBox:
         return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
 
-    def intersection(self, other: TBox) -> TBox:
-        return TBox(_inner=intersection_tbox_tbox(self._inner, other._inner))
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: TBox) -> Optional[TBox]:
+        result = intersection_tbox_tbox(self._inner, other._inner)
+        return TBox(_inner=result) if result else None
 
     def is_adjacent(self, container: TBox) -> bool:
         return adjacent_tbox_tbox(self._inner, container._inner)

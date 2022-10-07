@@ -296,8 +296,10 @@ class STBox:
     def union(self, other: STBox, strict: bool = True) -> STBox:
         return STBox(_inner=union_stbox_stbox(self._inner, other._inner, strict))
 
-    def intersection(self, other: STBox) -> STBox:
-        return STBox(_inner=intersection_stbox_stbox(self._inner, other._inner))
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: STBox) -> Optional[STBox]:
+        result = intersection_stbox_stbox(self._inner, other._inner)
+        return STBox(_inner=result) if result else None
 
     def is_adjacent(self, container: STBox) -> bool:
         return adjacent_stbox_stbox(self._inner, container._inner)

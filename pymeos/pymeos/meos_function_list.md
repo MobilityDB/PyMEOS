@@ -311,7 +311,7 @@
 - [x] `extern PeriodSet *minus_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
 - [x] `extern PeriodSet *minus_periodset_timestamp(const PeriodSet *ps, TimestampTz t);`
 - [x] `extern PeriodSet *minus_periodset_timestampset(const PeriodSet *ps, const TimestampSet *ts);`
-- [ ] `extern Span *minus_span_span(const Span *s1, const Span *s2);` minus_period_period used instead 
+- [ ] `extern Span *minus_span_span(const Span *s1, const Span *s2);` `minus_period_period` used instead 
 - [ ] `extern bool minus_timestamp_period(TimestampTz t, const Period *p, TimestampTz *result);` Class not defined in PyMEOS
 - [ ] `extern bool minus_timestamp_periodset(TimestampTz t, const PeriodSet *ps, TimestampTz *result);` Class not defined in PyMEOS
 - [ ] `extern bool minus_timestamp_timestamp(TimestampTz t1, TimestampTz t2, TimestampTz *result);` Class not defined in PyMEOS
@@ -328,7 +328,7 @@
 - [x] `extern PeriodSet *union_periodset_periodset(const PeriodSet *ps1, const PeriodSet *ps2);`
 - [x] `extern PeriodSet *union_periodset_timestamp(PeriodSet *ps, TimestampTz t);`
 - [x] `extern PeriodSet *union_periodset_timestampset(PeriodSet *ps, TimestampSet *ts);`
-- [ ] `extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);` union_period_period used instead 
+- [ ] `extern Span *union_span_span(const Span *s1, const Span *s2, bool strict);` `union_period_period` used instead 
 - [ ] `extern PeriodSet *union_timestamp_period(TimestampTz t, const Period *p);` Class not defined in PyMEOS
 - [ ] `extern PeriodSet *union_timestamp_periodset(TimestampTz t, const PeriodSet *ps);` Class not defined in PyMEOS
 - [ ] `extern TimestampSet *union_timestamp_timestamp(TimestampTz t1, TimestampTz t2);` Class not defined in PyMEOS
@@ -535,12 +535,12 @@
 
 ### Set functions for box types
 
-- [ ] `extern TBOX *union_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern bool inter_tbox_tbox(const TBOX *box1, const TBOX *box2, TBOX *result);`
-- [ ] `extern TBOX *intersection_tbox_tbox(const TBOX *box1, const TBOX *box2);`
-- [ ] `extern STBOX *union_stbox_stbox(const STBOX *box1, const STBOX *box2, bool strict);`
-- [ ] `extern bool inter_stbox_stbox(const STBOX *box1, const STBOX *box2, STBOX *result);`
-- [ ] `extern STBOX *intersection_stbox_stbox(const STBOX *box1, const STBOX *box2);`
+- [x] `extern TBOX *union_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [ ] `extern bool inter_tbox_tbox(const TBOX *box1, const TBOX *box2, TBOX *result);` `intersection_tbox_tbox` used instead 
+- [x] `extern TBOX *intersection_tbox_tbox(const TBOX *box1, const TBOX *box2);`
+- [x] `extern STBOX *union_stbox_stbox(const STBOX *box1, const STBOX *box2, bool strict);`
+- [ ] `extern bool inter_stbox_stbox(const STBOX *box1, const STBOX *box2, STBOX *result);` `intersection_stbox_stbox` used instead 
+- [x] `extern STBOX *intersection_stbox_stbox(const STBOX *box1, const STBOX *box2);`
 
 
 
