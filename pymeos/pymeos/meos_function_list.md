@@ -92,12 +92,12 @@
 
 - [ ] `extern Span *float_to_floaspan(double d);`
 - [ ] `extern Span *int_to_intspan(int i);`
-- [ ] `extern PeriodSet *period_to_periodset(const Period *period);`
-- [ ] `extern Period *periodset_to_period(const PeriodSet *ps);`
-- [ ] `extern Period *timestamp_to_period(TimestampTz t);`
-- [ ] `extern PeriodSet *timestamp_to_periodset(TimestampTz t);`
-- [ ] `extern TimestampSet *timestamp_to_timestampset(TimestampTz t);`
-- [ ] `extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);`
+- [x] `extern PeriodSet *period_to_periodset(const Period *period);`
+- [x] `extern Period *periodset_to_period(const PeriodSet *ps);`
+- [x] `extern Period *timestamp_to_period(TimestampTz t);`
+- [x] `extern PeriodSet *timestamp_to_periodset(TimestampTz t);`
+- [x] `extern TimestampSet *timestamp_to_timestampset(TimestampTz t);`
+- [x] `extern PeriodSet *timestampset_to_periodset(const TimestampSet *ts);`
 
 
 
