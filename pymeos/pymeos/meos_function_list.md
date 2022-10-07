@@ -77,13 +77,13 @@
 
 - [ ] `extern Span *floatspan_make(double lower, double upper, bool lower_inc, bool upper_inc);`
 - [ ] `extern Span *intspan_make(int lower, int upper, bool lower_inc, bool upper_inc);`
-- [ ] `extern Period *period_make(TimestampTz lower, TimestampTz upper, bool lower_inc, bool upper_inc);`
-- [ ] `extern PeriodSet *periodset_copy(const PeriodSet *ps);`
-- [ ] `extern PeriodSet *periodset_make(const Period **periods, int count, bool normalize);`
+- [x] `extern Period *period_make(TimestampTz lower, TimestampTz upper, bool lower_inc, bool upper_inc);`
+- [x] `extern PeriodSet *periodset_copy(const PeriodSet *ps);`
+- [x] `extern PeriodSet *periodset_make(const Period **periods, int count, bool normalize);`
 - [ ] `extern PeriodSet *periodset_make_free(Period **periods, int count, bool normalize);`
-- [ ] `extern Span *span_copy(const Span *s);`
-- [ ] `extern TimestampSet *timestampset_copy(const TimestampSet *ts);`
-- [ ] `extern TimestampSet *timestampset_make(const TimestampTz *times, int count);`
+- [x] `extern Span *span_copy(const Span *s);`
+- [x] `extern TimestampSet *timestampset_copy(const TimestampSet *ts);`
+- [x] `extern TimestampSet *timestampset_make(const TimestampTz *times, int count);`
 - [ ] `extern TimestampSet *timestampset_make_free(TimestampTz *times, int count);`
 
 
