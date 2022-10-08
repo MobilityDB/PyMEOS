@@ -772,13 +772,13 @@
 
 ### Boolean functions for temporal types
 
-- [ ] `extern Temporal *tand_bool_tbool(bool b, const Temporal *temp);`
-- [ ] `extern Temporal *tand_tbool_bool(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *tand_tbool_tbool(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tnot_tbool(const Temporal *temp);`
-- [ ] `extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);`
-- [ ] `extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tand_bool_tbool(bool b, const Temporal *temp);` `tand_tbool_bool` used instead
+- [x] `extern Temporal *tand_tbool_bool(const Temporal *temp, bool b);`
+- [x] `extern Temporal *tand_tbool_tbool(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern Temporal *tnot_tbool(const Temporal *temp);`
+- [ ] `extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);` `tor_tbool_bool` used instead
+- [x] `extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);`
+- [x] `extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);`
 
 
 
