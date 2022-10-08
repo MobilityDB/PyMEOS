@@ -47,13 +47,16 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
     temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
     temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
-    temporal_minus_timestampset
+    temporal_minus_timestampset, temporal_to_tinstant, temporal_to_tsequence, temporal_to_tsequenceset, \
+    temporal_to_tdiscseq, temporal_append_tinstant, temporal_step_to_linear, temporal_merge, temporal_merge_array
 
 from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
 
 if TYPE_CHECKING:
     from .tsequence import TSequence
+    from .tsequenceset import TSequenceSet
+    from .tinstant import TInstant
 
 try:
     # Do not make psycopg2 a requirement.
@@ -298,6 +301,41 @@ class Temporal(ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(scaled)
 
+    def to_instant(self) -> TInstant:
+        inst = temporal_to_tinstant(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(inst)
+
+    def to_sequence(self, discrete: bool = False) -> TSequence:
+        seq = temporal_to_tsequence(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(seq)
+
+    def to_sequenceset(self) -> TSequenceSet:
+        ss = temporal_to_tsequenceset(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(ss)
+
+    def append(self, instant: TInstant, expand: bool = False) -> Temporal:
+        new_temp = temporal_append_tinstant(self._inner, instant._inner, expand)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(new_temp)
+
+    def merge(self, other: Temporal) -> Temporal:
+        new_temp = temporal_merge(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(new_temp)
+
+    def merge_array(self, others: List[Temporal]) -> Temporal:
+        new_temp = temporal_merge_array([self._inner, *(o._inner for o in others)], len(others) + 1)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(new_temp)
+
+    def to_linear(self) -> Temporal:
+        new_temp = temporal_step_to_linear(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(new_temp)
+
     def intersects(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
         if isinstance(other, Period):
             return temporal_intersects_period(self._inner, other._inner)
@@ -521,6 +559,18 @@ class Temporal(ABC):
 
     def as_hexwkb(self) -> str:
         return temporal_as_hexwkb(self._inner, 0)[0]
+
+    @staticmethod
+    def from_merge(*temporals: Temporal) -> Temporal:
+        result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    @staticmethod
+    def from_merge_array(temporals: List[Temporal]) -> Temporal:
+        result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> Temporal:

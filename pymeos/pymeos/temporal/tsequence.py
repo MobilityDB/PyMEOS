@@ -26,12 +26,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Any, Literal
+from typing import Optional, Union, List, Any
 
+from pymeos_cffi import tsequence_compact
 from pymeos_cffi.functions import tsequence_make
 
-from .temporal import Temporal
 from .interpolation import TInterpolation
+from .temporal import Temporal
 
 
 class TSequence(Temporal, ABC):
@@ -113,3 +114,8 @@ class TSequence(Temporal, ABC):
         List of sequences.
         """
         return [self]
+
+    def compact(self) -> TSequence:
+        result = tsequence_compact(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)

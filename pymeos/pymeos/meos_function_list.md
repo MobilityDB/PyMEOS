@@ -705,16 +705,16 @@
 
 ### Transformation functions for temporal types
 
-- [ ] `extern TSequence *tsequence_compact(const TSequence *seq);`
-- [ ] `extern Temporal *temporal_append_tinstant(Temporal *temp, const TInstant *inst, bool expand);`
-- [ ] `extern Temporal *temporal_merge(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *temporal_merge_array(Temporal **temparr, int count);`
-- [ ] `extern Temporal *temporal_shift_tscale(const Temporal *temp, const Interval *shift, const Interval *duration);`
-- [ ] `extern Temporal *temporal_step_to_linear(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_to_tinstant(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_to_tdiscseq(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_to_tsequence(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_to_tsequenceset(const Temporal *temp);`
+- [x] `extern TSequence *tsequence_compact(const TSequence *seq);`
+- [x] `extern Temporal *temporal_append_tinstant(Temporal *temp, const TInstant *inst, bool expand);`
+- [x] `extern Temporal *temporal_merge(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern Temporal *temporal_merge_array(Temporal **temparr, int count);`
+- [x] `extern Temporal *temporal_shift_tscale(const Temporal *temp, const Interval *shift, const Interval *duration);`
+- [x] `extern Temporal *temporal_step_to_linear(const Temporal *temp);`
+- [x] `extern Temporal *temporal_to_tinstant(const Temporal *temp);`
+- [x] `extern Temporal *temporal_to_tdiscseq(const Temporal *temp);`
+- [x] `extern Temporal *temporal_to_tsequence(const Temporal *temp);`
+- [x] `extern Temporal *temporal_to_tsequenceset(const Temporal *temp);`
 
 
 
