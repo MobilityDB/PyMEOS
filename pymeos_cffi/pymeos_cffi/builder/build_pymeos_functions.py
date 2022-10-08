@@ -2,8 +2,7 @@ import re
 from re import RegexFlag
 from typing import List, Optional
 
-from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
-    timestampset_make_modifier, gserialized_from_lwgeom_modifier, tpointseq_make_coords_modifier
+from build_pymeos_functions_modifiers import *
 from objects import conversion_map, Conversion
 
 
@@ -130,6 +129,16 @@ function_modifiers = {
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
+    'tint_at_values': tint_at_values_modifier,
+    'tint_minus_values': tint_minus_values_modifier,
+    'tfloat_at_values': tfloat_at_values_modifier,
+    'tfloat_minus_values': tfloat_minus_values_modifier,
+    'tbool_at_values': tbool_at_values_modifier,
+    'tbool_minus_values': tbool_minus_values_modifier,
+    'ttext_at_values': array_length_remover_modifier('values_converted'),
+    'ttext_minus_values': array_length_remover_modifier('values_converted'),
+    'tpoint_at_values': array_length_remover_modifier('values_converted'),
+    'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
 }

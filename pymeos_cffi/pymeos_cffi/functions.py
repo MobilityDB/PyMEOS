@@ -4098,10 +4098,10 @@ def tbool_at_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tbool_at_values(temp: 'const Temporal *', values: 'bool *', count: int) -> 'Temporal *':
+def tbool_at_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('bool *', values)
-    result = _lib.tbool_at_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('bool *', x) for x in values]
+    result = _lib.tbool_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4111,10 +4111,10 @@ def tbool_minus_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tbool_minus_values(temp: 'const Temporal *', values: 'bool *', count: int) -> 'Temporal *':
+def tbool_minus_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('bool *', values)
-    result = _lib.tbool_minus_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('bool *', x) for x in values]
+    result = _lib.tbool_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4214,10 +4214,10 @@ def tfloat_at_value(temp: 'const Temporal *', d: float) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tfloat_at_values(temp: 'const Temporal *', values: 'double *', count: int) -> 'Temporal *':
+def tfloat_at_values(temp: 'const Temporal *', values: List[float]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('double *', values)
-    result = _lib.tfloat_at_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('double *', x) for x in values]
+    result = _lib.tfloat_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4227,10 +4227,10 @@ def tfloat_minus_value(temp: 'const Temporal *', d: float) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tfloat_minus_values(temp: 'const Temporal *', values: 'double *', count: int) -> 'Temporal *':
+def tfloat_minus_values(temp: 'const Temporal *', values: List[float]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('double *', values)
-    result = _lib.tfloat_minus_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('double *', x) for x in values]
+    result = _lib.tfloat_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4250,10 +4250,10 @@ def tint_at_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tint_at_values(temp: 'const Temporal *', values: 'int *', count: int) -> 'Temporal *':
+def tint_at_values(temp: 'const Temporal *', values: List[int]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('int *', values)
-    result = _lib.tint_at_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('int *', x) for x in values]
+    result = _lib.tint_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4263,10 +4263,10 @@ def tint_minus_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tint_minus_values(temp: 'const Temporal *', values: 'int *', count: int) -> 'Temporal *':
+def tint_minus_values(temp: 'const Temporal *', values: List[int]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.cast('int *', values)
-    result = _lib.tint_minus_values(temp_converted, values_converted, count)
+    values_converted = [_ffi.cast('int *', x) for x in values]
+    result = _lib.tint_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4343,10 +4343,10 @@ def tpoint_at_value(temp: 'const Temporal *', gs: 'GSERIALIZED *') -> 'Temporal 
     return result if result != _ffi.NULL else None
 
 
-def tpoint_at_values(temp: 'const Temporal *', values: 'GSERIALIZED **', count: int) -> 'Temporal *':
+def tpoint_at_values(temp: 'const Temporal *', values: 'GSERIALIZED **') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     values_converted = [_ffi.cast('GSERIALIZED *', x) for x in values]
-    result = _lib.tpoint_at_values(temp_converted, values_converted, count)
+    result = _lib.tpoint_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4371,10 +4371,10 @@ def tpoint_minus_value(temp: 'const Temporal *', gs: 'GSERIALIZED *') -> 'Tempor
     return result if result != _ffi.NULL else None
 
 
-def tpoint_minus_values(temp: 'const Temporal *', values: 'GSERIALIZED **', count: int) -> 'Temporal *':
+def tpoint_minus_values(temp: 'const Temporal *', values: 'GSERIALIZED **') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     values_converted = [_ffi.cast('GSERIALIZED *', x) for x in values]
-    result = _lib.tpoint_minus_values(temp_converted, values_converted, count)
+    result = _lib.tpoint_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4395,10 +4395,10 @@ def ttext_at_value(temp: 'const Temporal *', txt: str) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def ttext_at_values(temp: 'const Temporal *', values: 'text **', count: int) -> 'Temporal *':
+def ttext_at_values(temp: 'const Temporal *', values: 'text **') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     values_converted = [_ffi.cast('text *', x) for x in values]
-    result = _lib.ttext_at_values(temp_converted, values_converted, count)
+    result = _lib.ttext_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -4409,10 +4409,10 @@ def ttext_minus_value(temp: 'const Temporal *', txt: str) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def ttext_minus_values(temp: 'const Temporal *', values: 'text **', count: int) -> 'Temporal *':
+def ttext_minus_values(temp: 'const Temporal *', values: 'text **') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     values_converted = [_ffi.cast('text *', x) for x in values]
-    result = _lib.ttext_minus_values(temp_converted, values_converted, count)
+    result = _lib.ttext_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
