@@ -4100,7 +4100,7 @@ def tbool_at_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
 
 def tbool_at_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('bool *', x) for x in values]
+    values_converted = _ffi.new('bool []', values)
     result = _lib.tbool_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
@@ -4113,7 +4113,7 @@ def tbool_minus_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
 
 def tbool_minus_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('bool *', x) for x in values]
+    values_converted = _ffi.new('bool []', values)
     result = _lib.tbool_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
@@ -4216,7 +4216,7 @@ def tfloat_at_value(temp: 'const Temporal *', d: float) -> 'Temporal *':
 
 def tfloat_at_values(temp: 'const Temporal *', values: List[float]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('double *', x) for x in values]
+    values_converted = _ffi.new('double []', values)
     result = _lib.tfloat_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
@@ -4229,7 +4229,7 @@ def tfloat_minus_value(temp: 'const Temporal *', d: float) -> 'Temporal *':
 
 def tfloat_minus_values(temp: 'const Temporal *', values: List[float]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('double *', x) for x in values]
+    values_converted = _ffi.new('double []', values)
     result = _lib.tfloat_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
@@ -4252,7 +4252,7 @@ def tint_at_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
 
 def tint_at_values(temp: 'const Temporal *', values: List[int]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('int *', x) for x in values]
+    values_converted = _ffi.new('int []', values)
     result = _lib.tint_at_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
@@ -4265,7 +4265,7 @@ def tint_minus_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
 
 def tint_minus_values(temp: 'const Temporal *', values: List[int]) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = [_ffi.cast('int *', x) for x in values]
+    values_converted = _ffi.new('int []', values)
     result = _lib.tint_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 

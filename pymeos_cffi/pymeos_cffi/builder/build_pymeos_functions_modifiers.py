@@ -38,8 +38,8 @@ def timestampset_make_modifier(function: str) -> str:
 def tint_at_values_modifier(function: str) -> str:
     return function \
         .replace("values: 'int *', count: int", 'values: List[int]') \
-        .replace("values_converted = _ffi.cast('int *', values)",
-                 "values_converted = [_ffi.cast('int *', x) for x in values]") \
+        .replace("_ffi.cast('int *', values)",
+                 "_ffi.new('int []', values)") \
         .replace(', count', ', len(values_converted)')
 
 
@@ -50,8 +50,8 @@ def tint_minus_values_modifier(function: str) -> str:
 def tfloat_at_values_modifier(function: str) -> str:
     return function \
         .replace("values: 'double *', count: int", 'values: List[float]') \
-        .replace("values_converted = _ffi.cast('double *', values)",
-                 "values_converted = [_ffi.cast('double *', x) for x in values]") \
+        .replace("_ffi.cast('double *', values)",
+                 "_ffi.new('double []', values)") \
         .replace(', count', ', len(values_converted)')
 
 
@@ -62,8 +62,8 @@ def tfloat_minus_values_modifier(function: str) -> str:
 def tbool_at_values_modifier(function: str) -> str:
     return function \
         .replace("values: 'bool *', count: int", 'values: List[bool]') \
-        .replace("values_converted = _ffi.cast('bool *', values)",
-                 "values_converted = [_ffi.cast('bool *', x) for x in values]") \
+        .replace("_ffi.cast('bool *', values)",
+                 "_ffi.new('bool []', values)") \
         .replace(', count', ', len(values_converted)')
 
 
