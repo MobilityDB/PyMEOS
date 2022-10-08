@@ -56,12 +56,12 @@ class TFloat(TNumber, ABC):
     BaseClassDiscrete = False
     _parse_function = tfloat_in
 
-    def at(self, other: Union[float, List[float], intrange, floatrange, List[intrange], List[floatrange],
+    def at(self, other: Union[int, float, List[float], List[int], intrange, floatrange, List[intrange], List[floatrange],
                               TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
-        if isinstance(other, float):
-            result = tfloat_at_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], float):
-            result = tfloat_at_values(self._inner, other)
+        if isinstance(other, float) or isinstance(other, int):
+            result = tfloat_at_value(self._inner, float(other))
+        elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
+            result = tfloat_at_values(self._inner, [float(x) for x in other])
         else:
             return super().at(other)
         from ..factory import _TemporalFactory

@@ -23,6 +23,7 @@ class TNumber(Temporal, ABC):
 
     def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange],
                               TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        from ..boxes import TBox
         if isinstance(other, intrange):
             result = tnumber_at_span(self._inner, intrange_to_intspan(other))
         elif isinstance(other, floatrange):
@@ -68,6 +69,8 @@ class TNumber(Temporal, ABC):
         elif isinstance(other, TNumber):
             return _TemporalFactory.create_temporal(add_tnumber_tnumber(self._inner, other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # def radd(self, other:):
 
     def sub(self, other: Union[int, float, TNumber]) -> TNumber:
         from ..factory import _TemporalFactory
