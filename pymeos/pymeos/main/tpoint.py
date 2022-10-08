@@ -29,14 +29,14 @@ from __future__ import annotations
 from abc import ABC
 from ctypes import Union
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, TYPE_CHECKING
 
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
 # from movingpandas import Trajectory
 from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
-    tpoint_as_ewkt
+    tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
     tpoint_cumulative_length, temporal_simplify, \
@@ -44,13 +44,15 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     tgeompointdiscseq_from_base_time, \
     tgeompointseq_from_base_time, tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, \
     tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time, \
-    gserialized_to_shapely_geometry
+    gserialized_to_shapely_geometry, tpoint_minus_values, tpoint_minus_stbox
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..time import TimestampSet, Period, PeriodSet
 
+if TYPE_CHECKING:
+    from ..boxes import STBox
 
 # Add method to Point to make the class hashable
 def __hash__(self):
@@ -92,19 +94,30 @@ class TPoint(Temporal, ABC):
     def simplify(self, tolerance: float, synchronized: bool = False) -> TPoint:
         return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
 
-    def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
+    def at(self, other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = tpoint_at_geometry(self._inner, gs)
+        elif isinstance(other, list):
+            gss = [gserialized_in(gm.to_ewkb(), -1) for gm in other]
+            result = tpoint_at_values(self._inner, gss)
+        elif isinstance(other, STBox):
+            result = tpoint_at_stbox(self._inner, other._inner)
         else:
             return super().at(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Geometry]) -> Temporal:
+    def minus(self,
+              other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = tpoint_minus_geometry(self._inner, gs)
+        elif isinstance(other, list):
+            gss = [gserialized_in(gm.to_ewkb(), -1) for gm in other]
+            result = tpoint_minus_values(self._inner, gss, len(gss))
+        elif isinstance(other, STBox):
+            result = tpoint_minus_stbox(self._inner, other._inner)
         else:
             return super().minus(other)
         from ..factory import _TemporalFactory

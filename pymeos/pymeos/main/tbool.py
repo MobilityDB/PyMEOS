@@ -30,12 +30,12 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
-from pymeos_cffi import tbooldiscseq_from_base_time
+from pymeos_cffi import tbooldiscseq_from_base_time, tbool_at_value
 from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
     tbool_values, tbool_start_value, tbool_end_value, \
     tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
     tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool, tbool_from_base, tboolseq_from_base_time, \
-    tboolseqset_from_base_time
+    tboolseqset_from_base_time, tbool_minus_value
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -49,6 +49,22 @@ class TBool(Temporal, ABC):
     BaseClass = bool
     BaseClassDiscrete = True
     _parse_function = tbool_in
+
+    def at(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, bool):
+            result = tbool_at_value(self._inner, other)
+        else:
+            return super().at(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def minus(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, bool):
+            result = tbool_minus_value(self._inner, other)
+        else:
+            return super().minus(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     @staticmethod
     def from_base(value: bool, base: Temporal) -> TBool:

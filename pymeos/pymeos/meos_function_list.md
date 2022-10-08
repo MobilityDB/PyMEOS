@@ -599,13 +599,13 @@
 - [ ] `extern TSequenceSet *tboolseqset_from_base(bool b, const TSequenceSet *ss);` `tbool_from_base` used instead
 - [x] `extern TSequenceSet *tboolseqset_from_base_time(bool b, const PeriodSet *ps);`
 - [x] `extern Temporal *temporal_copy(const Temporal *temp);`
-- [x] `extern Temporal *tfloat_from_base(bool b, const Temporal *temp, interpType interp);`
+- [x] `extern Temporal *tfloat_from_base(double d, const Temporal *temp, interpType interp);`
 - [x] `extern TInstant *tfloatinst_make(double d, TimestampTz t);`
-- [x] `extern TSequence *tfloatdiscseq_from_base_time(bool b, const TimestampSet *ts);`
-- [ ] `extern TSequence *tfloatseq_from_base(bool b, const TSequence *seq, interpType interp);` `tfloat_from_base` used instead
-- [x] `extern TSequence *tfloatseq_from_base_time(bool b, const Period *p, interpType interp);`
-- [ ] `extern TSequenceSet *tfloatseqset_from_base(bool b, const TSequenceSet *ss, interpType interp);` `tfloat_from_base` used instead
-- [x] `extern TSequenceSet *tfloatseqset_from_base_time(bool b, const PeriodSet *ps, interpType interp);`
+- [x] `extern TSequence *tfloatdiscseq_from_base_time(double d, const TimestampSet *ts);`
+- [ ] `extern TSequence *tfloatseq_from_base(double d, const TSequence *seq, interpType interp);` `tfloat_from_base` used instead
+- [x] `extern TSequence *tfloatseq_from_base_time(double d, const Period *p, interpType interp);`
+- [ ] `extern TSequenceSet *tfloatseqset_from_base(double d, const TSequenceSet *ss, interpType interp);` `tfloat_from_base` used instead
+- [x] `extern TSequenceSet *tfloatseqset_from_base_time(double d, const PeriodSet *ps, interpType interp);`
 - [x] `extern Temporal *tgeogpoint_from_base(const GSERIALIZED *gs, const Temporal *temp, interpType interp);`
 - [x] `extern TInstant *tgeogpointinst_make(const GSERIALIZED *gs, TimestampTz t);`
 - [x] `extern TSequence *tgeogpointdiscseq_from_base_time(const GSERIALIZED *gs, const TimestampSet *ts);`
@@ -720,53 +720,53 @@
 
 ### Restriction functions for temporal types
 
-- [ ] `extern Temporal *tbool_at_value(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *tbool_at_values(const Temporal *temp, bool *values, int count);`
-- [ ] `extern Temporal *tbool_minus_value(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *tbool_minus_values(const Temporal *temp, bool *values, int count);`
-- [ ] `extern bool tbool_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, bool *value);`
-- [ ] `extern Temporal *temporal_at_max(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_at_min(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_at_period(const Temporal *temp, const Period *p);`
-- [ ] `extern Temporal *temporal_at_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern Temporal *temporal_at_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern Temporal *temporal_at_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern Temporal *temporal_minus_max(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_minus_min(const Temporal *temp);`
-- [ ] `extern Temporal *temporal_minus_period(const Temporal *temp, const Period *p);`
-- [ ] `extern Temporal *temporal_minus_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern Temporal *temporal_minus_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern Temporal *temporal_minus_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern Temporal *tfloat_at_value(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tfloat_at_values(const Temporal *temp, double *values, int count);`
-- [ ] `extern Temporal *tfloat_minus_value(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tfloat_minus_values(const Temporal *temp, double *values, int count);`
-- [ ] `extern bool tfloat_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, double *value);`
-- [ ] `extern Temporal *tint_at_value(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tint_at_values(const Temporal *temp, int *values, int count);`
-- [ ] `extern Temporal *tint_minus_value(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tint_minus_values(const Temporal *temp, int *values, int count);`
-- [ ] `extern bool tint_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, int *value);`
-- [ ] `extern Temporal *tnumber_at_span(const Temporal *temp, const Span *span);`
-- [ ] `extern Temporal *tnumber_at_spans(const Temporal *temp, Span **spans, int count);`
-- [ ] `extern Temporal *tnumber_at_tbox(const Temporal *temp, const TBOX *box);`
-- [ ] `extern Temporal *tnumber_minus_span(const Temporal *temp, const Span *span);`
-- [ ] `extern Temporal *tnumber_minus_spans(const Temporal *temp, Span **spans, int count);`
-- [ ] `extern Temporal *tnumber_minus_tbox(const Temporal *temp, const TBOX *box);`
-- [ ] `extern Temporal *tpoint_at_geometry(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *tpoint_at_stbox(const Temporal *temp, const STBOX *box);`
-- [ ] `extern Temporal *tpoint_at_value(const Temporal *temp, GSERIALIZED *gs);`
-- [ ] `extern Temporal *tpoint_at_values(const Temporal *temp, GSERIALIZED **values, int count);`
-- [ ] `extern Temporal *tpoint_minus_geometry(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *tpoint_minus_stbox(const Temporal *temp, const STBOX *box);`
-- [ ] `extern Temporal *tpoint_minus_value(const Temporal *temp, GSERIALIZED *gs);`
-- [ ] `extern Temporal *tpoint_minus_values(const Temporal *temp, GSERIALIZED **values, int count);`
-- [ ] `extern bool tpoint_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, GSERIALIZED **value);`
-- [ ] `extern Temporal *ttext_at_value(const Temporal *temp, text *txt);`
-- [ ] `extern Temporal *ttext_at_values(const Temporal *temp, text **values, int count);`
-- [ ] `extern Temporal *ttext_minus_value(const Temporal *temp, text *txt);`
-- [ ] `extern Temporal *ttext_minus_values(const Temporal *temp, text **values, int count);`
-- [ ] `extern bool ttext_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, text **value);`
+- [x] `extern Temporal *tbool_at_value(const Temporal *temp, bool b);`
+- [ ] `extern Temporal *tbool_at_values(const Temporal *temp, bool *values, int count);` Is it useful?
+- [x] `extern Temporal *tbool_minus_value(const Temporal *temp, bool b);`
+- [ ] `extern Temporal *tbool_minus_values(const Temporal *temp, bool *values, int count);` Is it useful?
+- [x] `extern bool tbool_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, bool *value);`
+- [x] `extern Temporal *temporal_at_max(const Temporal *temp);`
+- [x] `extern Temporal *temporal_at_min(const Temporal *temp);`
+- [x] `extern Temporal *temporal_at_period(const Temporal *temp, const Period *p);`
+- [x] `extern Temporal *temporal_at_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern Temporal *temporal_at_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern Temporal *temporal_at_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern Temporal *temporal_minus_max(const Temporal *temp);`
+- [x] `extern Temporal *temporal_minus_min(const Temporal *temp);`
+- [x] `extern Temporal *temporal_minus_period(const Temporal *temp, const Period *p);`
+- [x] `extern Temporal *temporal_minus_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern Temporal *temporal_minus_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern Temporal *temporal_minus_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern Temporal *tfloat_at_value(const Temporal *temp, double d);`
+- [x] `extern Temporal *tfloat_at_values(const Temporal *temp, double *values, int count);`
+- [x] `extern Temporal *tfloat_minus_value(const Temporal *temp, double d);`
+- [x] `extern Temporal *tfloat_minus_values(const Temporal *temp, double *values, int count);`
+- [x] `extern bool tfloat_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, double *value);`
+- [x] `extern Temporal *tint_at_value(const Temporal *temp, int i);`
+- [x] `extern Temporal *tint_at_values(const Temporal *temp, int *values, int count);`
+- [x] `extern Temporal *tint_minus_value(const Temporal *temp, int i);`
+- [x] `extern Temporal *tint_minus_values(const Temporal *temp, int *values, int count);`
+- [x] `extern bool tint_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, int *value);`
+- [x] `extern Temporal *tnumber_at_span(const Temporal *temp, const Span *span);`
+- [x] `extern Temporal *tnumber_at_spans(const Temporal *temp, Span **spans, int count);`
+- [x] `extern Temporal *tnumber_at_tbox(const Temporal *temp, const TBOX *box);`
+- [x] `extern Temporal *tnumber_minus_span(const Temporal *temp, const Span *span);`
+- [x] `extern Temporal *tnumber_minus_spans(const Temporal *temp, Span **spans, int count);`
+- [x] `extern Temporal *tnumber_minus_tbox(const Temporal *temp, const TBOX *box);`
+- [x] `extern Temporal *tpoint_at_geometry(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *tpoint_at_stbox(const Temporal *temp, const STBOX *box);`
+- [ ] `extern Temporal *tpoint_at_value(const Temporal *temp, GSERIALIZED *gs);` `tpoint_at_geometry` used instead
+- [x] `extern Temporal *tpoint_at_values(const Temporal *temp, GSERIALIZED **values, int count);`
+- [x] `extern Temporal *tpoint_minus_geometry(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *tpoint_minus_stbox(const Temporal *temp, const STBOX *box);`
+- [ ] `extern Temporal *tpoint_minus_value(const Temporal *temp, GSERIALIZED *gs);` `tpoint_minus_geometry` used instead
+- [x] `extern Temporal *tpoint_minus_values(const Temporal *temp, GSERIALIZED **values, int count);`
+- [x] `extern bool tpoint_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, GSERIALIZED **value);`
+- [x] `extern Temporal *ttext_at_value(const Temporal *temp, text *txt);`
+- [x] `extern Temporal *ttext_at_values(const Temporal *temp, text **values, int count);`
+- [x] `extern Temporal *ttext_minus_value(const Temporal *temp, text *txt);`
+- [x] `extern Temporal *ttext_minus_values(const Temporal *temp, text **values, int count);`
+- [x] `extern bool ttext_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, text **value);`
 
 
 
@@ -804,8 +804,9 @@
 - [ ] `extern Temporal *sub_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern Temporal *sub_tint_int(const Temporal *tnumber, int i);`
 - [ ] `extern Temporal *sub_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern Temporal *tnumber_degrees(const Temporal *temp);`
-- [ ] `extern Temporal *tnumber_derivative(const Temporal *temp);`
+- [ ] `extern Temporal *tfloat_degrees(const Temporal *temp);`
+- [ ] `extern Temporal *tfloat_radians(const Temporal *temp);`
+- [ ] `extern Temporal *tfloat_derivative(const Temporal *temp);`
 
 
 

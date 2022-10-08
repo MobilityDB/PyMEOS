@@ -48,7 +48,8 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
     temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
     temporal_minus_timestampset, temporal_to_tinstant, temporal_to_tsequence, temporal_to_tsequenceset, \
-    temporal_to_tdiscseq, temporal_append_tinstant, temporal_step_to_linear, temporal_merge, temporal_merge_array
+    temporal_to_tdiscseq, temporal_append_tinstant, temporal_step_to_linear, temporal_merge, temporal_merge_array, \
+    temporal_at_max, temporal_at_min, temporal_minus_max, temporal_minus_min
 
 from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
@@ -413,6 +414,16 @@ class Temporal(ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
+    def at_max(self) -> Temporal:
+        result = temporal_at_max(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def at_min(self) -> Temporal:
+        result = temporal_at_min(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
     def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Period):
             result = temporal_minus_period(self._inner, other._inner)
@@ -424,6 +435,16 @@ class Temporal(ABC):
             result = temporal_minus_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def minus_max(self) -> Temporal:
+        result = temporal_minus_max(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def minus_min(self) -> Temporal:
+        result = temporal_minus_min(self._inner)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 

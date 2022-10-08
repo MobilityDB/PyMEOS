@@ -33,7 +33,8 @@ from dateutil.parser import parse
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
-    ttextseqset_from_base_time, ttext_max_value, ttext_min_value
+    ttextseqset_from_base_time, ttext_max_value, ttext_min_value, ttext_at_value, ttext_at_values, ttext_minus_value, \
+    ttext_minus_values
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -48,6 +49,26 @@ class TText(Temporal, ABC):
     BaseClassDiscrete = True
 
     _parse_function = ttext_in
+
+    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, str):
+            result = ttext_at_value(self._inner, other)
+        elif isinstance(other, list):
+            result = ttext_at_values(self._inner, other)
+        else:
+            return super().at(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def minus(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        if isinstance(other, str):
+            result = ttext_minus_value(self._inner, other)
+        elif isinstance(other, list):
+            result = ttext_minus_values(self._inner, other)
+        else:
+            return super().minus(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     @staticmethod
     def from_base(value: str, base: Temporal) -> TText:
