@@ -784,29 +784,29 @@
 
 ### Mathematical functions for temporal types
 
-- [ ] `extern Temporal *add_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern Temporal *add_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern Temporal *add_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern Temporal *add_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern Temporal *add_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern Temporal *div_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern Temporal *div_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern Temporal *div_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern Temporal *div_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern Temporal *div_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern Temporal *mult_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern Temporal *mult_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern Temporal *mult_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern Temporal *mult_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern Temporal *mult_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern Temporal *sub_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern Temporal *sub_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern Temporal *sub_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern Temporal *sub_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern Temporal *sub_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern Temporal *tfloat_degrees(const Temporal *temp);`
-- [ ] `extern Temporal *tfloat_radians(const Temporal *temp);`
-- [ ] `extern Temporal *tfloat_derivative(const Temporal *temp);`
+- [x] `extern Temporal *add_float_tfloat(double d, const Temporal *tnumber);`
+- [x] `extern Temporal *add_int_tint(int i, const Temporal *tnumber);`
+- [x] `extern Temporal *add_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern Temporal *add_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern Temporal *add_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern Temporal *div_float_tfloat(double d, const Temporal *tnumber);`
+- [x] `extern Temporal *div_int_tint(int i, const Temporal *tnumber);`
+- [x] `extern Temporal *div_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern Temporal *div_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern Temporal *div_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern Temporal *mult_float_tfloat(double d, const Temporal *tnumber);`
+- [x] `extern Temporal *mult_int_tint(int i, const Temporal *tnumber);`
+- [x] `extern Temporal *mult_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern Temporal *mult_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern Temporal *mult_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern Temporal *sub_float_tfloat(double d, const Temporal *tnumber);`
+- [x] `extern Temporal *sub_int_tint(int i, const Temporal *tnumber);`
+- [x] `extern Temporal *sub_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern Temporal *sub_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern Temporal *sub_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern Temporal *tfloat_degrees(const Temporal *temp);`
+- [x] `extern Temporal *tfloat_radians(const Temporal *temp);`
+- [x] `extern Temporal *tfloat_derivative(const Temporal *temp);`
 
 
 

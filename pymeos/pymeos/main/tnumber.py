@@ -9,7 +9,8 @@ from pymeos_cffi import tnumber_integral, tnumber_twavg, tnumber_at_span, intran
 from pymeos_cffi.functions import add_tint_int, add_tfloat_float, add_tnumber_tnumber, div_tint_int, div_tfloat_float, \
     div_tnumber_tnumber, sub_tnumber_tnumber, sub_tfloat_float, sub_tint_int, mult_tint_int, mult_tfloat_float, \
     mult_tnumber_tnumber, tnumber_minus_span, tnumber_minus_spans, \
-    tnumber_minus_tbox
+    tnumber_minus_tbox, add_int_tint, add_float_tfloat, sub_float_tfloat, sub_int_tint, mult_int_tint, \
+    mult_float_tfloat, div_float_tfloat, div_int_tint
 from spans import intrange, floatrange
 
 from ..temporal import Temporal
@@ -61,46 +62,92 @@ class TNumber(Temporal, ABC):
         return _TemporalFactory.create_temporal(result)
 
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
-        from ..factory import _TemporalFactory
         if isinstance(other, int):
-            return _TemporalFactory.create_temporal(add_tint_int(self._inner, other))
+            result = add_tint_int(self._inner, other)
         elif isinstance(other, float):
-            return _TemporalFactory.create_temporal(add_tfloat_float(self._inner, other))
+            result = add_tfloat_float(self._inner, other)
         elif isinstance(other, TNumber):
-            return _TemporalFactory.create_temporal(add_tnumber_tnumber(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = add_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
-    # def radd(self, other:):
+    def radd(self, other: Union[int, float]):
+        if isinstance(other, int):
+            result = add_int_tint(other, self._inner)
+        elif isinstance(other, float):
+            result = add_float_tfloat(other, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def sub(self, other: Union[int, float, TNumber]) -> TNumber:
-        from ..factory import _TemporalFactory
         if isinstance(other, int):
-            return _TemporalFactory.create_temporal(sub_tint_int(self._inner, other))
+            result = sub_tint_int(self._inner, other)
         elif isinstance(other, float):
-            return _TemporalFactory.create_temporal(sub_tfloat_float(self._inner, other))
+            result = sub_tfloat_float(self._inner, other)
         elif isinstance(other, TNumber):
-            return _TemporalFactory.create_temporal(sub_tnumber_tnumber(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = sub_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def rsub(self, other: Union[int, float]):
+        if isinstance(other, int):
+            result = sub_int_tint(other, self._inner)
+        elif isinstance(other, float):
+            result = sub_float_tfloat(other, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def mul(self, other: Union[int, float, TNumber]) -> TNumber:
-        from ..factory import _TemporalFactory
         if isinstance(other, int):
-            return _TemporalFactory.create_temporal(mult_tint_int(self._inner, other))
+            result = mult_tint_int(self._inner, other)
         elif isinstance(other, float):
-            return _TemporalFactory.create_temporal(mult_tfloat_float(self._inner, other))
+            result = mult_tfloat_float(self._inner, other)
         elif isinstance(other, TNumber):
-            return _TemporalFactory.create_temporal(mult_tnumber_tnumber(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = mult_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def rmul(self, other: Union[int, float]):
+        if isinstance(other, int):
+            result = mult_int_tint(other, self._inner)
+        elif isinstance(other, float):
+            result = mult_float_tfloat(other, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def div(self, other: Union[int, float, TNumber]) -> TNumber:
-        from ..factory import _TemporalFactory
         if isinstance(other, int):
-            return _TemporalFactory.create_temporal(div_tint_int(self._inner, other))
+            result = div_tint_int(self._inner, other)
         elif isinstance(other, float):
-            return _TemporalFactory.create_temporal(div_tfloat_float(self._inner, other))
+            result = div_tfloat_float(self._inner, other)
         elif isinstance(other, TNumber):
-            return _TemporalFactory.create_temporal(div_tnumber_tnumber(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = div_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def rdiv(self, other: Union[int, float]):
+        if isinstance(other, int):
+            result = div_int_tint(other, self._inner)
+        elif isinstance(other, float):
+            result = div_float_tfloat(other, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def integral(self) -> float:
         return tnumber_integral(self._inner)
@@ -111,11 +158,23 @@ class TNumber(Temporal, ABC):
     def __add__(self, other):
         return self.add(other)
 
+    def __radd__(self, other):
+        return self.radd(other)
+
     def __sub__(self, other):
         return self.sub(other)
+
+    def __rsub__(self, other):
+        return self.rsub(other)
 
     def __mul__(self, other):
         return self.mul(other)
 
+    def __rmul__(self, other):
+        return self.rmul(other)
+
     def __truediv__(self, other):
         return self.div(other)
+
+    def __rtruediv__(self, other):
+        return self.rdiv(other)
