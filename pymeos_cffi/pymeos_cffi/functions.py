@@ -5,8 +5,9 @@ import _meos_cffi
 import shapely.geometry as spg
 from dateutil.parser import parse
 from postgis import Point
-from shapely.wkt import loads
 from shapely.geometry.base import BaseGeometry
+from shapely.wkt import loads
+from spans.types import floatrange, intrange
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -47,6 +48,22 @@ def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
 
 def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int) -> BaseGeometry:
     return loads(gserialized_as_text(geom, 5))
+
+
+def intrange_to_intspan(irange: intrange) -> 'Span *':
+    return intspan_make(irange.lower, irange.upper, irange.lower_inc, irange.upper_inc)
+
+
+def intspan_to_intrange(ispan: 'Span *') -> intrange:
+    return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
+    
+
+def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
+    return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
+
+
+def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
+    return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
 
 
 def text2cstring(textptr: 'text *') -> str:
@@ -4577,15 +4594,21 @@ def sub_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal 
     return result if result != _ffi.NULL else None
 
 
-def tnumber_degrees(temp: 'const Temporal *') -> 'Temporal *':
+def tfloat_degrees(temp: 'const Temporal *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.tnumber_degrees(temp_converted)
+    result = _lib.tfloat_degrees(temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tnumber_derivative(temp: 'const Temporal *') -> 'Temporal *':
+def tfloat_radians(temp: 'const Temporal *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.tnumber_derivative(temp_converted)
+    result = _lib.tfloat_radians(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_derivative(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tfloat_derivative(temp_converted)
     return result if result != _ffi.NULL else None
 
 

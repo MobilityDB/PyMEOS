@@ -1206,7 +1206,6 @@ extern char *ttext_out(const Temporal *temp);
 
 extern Temporal *tbool_from_base(bool b, const Temporal *temp);
 extern TInstant *tboolinst_make(bool b, TimestampTz t);
-
 extern TSequence *tbooldiscseq_from_base_time(bool b, const TimestampSet *ts);
 extern TSequence *tboolseq_from_base(bool b, const TSequence *seq);
 extern TSequence *tboolseq_from_base_time(bool b, const Period *p);
@@ -1418,8 +1417,9 @@ extern Temporal *sub_int_tint(int i, const Temporal *tnumber);
 extern Temporal *sub_tfloat_float(const Temporal *tnumber, double d);
 extern Temporal *sub_tint_int(const Temporal *tnumber, int i);
 extern Temporal *sub_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
-extern Temporal *tnumber_degrees(const Temporal *temp);
-extern Temporal *tnumber_derivative(const Temporal *temp);
+extern Temporal *tfloat_degrees(const Temporal *temp);
+extern Temporal *tfloat_radians(const Temporal *temp);
+extern Temporal *tfloat_derivative(const Temporal *temp);
 
 
 
