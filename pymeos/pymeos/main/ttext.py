@@ -34,7 +34,7 @@ from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestam
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
     ttextseqset_from_base_time, ttext_max_value, ttext_min_value, ttext_at_value, ttext_at_values, ttext_minus_value, \
-    ttext_minus_values
+    ttext_minus_values, textcat_text_ttext
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -115,15 +115,22 @@ class TText(Temporal, ABC):
     def lower(self) -> TText:
         return self.__class__(_inner=ttext_lower(self._inner))
 
-    def concatenate(self, other: Union[str, TText]):
+    def concatenate(self, other: Union[str, TText], other_before: bool = False):
         if isinstance(other, str):
-            return self.__class__(_inner=textcat_ttext_text(self._inner, other))
+            result = textcat_ttext_text(self._inner, other) if not other_before \
+                else textcat_text_ttext(other, self._inner)
         elif isinstance(other, TText):
-            return self.__class__(_inner=textcat_ttext_ttext(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = textcat_ttext_ttext(self._inner, other._inner) if not other_before \
+                else textcat_ttext_ttext(other._inner, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.__class__(_inner=result)
 
     def __add__(self, other):
         return self.concatenate(other)
+
+    def __radd__(self, other):
+        return self.concatenate(other, True)
 
     def value_at_timestamp(self, timestamp):
         """

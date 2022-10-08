@@ -813,11 +813,11 @@
 
 ### Text functions for temporal types
 
-- [ ] `extern Temporal *textcat_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *textcat_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *textcat_ttext_ttext(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *ttext_upper(const Temporal *temp);`
-- [ ] `extern Temporal *ttext_lower(const Temporal *temp);`
+- [x] `extern Temporal *textcat_text_ttext(const text *txt, const Temporal *temp);`
+- [x] `extern Temporal *textcat_ttext_text(const Temporal *temp, const text *txt);`
+- [x] `extern Temporal *textcat_ttext_ttext(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern Temporal *ttext_upper(const Temporal *temp);`
+- [x] `extern Temporal *ttext_lower(const Temporal *temp);`
 
 ## Bounding box functions for temporal types
  
