@@ -34,7 +34,8 @@ from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestam
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
     ttextseqset_from_base_time, ttext_max_value, ttext_min_value, ttext_at_value, ttext_at_values, ttext_minus_value, \
-    ttext_minus_values, textcat_text_ttext
+    ttext_minus_values, textcat_text_ttext, ttext_always_lt, ttext_always_le, ttext_always_eq, ttext_ever_eq, \
+    ttext_ever_lt, ttext_ever_le
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -125,6 +126,60 @@ class TText(Temporal, ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return self.__class__(_inner=result)
+
+    def always_less(self, value: str) -> bool:
+        return ttext_always_lt(self._inner, value)
+
+    def always_less_or_equal(self, value: str) -> bool:
+        return ttext_always_le(self._inner, value)
+
+    def always_equal(self, value: str) -> bool:
+        return ttext_always_eq(self._inner, value)
+
+    def always_not_equal(self, value: str) -> bool:
+        return not ttext_ever_eq(self._inner, value)
+
+    def always_greater_or_equal(self, value: str) -> bool:
+        return not ttext_ever_lt(self._inner, value)
+
+    def always_greater(self, value: str) -> bool:
+        return not ttext_ever_le(self._inner, value)
+
+    def ever_less(self, value: str) -> bool:
+        return ttext_ever_lt(self._inner, value)
+
+    def ever_less_or_equal(self, value: str) -> bool:
+        return ttext_ever_le(self._inner, value)
+
+    def ever_equal(self, value: str) -> bool:
+        return ttext_ever_eq(self._inner, value)
+
+    def ever_not_equal(self, value: str) -> bool:
+        return not ttext_always_eq(self._inner, value)
+
+    def ever_greater_or_equal(self, value: str) -> bool:
+        return not ttext_always_lt(self._inner, value)
+
+    def ever_greater(self, value: str) -> bool:
+        return not ttext_always_le(self._inner, value)
+
+    def never_less(self, value: str) -> bool:
+        return not ttext_ever_lt(self._inner, value)
+
+    def never_less_or_equal(self, value: str) -> bool:
+        return not ttext_ever_le(self._inner, value)
+
+    def never_equal(self, value: str) -> bool:
+        return not ttext_ever_eq(self._inner, value)
+
+    def never_not_equal(self, value: str) -> bool:
+        return ttext_always_eq(self._inner, value)
+
+    def never_greater_or_equal(self, value: str) -> bool:
+        return ttext_always_lt(self._inner, value)
+
+    def never_greater(self, value: str) -> bool:
+        return ttext_always_le(self._inner, value)
 
     def __add__(self, other):
         return self.concatenate(other)

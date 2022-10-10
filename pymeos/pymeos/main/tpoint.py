@@ -49,7 +49,8 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     contained_tpoint_stbox, contained_tpoint_tpoint, contains_tpoint_tpoint, contains_tpoint_stbox, contains_tpoint_geo, \
     overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, same_tpoint_tpoint, same_tpoint_stbox, \
     same_tpoint_geo, distance_tpoint_geo, distance_tpoint_tpoint, nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint, \
-    nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo, tpoint_twcentroid
+    nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo, tpoint_twcentroid, \
+    tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -354,6 +355,30 @@ class TGeomPoint(TPoint, ABC):
             return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_time(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
+    def always_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeompoint_always_eq(self._inner, gs)
+
+    def always_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeompoint_ever_eq(self._inner, gs)
+
+    def ever_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeompoint_ever_eq(self._inner, gs)
+
+    def ever_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeompoint_always_eq(self._inner, gs)
+
+    def never_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeompoint_ever_eq(self._inner, gs)
+
+    def never_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeompoint_always_eq(self._inner, gs)
+
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
@@ -412,6 +437,30 @@ class TGeogPoint(TPoint, ABC):
         elif isinstance(base, PeriodSet):
             return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_time(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
+
+    def always_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeogpoint_always_eq(self._inner, gs)
+
+    def always_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeogpoint_ever_eq(self._inner, gs)
+
+    def ever_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeogpoint_ever_eq(self._inner, gs)
+
+    def ever_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeogpoint_always_eq(self._inner, gs)
+
+    def never_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return not tgeogpoint_ever_eq(self._inner, gs)
+
+    def never_not_equal(self, value: Geometry) -> bool:
+        gs = gserialized_in(value.to_ewkb(), -1)
+        return tgeogpoint_always_eq(self._inner, gs)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

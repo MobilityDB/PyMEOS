@@ -35,7 +35,8 @@ from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_
     tint_start_value, tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, \
     tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
     tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
-    overlaps_tint_int, same_tint_int, nad_tint_int
+    overlaps_tint_int, same_tint_int, nad_tint_int, tint_always_le, tint_always_lt, tint_always_eq, tint_ever_eq, \
+    tint_ever_le, tint_ever_lt
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
@@ -95,6 +96,60 @@ class TInt(TNumber, ABC):
             return same_tint_int(self._inner, other)
         else:
             return super().is_same(other)
+
+    def always_less(self, value: int) -> bool:
+        return tint_always_lt(self._inner, value)
+
+    def always_less_or_equal(self, value: int) -> bool:
+        return tint_always_le(self._inner, value)
+
+    def always_equal(self, value: int) -> bool:
+        return tint_always_eq(self._inner, value)
+
+    def always_not_equal(self, value: int) -> bool:
+        return not tint_ever_eq(self._inner, value)
+
+    def always_greater_or_equal(self, value: int) -> bool:
+        return not tint_ever_lt(self._inner, value)
+
+    def always_greater(self, value: int) -> bool:
+        return not tint_ever_le(self._inner, value)
+
+    def ever_less(self, value: int) -> bool:
+        return tint_ever_lt(self._inner, value)
+
+    def ever_less_or_equal(self, value: int) -> bool:
+        return tint_ever_le(self._inner, value)
+
+    def ever_equal(self, value: int) -> bool:
+        return tint_ever_eq(self._inner, value)
+
+    def ever_not_equal(self, value: int) -> bool:
+        return not tint_always_eq(self._inner, value)
+
+    def ever_greater_or_equal(self, value: int) -> bool:
+        return not tint_always_lt(self._inner, value)
+
+    def ever_greater(self, value: int) -> bool:
+        return not tint_always_le(self._inner, value)
+
+    def never_less(self, value: int) -> bool:
+        return not tint_ever_lt(self._inner, value)
+
+    def never_less_or_equal(self, value: int) -> bool:
+        return not tint_ever_le(self._inner, value)
+
+    def never_equal(self, value: int) -> bool:
+        return not tint_ever_eq(self._inner, value)
+
+    def never_not_equal(self, value: int) -> bool:
+        return tint_always_eq(self._inner, value)
+
+    def never_greater_or_equal(self, value: int) -> bool:
+        return tint_always_lt(self._inner, value)
+
+    def never_greater(self, value: int) -> bool:
+        return tint_always_le(self._inner, value)
 
     def at(self, other: Union[int, List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,

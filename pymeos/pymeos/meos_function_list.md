@@ -1130,30 +1130,30 @@
 
 ### Ever/always functions for temporal types
 
-- [ ] `extern bool tbool_always_eq(const Temporal *temp, bool b);`
-- [ ] `extern bool tbool_ever_eq(const Temporal *temp, bool b);`
-- [ ] `extern bool tfloat_always_eq(const Temporal *temp, double d);`
-- [ ] `extern bool tfloat_always_le(const Temporal *temp, double d);`
-- [ ] `extern bool tfloat_always_lt(const Temporal *temp, double d);`
-- [ ] `extern bool tfloat_ever_eq(const Temporal *temp, double d);`
-- [ ] `extern bool tfloat_ever_le(const Temporal *temp, double d);`
-- [ ] `extern bool tfloat_ever_lt(const Temporal *temp, double d);`
-- [ ] `extern bool tgeogpoint_always_eq(const Temporal *temp, GSERIALIZED *gs);`;`
-- [ ] `extern bool tgeogpoint_ever_eq(const Temporal *temp, GSERIALIZED *gs);`;`
-- [ ] `extern bool tgeompoint_always_eq(const Temporal *temp, GSERIALIZED *gs);`
-- [ ] `extern bool tgeompoint_ever_eq(const Temporal *temp, GSERIALIZED *gs);`;`
-- [ ] `extern bool tint_always_eq(const Temporal *temp, int i);`
-- [ ] `extern bool tint_always_le(const Temporal *temp, int i);`
-- [ ] `extern bool tint_always_lt(const Temporal *temp, int i);`
-- [ ] `extern bool tint_ever_eq(const Temporal *temp, int i);`
-- [ ] `extern bool tint_ever_le(const Temporal *temp, int i);`
-- [ ] `extern bool tint_ever_lt(const Temporal *temp, int i);`
-- [ ] `extern bool ttext_always_eq(const Temporal *temp, text *txt);`
-- [ ] `extern bool ttext_always_le(const Temporal *temp, text *txt);`
-- [ ] `extern bool ttext_always_lt(const Temporal *temp, text *txt);`
-- [ ] `extern bool ttext_ever_eq(const Temporal *temp, text *txt);`
-- [ ] `extern bool ttext_ever_le(const Temporal *temp, text *txt);`
-- [ ] `extern bool ttext_ever_lt(const Temporal *temp, text *txt);`
+- [x] `extern bool tbool_always_eq(const Temporal *temp, bool b);`
+- [x] `extern bool tbool_ever_eq(const Temporal *temp, bool b);`
+- [x] `extern bool tfloat_always_eq(const Temporal *temp, double d);`
+- [x] `extern bool tfloat_always_le(const Temporal *temp, double d);`
+- [x] `extern bool tfloat_always_lt(const Temporal *temp, double d);`
+- [x] `extern bool tfloat_ever_eq(const Temporal *temp, double d);`
+- [x] `extern bool tfloat_ever_le(const Temporal *temp, double d);`
+- [x] `extern bool tfloat_ever_lt(const Temporal *temp, double d);`
+- [x] `extern bool tgeogpoint_always_eq(const Temporal *temp, GSERIALIZED *gs);`;`
+- [x] `extern bool tgeogpoint_ever_eq(const Temporal *temp, GSERIALIZED *gs);`;`
+- [x] `extern bool tgeompoint_always_eq(const Temporal *temp, GSERIALIZED *gs);`
+- [x] `extern bool tgeompoint_ever_eq(const Temporal *temp, GSERIALIZED *gs);`;`
+- [x] `extern bool tint_always_eq(const Temporal *temp, int i);`
+- [x] `extern bool tint_always_le(const Temporal *temp, int i);`
+- [x] `extern bool tint_always_lt(const Temporal *temp, int i);`
+- [x] `extern bool tint_ever_eq(const Temporal *temp, int i);`
+- [x] `extern bool tint_ever_le(const Temporal *temp, int i);`
+- [x] `extern bool tint_ever_lt(const Temporal *temp, int i);`
+- [x] `extern bool ttext_always_eq(const Temporal *temp, text *txt);`
+- [x] `extern bool ttext_always_le(const Temporal *temp, text *txt);`
+- [x] `extern bool ttext_always_lt(const Temporal *temp, text *txt);`
+- [x] `extern bool ttext_ever_eq(const Temporal *temp, text *txt);`
+- [x] `extern bool ttext_ever_le(const Temporal *temp, text *txt);`
+- [x] `extern bool ttext_ever_lt(const Temporal *temp, text *txt);`
 
 
 

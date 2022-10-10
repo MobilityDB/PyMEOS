@@ -31,12 +31,13 @@ from typing import Optional, List, Union, TYPE_CHECKING
 
 from dateutil.parser import parse
 from pymeos_cffi import tfloat_to_tint, tnumber_to_span, tfloat_min_value, \
-    tfloat_max_value, tfloat_spans, adjacent_tfloat_float
+    tfloat_max_value, tfloat_spans, adjacent_tfloat_float, tfloat_ever_eq
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
     datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
     tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time, tfloat_minus_value, \
     tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
-    contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float
+    contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float, tfloat_always_lt, \
+    tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
@@ -96,6 +97,60 @@ class TFloat(TNumber, ABC):
             return same_tfloat_float(self._inner, float(other))
         else:
             return super().is_same(other)
+
+    def always_less(self, value: float) -> bool:
+        return tfloat_always_lt(self._inner, value)
+
+    def always_less_or_equal(self, value: float) -> bool:
+        return tfloat_always_le(self._inner, value)
+
+    def always_equal(self, value: float) -> bool:
+        return tfloat_always_eq(self._inner, value)
+
+    def always_not_equal(self, value: float) -> bool:
+        return not tfloat_ever_eq(self._inner, value)
+
+    def always_greater_or_equal(self, value: float) -> bool:
+        return not tfloat_ever_lt(self._inner, value)
+
+    def always_greater(self, value: float) -> bool:
+        return not tfloat_ever_le(self._inner, value)
+
+    def ever_less(self, value: float) -> bool:
+        return tfloat_ever_lt(self._inner, value)
+
+    def ever_less_or_equal(self, value: float) -> bool:
+        return tfloat_ever_le(self._inner, value)
+
+    def ever_equal(self, value: float) -> bool:
+        return tfloat_ever_eq(self._inner, value)
+
+    def ever_not_equal(self, value: float) -> bool:
+        return not tfloat_always_eq(self._inner, value)
+
+    def ever_greater_or_equal(self, value: float) -> bool:
+        return not tfloat_always_lt(self._inner, value)
+
+    def ever_greater(self, value: float) -> bool:
+        return not tfloat_always_le(self._inner, value)
+
+    def never_less(self, value: float) -> bool:
+        return not tfloat_ever_lt(self._inner, value)
+
+    def never_less_or_equal(self, value: float) -> bool:
+        return not tfloat_ever_le(self._inner, value)
+
+    def never_equal(self, value: float) -> bool:
+        return not tfloat_ever_eq(self._inner, value)
+
+    def never_not_equal(self, value: float) -> bool:
+        return tfloat_always_eq(self._inner, value)
+
+    def never_greater_or_equal(self, value: float) -> bool:
+        return tfloat_always_lt(self._inner, value)
+
+    def never_greater(self, value: float) -> bool:
+        return tfloat_always_le(self._inner, value)
 
     def at(self, other: Union[int, float, List[float], List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,

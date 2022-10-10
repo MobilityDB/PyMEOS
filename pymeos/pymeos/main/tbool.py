@@ -118,6 +118,9 @@ class TBool(Temporal, ABC):
     def ever(self, value: bool) -> bool:
         return tbool_ever_eq(self._inner, value)
 
+    def never(self, value: bool) -> bool:
+        return not tbool_ever_eq(self._inner, value)
+
     def tnot(self) -> TBool:
         return self.__class__(_inner=tnot_tbool(self._inner))
 
