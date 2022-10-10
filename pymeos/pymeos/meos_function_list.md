@@ -1275,10 +1275,10 @@
 
 ### Time functions for temporal types
 
-- [ ] `extern bool temporal_intersects_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool temporal_intersects_timestampset(const Temporal *temp, const TimestampSet *ss);`
+- [x] `extern bool temporal_intersects_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool temporal_intersects_timestampset(const Temporal *temp, const TimestampSet *ss);`
 
 
 
