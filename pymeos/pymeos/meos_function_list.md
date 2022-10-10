@@ -1284,9 +1284,9 @@
 
 ### Local aggregate functions for temporal types
 
-- [ ] `extern double tnumber_integral(const Temporal *temp);`
-- [ ] `extern double tnumber_twavg(const Temporal *temp);`
-- [ ] `extern GSERIALIZED *tpoint_twcentroid(const Temporal *temp);`
+- [x] `extern double tnumber_integral(const Temporal *temp);`
+- [x] `extern double tnumber_twavg(const Temporal *temp);`
+- [x] `extern GSERIALIZED *tpoint_twcentroid(const Temporal *temp);`
 
 
 
