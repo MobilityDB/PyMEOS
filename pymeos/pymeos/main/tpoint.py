@@ -48,7 +48,8 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     gserialized_to_shapely_geometry, tpoint_minus_values, tpoint_minus_stbox, contained_tpoint_geo, \
     contained_tpoint_stbox, contained_tpoint_tpoint, contains_tpoint_tpoint, contains_tpoint_stbox, contains_tpoint_geo, \
     overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, same_tpoint_tpoint, same_tpoint_stbox, \
-    same_tpoint_geo
+    same_tpoint_geo, distance_tpoint_geo, distance_tpoint_tpoint, nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint, \
+    nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -187,6 +188,49 @@ class TPoint(Temporal, ABC):
             return super().minus(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
+
+    def distance(self, other: Union[Geometry, TPoint]) -> TPoint:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = distance_tpoint_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            result = distance_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return nad_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return nad_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return nad_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def nearest_approach_instant(self, other: Union[Geometry, TPoint]) -> TPoint:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = nai_tpoint_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            result = nai_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def shortest_line(self, other: Union[Geometry, TPoint]) -> BaseGeometry:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = shortestline_tpoint_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            result = shortestline_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return gserialized_to_shapely_geometry(result[0], 10)
 
     def as_geojson(self, option: int = 1, precision: int = 6, srs: Optional[str] = None) -> str:
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)

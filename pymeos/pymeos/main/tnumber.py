@@ -15,7 +15,8 @@ from pymeos_cffi.functions import add_tint_int, add_tfloat_float, add_tnumber_tn
     contains_tnumber_tbox, contains_tnumber_tnumber, contains_tnumber_span, left_tint_int, left_tfloat_float, \
     overlaps_tnumber_span, overlaps_tnumber_tnumber, overlaps_tnumber_tbox, overleft_tint_int, overleft_tfloat_float, \
     overright_tint_int, overright_tfloat_float, right_tint_int, right_tfloat_float, same_tnumber_span, \
-    same_tnumber_tnumber, same_tnumber_tbox
+    same_tnumber_tnumber, same_tnumber_tbox, distance_tint_int, distance_tfloat_float, distance_tnumber_tnumber, \
+    nad_tfloat_float, nad_tnumber_tbox, nad_tfloat_tfloat
 from spans import intrange, floatrange
 
 from ..temporal import Temporal
@@ -162,6 +163,31 @@ class TNumber(Temporal, ABC):
             return super().minus(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
+
+    def distance(self, other: Union[int, float, TNumber]) -> TNumber:
+        if isinstance(other, int):
+            result = distance_tfloat_float(self._inner, float(other))
+        elif isinstance(other, float):
+            result = distance_tfloat_float(self._inner, other)
+        elif isinstance(other, TNumber):
+            result = distance_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+        if isinstance(other, int):
+            return nad_tfloat_float(self._inner, float(other))
+        elif isinstance(other, float):
+            return nad_tfloat_float(self._inner, other)
+        elif isinstance(other, TNumber):
+            return nad_tfloat_tfloat(self._inner, other._inner)
+        elif isinstance(other, TBox):
+            return nad_tnumber_tbox(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
 
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         if isinstance(other, int):

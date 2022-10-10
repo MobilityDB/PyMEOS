@@ -30,12 +30,12 @@ from datetime import datetime
 from typing import Optional, Union, List, TYPE_CHECKING
 
 from dateutil.parser import parse
-from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange
+from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange, nad_tint_tint
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, tint_values, \
     tint_start_value, tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, \
     tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
     tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
-    overlaps_tint_int, same_tint_int
+    overlaps_tint_int, same_tint_int, nad_tint_int
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
@@ -120,7 +120,15 @@ class TInt(TNumber, ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def to_tint(self) -> TFloat:
+    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+        if isinstance(other, int):
+            return nad_tint_int(self._inner, other)
+        elif isinstance(other, TInt):
+            return nad_tint_tint(self._inner, other._inner)
+        else:
+            return super(TInt, self).nearest_approach_distance(other)
+
+    def to_tfloat(self) -> TFloat:
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
 

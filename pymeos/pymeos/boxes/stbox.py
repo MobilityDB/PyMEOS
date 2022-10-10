@@ -43,7 +43,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
     geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, stbox_ne, \
     gserialized_to_shapely_geometry, contained_stbox_tpoint, contains_stbox_tpoint, overlaps_stbox_tpoint, \
-    same_stbox_tpoint
+    same_stbox_tpoint, nad_stbox_geo, nad_stbox_stbox
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
@@ -389,6 +389,15 @@ class STBox:
 
     def is_over_or_after(self, other: STBox) -> bool:
         return overafter_stbox_stbox(self._inner, other._inner)
+
+    def nearest_approach_distance(self, other: Union[Geometry, STBox]) -> float:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return nad_stbox_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return nad_stbox_stbox(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __add__(self, other):
         return self.union(other)
