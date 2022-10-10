@@ -539,7 +539,7 @@ class Temporal(ABC):
 
     def frechet_path(self, other: Temporal) -> List[Tuple[int, int]]:
         """
-        Compute the Frechet path between two temporal values.
+        Compute the  between two temporal values.
         """
         matches, count = temporal_frechet_path(self._inner, other._inner)
         return [(matches[i].i, matches[i].j) for i in range(count)]
