@@ -31,7 +31,7 @@ from typing import Optional, Union
 
 from dateutil.parser import parse
 from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
-    tbox_to_period
+    tbox_to_period, adjacent_tbox_tnumber
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
@@ -40,7 +40,7 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
     intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
     float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
-    tbox_ne
+    tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber
 from spans import intrange, floatrange
 
 from ..main import TNumber
@@ -241,20 +241,45 @@ class TBox:
         result = intersection_tbox_tbox(self._inner, other._inner)
         return TBox(_inner=result) if result else None
 
-    def is_adjacent(self, container: TBox) -> bool:
-        return adjacent_tbox_tbox(self._inner, container._inner)
+    def is_adjacent(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return adjacent_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return adjacent_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: TBox) -> bool:
-        return contained_tbox_tbox(self._inner, container._inner)
+    def is_contained_in(self, container: Union[TBox, TNumber]) -> bool:
+        if isinstance(container, TBox):
+            return contained_tbox_tbox(self._inner, container._inner)
+        elif isinstance(container, TNumber):
+            return contained_tbox_tnumber(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: TBox) -> bool:
-        return contains_tbox_tbox(self._inner, content._inner)
+    def contains(self, content: Union[TBox, TNumber]) -> bool:
+        if isinstance(content, TBox):
+            return contains_tbox_tbox(self._inner, content._inner)
+        elif isinstance(content, TNumber):
+            return contains_tbox_tnumber(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, content: TBox) -> bool:
-        return overlaps_tbox_tbox(self._inner, content._inner)
+    def overlaps(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overlaps_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overlaps_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, content: TBox) -> bool:
-        return same_tbox_tbox(self._inner, content._inner)
+    def is_same(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return same_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return same_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_left(self, content: TBox) -> bool:
         return left_tbox_tbox(self._inner, content._inner)

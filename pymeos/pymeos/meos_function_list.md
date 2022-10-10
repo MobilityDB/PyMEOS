@@ -824,137 +824,137 @@
 
 ### Topological functions for temporal types
 
-- [ ] `extern bool adjacent_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool adjacent_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool adjacent_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool adjacent_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool adjacent_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool adjacent_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool adjacent_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool adjacent_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool adjacent_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool adjacent_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool adjacent_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool adjacent_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool adjacent_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool adjacent_tfloat_float(const Temporal *tnumber, double d);`
+- [ ] `extern bool adjacent_float_tfloat(double d, const Temporal *tnumber);` `adjacent_tfloat_float` used instead
+- [ ] `extern bool adjacent_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `adjacent_tpoint_geo` used instead
+- [ ] `extern bool adjacent_int_tint(int i, const Temporal *tnumber);` `adjacent_tint_int` used instead
+- [x] `extern bool adjacent_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool adjacent_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [ ] `extern bool adjacent_span_tnumber(const Span *span, const Temporal *tnumber);` `adjacent_tnumber_span` used instead
+- [x] `extern bool adjacent_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool adjacent_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool adjacent_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool adjacent_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool adjacent_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool adjacent_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool adjacent_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern bool adjacent_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern bool adjacent_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool adjacent_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool adjacent_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool adjacent_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool adjacent_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool adjacent_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool adjacent_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool adjacent_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool adjacent_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool contained_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool contained_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool contained_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool contained_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool contained_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool contained_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool contained_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool contained_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool contained_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool contained_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool contained_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool contained_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool contained_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool contained_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool adjacent_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool adjacent_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern bool adjacent_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool adjacent_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool adjacent_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool adjacent_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool adjacent_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool adjacent_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool contained_float_tfloat(double d, const Temporal *tnumber);` `contains_tfloat_float` used instead 
+- [ ] `extern bool contained_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `contains_tpoint_geo` used instead 
+- [ ] `extern bool contained_int_tint(int i, const Temporal *tnumber);` `contains_tint_int` used instead 
+- [x] `extern bool contained_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool contained_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [ ] `extern bool contained_span_tnumber(const Span *span, const Temporal *tnumber);` `contains_tnumber_span` used instead 
+- [x] `extern bool contained_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool contained_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool contained_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool contained_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool contained_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool contained_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool contained_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern bool contained_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern bool contained_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool contained_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool contained_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool contained_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool contained_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool contained_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool contained_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool contained_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool contained_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool contains_bbox_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool contains_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool contains_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool contains_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool contains_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool contains_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool contains_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool contains_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool contains_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool contains_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool contains_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool contains_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool contains_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool contains_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool contained_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool contained_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern bool contained_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool contained_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool contained_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool contained_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool contained_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool contained_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool contains_bbox_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `contained_tpoint_geo` used omstead
+- [ ] `extern bool contains_float_tfloat(double d, const Temporal *tnumber);` `contained_tfloat_float` used instead
+- [ ] `extern bool contains_int_tint(int i, const Temporal *tnumber);` `contained_tint_int` used instead
+- [x] `extern bool contains_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool contains_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [ ] `extern bool contains_span_tnumber(const Span *span, const Temporal *tnumber);` `contained_tnumber_span` used instead
+- [x] `extern bool contains_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool contains_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool contains_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool contains_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool contains_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool contains_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool contains_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern bool contains_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern bool contains_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool contains_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool contains_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool contains_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool contains_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool contains_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool contains_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool contains_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool contains_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool left_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool left_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool left_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern bool left_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool overlaps_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool overlaps_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overlaps_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool overlaps_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool overlaps_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool overlaps_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool overlaps_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overlaps_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool overlaps_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool overlaps_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool overlaps_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool overlaps_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool overlaps_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool overlaps_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool contains_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool contains_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern bool contains_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool contains_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool contains_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool contains_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool contains_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool contains_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool left_float_tfloat(double d, const Temporal *tnumber);` `overright_tfloat_float` used instead
+- [ ] `extern bool left_int_tint(int i, const Temporal *tnumber);` `overright_tint_int` used instead
+- [x] `extern bool left_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool left_tint_int(const Temporal *tnumber, int i);`
+- [ ] `extern bool overlaps_float_tfloat(double d, const Temporal *tnumber);` `overlaps_tfloat_float` used instead
+- [ ] `extern bool overlaps_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overlaps_tpoint_geo` used instead
+- [ ] `extern bool overlaps_int_tint(int i, const Temporal *tnumber);` `overlaps_tint_int` used instead
+- [x] `extern bool overlaps_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool overlaps_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [ ] `extern bool overlaps_span_tnumber(const Span *span, const Temporal *tnumber);` `overlaps_tnumber_span` used instead
+- [x] `extern bool overlaps_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overlaps_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool overlaps_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool overlaps_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool overlaps_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool overlaps_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool overlaps_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern bool overlaps_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern bool overlaps_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool overlaps_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool overlaps_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool overlaps_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool overlaps_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool overlaps_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool overlaps_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overlaps_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overlaps_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overleft_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool overleft_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool overleft_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern bool overleft_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool overright_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool overright_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool overright_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern bool overright_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool right_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool right_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool right_tfloat_float(const Temporal *tnumber, double d);`
-- [ ] `extern bool right_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool same_float_tfloat(double d, const Temporal *tnumber);`
-- [ ] `extern bool same_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool same_int_tint(int i, const Temporal *tnumber);`
-- [ ] `extern bool same_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool same_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool same_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool same_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool same_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool same_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool same_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool same_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool same_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool same_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool same_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool overlaps_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool overlaps_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern bool overlaps_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool overlaps_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool overlaps_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool overlaps_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overlaps_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overlaps_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overleft_float_tfloat(double d, const Temporal *tnumber);` `right_float_tfloat` used instead
+- [ ] `extern bool overleft_int_tint(int i, const Temporal *tnumber);` `right_int_tint` used instead
+- [x] `extern bool overleft_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool overleft_tint_int(const Temporal *tnumber, int i);`
+- [ ] `extern bool overright_float_tfloat(double d, const Temporal *tnumber);` `left_float_tfloat` used instead
+- [ ] `extern bool overright_int_tint(int i, const Temporal *tnumber);` `left_int_tint` used instead
+- [x] `extern bool overright_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool overright_tint_int(const Temporal *tnumber, int i);`
+- [ ] `extern bool right_float_tfloat(double d, const Temporal *tnumber);` `overleft_float_tfloat` used instead
+- [ ] `extern bool right_int_tint(int i, const Temporal *tnumber);` `overleft_int_tint` used instead
+- [x] `extern bool right_tfloat_float(const Temporal *tnumber, double d);`
+- [x] `extern bool right_tint_int(const Temporal *tnumber, int i);`
+- [ ] `extern bool same_float_tfloat(double d, const Temporal *tnumber);` `same_tfloat_float` used instead
+- [ ] `extern bool same_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `same_tpoint_geo` used instead
+- [ ] `extern bool same_int_tint(int i, const Temporal *tnumber);` `same_tint_int` used instead
+- [x] `extern bool same_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool same_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [ ] `extern bool same_span_tnumber(const Span *span, const Temporal *tnumber);` `same_tnumber_span` used instead
+- [x] `extern bool same_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool same_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool same_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool same_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool same_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool same_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool same_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [x] `extern bool same_tfloat_float(const Temporal *tnumber, double d);`
 - [ ] `extern bool same_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool same_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool same_tint_int(const Temporal *tnumber, int i);`
-- [ ] `extern bool same_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool same_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool same_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool same_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool same_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool same_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [x] `extern bool same_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool same_tint_int(const Temporal *tnumber, int i);`
+- [x] `extern bool same_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool same_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool same_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool same_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool same_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool same_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
 
 
 

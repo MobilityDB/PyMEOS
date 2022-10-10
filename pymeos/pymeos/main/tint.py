@@ -34,7 +34,8 @@ from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, tint_values, \
     tint_start_value, tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, \
     tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
-    tint_at_values, tint_minus_value, tint_minus_values
+    tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
+    overlaps_tint_int, same_tint_int
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
@@ -55,8 +56,49 @@ class TInt(TNumber, ABC):
     BaseClassDiscrete = True
     _parse_function = tint_in
 
-    def at(self, other: Union[int, List[int], intrange, floatrange, List[intrange], List[floatrange],
-                              TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def is_adjacent(self, other: Union[int,
+                                       TBox, TNumber, floatrange, intrange,
+                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int):
+            return adjacent_tint_int(self._inner, other)
+        else:
+            return super().is_adjacent(other)
+
+    def is_contained_in(self, container: Union[int,
+                                               TBox, TNumber, floatrange, intrange,
+                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(container, int):
+            return contained_tint_int(self._inner, container)
+        else:
+            return super().is_contained_in(container)
+
+    def contains(self, content: Union[int,
+                                      TBox, TNumber, floatrange, intrange,
+                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(content, int):
+            return contains_tint_int(self._inner, content)
+        else:
+            return super().contains(content)
+
+    def overlaps(self, other: Union[int,
+                                    TBox, TNumber, floatrange, intrange,
+                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int):
+            return overlaps_tint_int(self._inner, other)
+        else:
+            return super().overlaps(other)
+
+    def is_same(self, other: Union[int,
+                                   TBox, TNumber, floatrange, intrange,
+                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int):
+            return same_tint_int(self._inner, other)
+        else:
+            return super().is_same(other)
+
+    def at(self, other: Union[int, List[int],
+                              intrange, floatrange, List[intrange], List[floatrange], TBox,
+                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, int):
             result = tint_at_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):
@@ -66,8 +108,9 @@ class TInt(TNumber, ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def minus(self, other: Union[int, List[int], intrange, floatrange, List[intrange], List[floatrange],
-                                 TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[int, List[int],
+                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
+                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, int):
             result = tint_minus_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):

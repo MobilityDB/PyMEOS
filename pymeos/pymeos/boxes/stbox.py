@@ -30,7 +30,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from postgis import Geometry
-from pymeos_cffi import stbox_to_geo
+from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
@@ -41,8 +41,9 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
     stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb, datetime_to_timestamptz, \
     timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
-    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, gserialized_as_text, stbox_ne, \
-    gserialized_to_shapely_geometry
+    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, stbox_ne, \
+    gserialized_to_shapely_geometry, contained_stbox_tpoint, contains_stbox_tpoint, overlaps_stbox_tpoint, \
+    same_stbox_tpoint
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
@@ -301,20 +302,45 @@ class STBox:
         result = intersection_stbox_stbox(self._inner, other._inner)
         return STBox(_inner=result) if result else None
 
-    def is_adjacent(self, container: STBox) -> bool:
-        return adjacent_stbox_stbox(self._inner, container._inner)
+    def is_adjacent(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return adjacent_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return adjacent_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: STBox) -> bool:
-        return contained_stbox_stbox(self._inner, container._inner)
+    def is_contained_in(self, container: Union[STBox, TPoint]) -> bool:
+        if isinstance(container, STBox):
+            return contained_stbox_stbox(self._inner, container._inner)
+        elif isinstance(container, TPoint):
+            return contained_stbox_tpoint(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: STBox) -> bool:
-        return contains_stbox_stbox(self._inner, content._inner)
+    def contains(self, content: Union[STBox, TPoint]) -> bool:
+        if isinstance(content, STBox):
+            return contains_stbox_stbox(self._inner, content._inner)
+        elif isinstance(content, TPoint):
+            return contains_stbox_tpoint(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, other: STBox) -> bool:
-        return overlaps_stbox_stbox(self._inner, other._inner)
+    def overlaps(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overlaps_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overlaps_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, other: STBox) -> bool:
-        return same_stbox_stbox(self._inner, other._inner)
+    def is_same(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return same_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return same_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_left(self, other: STBox) -> bool:
         return left_stbox_stbox(self._inner, other._inner)

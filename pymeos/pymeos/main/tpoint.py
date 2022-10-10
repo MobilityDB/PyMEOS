@@ -36,7 +36,8 @@ from geopandas import GeoDataFrame
 # from movingpandas import Trajectory
 from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
-    tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox
+    tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
+    adjacent_tpoint_tpoint
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
     tpoint_cumulative_length, temporal_simplify, \
@@ -44,7 +45,10 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     tgeompointdiscseq_from_base_time, \
     tgeompointseq_from_base_time, tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, \
     tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time, \
-    gserialized_to_shapely_geometry, tpoint_minus_values, tpoint_minus_stbox
+    gserialized_to_shapely_geometry, tpoint_minus_values, tpoint_minus_stbox, contained_tpoint_geo, \
+    contained_tpoint_stbox, contained_tpoint_tpoint, contains_tpoint_tpoint, contains_tpoint_stbox, contains_tpoint_geo, \
+    overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, same_tpoint_tpoint, same_tpoint_stbox, \
+    same_tpoint_geo
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -53,6 +57,7 @@ from ..time import TimestampSet, Period, PeriodSet
 
 if TYPE_CHECKING:
     from ..boxes import STBox
+
 
 # Add method to Point to make the class hashable
 def __hash__(self):
@@ -93,6 +98,66 @@ class TPoint(Temporal, ABC):
 
     def simplify(self, tolerance: float, synchronized: bool = False) -> TPoint:
         return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
+
+    def is_adjacent(self, other: Union[Geometry, STBox, TPoint,
+                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return adjacent_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return adjacent_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return adjacent_tpoint_tpoint(self._inner, other._inner)
+        else:
+            return super().is_adjacent(other)
+
+    def is_contained_in(self, container: Union[Geometry, STBox, TPoint,
+                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(container, Geometry):
+            gs = gserialized_in(container.to_ewkb(), -1)
+            return contained_tpoint_geo(self._inner, gs)
+        elif isinstance(container, STBox):
+            return contained_tpoint_stbox(self._inner, container._inner)
+        elif isinstance(container, TPoint):
+            return contained_tpoint_tpoint(self._inner, container._inner)
+        else:
+            return super().is_contained_in(container)
+
+    def contains(self, content: Union[Geometry, STBox, TPoint,
+                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(content, Geometry):
+            gs = gserialized_in(content.to_ewkb(), -1)
+            return contains_tpoint_geo(self._inner, gs)
+        elif isinstance(content, STBox):
+            return contains_tpoint_stbox(self._inner, content._inner)
+        elif isinstance(content, TPoint):
+            return contains_tpoint_tpoint(self._inner, content._inner)
+        else:
+            return super().contains(content)
+
+    def overlaps(self, other: Union[Geometry, STBox, TPoint,
+                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overlaps_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overlaps_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overlaps_tpoint_tpoint(self._inner, other._inner)
+        else:
+            return super().overlaps(other)
+
+    def is_same(self, other: Union[Geometry, STBox, TPoint,
+                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return same_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return same_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return same_tpoint_tpoint(self._inner, other._inner)
+        else:
+            return super().is_same(other)
 
     def at(self, other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Geometry):

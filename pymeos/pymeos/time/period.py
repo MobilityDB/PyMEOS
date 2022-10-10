@@ -21,10 +21,11 @@ from pymeos_cffi import datetime_to_timestamptz, period_in, pg_timestamptz_in, p
     minus_period_timestamp, minus_period_timestampset, union_period_timestampset, union_period_timestamp, \
     union_period_periodset, union_period_period, distance_span_span, distance_period_periodset, \
     distance_period_timestamp, distance_period_timestampset, span_ne, span_width, span_expand, span_from_hexwkb, \
-    span_as_hexwkb
+    span_as_hexwkb, adjacent_period_temporal, contained_period_temporal, contains_period_temporal, \
+    overlaps_period_temporal, same_period_temporal
 
 if TYPE_CHECKING:
-    # Import here to use in type hints
+    from ..temporal import Temporal
     from .periodset import PeriodSet
     from .timestampset import TimestampSet
 
@@ -147,9 +148,10 @@ class Period:
         from .periodset import PeriodSet
         return PeriodSet(_inner=period_to_periodset(self._inner))
 
-    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+        from ..temporal import Temporal
         if isinstance(other, Period):
             return adjacent_span_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
@@ -158,21 +160,27 @@ class Period:
             return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return adjacent_period_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return adjacent_period_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: Union[Period, PeriodSet]) -> bool:
+    def is_contained_in(self, container: Union[Period, PeriodSet, Temporal]) -> bool:
         from .periodset import PeriodSet
+        from ..temporal import Temporal
         if isinstance(container, Period):
             return contained_span_span(self._inner, container._inner)
         elif isinstance(container, PeriodSet):
             return contained_period_periodset(self._inner, container._inner)
+        elif isinstance(container, Temporal):
+            return contained_period_temporal(self._inner, container._inner)
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+        from ..temporal import Temporal
         if isinstance(content, Period):
             return contains_span_span(self._inner, content._inner)
         elif isinstance(content, PeriodSet):
@@ -181,18 +189,23 @@ class Period:
             return contains_period_timestamp(self._inner, datetime_to_timestamptz(content))
         elif isinstance(content, TimestampSet):
             return contains_period_timestampset(self._inner, content._inner)
+        elif isinstance(content, Temporal):
+            return contains_period_temporal(self._inner, content._inner)
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, other: Union[Period, PeriodSet, TimestampSet]) -> bool:
+    def overlaps(self, other: Union[Period, PeriodSet, TimestampSet, Temporal]) -> bool:
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+        from ..temporal import Temporal
         if isinstance(other, Period):
             return overlaps_span_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
             return overlaps_period_periodset(self._inner, other._inner)
         elif isinstance(other, TimestampSet):
             return overlaps_period_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overlaps_period_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -249,6 +262,13 @@ class Period:
             return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overbefore_period_timestampset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_same(self, other: Temporal) -> bool:
+        from ..temporal import Temporal
+        if isinstance(other, Temporal):
+            return same_period_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

@@ -31,11 +31,12 @@ from typing import Optional, List, Union, TYPE_CHECKING
 
 from dateutil.parser import parse
 from pymeos_cffi import tfloat_to_tint, tnumber_to_span, tfloat_min_value, \
-    tfloat_max_value, tfloat_spans
+    tfloat_max_value, tfloat_spans, adjacent_tfloat_float
 from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
     datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
     tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time, tfloat_minus_value, \
-    tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative
+    tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
+    contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
@@ -56,8 +57,49 @@ class TFloat(TNumber, ABC):
     BaseClassDiscrete = False
     _parse_function = tfloat_in
 
-    def at(self, other: Union[int, float, List[float], List[int], intrange, floatrange, List[intrange], List[floatrange],
-                              TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def is_adjacent(self, other: Union[int, float,
+                                       TBox, TNumber, floatrange, intrange,
+                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int) or isinstance(other, float):
+            return adjacent_tfloat_float(self._inner, float(other))
+        else:
+            return super().is_adjacent(other)
+
+    def is_contained_in(self, container: Union[int, float,
+                                               TBox, TNumber, floatrange, intrange,
+                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(container, int) or isinstance(container, float):
+            return contained_tfloat_float(self._inner, float(container))
+        else:
+            return super().is_contained_in(container)
+
+    def contains(self, content: Union[int, float,
+                                      TBox, TNumber, floatrange, intrange,
+                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(content, int) or isinstance(content, float):
+            return contains_tfloat_float(self._inner, float(content))
+        else:
+            return super().contains(content)
+
+    def overlaps(self, other: Union[int, float,
+                                    TBox, TNumber, floatrange, intrange,
+                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int) or isinstance(other, float):
+            return overlaps_tfloat_float(self._inner, float(other))
+        else:
+            return super().overlaps(other)
+
+    def is_same(self, other: Union[int, float,
+                                   TBox, TNumber, floatrange, intrange,
+                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, int) or isinstance(other, float):
+            return same_tfloat_float(self._inner, float(other))
+        else:
+            return super().is_same(other)
+
+    def at(self, other: Union[int, float, List[float], List[int],
+                              intrange, floatrange, List[intrange], List[floatrange], TBox,
+                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, float) or isinstance(other, int):
             result = tfloat_at_value(self._inner, float(other))
         elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
@@ -67,8 +109,9 @@ class TFloat(TNumber, ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def minus(self, other: Union[float, List[float], intrange, floatrange, List[intrange], List[floatrange],
-                                 TBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[float, List[float],
+                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
+                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, float):
             result = tfloat_minus_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], float):

@@ -49,7 +49,14 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
     temporal_minus_timestampset, temporal_to_tinstant, temporal_to_tsequence, temporal_to_tsequenceset, \
     temporal_to_tdiscseq, temporal_append_tinstant, temporal_step_to_linear, temporal_merge, temporal_merge_array, \
-    temporal_at_max, temporal_at_min, temporal_minus_max, temporal_minus_min
+    temporal_at_max, temporal_at_min, temporal_minus_max, temporal_minus_min, adjacent_temporal_period, \
+    adjacent_temporal_periodset, adjacent_temporal_timestamp, adjacent_temporal_timestampset, \
+    adjacent_temporal_temporal, contained_temporal_temporal, contained_temporal_timestampset, \
+    contained_temporal_timestamp, contained_temporal_periodset, contained_temporal_period, contains_temporal_period, \
+    contains_temporal_periodset, contains_temporal_timestamp, contains_temporal_timestampset, \
+    contains_temporal_temporal, overlaps_temporal_temporal, overlaps_temporal_timestampset, overlaps_temporal_timestamp, \
+    overlaps_temporal_periodset, overlaps_temporal_period, same_temporal_temporal, same_temporal_timestampset, \
+    same_temporal_timestamp, same_temporal_periodset, same_temporal_period
 
 from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
@@ -448,6 +455,76 @@ class Temporal(ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
+    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return adjacent_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return adjacent_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return adjacent_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return adjacent_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return adjacent_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(container, Period):
+            return contained_temporal_period(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_temporal_periodset(self._inner, container._inner)
+        elif isinstance(container, datetime):
+            return contained_temporal_timestamp(self._inner, datetime_to_timestamptz(container))
+        elif isinstance(container, TimestampSet):
+            return contained_temporal_timestampset(self._inner, container._inner)
+        elif isinstance(container, Temporal):
+            return contained_temporal_temporal(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(content, Period):
+            return contains_temporal_period(self._inner, content._inner)
+        elif isinstance(content, PeriodSet):
+            return contains_temporal_periodset(self._inner, content._inner)
+        elif isinstance(content, datetime):
+            return contains_temporal_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_temporal_timestampset(self._inner, content._inner)
+        elif isinstance(content, Temporal):
+            return contains_temporal_temporal(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def overlaps(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return overlaps_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overlaps_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return overlaps_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overlaps_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overlaps_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_same(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        if isinstance(other, Period):
+            return same_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return same_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, datetime):
+            return same_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return same_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return same_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
     def frechet_distance(self, other: Temporal) -> float:
         """
         Compute the Frechet distance between two temporal values.
@@ -556,6 +633,9 @@ class Temporal(ABC):
 
     def __hash__(self) -> int:
         return temporal_hash(self._inner)
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __str__(self):
         """
