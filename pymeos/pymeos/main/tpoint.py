@@ -37,7 +37,7 @@ from geopandas import GeoDataFrame
 from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
-    adjacent_tpoint_tpoint
+    adjacent_tpoint_tpoint, teq_tgeompoint_point
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
     tpoint_cumulative_length, temporal_simplify, \
@@ -50,7 +50,8 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, same_tpoint_tpoint, same_tpoint_stbox, \
     same_tpoint_geo, distance_tpoint_geo, distance_tpoint_tpoint, nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint, \
     nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo, tpoint_twcentroid, \
-    tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq
+    tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq, tne_tbool_bool, \
+    tne_tgeompoint_point, teq_tgeogpoint_point, tne_tgeogpoint_point
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeq, TFloatSeqSet
@@ -379,6 +380,24 @@ class TGeomPoint(TPoint, ABC):
         gs = gserialized_in(value.to_ewkb(), -1)
         return tgeompoint_always_eq(self._inner, gs)
 
+    def temporal_equal(self, other: Union[Point, Temporal]) -> Temporal:
+        if isinstance(other, Point):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = teq_tgeompoint_point(self._inner, gs)
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[Point, Temporal]) -> Temporal:
+        if isinstance(other, Point):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = tne_tgeompoint_point(self._inner, gs)
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
@@ -461,6 +480,24 @@ class TGeogPoint(TPoint, ABC):
     def never_not_equal(self, value: Geometry) -> bool:
         gs = gserialized_in(value.to_ewkb(), -1)
         return tgeogpoint_always_eq(self._inner, gs)
+
+    def temporal_equal(self, other: Union[Point, Temporal]) -> Temporal:
+        if isinstance(other, Point):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = teq_tgeogpoint_point(self._inner, gs)
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[Point, Temporal]) -> Temporal:
+        if isinstance(other, Point):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = tne_tgeogpoint_point(self._inner, gs)
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

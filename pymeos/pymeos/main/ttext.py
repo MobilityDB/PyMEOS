@@ -30,12 +30,13 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
+from pymeos_cffi import tlt_ttext_text
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
     textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
     ttextseqset_from_base_time, ttext_max_value, ttext_min_value, ttext_at_value, ttext_at_values, ttext_minus_value, \
     ttext_minus_values, textcat_text_ttext, ttext_always_lt, ttext_always_le, ttext_always_eq, ttext_ever_eq, \
-    ttext_ever_lt, ttext_ever_le
+    ttext_ever_lt, ttext_ever_le, tgt_ttext_text, tge_ttext_text, tne_ttext_text, teq_ttext_text, tle_ttext_text
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import TimestampSet, Period, PeriodSet
@@ -180,6 +181,54 @@ class TText(Temporal, ABC):
 
     def never_greater(self, value: str) -> bool:
         return ttext_always_le(self._inner, value)
+
+    def temporal_less(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tlt_ttext_text(self._inner, other)
+        else:
+            return super().temporal_less(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tle_ttext_text(self._inner, other)
+        else:
+            return super().temporal_less_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = teq_ttext_text(self._inner, other)
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tne_ttext_text(self._inner, other)
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tge_ttext_text(self._inner, other)
+        else:
+            return super().temporal_greater_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tgt_ttext_text(self._inner, other)
+        else:
+            return super().temporal_greater(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def __add__(self, other):
         return self.concatenate(other)

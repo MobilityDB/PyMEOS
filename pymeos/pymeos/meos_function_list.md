@@ -1159,71 +1159,77 @@
 
 ### Comparison functions for temporal types
 
-- [ ] `extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);`
-- [ ] `extern Temporal *teq_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern Temporal *teq_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *teq_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);`
-- [ ] `extern Temporal *teq_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);`
-- [ ] `extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *teq_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *teq_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *teq_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *teq_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *teq_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *teq_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *tge_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *tge_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tge_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *tge_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tge_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tge_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *tgt_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *tgt_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tgt_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *tgt_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tgt_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tgt_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *tle_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *tle_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tle_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *tle_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tle_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tle_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *tlt_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *tlt_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tlt_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *tlt_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tlt_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tlt_ttext_text(const Temporal *temp, const text *txt);`
-- [ ] `extern Temporal *tne_bool_tbool(bool b, const Temporal *temp);`
-- [ ] `extern Temporal *tne_float_tfloat(double d, const Temporal *temp);`
-- [ ] `extern Temporal *tne_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern Temporal *tne_int_tint(int i, const Temporal *temp);`
-- [ ] `extern Temporal *tne_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);`
-- [ ] `extern Temporal *tne_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);`
-- [ ] `extern Temporal *tne_tbool_bool(const Temporal *temp, bool b);`
-- [ ] `extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tne_text_ttext(const text *txt, const Temporal *temp);`
-- [ ] `extern Temporal *tne_tfloat_float(const Temporal *temp, double d);`
-- [ ] `extern Temporal *tne_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *tne_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *tne_tint_int(const Temporal *temp, int i);`
-- [ ] `extern Temporal *tne_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern Temporal *tne_ttext_text(const Temporal *temp, const text *txt);`
+- [ ] `extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+- [ ] `extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
+
+- [ ] `extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);` `teq_tbool_bool` used instead
+- [ ] `extern Temporal *teq_float_tfloat(double d, const Temporal *temp);` `teq_tfloat_float` used instead
+- [ ] `extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `teq_tpoint_geo` used instead
+- [ ] `extern Temporal *teq_int_tint(int i, const Temporal *temp);` `teq_tint_int` used instead
+- [ ] `extern Temporal *teq_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);` `teq_tgeogpoint_point` used instead
+- [ ] `extern Temporal *teq_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);` `teq_tgeompoint_point` used instead
+- [x] `extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);`
+- [x] `extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *teq_text_ttext(const text *txt, const Temporal *temp);` `teq_ttext_text` used instead
+- [x] `extern Temporal *teq_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *teq_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *teq_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *teq_tint_int(const Temporal *temp, int i);`
+- [ ] `extern Temporal *teq_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);` `teq_tgeogpoint_point` and `teq_tgeompoint_point` used instead
+- [x] `extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);`
+
+- [ ] `extern Temporal *tge_float_tfloat(double d, const Temporal *temp);` `tlt_tfloat_float` used instead
+- [ ] `extern Temporal *tge_int_tint(int i, const Temporal *temp);` `tlt_tint_int` used instead
+- [x] `extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tge_text_ttext(const text *txt, const Temporal *temp);` `tlt_ttext_text` used instead
+- [x] `extern Temporal *tge_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *tge_tint_int(const Temporal *temp, int i);`
+- [x] `extern Temporal *tge_ttext_text(const Temporal *temp, const text *txt);`
+
+- [ ] `extern Temporal *tgt_float_tfloat(double d, const Temporal *temp);` `tle_tfloat_float` used instead
+- [ ] `extern Temporal *tgt_int_tint(int i, const Temporal *temp);` `tle_tint_int` used instead
+- [x] `extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tgt_text_ttext(const text *txt, const Temporal *temp);` `tle_ttext_text` used instead
+- [x] `extern Temporal *tgt_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *tgt_tint_int(const Temporal *temp, int i);`
+- [x] `extern Temporal *tgt_ttext_text(const Temporal *temp, const text *txt);`
+
+- [ ] `extern Temporal *tle_float_tfloat(double d, const Temporal *temp);` `tgt_tfloat_float` used instead
+- [ ] `extern Temporal *tle_int_tint(int i, const Temporal *temp);` `tgt_tint_int` used instead
+- [x] `extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tle_text_ttext(const text *txt, const Temporal *temp);` `tgt_ttext_text` used instead
+- [x] `extern Temporal *tle_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *tle_tint_int(const Temporal *temp, int i);`
+- [x] `extern Temporal *tle_ttext_text(const Temporal *temp, const text *txt);`
+
+- [ ] `extern Temporal *tlt_float_tfloat(double d, const Temporal *temp);` `tge_tfloat_float` used instead
+- [ ] `extern Temporal *tlt_int_tint(int i, const Temporal *temp);` `tge_tint_int` used instead
+- [x] `extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tlt_text_ttext(const text *txt, const Temporal *temp);` `tge_ttext_text` used instead
+- [x] `extern Temporal *tlt_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *tlt_tint_int(const Temporal *temp, int i);`
+- [x] `extern Temporal *tlt_ttext_text(const Temporal *temp, const text *txt);`
+
+- [ ] `extern Temporal *tne_bool_tbool(bool b, const Temporal *temp);` `tne_tbool_bool` used instead
+- [ ] `extern Temporal *tne_float_tfloat(double d, const Temporal *temp);` `tne_tfloat_float` used instead
+- [ ] `extern Temporal *tne_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `tne_tpoint_geo` used instead
+- [ ] `extern Temporal *tne_int_tint(int i, const Temporal *temp);` `tne_tint_int` used instead
+- [ ] `extern Temporal *tne_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);` `tne_tgeogpoint_point` used instead
+- [ ] `extern Temporal *tne_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);` `tne_tgeompoint_point` used instead
+- [x] `extern Temporal *tne_tbool_bool(const Temporal *temp, bool b);`
+- [x] `extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [ ] `extern Temporal *tne_text_ttext(const text *txt, const Temporal *temp);` `tne_ttext_text` used instead
+- [x] `extern Temporal *tne_tfloat_float(const Temporal *temp, double d);`
+- [x] `extern Temporal *tne_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *tne_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *tne_tint_int(const Temporal *temp, int i);`
+- [ ] `extern Temporal *tne_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);` `tne_tgeogpoint_point` and `tne_tgeompoint_point` used instead
+- [x] `extern Temporal *tne_ttext_text(const Temporal *temp, const text *txt);`
 
 ##  Spatial functions for temporal point types
 

@@ -564,72 +564,108 @@ class Temporal(ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    def __comparable(self, other) -> bool:
+    def __comparable(self, other: Temporal) -> bool:
+        if not isinstance(other, Temporal):
+            return False
         if self.BaseClass == other.BaseClass:
             return True
         if self.BaseClass in [int, float] and other.BaseClass in [int, float]:
             return True
         return False
 
+    def __assert_comparable(self, other: Temporal) -> None:
+        if not self.__comparable(other):
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def temporal_less(self, other: Temporal) -> Temporal:
+        """
+        Temporal less than
+        """
+        self.__assert_comparable(other)
+        result = tlt_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_less_or_equal(self, other: Temporal) -> Temporal:
+        """
+        Temporal less or equal
+        """
+        self.__assert_comparable(other)
+        result = tle_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_equal(self, other: Temporal) -> Temporal:
+        """
+        Temporal equality
+        """
+        self.__assert_comparable(other)
+        result = teq_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Temporal) -> Temporal:
+        """
+        Temporal inequality
+        """
+        self.__assert_comparable(other)
+        result = tne_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater_or_equal(self, other: Temporal) -> Temporal:
+        """
+        Temporal greater or equal
+        """
+        self.__assert_comparable(other)
+        result = tge_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater(self, other: Temporal) -> Temporal:
+        """
+        Temporal greater than
+        """
+        self.__assert_comparable(other)
+        result = tgt_temporal_temporal(self._inner, other._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
     def __lt__(self, other):
         """
-        Less than
+        Temporal less than
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tlt_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_less(other)
 
     def __le__(self, other):
         """
-        Less or equal
+        Temporal less or equal
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tle_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_less_or_equal(other)
 
     def __eq__(self, other):
         """
-        Equality
+        Temporal equality
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = teq_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_equal(other)
 
     def __ne__(self, other):
         """
-        Inequality
+        Temporal inequality
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tne_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_not_equal(other)
 
     def __ge__(self, other):
         """
-        Greater or equal
+        Temporal greater or equal
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tge_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_greater_or_equal(other)
 
     def __gt__(self, other):
         """
-        Greater than
+        Temporal greater than
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tgt_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_greater(other)
 
     def __hash__(self) -> int:
         return temporal_hash(self._inner)

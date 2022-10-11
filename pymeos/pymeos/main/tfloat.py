@@ -37,7 +37,8 @@ from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_v
     tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time, tfloat_minus_value, \
     tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
     contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float, tfloat_always_lt, \
-    tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le
+    tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le, tlt_tfloat_float, tle_tfloat_float, \
+    teq_tfloat_float, tne_tfloat_float, tge_tfloat_float, tgt_tfloat_float
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
@@ -151,6 +152,54 @@ class TFloat(TNumber, ABC):
 
     def never_greater(self, value: float) -> bool:
         return tfloat_always_le(self._inner, value)
+
+    def temporal_less(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = tlt_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_less(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_less_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = tle_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_less_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = teq_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = tne_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = tge_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_greater_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater(self, other: Union[int, float, Temporal]) -> Temporal:
+        if isinstance(other, int) or isinstance(other, float):
+            result = tgt_tfloat_float(self._inner, float(other))
+        else:
+            return super().temporal_greater(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def at(self, other: Union[int, float, List[float], List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,

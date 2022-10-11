@@ -121,17 +121,33 @@ class TBool(Temporal, ABC):
     def never(self, value: bool) -> bool:
         return not tbool_ever_eq(self._inner, value)
 
-    def tnot(self) -> TBool:
+    def temporal_equal(self, other: Union[bool, Temporal]) -> Temporal:
+        if isinstance(other, bool):
+            result = teq_tbool_bool(self._inner, other)
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[bool, Temporal]) -> Temporal:
+        if isinstance(other, bool):
+            result = tne_tbool_bool(self._inner, other)
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not(self) -> TBool:
         return self.__class__(_inner=tnot_tbool(self._inner))
 
-    def tand(self, other: Union[bool, TBool]) -> TBool:
+    def temporal_and(self, other: Union[bool, TBool]) -> TBool:
         if isinstance(other, bool):
             return self.__class__(_inner=tand_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
             return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def tor(self, other: Union[bool, TBool]) -> TBool:
+    def temporal_or(self, other: Union[bool, TBool]) -> TBool:
         if isinstance(other, bool):
             return self.__class__(_inner=tor_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
@@ -139,60 +155,16 @@ class TBool(Temporal, ABC):
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __neg__(self):
-        return self.tnot()
+        return self.temporal_not()
 
     def __invert__(self):
-        return self.tnot()
+        return self.temporal_not()
 
     def __and__(self, other):
-        return self.tand(other)
+        return self.temporal_and(other)
 
     def __or__(self, other):
-        return self.tor(other)
-
-    def __lt__(self, other):
-        """
-        Less than
-        """
-        return NotImplemented
-
-    def __le__(self, other):
-        """
-        Less or equal
-        """
-        return NotImplemented
-
-    def __eq__(self, other):
-        """
-        Equality
-        """
-        if isinstance(other, bool):
-            from ..factory import _TemporalFactory
-            result = teq_tbool_bool(self._inner, other)
-            return _TemporalFactory.create_temporal(result)
-        return super().__eq__(other)
-
-    def __ne__(self, other):
-        """
-        Inequality
-        """
-        if isinstance(other, bool):
-            from ..factory import _TemporalFactory
-            result = tne_tbool_bool(self._inner, other)
-            return _TemporalFactory.create_temporal(result)
-        return super().__eq__(other)
-
-    def __ge__(self, other):
-        """
-        Greater or equal
-        """
-        return NotImplemented
-
-    def __gt__(self, other):
-        """
-        Greater than
-        """
-        return NotImplemented
+        return self.temporal_or(other)
 
     def __str__(self):
         return tbool_out(self._inner)

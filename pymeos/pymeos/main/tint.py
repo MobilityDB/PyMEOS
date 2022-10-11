@@ -36,7 +36,7 @@ from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_
     tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
     tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
     overlaps_tint_int, same_tint_int, nad_tint_int, tint_always_le, tint_always_lt, tint_always_eq, tint_ever_eq, \
-    tint_ever_le, tint_ever_lt
+    tint_ever_le, tint_ever_lt, tle_tint_int, teq_tint_int, tne_tint_int, tge_tint_int, tgt_tint_int, tlt_tint_int
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
@@ -150,6 +150,54 @@ class TInt(TNumber, ABC):
 
     def never_greater(self, value: int) -> bool:
         return tint_always_le(self._inner, value)
+
+    def temporal_less(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = tlt_tint_int(self._inner, other)
+        else:
+            return super().temporal_less(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_less_or_equal(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = tle_tint_int(self._inner, other)
+        else:
+            return super().temporal_less_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_equal(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = teq_tint_int(self._inner, other)
+        else:
+            return super().temporal_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_not_equal(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = tne_tint_int(self._inner, other)
+        else:
+            return super().temporal_not_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater_or_equal(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = tge_tint_int(self._inner, other)
+        else:
+            return super().temporal_greater_or_equal(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def temporal_greater(self, other: Union[int, Temporal]) -> Temporal:
+        if isinstance(other, int):
+            result = tgt_tint_int(self._inner, other)
+        else:
+            return super().temporal_greater(other)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def at(self, other: Union[int, List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,
