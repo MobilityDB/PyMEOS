@@ -1166,7 +1166,6 @@
 - [ ] `extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
 - [ ] `extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
 - [ ] `extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);` Not used in PyMEOS (used for B-Tree index in MEOS)
-
 - [ ] `extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);` `teq_tbool_bool` used instead
 - [ ] `extern Temporal *teq_float_tfloat(double d, const Temporal *temp);` `teq_tfloat_float` used instead
 - [ ] `extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `teq_tpoint_geo` used instead
@@ -1182,7 +1181,6 @@
 - [x] `extern Temporal *teq_tint_int(const Temporal *temp, int i);`
 - [ ] `extern Temporal *teq_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);` `teq_tgeogpoint_point` and `teq_tgeompoint_point` used instead
 - [x] `extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);`
-
 - [ ] `extern Temporal *tge_float_tfloat(double d, const Temporal *temp);` `tlt_tfloat_float` used instead
 - [ ] `extern Temporal *tge_int_tint(int i, const Temporal *temp);` `tlt_tint_int` used instead
 - [x] `extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
@@ -1190,7 +1188,6 @@
 - [x] `extern Temporal *tge_tfloat_float(const Temporal *temp, double d);`
 - [x] `extern Temporal *tge_tint_int(const Temporal *temp, int i);`
 - [x] `extern Temporal *tge_ttext_text(const Temporal *temp, const text *txt);`
-
 - [ ] `extern Temporal *tgt_float_tfloat(double d, const Temporal *temp);` `tle_tfloat_float` used instead
 - [ ] `extern Temporal *tgt_int_tint(int i, const Temporal *temp);` `tle_tint_int` used instead
 - [x] `extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
@@ -1198,7 +1195,6 @@
 - [x] `extern Temporal *tgt_tfloat_float(const Temporal *temp, double d);`
 - [x] `extern Temporal *tgt_tint_int(const Temporal *temp, int i);`
 - [x] `extern Temporal *tgt_ttext_text(const Temporal *temp, const text *txt);`
-
 - [ ] `extern Temporal *tle_float_tfloat(double d, const Temporal *temp);` `tgt_tfloat_float` used instead
 - [ ] `extern Temporal *tle_int_tint(int i, const Temporal *temp);` `tgt_tint_int` used instead
 - [x] `extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
@@ -1206,7 +1202,6 @@
 - [x] `extern Temporal *tle_tfloat_float(const Temporal *temp, double d);`
 - [x] `extern Temporal *tle_tint_int(const Temporal *temp, int i);`
 - [x] `extern Temporal *tle_ttext_text(const Temporal *temp, const text *txt);`
-
 - [ ] `extern Temporal *tlt_float_tfloat(double d, const Temporal *temp);` `tge_tfloat_float` used instead
 - [ ] `extern Temporal *tlt_int_tint(int i, const Temporal *temp);` `tge_tint_int` used instead
 - [x] `extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
@@ -1214,7 +1209,6 @@
 - [x] `extern Temporal *tlt_tfloat_float(const Temporal *temp, double d);`
 - [x] `extern Temporal *tlt_tint_int(const Temporal *temp, int i);`
 - [x] `extern Temporal *tlt_ttext_text(const Temporal *temp, const text *txt);`
-
 - [ ] `extern Temporal *tne_bool_tbool(bool b, const Temporal *temp);` `tne_tbool_bool` used instead
 - [ ] `extern Temporal *tne_float_tfloat(double d, const Temporal *temp);` `tne_tfloat_float` used instead
 - [ ] `extern Temporal *tne_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `tne_tpoint_geo` used instead
@@ -1235,18 +1229,18 @@
 
 ### Spatial accessor functions for temporal point types
 
-- [ ] `extern bool bearing_point_point(const GSERIALIZED *geo1, const GSERIALIZED *geo2, double *result);`
-- [ ] `extern Temporal *bearing_tpoint_point(const Temporal *temp, const GSERIALIZED *gs, bool invert);`
-- [ ] `extern Temporal *bearing_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tpoint_azimuth(const Temporal *temp);`
-- [ ] `extern Temporal *tpoint_cumulative_length(const Temporal *temp);`
-- [ ] `extern Temporal *tpoint_get_coord(const Temporal *temp, int coord);`
-- [ ] `extern bool tpoint_is_simple(const Temporal *temp);`
-- [ ] `extern double tpoint_length(const Temporal *temp);`
-- [ ] `extern Temporal *tpoint_speed(const Temporal *temp);`
-- [ ] `extern int tpoint_srid(const Temporal *temp);`
-- [ ] `extern STBOX *tpoint_stboxes(const Temporal *temp, int *count);`
-- [ ] `extern GSERIALIZED *tpoint_trajectory(const Temporal *temp);`
+- [ ] `extern bool bearing_point_point(const GSERIALIZED *geo1, const GSERIALIZED *geo2, double *result);` Class not defined in PyMEOS 
+- [x] `extern Temporal *bearing_tpoint_point(const Temporal *temp, const GSERIALIZED *gs, bool invert);`
+- [x] `extern Temporal *bearing_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern Temporal *tpoint_azimuth(const Temporal *temp);`
+- [x] `extern Temporal *tpoint_cumulative_length(const Temporal *temp);`
+- [x] `extern Temporal *tpoint_get_coord(const Temporal *temp, int coord);`
+- [x] `extern bool tpoint_is_simple(const Temporal *temp);`
+- [x] `extern double tpoint_length(const Temporal *temp);`
+- [x] `extern Temporal *tpoint_speed(const Temporal *temp);`
+- [x] `extern int tpoint_srid(const Temporal *temp);`
+- [x] `extern STBOX *tpoint_stboxes(const Temporal *temp, int *count);`
+- [x] `extern GSERIALIZED *tpoint_trajectory(const Temporal *temp);`
 
 
 

@@ -37,10 +37,10 @@ from geopandas import GeoDataFrame
 from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
-    adjacent_tpoint_tpoint, teq_tgeompoint_point
+    adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
-    tpoint_cumulative_length, temporal_simplify, \
+    temporal_simplify, \
     tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, tpoint_out, tgeompoint_from_base, tgeompointinst_make, \
     tgeompointdiscseq_from_base_time, \
     tgeompointseq_from_base_time, tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, \
@@ -50,11 +50,12 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, same_tpoint_tpoint, same_tpoint_stbox, \
     same_tpoint_geo, distance_tpoint_geo, distance_tpoint_tpoint, nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint, \
     nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo, tpoint_twcentroid, \
-    tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq, tne_tbool_bool, \
-    tne_tgeompoint_point, teq_tgeogpoint_point, tne_tgeogpoint_point
+    tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq, tne_tgeompoint_point, \
+    teq_tgeogpoint_point, tne_tgeogpoint_point, bearing_tpoint_point, bearing_tpoint_tpoint, tpoint_is_simple, \
+    tpoint_stboxes
 from shapely.geometry.base import BaseGeometry
 
-from .tfloat import TFloatSeq, TFloatSeqSet
+from .tfloat import TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..time import TimestampSet, Period, PeriodSet
 
@@ -101,6 +102,42 @@ class TPoint(Temporal, ABC):
 
     def simplify(self, tolerance: float, synchronized: bool = False) -> TPoint:
         return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
+
+    def length(self) -> float:
+        return tpoint_length(self._inner)
+
+    def cumulative_length(self) -> Temporal:
+        result = tpoint_cumulative_length(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def speed(self) -> Temporal:
+        result = tpoint_speed(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def x(self):
+        result = tpoint_get_coord(self._inner, 0)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def y(self):
+        result = tpoint_get_coord(self._inner, 1)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def z(self):
+        result = tpoint_get_coord(self._inner, 2)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def stboxes(self) -> List[STBox]:
+        from ..boxes import STBox
+        result, count = tpoint_stboxes(self._inner)
+        return [STBox(_inner=result + i) for i in range(count)]
+
+    def is_simple(self) -> bool:
+        return tpoint_is_simple(self._inner)
 
     def is_adjacent(self, other: Union[Geometry, STBox, TPoint,
                                        Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
@@ -234,6 +271,22 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return gserialized_to_shapely_geometry(result[0], 10)
 
+    def bearing(self, other: Union[Geometry, TPoint]) -> Temporal:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = bearing_tpoint_point(self._inner, gs, False)
+        elif isinstance(other, TPoint):
+            result = bearing_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def azimuth(self) -> Temporal:
+        result = tpoint_azimuth(self._inner)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
     def time_weighted_centroid(self) -> BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_twcentroid(self._inner), 10)
 
@@ -286,18 +339,6 @@ class TPointSeq(TPoint, TSequence, ABC):
             tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, interpolation,
                                   normalize)
         )
-
-    @property
-    def distance(self):
-        return tpoint_length(self._inner)
-
-    @property
-    def distances(self):
-        return TFloatSeq(_inner=tpoint_cumulative_length(self._inner))
-
-    @property
-    def speed(self):
-        return TFloatSeq(_inner=tpoint_speed(self._inner))
 
     def to_geodataframe(self) -> GeoDataFrame:
         data = {
