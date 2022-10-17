@@ -52,7 +52,9 @@ from pymeos_cffi.functions import pg_timestamp_in, datetime_to_timestamptz, time
     distance_timestampset_period, distance_timestampset_periodset, distance_timestampset_timestamp, \
     distance_timestampset_timestampset, timestampset_timespan, interval_to_timedelta, timestampset_from_hexwkb, \
     timestampset_as_hexwkb, adjacent_timestampset_temporal, contained_timestampset_temporal, \
-    contains_timestampset_temporal, overlaps_timestampset_temporal, same_timestampset_temporal
+    contains_timestampset_temporal, overlaps_timestampset_temporal, same_timestampset_temporal, \
+    after_timestampset_temporal, before_timestampset_temporal, overafter_timestampset_temporal, \
+    overbefore_timestampset_temporal
 
 if TYPE_CHECKING:
     from ..temporal import Temporal
@@ -241,8 +243,10 @@ class TimestampSet:
             return after_timestampset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return after_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return after_timestampset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return after_timestampset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -255,8 +259,10 @@ class TimestampSet:
             return before_timestampset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return before_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return before_timestampset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return before_timestampset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -269,8 +275,10 @@ class TimestampSet:
             return overafter_timestampset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overafter_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return overafter_timestampset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overafter_timestampset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -283,8 +291,10 @@ class TimestampSet:
             return overbefore_timestampset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overbefore_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return overbefore_timestampset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overbefore_timestampset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

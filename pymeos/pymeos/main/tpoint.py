@@ -52,7 +52,15 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, shortestline_tpoint_geo, tpoint_twcentroid, \
     tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, tgeogpoint_ever_eq, tne_tgeompoint_point, \
     teq_tgeogpoint_point, tne_tgeogpoint_point, bearing_tpoint_point, bearing_tpoint_tpoint, tpoint_is_simple, \
-    tpoint_stboxes
+    tpoint_stboxes, overafter_tpoint_tpoint, left_tpoint_stbox, left_tpoint_tpoint, overleft_tpoint_stbox, \
+    overleft_tpoint_tpoint, right_tpoint_stbox, right_tpoint_tpoint, overright_tpoint_stbox, overright_tpoint_tpoint, \
+    below_tpoint_stbox, below_tpoint_tpoint, overbelow_tpoint_stbox, overbelow_tpoint_tpoint, above_tpoint_stbox, \
+    above_tpoint_tpoint, overabove_tpoint_stbox, overabove_tpoint_tpoint, front_tpoint_stbox, front_tpoint_tpoint, \
+    overfront_tpoint_stbox, overfront_tpoint_tpoint, back_tpoint_stbox, back_tpoint_tpoint, overback_tpoint_stbox, \
+    overback_tpoint_tpoint, before_tpoint_stbox, before_tpoint_tpoint, overbefore_tpoint_stbox, \
+    overbefore_tpoint_tpoint, after_tpoint_stbox, after_tpoint_tpoint, overafter_tpoint_stbox, left_tpoint_geo, \
+    overleft_tpoint_geo, right_tpoint_geo, overright_tpoint_geo, below_tpoint_geo, overbelow_tpoint_geo, \
+    above_tpoint_geo, overabove_tpoint_geo, front_tpoint_geo, overfront_tpoint_geo, back_tpoint_geo, overback_tpoint_geo
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeqSet
@@ -198,6 +206,170 @@ class TPoint(Temporal, ABC):
             return same_tpoint_tpoint(self._inner, other._inner)
         else:
             return super().is_same(other)
+
+    def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return left_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return left_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return left_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overleft_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overleft_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overleft_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return right_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return right_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return right_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overright_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overright_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overright_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return below_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return below_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return below_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overbelow_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overbelow_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbelow_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return above_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return above_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return above_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overabove_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overabove_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overabove_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return front_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return front_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return front_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overfront_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overfront_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overfront_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_back(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return back_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return back_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return back_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_back(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return overback_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return overback_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overback_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return before_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return before_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overbefore_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbefore_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return after_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return after_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overafter_tpoint_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overafter_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def at(self, other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Geometry):

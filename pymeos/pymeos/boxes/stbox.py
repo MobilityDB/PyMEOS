@@ -43,7 +43,10 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
     geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, stbox_ne, \
     gserialized_to_shapely_geometry, contained_stbox_tpoint, contains_stbox_tpoint, overlaps_stbox_tpoint, \
-    same_stbox_tpoint, nad_stbox_geo, nad_stbox_stbox
+    same_stbox_tpoint, nad_stbox_geo, nad_stbox_stbox, left_stbox_tpoint, overleft_stbox_tpoint, right_stbox_tpoint, \
+    overright_stbox_tpoint, below_stbox_tpoint, overbelow_stbox_tpoint, above_stbox_tpoint, overabove_stbox_tpoint, \
+    front_stbox_tpoint, overfront_stbox_tpoint, back_stbox_tpoint, overback_stbox_tpoint, before_stbox_tpoint, \
+    overbefore_stbox_tpoint, after_stbox_tpoint, overafter_stbox_tpoint
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
@@ -342,53 +345,133 @@ class STBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_left(self, other: STBox) -> bool:
-        return left_stbox_stbox(self._inner, other._inner)
+    def is_left(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return left_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return left_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_left(self, other: STBox) -> bool:
-        return overleft_stbox_stbox(self._inner, other._inner)
+    def is_over_or_left(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overleft_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overleft_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_right(self, other: STBox) -> bool:
-        return right_stbox_stbox(self._inner, other._inner)
+    def is_right(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return right_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return right_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_right(self, other: STBox) -> bool:
-        return overright_stbox_stbox(self._inner, other._inner)
+    def is_over_or_right(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overright_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overright_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_below(self, other: STBox) -> bool:
-        return below_stbox_stbox(self._inner, other._inner)
+    def is_below(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return below_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return below_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_below(self, other: STBox) -> bool:
-        return overbelow_stbox_stbox(self._inner, other._inner)
+    def is_over_or_below(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overbelow_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbelow_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_above(self, other: STBox) -> bool:
-        return above_stbox_stbox(self._inner, other._inner)
+    def is_above(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return above_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return above_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_above(self, other: STBox) -> bool:
-        return overabove_stbox_stbox(self._inner, other._inner)
+    def is_over_or_above(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overabove_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overabove_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_front(self, other: STBox) -> bool:
-        return front_stbox_stbox(self._inner, other._inner)
+    def is_front(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return front_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return front_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_front(self, other: STBox) -> bool:
-        return overfront_stbox_stbox(self._inner, other._inner)
+    def is_over_or_front(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overfront_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overfront_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_back(self, other: STBox) -> bool:
-        return back_stbox_stbox(self._inner, other._inner)
+    def is_back(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return back_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return back_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_back(self, other: STBox) -> bool:
-        return overback_stbox_stbox(self._inner, other._inner)
+    def is_over_or_back(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overback_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overback_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: STBox) -> bool:
-        return before_stbox_stbox(self._inner, other._inner)
+    def is_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return before_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return before_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: STBox) -> bool:
-        return overbefore_stbox_stbox(self._inner, other._inner)
+    def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overbefore_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbefore_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other: STBox) -> bool:
-        return after_stbox_stbox(self._inner, other._inner)
+    def is_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return after_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return after_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: STBox) -> bool:
-        return overafter_stbox_stbox(self._inner, other._inner)
+    def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overafter_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overafter_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def nearest_approach_distance(self, other: Union[Geometry, STBox]) -> float:
         if isinstance(other, Geometry):

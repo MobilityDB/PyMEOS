@@ -52,7 +52,8 @@ from pymeos_cffi.functions import periodset_in, period_in, periodset_duration, i
     minus_periodset_timestampset, union_periodset_period, union_periodset_periodset, union_periodset_timestamp, \
     union_periodset_timestampset, distance_periodset_period, distance_periodset_periodset, distance_periodset_timestamp, \
     distance_periodset_timestampset, adjacent_periodset_temporal, contains_periodset_temporal, \
-    overlaps_periodset_temporal, same_periodset_temporal
+    overlaps_periodset_temporal, same_periodset_temporal, after_periodset_temporal, before_periodset_temporal, \
+    overafter_periodset_temporal, overbefore_periodset_temporal
 
 if TYPE_CHECKING:
     from ..temporal import Temporal
@@ -287,8 +288,10 @@ class PeriodSet:
             return after_periodset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return after_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return after_periodset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return after_periodset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -301,8 +304,10 @@ class PeriodSet:
             return before_periodset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return before_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return before_periodset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return before_periodset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -315,8 +320,10 @@ class PeriodSet:
             return overafter_periodset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overafter_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return overafter_periodset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overafter_periodset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -329,8 +336,10 @@ class PeriodSet:
             return overbefore_periodset_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overbefore_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TimestampSet):
+        if isinstance(other, TimestampSet):
             return overbefore_periodset_timestampset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overbefore_periodset_temporal(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

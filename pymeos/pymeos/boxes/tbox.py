@@ -40,7 +40,9 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
     intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
     float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
-    tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber, nad_tbox_tbox
+    tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber, nad_tbox_tbox, \
+    left_tbox_tnumber, overleft_tbox_tnumber, right_tbox_tnumber, overright_tbox_tnumber, before_tbox_tnumber, \
+    overbefore_tbox_tnumber, after_tbox_tnumber, overafter_tbox_tnumber
 from spans import intrange, floatrange
 
 from ..main import TNumber
@@ -281,29 +283,69 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_left(self, content: TBox) -> bool:
-        return left_tbox_tbox(self._inner, content._inner)
+    def is_left(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return left_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return left_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_left(self, content: TBox) -> bool:
-        return overleft_tbox_tbox(self._inner, content._inner)
+    def is_over_or_left(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overleft_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overleft_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_right(self, content: TBox) -> bool:
-        return right_tbox_tbox(self._inner, content._inner)
+    def is_right(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return right_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return right_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_right(self, content: TBox) -> bool:
-        return overright_tbox_tbox(self._inner, content._inner)
+    def is_over_or_right(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overright_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overright_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, content: TBox) -> bool:
-        return before_tbox_tbox(self._inner, content._inner)
+    def is_before(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return before_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return before_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, content: TBox) -> bool:
-        return overbefore_tbox_tbox(self._inner, content._inner)
+    def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overbefore_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overbefore_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, content: TBox) -> bool:
-        return after_tbox_tbox(self._inner, content._inner)
+    def is_after(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return after_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return after_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, content: TBox) -> bool:
-        return overafter_tbox_tbox(self._inner, content._inner)
+    def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overafter_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overafter_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def nearest_approach_distance(self, other: TBox) -> float:
         if isinstance(other, TBox):

@@ -960,146 +960,146 @@
 
 ### Position functions for temporal types
 
-- [ ] `extern bool above_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool above_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool above_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool above_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool above_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool after_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool after_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool after_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool after_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool after_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool after_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool after_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool after_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool after_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool after_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool after_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool after_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool after_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool after_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool after_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool back_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool back_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool back_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool back_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool back_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool before_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool before_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool before_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool before_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool before_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool before_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool before_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool before_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool before_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool before_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool before_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool before_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool before_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool before_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool before_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool below_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool below_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool below_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool below_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool below_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool front_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool front_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool front_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool front_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool front_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool left_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool left_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool left_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool left_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool left_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool left_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool left_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool left_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool left_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool left_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overabove_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overabove_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overabove_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overabove_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overabove_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overafter_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool overafter_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool overafter_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overafter_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool overafter_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool overafter_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool overafter_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool overafter_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool overafter_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool overafter_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool overafter_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool overafter_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool overafter_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool overafter_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overafter_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overback_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overback_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overback_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overback_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overback_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overbefore_period_temporal(const Period *p, const Temporal *temp);`
-- [ ] `extern bool overbefore_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
-- [ ] `extern bool overbefore_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overbefore_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool overbefore_temporal_period(const Temporal *temp, const Period *p);`
-- [ ] `extern bool overbefore_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
-- [ ] `extern bool overbefore_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern bool overbefore_temporal_timestamp(const Temporal *temp, TimestampTz t);`
-- [ ] `extern bool overbefore_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
-- [ ] `extern bool overbefore_timestamp_temporal(TimestampTz t, const Temporal *temp);`
-- [ ] `extern bool overbefore_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
-- [ ] `extern bool overbefore_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool overbefore_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool overbefore_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overbefore_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overbelow_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overbelow_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overbelow_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overbelow_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overbelow_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overfront_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overfront_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overfront_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overfront_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overfront_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overleft_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overleft_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool overleft_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overleft_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool overleft_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool overleft_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool overleft_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool overleft_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overleft_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overleft_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool overright_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool overright_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool overright_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool overright_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool overright_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool overright_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool overright_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool overright_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool overright_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool overright_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
-- [ ] `extern bool right_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);`
-- [ ] `extern bool right_span_tnumber(const Span *span, const Temporal *tnumber);`
-- [ ] `extern bool right_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
-- [ ] `extern bool right_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
-- [ ] `extern bool right_tnumber_span(const Temporal *tnumber, const Span *span);`
-- [ ] `extern bool right_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
-- [ ] `extern bool right_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
-- [ ] `extern bool right_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
-- [ ] `extern bool right_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
-- [ ] `extern bool right_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool above_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overbelow_tpoint_geo` used instead
+- [x] `extern bool above_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool above_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool above_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool above_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [x] `extern bool after_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool after_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [x] `extern bool after_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool after_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool after_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool after_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool after_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool after_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool after_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [ ] `extern bool after_timestamp_temporal(TimestampTz t, const Temporal *temp);` `overbefore_temporal_timestamp` used instead
+- [x] `extern bool after_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool after_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool after_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool after_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool after_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool back_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overfront_tpoint_geo` used instead
+- [x] `extern bool back_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool back_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool back_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool back_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [x] `extern bool before_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool before_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [x] `extern bool before_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool before_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool before_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool before_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool before_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool before_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool before_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [ ] `extern bool before_timestamp_temporal(TimestampTz t, const Temporal *temp);` `overafter_temporal_timestamp` used instead
+- [x] `extern bool before_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool before_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool before_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool before_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool before_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool below_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overabove_tpoint_geo` used instead
+- [x] `extern bool below_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool below_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool below_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool below_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool front_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overback_tpoint_geo` used instead
+- [x] `extern bool front_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool front_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool front_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool front_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool left_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overright_tpoint_geo` used instead
+- [ ] `extern bool left_span_tnumber(const Span *span, const Temporal *tnumber);` `overright_span_tnumber` used instead
+- [x] `extern bool left_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool left_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool left_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool left_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool left_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool left_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool left_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool left_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overabove_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `below_tpoint_geo` used instead
+- [x] `extern bool overabove_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overabove_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overabove_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overabove_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [x] `extern bool overafter_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool overafter_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [x] `extern bool overafter_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overafter_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool overafter_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool overafter_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool overafter_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool overafter_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool overafter_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [ ] `extern bool overafter_timestamp_temporal(TimestampTz t, const Temporal *temp);` `before_temporal_timestamp` used instead
+- [x] `extern bool overafter_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool overafter_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool overafter_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool overafter_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overafter_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overback_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `front_tpoint_geo` used instead
+- [x] `extern bool overback_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overback_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overback_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overback_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [x] `extern bool overbefore_period_temporal(const Period *p, const Temporal *temp);`
+- [x] `extern bool overbefore_periodset_temporal(const PeriodSet *ps, const Temporal *temp);`
+- [x] `extern bool overbefore_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overbefore_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool overbefore_temporal_period(const Temporal *temp, const Period *p);`
+- [x] `extern bool overbefore_temporal_periodset(const Temporal *temp, const PeriodSet *ps);`
+- [x] `extern bool overbefore_temporal_temporal(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern bool overbefore_temporal_timestamp(const Temporal *temp, TimestampTz t);`
+- [x] `extern bool overbefore_temporal_timestampset(const Temporal *temp, const TimestampSet *ts);`
+- [ ] `extern bool overbefore_timestamp_temporal(TimestampTz t, const Temporal *temp);` `after_temporal_timestamp` used instead
+- [x] `extern bool overbefore_timestampset_temporal(const TimestampSet *ts, const Temporal *temp);`
+- [x] `extern bool overbefore_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool overbefore_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool overbefore_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overbefore_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overbelow_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `above_tpoint_geo` used instead
+- [x] `extern bool overbelow_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overbelow_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overbelow_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overbelow_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overfront_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `back_tpoint_geo` used instead
+- [x] `extern bool overfront_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overfront_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overfront_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overfront_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overleft_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `right_tpoint_geo` used instead
+- [ ] `extern bool overleft_span_tnumber(const Span *span, const Temporal *tnumber);` `right_span_tnumber` used instead
+- [x] `extern bool overleft_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overleft_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool overleft_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool overleft_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool overleft_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool overleft_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overleft_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overleft_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool overright_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `left_tpoint_geo` used instead
+- [ ] `extern bool overright_span_tnumber(const Span *span, const Temporal *tnumber);` `left_span_tnumber` used instead
+- [x] `extern bool overright_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool overright_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool overright_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool overright_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool overright_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool overright_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool overright_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool overright_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
+- [ ] `extern bool right_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);` `overright_tpoint_geo` used instead
+- [ ] `extern bool right_span_tnumber(const Span *span, const Temporal *tnumber);` `overleft_span_tnumber` used instead
+- [x] `extern bool right_stbox_tpoint(const STBOX *stbox, const Temporal *tpoint);`
+- [x] `extern bool right_tbox_tnumber(const TBOX *tbox, const Temporal *tnumber);`
+- [x] `extern bool right_tnumber_span(const Temporal *tnumber, const Span *span);`
+- [x] `extern bool right_tnumber_tbox(const Temporal *tnumber, const TBOX *tbox);`
+- [x] `extern bool right_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);`
+- [x] `extern bool right_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);`
+- [x] `extern bool right_tpoint_stbox(const Temporal *tpoint, const STBOX *stbox);`
+- [x] `extern bool right_tpoint_tpoint(const Temporal *tpoint1, const Temporal *tpoint2);`
 
 
 
