@@ -4477,6 +4477,12 @@ def tor_tbool_tbool(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'Te
     return result if result != _ffi.NULL else None
 
 
+def tbool_when_true(temp: 'const Temporal *') -> 'PeriodSet *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tbool_when_true(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def add_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
     result = _lib.add_float_tfloat(d, tnumber_converted)
@@ -7489,6 +7495,11 @@ def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_twcentroid(temp_converted)
     return result if result != _ffi.NULL else None
+
+
+def skiplist_free(list: 'SkipList *') -> None:
+    list_converted = _ffi.cast('SkipList *', list)
+    _lib.skiplist_free(list_converted)
 
 
 def temporal_extent_transfn(p: 'Period *', temp: 'Temporal *') -> 'Period *':
