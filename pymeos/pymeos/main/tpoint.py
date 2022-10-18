@@ -60,7 +60,8 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     overback_tpoint_tpoint, before_tpoint_stbox, before_tpoint_tpoint, overbefore_tpoint_stbox, \
     overbefore_tpoint_tpoint, after_tpoint_stbox, after_tpoint_tpoint, overafter_tpoint_stbox, left_tpoint_geo, \
     overleft_tpoint_geo, right_tpoint_geo, overright_tpoint_geo, below_tpoint_geo, overbelow_tpoint_geo, \
-    above_tpoint_geo, overabove_tpoint_geo, front_tpoint_geo, overfront_tpoint_geo, back_tpoint_geo, overback_tpoint_geo
+    above_tpoint_geo, overabove_tpoint_geo, front_tpoint_geo, overfront_tpoint_geo, back_tpoint_geo, \
+    overback_tpoint_geo, tgeompoint_tgeogpoint
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeqSet
@@ -569,6 +570,11 @@ class TGeomPoint(TPoint, ABC):
             return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_time(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
+    def to_geographic(self) -> TGeogPoint:
+        result = tgeompoint_tgeogpoint(self._inner, True)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
     def always_equal(self, value: Geometry) -> bool:
         gs = gserialized_in(value.to_ewkb(), -1)
         return tgeompoint_always_eq(self._inner, gs)
@@ -669,6 +675,11 @@ class TGeogPoint(TPoint, ABC):
         elif isinstance(base, PeriodSet):
             return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_time(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
+
+    def to_geometric(self) -> TGeogPoint:
+        result = tgeompoint_tgeogpoint(self._inner, False)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
 
     def always_equal(self, value: Geometry) -> bool:
         gs = gserialized_in(value.to_ewkb(), -1)
