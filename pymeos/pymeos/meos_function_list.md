@@ -1314,7 +1314,7 @@
 ### Analytics functions for temporal types
 
 - [ ] `extern Temporal *geo_to_tpoint(const GSERIALIZED *geo);`
-- [ ] `extern Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);`
+- [x] `extern Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);`
 - [ ] `extern bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
   int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);`
 - [ ] `extern bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);`

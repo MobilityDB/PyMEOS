@@ -7,11 +7,11 @@ class MobilityDB:
     @classmethod
     def connect(cls, dsn=None, connection_factory=None, cursor_factory=None, **kwargs):
         conn = connect(dsn, connection_factory, cursor_factory, **kwargs)
-        cls._register(conn)
+        cls.register(conn)
         return conn
 
     @classmethod
-    def _register(cls, connection):
+    def register(cls, connection):
         if isinstance(connection, extensions.cursor):
             # Retrocompat.
             cursor = connection
