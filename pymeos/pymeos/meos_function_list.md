@@ -779,6 +779,7 @@
 - [ ] `extern Temporal *tor_bool_tbool(bool b, const Temporal *temp);` `tor_tbool_bool` used instead
 - [x] `extern Temporal *tor_tbool_bool(const Temporal *temp, bool b);`
 - [x] `extern Temporal *tor_tbool_tbool(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern PeriodSet *tbool_when_true(const Temporal *temp);`
 
 
 

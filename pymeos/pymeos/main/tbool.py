@@ -30,7 +30,7 @@ from datetime import datetime
 from typing import Optional, Union, List
 
 from dateutil.parser import parse
-from pymeos_cffi import tbooldiscseq_from_base_time, tbool_at_value
+from pymeos_cffi import tbooldiscseq_from_base_time, tbool_at_value, tbool_when_true
 from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
     tbool_values, tbool_start_value, tbool_end_value, \
     tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
@@ -120,6 +120,12 @@ class TBool(Temporal, ABC):
 
     def never(self, value: bool) -> bool:
         return not tbool_ever_eq(self._inner, value)
+
+    def when_true(self) -> PeriodSet:
+        return PeriodSet(_inner=tbool_when_true(self._inner))
+
+    def when_false(self) -> PeriodSet:
+        return PeriodSet(_inner=tbool_when_true(tnot_tbool(self._inner)))
 
     def temporal_equal(self, other: Union[bool, Temporal]) -> Temporal:
         if isinstance(other, bool):
