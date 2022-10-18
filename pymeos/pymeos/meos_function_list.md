@@ -1247,11 +1247,11 @@
 
 ### Spatial transformation functions for temporal point types
 
-- [ ] `extern STBOX *geo_expand_spatial(const GSERIALIZED *gs, double d);`
+- [x] `extern STBOX *geo_expand_spatial(const GSERIALIZED *gs, double d);`
 - [x] `extern Temporal *tgeompoint_tgeogpoint(const Temporal *temp, bool oper);`
-- [ ] `extern STBOX *tpoint_expand_spatial(const Temporal *temp, double d);`
-- [ ] `extern Temporal **tpoint_make_simple(const Temporal *temp, int *count);`
-- [ ] `extern Temporal *tpoint_set_srid(const Temporal *temp, int32 srid);`
+- [x] `extern STBOX *tpoint_expand_spatial(const Temporal *temp, double d);`
+- [x] `extern Temporal **tpoint_make_simple(const Temporal *temp, int *count);`
+- [x] `extern Temporal *tpoint_set_srid(const Temporal *temp, int32 srid);`
 
 
 

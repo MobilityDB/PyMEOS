@@ -37,7 +37,8 @@ from geopandas import GeoDataFrame
 from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
-    adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord
+    adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord, \
+    tpoint_set_srid, tpoint_make_simple
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
     temporal_simplify, \
@@ -88,6 +89,9 @@ class TPoint(Temporal, ABC):
         Returns the SRID.
         """
         return tpoint_srid(self._inner)
+
+    def set_srid(self, srid: int) -> TPoint:
+        return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     @property
     def start_value(self, precision: int = 6) -> BaseGeometry:
@@ -147,6 +151,11 @@ class TPoint(Temporal, ABC):
 
     def is_simple(self) -> bool:
         return tpoint_is_simple(self._inner)
+
+    def make_simple(self) -> List[TPoint]:
+        result, count = tpoint_make_simple(self._inner)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(result[i]) for i in range(count)]
 
     def is_adjacent(self, other: Union[Geometry, STBox, TPoint,
                                        Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:

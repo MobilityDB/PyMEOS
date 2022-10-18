@@ -30,7 +30,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from postgis import Geometry
-from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint
+from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint, geo_expand_spatial, tpoint_expand_spatial
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
@@ -142,7 +142,7 @@ class STBox:
         return stbox_as_hexwkb(self._inner, -1)[0]
 
     @staticmethod
-    def from_value(value: Geometry) -> STBox:
+    def from_space(value: Geometry) -> STBox:
         return STBox.from_geometry(value)
 
     @staticmethod
@@ -165,7 +165,18 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_value_time(value: Geometry, time: Union[datetime, Period]) -> STBox:
+    def from_expanding_bounding_box(value: Union[Geometry, TPoint], expansion: float):
+        if isinstance(value, Geometry):
+            gs = gserialized_in(value.to_ewkb(), -1)
+            result = geo_expand_spatial(gs, expansion)
+        elif isinstance(value, TPoint):
+            result = tpoint_expand_spatial(value._inner, expansion)
+        else:
+            raise TypeError(f'Operation not supported with type {value.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_space_time(value: Geometry, time: Union[datetime, Period]) -> STBox:
         return STBox.from_geometry_time(value, time)
 
     @staticmethod
