@@ -31,12 +31,12 @@
  * @brief API of the Mobility Engine Open Source (MEOS) library.
  */
 
+//#ifndef __MEOS_H__
+//#define __MEOS_H__
 
 
-
-
-
-
+//#include <stdbool.h>
+//#include <stdint.h>
 
 typedef uintptr_t Datum;
 
@@ -75,7 +75,7 @@ typedef struct varlena bytea;
 
 
 
-
+//#include <liblwgeom.h>
 
 
 extern char *text2cstring(const text *textptr);
@@ -83,13 +83,13 @@ extern text *cstring2text(const char *cstring);
 
 typedef uint16_t lwflags_t;
 
-
+/******************************************************************/
 
 typedef struct {
     double afac, bfac, cfac, dfac, efac, ffac, gfac, hfac, ifac, xoff, yoff, zoff;
 } AFFINE;
 
-
+/******************************************************************/
 
 typedef struct
 {
@@ -129,13 +129,13 @@ typedef struct
 */
 typedef struct
 {
-    double  a;  
-    double  b;  
-    double  f;  
-    double  e;  
-    double  e_sq;   
-    double  radius;  
-    char    name[20];  
+    double  a;  /* semimajor axis */
+    double  b;  /* semiminor axis b = (a - fa) */
+    double  f;  /* flattening f = (a-b)/a */
+    double  e;  /* eccentricity (first) */
+    double  e_sq;   /* eccentricity squared (first) e_sq = (a*a-b*b)/(a*a) */
+    double  radius;  /* spherical average radius = (2*a+b)/3 */
+    char    name[20];  /* name of ellipse */
 }
 SPHEROID;
 
@@ -181,13 +181,13 @@ POINT4D;
 */
 typedef struct
 {
-    uint32_t npoints;   
-    uint32_t maxpoints; 
+    uint32_t npoints;   /* how many points we are currently storing */
+    uint32_t maxpoints; /* how many points we have space for in serialized_pointlist */
 
-    
+    /* Use FLAGS_* macros to handle */
     lwflags_t flags;
 
-    
+    /* Array of POINT 2D, 3D or 4D, possibly misaligned. */
     uint8_t *serialized_pointlist;
 }
 POINTARRAY;
@@ -198,10 +198,10 @@ POINTARRAY;
 
 typedef struct
 {
-    uint32_t size; 
-    uint8_t srid[3]; 
-    uint8_t gflags; 
-    uint8_t data[1]; 
+    uint32_t size; /* For PgSQL use only, use VAR* macros to manipulate. */
+    uint8_t srid[3]; /* 24 bits of SRID */
+    uint8_t gflags; /* HasZ, HasM, HasBBox, IsGeodetic */
+    uint8_t data[1]; /* See gserialized.txt */
 } GSERIALIZED;
 
 /******************************************************************
@@ -217,35 +217,35 @@ typedef struct
     int32_t srid;
     lwflags_t flags;
     uint8_t type;
-    char pad[1]; 
+    char pad[1]; /* Padding to 24 bytes (unused) */
 }
 LWGEOM;
 
-
+/* POINTYPE */
 typedef struct
 {
     GBOX *bbox;
-    POINTARRAY *point;  
+    POINTARRAY *point;  /* hide 2d/3d (this will be an array of 1 point) */
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
+    uint8_t type; /* POINTTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
 }
-LWPOINT; 
+LWPOINT; /* "light-weight point" */
 
-
+/* LINETYPE */
 typedef struct
 {
     GBOX *bbox;
-    POINTARRAY *points; 
+    POINTARRAY *points; /* array of POINT3D */
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
+    uint8_t type; /* LINETYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
 }
-LWLINE; 
+LWLINE; /* "light-weight line" */
 
-
+/* TRIANGLE */
 typedef struct
 {
     GBOX *bbox;
@@ -253,173 +253,173 @@ typedef struct
     int32_t srid;
     lwflags_t flags;
     uint8_t type;
-    char pad[1]; 
+    char pad[1]; /* Padding to 24 bytes (unused) */
 }
 LWTRIANGLE;
 
-
+/* CIRCSTRINGTYPE */
 typedef struct
 {
     GBOX *bbox;
-    POINTARRAY *points; 
+    POINTARRAY *points; /* array of POINT(3D/3DM) */
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
+    uint8_t type; /* CIRCSTRINGTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
 }
-LWCIRCSTRING; 
+LWCIRCSTRING; /* "light-weight circularstring" */
 
-
+/* POLYGONTYPE */
 typedef struct
 {
     GBOX *bbox;
-    POINTARRAY **rings; 
+    POINTARRAY **rings; /* list of rings (list of points) */
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t nrings;   
-    uint32_t maxrings; 
+    uint8_t type; /* POLYGONTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t nrings;   /* how many rings we are currently storing */
+    uint32_t maxrings; /* how many rings we have space for in **rings */
 }
-LWPOLY; 
+LWPOLY; /* "light-weight polygon" */
 
-
+/* MULTIPOINTTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWPOINT **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* MULTYPOINTTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWMPOINT;
 
-
+/* MULTILINETYPE */
 typedef struct
 {
     GBOX *bbox;
     LWLINE **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* MULTILINETYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWMLINE;
 
-
+/* MULTIPOLYGONTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWPOLY **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* MULTIPOLYGONTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWMPOLY;
 
-
+/* COLLECTIONTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWGEOM **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* COLLECTIONTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWCOLLECTION;
 
-
+/* COMPOUNDTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWGEOM **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* COLLECTIONTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
-LWCOMPOUND; 
+LWCOMPOUND; /* "light-weight compound line" */
 
-
+/* CURVEPOLYTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWGEOM **rings;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t nrings;    
-    uint32_t maxrings;  
+    uint8_t type; /* CURVEPOLYTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t nrings;    /* how many rings we are currently storing */
+    uint32_t maxrings;  /* how many rings we have space for in **rings */
 }
-LWCURVEPOLY; 
+LWCURVEPOLY; /* "light-weight polygon" */
 
-
+/* MULTICURVE */
 typedef struct
 {
     GBOX *bbox;
     LWGEOM **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* MULTICURVE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWMCURVE;
 
-
+/* MULTISURFACETYPE */
 typedef struct
 {
     GBOX *bbox;
     LWGEOM **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* MULTISURFACETYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWMSURFACE;
 
-
+/* POLYHEDRALSURFACETYPE */
 typedef struct
 {
     GBOX *bbox;
     LWPOLY **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* POLYHEDRALSURFACETYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWPSURFACE;
 
-
+/* TINTYPE */
 typedef struct
 {
     GBOX *bbox;
     LWTRIANGLE **geoms;
     int32_t srid;
     lwflags_t flags;
-    uint8_t type; 
-    char pad[1]; 
-    uint32_t ngeoms;   
-    uint32_t maxgeoms; 
+    uint8_t type; /* TINTYPE */
+    char pad[1]; /* Padding to 24 bytes (unused) */
+    uint32_t ngeoms;   /* how many geometries we are currently storing */
+    uint32_t maxgeoms; /* how many geometries we have space for in **geoms */
 }
 LWTIN;
 
@@ -572,7 +572,7 @@ typedef struct
   
 } TSequence;
 
-
+//#define TSEQUENCE_BBOX_PTR(seq)      ((void *)(&(seq)->period))
 
 /**
  * Structure to represent temporal values of sequence set subtype
@@ -595,7 +595,7 @@ typedef struct
   
 } TSequenceSet;
 
-
+//#define TSEQUENCESET_BBOX_PTR(ss)      ((void *)(&(ss)->period))
 
 /**
  * Struct for storing a similarity match
@@ -605,6 +605,45 @@ typedef struct
   int i;
   int j;
 } Match;
+
+
+
+/**
+ * Structure to represent skiplist elements
+ */
+
+#define SKIPLIST_MAXLEVEL 32
+typedef struct
+{
+  void *value;
+  int height;
+  int next[SKIPLIST_MAXLEVEL];
+} SkipListElem;
+
+typedef enum
+{
+  TIMESTAMPTZ,
+  PERIOD,
+  TEMPORAL
+} SkipListElemType;
+
+/**
+ * Structure to represent skiplists that keep the current state of an aggregation
+ */
+typedef struct
+{
+  SkipListElemType elemtype;
+  int capacity;
+  int next;
+  int length;
+  int *freed;
+  int freecount;
+  int freecap;
+  int tail;
+  void *extra;
+  size_t extrasize;
+  SkipListElem *elems;
+} SkipList;
 
 /*****************************************************************************
  * Initialization of the MEOS library
@@ -977,6 +1016,14 @@ extern double distance_timestampset_timestampset(const TimestampSet *ts1, const 
 
 
 
+extern SkipList *timestampset_agg_transfn(SkipList *state, const TimestampSet *ts);
+extern SkipList *period_agg_transfn(SkipList *state, const Period *p);
+extern SkipList *periodset_agg_transfn(SkipList *state, const PeriodSet *ps);
+
+
+
+
+
 extern bool periodset_eq(const PeriodSet *ps1, const PeriodSet *ps2);
 extern bool periodset_ne(const PeriodSet *ps1, const PeriodSet *ps2);
 extern int periodset_cmp(const PeriodSet *ps1, const PeriodSet *ps2);
@@ -1334,9 +1381,7 @@ extern Temporal *temporal_to_tsequenceset(const Temporal *temp);
 
 
 extern Temporal *tbool_at_value(const Temporal *temp, bool b);
-extern Temporal *tbool_at_values(const Temporal *temp, bool *values, int count);
 extern Temporal *tbool_minus_value(const Temporal *temp, bool b);
-extern Temporal *tbool_minus_values(const Temporal *temp, bool *values, int count);
 extern bool tbool_value_at_timestamp(const Temporal *temp, TimestampTz t, bool strict, bool *value);
 extern Temporal *temporal_at_max(const Temporal *temp);
 extern Temporal *temporal_at_min(const Temporal *temp);
@@ -1908,6 +1953,29 @@ extern GSERIALIZED *tpoint_twcentroid(const Temporal *temp);
 
 
 
+extern Period *temporal_extent_transfn(Period *p, Temporal *temp);
+extern TBOX *tnumber_extent_transfn(TBOX *box, Temporal *temp);
+
+extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tbool_tand_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tbool_tor_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tint_tmin_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tfloat_tmin_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tint_tmax_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tfloat_tmax_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tint_tsum_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tfloat_tsum_transfn(SkipList *state, Temporal *temp);
+extern SkipList *tnumber_tavg_transfn(SkipList *state, Temporal *temp);
+extern SkipList *ttext_tmin_transfn(SkipList *state, Temporal *temp);
+extern SkipList *ttext_tmax_transfn(SkipList *state, Temporal *temp);
+
+extern Temporal *temporal_tagg_finalfn(SkipList *state);
+extern Temporal *tnumber_tavg_finalfn(SkipList *state);
+
+
+
+
+
 extern Temporal **temporal_time_split(const Temporal *temp, TimestampTz start,
   TimestampTz end, int64 tunits, TimestampTz torigin, int count,
   TimestampTz **buckets, int *newcount);
@@ -1937,4 +2005,4 @@ bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool
 
 
 
-
+//#endif

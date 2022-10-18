@@ -2227,6 +2227,27 @@ def distance_timestampset_timestampset(ts1: 'const TimestampSet *', ts2: 'const 
     return result if result != _ffi.NULL else None
 
 
+def timestampset_agg_transfn(state: 'SkipList *', ts: 'const TimestampSet *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    ts_converted = _ffi.cast('const TimestampSet *', ts)
+    result = _lib.timestampset_agg_transfn(state_converted, ts_converted)
+    return result if result != _ffi.NULL else None
+
+
+def period_agg_transfn(state: 'SkipList *', p: 'const Period *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    p_converted = _ffi.cast('const Period *', p)
+    result = _lib.period_agg_transfn(state_converted, p_converted)
+    return result if result != _ffi.NULL else None
+
+
+def periodset_agg_transfn(state: 'SkipList *', ps: 'const PeriodSet *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    ps_converted = _ffi.cast('const PeriodSet *', ps)
+    result = _lib.periodset_agg_transfn(state_converted, ps_converted)
+    return result if result != _ffi.NULL else None
+
+
 def periodset_eq(ps1: 'const PeriodSet *', ps2: 'const PeriodSet *') -> 'bool':
     ps1_converted = _ffi.cast('const PeriodSet *', ps1)
     ps2_converted = _ffi.cast('const PeriodSet *', ps2)
@@ -4098,23 +4119,9 @@ def tbool_at_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tbool_at_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
-    temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.new('bool []', values)
-    result = _lib.tbool_at_values(temp_converted, values_converted, len(values_converted))
-    return result if result != _ffi.NULL else None
-
-
 def tbool_minus_value(temp: 'const Temporal *', b: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tbool_minus_value(temp_converted, b)
-    return result if result != _ffi.NULL else None
-
-
-def tbool_minus_values(temp: 'const Temporal *', values: List[bool]) -> 'Temporal *':
-    temp_converted = _ffi.cast('const Temporal *', temp)
-    values_converted = _ffi.new('bool []', values)
-    result = _lib.tbool_minus_values(temp_converted, values_converted, len(values_converted))
     return result if result != _ffi.NULL else None
 
 
@@ -7481,6 +7488,116 @@ def tnumber_twavg(temp: 'const Temporal *') -> 'double':
 def tpoint_twcentroid(temp: 'const Temporal *') -> 'GSERIALIZED *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_twcentroid(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_extent_transfn(p: 'Period *', temp: 'Temporal *') -> 'Period *':
+    p_converted = _ffi.cast('Period *', p)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.temporal_extent_transfn(p_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_extent_transfn(box: 'TBOX *', temp: 'Temporal *') -> 'TBOX *':
+    box_converted = _ffi.cast('TBOX *', box)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tnumber_extent_transfn(box_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_tcount_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.temporal_tcount_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tbool_tand_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tbool_tand_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tbool_tor_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tbool_tor_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tint_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tint_tmin_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tfloat_tmin_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tint_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tint_tmax_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tfloat_tmax_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tint_tsum_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tint_tsum_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tsum_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tfloat_tsum_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_tavg_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tnumber_tavg_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def ttext_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.ttext_tmin_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def ttext_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.ttext_tmax_transfn(state_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_tagg_finalfn(state: 'SkipList *') -> 'Temporal *':
+    state_converted = _ffi.cast('SkipList *', state)
+    result = _lib.temporal_tagg_finalfn(state_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_tavg_finalfn(state: 'SkipList *') -> 'Temporal *':
+    state_converted = _ffi.cast('SkipList *', state)
+    result = _lib.tnumber_tavg_finalfn(state_converted)
     return result if result != _ffi.NULL else None
 
 
