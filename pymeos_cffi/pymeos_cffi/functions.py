@@ -7502,15 +7502,15 @@ def skiplist_free(list: 'SkipList *') -> None:
     _lib.skiplist_free(list_converted)
 
 
-def temporal_extent_transfn(p: 'Period *', temp: 'Temporal *') -> 'Period *':
-    p_converted = _ffi.cast('Period *', p)
+def temporal_extent_transfn(p: "Optional['Period *']", temp: 'Temporal *') -> 'Period *':
+    p_converted = _ffi.cast('Period *', p) if p is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.temporal_extent_transfn(p_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tnumber_extent_transfn(box: 'TBOX *', temp: 'Temporal *') -> 'TBOX *':
-    box_converted = _ffi.cast('TBOX *', box)
+def tnumber_extent_transfn(box: "Optional['TBOX *']", temp: 'Temporal *') -> 'TBOX *':
+    box_converted = _ffi.cast('TBOX *', box) if box is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tnumber_extent_transfn(box_converted, temp_converted)
     return result if result != _ffi.NULL else None

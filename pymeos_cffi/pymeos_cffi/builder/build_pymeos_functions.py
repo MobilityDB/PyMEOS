@@ -187,6 +187,8 @@ nullable_parameters = {
     ('stbox_make', 'p'),
     ('tpointseq_make_coords', 'zcoords'),
     ('temporal_tcount_transfn', 'state'),
+    ('temporal_extent_transfn', 'p'),
+    ('tnumber_extent_transfn', 'box'),
     ('tbool_tand_transfn', 'state'),
     ('tbool_tor_transfn', 'state'),
     ('tint_tmin_transfn', 'state'),
