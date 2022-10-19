@@ -16,7 +16,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
-license = {text = "PostgreSQL"}
+license = { text = "PostgreSQL" }
 
 requires-python = ">=3.7"
 dependencies = [
@@ -26,6 +26,15 @@ dependencies = [
     'postgis',
     'shapely',
     'geopandas'
+]
+
+[project.optional-dependencies]
+db = [
+    'psycopg2'
+]
+
+plot = [
+    'matplotlib'
 ]
 
 [project.urls]
