@@ -38,7 +38,8 @@ from postgis import Point, Geometry
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
     adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord, \
-    tpoint_set_srid, tpoint_make_simple
+    tpoint_set_srid, tpoint_make_simple, tdwithin_tpoint_geo, tdwithin_tpoint_tpoint, tintersects_tpoint_geo, \
+    ttouches_tpoint_geo, tcontains_geo_tpoint, tdisjoint_tpoint_geo
 from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_value, tpoint_end_value, \
     tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, datetime_to_timestamptz, \
     temporal_simplify, \
@@ -62,7 +63,8 @@ from pymeos_cffi.functions import tgeogpoint_in, tgeompoint_in, tpoint_start_val
     overbefore_tpoint_tpoint, after_tpoint_stbox, after_tpoint_tpoint, overafter_tpoint_stbox, left_tpoint_geo, \
     overleft_tpoint_geo, right_tpoint_geo, overright_tpoint_geo, below_tpoint_geo, overbelow_tpoint_geo, \
     above_tpoint_geo, overabove_tpoint_geo, front_tpoint_geo, overfront_tpoint_geo, back_tpoint_geo, \
-    overback_tpoint_geo, tgeompoint_tgeogpoint
+    overback_tpoint_geo, tgeompoint_tgeogpoint, contains_geo_tpoint, disjoint_tpoint_geo, disjoint_tpoint_tpoint, \
+    dwithin_tpoint_geo, dwithin_tpoint_tpoint, intersects_tpoint_geo, intersects_tpoint_tpoint, touches_tpoint_geo
 from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeqSet
@@ -395,20 +397,93 @@ class TPoint(Temporal, ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
 
-    def minus(self,
-              other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[Geometry, List[Geometry], STBox,
+                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = tpoint_minus_geometry(self._inner, gs)
         elif isinstance(other, list):
             gss = [gserialized_in(gm.to_ewkb(), -1) for gm in other]
-            result = tpoint_minus_values(self._inner, gss, len(gss))
+            result = tpoint_minus_values(self._inner, gss)
         elif isinstance(other, STBox):
             result = tpoint_minus_stbox(self._inner, other._inner)
         else:
             return super().minus(other)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(result)
+
+    def within_distance(self, other: Union[Geometry, TPoint], distance: float) -> Temporal:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = tdwithin_tpoint_geo(self._inner, gs, distance, False, False)
+        elif isinstance(other, TPoint):
+            result = tdwithin_tpoint_tpoint(self._inner, other._inner, distance, False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def intersects(self, other: Geometry) -> Temporal:
+        gs = gserialized_in(other.to_ewkb(), -1)
+        result = tintersects_tpoint_geo(self._inner, gs, False, False)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def touches(self, other: Geometry) -> Temporal:
+        gs = gserialized_in(other.to_ewkb(), -1)
+        result = ttouches_tpoint_geo(self._inner, gs, False, False)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def is_contained(self, container: Geometry) -> Temporal:
+        gs = gserialized_in(container.to_ewkb(), -1)
+        result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def disjoint(self, other: Geometry) -> Temporal:
+        gs = gserialized_in(other.to_ewkb(), -1)
+        result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(result)
+
+    def is_ever_contained(self, container: Geometry) -> bool:
+        gs = gserialized_in(container.to_ewkb(), -1)
+        return contains_geo_tpoint(gs, self._inner) == 1
+
+    def is_ever_disjoint(self, other: Union[Geometry, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = disjoint_tpoint_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            result = disjoint_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return result == 1
+
+    def is_ever_within_distance(self, other: Union[Geometry, TPoint], distance: float) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = dwithin_tpoint_geo(self._inner, gs, distance)
+        elif isinstance(other, TPoint):
+            result = dwithin_tpoint_tpoint(self._inner, other._inner, distance)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return result == 1
+
+    def ever_intersects(self, other: Union[Geometry, TPoint]) -> bool:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            result = intersects_tpoint_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            result = intersects_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return result == 1
+
+    def ever_touches(self, other: Geometry) -> bool:
+        gs = gserialized_in(other.to_ewkb(), -1)
+        return touches_tpoint_geo(gs, self._inner) == 1
 
     def distance(self, other: Union[Geometry, TPoint]) -> TPoint:
         if isinstance(other, Geometry):
@@ -539,10 +614,6 @@ class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
     Abstract class for representing temporal points of sequence set subtype.
     """
-
-    @property
-    def distance(self):
-        return tpoint_length(self._inner)
 
     @property
     def speed(self):

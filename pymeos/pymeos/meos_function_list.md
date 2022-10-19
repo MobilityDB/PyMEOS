@@ -1257,20 +1257,20 @@
 
 ### Spatial relationship functions for temporal point types
 
-- [ ] `extern int contains_geo_tpoint(const GSERIALIZED *geo, const Temporal *temp);`
-- [ ] `extern int disjoint_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern int disjoint_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern int dwithin_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);`
-- [ ] `extern int dwithin_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, double dist);`
-- [ ] `extern int intersects_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern int intersects_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
-- [ ] `extern Temporal *tcontains_geo_tpoint(const GSERIALIZED *gs, const Temporal *temp, bool restr, bool atvalue);`
-- [ ] `extern Temporal *tdisjoint_tpoint_geo(const Temporal *temp, const GSERIALIZED *geo, bool restr, bool atvalue);`
-- [ ] `extern Temporal *tdwithin_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, double dist, bool restr, bool atvalue);`
-- [ ] `extern Temporal *tdwithin_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, double dist, bool restr, bool atvalue);`
-- [ ] `extern Temporal *tintersects_tpoint_geo(const Temporal *temp, const GSERIALIZED *geo, bool restr, bool atvalue);`
-- [ ] `extern int touches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
-- [ ] `extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, bool restr, bool atvalue);`
+- [x] `extern int contains_geo_tpoint(const GSERIALIZED *geo, const Temporal *temp);`
+- [x] `extern int disjoint_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern int disjoint_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern int dwithin_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, double dist);`
+- [x] `extern int dwithin_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, double dist);`
+- [x] `extern int intersects_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern int intersects_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);`
+- [x] `extern Temporal *tcontains_geo_tpoint(const GSERIALIZED *gs, const Temporal *temp, bool restr, bool atvalue);`
+- [x] `extern Temporal *tdisjoint_tpoint_geo(const Temporal *temp, const GSERIALIZED *geo, bool restr, bool atvalue);`
+- [x] `extern Temporal *tdwithin_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, double dist, bool restr, bool atvalue);`
+- [x] `extern Temporal *tdwithin_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2, double dist, bool restr, bool atvalue);`
+- [x] `extern Temporal *tintersects_tpoint_geo(const Temporal *temp, const GSERIALIZED *geo, bool restr, bool atvalue);`
+- [x] `extern int touches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs);`
+- [x] `extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs, bool restr, bool atvalue);`
 
 
 
