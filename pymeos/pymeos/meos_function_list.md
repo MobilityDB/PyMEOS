@@ -1289,6 +1289,29 @@
 - [x] `extern double tnumber_twavg(const Temporal *temp);`
 - [x] `extern GSERIALIZED *tpoint_twcentroid(const Temporal *temp);`
 
+### Temporal aggregate functions for temporal types
+
+- [ ] `extern void skiplist_free(SkipList *list);` Not necessary in PyMEOS
+
+- [ ] `extern Period *temporal_extent_transfn(Period *p, Temporal *temp);`
+- [ ] `extern TBOX *tnumber_extent_transfn(TBOX *box, Temporal *temp);`
+
+- [x] `extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tbool_tand_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tbool_tor_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tint_tmin_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tfloat_tmin_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tint_tmax_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tfloat_tmax_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tint_tsum_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tfloat_tsum_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *tnumber_tavg_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *ttext_tmin_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *ttext_tmax_transfn(SkipList *state, Temporal *temp);`
+
+- [x] `extern Temporal *temporal_tagg_finalfn(SkipList *state);`
+- [x] `extern Temporal *tnumber_tavg_finalfn(SkipList *state);`
+
 
 
 ### Tile functions for temporal types

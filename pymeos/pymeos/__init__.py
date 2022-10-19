@@ -1,3 +1,4 @@
+from .aggregators import *
 from .boxes import *
 from .main import *
 from .meos_init import *
@@ -22,5 +23,12 @@ __all__ = [
     # time
     'Period', 'TimestampSet', 'PeriodSet',
     # extras
-    'TInterpolation'
+    'TInterpolation',
+    # aggregators
+    'TemporalCountAggregator',
+    'TemporalAndAggregator', 'TemporalOrAggregator',
+    'TemporalAverageAggregator',
+    'TemporalIntMaxAggregator', 'TemporalIntMinAggregator', 'TemporalIntSumAggregator',
+    'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
+    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator'
 ]
