@@ -186,6 +186,18 @@ nullable_parameters = {
     ('tbox_make', 's'),
     ('stbox_make', 'p'),
     ('tpointseq_make_coords', 'zcoords'),
+    ('temporal_tcount_transfn', 'state'),
+    ('tbool_tand_transfn', 'state'),
+    ('tbool_tor_transfn', 'state'),
+    ('tint_tmin_transfn', 'state'),
+    ('tfloat_tmin_transfn', 'state'),
+    ('tint_tmax_transfn', 'state'),
+    ('tfloat_tmax_transfn', 'state'),
+    ('tint_tsum_transfn', 'state'),
+    ('tfloat_tsum_transfn', 'state'),
+    ('tnumber_tavg_transfn', 'state'),
+    ('ttext_tmin_transfn', 'state'),
+    ('ttext_tmax_transfn', 'state'),
 }
 
 

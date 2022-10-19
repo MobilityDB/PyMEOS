@@ -7516,85 +7516,85 @@ def tnumber_extent_transfn(box: 'TBOX *', temp: 'Temporal *') -> 'TBOX *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_tcount_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def temporal_tcount_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.temporal_tcount_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tbool_tand_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tbool_tand_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tbool_tand_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tbool_tor_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tbool_tor_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tbool_tor_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tint_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tint_tmin_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tint_tmin_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloat_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tfloat_tmin_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tfloat_tmin_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tint_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tint_tmax_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tint_tmax_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloat_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tfloat_tmax_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tfloat_tmax_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tint_tsum_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tint_tsum_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tint_tsum_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tfloat_tsum_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tfloat_tsum_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tfloat_tsum_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tnumber_tavg_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def tnumber_tavg_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tnumber_tavg_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def ttext_tmin_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def ttext_tmin_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.ttext_tmin_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def ttext_tmax_transfn(state: 'SkipList *', temp: 'Temporal *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def ttext_tmax_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.ttext_tmax_transfn(state_converted, temp_converted)
     return result if result != _ffi.NULL else None
