@@ -4,8 +4,8 @@ from pymeos.aggregators.aggregator import BaseAggregator
 
 
 class TemporalAndAggregator(BaseAggregator):
-    add_function = tbool_tand_transfn
+    _add_function = tbool_tand_transfn
 
 
 class TemporalOrAggregator(BaseAggregator):
-    add_function = tbool_tor_transfn
+    _add_function = tbool_tor_transfn

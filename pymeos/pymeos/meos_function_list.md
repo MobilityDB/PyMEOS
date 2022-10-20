@@ -1298,7 +1298,7 @@
 - [x] `extern TBOX *tnumber_extent_transfn(TBOX *box, Temporal *temp);`
 - [ ] `extern STBOX *tpoint_extent_transfn(STBOX *box, Temporal *temp);`
 
-- [x] `extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp);`
+- [x] `extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp, Interval *interval, TimestampTz origin);`
 - [x] `extern SkipList *tbool_tand_transfn(SkipList *state, Temporal *temp);`
 - [x] `extern SkipList *tbool_tor_transfn(SkipList *state, Temporal *temp);`
 - [x] `extern SkipList *tint_tmin_transfn(SkipList *state, Temporal *temp);`

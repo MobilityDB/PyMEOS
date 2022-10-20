@@ -1,14 +1,14 @@
 from pymeos_cffi import temporal_tcount_transfn, temporal_extent_transfn
 
 from ..time import Period
-from .aggregator import BaseAggregator
+from .aggregator import BaseAggregator, BaseGranularityAggregator
 
 
-class TemporalCountAggregator(BaseAggregator):
-    add_function = temporal_tcount_transfn
+class TemporalCountAggregator(BaseGranularityAggregator):
+    _add_function = temporal_tcount_transfn
 
 
 class TemporalExtentAggregator(BaseAggregator):
-    add_function = temporal_extent_transfn
-    final_function = lambda x: x
-    result_function = lambda x: Period(_inner=x)
+    _add_function = temporal_extent_transfn
+    _final_function = lambda x: x
+    _result_function = lambda x: Period(_inner=x)

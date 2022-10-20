@@ -4,8 +4,8 @@ from pymeos.aggregators.aggregator import BaseAggregator
 
 
 class TemporalTextMaxAggregator(BaseAggregator):
-    add_function = ttext_tmax_transfn
+    _add_function = ttext_tmax_transfn
 
 
 class TemporalTextMinAggregator(BaseAggregator):
-    add_function = ttext_tmin_transfn
+    _add_function = ttext_tmin_transfn
