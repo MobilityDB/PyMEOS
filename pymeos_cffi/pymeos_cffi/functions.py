@@ -7529,10 +7529,12 @@ def tpoint_extent_transfn(box: 'STBOX *', temp: 'Temporal *') -> 'STBOX *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_tcount_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
+def temporal_tcount_transfn(state: "Optional['SkipList *']", temp: 'Temporal *', interval: 'Interval *', origin: int) -> 'SkipList *':
     state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
-    result = _lib.temporal_tcount_transfn(state_converted, temp_converted)
+    interval_converted = _ffi.cast('Interval *', interval)
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.temporal_tcount_transfn(state_converted, temp_converted, interval_converted, origin_converted)
     return result if result != _ffi.NULL else None
 
 
