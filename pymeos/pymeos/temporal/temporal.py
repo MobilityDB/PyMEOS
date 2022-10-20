@@ -56,7 +56,7 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     contains_temporal_periodset, contains_temporal_timestamp, contains_temporal_timestampset, \
     contains_temporal_temporal, overlaps_temporal_temporal, overlaps_temporal_timestampset, overlaps_temporal_timestamp, \
     overlaps_temporal_periodset, overlaps_temporal_period, same_temporal_temporal, same_temporal_timestampset, \
-    same_temporal_timestamp, same_temporal_periodset, same_temporal_period
+    same_temporal_timestamp, same_temporal_periodset, same_temporal_period, temporal_to_period
 
 from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
@@ -197,7 +197,7 @@ class Temporal(ABC):
         Period on which the temporal value is defined ignoring potential
         time gaps.
         """
-        return Period(_inner=periodset_to_period(temporal_time(self._inner)))
+        return Period(_inner=temporal_to_period(self._inner))
 
     @property
     def num_instants(self) -> int:
