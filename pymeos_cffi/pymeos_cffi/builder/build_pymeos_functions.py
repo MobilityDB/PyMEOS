@@ -200,6 +200,7 @@ nullable_parameters = {
     ('tnumber_tavg_transfn', 'state'),
     ('ttext_tmin_transfn', 'state'),
     ('ttext_tmax_transfn', 'state'),
+    ('temporal_tcount_transfn', 'interval'),
 }
 
 
