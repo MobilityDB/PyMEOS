@@ -1309,6 +1309,7 @@ extern TSequenceSet *ttextseqset_from_base_time(const text *txt, const PeriodSet
 extern Temporal *tfloat_to_tint(const Temporal *temp);
 extern Temporal *tint_to_tfloat(const Temporal *temp);
 extern Span *tnumber_to_span(const Temporal *temp);
+extern Period *temporal_to_period(const Temporal *temp);
 
 
 
@@ -1958,6 +1959,7 @@ extern void skiplist_free(SkipList *list);
 
 extern Period *temporal_extent_transfn(Period *p, Temporal *temp);
 extern TBOX *tnumber_extent_transfn(TBOX *box, Temporal *temp);
+extern STBOX *tpoint_extent_transfn(STBOX *box, Temporal *temp);
 
 extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp);
 extern SkipList *tbool_tand_transfn(SkipList *state, Temporal *temp);
@@ -1978,6 +1980,10 @@ extern Temporal *tnumber_tavg_finalfn(SkipList *state);
 
 
 
+
+extern int int_bucket(int value, int size, int origin);
+extern double float_bucket(double value, double size, double origin);
+extern TimestampTz timestamptz_bucket(TimestampTz timestamp, const Interval *duration, TimestampTz origin);
 
 extern Temporal **temporal_time_split(const Temporal *temp, TimestampTz start,
   TimestampTz end, int64 tunits, TimestampTz torigin, int count,
@@ -2000,11 +2006,11 @@ extern Match *temporal_dyntimewarp_path(const Temporal *temp1, const Temporal *t
 
 
 
-Temporal *geo_to_tpoint(const GSERIALIZED *geo);
-Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);
-bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
+extern Temporal *geo_to_tpoint(const GSERIALIZED *geo);
+extern Temporal *temporal_simplify(const Temporal *temp, double eps_dist, bool synchronized);
+extern bool tpoint_AsMVTGeom(const Temporal *temp, const STBOX *bounds, int32_t extent,
   int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);
-bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
+extern bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
 
 
 

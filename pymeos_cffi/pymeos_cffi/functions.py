@@ -3754,6 +3754,12 @@ def tnumber_to_span(temp: 'const Temporal *') -> 'Span *':
     return result if result != _ffi.NULL else None
 
 
+def temporal_to_period(temp: 'const Temporal *') -> 'Period *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_to_period(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def tbool_end_value(temp: 'const Temporal *') -> 'bool':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tbool_end_value(temp_converted)
@@ -7516,6 +7522,13 @@ def tnumber_extent_transfn(box: "Optional['TBOX *']", temp: 'Temporal *') -> 'TB
     return result if result != _ffi.NULL else None
 
 
+def tpoint_extent_transfn(box: 'STBOX *', temp: 'Temporal *') -> 'STBOX *':
+    box_converted = _ffi.cast('STBOX *', box)
+    temp_converted = _ffi.cast('Temporal *', temp)
+    result = _lib.tpoint_extent_transfn(box_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def temporal_tcount_transfn(state: "Optional['SkipList *']", temp: 'Temporal *') -> 'SkipList *':
     state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
@@ -7609,6 +7622,24 @@ def temporal_tagg_finalfn(state: 'SkipList *') -> 'Temporal *':
 def tnumber_tavg_finalfn(state: 'SkipList *') -> 'Temporal *':
     state_converted = _ffi.cast('SkipList *', state)
     result = _lib.tnumber_tavg_finalfn(state_converted)
+    return result if result != _ffi.NULL else None
+
+
+def int_bucket(value: int, size: int, origin: int) -> 'int':
+    result = _lib.int_bucket(value, size, origin)
+    return result if result != _ffi.NULL else None
+
+
+def float_bucket(value: float, size: float, origin: float) -> 'double':
+    result = _lib.float_bucket(value, size, origin)
+    return result if result != _ffi.NULL else None
+
+
+def timestamptz_bucket(timestamp: int, duration: 'const Interval *', origin: int) -> 'TimestampTz':
+    timestamp_converted = _ffi.cast('TimestampTz', timestamp)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.timestamptz_bucket(timestamp_converted, duration_converted, origin_converted)
     return result if result != _ffi.NULL else None
 
 
