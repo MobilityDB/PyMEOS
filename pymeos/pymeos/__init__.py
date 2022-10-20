@@ -25,10 +25,11 @@ __all__ = [
     # extras
     'TInterpolation',
     # aggregators
-    'TemporalCountAggregator',
+    'TemporalCountAggregator', 'TemporalExtentAggregator',
     'TemporalAndAggregator', 'TemporalOrAggregator',
     'TemporalAverageAggregator',
     'TemporalIntMaxAggregator', 'TemporalIntMinAggregator', 'TemporalIntSumAggregator',
     'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
-    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator'
+    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
+    'TemporalPointExtentAggregator'
 ]

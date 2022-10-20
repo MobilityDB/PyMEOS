@@ -4,7 +4,7 @@ from .aggregator import BaseAggregator
 from ..boxes import STBox
 
 
-class TemporalNumberExtentAggregator(BaseAggregator):
+class TemporalPointExtentAggregator(BaseAggregator):
     _add_function = tpoint_extent_transfn
     _final_function = lambda x: x
     _result_function = lambda x: STBox(_inner=x)
