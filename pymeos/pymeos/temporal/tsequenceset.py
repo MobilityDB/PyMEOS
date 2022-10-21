@@ -23,14 +23,20 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from abc import ABC
-from typing import Optional, List, Union, Any
+from __future__ import annotations
 
+from abc import ABC
+from typing import Optional, List, Union, Any, TYPE_CHECKING
+
+from pandas import DataFrame
 from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, \
     temporal_sequence_n, temporal_sequences, \
     tsequenceset_make
 
 from ..temporal.temporal import Temporal
+
+if TYPE_CHECKING:
+    from .tsequence import TSequence
 
 
 class TSequenceSet(Temporal, ABC):
@@ -87,9 +93,17 @@ class TSequenceSet(Temporal, ABC):
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
-    def sequences(self):
+    def sequences(self) -> List[TSequence]:
         """
         List of sequences.
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
+
+    def to_dataframe(self) -> DataFrame:
+        data = {
+            'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.num_instants)],
+            'time': [t for seq in self.sequences for t in seq.timestamps],
+            'value': [v for seq in self.sequences for v in seq.values]
+        }
+        return DataFrame(data).set_index(keys=['sequence', 'time'])

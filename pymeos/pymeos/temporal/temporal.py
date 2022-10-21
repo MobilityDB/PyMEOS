@@ -30,6 +30,7 @@ from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple
 
+from pandas import DataFrame
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
     temporal_at_periodset, temporal_at_period, temporal_from_mfjson, temporal_as_hexwkb, temporal_intersects_timestamp, \
     datetime_to_timestamptz, temporal_intersects_timestampset, \
@@ -323,6 +324,14 @@ class Temporal(ABC):
         ss = temporal_to_tsequenceset(self._inner)
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(ss)
+
+    def to_dataframe(self) -> DataFrame:
+        data = {
+            'time': self.timestamps,
+            'value': [i.value for i in self.instants]
+        }
+        return DataFrame(data).set_index(keys='time')
+
 
     def append(self, instant: TInstant, expand: bool = False) -> Temporal:
         new_temp = temporal_append_tinstant(self._inner, instant._inner, expand)

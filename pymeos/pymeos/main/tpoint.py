@@ -553,6 +553,13 @@ class TPoint(Temporal, ABC):
     def to_shapely_geometry(self, precision: int = 6) -> BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner), precision)
 
+    def to_dataframe(self) -> GeoDataFrame:
+        data = {
+            'time': self.timestamps,
+            'geometry': [i.value for i in self.instants]
+        }
+        return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
+
     def __str__(self):
         return tpoint_out(self._inner, 5)
 
@@ -597,18 +604,6 @@ class TPointSeq(TPoint, TSequence, ABC):
                                   normalize)
         )
 
-    def to_geodataframe(self) -> GeoDataFrame:
-        data = {
-            'time': self.timestamps,
-            'geometry': [i.value for i in self.instants]
-        }
-        return GeoDataFrame(data, crs=self.srid)
-
-    # def to_trajectory(self):
-    #     return Trajectory(self.to_geodataframe(), None, t='time')
-
-
-#
 
 class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
@@ -618,6 +613,14 @@ class TPointSeqSet(TPoint, TSequenceSet, ABC):
     @property
     def speed(self):
         return TFloatSeqSet(_inner=tpoint_speed(self._inner))
+
+    def to_dataframe(self) -> GeoDataFrame:
+        data = {
+            'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.instants)],
+            'time': [t for seq in self.sequences for t in seq.timestamps],
+            'geometry': [v for seq in self.sequences for v in seq.values]
+        }
+        return GeoDataFrame(data, crs=self.srid).set_index(keys=['sequence', 'time'])
 
 
 class TGeomPoint(TPoint, ABC):
