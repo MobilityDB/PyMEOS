@@ -119,6 +119,23 @@ def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
     return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
 
 
+def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':
+    return _ffi.cast('TInstant *', temporal)
+
+
+def as_tsequence(temporal: 'Temporal *') -> 'TSequence *':
+    return _ffi.cast('TSequence *', temporal)
+
+
+def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
+    return _ffi.cast('TSequenceSet *', temporal)
+
+
+# -----------------------------------------------------------------------------
+# ----------------------End of manually-defined functions----------------------
+# -----------------------------------------------------------------------------
+
+
 """
 
 function_notes = {
