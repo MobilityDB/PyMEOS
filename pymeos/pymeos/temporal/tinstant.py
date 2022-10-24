@@ -29,6 +29,7 @@ from abc import ABC
 from datetime import datetime
 from typing import Optional, Union, Any, TYPE_CHECKING
 
+from pymeos_cffi import as_tinstant
 from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime, datetime_to_timestamptz, \
     pg_timestamptz_in
 from .temporal import Temporal
@@ -53,9 +54,9 @@ class TInstant(Temporal, ABC):
         assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
         if _inner is not None:
-            self._inner = _inner
+            self._inner = as_tinstant(_inner)
         elif string is not None:
-            self._inner = self.__class__._parse_function(string)
+            self._inner = as_tinstant(self.__class__._parse_function(string))
         else:
             ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
                 else pg_timestamptz_in(timestamp, -1)
@@ -90,7 +91,7 @@ class TInstant(Temporal, ABC):
         """
         Value component.
         """
-        return self.values[0]
+        return self.start_value
 
     @property
     def start_instant(self):

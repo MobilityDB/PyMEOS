@@ -29,6 +29,7 @@ from abc import ABC
 from typing import Optional, List, Union, Any, TYPE_CHECKING
 
 from pandas import DataFrame
+from pymeos_cffi import as_tsequenceset
 from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, \
     temporal_sequence_n, temporal_sequences, \
     tsequenceset_make
@@ -50,9 +51,9 @@ class TSequenceSet(Temporal, ABC):
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
         if _inner is not None:
-            self._inner = _inner
+            self._inner = as_tsequenceset(_inner)
         elif string is not None:
-            self._inner = self.__class__._parse_function(string)
+            self._inner = as_tsequenceset(self.__class__._parse_function(string))
         else:
             sequences = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x)
                          for x in sequence_list]

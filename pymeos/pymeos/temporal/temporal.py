@@ -28,14 +28,14 @@ from __future__ import annotations
 import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
-from typing import Optional, List, Union, TYPE_CHECKING, Tuple
+from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set
 
 from pandas import DataFrame
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
     temporal_at_periodset, temporal_at_period, temporal_from_mfjson, temporal_as_hexwkb, temporal_intersects_timestamp, \
     datetime_to_timestamptz, temporal_intersects_timestampset, \
     temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
-    temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
+    temporal_timespan, temporal_num_instants, temporal_num_timestamps, timestamptz_to_datetime, \
     temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
     timedelta_to_interval, temporal_hash, temporal_copy, temporal_as_mfjson, teq_temporal_temporal, \
     tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal, \
@@ -127,11 +127,18 @@ class Temporal(ABC):
 
     @property
     @abstractmethod
-    def values(self):
+    def value_set(self) -> Set:
         """
         List of distinct values taken by the temporal value.
         """
         pass
+
+    @property
+    def values(self) -> List:
+        """
+        List values taken by the temporal value.
+        """
+        return [i.value for i in self.instants]
 
     @property
     @abstractmethod
@@ -154,14 +161,14 @@ class Temporal(ABC):
         """
         Minimum value.
         """
-        return min(self.values)
+        return min(self.value_set)
 
     @property
     def max_value(self):
         """
         Maximum value.
         """
-        return max(self.values)
+        return max(self.value_set)
 
     @abstractmethod
     def value_at_timestamp(self, timestamp):
@@ -307,23 +314,19 @@ class Temporal(ABC):
             timedelta_to_interval(shift_delta) if shift_delta else None,
             timedelta_to_interval(scale_delta) if scale_delta else None
         )
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(scaled)
+        return Temporal._factory(scaled)
 
     def to_instant(self) -> TInstant:
         inst = temporal_to_tinstant(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(inst)
+        return Temporal._factory(inst)
 
     def to_sequence(self, discrete: bool = False) -> TSequence:
         seq = temporal_to_tsequence(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(seq)
+        return Temporal._factory(seq)
 
     def to_sequenceset(self) -> TSequenceSet:
         ss = temporal_to_tsequenceset(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(ss)
+        return Temporal._factory(ss)
 
     def to_dataframe(self) -> DataFrame:
         data = {
@@ -332,26 +335,21 @@ class Temporal(ABC):
         }
         return DataFrame(data).set_index(keys='time')
 
-
     def append(self, instant: TInstant, expand: bool = False) -> Temporal:
         new_temp = temporal_append_tinstant(self._inner, instant._inner, expand)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(new_temp)
+        return Temporal._factory(new_temp)
 
     def merge(self, other: Temporal) -> Temporal:
         new_temp = temporal_merge(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(new_temp)
+        return Temporal._factory(new_temp)
 
     def merge_array(self, others: List[Temporal]) -> Temporal:
         new_temp = temporal_merge_array([self._inner, *(o._inner for o in others)], len(others) + 1)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(new_temp)
+        return Temporal._factory(new_temp)
 
     def to_linear(self) -> Temporal:
         new_temp = temporal_step_to_linear(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(new_temp)
+        return Temporal._factory(new_temp)
 
     def intersects(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
         if isinstance(other, Period):
@@ -427,18 +425,15 @@ class Temporal(ABC):
             result = temporal_at_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def at_max(self) -> Temporal:
         result = temporal_at_max(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def at_min(self) -> Temporal:
         result = temporal_at_min(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, Period):
@@ -451,18 +446,15 @@ class Temporal(ABC):
             result = temporal_minus_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus_max(self) -> Temporal:
         result = temporal_minus_max(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus_min(self) -> Temporal:
         result = temporal_minus_min(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
         if isinstance(other, Period):
@@ -592,8 +584,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = tlt_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Temporal) -> Temporal:
         """
@@ -601,8 +592,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = tle_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_equal(self, other: Temporal) -> Temporal:
         """
@@ -610,8 +600,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = teq_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Temporal) -> Temporal:
         """
@@ -619,8 +608,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = tne_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Temporal) -> Temporal:
         """
@@ -628,8 +616,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = tge_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater(self, other: Temporal) -> Temporal:
         """
@@ -637,8 +624,7 @@ class Temporal(ABC):
         """
         self.__assert_comparable(other)
         result = tgt_temporal_temporal(self._inner, other._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def __lt__(self, other):
         """
@@ -709,23 +695,24 @@ class Temporal(ABC):
     @staticmethod
     def from_merge(*temporals: Temporal) -> Temporal:
         result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_merge_array(temporals: List[Temporal]) -> Temporal:
         result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> Temporal:
         result = temporal_from_hexwkb(hexwkb)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_mfjson(mfjson: str) -> Temporal:
         result = temporal_from_mfjson(mfjson)
+        return Temporal._factory(result)
+
+    @staticmethod
+    def _factory(inner) -> Temporal:
         from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return _TemporalFactory.create_temporal(inner)

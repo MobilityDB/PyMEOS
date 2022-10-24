@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Set
 
 from dateutil.parser import parse
 from pymeos_cffi import tbooldiscseq_from_base_time, tbool_at_value, tbool_when_true
@@ -55,22 +55,19 @@ class TBool(Temporal, ABC):
             result = tbool_at_value(self._inner, other)
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, bool):
             result = tbool_minus_value(self._inner, other)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base(value: bool, base: Temporal) -> TBool:
         result = tbool_from_base(value, base._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: bool, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBool:
@@ -85,12 +82,12 @@ class TBool(Temporal, ABC):
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @property
-    def values(self) -> List[bool]:
+    def value_set(self) -> Set[bool]:
         """
         List of distinct values.
         """
         values, count = tbool_values(self._inner)
-        return [values[i] for i in range(count)]
+        return {values[i] for i in range(count)}
 
     @property
     def start_value(self) -> bool:
@@ -132,16 +129,14 @@ class TBool(Temporal, ABC):
             result = teq_tbool_bool(self._inner, other)
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[bool, Temporal]) -> Temporal:
         if isinstance(other, bool):
             result = tne_tbool_bool(self._inner, other)
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not(self) -> TBool:
         return self.__class__(_inner=tnot_tbool(self._inner))

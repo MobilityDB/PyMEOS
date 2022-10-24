@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Set
 
 from dateutil.parser import parse
 from pymeos_cffi import tlt_ttext_text
@@ -59,8 +59,7 @@ class TText(Temporal, ABC):
             result = ttext_at_values(self._inner, other)
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         if isinstance(other, str):
@@ -69,14 +68,12 @@ class TText(Temporal, ABC):
             result = ttext_minus_values(self._inner, other)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base(value: str, base: Temporal) -> TText:
         result = ttext_from_base(value, base._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: str, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TText:
@@ -91,9 +88,9 @@ class TText(Temporal, ABC):
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @property
-    def values(self):
+    def value_set(self) -> Set[str]:
         values, count = ttext_values(self._inner)
-        return [text2cstring(values[i]) for i in range(count)]
+        return {text2cstring(values[i]) for i in range(count)}
 
     @property
     def min_value(self):
@@ -187,48 +184,42 @@ class TText(Temporal, ABC):
             result = tlt_ttext_text(self._inner, other)
         else:
             return super().temporal_less(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
         if isinstance(other, str):
             result = tle_ttext_text(self._inner, other)
         else:
             return super().temporal_less_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
         if isinstance(other, str):
             result = teq_ttext_text(self._inner, other)
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
         if isinstance(other, str):
             result = tne_ttext_text(self._inner, other)
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
         if isinstance(other, str):
             result = tge_ttext_text(self._inner, other)
         else:
             return super().temporal_greater_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
         if isinstance(other, str):
             result = tgt_ttext_text(self._inner, other)
         else:
             return super().temporal_greater(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def __add__(self, other):
         return self.concatenate(other)
@@ -293,13 +284,6 @@ class TTextInst(TInstant, TText):
     def __init__(self, string: Optional[str] = None, *, value: Optional[str] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
-
-    @property
-    def value(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        return self.values[0]
 
 
 class TTextSeq(TSequence, TText):

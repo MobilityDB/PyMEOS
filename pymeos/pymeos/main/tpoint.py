@@ -29,7 +29,7 @@ from __future__ import annotations
 from abc import ABC
 from ctypes import Union
 from datetime import datetime
-from typing import Optional, List, TYPE_CHECKING
+from typing import Optional, List, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
@@ -104,9 +104,9 @@ class TPoint(Temporal, ABC):
         return gserialized_to_shapely_geometry(tpoint_end_value(self._inner), precision)
 
     @property
-    def values(self, precision: int = 6) -> List[BaseGeometry]:
+    def value_set(self, precision: int = 6) -> Set[BaseGeometry]:
         values, count = tpoint_values(self._inner)
-        return [gserialized_to_shapely_geometry(values[i], precision) for i in range(count)]
+        return {gserialized_to_shapely_geometry(values[i], precision) for i in range(count)}
 
     def value_at_timestamp(self, timestamp: datetime, precision: int = 6) -> BaseGeometry:
         """
@@ -123,28 +123,23 @@ class TPoint(Temporal, ABC):
 
     def cumulative_length(self) -> Temporal:
         result = tpoint_cumulative_length(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def speed(self) -> Temporal:
         result = tpoint_speed(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def x(self):
         result = tpoint_get_coord(self._inner, 0)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def y(self):
         result = tpoint_get_coord(self._inner, 1)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def z(self):
         result = tpoint_get_coord(self._inner, 2)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def stboxes(self) -> List[STBox]:
         from ..boxes import STBox
@@ -394,8 +389,7 @@ class TPoint(Temporal, ABC):
             result = tpoint_at_stbox(self._inner, other._inner)
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[Geometry, List[Geometry], STBox,
                                  datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
@@ -409,8 +403,7 @@ class TPoint(Temporal, ABC):
             result = tpoint_minus_stbox(self._inner, other._inner)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def within_distance(self, other: Union[Geometry, TPoint], distance: float) -> Temporal:
         if isinstance(other, Geometry):
@@ -420,32 +413,27 @@ class TPoint(Temporal, ABC):
             result = tdwithin_tpoint_tpoint(self._inner, other._inner, distance, False, False)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def intersects(self, other: Geometry) -> Temporal:
         gs = gserialized_in(other.to_ewkb(), -1)
         result = tintersects_tpoint_geo(self._inner, gs, False, False)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def touches(self, other: Geometry) -> Temporal:
         gs = gserialized_in(other.to_ewkb(), -1)
         result = ttouches_tpoint_geo(self._inner, gs, False, False)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def is_contained(self, container: Geometry) -> Temporal:
         gs = gserialized_in(container.to_ewkb(), -1)
         result = tcontains_geo_tpoint(gs, self._inner, False, False)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def disjoint(self, other: Geometry) -> Temporal:
         gs = gserialized_in(other.to_ewkb(), -1)
         result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def is_ever_contained(self, container: Geometry) -> bool:
         gs = gserialized_in(container.to_ewkb(), -1)
@@ -493,8 +481,7 @@ class TPoint(Temporal, ABC):
             result = distance_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
         if isinstance(other, Geometry):
@@ -515,8 +502,7 @@ class TPoint(Temporal, ABC):
             result = nai_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def shortest_line(self, other: Union[Geometry, TPoint]) -> BaseGeometry:
         if isinstance(other, Geometry):
@@ -536,13 +522,11 @@ class TPoint(Temporal, ABC):
             result = bearing_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def azimuth(self) -> Temporal:
         result = tpoint_azimuth(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def time_weighted_centroid(self) -> BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_twcentroid(self._inner), 10)
@@ -574,13 +558,6 @@ class TPointInst(TPoint, TInstant, ABC):
     """
     Abstract class for representing temporal points of instant subtype.
     """
-
-    @property
-    def value(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        return self.values[0]
 
     @property
     def point(self):
@@ -636,8 +613,7 @@ class TGeomPoint(TPoint, ABC):
     def from_base(value: Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         result = tgeompoint_from_base(gs, base._inner, interpolation)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
@@ -655,8 +631,7 @@ class TGeomPoint(TPoint, ABC):
 
     def to_geographic(self) -> TGeogPoint:
         result = tgeompoint_tgeogpoint(self._inner, True)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def always_equal(self, value: Geometry) -> bool:
         gs = gserialized_in(value.to_ewkb(), -1)
@@ -688,8 +663,7 @@ class TGeomPoint(TPoint, ABC):
             result = teq_tgeompoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[Point, Temporal]) -> Temporal:
         if isinstance(other, Point):
@@ -697,8 +671,7 @@ class TGeomPoint(TPoint, ABC):
             result = tne_tgeompoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
@@ -742,8 +715,7 @@ class TGeogPoint(TPoint, ABC):
     def from_base(value: Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         result = tgeogpoint_from_base(gs, base._inner, interpolation)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
@@ -761,8 +733,7 @@ class TGeogPoint(TPoint, ABC):
 
     def to_geometric(self) -> TGeogPoint:
         result = tgeompoint_tgeogpoint(self._inner, False)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def always_equal(self, value: Geometry) -> bool:
         gs = gserialized_in(value.to_ewkb(), -1)
@@ -794,8 +765,7 @@ class TGeogPoint(TPoint, ABC):
             result = teq_tgeogpoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[Point, Temporal]) -> Temporal:
         if isinstance(other, Point):
@@ -803,8 +773,7 @@ class TGeogPoint(TPoint, ABC):
             result = tne_tgeogpoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

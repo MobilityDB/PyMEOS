@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, List, Union, TYPE_CHECKING
+from typing import Optional, List, Union, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
 from pymeos_cffi import tfloat_to_tint, tnumber_to_span, tfloat_min_value, \
@@ -158,48 +158,42 @@ class TFloat(TNumber, ABC):
             result = tlt_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_less(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
         if isinstance(other, int) or isinstance(other, float):
             result = tle_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_less_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_equal(self, other: Union[int, float, Temporal]) -> Temporal:
         if isinstance(other, int) or isinstance(other, float):
             result = teq_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[int, float, Temporal]) -> Temporal:
         if isinstance(other, int) or isinstance(other, float):
             result = tne_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
         if isinstance(other, int) or isinstance(other, float):
             result = tge_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_greater_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater(self, other: Union[int, float, Temporal]) -> Temporal:
         if isinstance(other, int) or isinstance(other, float):
             result = tgt_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_greater(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def at(self, other: Union[int, float, List[float], List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,
@@ -210,8 +204,7 @@ class TFloat(TNumber, ABC):
             result = tfloat_at_values(self._inner, [float(x) for x in other])
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[float, List[float],
                                  intrange, floatrange, List[intrange], List[floatrange], TBox,
@@ -222,8 +215,7 @@ class TFloat(TNumber, ABC):
             result = tfloat_minus_values(self._inner, other)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def to_tint(self) -> TInt:
         from ..factory import _TemporalFactory
@@ -235,8 +227,7 @@ class TFloat(TNumber, ABC):
     @staticmethod
     def from_base(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
         result = tfloat_from_base(value, base._inner, interpolation)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: float, base: Union[datetime, TimestampSet, Period, PeriodSet],
@@ -299,12 +290,12 @@ class TFloat(TNumber, ABC):
         return tfloat_end_value(self._inner)
 
     @property
-    def values(self) -> List[float]:
+    def value_set(self) -> Set[float]:
         """
         List of distinct values.
         """
         values, count = tfloat_values(self._inner)
-        return [values[i] for i in range(count)]
+        return {values[i] for i in range(count)}
 
     @property
     def min_value(self) -> float:

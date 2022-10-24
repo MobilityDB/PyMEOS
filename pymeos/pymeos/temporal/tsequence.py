@@ -28,7 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, Any
 
-from pymeos_cffi import tsequence_compact
+from pymeos_cffi import tsequence_compact, as_tsequence
 from pymeos_cffi.functions import tsequence_make
 
 from .interpolation import TInterpolation
@@ -47,9 +47,9 @@ class TSequence(Temporal, ABC):
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
-            self._inner = _inner
+            self._inner = as_tsequence(_inner)
         elif string is not None:
-            self._inner = self.__class__._parse_function(string)
+            self._inner = as_tsequence(self.__class__._parse_function(string))
         else:
             self._instants = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x) for
                               x in instant_list]
@@ -68,14 +68,14 @@ class TSequence(Temporal, ABC):
         """
         Is the lower bound inclusive?
         """
-        return self._inner.lower_inc
+        return self._inner.period.lower_inc
 
     @property
     def upper_inc(self):
         """
         Is the upper bound inclusive?
         """
-        return self._inner._upper_inc
+        return self._inner.period.upper_inc
 
     @property
     def num_sequences(self):
@@ -117,5 +117,4 @@ class TSequence(Temporal, ABC):
 
     def compact(self) -> TSequence:
         result = tsequence_compact(self._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)

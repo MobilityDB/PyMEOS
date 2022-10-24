@@ -210,8 +210,7 @@ class TNumber(Temporal, ABC):
             result = tnumber_at_tbox(self._inner, other._inner)
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox,
                                  datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
@@ -229,8 +228,7 @@ class TNumber(Temporal, ABC):
             result = tnumber_minus_tbox(self._inner, other._inner)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def distance(self, other: Union[int, float, TNumber]) -> TNumber:
         if isinstance(other, int):
@@ -241,8 +239,7 @@ class TNumber(Temporal, ABC):
             result = distance_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
         if isinstance(other, int):
@@ -265,8 +262,7 @@ class TNumber(Temporal, ABC):
             result = add_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def radd(self, other: Union[int, float]):
         if isinstance(other, int):
@@ -275,8 +271,7 @@ class TNumber(Temporal, ABC):
             result = add_float_tfloat(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def sub(self, other: Union[int, float, TNumber]) -> TNumber:
         if isinstance(other, int):
@@ -287,8 +282,7 @@ class TNumber(Temporal, ABC):
             result = sub_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def rsub(self, other: Union[int, float]):
         if isinstance(other, int):
@@ -297,8 +291,7 @@ class TNumber(Temporal, ABC):
             result = sub_float_tfloat(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def mul(self, other: Union[int, float, TNumber]) -> TNumber:
         if isinstance(other, int):
@@ -309,8 +302,7 @@ class TNumber(Temporal, ABC):
             result = mult_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def rmul(self, other: Union[int, float]):
         if isinstance(other, int):
@@ -319,8 +311,7 @@ class TNumber(Temporal, ABC):
             result = mult_float_tfloat(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def div(self, other: Union[int, float, TNumber]) -> TNumber:
         if isinstance(other, int):
@@ -331,8 +322,7 @@ class TNumber(Temporal, ABC):
             result = div_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def rdiv(self, other: Union[int, float]):
         if isinstance(other, int):
@@ -341,8 +331,7 @@ class TNumber(Temporal, ABC):
             result = div_float_tfloat(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def integral(self) -> float:
         return tnumber_integral(self._inner)

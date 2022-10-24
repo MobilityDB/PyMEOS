@@ -27,7 +27,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, List, TYPE_CHECKING
+from typing import Optional, Union, List, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
 from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange, nad_tint_tint
@@ -156,48 +156,42 @@ class TInt(TNumber, ABC):
             result = tlt_tint_int(self._inner, other)
         else:
             return super().temporal_less(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Union[int, Temporal]) -> Temporal:
         if isinstance(other, int):
             result = tle_tint_int(self._inner, other)
         else:
             return super().temporal_less_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_equal(self, other: Union[int, Temporal]) -> Temporal:
         if isinstance(other, int):
             result = teq_tint_int(self._inner, other)
         else:
             return super().temporal_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[int, Temporal]) -> Temporal:
         if isinstance(other, int):
             result = tne_tint_int(self._inner, other)
         else:
             return super().temporal_not_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Union[int, Temporal]) -> Temporal:
         if isinstance(other, int):
             result = tge_tint_int(self._inner, other)
         else:
             return super().temporal_greater_or_equal(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def temporal_greater(self, other: Union[int, Temporal]) -> Temporal:
         if isinstance(other, int):
             result = tgt_tint_int(self._inner, other)
         else:
             return super().temporal_greater(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def at(self, other: Union[int, List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,
@@ -208,8 +202,7 @@ class TInt(TNumber, ABC):
             result = tint_at_values(self._inner, other)
         else:
             return super().at(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def minus(self, other: Union[int, List[int],
                                  intrange, floatrange, List[intrange], List[floatrange], TBox,
@@ -220,8 +213,7 @@ class TInt(TNumber, ABC):
             result = tint_minus_values(self._inner, other)
         else:
             return super().minus(other)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
         if isinstance(other, int):
@@ -241,8 +233,7 @@ class TInt(TNumber, ABC):
     @staticmethod
     def from_base(value: int, base: Temporal) -> TInt:
         result = tint_from_base(value, base._inner)
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: int, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TInt:
@@ -293,12 +284,12 @@ class TInt(TNumber, ABC):
         return tint_end_value(self._inner)
 
     @property
-    def values(self) -> List[int]:
+    def value_set(self) -> Set[int]:
         """
         List of distinct values.
         """
         values, count = tint_values(self._inner)
-        return [values[i] for i in range(count)]
+        return {values[i] for i in range(count)}
 
     @property
     def min_value(self) -> int:
