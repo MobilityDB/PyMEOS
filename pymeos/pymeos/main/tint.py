@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Union, List, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
@@ -36,7 +36,8 @@ from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_
     tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
     tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
     overlaps_tint_int, same_tint_int, nad_tint_int, tint_always_le, tint_always_lt, tint_always_eq, tint_ever_eq, \
-    tint_ever_le, tint_ever_lt, tle_tint_int, teq_tint_int, tne_tint_int, tge_tint_int, tgt_tint_int, tlt_tint_int
+    tint_ever_le, tint_ever_lt, tle_tint_int, teq_tint_int, tne_tint_int, tge_tint_int, tgt_tint_int, tlt_tint_int, \
+    pg_timestamptz_in, pg_interval_in, timedelta_to_interval, tint_value_time_split
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
@@ -311,10 +312,17 @@ class TInt(TNumber, ABC):
         """
         return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    def value_split(self, start: int, size: int, count: int) -> List[Temporal]:
-        tiles, buckets, new_count = tint_value_split(self._inner, start, size, count)
-        from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+    def value_split(self, start: int, size: int) -> List[Temporal]:
+        tiles, new_count = tint_value_split(self._inner, start, size)
+        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+
+    def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],
+                         duration: Union[str, timedelta]) -> List[Temporal]:
+        st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
+            else pg_timestamptz_in(time_start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        tiles, new_count = tint_value_time_split(self._inner, value_size, value_start, dt, st)
+        return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
     def __str__(self):
         return tint_out(self._inner)

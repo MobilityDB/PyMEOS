@@ -1318,13 +1318,11 @@
 
 ### Tile functions for temporal types
 
-- [x] `extern Temporal **temporal_time_split(const Temporal *temp, TimestampTz start,
-  TimestampTz end, int64 tunits, TimestampTz torigin, int count,
-  TimestampTz **buckets, int *newcount);`
-- [x] `extern Temporal **tint_value_split(const Temporal *temp, int start_bucket,
-  int size, int count, int **buckets, int *newcount);`
-- [x] `extern Temporal **tfloat_value_split(const Temporal *temp, double start_bucket,
-  double size, int count, float **buckets, int *newcount);`
+- [x] `extern Temporal **tint_value_split(Temporal *temp, int size, int origin, int *newcount);`
+- [x] `extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, int *newcount);`
+- [x] `extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, int *newcount);`
+- [x] `extern Temporal **tint_value_time_split(Temporal *temp, int size, int vorigin, Interval *duration, TimestampTz torigin, int *newcount);`
+- [x] `extern Temporal **tfloat_value_time_split(Temporal *temp, double size, double vorigin, Interval *duration, TimestampTz torigin, int *newcount);`
 
 
 

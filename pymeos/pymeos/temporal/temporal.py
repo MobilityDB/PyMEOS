@@ -57,7 +57,8 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     contains_temporal_periodset, contains_temporal_timestamp, contains_temporal_timestampset, \
     contains_temporal_temporal, overlaps_temporal_temporal, overlaps_temporal_timestampset, overlaps_temporal_timestamp, \
     overlaps_temporal_periodset, overlaps_temporal_period, same_temporal_temporal, same_temporal_timestampset, \
-    same_temporal_timestamp, same_temporal_periodset, same_temporal_period, temporal_to_period
+    same_temporal_timestamp, same_temporal_periodset, same_temporal_period, temporal_to_period, pg_timestamptz_in, \
+    pg_interval_in
 
 from .interpolation import TInterpolation
 from ..time import Period, PeriodSet, TimestampSet
@@ -552,16 +553,10 @@ class Temporal(ABC):
         matches, count = temporal_dyntimewarp_path(self._inner, other._inner)
         return [(matches[i].i, matches[i].j) for i in range(count)]
 
-    def time_split(self, start: datetime, end: datetime, units: int, origin: datetime, count: int) -> List[Temporal]:
-        tiles, buckets, new_count = temporal_time_split(
-            self._inner,
-            datetime_to_timestamptz(start),
-            datetime_to_timestamptz(end),
-            units,
-            datetime_to_timestamptz(origin),
-            count
-        )
-
+    def time_split(self, start: Union[str, datetime], duration: Union[str, timedelta]) -> List[Temporal]:
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        tiles, new_count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 

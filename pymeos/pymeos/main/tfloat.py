@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, List, Union, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
@@ -38,7 +38,8 @@ from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_v
     tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
     contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float, tfloat_always_lt, \
     tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le, tlt_tfloat_float, tle_tfloat_float, \
-    teq_tfloat_float, tne_tfloat_float, tge_tfloat_float, tgt_tfloat_float
+    teq_tfloat_float, tne_tfloat_float, tge_tfloat_float, tgt_tfloat_float, pg_timestamptz_in, timedelta_to_interval, \
+    tfloat_value_time_split, pg_interval_in
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
@@ -320,10 +321,18 @@ class TFloat(TNumber, ABC):
     def to_str(self, max_decimals=5) -> str:
         return tfloat_out(self._inner, max_decimals)
 
-    def value_split(self, start: float, size: float, count: int) -> List[Temporal]:
-        tiles, buckets, new_count = tfloat_value_split(self._inner, start, size, count)
+    def value_split(self, start: float, size: float) -> List[Temporal]:
+        tiles, new_count = tfloat_value_split(self._inner, start, size)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+
+    def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],
+                         duration: Union[str, timedelta]) -> List[Temporal]:
+        st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
+            else pg_timestamptz_in(time_start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        tiles, new_count = tfloat_value_time_split(self._inner, value_size, value_start, dt, st)
+        return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
     def to_degrees(self) -> TNumber:
         from ..factory import _TemporalFactory
