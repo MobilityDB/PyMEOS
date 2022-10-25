@@ -767,7 +767,7 @@ def periodset_timestamp_n(ps: 'const PeriodSet *', n: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.periodset_timestamp_n(ps_converted, n, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -857,7 +857,7 @@ def timestampset_timestamp_n(ss: 'const TimestampSet *', n: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.timestampset_timestamp_n(ss_converted, n, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1750,7 +1750,7 @@ def intersection_period_timestamp(p: 'const Period *', t: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_period_timestamp(p_converted, t_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1781,7 +1781,7 @@ def intersection_periodset_timestamp(ps: 'const PeriodSet *', t: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_periodset_timestamp(ps_converted, t_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1805,7 +1805,7 @@ def intersection_timestamp_period(t: int, p: 'const Period *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_period(t_converted, p_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1815,7 +1815,7 @@ def intersection_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_periodset(t_converted, ps_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1825,7 +1825,7 @@ def intersection_timestamp_timestamp(t1: int, t2: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_timestamp(t1_converted, t2_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1835,7 +1835,7 @@ def intersection_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> i
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestamp_timestampset(t_converted, ts_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1859,7 +1859,7 @@ def intersection_timestampset_timestamp(ts: 'const TimestampSet *', t: int) -> i
     out_result = _ffi.new('TimestampTz *')
     result = _lib.intersection_timestampset_timestamp(ts_converted, t_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1939,7 +1939,7 @@ def minus_timestamp_period(t: int, p: 'const Period *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_period(t_converted, p_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1949,7 +1949,7 @@ def minus_timestamp_periodset(t: int, ps: 'const PeriodSet *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_periodset(t_converted, ps_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1959,7 +1959,7 @@ def minus_timestamp_timestamp(t1: int, t2: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_timestamp(t1_converted, t2_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -1969,7 +1969,7 @@ def minus_timestamp_timestampset(t: int, ts: 'const TimestampSet *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.minus_timestamp_timestampset(t_converted, ts_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -2805,7 +2805,7 @@ def tbox_tmin(box: 'const TBOX *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.tbox_tmin(box_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -2814,7 +2814,7 @@ def tbox_tmax(box: 'const TBOX *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.tbox_tmax(box_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -2901,7 +2901,7 @@ def stbox_tmin(box: 'const STBOX *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.stbox_tmin(box_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -2910,7 +2910,7 @@ def stbox_tmax(box: 'const STBOX *') -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.stbox_tmax(box_converted, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 
@@ -4014,7 +4014,7 @@ def temporal_timestamp_n(temp: 'const Temporal *', n: int) -> int:
     out_result = _ffi.new('TimestampTz *')
     result = _lib.temporal_timestamp_n(temp_converted, n, out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result[0] if out_result[0] != _ffi.NULL else None
     raise Exception(f'C call went wrong: {result}')
 
 

@@ -17,7 +17,7 @@ class Parameter:
         self.cp_conversion = cp_conversion
 
     def is_interoperable(self):
-        return any(self.ctype.startswith(x) for x in ['int', 'bool', 'double'])
+        return any(self.ctype.startswith(x) for x in ['int', 'bool', 'double', 'TimestampTz'])
 
     def get_ptype_without_pointers(self):
         if self.is_interoperable():
