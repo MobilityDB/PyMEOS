@@ -420,7 +420,7 @@ def periodset_as_hexwkb(ps: 'const PeriodSet *', variant: int) -> "Tuple[str, 's
     size_out = _ffi.new('size_t *')
     result = _lib.periodset_as_hexwkb(ps_converted, variant_converted, size_out)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def periodset_as_wkb(ps: 'const PeriodSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
@@ -428,7 +428,7 @@ def periodset_as_wkb(ps: 'const PeriodSet *', variant: int) -> "Tuple['uint8_t *
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.periodset_as_wkb(ps_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def periodset_from_hexwkb(hexwkb: str) -> 'PeriodSet *':
@@ -462,7 +462,7 @@ def span_as_hexwkb(s: 'const Span *', variant: int) -> "Tuple[str, 'size_t *']":
     size_out = _ffi.new('size_t *')
     result = _lib.span_as_hexwkb(s_converted, variant_converted, size_out)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def span_as_wkb(s: 'const Span *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
@@ -470,7 +470,7 @@ def span_as_wkb(s: 'const Span *', variant: int) -> "Tuple['uint8_t *', 'size_t 
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.span_as_wkb(s_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def span_from_hexwkb(hexwkb: str) -> 'Span *':
@@ -499,7 +499,7 @@ def timestampset_as_hexwkb(ts: 'const TimestampSet *', variant: int) -> "Tuple[s
     size_out = _ffi.new('size_t *')
     result = _lib.timestampset_as_hexwkb(ts_converted, variant_converted, size_out)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def timestampset_as_wkb(ts: 'const TimestampSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
@@ -507,7 +507,7 @@ def timestampset_as_wkb(ts: 'const TimestampSet *', variant: int) -> "Tuple['uin
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.timestampset_as_wkb(ts_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def timestampset_from_hexwkb(hexwkb: str) -> 'TimestampSet *':
@@ -2244,24 +2244,100 @@ def distance_timestampset_timestampset(ts1: 'const TimestampSet *', ts2: 'const 
     return result if result != _ffi.NULL else None
 
 
-def timestampset_agg_transfn(state: 'SkipList *', ts: 'const TimestampSet *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def timestamp_extent_transfn(p: "Optional['Period *']", t: int) -> 'Period *':
+    p_converted = _ffi.cast('Period *', p) if p is not None else _ffi.NULL
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.timestamp_extent_transfn(p_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestampset_extent_transfn(p: "Optional['Period *']", ts: 'const TimestampSet *') -> 'Period *':
+    p_converted = _ffi.cast('Period *', p) if p is not None else _ffi.NULL
     ts_converted = _ffi.cast('const TimestampSet *', ts)
-    result = _lib.timestampset_agg_transfn(state_converted, ts_converted)
+    result = _lib.timestampset_extent_transfn(p_converted, ts_converted)
     return result if result != _ffi.NULL else None
 
 
-def period_agg_transfn(state: 'SkipList *', p: 'const Period *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
-    p_converted = _ffi.cast('const Period *', p)
-    result = _lib.period_agg_transfn(state_converted, p_converted)
-    return result if result != _ffi.NULL else None
-
-
-def periodset_agg_transfn(state: 'SkipList *', ps: 'const PeriodSet *') -> 'SkipList *':
-    state_converted = _ffi.cast('SkipList *', state)
+def periodset_extent_transfn(p: "Optional['Period *']", ps: 'const PeriodSet *') -> 'Period *':
+    p_converted = _ffi.cast('Period *', p) if p is not None else _ffi.NULL
     ps_converted = _ffi.cast('const PeriodSet *', ps)
-    result = _lib.periodset_agg_transfn(state_converted, ps_converted)
+    result = _lib.periodset_extent_transfn(p_converted, ps_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_tunion_transfn(state: "Optional['SkipList *']", t: int) -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.timestamp_tunion_transfn(state_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestampset_tunion_transfn(state: "Optional['SkipList *']", ts: 'const TimestampSet *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    ts_converted = _ffi.cast('const TimestampSet *', ts)
+    result = _lib.timestampset_tunion_transfn(state_converted, ts_converted)
+    return result if result != _ffi.NULL else None
+
+
+def period_tunion_transfn(state: "Optional['SkipList *']", p: 'const Period *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    p_converted = _ffi.cast('const Period *', p)
+    result = _lib.period_tunion_transfn(state_converted, p_converted)
+    return result if result != _ffi.NULL else None
+
+
+def periodset_tunion_transfn(state: "Optional['SkipList *']", ps: 'const PeriodSet *') -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    ps_converted = _ffi.cast('const PeriodSet *', ps)
+    result = _lib.periodset_tunion_transfn(state_converted, ps_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_tunion_finalfn(state: 'SkipList *') -> 'TimestampSet *':
+    state_converted = _ffi.cast('SkipList *', state)
+    result = _lib.timestamp_tunion_finalfn(state_converted)
+    return result if result != _ffi.NULL else None
+
+
+def period_tunion_finalfn(state: 'SkipList *') -> 'PeriodSet *':
+    state_converted = _ffi.cast('SkipList *', state)
+    result = _lib.period_tunion_finalfn(state_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestamp_tcount_transfn(state: "Optional['SkipList *']", t: int, interval: "Optional['const Interval *']", origin: int) -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    t_converted = _ffi.cast('TimestampTz', t)
+    interval_converted = _ffi.cast('const Interval *', interval) if interval is not None else _ffi.NULL
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.timestamp_tcount_transfn(state_converted, t_converted, interval_converted, origin_converted)
+    return result if result != _ffi.NULL else None
+
+
+def timestampset_tcount_transfn(state: "Optional['SkipList *']", ts: 'const TimestampSet *', interval: "Optional['const Interval *']", origin: int) -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    ts_converted = _ffi.cast('const TimestampSet *', ts)
+    interval_converted = _ffi.cast('const Interval *', interval) if interval is not None else _ffi.NULL
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.timestampset_tcount_transfn(state_converted, ts_converted, interval_converted, origin_converted)
+    return result if result != _ffi.NULL else None
+
+
+def period_tcount_transfn(state: "Optional['SkipList *']", p: 'const Period *', interval: "Optional['const Interval *']", origin: int) -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    p_converted = _ffi.cast('const Period *', p)
+    interval_converted = _ffi.cast('const Interval *', interval) if interval is not None else _ffi.NULL
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.period_tcount_transfn(state_converted, p_converted, interval_converted, origin_converted)
+    return result if result != _ffi.NULL else None
+
+
+def periodset_tcount_transfn(state: "Optional['SkipList *']", ps: 'const PeriodSet *', interval: "Optional['const Interval *']", origin: int) -> 'SkipList *':
+    state_converted = _ffi.cast('SkipList *', state) if state is not None else _ffi.NULL
+    ps_converted = _ffi.cast('const PeriodSet *', ps)
+    interval_converted = _ffi.cast('const Interval *', interval) if interval is not None else _ffi.NULL
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    result = _lib.periodset_tcount_transfn(state_converted, ps_converted, interval_converted, origin_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2454,7 +2530,7 @@ def tbox_as_wkb(box: 'const TBOX *', variant: int) -> "Tuple['uint8_t *', 'size_
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.tbox_as_wkb(box_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def tbox_as_hexwkb(box: 'const TBOX *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -2463,7 +2539,7 @@ def tbox_as_hexwkb(box: 'const TBOX *', variant: int) -> "Tuple[str, 'size_t *']
     size = _ffi.new('size_t *')
     result = _lib.tbox_as_hexwkb(box_converted, variant_converted, size)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def stbox_as_wkb(box: 'const STBOX *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
@@ -2471,7 +2547,7 @@ def stbox_as_wkb(box: 'const STBOX *', variant: int) -> "Tuple['uint8_t *', 'siz
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.stbox_as_wkb(box_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def stbox_as_hexwkb(box: 'const STBOX *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -2480,7 +2556,7 @@ def stbox_as_hexwkb(box: 'const STBOX *', variant: int) -> "Tuple[str, 'size_t *
     size = _ffi.new('size_t *')
     result = _lib.stbox_as_hexwkb(box_converted, variant_converted, size)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size
+    return result if result != _ffi.NULL else None, size[0]
 
 
 def stbox_in(string: str) -> 'STBOX *':
@@ -3307,7 +3383,7 @@ def temporal_as_hexwkb(temp: 'const Temporal *', variant: int) -> "Tuple[str, 's
     size_out = _ffi.new('size_t *')
     result = _lib.temporal_as_hexwkb(temp_converted, variant_converted, size_out)
     result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, precision: int, srs: "Optional[str]") -> str:
@@ -3323,7 +3399,7 @@ def temporal_as_wkb(temp: 'const Temporal *', variant: int) -> "Tuple['uint8_t *
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.temporal_as_wkb(temp_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def temporal_from_hexwkb(hexwkb: str) -> 'Temporal *':
@@ -7666,14 +7742,14 @@ def tint_value_split(temp: 'Temporal *', size: int, origin: int) -> "Tuple['Temp
     temp_converted = _ffi.cast('Temporal *', temp)
     newcount = _ffi.new('int *')
     result = _lib.tint_value_split(temp_converted, size, origin, newcount)
-    return result if result != _ffi.NULL else None, newcount
+    return result if result != _ffi.NULL else None, newcount[0]
 
 
 def tfloat_value_split(temp: 'Temporal *', size: float, origin: float) -> "Tuple['Temporal **', 'int']":
     temp_converted = _ffi.cast('Temporal *', temp)
     newcount = _ffi.new('int *')
     result = _lib.tfloat_value_split(temp_converted, size, origin, newcount)
-    return result if result != _ffi.NULL else None, newcount
+    return result if result != _ffi.NULL else None, newcount[0]
 
 
 def temporal_time_split(temp: 'Temporal *', duration: 'Interval *', torigin: int) -> "Tuple['Temporal **', 'int']":
@@ -7682,7 +7758,25 @@ def temporal_time_split(temp: 'Temporal *', duration: 'Interval *', torigin: int
     torigin_converted = _ffi.cast('TimestampTz', torigin)
     newcount = _ffi.new('int *')
     result = _lib.temporal_time_split(temp_converted, duration_converted, torigin_converted, newcount)
-    return result if result != _ffi.NULL else None, newcount
+    return result if result != _ffi.NULL else None, newcount[0]
+
+
+def tint_value_time_split(temp: 'Temporal *', size: int, vorigin: int, duration: 'Interval *', torigin: int) -> "Tuple['Temporal **', 'int']":
+    temp_converted = _ffi.cast('Temporal *', temp)
+    duration_converted = _ffi.cast('Interval *', duration)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    newcount = _ffi.new('int *')
+    result = _lib.tint_value_time_split(temp_converted, size, vorigin, duration_converted, torigin_converted, newcount)
+    return result if result != _ffi.NULL else None, newcount[0]
+
+
+def tfloat_value_time_split(temp: 'Temporal *', size: float, vorigin: float, duration: 'Interval *', torigin: int) -> "Tuple['Temporal **', 'int']":
+    temp_converted = _ffi.cast('Temporal *', temp)
+    duration_converted = _ffi.cast('Interval *', duration)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    newcount = _ffi.new('int *')
+    result = _lib.tfloat_value_time_split(temp_converted, size, vorigin, duration_converted, torigin_converted, newcount)
+    return result if result != _ffi.NULL else None, newcount[0]
 
 
 def temporal_frechet_distance(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'double':

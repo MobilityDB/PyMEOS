@@ -1016,9 +1016,21 @@ extern double distance_timestampset_timestampset(const TimestampSet *ts1, const 
 
 
 
-extern SkipList *timestampset_agg_transfn(SkipList *state, const TimestampSet *ts);
-extern SkipList *period_agg_transfn(SkipList *state, const Period *p);
-extern SkipList *periodset_agg_transfn(SkipList *state, const PeriodSet *ps);
+extern Period *timestamp_extent_transfn(Period *p, TimestampTz t);
+extern Period *timestampset_extent_transfn(Period *p, const TimestampSet *ts);
+extern Period *periodset_extent_transfn(Period *p, const PeriodSet *ps);
+
+extern SkipList *timestamp_tunion_transfn(SkipList *state, TimestampTz t);
+extern SkipList *timestampset_tunion_transfn(SkipList *state, const TimestampSet *ts);
+extern SkipList *period_tunion_transfn(SkipList *state, const Period *p);
+extern SkipList *periodset_tunion_transfn(SkipList *state, const PeriodSet *ps);
+extern TimestampSet *timestamp_tunion_finalfn(SkipList *state);
+extern PeriodSet *period_tunion_finalfn(SkipList *state);
+
+extern SkipList *timestamp_tcount_transfn(SkipList *state, TimestampTz t, const Interval *interval, TimestampTz origin);
+extern SkipList *timestampset_tcount_transfn(SkipList *state, const TimestampSet *ts, const Interval *interval, TimestampTz origin);
+extern SkipList *period_tcount_transfn(SkipList *state, const Period *p, const Interval *interval, TimestampTz origin);
+extern SkipList *periodset_tcount_transfn(SkipList *state, const PeriodSet *ps, const Interval *interval, TimestampTz origin);
 
 
 
@@ -1988,6 +2000,8 @@ extern TimestampTz timestamptz_bucket(TimestampTz timestamp, const Interval *dur
 extern Temporal **tint_value_split(Temporal *temp, int size, int origin, int *newcount);
 extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, int *newcount);
 extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, int *newcount);
+extern Temporal **tint_value_time_split(Temporal *temp, int size, int vorigin, Interval *duration, TimestampTz torigin, int *newcount);
+extern Temporal **tfloat_value_time_split(Temporal *temp, double size, double vorigin, Interval *duration, TimestampTz torigin, int *newcount);
 
 
 

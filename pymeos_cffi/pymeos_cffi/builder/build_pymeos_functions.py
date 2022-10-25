@@ -178,6 +178,8 @@ output_parameters = {
     ('tint_value_split', 'newcount'),
     ('tfloat_value_split', 'buckets'),
     ('tfloat_value_split', 'newcount'),
+    ('tint_value_time_split', 'newcount'),
+    ('tfloat_value_time_split', 'newcount'),
     ('tbox_as_hexwkb', 'size'),
     ('stbox_as_hexwkb', 'size'),
 }
@@ -218,6 +220,22 @@ nullable_parameters = {
     ('ttext_tmin_transfn', 'state'),
     ('ttext_tmax_transfn', 'state'),
     ('temporal_tcount_transfn', 'interval'),
+    ('timestamp_tcount_transfn', 'interval'),
+    ('timestampset_tcount_transfn', 'interval'),
+    ('period_tcount_transfn', 'interval'),
+    ('periodset_tcount_transfn', 'interval'),
+    ('timestamp_extent_transfn', 'p'),
+    ('timestampset_extent_transfn', 'p'),
+    ('period_extent_transfn', 'p'),
+    ('periodset_extent_transfn', 'p'),
+    ('timestamp_tunion_transfn', 'state'),
+    ('timestampset_tunion_transfn', 'state'),
+    ('period_tunion_transfn', 'state'),
+    ('periodset_tunion_transfn', 'state'),
+    ('timestamp_tcount_transfn', 'state'),
+    ('timestampset_tcount_transfn', 'state'),
+    ('period_tcount_transfn', 'state'),
+    ('periodset_tcount_transfn', 'state'),
 }
 
 
@@ -418,7 +436,7 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         # Add its type to the return type of the function, removing the pointer modifier if necessary
         function_return_type += ', ' + out_param.get_ptype_without_pointers()
         # Add it to the return statement
-        result_manipulation += f', {out_param.name + ("[0]" if out_param.name == "count" else "")}'
+        result_manipulation += f', {out_param.name}[0]'
 
     # If there are output params, wrap function return type in a Tuple
     if len(out_params) > 0:
