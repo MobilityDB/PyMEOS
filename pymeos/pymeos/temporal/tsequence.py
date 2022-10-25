@@ -118,3 +118,7 @@ class TSequence(Temporal, ABC):
     def compact(self) -> TSequence:
         result = tsequence_compact(self._inner)
         return Temporal._factory(result)
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import TemporalSequencePlotter
+        return TemporalSequencePlotter.plot(self, *args, **kwargs)

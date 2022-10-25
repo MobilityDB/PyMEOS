@@ -108,3 +108,7 @@ class TSequenceSet(Temporal, ABC):
             'value': [v for seq in self.sequences for v in seq.values]
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import TemporalSequenceSetPlotter
+        return TemporalSequenceSetPlotter.plot(self, *args, **kwargs)
