@@ -361,6 +361,25 @@
 - [x] `extern double distance_timestampset_timestamp(const TimestampSet *ts, TimestampTz t);`
 - [x] `extern double distance_timestampset_timestampset(const TimestampSet *ts1, const TimestampSet *ts2);`
 
+### Temporal aggregate functions for span and time types
+
+- [x] `extern Period *timestamp_extent_transfn(Period *p, TimestampTz t);`
+- [x] `extern Period *timestampset_extent_transfn(Period *p, const TimestampSet *ts);`
+- [ ] `extern Period *period_extent_transfn(Period *p1, const Period *p2);`
+- [x] `extern Period *periodset_extent_transfn(Period *p, const PeriodSet *ps);`
+
+- [x] `extern SkipList *timestamp_tunion_transfn(SkipList *state, TimestampTz t);`
+- [x] `extern SkipList *timestampset_tunion_transfn(SkipList *state, const TimestampSet *ts);`
+- [x] `extern SkipList *period_tunion_transfn(SkipList *state, const Period *p);`
+- [x] `extern SkipList *periodset_tunion_transfn(SkipList *state, const PeriodSet *ps);`
+- [x] `extern TimestampSet *timestamp_tunion_finalfn(SkipList *state);`
+- [x] `extern PeriodSet *period_tunion_finalfn(SkipList *state);`
+
+- [x] `extern SkipList *timestamp_tcount_transfn(SkipList *state, TimestampTz t, const Interval *interval, TimestampTz origin);`
+- [x] `extern SkipList *timestampset_tcount_transfn(SkipList *state, const TimestampSet *ts, const Interval *interval, TimestampTz origin);`
+- [x] `extern SkipList *period_tcount_transfn(SkipList *state, const Period *p, const Interval *interval, TimestampTz origin);`
+- [x] `extern SkipList *periodset_tcount_transfn(SkipList *state, const PeriodSet *ps, const Interval *interval, TimestampTz origin);`
+
 
 
 ### Comparison functions for span and time types
@@ -1296,7 +1315,7 @@
 
 - [x] `extern Period *temporal_extent_transfn(Period *p, Temporal *temp);`
 - [x] `extern TBOX *tnumber_extent_transfn(TBOX *box, Temporal *temp);`
-- [ ] `extern STBOX *tpoint_extent_transfn(STBOX *box, Temporal *temp);`
+- [x] `extern STBOX *tpoint_extent_transfn(STBOX *box, Temporal *temp);`
 
 - [x] `extern SkipList *temporal_tcount_transfn(SkipList *state, Temporal *temp, Interval *interval, TimestampTz origin);`
 - [x] `extern SkipList *tbool_tand_transfn(SkipList *state, Temporal *temp);`
