@@ -9,7 +9,7 @@ __all__ = [
     # initialization
     'pymeos_initialize', 'pymeos_finalize',
     # boxes
-    'TBox', 'STBox',
+    'Box', 'TBox', 'STBox',
     # main
     'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet',
     'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet',
@@ -21,7 +21,7 @@ __all__ = [
     # temporal
     'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
     # time
-    'Period', 'TimestampSet', 'PeriodSet',
+    'Time', 'Period', 'TimestampSet', 'PeriodSet',
     # extras
     'TInterpolation',
     # aggregators
