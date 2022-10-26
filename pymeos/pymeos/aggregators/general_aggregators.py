@@ -4,7 +4,7 @@ from typing import Union
 from pymeos_cffi import temporal_tcount_transfn, temporal_extent_transfn, timestamp_extent_transfn, \
     datetime_to_timestamptz, timestampset_extent_transfn, periodset_extent_transfn, timestamp_tcount_transfn, \
     timestampset_tcount_transfn, timedelta_to_interval, pg_interval_in, pg_timestamptz_in, period_tcount_transfn, \
-    periodset_tcount_transfn, period_extent_transfn
+    periodset_tcount_transfn, span_extent_transfn
 
 from .aggregator import BaseAggregator, BaseGranularityAggregator
 from ..boxes import Box
@@ -60,7 +60,7 @@ class TemporalExtentAggregator(BaseAggregator):
         elif isinstance(temporal, TimestampSet):
             state = timestampset_extent_transfn(state, temporal._inner)
         elif isinstance(temporal, Period):
-            state = period_extent_transfn(state, temporal._inner)
+            state = span_extent_transfn(state, temporal._inner)
             pass
         elif isinstance(temporal, PeriodSet):
             state = periodset_extent_transfn(state, temporal._inner)

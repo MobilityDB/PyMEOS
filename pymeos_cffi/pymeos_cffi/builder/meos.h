@@ -856,6 +856,7 @@ extern bool overlaps_timestampset_timestampset(const TimestampSet *ts1, const Ti
 
 
 
+
 extern bool after_period_periodset(const Period *p, const PeriodSet *ps);
 extern bool after_period_timestamp(const Period *p, TimestampTz t);
 extern bool after_period_timestampset(const Period *p, const TimestampSet *ts);
@@ -1018,7 +1019,7 @@ extern double distance_timestampset_timestampset(const TimestampSet *ts1, const 
 
 extern Period *timestamp_extent_transfn(Period *p, TimestampTz t);
 extern Period *timestampset_extent_transfn(Period *p, const TimestampSet *ts);
-extern Period *period_extent_transfn(Period *p1, const Period *p2);
+extern Period *span_extent_transfn(Span *p1, const Span *p2);
 extern Period *periodset_extent_transfn(Period *p, const PeriodSet *ps);
 
 extern SkipList *timestamp_tunion_transfn(SkipList *state, TimestampTz t);
