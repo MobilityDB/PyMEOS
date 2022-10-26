@@ -31,10 +31,10 @@ class TemporalSequencePlotter:
 
         if sequence.interpolation != TInterpolation.DISCRETE:
             color = plot[0].get_color()
-            base.scatter(x[0], y[0], s=80, marker='o', facecolors=color if sequence.lower_inc else 'none',
-                         edgecolors=color)
-            base.scatter(x[-1], y[-1], s=80, marker='o', facecolors=color if sequence.upper_inc else 'none',
-                         edgecolors=color)
+            base.scatter(x[0], y[0], s=40, marker='o', facecolors=color if sequence.lower_inc else 'none',
+                         edgecolors=color, zorder=2 if sequence.upper_inc else 3)
+            base.scatter(x[-1], y[-1], s=40, marker='o', facecolors=color if sequence.upper_inc else 'none',
+                         edgecolors=color, zorder=2 if sequence.upper_inc else 3)
 
         if isinstance(y[0], bool):
             plt.yticks([1.0, 0.0], ['True', 'False'])
