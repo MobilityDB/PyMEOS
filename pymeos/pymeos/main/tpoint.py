@@ -29,7 +29,7 @@ from __future__ import annotations
 from abc import ABC
 from ctypes import Union
 from datetime import datetime
-from typing import Optional, List, TYPE_CHECKING, Set
+from typing import Optional, List, TYPE_CHECKING, Set, Tuple
 
 from dateutil.parser import parse
 from geopandas import GeoDataFrame
@@ -864,11 +864,12 @@ class TGeogPointInst(TPointInst, TGeogPoint):
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, Point]] = None,
+    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, Point, Tuple[float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
-            self._inner = tgeogpoint_in(f"SRID={srid};{point}@{timestamp}")
+            p = f'POINT({point[0]} {point[1]})' if isinstance(point, tuple) else f'{point}'
+            self._inner = tgeogpoint_in(f"SRID={srid};{p}@{timestamp}")
 
 
 class TGeomPointSeq(TPointSeq, TGeomPoint):
