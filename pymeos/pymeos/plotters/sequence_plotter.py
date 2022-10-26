@@ -40,6 +40,6 @@ class TemporalSequencePlotter:
             plt.yticks([1.0, 0.0], ['True', 'False'])
             plt.ylim(-0.25, 1.25)
 
-        plt.xticks(rotation=45)
+        base.tick_params(axis="x", rotation=45)
 
         return plot

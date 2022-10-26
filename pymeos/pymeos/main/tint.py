@@ -313,7 +313,7 @@ class TInt(TNumber, ABC):
         return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
     def value_split(self, start: int, size: int) -> List[Temporal]:
-        tiles, new_count = tint_value_split(self._inner, start, size)
+        tiles, new_count = tint_value_split(self._inner, size, start)
         return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
     def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],

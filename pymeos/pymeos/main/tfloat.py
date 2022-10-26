@@ -322,11 +322,11 @@ class TFloat(TNumber, ABC):
         return tfloat_out(self._inner, max_decimals)
 
     def value_split(self, start: float, size: float) -> List[Temporal]:
-        tiles, new_count = tfloat_value_split(self._inner, start, size)
+        tiles, new_count = tfloat_value_split(self._inner, size, start)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],
+    def time_value_split(self, value_start: float, value_size: float, time_start: Union[str, datetime],
                          duration: Union[str, timedelta]) -> List[Temporal]:
         st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
             else pg_timestamptz_in(time_start, -1)
