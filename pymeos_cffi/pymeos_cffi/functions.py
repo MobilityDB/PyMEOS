@@ -2258,6 +2258,13 @@ def timestampset_extent_transfn(p: "Optional['Period *']", ts: 'const TimestampS
     return result if result != _ffi.NULL else None
 
 
+def period_extent_transfn(p1: 'Period *', p2: 'const Period *') -> 'Period *':
+    p1_converted = _ffi.cast('Period *', p1)
+    p2_converted = _ffi.cast('const Period *', p2)
+    result = _lib.period_extent_transfn(p1_converted, p2_converted)
+    return result if result != _ffi.NULL else None
+
+
 def periodset_extent_transfn(p: "Optional['Period *']", ps: 'const PeriodSet *') -> 'Period *':
     p_converted = _ffi.cast('Period *', p) if p is not None else _ffi.NULL
     ps_converted = _ffi.cast('const PeriodSet *', ps)
