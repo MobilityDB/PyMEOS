@@ -156,6 +156,7 @@ class TPoint(Temporal, ABC):
 
     def is_adjacent(self, other: Union[Geometry, STBox, TPoint,
                                        Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return adjacent_tpoint_geo(self._inner, gs)
@@ -168,6 +169,7 @@ class TPoint(Temporal, ABC):
 
     def is_contained_in(self, container: Union[Geometry, STBox, TPoint,
                                                Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        from ..boxes import STBox
         if isinstance(container, Geometry):
             gs = gserialized_in(container.to_ewkb(), -1)
             return contained_tpoint_geo(self._inner, gs)
@@ -180,6 +182,7 @@ class TPoint(Temporal, ABC):
 
     def contains(self, content: Union[Geometry, STBox, TPoint,
                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        from ..boxes import STBox
         if isinstance(content, Geometry):
             gs = gserialized_in(content.to_ewkb(), -1)
             return contains_tpoint_geo(self._inner, gs)
@@ -192,6 +195,7 @@ class TPoint(Temporal, ABC):
 
     def overlaps(self, other: Union[Geometry, STBox, TPoint,
                                     Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overlaps_tpoint_geo(self._inner, gs)
@@ -204,6 +208,7 @@ class TPoint(Temporal, ABC):
 
     def is_same(self, other: Union[Geometry, STBox, TPoint,
                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return same_tpoint_geo(self._inner, gs)
@@ -215,6 +220,7 @@ class TPoint(Temporal, ABC):
             return super().is_same(other)
 
     def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return left_tpoint_geo(self._inner, gs)
@@ -226,6 +232,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overleft_tpoint_geo(self._inner, gs)
@@ -237,6 +244,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return right_tpoint_geo(self._inner, gs)
@@ -248,6 +256,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overright_tpoint_geo(self._inner, gs)
@@ -259,6 +268,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return below_tpoint_geo(self._inner, gs)
@@ -270,6 +280,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overbelow_tpoint_geo(self._inner, gs)
@@ -281,6 +292,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return above_tpoint_geo(self._inner, gs)
@@ -292,6 +304,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overabove_tpoint_geo(self._inner, gs)
@@ -303,6 +316,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return front_tpoint_geo(self._inner, gs)
@@ -314,6 +328,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overfront_tpoint_geo(self._inner, gs)
@@ -325,6 +340,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_back(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return back_tpoint_geo(self._inner, gs)
@@ -336,6 +352,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_back(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return overback_tpoint_geo(self._inner, gs)
@@ -347,6 +364,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_before(self, other: Union[STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, STBox):
             return before_tpoint_stbox(self._inner, other._inner)
         elif isinstance(other, TPoint):
@@ -355,6 +373,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, STBox):
             return overbefore_tpoint_stbox(self._inner, other._inner)
         elif isinstance(other, TPoint):
@@ -363,6 +382,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_after(self, other: Union[STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, STBox):
             return after_tpoint_stbox(self._inner, other._inner)
         elif isinstance(other, TPoint):
@@ -371,6 +391,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
+        from ..boxes import STBox
         if isinstance(other, STBox):
             return overafter_tpoint_stbox(self._inner, other._inner)
         elif isinstance(other, TPoint):
@@ -379,6 +400,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def at(self, other: Union[Geometry, List[Geometry], STBox, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = tpoint_at_geometry(self._inner, gs)
@@ -393,6 +415,7 @@ class TPoint(Temporal, ABC):
 
     def minus(self, other: Union[Geometry, List[Geometry], STBox,
                                  datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = tpoint_minus_geometry(self._inner, gs)
@@ -484,6 +507,7 @@ class TPoint(Temporal, ABC):
         return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
+        from ..boxes import STBox
         if isinstance(other, Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             return nad_tpoint_geo(self._inner, gs)
