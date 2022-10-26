@@ -25,7 +25,6 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
@@ -51,12 +50,6 @@ from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
 from ..time import TimestampSet, Period, PeriodSet
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
 
 
 class STBox:
@@ -548,15 +541,12 @@ class STBox:
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
+    def plot(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_xy(self, *args, **kwargs)
+
     @staticmethod
     def read_from_cursor(value, cursor=None):
         if not value:
             return None
         return STBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.

@@ -25,7 +25,6 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
 from datetime import datetime, timedelta
 from typing import Optional, Union
 
@@ -47,12 +46,6 @@ from spans import intrange, floatrange
 
 from ..main import TNumber
 from ..time import TimestampSet, Period, PeriodSet
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
 
 
 class TBox:
@@ -413,10 +406,3 @@ class TBox:
         if not value:
             return None
         return TBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.

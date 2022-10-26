@@ -26,7 +26,6 @@
 
 from __future__ import annotations
 
-import warnings
 from datetime import datetime, timedelta
 from typing import Optional, List, Union, TYPE_CHECKING, overload
 
@@ -60,12 +59,6 @@ if TYPE_CHECKING:
     from ..temporal import Temporal
     from .period import Period
     from .periodset import PeriodSet
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
 
 
 class TimestampSet:
@@ -445,3 +438,7 @@ class TimestampSet:
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import TimePlotter
+        return TimePlotter.plot_timestampset(self, *args, **kwargs)

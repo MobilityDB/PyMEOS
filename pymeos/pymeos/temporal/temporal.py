@@ -25,7 +25,6 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
 from abc import ABC, abstractmethod
 from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set
@@ -67,12 +66,6 @@ if TYPE_CHECKING:
     from .tsequence import TSequence
     from .tsequenceset import TSequenceSet
     from .tinstant import TInstant
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
 
 
 class Temporal(ABC):

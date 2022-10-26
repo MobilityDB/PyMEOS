@@ -4,8 +4,8 @@ from ..temporal import TSequenceSet
 
 class TemporalSequenceSetPlotter:
 
-    @classmethod
-    def plot(cls, sequence_set: TSequenceSet, *args, **kwargs):
+    @staticmethod
+    def plot(sequence_set: TSequenceSet, *args, **kwargs):
         seqs = sequence_set.sequences
         plot = TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)
         color = plot[0].get_color()

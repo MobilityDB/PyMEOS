@@ -558,10 +558,7 @@ class TPointInst(TPoint, TInstant, ABC):
     """
     Abstract class for representing temporal points of instant subtype.
     """
-
-    @property
-    def point(self):
-        return Point(self._inner.x, self._inner.y)
+    pass
 
 
 class TPointSeq(TPoint, TSequence, ABC):
@@ -581,6 +578,10 @@ class TPointSeq(TPoint, TSequence, ABC):
                                   normalize)
         )
 
+    def plot(self, *args, **kwargs):
+        from ..plotters import TemporalPointSequencePlotter
+        return TemporalPointSequencePlotter.plot_xy(self, *args, **kwargs)
+
 
 class TPointSeqSet(TPoint, TSequenceSet, ABC):
     """
@@ -598,6 +599,10 @@ class TPointSeqSet(TPoint, TSequenceSet, ABC):
             'geometry': [v for seq in self.sequences for v in seq.values]
         }
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['sequence', 'time'])
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import TemporalPointSequenceSetPlotter
+        return TemporalPointSequenceSetPlotter.plot_xy(self, *args, **kwargs)
 
 
 class TGeomPoint(TPoint, ABC):
