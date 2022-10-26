@@ -57,6 +57,13 @@ class TSequence(Temporal, ABC):
                                          interpolation.value, normalize)
 
     @classmethod
+    def from_instants(cls, instant_list: Optional[List[Union[str, Any]]],
+                      lower_inc: bool = True, upper_inc: bool = False,
+                      interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
+        return cls(instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc, interpolation=interpolation,
+                   normalize=normalize)
+
+    @classmethod
     def temp_subtype(cls):
         """
         Subtype of the temporal value, that is, ``'Sequence'``.

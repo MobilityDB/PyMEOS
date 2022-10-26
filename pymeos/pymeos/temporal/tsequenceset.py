@@ -59,6 +59,10 @@ class TSequenceSet(Temporal, ABC):
                          for x in sequence_list]
             self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
+    @classmethod
+    def from_sequences(cls, sequence_list: Optional[List[Union[str, Any]]] = None, normalize: bool = True):
+        return cls(sequence_list=sequence_list, normalize=normalize)
+
     def temp_subtype(self):
         """
         Subtype of the temporal value, that is, ``'SequenceSet'``.
