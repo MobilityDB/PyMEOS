@@ -127,7 +127,6 @@ class Temporal(ABC):
         """
         pass
 
-    @property
     def values(self) -> List:
         """
         List values taken by the temporal value.

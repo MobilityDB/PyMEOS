@@ -95,15 +95,15 @@ class TPoint(Temporal, ABC):
     def set_srid(self, srid: int) -> TPoint:
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
-    @property
+    def values(self, precision: int = 6) -> List[BaseGeometry]:
+        return [i.value(precision=precision) for i in self.instants]
+
     def start_value(self, precision: int = 6) -> BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_start_value(self._inner), precision)
 
-    @property
     def end_value(self, precision: int = 6) -> BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_end_value(self._inner), precision)
 
-    @property
     def value_set(self, precision: int = 6) -> Set[BaseGeometry]:
         values, count = tpoint_values(self._inner)
         return {gserialized_to_shapely_geometry(values[i], precision) for i in range(count)}
@@ -582,7 +582,9 @@ class TPointInst(TPoint, TInstant, ABC):
     """
     Abstract class for representing temporal points of instant subtype.
     """
-    pass
+
+    def value(self, precision: int = 6) -> BaseGeometry:
+        return self.start_value(precision=precision)
 
 
 class TPointSeq(TPoint, TSequence, ABC):

@@ -86,8 +86,7 @@ class TInstant(Temporal, ABC):
         """
         return Period(lower=self.timestamp, upper=self.timestamp, lower_inc=True, upper_inc=True)
 
-    @property
-    def value(self) -> bool:
+    def value(self):
         """
         Value component.
         """
