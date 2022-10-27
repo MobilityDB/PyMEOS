@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, Any, TYPE_CHECKING
+from typing import Optional, List, Union, Any, TYPE_CHECKING, TypeVar, Type
 
 from pandas import DataFrame
 from pymeos_cffi import as_tsequenceset
@@ -39,8 +39,11 @@ from ..temporal.temporal import Temporal
 if TYPE_CHECKING:
     from .tsequence import TSequence
 
+TBase = TypeVar('TBase')
+Self = TypeVar('Self', bound='Temporal[Any]')
 
-class TSequenceSet(Temporal, ABC):
+
+class TSequenceSet(Temporal[TBase], ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
@@ -60,37 +63,32 @@ class TSequenceSet(Temporal, ABC):
             self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
     @classmethod
-    def from_sequences(cls, sequence_list: Optional[List[Union[str, Any]]] = None, normalize: bool = True):
+    def from_sequences(cls: Type[Self], sequence_list: Optional[List[Union[str, Any]]] = None,
+                       normalize: bool = True) -> Self:
         return cls(sequence_list=sequence_list, normalize=normalize)
 
-    def temp_subtype(self):
-        """
-        Subtype of the temporal value, that is, ``'SequenceSet'``.
-        """
-        return "SequenceSet"
-
     @property
-    def num_sequences(self):
+    def num_sequences(self) -> int:
         """
         Number of sequences.
         """
         return temporal_num_sequences(self._inner)
 
     @property
-    def start_sequence(self):
+    def start_sequence(self) -> TSequence[TBase]:
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     @property
-    def end_sequence(self):
+    def end_sequence(self) -> TSequence[TBase]:
         """
         End sequence.
         """
         return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
-    def sequence_n(self, n):
+    def sequence_n(self, n) -> TSequence[TBase]:
         """
         N-th sequence.
         """
@@ -98,7 +96,7 @@ class TSequenceSet(Temporal, ABC):
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
-    def sequences(self) -> List[TSequence]:
+    def sequences(self) -> List[TSequence[TBase]]:
         """
         List of sequences.
         """
@@ -109,7 +107,7 @@ class TSequenceSet(Temporal, ABC):
         data = {
             'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.num_instants)],
             'time': [t for seq in self.sequences for t in seq.timestamps],
-            'value': [v for seq in self.sequences for v in seq.values]
+            'value': [v for seq in self.sequences for v in seq.values()]
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])
 

@@ -48,7 +48,6 @@ class TText(Temporal, ABC):
     """
 
     BaseClass = str
-    BaseClassDiscrete = True
 
     _parse_function = ttext_in
 

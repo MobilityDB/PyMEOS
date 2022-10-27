@@ -55,7 +55,6 @@ class TInt(TNumber, ABC):
     """
 
     BaseClass = int
-    BaseClassDiscrete = True
     _parse_function = tint_in
 
     def is_adjacent(self, other: Union[int,

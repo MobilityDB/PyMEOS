@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Union, List, TYPE_CHECKING
+from typing import Union, List, TYPE_CHECKING, TypeVar
 
 from pymeos_cffi import tnumber_integral, tnumber_twavg, tnumber_at_span, intrange_to_intspan, \
     floatrange_to_floatspan, tnumber_at_spans, tnumber_at_tbox
@@ -29,8 +29,10 @@ if TYPE_CHECKING:
     from ..boxes import TBox
     from ..time import TimestampSet, Period, PeriodSet
 
+TBase = TypeVar('TBase')
 
-class TNumber(Temporal, ABC):
+
+class TNumber(Temporal[TBase], ABC):
 
     def is_adjacent(self, other: Union[TBox, TNumber, floatrange, intrange,
                                        Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:

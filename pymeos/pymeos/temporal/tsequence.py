@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Any
+from typing import Optional, Union, List, Any, TypeVar, Type, Generic
 
 from pymeos_cffi import tsequence_compact, as_tsequence
 from pymeos_cffi.functions import tsequence_make
@@ -34,8 +34,11 @@ from pymeos_cffi.functions import tsequence_make
 from .interpolation import TInterpolation
 from .temporal import Temporal
 
+TBase = TypeVar('TBase')
+Self = TypeVar('Self', bound='Temporal[Any]')
 
-class TSequence(Temporal, ABC):
+
+class TSequence(Temporal[TBase], ABC):
     """
     Abstract class for representing temporal values of sequence subtype.
     """
@@ -57,55 +60,48 @@ class TSequence(Temporal, ABC):
                                          interpolation.value, normalize)
 
     @classmethod
-    def from_instants(cls, instant_list: Optional[List[Union[str, Any]]],
+    def from_instants(cls: Type[Self], instant_list: Optional[List[Union[str, Any]]],
                       lower_inc: bool = True, upper_inc: bool = False,
-                      interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
+                      interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True) -> Self:
         return cls(instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc, interpolation=interpolation,
                    normalize=normalize)
 
-    @classmethod
-    def temp_subtype(cls):
-        """
-        Subtype of the temporal value, that is, ``'Sequence'``.
-        """
-        return "Sequence"
-
     @property
-    def lower_inc(self):
+    def lower_inc(self) -> bool:
         """
         Is the lower bound inclusive?
         """
         return self._inner.period.lower_inc
 
     @property
-    def upper_inc(self):
+    def upper_inc(self) -> bool:
         """
         Is the upper bound inclusive?
         """
         return self._inner.period.upper_inc
 
     @property
-    def num_sequences(self):
+    def num_sequences(self) -> int:
         """
         Number of sequences.
         """
         return 1
 
     @property
-    def start_sequence(self):
+    def start_sequence(self: Self) -> Self:
         """
         Start sequence.
         """
         return self
 
     @property
-    def end_sequence(self):
+    def end_sequence(self: Self) -> Self:
         """
         End sequence.
         """
         return self
 
-    def sequence_n(self, n):
+    def sequence_n(self: Self, n) -> Self:
         """
         N-th sequence.
         """
@@ -116,13 +112,13 @@ class TSequence(Temporal, ABC):
             raise Exception("ERROR: Out of range")
 
     @property
-    def sequences(self):
+    def sequences(self: Self) -> List[Self]:
         """
         List of sequences.
         """
         return [self]
 
-    def compact(self) -> TSequence:
+    def compact(self: Self) -> Self:
         result = tsequence_compact(self._inner)
         return Temporal._factory(result)
 

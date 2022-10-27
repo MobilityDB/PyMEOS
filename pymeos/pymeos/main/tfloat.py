@@ -51,13 +51,12 @@ if TYPE_CHECKING:
     from .tint import TInt
 
 
-class TFloat(TNumber, ABC):
+class TFloat(TNumber[float], ABC):
     """
     Abstract class for representing temporal floats of any subtype.
     """
 
     BaseClass = float
-    BaseClassDiscrete = False
     _parse_function = tfloat_in
 
     def is_adjacent(self, other: Union[int, float,

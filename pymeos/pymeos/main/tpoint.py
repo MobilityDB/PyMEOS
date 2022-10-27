@@ -564,7 +564,7 @@ class TPoint(Temporal, ABC):
     def to_dataframe(self) -> GeoDataFrame:
         data = {
             'time': self.timestamps,
-            'geometry': [i.value for i in self.instants]
+            'geometry': [i.value() for i in self.instants]
         }
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
 
@@ -637,7 +637,6 @@ class TGeomPoint(TPoint, ABC):
     """
 
     BaseClass = Point
-    BaseClassDiscrete = False
     _parse_function = tgeompoint_in
 
     @staticmethod
@@ -739,7 +738,6 @@ class TGeogPoint(TPoint, ABC):
     """
 
     BaseClass = Point
-    BaseClassDiscrete = False
     _parse_function = tgeogpoint_in
 
     @staticmethod

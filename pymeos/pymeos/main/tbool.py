@@ -41,23 +41,22 @@ from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceS
 from ..time import TimestampSet, Period, PeriodSet
 
 
-class TBool(Temporal, ABC):
+class TBool(Temporal[bool], ABC):
     """
     Abstract class for representing temporal Booleans of any subtype.
     """
 
     BaseClass = bool
-    BaseClassDiscrete = True
     _parse_function = tbool_in
 
-    def at(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def at(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> TBool:
         if isinstance(other, bool):
             result = tbool_at_value(self._inner, other)
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[bool, datetime, TimestampSet, Period, PeriodSet]) -> TBool:
         if isinstance(other, bool):
             result = tbool_minus_value(self._inner, other)
         else:
