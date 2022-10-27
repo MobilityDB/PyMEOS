@@ -618,11 +618,11 @@ class TPointSeqSet(TPoint, TSequenceSet, ABC):
     def speed(self):
         return TFloatSeqSet(_inner=tpoint_speed(self._inner))
 
-    def to_dataframe(self) -> GeoDataFrame:
+    def to_dataframe(self, precision: int = 6) -> GeoDataFrame:
         data = {
             'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.instants)],
             'time': [t for seq in self.sequences for t in seq.timestamps],
-            'geometry': [v for seq in self.sequences for v in seq.values]
+            'geometry': [v for seq in self.sequences for v in seq.values(precision=precision)]
         }
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['sequence', 'time'])
 
