@@ -22,7 +22,7 @@ class TemporalSequencePlotter:
 
         ins = sequence.instants if isinstance(sequence, TSequence) else sequence
         x = [i.timestamp for i in ins]
-        y = [i.value for i in ins]
+        y = [i.value() for i in ins]
 
         base.set_axisbelow(True)
 
