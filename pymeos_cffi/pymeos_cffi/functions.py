@@ -1,12 +1,12 @@
 from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional, List
+from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
+import postgis as pg
 import shapely.geometry as spg
 from dateutil.parser import parse
-from postgis import Point
+from shapely import wkt, wkb
 from shapely.geometry.base import BaseGeometry
-from shapely.wkt import loads
 from spans.types import floatrange, intrange
 
 _ffi = _meos_cffi.ffi
@@ -34,20 +34,29 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def lwpoint_to_point(lwpoint: Any) -> Point:
-    return Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
-                 lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
-                 lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
-                 lwgeom_get_srid(lwpoint))
+def lwpoint_to_point(lwpoint: Any) -> pg.Point:
+    return pg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
+                    lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
+                    lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
+                    lwgeom_get_srid(lwpoint))
 
 
 def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
-        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
+    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint)         else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
+
+
+def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
+    if isinstance(geom, pg.Geometry):
+        text = geom.to_ewkb()
+    elif isinstance(geom, BaseGeometry):
+        text = wkb.dumps(geom, hex=True)
+    else:
+        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
+    return gserialized_in(text, -1)
 
 
 def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
-    return loads(gserialized_as_text(geom, precision))
+    return wkt.loads(gserialized_as_text(geom, precision))
 
 
 def intrange_to_intspan(irange: intrange) -> 'Span *':
@@ -56,7 +65,7 @@ def intrange_to_intspan(irange: intrange) -> 'Span *':
 
 def intspan_to_intrange(ispan: 'Span *') -> intrange:
     return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
-    
+
 
 def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
     return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
