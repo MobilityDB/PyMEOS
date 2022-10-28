@@ -9,7 +9,8 @@ from ..temporal import TInterpolation
 class TemporalPointSequencePlotter:
 
     @staticmethod
-    def plot_xy(sequence: Union[TPointSeq, List[TPointInst]], *args, axes=None, **kwargs):
+    def plot_xy(sequence: Union[TPointSeq, List[TPointInst]], *args, axes=None, show_markers=True, show_grid=True,
+                **kwargs):
         base = axes or plt.gca()
         linear = False
         if isinstance(sequence, list):
@@ -26,10 +27,11 @@ class TemporalPointSequencePlotter:
 
         base.set_axisbelow(True)
 
-        base.grid(zorder=0.5)
+        if show_grid:
+            base.grid(zorder=0.5)
         plot = plot_func(x, y, *args, **kwargs)
 
-        if linear:
+        if linear and show_markers:
             color = plot[0].get_color()
             base.scatter(x[0], y[0], s=80, marker='o', facecolors=color if sequence.lower_inc else 'none',
                          edgecolors=color)
@@ -39,4 +41,10 @@ class TemporalPointSequencePlotter:
         plt.xticks(rotation=45)
 
         return plot
-   
+
+    @staticmethod
+    def plot_sequences_xy(sequences: List[TPointSeq], *args, **kwargs):
+        plots = []
+        for seq in sequences:
+            plots.append(TemporalPointSequencePlotter.plot_xy(seq, *args, **kwargs))
+        return plots
