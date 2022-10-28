@@ -46,8 +46,8 @@ def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
         else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
 
 
-def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int) -> BaseGeometry:
-    return loads(gserialized_as_text(geom, 5))
+def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
+    return loads(gserialized_as_text(geom, precision))
 
 
 def intrange_to_intspan(irange: intrange) -> 'Span *':
