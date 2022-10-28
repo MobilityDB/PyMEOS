@@ -9,7 +9,7 @@ from ..temporal import TSequence, TInterpolation, TInstant
 class TemporalSequencePlotter:
 
     @staticmethod
-    def plot(sequence: Union[TSequence, List[TInstant]], *args, axes=None, **kwargs):
+    def plot(sequence: Union[TSequence, List[TInstant]], *args, axes=None, show_markers=True, show_grid=True, **kwargs):
         base = axes or plt.gca()
         if isinstance(sequence, list):
             plot_func = base.scatter
@@ -26,10 +26,11 @@ class TemporalSequencePlotter:
 
         base.set_axisbelow(True)
 
-        base.grid(zorder=0.5)
+        if show_grid:
+            base.grid(zorder=0.5)
         plot = plot_func(x, y, *args, **kwargs)
 
-        if sequence.interpolation != TInterpolation.DISCRETE:
+        if sequence.interpolation != TInterpolation.DISCRETE and show_grid:
             color = plot[0].get_color()
             base.scatter(x[0], y[0], s=40, marker='o', facecolors=color if sequence.lower_inc else 'none',
                          edgecolors=color, zorder=2 if sequence.upper_inc else 3)
