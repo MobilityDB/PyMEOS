@@ -38,7 +38,7 @@ class TemporalPointSequencePlotter:
             base.scatter(x[-1], y[-1], s=80, marker='o', facecolors=color if sequence.upper_inc else 'none',
                          edgecolors=color)
 
-        plt.xticks(rotation=45)
+        base.tick_params(axis="x", rotation=45)
 
         return plot
 
