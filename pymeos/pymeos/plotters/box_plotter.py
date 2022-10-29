@@ -27,4 +27,6 @@ class BoxPlotter:
                          *args, **kwargs)
         f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args,
                               color=plot[0].get_color(), alpha=0.3, **kwargs)
+
+        base.tick_params(axis="x", rotation=45)
         return [plot, f]
