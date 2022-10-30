@@ -1999,11 +1999,19 @@ extern int int_bucket(int value, int size, int origin);
 extern double float_bucket(double value, double size, double origin);
 extern TimestampTz timestamptz_bucket(TimestampTz timestamp, const Interval *duration, TimestampTz origin);
 
+extern Span *intspan_bucket_list(const Span *bounds, int size, int origin, int *newcount);
+extern Span *floatspan_bucket_list(const Span *bounds, double size, double origin, int *newcount);
+extern Span *period_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *newcount);
+
+extern TBOX *tbox_tile_list(const TBOX *bounds, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *rows, int *columns);
+
 extern Temporal **tint_value_split(Temporal *temp, int size, int origin, int *newcount);
 extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, int *newcount);
 extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, int *newcount);
 extern Temporal **tint_value_time_split(Temporal *temp, int size, int vorigin, Interval *duration, TimestampTz torigin, int *newcount);
 extern Temporal **tfloat_value_time_split(Temporal *temp, double size, double vorigin, Interval *duration, TimestampTz torigin, int *newcount);
+
+extern STBOX *stbox_tile_list(STBOX *bounds, double size, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int **cellcount);
 
 
 
