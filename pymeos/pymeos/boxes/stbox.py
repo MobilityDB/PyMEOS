@@ -25,10 +25,13 @@
 ###############################################################################
 from __future__ import annotations
 
-from typing import Optional, Union
+from datetime import datetime, timedelta
+from math import prod
+from typing import Optional, Union, List
 
 from postgis import Geometry
-from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint, geo_expand_spatial, tpoint_expand_spatial
+from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint, geo_expand_spatial, tpoint_expand_spatial, \
+    geometry_to_gserialized
 from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
     stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
     stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
@@ -44,11 +47,12 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
     same_stbox_tpoint, nad_stbox_geo, nad_stbox_stbox, left_stbox_tpoint, overleft_stbox_tpoint, right_stbox_tpoint, \
     overright_stbox_tpoint, below_stbox_tpoint, overbelow_stbox_tpoint, above_stbox_tpoint, overabove_stbox_tpoint, \
     front_stbox_tpoint, overfront_stbox_tpoint, back_stbox_tpoint, overback_stbox_tpoint, before_stbox_tpoint, \
-    overbefore_stbox_tpoint, after_stbox_tpoint, overafter_stbox_tpoint
+    overbefore_stbox_tpoint, after_stbox_tpoint, overafter_stbox_tpoint, stbox_tile_list, pg_timestamptz_in, \
+    pg_interval_in
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
-from ..time import *
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class STBox:
@@ -102,6 +106,7 @@ class STBox:
                  ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
                  zmin: Optional[Union[str, float]] = None, zmax: Optional[Union[str, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None, tmax: Optional[Union[str, datetime]] = None,
+                 tmin_inc: bool = True, tmax_inc: bool = True,
                  geodetic: bool = False, srid: Optional[int] = None,
                  _inner=None):
 
@@ -121,7 +126,7 @@ class STBox:
             hasx = xmin is not None and xmax is not None and ymin is not None and ymax is not None
             hasz = zmin is not None and zmax is not None
             if hast:
-                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
 
@@ -143,7 +148,7 @@ class STBox:
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
-    def from_time(time: Time) -> STBox:
+    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> STBox:
         if isinstance(time, datetime):
             result = timestamp_to_stbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
@@ -186,6 +191,18 @@ class STBox:
     def from_tpoint(temporal: TPoint) -> STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
+    def tile(self, size: float, duration: Union[timedelta, str],
+             origin: Optional[Union[BaseGeometry, Geometry]] = None,
+             start: Union[datetime, str, None] = None) -> List[STBox]:
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else datetime_to_timestamptz(self.tmin)
+        gs = geometry_to_gserialized(origin) if origin is not None else gserialized_in('POINT(0 0)', -1)
+        tiles, dimensions = stbox_tile_list(self._inner, size, dt, gs, st)
+        num_cells = prod(d for d in dimensions[0:4] if d)
+        return [STBox(_inner=tiles + i) for i in range(num_cells)]
+
     def to_geometry(self, precision: int = 5) -> BaseGeometry:
         return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
 
@@ -193,7 +210,7 @@ class STBox:
         return Period(_inner=stbox_to_period(self._inner))
 
     @property
-    def has_x(self):
+    def has_xy(self):
         return stbox_hasx(self._inner)
 
     @property
@@ -540,9 +557,17 @@ class STBox:
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
-    def plot(self, *args, **kwargs):
+    def plot_xy(self, *args, **kwargs):
         from ..plotters import BoxPlotter
         return BoxPlotter.plot_stbox_xy(self, *args, **kwargs)
+
+    def plot_xt(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_xt(self, *args, **kwargs)
+
+    def plot_yt(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):

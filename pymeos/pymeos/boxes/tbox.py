@@ -25,11 +25,12 @@
 ###############################################################################
 from __future__ import annotations
 
-from typing import Optional, Union
+from datetime import datetime, timedelta
+from typing import Optional, Union, List
 
 from dateutil.parser import parse
 from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
-    tbox_to_period, adjacent_tbox_tnumber
+    tbox_to_period, adjacent_tbox_tnumber, tbox_to_floatspan, floatspan_to_floatrange
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
     tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
     tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
@@ -40,11 +41,12 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
     float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
     tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber, nad_tbox_tbox, \
     left_tbox_tnumber, overleft_tbox_tnumber, right_tbox_tnumber, overright_tbox_tnumber, before_tbox_tnumber, \
-    overbefore_tbox_tnumber, after_tbox_tnumber, overafter_tbox_tnumber
+    overbefore_tbox_tnumber, after_tbox_tnumber, overafter_tbox_tnumber, tbox_tile_list, pg_timestamptz_in, \
+    pg_interval_in
 from spans import intrange, floatrange
 
 from ..main import TNumber
-from ..time import *
+from ..time import TimestampSet, Period, PeriodSet
 
 
 class TBox:
@@ -78,6 +80,10 @@ class TBox:
                  tmin: Optional[Union[str, datetime]] = None,
                  xmax: Optional[Union[str, float]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
+                 xmin_inc: bool = True,
+                 xmax_inc: bool = True,
+                 tmin_inc: bool = True,
+                 tmax_inc: bool = True,
                  _inner=None):
         assert (_inner is not None) or (string is not None) != (
                 (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
@@ -90,9 +96,9 @@ class TBox:
             span = None
             period = None
             if xmin is not None and xmax is not None:
-                span = floatspan_make(float(xmin), float(xmax), True, True)
+                span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
             if tmin is not None and tmax is not None:
-                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = tbox_make(period, span)
 
     @staticmethod
@@ -118,7 +124,7 @@ class TBox:
         return TBox(_inner=result)
 
     @staticmethod
-    def from_time(time: Time) -> TBox:
+    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBox:
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
@@ -161,9 +167,17 @@ class TBox:
     def from_tnumber(temporal: TNumber) -> TBox:
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
+    def tile(self, size: float, duration: Union[timedelta, str],
+             origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else None
+        tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
+        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
+
     def to_floatrange(self) -> floatrange:
-        # TODO: Check that a Box always has inclusive bound
-        return floatrange(self.xmin, self.xmax, True, True)
+        return floatspan_to_floatrange(tbox_to_floatspan(self._inner))
 
     def to_period(self) -> Period:
         return Period(_inner=tbox_to_period(self._inner))
@@ -399,6 +413,10 @@ class TBox:
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     @staticmethod
     def read_from_cursor(value, cursor=None):
