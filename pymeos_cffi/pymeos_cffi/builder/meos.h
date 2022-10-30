@@ -1952,6 +1952,13 @@ extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs
 
 
 
+extern Temporal *temporal_delete_timestamp(const Temporal *temp, TimestampTz t, bool connect);
+extern Temporal *temporal_delete_timestampset(const Temporal *temp, const TimestampSet *ts, bool connect);
+
+
+
+
+
 extern bool temporal_intersects_period(const Temporal *temp, const Period *p);
 extern bool temporal_intersects_periodset(const Temporal *temp, const PeriodSet *ps);
 extern bool temporal_intersects_timestamp(const Temporal *temp, TimestampTz t);
