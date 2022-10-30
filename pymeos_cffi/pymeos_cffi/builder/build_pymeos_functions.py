@@ -25,19 +25,6 @@ class Parameter:
         else:
             return self.ptype
 
-    def get_ptype(self, nullable: bool) -> str:
-        if nullable:
-            return f'"Optional[{self.ptype}]"'
-        return self.ptype
-
-    def get_conversion(self, nullable: bool) -> Optional[str]:
-        if self.cp_conversion is None:
-            return None
-        conversion = self.cp_conversion
-        if nullable:
-            conversion += f' if {self.name} is not None else _ffi.NULL'
-        return conversion
-
     def __str__(self) -> str:
         return f'{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, {self.cp_conversion=}'
 
@@ -257,8 +244,8 @@ nullable_parameters = {
 
 
 # Checks if parameter in function is nullable
-def is_nullable_parameter(function: str, parameter: Parameter) -> bool:
-    return (function, parameter.name) in nullable_parameters
+def is_nullable_parameter(function: str, parameter: str) -> bool:
+    return (function, parameter) in nullable_parameters
 
 
 # Checks if parameter in function is actually a result parameter
@@ -301,18 +288,18 @@ def main():
             inner_return_type = named['returnType']
             return_type = get_return_type(inner_return_type)
             inner_params = named['params']
-            params = get_params(inner_params)
+            params = get_params(function, inner_params)
             function_string = build_function_string(function, return_type, params)
             file.write(function_string)
             file.write('\n\n\n')
 
 
-def get_params(inner_params: str) -> List[Parameter]:
-    return [p for p in (get_param(param.strip()) for param in inner_params.split(',')) if p is not None]
+def get_params(function: str, inner_params: str) -> List[Parameter]:
+    return [p for p in (get_param(function, param.strip()) for param in inner_params.split(',')) if p is not None]
 
 
 # Creates Parameter object from a function parameter
-def get_param(inner_param: str) -> Optional[Parameter]:
+def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     # Split param name and type
     split = inner_param.split(' ')
 
@@ -341,15 +328,22 @@ def get_param(inner_param: str) -> Optional[Parameter]:
     # Get the type conversion
     conversion = get_param_conversion(param_type)
 
-    # If no parameter conversion is available, assume none is necessary and give python type Any
-    if conversion is None:
-        return Parameter(param_name, param_name, 'Any', param_type, '')
+    # Check if parameter is nullable
+    nullable = is_nullable_parameter(function, param_name)
 
     # If no conversion is needed between c and python types, use parameter name also as converted name
     if conversion.p_to_c is None:
+        # If nullable, add null check
+        if nullable:
+            return Parameter(param_name, f'{param_name}_converted', param_type, f"'Optional[{conversion.p_type}]'",
+                             f'{param_name}_converted = {param_name} if {param_name} is not None else _ffi.NULL')
         return Parameter(param_name, param_name, param_type, conversion.p_type, None)
 
     # If a conversion is needed, create new name and add the conversion
+    if nullable:
+        return Parameter(param_name, f'{param_name}_converted', param_type, f'"Optional[{conversion.p_type}]"',
+                         f'{param_name}_converted = {conversion.p_to_c(param_name)} '
+                         f'if {param_name} is not None else _ffi.NULL')
     return Parameter(param_name, f'{param_name}_converted', param_type, conversion.p_type,
                      f'{param_name}_converted = {conversion.p_to_c(param_name)}')
 
@@ -398,11 +392,11 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
 
     # Create wrapper function parameter list
-    params = ', '.join(f'{p.name}: {p.get_ptype(is_nullable_parameter(function_name, p))}' for p in parameters
+    params = ', '.join(f'{p.name}: {p.ptype}' for p in parameters
                        if p not in out_params)
 
     # Create necessary conversions for the parameters
-    param_conversions = '\n    '.join(p.get_conversion(is_nullable_parameter(function_name, p)) for p in parameters
+    param_conversions = '\n    '.join(p.cp_conversion for p in parameters
                                       if p.cp_conversion is not None and p not in out_params)
 
     # Create CFFI function parameter list

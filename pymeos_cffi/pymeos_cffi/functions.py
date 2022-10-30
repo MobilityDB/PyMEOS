@@ -7791,13 +7791,14 @@ def period_bucket_list(bounds: 'const Span *', duration: 'const Interval *', ori
     return result if result != _ffi.NULL else None
 
 
-def tbox_tile_list(bounds: 'const TBOX *', xsize: float, duration: 'const Interval *', xorigin: "Optional[float]", torigin: "Optional[int]") -> "Tuple['TBOX *', 'int', 'int']":
+def tbox_tile_list(bounds: 'const TBOX *', xsize: float, duration: 'const Interval *', xorigin: 'Optional[float]', torigin: "Optional[int]") -> "Tuple['TBOX *', 'int', 'int']":
     bounds_converted = _ffi.cast('const TBOX *', bounds)
     duration_converted = _ffi.cast('const Interval *', duration)
+    xorigin_converted = xorigin if xorigin is not None else _ffi.NULL
     torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
     rows = _ffi.new('int *')
     columns = _ffi.new('int *')
-    result = _lib.tbox_tile_list(bounds_converted, xsize, duration_converted, xorigin, torigin_converted, rows, columns)
+    result = _lib.tbox_tile_list(bounds_converted, xsize, duration_converted, xorigin_converted, torigin_converted, rows, columns)
     return result if result != _ffi.NULL else None, rows[0], columns[0]
 
 
