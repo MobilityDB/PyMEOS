@@ -7754,6 +7754,39 @@ def timestamptz_bucket(timestamp: int, duration: 'const Interval *', origin: int
     return result if result != _ffi.NULL else None
 
 
+def intspan_bucket_list(bounds: 'const Span *', size: int, origin: int, newcount: 'int *') -> 'Span *':
+    bounds_converted = _ffi.cast('const Span *', bounds)
+    newcount_converted = _ffi.cast('int *', newcount)
+    result = _lib.intspan_bucket_list(bounds_converted, size, origin, newcount_converted)
+    return result if result != _ffi.NULL else None
+
+
+def floatspan_bucket_list(bounds: 'const Span *', size: float, origin: float, newcount: 'int *') -> 'Span *':
+    bounds_converted = _ffi.cast('const Span *', bounds)
+    newcount_converted = _ffi.cast('int *', newcount)
+    result = _lib.floatspan_bucket_list(bounds_converted, size, origin, newcount_converted)
+    return result if result != _ffi.NULL else None
+
+
+def period_bucket_list(bounds: 'const Span *', duration: 'const Interval *', origin: int, newcount: 'int *') -> 'Span *':
+    bounds_converted = _ffi.cast('const Span *', bounds)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    origin_converted = _ffi.cast('TimestampTz', origin)
+    newcount_converted = _ffi.cast('int *', newcount)
+    result = _lib.period_bucket_list(bounds_converted, duration_converted, origin_converted, newcount_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tbox_tile_list(bounds: 'const TBOX *', xsize: float, duration: 'const Interval *', xorigin: float, torigin: int) -> "Tuple['TBOX *', 'int', 'int']":
+    bounds_converted = _ffi.cast('const TBOX *', bounds)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    rows = _ffi.new('int *')
+    columns = _ffi.new('int *')
+    result = _lib.tbox_tile_list(bounds_converted, xsize, duration_converted, xorigin, torigin_converted, rows, columns)
+    return result if result != _ffi.NULL else None, rows[0], columns[0]
+
+
 def tint_value_split(temp: 'Temporal *', size: int, origin: int) -> "Tuple['Temporal **', 'int']":
     temp_converted = _ffi.cast('Temporal *', temp)
     newcount = _ffi.new('int *')
@@ -7793,6 +7826,16 @@ def tfloat_value_time_split(temp: 'Temporal *', size: float, vorigin: float, dur
     newcount = _ffi.new('int *')
     result = _lib.tfloat_value_time_split(temp_converted, size, vorigin, duration_converted, torigin_converted, newcount)
     return result if result != _ffi.NULL else None, newcount[0]
+
+
+def stbox_tile_list(bounds: 'STBOX *', size: float, duration: 'const Interval *', sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBOX *', 'int *']":
+    bounds_converted = _ffi.cast('STBOX *', bounds)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    cellcount = _ffi.new('int **')
+    result = _lib.stbox_tile_list(bounds_converted, size, duration_converted, sorigin_converted, torigin_converted, cellcount)
+    return result if result != _ffi.NULL else None, cellcount[0]
 
 
 def temporal_frechet_distance(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'double':

@@ -192,6 +192,9 @@ output_parameters = {
     ('tfloat_value_time_split', 'newcount'),
     ('tbox_as_hexwkb', 'size'),
     ('stbox_as_hexwkb', 'size'),
+    ('tbox_tile_list', 'rows'),
+    ('tbox_tile_list', 'columns'),
+    ('stbox_tile_list', 'cellcount'),
 }
 
 # List of nullable function parameters in tuples of (function, parameter)
