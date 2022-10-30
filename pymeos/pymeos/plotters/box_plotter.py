@@ -20,13 +20,24 @@ class BoxPlotter:
         return BoxPlotter._plot_box(stbox.xmin, stbox.xmax, stbox.ymin, stbox.ymax, *args, axes=axes, **kwargs)
 
     @staticmethod
-    def _plot_box(xmin, xmax, ymin, ymax, *args, axes=None, **kwargs):
+    def plot_stbox_xt(stbox: STBox, *args, axes=None, **kwargs):
+        return BoxPlotter._plot_box(stbox.tmin, stbox.tmax, stbox.xmin, stbox.xmax, *args, axes=axes, **kwargs)
+
+    @staticmethod
+    def plot_stbox_yt(stbox: STBox, *args, axes=None, **kwargs):
+        return BoxPlotter._plot_box(stbox.tmin, stbox.tmax, stbox.ymin, stbox.ymax, *args, axes=axes, **kwargs)
+
+    @staticmethod
+    def _plot_box(xmin, xmax, ymin, ymax, *args, axes=None, rotate_xticks=True, **kwargs):
         base = axes or plt.gca()
         plot = base.plot([xmin, xmax, xmax, xmin, xmin],
                          [ymin, ymin, ymax, ymax, ymin],
                          *args, **kwargs)
+        if 'color' not in kwargs:
+            kwargs['color'] = plot[0].get_color()
         f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args,
-                              color=plot[0].get_color(), alpha=0.3, **kwargs)
+                              alpha=0.3, **kwargs)
 
-        base.tick_params(axis="x", rotation=45)
+        if rotate_xticks:
+            base.tick_params(axis="x", rotation=45)
         return [plot, f]
