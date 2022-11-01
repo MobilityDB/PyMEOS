@@ -7,12 +7,13 @@ from pymeos_cffi import temporal_tcount_transfn, temporal_extent_transfn, timest
     periodset_tcount_transfn, span_extent_transfn
 
 from .aggregator import BaseAggregator, BaseGranularityAggregator
+from ..main import TIntSeq, TIntSeqSet
 from ..boxes import Box
 from ..temporal import Temporal, TInterpolation
 from ..time import Time, TimestampSet, Period, PeriodSet
 
 
-class TemporalInstantCountAggregator(BaseGranularityAggregator):
+class TemporalInstantCountAggregator(BaseGranularityAggregator[Union[Time, Temporal], TIntSeq]):
     @classmethod
     def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
@@ -31,7 +32,7 @@ class TemporalInstantCountAggregator(BaseGranularityAggregator):
         return state
 
 
-class TemporalPeriodCountAggregator(BaseGranularityAggregator):
+class TemporalPeriodCountAggregator(BaseGranularityAggregator[Union[Time, Temporal], TIntSeqSet]):
     @classmethod
     def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
@@ -49,7 +50,7 @@ class TemporalPeriodCountAggregator(BaseGranularityAggregator):
         return state
 
 
-class TemporalExtentAggregator(BaseAggregator):
+class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
 
     @classmethod
     def _add(cls, state, temporal):

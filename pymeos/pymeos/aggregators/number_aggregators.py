@@ -6,13 +6,13 @@ from ..boxes import TBox
 from ..main import TInt, TFloat, TNumber
 
 
-class TemporalAverageAggregator(BaseAggregator):
+class TemporalAverageAggregator(BaseAggregator[TNumber, TNumber]):
     _add_function = tnumber_tavg_transfn
     _final_function = tnumber_tavg_finalfn
     _accepted_types = [TNumber]
 
 
-class TemporalNumberExtentAggregator(BaseAggregator):
+class TemporalNumberExtentAggregator(BaseAggregator[TNumber, TBox]):
     _add_function = tnumber_extent_transfn
     _accepted_types = [TNumber]
 
@@ -21,31 +21,31 @@ class TemporalNumberExtentAggregator(BaseAggregator):
         return TBox(_inner=state)
 
 
-class TemporalIntMaxAggregator(BaseAggregator):
+class TemporalIntMaxAggregator(BaseAggregator[TNumber, TBox]):
     _add_function = tint_tmax_transfn
-    _accepted_types = [TFloat]
+    _accepted_types = [TInt]
 
 
-class TemporalIntMinAggregator(BaseAggregator):
+class TemporalIntMinAggregator(BaseAggregator[TInt, TInt]):
     _add_function = tint_tmin_transfn
-    _accepted_types = [TFloat]
+    _accepted_types = [TInt]
 
 
-class TemporalIntSumAggregator(BaseAggregator):
+class TemporalIntSumAggregator(BaseAggregator[TInt, TInt]):
     _add_function = tint_tsum_transfn
+    _accepted_types = [TInt]
+
+
+class TemporalFloatMaxAggregator(BaseAggregator[TFloat, TFloat]):
+    _add_function = tfloat_tmax_transfn
     _accepted_types = [TFloat]
 
 
-class TemporalFloatMaxAggregator(BaseAggregator):
-    _add_function = tfloat_tmax_transfn
-    _accepted_types = [TInt]
-
-
-class TemporalFloatMinAggregator(BaseAggregator):
+class TemporalFloatMinAggregator(BaseAggregator[TFloat, TFloat]):
     _add_function = tfloat_tmin_transfn
-    _accepted_types = [TInt]
+    _accepted_types = [TFloat]
 
 
-class TemporalFloatSumAggregator(BaseAggregator):
+class TemporalFloatSumAggregator(BaseAggregator[TFloat, TFloat]):
     _add_function = tfloat_tsum_transfn
-    _accepted_types = [TInt]
+    _accepted_types = [TFloat]

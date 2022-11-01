@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 from datetime import datetime, timedelta
-from typing import Optional, Union, List, Type
+from typing import Optional, Union, List, Type, Generic, TypeVar
 
 from pymeos_cffi import temporal_tagg_finalfn, datetime_to_timestamptz, pg_timestamptz_in, timedelta_to_interval, \
     pg_interval_in
@@ -12,22 +12,26 @@ from ..factory import _TemporalFactory
 from ..temporal import Temporal
 from ..time import Time
 
+ResultType = TypeVar('ResultType', bound=Union[Temporal, Time, Box])
+SourceType = TypeVar('SourceType', bound=Union[Temporal, Time, Box])
+SelfAgg = TypeVar('SelfAgg', bound='Aggregation')
 
-class BaseAggregator(abc.ABC):
+
+class BaseAggregator(Generic[SourceType, ResultType], abc.ABC):
     _add_function = None
     _final_function = temporal_tagg_finalfn
 
     _accepted_types: Union[Type, List[Type]] = [Temporal]
 
     @classmethod
-    def aggregate(cls, temporals) -> Union[Temporal, Time, Box]:
+    def aggregate(cls, temporals: List[SourceType]) -> ResultType:
         state = None
         for t in temporals:
             state = cls._add(state, t)
         return cls._finish(state)
 
     @classmethod
-    def _add(cls, state, temporal):
+    def _add(cls, state, temporal: SourceType):
         cls._assert_correct_type(temporal)
         return cls._add_function(state, temporal._inner)
 
@@ -44,7 +48,7 @@ class BaseAggregator(abc.ABC):
         cls._error(element)
 
     @classmethod
-    def _finish(cls, state) -> Union[Temporal, Time, Box]:
+    def _finish(cls, state) -> SourceType:
         result = cls._final_function(state)
         return _TemporalFactory.create_temporal(result)
 
@@ -58,7 +62,7 @@ class BaseAggregator(abc.ABC):
                         f'{element} (Class: {element.__class__})')
 
 
-class Aggregation:
+class Aggregation(Generic[SourceType, ResultType]):
 
     def __init__(self, add_function, finish_function) -> None:
         super().__init__()
@@ -66,26 +70,26 @@ class Aggregation:
         self._finish_function = finish_function
         self._state = None
 
-    def add(self, new_temporal: Temporal) -> Aggregation:
+    def add(self: SelfAgg, new_temporal: SourceType) -> SelfAgg:
         self._state = self._add_function(self._state, new_temporal._inner)
         return self
 
-    def finish(self) -> Temporal:
+    def finish(self) -> ResultType:
         return self._finish_function(self._state)
 
 
-class BaseGranularityAggregator(BaseAggregator):
+class BaseGranularityAggregator(BaseAggregator[SourceType, ResultType]):
 
     @classmethod
-    def aggregate(cls, temporals, interval: Optional[Union[str, timedelta]] = None,
-                  origin: Union['str', datetime] = '1970-01-01') -> Union[Temporal, Time, Box]:
+    def aggregate(cls, temporals: List[SourceType], interval: Optional[Union[str, timedelta]] = None,
+                  origin: Union['str', datetime] = '1970-01-01') -> ResultType:
         state = None
         for t in temporals:
             state = cls._add(state, t, interval, origin)
         return cls._finish(state)
 
     @classmethod
-    def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
+    def _add(cls, state, temporal: SourceType, interval=None, origin='1970-01-01'):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
             pg_interval_in(interval, -1) if isinstance(interval, str) else None
         origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
@@ -94,7 +98,7 @@ class BaseGranularityAggregator(BaseAggregator):
 
     @classmethod
     def start_aggregation(cls, interval: Optional[Union[str, timedelta]] = None,
-                          origin: Union['str', datetime] = '1970-0-0') -> GranularAggregation:
+                          origin: Union['str', datetime] = '1970-0-0') -> GranularAggregation[SourceType, ResultType]:
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
             pg_interval_in(interval, -1)
         origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
@@ -102,12 +106,12 @@ class BaseGranularityAggregator(BaseAggregator):
         return GranularAggregation(cls._add, cls._finish, interval_converted, origin_converted)
 
 
-class GranularAggregation(Aggregation):
+class GranularAggregation(Aggregation[SourceType, ResultType]):
     def __init__(self, add_function, finish_function, interval, origin) -> None:
         super().__init__(add_function, finish_function)
         self._interval = interval
         self._origin = origin
 
-    def add(self, new_temporal: Temporal) -> GranularAggregation:
+    def add(self: SelfAgg, new_temporal: SourceType) -> SelfAgg:
         self._state = self._add_function(self._state, new_temporal._inner, self._interval, self._origin)
         return self
