@@ -30,10 +30,10 @@ class TemporalSequencePlotter:
             base.grid(zorder=0.5)
         plot = plot_func(x, y, *args, **kwargs)
 
-        if sequence.interpolation != TInterpolation.DISCRETE and show_grid:
+        if sequence.interpolation != TInterpolation.DISCRETE and show_markers:
             color = plot[0].get_color()
             base.scatter(x[0], y[0], s=40, marker='o', facecolors=color if sequence.lower_inc else 'none',
-                         edgecolors=color, zorder=2 if sequence.upper_inc else 3)
+                         edgecolors=color, zorder=2 if sequence.lower_inc else 3)
             base.scatter(x[-1], y[-1], s=40, marker='o', facecolors=color if sequence.upper_inc else 'none',
                          edgecolors=color, zorder=2 if sequence.upper_inc else 3)
 

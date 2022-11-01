@@ -34,9 +34,9 @@ class TemporalPointSequencePlotter:
         if linear and show_markers:
             color = plot[0].get_color()
             base.scatter(x[0], y[0], s=80, marker='o', facecolors=color if sequence.lower_inc else 'none',
-                         edgecolors=color)
+                         edgecolors=color, zorder=2 if sequence.lower_inc else 3)
             base.scatter(x[-1], y[-1], s=80, marker='o', facecolors=color if sequence.upper_inc else 'none',
-                         edgecolors=color)
+                         edgecolors=color, zorder=2 if sequence.upper_inc else 3)
 
         base.tick_params(axis="x", rotation=45)
 
