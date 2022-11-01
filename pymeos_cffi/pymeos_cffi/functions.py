@@ -7843,9 +7843,9 @@ def tfloat_value_time_split(temp: 'Temporal *', size: float, vorigin: float, dur
     return result if result != _ffi.NULL else None, newcount[0]
 
 
-def stbox_tile_list(bounds: 'STBOX *', size: float, duration: 'const Interval *', sorigin: "Optional['GSERIALIZED *']", torigin: "Optional[int]") -> "Tuple['STBOX *', 'int *']":
+def stbox_tile_list(bounds: 'STBOX *', size: float, duration: "Optional['const Interval *']", sorigin: "Optional['GSERIALIZED *']", torigin: "Optional[int]") -> "Tuple['STBOX *', 'int *']":
     bounds_converted = _ffi.cast('STBOX *', bounds)
-    duration_converted = _ffi.cast('const Interval *', duration)
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin) if sorigin is not None else _ffi.NULL
     torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
     cellcount = _ffi.new('int **')
