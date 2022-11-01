@@ -13,6 +13,7 @@ class TemporalPointSequenceSetPlotter:
         plot = TemporalPointSequencePlotter.plot_xy(seqs[0], *args, **kwargs)
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()
+        kwargs.pop('label', None)
         for seq in seqs[1:]:
             plot = TemporalPointSequencePlotter.plot_xy(seq, *args,  **kwargs)
         return plot

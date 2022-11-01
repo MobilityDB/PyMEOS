@@ -13,6 +13,7 @@ class TemporalSequenceSetPlotter:
         plot = TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()
+        kwargs.pop('label', None)
         for seq in seqs[1:]:
             plot = TemporalSequencePlotter.plot(seq, *args, **kwargs)
         return plot
