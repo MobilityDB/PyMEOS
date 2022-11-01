@@ -74,7 +74,7 @@ class Aggregation(Generic[SourceType, ResultType]):
         self._state = self._add_function(self._state, new_temporal._inner)
         return self
 
-    def finish(self) -> ResultType:
+    def aggregation(self) -> ResultType:
         return self._finish_function(self._state)
 
 
