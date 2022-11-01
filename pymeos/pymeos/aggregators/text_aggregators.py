@@ -4,11 +4,11 @@ from .aggregator import BaseAggregator
 from ..main import TText
 
 
-class TemporalTextMaxAggregator(BaseAggregator):
+class TemporalTextMaxAggregator(BaseAggregator[TText, TText]):
     _add_function = ttext_tmax_transfn
     _accepted_types = [TText]
 
 
-class TemporalTextMinAggregator(BaseAggregator):
+class TemporalTextMinAggregator(BaseAggregator[TText, TText]):
     _add_function = ttext_tmin_transfn
     _accepted_types = [TText]

@@ -4,11 +4,11 @@ from ..main import TBool
 from .aggregator import BaseAggregator
 
 
-class TemporalAndAggregator(BaseAggregator):
+class TemporalAndAggregator(BaseAggregator[TBool, TBool]):
     _add_function = tbool_tand_transfn
     _accepted_types = [TBool]
 
 
-class TemporalOrAggregator(BaseAggregator):
+class TemporalOrAggregator(BaseAggregator[TBool, TBool]):
     _add_function = tbool_tor_transfn
     _accepted_types = [TBool]
