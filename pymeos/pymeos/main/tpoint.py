@@ -560,7 +560,7 @@ class TPoint(Temporal, ABC):
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
 
     def __str__(self):
-        return tpoint_out(self._inner, 5)
+        return tpoint_out(self._inner, 6)
 
     def as_wkt(self, precision: int = 6):
         return tpoint_out(self._inner, precision)

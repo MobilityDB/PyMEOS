@@ -340,7 +340,7 @@ class TFloat(TNumber[float], ABC):
         return _TemporalFactory.create_temporal(tfloat_derivative(self._inner))
 
     def __str__(self):
-        return tfloat_out(self._inner, 5)
+        return tfloat_out(self._inner, 6)
 
     def as_wkt(self, precision: int = 6) -> str:
         return tfloat_out(self._inner, precision)
