@@ -35,6 +35,7 @@ class BoxPlotter:
                          *args, **kwargs)
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()
+        kwargs.pop('label', None)
         f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args,
                               alpha=0.3, **kwargs)
 
