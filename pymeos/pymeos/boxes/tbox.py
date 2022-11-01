@@ -408,7 +408,7 @@ class TBox:
         return TBox(_inner=inner_copy)
 
     def __str__(self):
-        return tbox_out(self._inner, 3)
+        return tbox_out(self._inner, 6)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'

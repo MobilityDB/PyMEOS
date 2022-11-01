@@ -365,7 +365,7 @@
 
 - [x] `extern Period *timestamp_extent_transfn(Period *p, TimestampTz t);`
 - [x] `extern Period *timestampset_extent_transfn(Period *p, const TimestampSet *ts);`
-- [ ] `extern Period *period_extent_transfn(Period *p1, const Period *p2);`
+- [x] `extern Period *span_extent_transfn(Period *p1, const Period *p2);`
 - [x] `extern Period *periodset_extent_transfn(Period *p, const PeriodSet *ps);`
 
 - [x] `extern SkipList *timestamp_tunion_transfn(SkipList *state, TimestampTz t);`
@@ -1337,12 +1337,23 @@
 
 ### Tile functions for temporal types
 
+- [ ] `extern int int_bucket(int value, int size, int origin);`
+- [ ] `extern double float_bucket(double value, double size, double origin);`
+- [ ] `extern TimestampTz timestamptz_bucket(TimestampTz timestamp, const Interval *duration, TimestampTz origin);`
+
+- [ ] `extern Span *intspan_bucket_list(const Span *bounds, int size, int origin, int *newcount);`
+- [ ] `extern Span *floatspan_bucket_list(const Span *bounds, double size, double origin, int *newcount);`
+- [ ] `extern Span *period_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *newcount);`
+
+- [ ] `extern TBOX *tbox_tile_list(const TBOX *bounds, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *rows, int *columns);`
+
 - [x] `extern Temporal **tint_value_split(Temporal *temp, int size, int origin, int *newcount);`
 - [x] `extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, int *newcount);`
 - [x] `extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, int *newcount);`
 - [x] `extern Temporal **tint_value_time_split(Temporal *temp, int size, int vorigin, Interval *duration, TimestampTz torigin, int *newcount);`
 - [x] `extern Temporal **tfloat_value_time_split(Temporal *temp, double size, double vorigin, Interval *duration, TimestampTz torigin, int *newcount);`
 
+- [ ] `extern STBOX *stbox_tile_list(STBOX *bounds, double size, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int **cellcount);`
 
 
 ### Similarity functions for temporal types
