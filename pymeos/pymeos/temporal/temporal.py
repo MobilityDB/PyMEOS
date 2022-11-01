@@ -534,6 +534,13 @@ class Temporal(ABC, Generic[TBase]):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
+    def time_split_n(self, n: int) -> List[Temporal]:
+        st = temporal_start_timestamp(self._inner)
+        dt = timedelta_to_interval((self.end_timestamp - self.start_timestamp) / n)
+        tiles, new_count = temporal_time_split(self._inner, dt, st)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+
     def __comparable(self, other: Temporal) -> bool:
         if not isinstance(other, Temporal):
             return False
