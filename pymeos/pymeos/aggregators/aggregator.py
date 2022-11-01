@@ -71,7 +71,7 @@ class Aggregation(Generic[SourceType, ResultType]):
         self._state = None
 
     def add(self: SelfAgg, new_temporal: SourceType) -> SelfAgg:
-        self._state = self._add_function(self._state, new_temporal._inner)
+        self._state = self._add_function(self._state, new_temporal)
         return self
 
     def aggregation(self) -> ResultType:
@@ -98,12 +98,8 @@ class BaseGranularityAggregator(BaseAggregator[SourceType, ResultType]):
 
     @classmethod
     def start_aggregation(cls, interval: Optional[Union[str, timedelta]] = None,
-                          origin: Union['str', datetime] = '1970-0-0') -> GranularAggregation[SourceType, ResultType]:
-        interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
-            pg_interval_in(interval, -1)
-        origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
-            pg_timestamptz_in(origin, -1)
-        return GranularAggregation(cls._add, cls._finish, interval_converted, origin_converted)
+                          origin: Union['str', datetime] = '1970-01-01') -> GranularAggregation[SourceType, ResultType]:
+        return GranularAggregation(cls._add, cls._finish, interval, origin)
 
 
 class GranularAggregation(Aggregation[SourceType, ResultType]):
@@ -113,5 +109,5 @@ class GranularAggregation(Aggregation[SourceType, ResultType]):
         self._origin = origin
 
     def add(self: SelfAgg, new_temporal: SourceType) -> SelfAgg:
-        self._state = self._add_function(self._state, new_temporal._inner, self._interval, self._origin)
+        self._state = self._add_function(self._state, new_temporal, self._interval, self._origin)
         return self
