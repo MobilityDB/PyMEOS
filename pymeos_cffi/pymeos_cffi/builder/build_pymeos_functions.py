@@ -208,6 +208,7 @@ nullable_parameters = {
     ('temporal_tcount_transfn', 'state'),
     ('temporal_extent_transfn', 'p'),
     ('tnumber_extent_transfn', 'box'),
+    ('tpoint_extent_transfn', 'box'),
     ('tbool_tand_transfn', 'state'),
     ('tbool_tor_transfn', 'state'),
     ('tint_tmin_transfn', 'state'),

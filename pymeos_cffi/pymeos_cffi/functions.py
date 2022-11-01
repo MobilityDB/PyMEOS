@@ -7645,8 +7645,8 @@ def tnumber_extent_transfn(box: "Optional['TBOX *']", temp: 'Temporal *') -> 'TB
     return result if result != _ffi.NULL else None
 
 
-def tpoint_extent_transfn(box: 'STBOX *', temp: 'Temporal *') -> 'STBOX *':
-    box_converted = _ffi.cast('STBOX *', box)
+def tpoint_extent_transfn(box: "Optional['STBOX *']", temp: 'Temporal *') -> 'STBOX *':
+    box_converted = _ffi.cast('STBOX *', box) if box is not None else _ffi.NULL
     temp_converted = _ffi.cast('Temporal *', temp)
     result = _lib.tpoint_extent_transfn(box_converted, temp_converted)
     return result if result != _ffi.NULL else None
