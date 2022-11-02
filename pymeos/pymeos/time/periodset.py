@@ -58,6 +58,7 @@ if TYPE_CHECKING:
     from ..temporal import Temporal
     from .period import Period
     from .timestampset import TimestampSet
+    from .time import Time
 
 
 class PeriodSet:
@@ -211,7 +212,7 @@ class PeriodSet:
         )
         return PeriodSet(_inner=ps)
 
-    def is_adjacent(self, other: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+    def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         from ..temporal import Temporal
@@ -240,7 +241,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: Union[Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+    def contains(self, content: Union[Time, Temporal]) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         from ..temporal import Temporal
@@ -272,7 +273,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_after(self, other: Time) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -288,7 +289,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_before(self, other: Time) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -304,7 +305,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_over_or_after(self, other: Time) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -320,7 +321,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_over_or_before(self, other: Time) -> bool:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -343,7 +344,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+    def distance(self, other: Time) -> float:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -373,8 +374,7 @@ class PeriodSet:
     def intersection(self, other: TimestampSet) -> TimestampSet:
         ...
 
-    def intersection(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> \
-            Union[PeriodSet, datetime, TimestampSet]:
+    def intersection(self, other: Time) -> Union[PeriodSet, datetime, TimestampSet]:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -389,7 +389,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def minus(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> PeriodSet:
+    def minus(self, other: Time) -> PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
@@ -403,7 +403,7 @@ class PeriodSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def union(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> PeriodSet:
+    def union(self, other: Time) -> PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):

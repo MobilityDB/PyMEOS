@@ -59,6 +59,7 @@ if TYPE_CHECKING:
     from ..temporal import Temporal
     from .period import Period
     from .periodset import PeriodSet
+    from .time import Time
 
 
 class TimestampSet:
@@ -227,7 +228,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_after(self, other: Time) -> bool:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -243,7 +244,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_before(self, other: Time) -> bool:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -259,7 +260,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_over_or_after(self, other: Time) -> bool:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -275,7 +276,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
+    def is_over_or_before(self, other: Time) -> bool:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -298,7 +299,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def distance(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> float:
+    def distance(self, other: Time) -> float:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -320,8 +321,7 @@ class TimestampSet:
     def intersection(self, other: Union[Period, PeriodSet, TimestampSet]) -> TimestampSet:
         ...
 
-    def intersection(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> \
-            Union[datetime, TimestampSet]:
+    def intersection(self, other: Time) -> Union[datetime, TimestampSet]:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -336,7 +336,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def minus(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> TimestampSet:
+    def minus(self, other: Time) -> TimestampSet:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
@@ -358,7 +358,7 @@ class TimestampSet:
     def union(self, other: Union[datetime, TimestampSet]) -> TimestampSet:
         ...
 
-    def union(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> Union[PeriodSet, TimestampSet]:
+    def union(self, other: Time) -> Union[PeriodSet, TimestampSet]:
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, Period):
