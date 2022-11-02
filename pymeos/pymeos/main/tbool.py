@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
 from typing import Optional, Union, List, Set
 
 from dateutil.parser import parse
@@ -38,7 +37,7 @@ from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_m
     tboolseqset_from_base_time, tbool_minus_value
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 
 class TBool(Temporal[bool], ABC):
@@ -69,7 +68,7 @@ class TBool(Temporal[bool], ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: bool, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBool:
+    def from_base_time(value: bool, base: Time) -> TBool:
         if isinstance(base, datetime):
             return TBoolInst(_inner=tboolinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):

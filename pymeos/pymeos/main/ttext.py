@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
 from typing import Optional, Union, List, Set
 
 from dateutil.parser import parse
@@ -39,7 +38,7 @@ from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestam
     ttext_ever_lt, ttext_ever_le, tgt_ttext_text, tge_ttext_text, tne_ttext_text, teq_ttext_text, tle_ttext_text
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 
 class TText(Temporal, ABC):
@@ -75,7 +74,7 @@ class TText(Temporal, ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: str, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TText:
+    def from_base_time(value: str, base: Time) -> TText:
         if isinstance(base, datetime):
             return TTextInst(_inner=ttextinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):

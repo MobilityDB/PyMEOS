@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime, timedelta
 from typing import Optional, Union, List, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
@@ -42,7 +41,7 @@ from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -236,7 +235,7 @@ class TInt(TNumber, ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: int, base: Union[datetime, TimestampSet, Period, PeriodSet]) -> TInt:
+    def from_base_time(value: int, base: Time) -> TInt:
         if isinstance(base, datetime):
             return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):

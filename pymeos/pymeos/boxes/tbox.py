@@ -25,7 +25,6 @@
 ###############################################################################
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import Optional, Union
 
 from dateutil.parser import parse
@@ -45,7 +44,7 @@ from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, 
 from spans import intrange, floatrange
 
 from ..main import TNumber
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 
 class TBox:
@@ -119,7 +118,7 @@ class TBox:
         return TBox(_inner=result)
 
     @staticmethod
-    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBox:
+    def from_time(time: Time) -> TBox:
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):

@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime, timedelta
 from typing import Optional, List, Union, TYPE_CHECKING, Set
 
 from dateutil.parser import parse
@@ -44,7 +43,7 @@ from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -230,8 +229,7 @@ class TFloat(TNumber[float], ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: float, base: Union[datetime, TimestampSet, Period, PeriodSet],
-                       interpolation: TInterpolation = None) -> TFloat:
+    def from_base_time(value: float, base: Time, interpolation: TInterpolation = None) -> TFloat:
         if isinstance(base, datetime):
             return TFloatInst(_inner=tfloatinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
