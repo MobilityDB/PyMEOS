@@ -7,7 +7,6 @@ from ..main import TPoint
 
 class TemporalPointExtentAggregator(BaseAggregator[TPoint, STBox]):
     _add_function = tpoint_extent_transfn
-    _accepted_types = [TPoint]
 
     @classmethod
     def _finish(cls, state) -> STBox:
