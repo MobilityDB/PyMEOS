@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import timedelta, datetime
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
 
 from pandas import DataFrame
@@ -60,7 +59,7 @@ from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal
     pg_interval_in
 
 from .interpolation import TInterpolation
-from ..time import Period, PeriodSet, TimestampSet
+from ..time import *
 
 if TYPE_CHECKING:
     from .tsequence import TSequence
@@ -327,7 +326,7 @@ class Temporal(ABC, Generic[TBase]):
         new_temp = temporal_step_to_linear(self._inner)
         return Temporal._factory(new_temp)
 
-    def intersects(self, other: Union[ datetime, TimestampSet, Period, PeriodSet]) -> bool:
+    def intersects(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> bool:
         if isinstance(other, datetime):
             return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -390,7 +389,7 @@ class Temporal(ABC, Generic[TBase]):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal[TBase]:
+    def at(self, other: Time) -> Temporal[TBase]:
         if isinstance(other, datetime):
             result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -411,7 +410,7 @@ class Temporal(ABC, Generic[TBase]):
         result = temporal_at_min(self._inner)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal[TBase]:
+    def minus(self, other: Time) -> Temporal[TBase]:
         if isinstance(other, Period):
             result = temporal_minus_period(self._inner, other._inner)
         elif isinstance(other, PeriodSet):

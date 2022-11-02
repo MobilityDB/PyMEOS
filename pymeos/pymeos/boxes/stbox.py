@@ -25,7 +25,6 @@
 ###############################################################################
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import Optional, Union, List
 
 from postgis import Geometry
@@ -51,7 +50,7 @@ from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stb
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 
 class STBox:
@@ -147,7 +146,7 @@ class STBox:
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
-    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> STBox:
+    def from_time(time: Time) -> STBox:
         if isinstance(time, datetime):
             result = timestamp_to_stbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):

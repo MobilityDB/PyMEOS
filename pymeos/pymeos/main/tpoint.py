@@ -27,7 +27,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime, timedelta
 from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union
 
 import postgis as pg
@@ -65,7 +64,7 @@ from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as
 
 from .tfloat import TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import STBox
@@ -653,8 +652,7 @@ class TGeomPoint(TPoint, ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: pg.Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
-                       interpolation: TInterpolation = None) -> TGeomPoint:
+    def from_base_time(value: pg.Geometry, base: Time, interpolation: TInterpolation = None) -> TGeomPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         if isinstance(base, datetime):
             return TGeomPointInst(_inner=tgeompointinst_make(gs, datetime_to_timestamptz(base)))
@@ -755,8 +753,7 @@ class TGeogPoint(TPoint, ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: pg.Geometry, base: Union[datetime, TimestampSet, Period, PeriodSet],
-                       interpolation: TInterpolation = None) -> TGeogPoint:
+    def from_base_time(value: pg.Geometry, base: Time, interpolation: TInterpolation = None) -> TGeogPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         if isinstance(base, datetime):
             return TGeogPointInst(_inner=tgeogpointinst_make(gs, datetime_to_timestamptz(base)))
