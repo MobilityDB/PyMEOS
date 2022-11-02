@@ -176,6 +176,11 @@ class TBox:
         tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
         return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
 
+    def tile_flat(self, size: float, duration: Union[timedelta, str],
+                  origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[TBox]:
+        tiles = self.tile(size, duration, origin, start)
+        return [box for row in tiles for box in row]
+
     def to_floatrange(self) -> floatrange:
         return floatspan_to_floatrange(tbox_to_floatspan(self._inner))
 

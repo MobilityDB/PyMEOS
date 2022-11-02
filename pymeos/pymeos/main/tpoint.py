@@ -27,14 +27,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from ctypes import Union
-from datetime import datetime
-from typing import Optional, List, TYPE_CHECKING, Set, Tuple
+from datetime import datetime, timedelta
+from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union
 
-from dateutil.parser import parse
-from geopandas import GeoDataFrame
 import postgis as pg
 import shapely.geometry.base as shpb
+from dateutil.parser import parse
+from geopandas import GeoDataFrame
 from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
     tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
     adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord, \
@@ -63,7 +62,6 @@ from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as
     back_tpoint_geo, overback_tpoint_geo, tgeompoint_tgeogpoint, contains_geo_tpoint, disjoint_tpoint_geo, \
     disjoint_tpoint_tpoint, dwithin_tpoint_geo, dwithin_tpoint_tpoint, intersects_tpoint_geo, intersects_tpoint_tpoint, \
     touches_tpoint_geo, geometry_to_gserialized
-from shapely.geometry.base import BaseGeometry
 
 from .tfloat import TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
@@ -85,20 +83,20 @@ class TPoint(Temporal, ABC):
     def set_srid(self, srid: int) -> TPoint:
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
-    def values(self, precision: int = 6) -> List[BaseGeometry]:
+    def values(self, precision: int = 6) -> List[shpb.BaseGeometry]:
         return [i.value(precision=precision) for i in self.instants]
 
-    def start_value(self, precision: int = 6) -> BaseGeometry:
+    def start_value(self, precision: int = 6) -> shpb.BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_start_value(self._inner), precision)
 
-    def end_value(self, precision: int = 6) -> BaseGeometry:
+    def end_value(self, precision: int = 6) -> shpb.BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_end_value(self._inner), precision)
 
-    def value_set(self, precision: int = 6) -> Set[BaseGeometry]:
+    def value_set(self, precision: int = 6) -> Set[shpb.BaseGeometry]:
         values, count = tpoint_values(self._inner)
         return {gserialized_to_shapely_geometry(values[i], precision) for i in range(count)}
 
-    def value_at_timestamp(self, timestamp: datetime, precision: int = 6) -> BaseGeometry:
+    def value_at_timestamp(self, timestamp: datetime, precision: int = 6) -> shpb.BaseGeometry:
         """
         Value at timestamp.
         """
@@ -519,7 +517,7 @@ class TPoint(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def shortest_line(self, other: Union[pg.Geometry, TPoint]) -> BaseGeometry:
+    def shortest_line(self, other: Union[pg.Geometry, TPoint]) -> shpb.BaseGeometry:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = shortestline_tpoint_geo(self._inner, gs)
@@ -543,13 +541,30 @@ class TPoint(Temporal, ABC):
         result = tpoint_azimuth(self._inner)
         return Temporal._factory(result)
 
-    def time_weighted_centroid(self) -> BaseGeometry:
+    def time_weighted_centroid(self) -> shpb.BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_twcentroid(self._inner), 10)
+
+    def tile(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+             origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
+             start: Union[datetime, str, None] = None) -> List[List[List[List[TPoint]]]]:
+        from ..boxes import STBox
+        bbox = STBox.from_tpoint(self)
+        tiles = bbox.tile(size, duration, origin, start)
+        return [[[[self.at(tile) for tile in z_dim]
+                  for z_dim in y_dim] for y_dim in x_dim] for x_dim in tiles]
+
+    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+                  origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
+                  start: Union[datetime, str, None] = None) -> List[TPoint]:
+        from ..boxes import STBox
+        bbox = STBox.from_tpoint(self)
+        tiles = bbox.tile_flat(size, duration, origin, start)
+        return [x for x in (self.at(tile) for tile in tiles) if x]
 
     def as_geojson(self, option: int = 1, precision: int = 6, srs: Optional[str] = None) -> str:
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
-    def to_shapely_geometry(self, precision: int = 6) -> BaseGeometry:
+    def to_shapely_geometry(self, precision: int = 6) -> shpb.BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner), precision)
 
     def to_dataframe(self) -> GeoDataFrame:
@@ -574,7 +589,7 @@ class TPointInst(TPoint, TInstant, ABC):
     Abstract class for representing temporal points of instant subtype.
     """
 
-    def value(self, precision: int = 6) -> BaseGeometry:
+    def value(self, precision: int = 6) -> shpb.BaseGeometry:
         return self.start_value(precision=precision)
 
 
@@ -632,7 +647,8 @@ class TGeomPoint(TPoint, ABC):
     _parse_function = tgeompoint_in
 
     @staticmethod
-    def from_base(value: pg.Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
+    def from_base(value: pg.Geometry, base: Temporal,
+                  interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         result = tgeompoint_from_base(gs, base._inner, interpolation)
         return Temporal._factory(result)
@@ -734,7 +750,8 @@ class TGeogPoint(TPoint, ABC):
     _parse_function = tgeogpoint_in
 
     @staticmethod
-    def from_base(value: pg.Geometry, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
+    def from_base(value: pg.Geometry, base: Temporal,
+                  interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
         gs = gserialized_in(value.to_ewkb(), -1)
         result = tgeogpoint_from_base(gs, base._inner, interpolation)
         return Temporal._factory(result)
@@ -858,7 +875,6 @@ class TGeomPointInst(TPointInst, TGeomPoint):
             self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
 
 
-# noinspection PyTypeChecker
 class TGeogPointInst(TPointInst, TGeogPoint):
     """
     Class for representing temporal geographic points of instant subtype.
@@ -881,7 +897,8 @@ class TGeogPointInst(TPointInst, TGeogPoint):
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, pg.Point, Tuple[float, float]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 point: Optional[Union[str, pg.Point, Tuple[float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
