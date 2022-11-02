@@ -26,7 +26,6 @@
 from __future__ import annotations
 
 from datetime import datetime, timedelta
-from math import prod
 from typing import Optional, Union, List
 
 from postgis import Geometry
@@ -191,17 +190,38 @@ class STBox:
     def from_tpoint(temporal: TPoint) -> STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
-    def tile(self, size: float, duration: Union[timedelta, str],
+    def tile(self, size: float, duration: Optional[Union[timedelta, str]] = None,
              origin: Optional[Union[BaseGeometry, Geometry]] = None,
-             start: Union[datetime, str, None] = None) -> List[STBox]:
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+             start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1) if isinstance(duration, str) \
+            else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
             else datetime_to_timestamptz(self.tmin)
-        gs = geometry_to_gserialized(origin) if origin is not None else gserialized_in('POINT(0 0)', -1)
+        gs = geometry_to_gserialized(origin) if origin is not None \
+            else gserialized_in('POINT(0 0)', -1)
         tiles, dimensions = stbox_tile_list(self._inner, size, dt, gs, st)
-        num_cells = prod(d for d in dimensions[0:4] if d)
-        return [STBox(_inner=tiles + i) for i in range(num_cells)]
+        x_size = dimensions[0] if self.has_xy else 1
+        y_size = dimensions[1] if self.has_xy else 1
+        z_size = dimensions[2] if self.has_z else 1
+        t_size = dimensions[3] if self.has_t else 1
+        x_factor = y_size * z_size * t_size
+        y_factor = z_size * t_size
+        z_factor = t_size
+        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) for t in range(t_size)]
+                  for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
+
+    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+                  origin: Optional[Union[BaseGeometry, Geometry]] = None,
+                  start: Union[datetime, str, None] = None) -> List[STBox]:
+        boxes = self.tile(size, duration, origin, start)
+        return [b
+                for x in boxes
+                for y in x
+                for z in y
+                for b in z
+                ]
 
     def to_geometry(self, precision: int = 5) -> BaseGeometry:
         return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
