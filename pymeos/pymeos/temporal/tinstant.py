@@ -40,10 +40,14 @@ if TYPE_CHECKING:
     pass
 
 TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
 Self = TypeVar('Self', bound='TInstant[Any]')
 
 
-class TInstant(Temporal[TBase], ABC):
+class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of instant subtype.
     """
@@ -54,7 +58,6 @@ class TInstant(Temporal[TBase], ABC):
 
     def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, Any]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
         if _inner is not None:

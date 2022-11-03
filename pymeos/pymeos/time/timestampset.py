@@ -420,7 +420,7 @@ class TimestampSet:
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         return TimestampSet(string=value)

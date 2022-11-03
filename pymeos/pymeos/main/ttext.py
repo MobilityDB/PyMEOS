@@ -28,7 +28,6 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, Set
 
-from dateutil.parser import parse
 from pymeos_cffi import tlt_ttext_text
 from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
     ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
@@ -41,16 +40,15 @@ from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceS
 from ..time import *
 
 
-class TText(Temporal, ABC):
-    """
-    Abstract class for representing temporal strings of any subtype.
-    """
-
+class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC):
     BaseClass = str
 
     _parse_function = ttext_in
 
-    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def __init__(self, _inner) -> None:
+        super().__init__()
+
+    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> TText:
         if isinstance(other, str):
             result = ttext_at_value(self._inner, other)
         elif isinstance(other, list):
@@ -59,7 +57,7 @@ class TText(Temporal, ABC):
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> TText:
         if isinstance(other, str):
             result = ttext_minus_value(self._inner, other)
         elif isinstance(other, list):
@@ -238,7 +236,7 @@ class TText(Temporal, ABC):
         return ttext_out(self._inner)
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
@@ -253,29 +251,7 @@ class TText(Temporal, ABC):
         raise Exception("ERROR: Could not parse temporal text value")
 
 
-class TTextInst(TInstant, TText):
-    """
-    Class for representing temporal strings of instant subtype.
-
-    ``TTextInst`` objects can be created 
-    with a single argument of type string as in MobilityDB.
-
-        >>> TTextInst('AA@2019-09-01')
-
-    Another possibility is to give the ``value`` and the ``time`` arguments,
-    which can be instances of ``str`` or ``datetime``.
-
-        >>> TTextInst('AA', '2019-09-08 00:00:00+01')
-        >>> TTextInst(['AA', '2019-09-08 00:00:00+01'])
-        >>> TTextInst('AA', parse('2019-09-08 00:00:00+01'))
-        >>> TTextInst(['AA', parse('2019-09-08 00:00:00+01')])
-
-    """
-
-    """It is not possible to call super().__init__(value, time) since it is necessary
-    to strip the eventual double quotes enclosing the value
-    """
-
+class TTextInst(TInstant[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     _make_function = ttextinst_make
     _cast_function = str
 
@@ -284,32 +260,7 @@ class TTextInst(TInstant, TText):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TTextSeq(TSequence, TText):
-    """
-    Class for representing temporal strings of sequence subtype.
-
-    ``TTextSeq`` objects can be created 
-    with a single argument of type string as in MobilityDB.
-
-        >>> TTextSeq('[AA@2019-09-01 00:00:00+01, BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')
-
-    Another possibility is to give the arguments as follows:
-
-    * ``instantList`` is the list of composing instants, which can be instances of
-      ``str`` or ``TTextInst``,
-    * ``lower_inc`` and ``upper_inc`` are instances of ``bool`` specifying
-      whether the bounds are inclusive or not. By default ``lower_inc``
-      is ``True`` and ``upper_inc`` is ``False``.
-
-    Some pymeos_examples are given next.
-
-        >>> TTextSeq(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'])
-        >>> TTextSeq(TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01')])
-        >>> TTextSeq(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'], True, True)
-        >>> TTextSeq([TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01')], True, True)
-
-    """
-
+class TTextSeq(TSequence[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     ComponentClass = TTextInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TTextInst]]] = None,
@@ -319,23 +270,7 @@ class TTextSeq(TSequence, TText):
                          interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TTextSeqSet(TSequenceSet, TText):
-    """
-    Class for representing temporal strings of sequence subtype.
-
-    ``TTextSeqSet`` objects can be created with a single argument of typestring as in MobilityDB.
-
-        >>> TTextSeqSet('{[AA@2019-09-01 00:00:00+01], [BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]}')
-
-    Another possibility is to give the list of composing sequences, which can be
-    instances of ``str`` or ``TTextSeq``.
-
-        >>> TTextSeqSet(['[AA@2019-09-01 00:00:00+01]', '[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]'])
-        >>> TTextSeqSet([TTextSeq('[AA@2019-09-01 00:00:00+01]'), TTextSeq('[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')])
-        >>> TTextSeqSet([TTextSeq('[AA@2019-09-01 00:00:00+01]'), TTextSeq('[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')])
-
-    """
-
+class TTextSeqSet(TSequenceSet[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     ComponentClass = TTextSeq
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,

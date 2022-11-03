@@ -1,6 +1,6 @@
 from typing import Union
 
-from .tbox import TBox
 from .stbox import STBox
+from .tbox import TBox
 
 Box = Union[TBox, STBox]

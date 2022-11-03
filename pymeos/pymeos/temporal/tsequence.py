@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Any, TypeVar, Type, Generic
+from typing import Optional, Union, List, Any, TypeVar, Type
 
 from pymeos_cffi import tsequence_compact, as_tsequence
 from pymeos_cffi.functions import tsequence_make
@@ -35,10 +35,14 @@ from .interpolation import TInterpolation
 from .temporal import Temporal
 
 TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
 Self = TypeVar('Self', bound='TSequence[Any]')
 
 
-class TSequence(Temporal[TBase], ABC):
+class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of sequence subtype.
     """
@@ -46,7 +50,6 @@ class TSequence(Temporal[TBase], ABC):
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, Any]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:

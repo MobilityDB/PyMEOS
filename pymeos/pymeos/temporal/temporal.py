@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type, Any
+from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
 
 from pandas import DataFrame
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
@@ -62,14 +62,17 @@ from .interpolation import TInterpolation
 from ..time import *
 
 if TYPE_CHECKING:
-    from .tsequence import TSequence
-    from .tsequenceset import TSequenceSet
     from .tinstant import TInstant
+    from ..main import TBool
 TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
 Self = TypeVar('Self', bound='Temporal[Any]')
 
 
-class Temporal(Generic[TBase], ABC):
+class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     __slots__ = ['_inner']
     """
     Abstract class for representing temporal values of any subtype.
@@ -112,7 +115,6 @@ class Temporal(Generic[TBase], ABC):
         """
         return [i.value() for i in self.instants]
 
-    @property
     @abstractmethod
     def start_value(self) -> TBase:
         """
@@ -187,7 +189,7 @@ class Temporal(Generic[TBase], ABC):
         return temporal_num_instants(self._inner)
 
     @property
-    def start_instant(self) -> TInstant[TBase]:
+    def start_instant(self) -> TI:
         """
          Start instant.
         """
@@ -195,7 +197,7 @@ class Temporal(Generic[TBase], ABC):
         return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
     @property
-    def end_instant(self) -> TInstant[TBase]:
+    def end_instant(self) -> TI:
         """
         End instant.
         """
@@ -203,7 +205,7 @@ class Temporal(Generic[TBase], ABC):
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
     @property
-    def max_instant(self) -> TInstant[TBase]:
+    def max_instant(self) -> TI:
         """
         Max instant.
         """
@@ -211,14 +213,14 @@ class Temporal(Generic[TBase], ABC):
         return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
     @property
-    def min_instant(self) -> TInstant[TBase]:
+    def min_instant(self) -> TI:
         """
         Min instant.
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_min_instant(self._inner))
 
-    def instant_n(self, n: int) -> TInstant[TBase]:
+    def instant_n(self, n: int) -> TI:
         """
         N-th instant.
         """
@@ -226,7 +228,7 @@ class Temporal(Generic[TBase], ABC):
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
 
     @property
-    def instants(self) -> List[TInstant[TBase]]:
+    def instants(self) -> List[TI]:
         """
         List of instants.
         """
@@ -270,7 +272,7 @@ class Temporal(Generic[TBase], ABC):
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     @property
-    def segments(self) -> List[TSequence[TBase]]:
+    def segments(self) -> List[TS]:
         seqs, count = temporal_segments(self._inner)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
@@ -292,11 +294,11 @@ class Temporal(Generic[TBase], ABC):
         inst = temporal_to_tinstant(self._inner)
         return Temporal._factory(inst)
 
-    def to_sequence(self, discrete: bool = False) -> TSequence[TBase]:
+    def to_sequence(self, discrete: bool = False) -> TS:
         seq = temporal_to_tsequence(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
         return Temporal._factory(seq)
 
-    def to_sequenceset(self) -> TSequenceSet[TBase]:
+    def to_sequenceset(self) -> TSS:
         ss = temporal_to_tsequenceset(self._inner)
         return Temporal._factory(ss)
 
@@ -307,11 +309,11 @@ class Temporal(Generic[TBase], ABC):
         }
         return DataFrame(data).set_index(keys='time')
 
-    def append(self, instant: TInstant[TBase], expand: bool = False) -> Temporal[TBase]:
+    def append(self, instant: TInstant[TBase], expand: bool = False) -> TG:
         new_temp = temporal_append_tinstant(self._inner, instant._inner, expand)
         return Temporal._factory(new_temp)
 
-    def merge(self, other: Union[Temporal[TBase], List[Temporal[TBase]]]) -> Temporal[TBase]:
+    def merge(self, other: Union[Temporal[TBase], List[Temporal[TBase]]]) -> TG:
         if isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
@@ -321,7 +323,7 @@ class Temporal(Generic[TBase], ABC):
         return Temporal._factory(new_temp)
 
     # TODO: Move to proper classes (Sequence[Set] with continuous base type)
-    def to_linear(self) -> Temporal[TBase]:
+    def to_linear(self: Self) -> Self:
         new_temp = temporal_step_to_linear(self._inner)
         return Temporal._factory(new_temp)
 
@@ -388,7 +390,7 @@ class Temporal(Generic[TBase], ABC):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def at(self, other: Time) -> Temporal[TBase]:
+    def at(self, other: Time) -> TG:
         if isinstance(other, datetime):
             result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -401,15 +403,15 @@ class Temporal(Generic[TBase], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def at_max(self) -> Temporal[TBase]:
+    def at_max(self) -> TG:
         result = temporal_at_max(self._inner)
         return Temporal._factory(result)
 
-    def at_min(self) -> Temporal[TBase]:
+    def at_min(self) -> TG:
         result = temporal_at_min(self._inner)
         return Temporal._factory(result)
 
-    def minus(self, other: Time) -> Temporal[TBase]:
+    def minus(self, other: Time) -> TG:
         if isinstance(other, Period):
             result = temporal_minus_period(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
@@ -422,11 +424,11 @@ class Temporal(Generic[TBase], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def minus_max(self) -> Temporal[TBase]:
+    def minus_max(self) -> TG:
         result = temporal_minus_max(self._inner)
         return Temporal._factory(result)
 
-    def minus_min(self) -> Temporal[TBase]:
+    def minus_min(self) -> TG:
         result = temporal_minus_min(self._inner)
         return Temporal._factory(result)
 
@@ -526,14 +528,14 @@ class Temporal(Generic[TBase], ABC):
         matches, count = temporal_dyntimewarp_path(self._inner, other._inner)
         return [(matches[i].i, matches[i].j) for i in range(count)]
 
-    def time_split(self, start: Union[str, datetime], duration: Union[str, timedelta]) -> List[Temporal[TBase]]:
+    def time_split(self, start: Union[str, datetime], duration: Union[str, timedelta]) -> List[TG]:
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
         tiles, new_count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    def time_split_n(self, n: int) -> List[Temporal]:
+    def time_split_n(self, n: int) -> List[TG]:
         st = temporal_start_timestamp(self._inner)
         dt = timedelta_to_interval((self.end_timestamp - self.start_timestamp) / n)
         tiles, new_count = temporal_time_split(self._inner, dt, st)
@@ -553,7 +555,7 @@ class Temporal(Generic[TBase], ABC):
         if not self.__comparable(other):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def temporal_less(self, other: Temporal) -> Temporal[bool]:
+    def temporal_less(self, other: Temporal) -> TBool:
         """
         Temporal less than
         """
@@ -561,7 +563,7 @@ class Temporal(Generic[TBase], ABC):
         result = tlt_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Temporal) -> Temporal[bool]:
+    def temporal_less_or_equal(self, other: Temporal) -> TBool:
         """
         Temporal less or equal
         """
@@ -569,7 +571,7 @@ class Temporal(Generic[TBase], ABC):
         result = tle_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
 
-    def temporal_equal(self, other: Temporal) -> Temporal[bool]:
+    def temporal_equal(self, other: Temporal) -> TBool:
         """
         Temporal equality
         """
@@ -577,7 +579,7 @@ class Temporal(Generic[TBase], ABC):
         result = teq_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Temporal) -> Temporal[bool]:
+    def temporal_not_equal(self, other: Temporal) -> TBool:
         """
         Temporal inequality
         """
@@ -585,7 +587,7 @@ class Temporal(Generic[TBase], ABC):
         result = tne_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Temporal) -> Temporal[bool]:
+    def temporal_greater_or_equal(self, other: Temporal) -> TBool:
         """
         Temporal greater or equal
         """
@@ -593,7 +595,7 @@ class Temporal(Generic[TBase], ABC):
         result = tge_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Temporal) -> Temporal[bool]:
+    def temporal_greater(self, other: Temporal) -> TBool:
         """
         Temporal greater than
         """
@@ -668,12 +670,12 @@ class Temporal(Generic[TBase], ABC):
         return temporal_as_hexwkb(self._inner, 0)[0]
 
     @classmethod
-    def from_merge(cls: Type[Self], *temporals: Temporal) -> Self:
+    def from_merge(cls: Type[Self], *temporals: TG) -> Self:
         result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
         return Temporal._factory(result)
 
     @classmethod
-    def from_merge_array(cls: Type[Self], temporals: List[Temporal]) -> Self:
+    def from_merge_array(cls: Type[Self], temporals: List[TG]) -> Self:
         result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
         return Temporal._factory(result)
 

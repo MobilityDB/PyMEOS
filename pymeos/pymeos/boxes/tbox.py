@@ -27,7 +27,6 @@ from __future__ import annotations
 
 from typing import Optional, Union, List
 
-from dateutil.parser import parse
 from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
     tbox_to_period, adjacent_tbox_tnumber, tbox_to_floatspan, floatspan_to_floatrange
 from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
@@ -49,29 +48,6 @@ from ..time import *
 
 
 class TBox:
-    """
-    Class for representing bounding boxes with value (``X``) and/or time (``T``)
-    dimensions.
-
-
-    ``TBox`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TBox(string="TBOX((1.0, 2000-01-01), (2.0, 2000-01-02))")
-        >>> TBox(string="TBOX((1.0,), (2.0,))")
-        >>> TBox(string="TBOX((, 2000-01-01), (, 2000-01-02))")
-
-    Another possibility is to give the bounds in the following order:
-    ``xmin``, ``tmin``, ``xmax``, ``tmax``, where the bounds can be
-    instances of ``str``, ``float`` or ``datetime``. All arguments are
-    optional but they must be given in pairs for each dimension and at
-    least one pair must be given.
-
-        >>> TBox(xmin="1.0", tmin="2000-01-01", xmax="2.0", tmax="2000-01-02")
-        >>> TBox(xmin=1.0, xmax=2.0)
-        >>> TBox(tmin=parse("2000-01-01"), tmax=parse("2000-01-02"))
-
-    """
     __slots__ = ['_inner']
 
     def __init__(self, string: Optional[str] = None, *,
@@ -423,7 +399,7 @@ class TBox:
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         return TBox(string=value)

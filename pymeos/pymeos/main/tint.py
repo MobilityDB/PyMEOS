@@ -28,7 +28,6 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, TYPE_CHECKING, Set
 
-from dateutil.parser import parse
 from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange, nad_tint_tint
 from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, tint_values, \
     tint_start_value, tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, \
@@ -48,11 +47,7 @@ if TYPE_CHECKING:
     from .tfloat import TFloat
 
 
-class TInt(TNumber, ABC):
-    """
-    Abstract class for representing temporal integers of any subtype.
-    """
-
+class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
     BaseClass = int
     _parse_function = tint_in
 
@@ -247,7 +242,7 @@ class TInt(TNumber, ABC):
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
@@ -329,23 +324,7 @@ class TInt(TNumber, ABC):
         return tint_out(self._inner)
 
 
-class TIntInst(TInstant, TInt):
-    """
-    Class for representing temporal integers of instant subtype.
-
-    ``TIntInst`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TIntInst(string='10@2019-09-01')
-
-    Another possibility is to give the ``value`` and the ``time`` arguments,
-    which can be instances of ``str`` or ``int`` and ``str`` or ``datetime`` respectively.
-
-        >>> TIntInst(value='10', timestamp='2019-09-08 00:00:00+01')
-        >>> TIntInst(value=10, timestamp=parse('2019-09-08 00:00:00+01'))
-
-    """
-
+class TIntInst(TInstant[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
     _make_function = tintinst_make
     _cast_function = int
 
@@ -354,32 +333,7 @@ class TIntInst(TInstant, TInt):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TIntSeq(TSequence, TInt):
-    """
-    Class for representing temporal integers of sequence subtype.
-
-    ``TIntSeq`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TIntSeq('[10@2019-09-01 00:00:00+01, 20@2019-09-02 00:00:00+01, 10@2019-09-03 00:00:00+01]')
-
-    Another possibility is to give the arguments as follows:
-
-    * ``instantList`` is the list of composing instants, which can be instances of
-      ``str`` or ``TIntInst``,
-    * ``lower_inc`` and ``upper_inc`` are instances of ``bool`` specifying
-      whether the bounds are inclusive or not. By default ``lower_inc``
-      is ``True`` and ``upper_inc`` is ``False``.
-
-    Some pymeos_examples are given next.
-
-        >>> TIntSeq(['10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01'])
-        >>> TIntSeq([TIntInst('10@2019-09-01 00:00:00+01'), TIntInst('20@2019-09-02 00:00:00+01'), TIntInst('10@2019-09-03 00:00:00+01')])
-        >>> TIntSeq(['10@2019-09-01 00:00:00+01', '20@2019-09-02 00:00:00+01', '10@2019-09-03 00:00:00+01'], True, True)
-        >>> TIntSeq([TIntInst('10@2019-09-01 00:00:00+01'), TIntInst('20@2019-09-02 00:00:00+01'), TIntInst('10@2019-09-03 00:00:00+01')], True, True)
-
-    """
-
+class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
     ComponentClass = TIntInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TIntInst]]] = None,
@@ -389,24 +343,7 @@ class TIntSeq(TSequence, TInt):
                          interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TIntSeqSet(TSequenceSet, TInt):
-    """
-    Class for representing temporal integers of sequence subtype.
-
-    ``TIntSeqSet`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TIntSeqSet('{[10@2019-09-01 00:00:00+01], [20@2019-09-02 00:00:00+01, 10@2019-09-03 00:00:00+01]}')
-
-    Another possibility is to give the list of composing sequences, which
-    can be instances of ``str`` or ``TIntSeq``.
-
-        >>> TIntSeqSet(['[10@2019-09-01 00:00:00+01]', '[20@2019-09-02 00:00:00+01, 10@2019-09-03 00:00:00+01]'])
-        >>> TIntSeqSet([TIntSeq('[10@2019-09-01 00:00:00+01]'), TIntSeq('[20@2019-09-02 00:00:00+01, 10@2019-09-03 00:00:00+01]')])
-        >>> TIntSeqSet([TIntSeq('[10@2019-09-01 00:00:00+01]'), TIntSeq('[20@2019-09-02 00:00:00+01, 10@2019-09-03 00:00:00+01]')])
-
-    """
-
+class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
     ComponentClass = TIntSeq
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,

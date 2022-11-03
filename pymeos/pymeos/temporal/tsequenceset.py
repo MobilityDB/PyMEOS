@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, Any, TYPE_CHECKING, TypeVar, Type, Generic
+from typing import Optional, List, Union, Any, TypeVar, Type
 
 from pandas import DataFrame
 from pymeos_cffi import as_tsequenceset
@@ -36,22 +36,21 @@ from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequenc
 
 from ..temporal.temporal import Temporal
 
-if TYPE_CHECKING:
-    from .tsequence import TSequence
-
 TBase = TypeVar('TBase')
-TSequenceBase = TypeVar('TSequenceBase', bound='TSequence[Any]')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
 Self = TypeVar('Self', bound='TSequenceSet[Any]')
 
 
-class TSequenceSet(Temporal[TBase], Generic[TBase, TSequenceBase], ABC):
+class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, Any]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
         if _inner is not None:
@@ -76,20 +75,20 @@ class TSequenceSet(Temporal[TBase], Generic[TBase, TSequenceBase], ABC):
         return temporal_num_sequences(self._inner)
 
     @property
-    def start_sequence(self) -> TSequenceBase:
+    def start_sequence(self) -> TS:
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     @property
-    def end_sequence(self) -> TSequenceBase:
+    def end_sequence(self) -> TS:
         """
         End sequence.
         """
         return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
-    def sequence_n(self, n) -> TSequenceBase:
+    def sequence_n(self, n) -> TS:
         """
         N-th sequence.
         """
@@ -97,7 +96,7 @@ class TSequenceSet(Temporal[TBase], Generic[TBase, TSequenceBase], ABC):
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
-    def sequences(self) -> List[TSequenceBase]:
+    def sequences(self) -> List[TS]:
         """
         List of sequences.
         """

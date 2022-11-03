@@ -54,49 +54,6 @@ from ..time import *
 
 
 class STBox:
-    """
-    Class for representing bounding boxes composed of coordinate and/or time
-    dimensions, where the coordinates may be in 2D (``X`` and ``Y``) or in 3D
-    (``X``, ``Y``, and ``Z``). For each dimension, minimum and maximum values
-    are stored. The coordinates may be either Cartesian (planar) or geodetic
-    (spherical). Additionally, the SRID of coordinates can be specified.
-
-
-    ``STBox`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> "STBOX ((1.0, 2.0), (1.0, 2.0))",
-        >>> "STBOX Z((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-        >>> "STBOX T((1.0, 2.0, 2001-01-03 00:00:00+01), (1.0, 2.0, 2001-01-03 00:00:00+01))",
-        >>> "STBOX ZT((1.0, 2.0, 3.0, 2001-01-04 00:00:00+01), (1.0, 2.0, 3.0, 2001-01-04 00:00:00+01))",
-        >>> "STBOX T(, 2001-01-03 00:00:00+01), (, 2001-01-03 00:00:00+01))",
-        >>> "GEODSTBOX((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-        >>> "GEODSTBOX T((1.0, 2.0, 3.0, 2001-01-03 00:00:00+01), (1.0, 2.0, 3.0, 2001-01-04 00:00:00+01))",
-        >>> "GEODSTBOX T((, 2001-01-03 00:00:00+01), (, 2001-01-03 00:00:00+01))",
-        >>> "SRID=5676;STBOX T((1.0, 2.0, 2001-01-04), (1.0, 2.0, 2001-01-04))",
-        >>> "SRID=4326;GEODSTBOX((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-
-    Another possibility is to give the bounds in the following order:
-    ``xmin``, ``ymin``, ``zmin``, ``tmin``, ``xmax``, ``ymax``, ``zmax``,
-    ``tmax``, where the bounds can be instances of ``str``, ``float``
-    and ``datetime``. All arguments are optional but they must be given
-    in pairs for each dimension and at least one pair must be given.
-    When three pairs are given, by default, the third pair will be
-    interpreted as representing the ``Z`` dimension unless the ``dimt``
-    parameter is given. Finally, the ``geodetic`` parameter determines
-    whether the coordinates in the bounds are planar or spherical.
-
-        >>> STBox((1.0, 2.0, 1.0, 2.0))
-        >>> STBox((1.0, 2.0, 3.0, 1.0, 2.0, 3.0))
-        >>> STBox((1.0, 2.0, '2001-01-03', 1.0, 2.0, '2001-01-03'), dimt=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-04'))
-        >>> STBox(('2001-01-03', '2001-01-03'))
-        >>> STBox((1.0, 2.0, 3.0, 1.0, 2.0, 3.0), geodetic=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-03'), geodetic=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-03'), geodetic=True, srid=4326)
-        >>> STBox(('2001-01-03', '2001-01-03'), geodetic=True)
-
-    """
     __slots__ = ['_inner']
 
     def __init__(self, string: Optional[str] = None, *,
@@ -589,7 +546,7 @@ class STBox:
         return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         return STBox(string=value)
