@@ -28,12 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, Set
 
-from pymeos_cffi import tbooldiscseq_from_base_time, tbool_at_value, tbool_when_true
-from pymeos_cffi.functions import tbool_in, datetime_to_timestamptz, tboolinst_make, tbool_out, \
-    tbool_values, tbool_start_value, tbool_end_value, \
-    tbool_value_at_timestamp, tand_tbool_bool, tand_tbool_tbool, tor_tbool_bool, tor_tbool_tbool, tnot_tbool, \
-    tbool_always_eq, tbool_ever_eq, teq_tbool_bool, tne_tbool_bool, tbool_from_base, tboolseq_from_base_time, \
-    tboolseqset_from_base_time, tbool_minus_value
+from pymeos_cffi import *
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import *

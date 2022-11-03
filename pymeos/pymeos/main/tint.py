@@ -28,14 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, TYPE_CHECKING, Set
 
-from pymeos_cffi import tint_value_split, tint_to_tfloat, intspan_to_intrange, nad_tint_tint
-from pymeos_cffi.functions import tint_in, tint_out, tintinst_make, datetime_to_timestamptz, tint_values, \
-    tint_start_value, tint_end_value, tint_value_at_timestamp, tint_from_base, tintdiscseq_from_base_time, \
-    tintseq_from_base_time, tintseqset_from_base_time, tnumber_to_span, tint_min_value, tint_max_value, tint_at_value, \
-    tint_at_values, tint_minus_value, tint_minus_values, adjacent_tint_int, contained_tint_int, contains_tint_int, \
-    overlaps_tint_int, same_tint_int, nad_tint_int, tint_always_le, tint_always_lt, tint_always_eq, tint_ever_eq, \
-    tint_ever_le, tint_ever_lt, tle_tint_int, teq_tint_int, tne_tint_int, tge_tint_int, tgt_tint_int, tlt_tint_int, \
-    pg_timestamptz_in, pg_interval_in, timedelta_to_interval, tint_value_time_split
+from pymeos_cffi import *
 from spans.types import intrange, floatrange
 
 from .tnumber import TNumber

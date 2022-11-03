@@ -28,13 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, Set
 
-from pymeos_cffi import tlt_ttext_text
-from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
-    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
-    textcat_ttext_text, textcat_ttext_ttext, ttext_from_base, ttextdiscseq_from_base_time, ttextseq_from_base_time, \
-    ttextseqset_from_base_time, ttext_max_value, ttext_min_value, ttext_at_value, ttext_at_values, ttext_minus_value, \
-    ttext_minus_values, textcat_text_ttext, ttext_always_lt, ttext_always_le, ttext_always_eq, ttext_ever_eq, \
-    ttext_ever_lt, ttext_ever_le, tgt_ttext_text, tge_ttext_text, tne_ttext_text, teq_ttext_text, tle_ttext_text
+from pymeos_cffi import *
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..time import *

@@ -33,35 +33,7 @@ import postgis as pg
 import shapely.geometry as shp
 import shapely.geometry.base as shpb
 from geopandas import GeoDataFrame
-from pymeos_cffi import tpointseq_make_coords, pg_timestamptz_in, gserialized_as_geojson, tpoint_trajectory, \
-    tpoint_as_ewkt, tpoint_at_values, tpoint_at_stbox, adjacent_tpoint_geo, adjacent_tpoint_stbox, \
-    adjacent_tpoint_tpoint, teq_tgeompoint_point, tpoint_azimuth, tpoint_cumulative_length, tpoint_get_coord, \
-    tpoint_set_srid, tpoint_make_simple, tdwithin_tpoint_geo, tdwithin_tpoint_tpoint, tintersects_tpoint_geo, \
-    ttouches_tpoint_geo, tcontains_geo_tpoint, tdisjoint_tpoint_geo, tgeogpoint_in, tgeompoint_in, tpoint_start_value, \
-    tpoint_end_value, tpoint_values, tpoint_length, tpoint_speed, tpoint_srid, tpoint_value_at_timestamp, \
-    datetime_to_timestamptz, temporal_simplify, tpoint_at_geometry, tpoint_minus_geometry, gserialized_in, tpoint_out, \
-    tgeompoint_from_base, tgeompointinst_make, tgeompointdiscseq_from_base_time, tgeompointseq_from_base_time, \
-    tgeompointseqset_from_base_time, tgeogpoint_from_base, tgeogpointinst_make, tgeogpointdiscseq_from_base_time, \
-    tgeogpointseq_from_base_time, tgeogpointseqset_from_base_time, gserialized_to_shapely_geometry, \
-    gserialized_to_shapely_point, tpoint_minus_values, \
-    tpoint_minus_stbox, contained_tpoint_geo, contained_tpoint_stbox, contained_tpoint_tpoint, contains_tpoint_tpoint, \
-    contains_tpoint_stbox, contains_tpoint_geo, overlaps_tpoint_geo, overlaps_tpoint_stbox, overlaps_tpoint_tpoint, \
-    same_tpoint_tpoint, same_tpoint_stbox, same_tpoint_geo, distance_tpoint_geo, distance_tpoint_tpoint, nad_tpoint_geo, \
-    nad_tpoint_stbox, nad_tpoint_tpoint, nai_tpoint_geo, nai_tpoint_tpoint, shortestline_tpoint_tpoint, \
-    shortestline_tpoint_geo, tpoint_twcentroid, tgeompoint_always_eq, tgeompoint_ever_eq, tgeogpoint_always_eq, \
-    tgeogpoint_ever_eq, tne_tgeompoint_point, teq_tgeogpoint_point, tne_tgeogpoint_point, bearing_tpoint_point, \
-    bearing_tpoint_tpoint, tpoint_is_simple, tpoint_stboxes, overafter_tpoint_tpoint, left_tpoint_stbox, \
-    left_tpoint_tpoint, overleft_tpoint_stbox, overleft_tpoint_tpoint, right_tpoint_stbox, right_tpoint_tpoint, \
-    overright_tpoint_stbox, overright_tpoint_tpoint, below_tpoint_stbox, below_tpoint_tpoint, overbelow_tpoint_stbox, \
-    overbelow_tpoint_tpoint, above_tpoint_stbox, above_tpoint_tpoint, overabove_tpoint_stbox, overabove_tpoint_tpoint, \
-    front_tpoint_stbox, front_tpoint_tpoint, overfront_tpoint_stbox, overfront_tpoint_tpoint, back_tpoint_stbox, \
-    back_tpoint_tpoint, overback_tpoint_stbox, overback_tpoint_tpoint, before_tpoint_stbox, before_tpoint_tpoint, \
-    overbefore_tpoint_stbox, overbefore_tpoint_tpoint, after_tpoint_stbox, after_tpoint_tpoint, overafter_tpoint_stbox, \
-    left_tpoint_geo, overleft_tpoint_geo, right_tpoint_geo, overright_tpoint_geo, below_tpoint_geo, \
-    overbelow_tpoint_geo, above_tpoint_geo, overabove_tpoint_geo, front_tpoint_geo, overfront_tpoint_geo, \
-    back_tpoint_geo, overback_tpoint_geo, tgeompoint_tgeogpoint, contains_geo_tpoint, disjoint_tpoint_geo, \
-    disjoint_tpoint_tpoint, dwithin_tpoint_geo, dwithin_tpoint_tpoint, intersects_tpoint_geo, intersects_tpoint_tpoint, \
-    touches_tpoint_geo, geometry_to_gserialized
+from pymeos_cffi import *
 
 from .tbool import TBool
 from .tfloat import TFloatSeqSet

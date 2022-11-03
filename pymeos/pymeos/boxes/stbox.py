@@ -28,25 +28,7 @@ from __future__ import annotations
 from typing import Optional, Union, List
 
 from postgis import Geometry
-from pymeos_cffi import stbox_to_geo, adjacent_stbox_tpoint, geo_expand_spatial, tpoint_expand_spatial, \
-    geometry_to_gserialized
-from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
-    stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
-    stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
-    stbox_shift_tscale, stbox_set_srid, adjacent_stbox_stbox, contained_stbox_stbox, contains_stbox_stbox, \
-    overlaps_stbox_stbox, same_stbox_stbox, overafter_stbox_stbox, after_stbox_stbox, overbefore_stbox_stbox, \
-    before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
-    overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
-    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
-    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy, stbox_from_hexwkb, stbox_as_hexwkb, datetime_to_timestamptz, \
-    timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox, gserialized_in, geo_to_stbox, \
-    geo_timestamp_to_stbox, geo_period_to_stbox, tpoint_to_stbox, stbox_to_period, stbox_ne, \
-    gserialized_to_shapely_geometry, contained_stbox_tpoint, contains_stbox_tpoint, overlaps_stbox_tpoint, \
-    same_stbox_tpoint, nad_stbox_geo, nad_stbox_stbox, left_stbox_tpoint, overleft_stbox_tpoint, right_stbox_tpoint, \
-    overright_stbox_tpoint, below_stbox_tpoint, overbelow_stbox_tpoint, above_stbox_tpoint, overabove_stbox_tpoint, \
-    front_stbox_tpoint, overfront_stbox_tpoint, back_stbox_tpoint, overback_stbox_tpoint, before_stbox_tpoint, \
-    overbefore_stbox_tpoint, after_stbox_tpoint, overafter_stbox_tpoint, stbox_tile_list, pg_timestamptz_in, \
-    pg_interval_in
+from pymeos_cffi import *
 from shapely.geometry.base import BaseGeometry
 
 from ..main import TPoint

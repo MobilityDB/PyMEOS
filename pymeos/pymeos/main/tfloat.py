@@ -28,16 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, List, Union, TYPE_CHECKING, Set
 
-from pymeos_cffi import tfloat_to_tint, tnumber_to_span, tfloat_min_value, \
-    tfloat_max_value, tfloat_spans, adjacent_tfloat_float, tfloat_ever_eq
-from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
-    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
-    tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time, tfloat_minus_value, \
-    tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
-    contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float, tfloat_always_lt, \
-    tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le, tlt_tfloat_float, tle_tfloat_float, \
-    teq_tfloat_float, tne_tfloat_float, tge_tfloat_float, tgt_tfloat_float, pg_timestamptz_in, timedelta_to_interval, \
-    tfloat_value_time_split, pg_interval_in
+from pymeos_cffi import *
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber

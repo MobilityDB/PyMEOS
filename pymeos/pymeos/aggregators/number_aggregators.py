@@ -1,5 +1,4 @@
-from pymeos_cffi import tnumber_tavg_transfn, tnumber_tavg_finalfn, tint_tmax_transfn, tint_tmin_transfn, \
-    tfloat_tmax_transfn, tfloat_tmin_transfn, tint_tsum_transfn, tfloat_tsum_transfn, tnumber_extent_transfn
+from pymeos_cffi import *
 
 from .aggregator import BaseAggregator
 from ..boxes import TBox

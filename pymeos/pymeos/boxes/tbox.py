@@ -27,20 +27,7 @@ from __future__ import annotations
 
 from typing import Optional, Union, List
 
-from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
-    tbox_to_period, adjacent_tbox_tnumber, tbox_to_floatspan, floatspan_to_floatrange
-from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
-    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
-    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
-    adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
-    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
-    intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
-    float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
-    tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber, nad_tbox_tbox, \
-    left_tbox_tnumber, overleft_tbox_tnumber, right_tbox_tnumber, overright_tbox_tnumber, before_tbox_tnumber, \
-    overbefore_tbox_tnumber, after_tbox_tnumber, overafter_tbox_tnumber, tbox_tile_list, pg_timestamptz_in, \
-    pg_interval_in
+from pymeos_cffi import *
 from spans import intrange, floatrange
 
 from ..main import TNumber

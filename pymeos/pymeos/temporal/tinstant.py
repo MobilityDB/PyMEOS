@@ -29,9 +29,7 @@ from abc import ABC
 from datetime import datetime
 from typing import Optional, Union, Any, TYPE_CHECKING, TypeVar, List
 
-from pymeos_cffi import as_tinstant
-from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime, datetime_to_timestamptz, \
-    pg_timestamptz_in
+from pymeos_cffi import *
 
 from .temporal import Temporal
 from ..time import Period

@@ -1,4 +1,4 @@
-from pymeos_cffi import tpoint_extent_transfn
+from pymeos_cffi import *
 
 from .aggregator import BaseAggregator
 from ..boxes import STBox

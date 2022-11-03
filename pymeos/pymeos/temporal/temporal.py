@@ -29,34 +29,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
 
 from pandas import DataFrame
-from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
-    temporal_at_periodset, temporal_at_period, temporal_from_mfjson, temporal_as_hexwkb, temporal_intersects_timestamp, \
-    datetime_to_timestamptz, temporal_intersects_timestampset, \
-    temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
-    temporal_timespan, temporal_num_instants, temporal_num_timestamps, timestamptz_to_datetime, \
-    temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
-    timedelta_to_interval, temporal_hash, temporal_copy, temporal_as_mfjson, teq_temporal_temporal, \
-    tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal, \
-    after_temporal_period, after_temporal_periodset, after_temporal_timestamp, after_temporal_timestampset, \
-    after_temporal_temporal, before_temporal_temporal, before_temporal_timestampset, before_temporal_timestamp, \
-    before_temporal_periodset, before_temporal_period, overafter_temporal_period, overafter_temporal_periodset, \
-    overafter_temporal_timestamp, overafter_temporal_timestampset, overafter_temporal_temporal, \
-    overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
-    overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
-    temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
-    temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
-    temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
-    temporal_minus_timestampset, temporal_to_tinstant, temporal_to_tsequence, temporal_to_tsequenceset, \
-    temporal_to_tdiscseq, temporal_append_tinstant, temporal_step_to_linear, temporal_merge, temporal_merge_array, \
-    temporal_at_max, temporal_at_min, temporal_minus_max, temporal_minus_min, adjacent_temporal_period, \
-    adjacent_temporal_periodset, adjacent_temporal_timestamp, adjacent_temporal_timestampset, \
-    adjacent_temporal_temporal, contained_temporal_temporal, contained_temporal_timestampset, \
-    contained_temporal_timestamp, contained_temporal_periodset, contained_temporal_period, contains_temporal_period, \
-    contains_temporal_periodset, contains_temporal_timestamp, contains_temporal_timestampset, \
-    contains_temporal_temporal, overlaps_temporal_temporal, overlaps_temporal_timestampset, overlaps_temporal_timestamp, \
-    overlaps_temporal_periodset, overlaps_temporal_period, same_temporal_temporal, same_temporal_timestampset, \
-    same_temporal_timestamp, same_temporal_periodset, same_temporal_period, temporal_to_period, pg_timestamptz_in, \
-    pg_interval_in
+from pymeos_cffi import *
 
 from .interpolation import TInterpolation
 from ..time import *

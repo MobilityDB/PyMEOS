@@ -29,10 +29,7 @@ from abc import ABC
 from typing import Optional, List, Union, Any, TypeVar, Type
 
 from pandas import DataFrame
-from pymeos_cffi import as_tsequenceset
-from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, \
-    temporal_sequence_n, temporal_sequences, \
-    tsequenceset_make
+from pymeos_cffi import *
 
 from ..temporal.temporal import Temporal
 

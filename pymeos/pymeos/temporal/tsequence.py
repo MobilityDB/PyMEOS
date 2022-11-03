@@ -28,8 +28,7 @@ from __future__ import annotations
 from abc import ABC
 from typing import Optional, Union, List, Any, TypeVar, Type
 
-from pymeos_cffi import tsequence_compact, as_tsequence
-from pymeos_cffi.functions import tsequence_make
+from pymeos_cffi import *
 
 from .interpolation import TInterpolation
 from .temporal import Temporal

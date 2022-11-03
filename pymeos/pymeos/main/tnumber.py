@@ -4,23 +4,7 @@ from abc import ABC
 from datetime import datetime
 from typing import Union, List, TYPE_CHECKING, TypeVar
 
-from pymeos_cffi import tnumber_integral, tnumber_twavg, tnumber_at_span, intrange_to_intspan, \
-    floatrange_to_floatspan, tnumber_at_spans, tnumber_at_tbox
-from pymeos_cffi.functions import add_tint_int, add_tfloat_float, add_tnumber_tnumber, div_tint_int, div_tfloat_float, \
-    div_tnumber_tnumber, sub_tnumber_tnumber, sub_tfloat_float, sub_tint_int, mult_tint_int, mult_tfloat_float, \
-    mult_tnumber_tnumber, tnumber_minus_span, tnumber_minus_spans, \
-    tnumber_minus_tbox, add_int_tint, add_float_tfloat, sub_float_tfloat, sub_int_tint, mult_int_tint, \
-    mult_float_tfloat, div_float_tfloat, div_int_tint, adjacent_tnumber_tbox, adjacent_tnumber_tnumber, \
-    adjacent_tnumber_span, contained_tnumber_span, contained_tnumber_tnumber, contained_tnumber_tbox, \
-    contains_tnumber_tbox, contains_tnumber_tnumber, contains_tnumber_span, left_tint_int, left_tfloat_float, \
-    overlaps_tnumber_span, overlaps_tnumber_tnumber, overlaps_tnumber_tbox, overleft_tint_int, overleft_tfloat_float, \
-    overright_tint_int, overright_tfloat_float, right_tint_int, right_tfloat_float, same_tnumber_span, \
-    same_tnumber_tnumber, same_tnumber_tbox, distance_tfloat_float, distance_tnumber_tnumber, \
-    nad_tfloat_float, nad_tnumber_tbox, nad_tfloat_tfloat, left_tnumber_tbox, left_tnumber_tnumber, \
-    overleft_tnumber_tbox, overleft_tnumber_tnumber, right_tnumber_tbox, right_tnumber_tnumber, overright_tnumber_tbox, \
-    overright_tnumber_tnumber, before_tnumber_tbox, before_tnumber_tnumber, overbefore_tnumber_tbox, \
-    overbefore_tnumber_tnumber, after_tnumber_tbox, after_tnumber_tnumber, overafter_tnumber_tbox, \
-    overafter_tnumber_tnumber, overright_tnumber_span, right_tnumber_span, left_tnumber_span, overleft_tnumber_span
+from pymeos_cffi import *
 from spans import intrange, floatrange
 
 from ..temporal import Temporal
