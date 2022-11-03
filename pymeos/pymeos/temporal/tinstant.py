@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     pass
 
 TBase = TypeVar('TBase')
-Self = TypeVar('Self', bound='Temporal[Any]')
+Self = TypeVar('Self', bound='TInstant[Any]')
 
 
 class TInstant(Temporal[TBase], ABC):

@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
+from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type, Any
 
 from pandas import DataFrame
 from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
@@ -65,12 +65,11 @@ if TYPE_CHECKING:
     from .tsequence import TSequence
     from .tsequenceset import TSequenceSet
     from .tinstant import TInstant
-
 TBase = TypeVar('TBase')
 Self = TypeVar('Self', bound='Temporal[Any]')
 
 
-class Temporal(ABC, Generic[TBase]):
+class Temporal(Generic[TBase], ABC):
     __slots__ = ['_inner']
     """
     Abstract class for representing temporal values of any subtype.
@@ -326,7 +325,7 @@ class Temporal(ABC, Generic[TBase]):
         new_temp = temporal_step_to_linear(self._inner)
         return Temporal._factory(new_temp)
 
-    def intersects(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> bool:
+    def intersects(self, other: Time) -> bool:
         if isinstance(other, datetime):
             return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -337,7 +336,7 @@ class Temporal(ABC, Generic[TBase]):
             return temporal_intersects_periodset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_after(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return after_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -350,7 +349,7 @@ class Temporal(ABC, Generic[TBase]):
             return after_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_before(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return before_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -363,7 +362,7 @@ class Temporal(ABC, Generic[TBase]):
             return before_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_over_or_after(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return overafter_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -376,7 +375,7 @@ class Temporal(ABC, Generic[TBase]):
             return overafter_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_over_or_before(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return overbefore_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -431,7 +430,7 @@ class Temporal(ABC, Generic[TBase]):
         result = temporal_minus_min(self._inner)
         return Temporal._factory(result)
 
-    def is_adjacent(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return adjacent_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -445,7 +444,7 @@ class Temporal(ABC, Generic[TBase]):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_contained_in(self, container: Union[Time, Temporal]) -> bool:
         if isinstance(container, datetime):
             return contained_temporal_timestamp(self._inner, datetime_to_timestamptz(container))
         elif isinstance(container, TimestampSet):
@@ -459,7 +458,7 @@ class Temporal(ABC, Generic[TBase]):
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def contains(self, content: Union[Time, Temporal]) -> bool:
         if isinstance(content, datetime):
             return contains_temporal_timestamp(self._inner, datetime_to_timestamptz(content))
         elif isinstance(content, TimestampSet):
@@ -473,7 +472,7 @@ class Temporal(ABC, Generic[TBase]):
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def overlaps(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return overlaps_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -487,7 +486,7 @@ class Temporal(ABC, Generic[TBase]):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
+    def is_same(self, other: Union[Time, Temporal]) -> bool:
         if isinstance(other, datetime):
             return same_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):

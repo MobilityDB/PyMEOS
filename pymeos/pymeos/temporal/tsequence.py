@@ -35,7 +35,7 @@ from .interpolation import TInterpolation
 from .temporal import Temporal
 
 TBase = TypeVar('TBase')
-Self = TypeVar('Self', bound='Temporal[Any]')
+Self = TypeVar('Self', bound='TSequence[Any]')
 
 
 class TSequence(Temporal[TBase], ABC):

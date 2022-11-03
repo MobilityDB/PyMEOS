@@ -26,7 +26,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, Any, TYPE_CHECKING, TypeVar, Type
+from typing import Optional, List, Union, Any, TYPE_CHECKING, TypeVar, Type, Generic
 
 from pandas import DataFrame
 from pymeos_cffi import as_tsequenceset
@@ -40,10 +40,11 @@ if TYPE_CHECKING:
     from .tsequence import TSequence
 
 TBase = TypeVar('TBase')
-Self = TypeVar('Self', bound='Temporal[Any]')
+TSequenceBase = TypeVar('TSequenceBase', bound='TSequence[Any]')
+Self = TypeVar('Self', bound='TSequenceSet[Any]')
 
 
-class TSequenceSet(Temporal[TBase], ABC):
+class TSequenceSet(Temporal[TBase], Generic[TBase, TSequenceBase], ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
@@ -75,20 +76,20 @@ class TSequenceSet(Temporal[TBase], ABC):
         return temporal_num_sequences(self._inner)
 
     @property
-    def start_sequence(self) -> TSequence[TBase]:
+    def start_sequence(self) -> TSequenceBase:
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     @property
-    def end_sequence(self) -> TSequence[TBase]:
+    def end_sequence(self) -> TSequenceBase:
         """
         End sequence.
         """
         return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
-    def sequence_n(self, n) -> TSequence[TBase]:
+    def sequence_n(self, n) -> TSequenceBase:
         """
         N-th sequence.
         """
@@ -96,7 +97,7 @@ class TSequenceSet(Temporal[TBase], ABC):
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
-    def sequences(self) -> List[TSequence[TBase]]:
+    def sequences(self) -> List[TSequenceBase]:
         """
         List of sequences.
         """
