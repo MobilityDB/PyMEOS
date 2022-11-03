@@ -295,6 +295,15 @@ def main():
             file.write(function_string)
             file.write('\n\n\n')
 
+    with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
+        content = funcs.read()
+        f_names = re.finditer(r'def (\w+)\(', content)
+        init.write('from .functions import *\n\n')
+        init.write('__all__ = [\n')
+        for fn in f_names:
+            init.write(f"    '{fn.group(1)}',\n")
+        init.write(']\n')
+
 
 def get_params(function: str, inner_params: str) -> List[Parameter]:
     return [p for p in (get_param(function, param.strip()) for param in inner_params.split(',')) if p is not None]
