@@ -74,18 +74,6 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def lwpoint_to_point(lwpoint: Any) -> pg.Point:
-    return pg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
-                    lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
-                    lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
-                    lwgeom_get_srid(lwpoint))
-
-
-def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
-        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
-
-
 def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
         text = geom.to_ewkb()
@@ -94,6 +82,10 @@ def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALI
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
     return gserialized_in(text, -1)
+
+
+def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
+    return wkt.loads(gserialized_as_text(geom, precision))
 
 
 def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
