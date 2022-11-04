@@ -3746,10 +3746,17 @@ def tintseqset_from_base_time(i: int, ps: 'const PeriodSet *') -> 'TSequenceSet 
     return result if result != _ffi.NULL else None
 
 
-def tsequence_make(instants: 'const TInstant **', count: int, maxcount: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+def tsequence_make(instants: 'const TInstant **', count: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tsequence_make(instants_converted, count, maxcount, lower_inc, upper_inc, interp_converted, normalize)
+    result = _lib.tsequence_make(instants_converted, count, lower_inc, upper_inc, interp_converted, normalize)
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_make_exp(instants: 'const TInstant **', count: int, maxcount: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+    instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_make_exp(instants_converted, count, maxcount, lower_inc, upper_inc, interp_converted, normalize)
     return result if result != _ffi.NULL else None
 
 
@@ -3761,10 +3768,10 @@ def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', 
     return result if result != _ffi.NULL else None
 
 
-def tsequence_make_free(instants: 'TInstant **', count: int, maxcount: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
     instants_converted = [_ffi.cast('TInstant *', x) for x in instants]
     interp_converted = _ffi.cast('interpType', interp)
-    result = _lib.tsequence_make_free(instants_converted, count, maxcount, lower_inc, upper_inc, interp_converted, normalize)
+    result = _lib.tsequence_make_free(instants_converted, count, lower_inc, upper_inc, interp_converted, normalize)
     return result if result != _ffi.NULL else None
 
 
@@ -7559,6 +7566,20 @@ def ttouches_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *', res
     return result if result != _ffi.NULL else None
 
 
+def temporal_insert(temp1: 'const Temporal *', temp2: 'const Temporal *', connect: bool) -> 'Temporal *':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_insert(temp1_converted, temp2_converted, connect)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_update(temp1: 'const Temporal *', temp2: 'const Temporal *', connect: bool) -> 'Temporal *':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_update(temp1_converted, temp2_converted, connect)
+    return result if result != _ffi.NULL else None
+
+
 def temporal_delete_timestamp(temp: 'const Temporal *', t: int, connect: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
@@ -7570,6 +7591,20 @@ def temporal_delete_timestampset(temp: 'const Temporal *', ts: 'const TimestampS
     temp_converted = _ffi.cast('const Temporal *', temp)
     ts_converted = _ffi.cast('const TimestampSet *', ts)
     result = _lib.temporal_delete_timestampset(temp_converted, ts_converted, connect)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_delete_period(temp: 'const Temporal *', p: 'const Period *', connect: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    p_converted = _ffi.cast('const Period *', p)
+    result = _lib.temporal_delete_period(temp_converted, p_converted, connect)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_delete_periodset(temp: 'const Temporal *', ps: 'const PeriodSet *', connect: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    ps_converted = _ffi.cast('const PeriodSet *', ps)
+    result = _lib.temporal_delete_periodset(temp_converted, ps_converted, connect)
     return result if result != _ffi.NULL else None
 
 
@@ -7836,11 +7871,11 @@ def tfloat_value_time_split(temp: 'Temporal *', size: float, vorigin: float, dur
     return result if result != _ffi.NULL else None, newcount[0]
 
 
-def stbox_tile_list(bounds: 'STBOX *', size: float, duration: "Optional['const Interval *']", sorigin: "Optional['GSERIALIZED *']", torigin: "Optional[int]") -> "Tuple['STBOX *', 'int *']":
+def stbox_tile_list(bounds: 'STBOX *', size: float, duration: "Optional['const Interval *']", sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBOX *', 'int *']":
     bounds_converted = _ffi.cast('STBOX *', bounds)
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
-    sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin) if sorigin is not None else _ffi.NULL
-    torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
+    sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
     cellcount = _ffi.new('int **')
     result = _lib.stbox_tile_list(bounds_converted, size, duration_converted, sorigin_converted, torigin_converted, cellcount)
     return result if result != _ffi.NULL else None, cellcount[0]

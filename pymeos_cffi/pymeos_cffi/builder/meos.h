@@ -1301,10 +1301,11 @@ extern TSequence *tintseq_from_base(int i, const TSequence *seq);
 extern TSequence *tintseq_from_base_time(int i, const Period *p);
 extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);
 extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);
-extern TSequence *tsequence_make(const TInstant **instants, int count,  int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make(const TInstant **instants, int count, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make_exp(const TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
   const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
-extern TSequence *tsequence_make_free(TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make_free(TInstant **instants, int count, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_gaps(const TInstant **instants, int count, interpType interp, float maxdist, Interval *maxt);
@@ -1952,8 +1953,12 @@ extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs
 
 
 
+extern Temporal *temporal_insert(const Temporal *temp1, const Temporal *temp2, bool connect);
+extern Temporal *temporal_update(const Temporal *temp1, const Temporal *temp2, bool connect);
 extern Temporal *temporal_delete_timestamp(const Temporal *temp, TimestampTz t, bool connect);
 extern Temporal *temporal_delete_timestampset(const Temporal *temp, const TimestampSet *ts, bool connect);
+extern Temporal *temporal_delete_period(const Temporal *temp, const Period *p, bool connect);
+extern Temporal *temporal_delete_periodset(const Temporal *temp, const PeriodSet *ps, bool connect);
 
 
 

@@ -230,8 +230,6 @@ nullable_parameters = {
     ('period_tcount_transfn', 'state'),
     ('periodset_tcount_transfn', 'state'),
     ('stbox_tile_list', 'duration'),
-    ('stbox_tile_list', 'sorigin'),
-    ('stbox_tile_list', 'torigin'),
     ('tbox_tile_list', 'xorigin'),
     ('tbox_tile_list', 'torigin'),
 }
