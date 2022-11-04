@@ -130,16 +130,16 @@ class TBox:
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
     def tile(self, size: float, duration: Union[timedelta, str],
-             origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
+             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else None
+            else tbox_tmin(self._inner)
         tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
         return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
 
     def tile_flat(self, size: float, duration: Union[timedelta, str],
-                  origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[TBox]:
+                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
         tiles = self.tile(size, duration, origin, start)
         return [box for row in tiles for box in row]
 

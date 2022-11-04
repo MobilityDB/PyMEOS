@@ -36,7 +36,7 @@ from geopandas import GeoDataFrame
 from pymeos_cffi import *
 
 from .tbool import TBool
-from .tfloat import TFloatSeqSet
+from .tfloat import TFloatSeqSet, TFloat
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..time import *
 
@@ -47,6 +47,7 @@ TG = TypeVar('TG', bound='TPoint')
 TI = TypeVar('TI', bound='TPointInst')
 TS = TypeVar('TS', bound='TPointSeq')
 TSS = TypeVar('TSS', bound='TPointSeqSet')
+Self = TypeVar('Self', bound='TPoint')
 
 
 class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
@@ -61,7 +62,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         return tpoint_srid(self._inner)
 
-    def set_srid(self, srid: int) -> TPoint:
+    def set_srid(self: Self, srid: int) -> Self:
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     def values(self, precision: int = 6) -> List[shp.Point]:
@@ -84,29 +85,29 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return gserialized_to_shapely_point(
             tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0], precision)
 
-    def simplify(self, tolerance: float, synchronized: bool = False) -> TPoint:
+    def simplify(self: Self, tolerance: float, synchronized: bool = False) -> Self:
         return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
 
     def length(self) -> float:
         return tpoint_length(self._inner)
 
-    def cumulative_length(self) -> Temporal:
+    def cumulative_length(self) -> TFloat:
         result = tpoint_cumulative_length(self._inner)
         return Temporal._factory(result)
 
-    def speed(self) -> Temporal:
+    def speed(self) -> TFloat:
         result = tpoint_speed(self._inner)
         return Temporal._factory(result)
 
-    def x(self):
+    def x(self) -> TFloat:
         result = tpoint_get_coord(self._inner, 0)
         return Temporal._factory(result)
 
-    def y(self):
+    def y(self) -> TFloat:
         result = tpoint_get_coord(self._inner, 1)
         return Temporal._factory(result)
 
-    def z(self):
+    def z(self) -> TFloat:
         result = tpoint_get_coord(self._inner, 2)
         return Temporal._factory(result)
 
@@ -369,7 +370,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def at(self, other: Union[pg.Geometry, List[pg.Geometry], shpb.BaseGeometry, List[shpb.BaseGeometry], STBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> TPoint:
+                              datetime, TimestampSet, Period, PeriodSet]) -> TG:
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
@@ -384,7 +385,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return Temporal._factory(result)
 
     def minus(self, other: Union[pg.Geometry, List[pg.Geometry], shpb.BaseGeometry, List[shpb.BaseGeometry], STBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> TPoint:
+                                 datetime, TimestampSet, Period, PeriodSet]) -> TG:
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
@@ -408,7 +409,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def intersects(self, other: pg.Geometry) -> Temporal:
+    def intersects(self, other: pg.Geometry) -> TBool:
         gs = gserialized_in(other.to_ewkb(), -1)
         result = tintersects_tpoint_geo(self._inner, gs, False, False)
         return Temporal._factory(result)
@@ -466,7 +467,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         gs = gserialized_in(other.to_ewkb(), -1)
         return touches_tpoint_geo(gs, self._inner) == 1
 
-    def distance(self, other: Union[pg.Geometry, TPoint]) -> TPoint:
+    def distance(self, other: Union[pg.Geometry, TPoint]) -> TFloat:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = distance_tpoint_geo(self._inner, gs)
@@ -488,7 +489,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def nearest_approach_instant(self, other: Union[pg.Geometry, TPoint]) -> TPoint:
+    def nearest_approach_instant(self, other: Union[pg.Geometry, TPoint]) -> TI:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = nai_tpoint_geo(self._inner, gs)
@@ -508,7 +509,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return gserialized_to_shapely_geometry(result[0], 10)
 
-    def bearing(self, other: Union[pg.Geometry, TPoint]) -> Temporal:
+    def bearing(self, other: Union[pg.Geometry, TPoint]) -> TFloat:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
             result = bearing_tpoint_point(self._inner, gs, False)
@@ -518,7 +519,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def azimuth(self) -> Temporal:
+    def azimuth(self) -> TFloatSeqSet:
         result = tpoint_azimuth(self._inner)
         return Temporal._factory(result)
 
@@ -527,7 +528,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def tile(self, size: float, duration: Optional[Union[timedelta, str]] = None,
              origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
-             start: Union[datetime, str, None] = None) -> List[List[List[List[TPoint]]]]:
+             start: Union[datetime, str, None] = None) -> List[List[List[List[TG]]]]:
         from ..boxes import STBox
         bbox = STBox.from_tpoint(self)
         tiles = bbox.tile(size, duration, origin, start)
@@ -536,7 +537,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
                   origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
-                  start: Union[datetime, str, None] = None) -> List[TPoint]:
+                  start: Union[datetime, str, None] = None) -> List[TG]:
         from ..boxes import STBox
         bbox = STBox.from_tpoint(self)
         tiles = bbox.tile_flat(size, duration, origin, start)

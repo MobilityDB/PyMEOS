@@ -136,14 +136,15 @@ class STBox:
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin)
+            else datetime_to_timestamptz(self.tmin) if self.has_t \
+            else 0
         gs = geometry_to_gserialized(origin) if origin is not None \
-            else gserialized_in('POINT(0 0)', -1)
+            else gserialized_in('Point(0 0 0)', -1)
         tiles, dimensions = stbox_tile_list(self._inner, size, dt, gs, st)
-        x_size = dimensions[0] if self.has_xy else 1
-        y_size = dimensions[1] if self.has_xy else 1
-        z_size = dimensions[2] if self.has_z else 1
-        t_size = dimensions[3] if self.has_t else 1
+        x_size = dimensions[0] or 1
+        y_size = dimensions[1] or 1
+        z_size = dimensions[2] or 1
+        t_size = dimensions[3] or 1
         x_factor = y_size * z_size * t_size
         y_factor = z_size * t_size
         z_factor = t_size
