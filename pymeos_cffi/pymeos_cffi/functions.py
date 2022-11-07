@@ -224,10 +224,16 @@ def pg_interval_make(years: int, months: int, weeks: int, days: int, hours: int,
     return result if result != _ffi.NULL else None
 
 
-def pg_interval_out(span: 'Interval *') -> str:
-    span_converted = _ffi.cast('Interval *', span)
+def pg_interval_out(span: 'const Interval *') -> str:
+    span_converted = _ffi.cast('const Interval *', span)
     result = _lib.pg_interval_out(span_converted)
     result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def pg_interval_mul(span: 'const Interval *', factor: float) -> 'Interval *':
+    span_converted = _ffi.cast('const Interval *', span)
+    result = _lib.pg_interval_mul(span_converted, factor)
     return result if result != _ffi.NULL else None
 
 
@@ -3988,6 +3994,12 @@ def temporal_sequences(temp: 'const Temporal *') -> "Tuple['TSequence **', 'int'
     return result if result != _ffi.NULL else None, count[0]
 
 
+def temporal_size(temp: 'const Temporal *') -> 'size_t':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_size(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def temporal_start_instant(temp: 'const Temporal *') -> 'const TInstant *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.temporal_start_instant(temp_converted)
@@ -4190,6 +4202,13 @@ def temporal_merge_array(temparr: 'Temporal **', count: int) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def temporal_shift(temp: 'const Temporal *', shift: 'const Interval *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    shift_converted = _ffi.cast('const Interval *', shift)
+    result = _lib.temporal_shift(temp_converted, shift_converted)
+    return result if result != _ffi.NULL else None
+
+
 def temporal_shift_tscale(temp: 'const Temporal *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
@@ -4225,6 +4244,13 @@ def temporal_to_tsequence(temp: 'const Temporal *') -> 'Temporal *':
 def temporal_to_tsequenceset(temp: 'const Temporal *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.temporal_to_tsequenceset(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_tscale(temp: 'const Temporal *', duration: 'const Interval *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    result = _lib.temporal_tscale(temp_converted, duration_converted)
     return result if result != _ffi.NULL else None
 
 
