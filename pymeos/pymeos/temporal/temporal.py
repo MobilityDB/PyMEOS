@@ -250,10 +250,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
-    def shift_tscale(self: Self, shift_delta: Optional[timedelta] = None,
-                     scale_delta: Optional[timedelta] = None) -> Self:
+    def shift_tscale(self: Self, shift_delta: Union[str, timedelta, None] = None,
+                     scale_delta: Union[str, timedelta, None] = None) -> Self:
         """
-        Shift the temporal value by a time interval
+        Shift and or scale the temporal value by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
         scaled = temporal_shift_tscale(
@@ -261,6 +261,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             timedelta_to_interval(shift_delta) if shift_delta else None,
             timedelta_to_interval(scale_delta) if scale_delta else None
         )
+        return Temporal._factory(scaled)
+
+    def shift(self: Self, delta: Union[str, timedelta] = None) -> Self:
+        """
+        Shift the temporal value by a time interval
+        """
+        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
+        scaled = temporal_shift(self._inner, dt)
+        return Temporal._factory(scaled)
+
+    def tscale(self: Self, delta: Union[str, timedelta] = None) -> Self:
+        """
+        Scale the temporal value by a time interval
+        """
+        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
+        scaled = temporal_tscale(self._inner, dt)
         return Temporal._factory(scaled)
 
     def to_instant(self) -> TInstant[TBase]:
