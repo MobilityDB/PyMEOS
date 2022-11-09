@@ -78,8 +78,6 @@ typedef struct varlena bytea;
 //#include <liblwgeom.h>
 
 
-extern char *text2cstring(const text *textptr);
-extern text *cstring2text(const char *cstring);
 
 typedef uint16_t lwflags_t;
 
@@ -1239,6 +1237,11 @@ extern bool stbox_gt(const STBOX *box1, const STBOX *box2);
 /*****************************************************************************
  * Functions for temporal types
  *****************************************************************************/
+
+
+
+extern text *cstring2text(const char *cstring);
+extern char *text2cstring(const text *textptr);
 
 
 

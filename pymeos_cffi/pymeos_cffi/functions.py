@@ -85,18 +85,6 @@ def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
 # -----------------------------------------------------------------------------
 
 
-def text2cstring(textptr: 'text *') -> str:
-    result = _lib.text2cstring(textptr)
-    result = _ffi.string(result).decode('utf-8')
-    return result
-
-
-def cstring2text(cstring: str) -> 'text *':
-    cstring_converted = cstring.encode('utf-8')
-    result = _lib.cstring2text(cstring_converted)
-    return result
-
-
 def lwpoint_make(srid: 'int32_t', hasz: int, hasm: int, p: 'const POINT4D *') -> 'LWPOINT *':
     srid_converted = _ffi.cast('int32_t', srid)
     p_converted = _ffi.cast('const POINT4D *', p)
@@ -3377,6 +3365,18 @@ def stbox_gt(box1: 'const STBOX *', box2: 'const STBOX *') -> 'bool':
     box2_converted = _ffi.cast('const STBOX *', box2)
     result = _lib.stbox_gt(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
+
+
+def cstring2text(cstring: str) -> 'text *':
+    cstring_converted = cstring.encode('utf-8')
+    result = _lib.cstring2text(cstring_converted)
+    return result
+
+
+def text2cstring(textptr: 'text *') -> str:
+    result = _lib.text2cstring(textptr)
+    result = _ffi.string(result).decode('utf-8')
+    return result
 
 
 def tbool_in(string: str) -> 'Temporal *':
