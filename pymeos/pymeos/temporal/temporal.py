@@ -67,6 +67,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     _parse_function = None
 
     @property
+    def _expandable(self) -> bool:
+        return False
+
+    @property
     def interpolation(self) -> TInterpolation:
         """
         Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
@@ -298,9 +302,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         }
         return DataFrame(data).set_index(keys='time')
 
-    def append(self, instant: TInstant[TBase], expand: bool = False) -> TG:
-        new_temp = temporal_append_tinstant(self._inner, instant._inner, expand)
-        return Temporal._factory(new_temp)
+    def append(self, instant: TInstant[TBase]) -> TG:
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
 
     def merge(self, other: Union[Temporal[TBase], List[Temporal[TBase]]]) -> TG:
         if isinstance(other, Temporal):
@@ -310,6 +316,33 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(new_temp)
+
+    def insert(self, other: TG, connect: bool = False) -> TG:
+        new_inner = temporal_insert(self._inner, other._inner, connect)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def update(self, other: TG, connect: bool = False) -> TG:
+        new_inner = temporal_update(self._inner, other._inner, connect)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def delete(self, other: Time, connect: bool = False) -> TG:
+        if isinstance(other, datetime):
+            new_inner = temporal_delete_timestamp(self._inner, datetime_to_timestamptz(other), connect)
+        elif isinstance(other, TimestampSet):
+            new_inner = temporal_delete_timestampset(self._inner, other._inner, connect)
+        elif isinstance(other, Period):
+            new_inner = temporal_delete_period(self._inner, other._inner, connect)
+        elif isinstance(other, PeriodSet):
+            new_inner = temporal_delete_periodset(self._inner, other._inner, connect)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
 
     # TODO: Move to proper classes (Sequence[Set] with continuous base type)
     def to_linear(self: Self) -> Self:

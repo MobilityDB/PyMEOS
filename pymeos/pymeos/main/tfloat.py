@@ -345,10 +345,10 @@ class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeq
     ComponentClass = TFloatInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
+                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation, normalize=normalize, _inner=_inner)
+                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TFloatSeqSet(TSequenceSet[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
