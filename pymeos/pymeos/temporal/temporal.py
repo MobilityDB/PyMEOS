@@ -46,14 +46,22 @@ Self = TypeVar('Self', bound='Temporal[Any]')
 
 
 class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
+    """Abstract class for representing temporal values of any subtype.
+
+    Although the final user should worry about it, the 5 type parameters are used to improve the methods type hints
+    and represent the following:
+    - TBase: base type of the temporal object (e.g. `str`)
+    - TG: Class of the temporal subgroup (e.g. `TText`)
+    - TI: Class of the temporal instant of the group (e.g. `TTextInst`)
+    - TS: Class of the temporal sequence of the group (e.g. `TTestSeq`)
+    - TSS: Class of the temporal sequence set of the group (e.g. `TTextSeqSet`)
+    """
     __slots__ = ['_inner']
-    """
-    Abstract class for representing temporal values of any subtype.
-    """
 
     BaseClass = None
     """
-    Class of the base type, for example, ``float`` for ``TFloat``
+    Class of the base type, for example, `float` for ``TFloat``.
+    This class must match the ``TBase`` type parameter of the ``Temporal`` class.
     """
 
     ComponentClass = None
