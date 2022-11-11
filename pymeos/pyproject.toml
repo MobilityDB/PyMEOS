@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymeos"
-version = "1.1.1"
+version = "1.2.0"
 authors = [
-    { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
+    { name = "Victor Divi", email = "vdiviloper@gmail.com" },
     { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
     { name = "Krishna Chaitanya Bommakanti", email = "bkchaitan94@gmail.com" },
 ]

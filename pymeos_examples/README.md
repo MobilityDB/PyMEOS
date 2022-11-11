@@ -1,18 +1,18 @@
 # PyMEOS Examples
 
 
-This project contains 3 directories:
-- [MovingPandas](./MovingPandas):  
-  Replicas of [MovingPandas examples](https://github.com/anitagraser/movingpandas-examples) using PyMEOS.
+The examples provided are divided in two folders:
 - [PyMEOS Examples](./PyMEOS%20Examples)  
   Replicas of [Tutorial Programs of MEOS](https://www.libmeos.org/tutorialprograms/) using PyMEOS.
-  - [My First PyMEOS Program](PyMEOS%20Examples/pymeos_hello_world.py)
-  - [Reading from File](PyMEOS%20Examples/pymeos_read_ais.py)
-  - [Assembling Trips](PyMEOS%20Examples/pymeos_assemble_ais.py)
-  - [Storing in MobilityDB](PyMEOS%20Examples/pymeos_store_ais.py)
-  - [Disassembling Trips](PyMEOS%20Examples/pymeos_disassemble_berlinmod.py)
-  - [Clipping Trips to Geometries](PyMEOS%20Examples/pymeos_clip_berlinmod.py)
-  - [Simplifying Trips](PyMEOS%20Examples/pymeos_simplify_berlinmod.py)
-
-- [data](./data)  
-  Data used by example programs.
+  - [AIS](./PyMEOS%20Examples/AIS.ipynb): Contains the PyMEOS examples using AIS data 
+    - [Reading from File](https://libmeos.org/tutorialprograms/meos_read_ais/)
+    - [Assembling Trips](https://libmeos.org/tutorialprograms/meos_assemble_ais/)
+    - [Storing in MobilityDB](https://libmeos.org/tutorialprograms/meos_store_ais/)
+  - [BerlinMOD](./PyMEOS%20Examples/BerlinMOD.ipynb): Contains the PyMEOS examples using BerlinMOD data
+    - [Disassembling Trips](https://libmeos.org/tutorialprograms/meos_disassemble_berlinmod/)
+    - [Clipping Trips to Geometries](https://libmeos.org/tutorialprograms/meos_clip_berlinmod/)
+    - [Tiling Trips](https://libmeos.org/tutorialprograms/meos_tile_berlinmod/)
+    - [Simplifying Trips](https://libmeos.org/tutorialprograms/meos_simplify_berlinmod/)
+    - [Temporal Aggregation of Trips](https://libmeos.org/tutorialprograms/meos_aggregate_berlinmod/)
+- [MovingPandas](./MovingPandas):  
+  Replicas of [MovingPandas examples](https://github.com/anitagraser/movingpandas-examples) using PyMEOS. (WIP)

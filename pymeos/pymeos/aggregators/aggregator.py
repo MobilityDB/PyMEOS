@@ -2,10 +2,9 @@ from __future__ import annotations
 
 import abc
 from datetime import datetime, timedelta
-from typing import Optional, Union, List, Type, Generic, TypeVar
+from typing import Optional, Union, List, Generic, TypeVar
 
-from pymeos_cffi import temporal_tagg_finalfn, datetime_to_timestamptz, pg_timestamptz_in, timedelta_to_interval, \
-    pg_interval_in
+from pymeos_cffi import *
 
 from ..boxes import Box
 from ..factory import _TemporalFactory
@@ -21,8 +20,6 @@ class BaseAggregator(Generic[SourceType, ResultType], abc.ABC):
     _add_function = None
     _final_function = temporal_tagg_finalfn
 
-    _accepted_types: Union[Type, List[Type]] = [Temporal]
-
     @classmethod
     def aggregate(cls, temporals: List[SourceType]) -> ResultType:
         state = None
@@ -32,20 +29,7 @@ class BaseAggregator(Generic[SourceType, ResultType], abc.ABC):
 
     @classmethod
     def _add(cls, state, temporal: SourceType):
-        cls._assert_correct_type(temporal)
         return cls._add_function(state, temporal._inner)
-
-    @classmethod
-    def _assert_correct_type(cls, element):
-        if cls._accepted_types is None:
-            return
-        elif isinstance(cls._accepted_types, list):
-            for at in cls._accepted_types:
-                if isinstance(element, at):
-                    return
-        elif isinstance(element, cls._accepted_types):
-            return
-        cls._error(element)
 
     @classmethod
     def _finish(cls, state) -> SourceType:

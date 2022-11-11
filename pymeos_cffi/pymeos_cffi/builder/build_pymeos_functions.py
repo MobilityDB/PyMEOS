@@ -74,18 +74,6 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def lwpoint_to_point(lwpoint: Any) -> pg.Point:
-    return pg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
-                    lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
-                    lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
-                    lwgeom_get_srid(lwpoint))
-
-
-def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \
-        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
-
-
 def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
         text = geom.to_ewkb()
@@ -94,6 +82,10 @@ def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALI
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
     return gserialized_in(text, -1)
+
+
+def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
+    return wkt.loads(gserialized_as_text(geom, precision))
 
 
 def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
@@ -238,8 +230,6 @@ nullable_parameters = {
     ('period_tcount_transfn', 'state'),
     ('periodset_tcount_transfn', 'state'),
     ('stbox_tile_list', 'duration'),
-    ('stbox_tile_list', 'sorigin'),
-    ('stbox_tile_list', 'torigin'),
     ('tbox_tile_list', 'xorigin'),
     ('tbox_tile_list', 'torigin'),
 }
@@ -294,6 +284,15 @@ def main():
             function_string = build_function_string(function, return_type, params)
             file.write(function_string)
             file.write('\n\n\n')
+
+    with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
+        content = funcs.read()
+        f_names = re.finditer(r'def (\w+)\(', content)
+        init.write('from .functions import *\n\n')
+        init.write('__all__ = [\n')
+        for fn in f_names:
+            init.write(f"    '{fn.group(1)}',\n")
+        init.write(']\n')
 
 
 def get_params(function: str, inner_params: str) -> List[Parameter]:

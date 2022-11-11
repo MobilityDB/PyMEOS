@@ -27,19 +27,25 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, Any, TYPE_CHECKING
+from typing import Optional, Union, Any, TYPE_CHECKING, TypeVar, List
 
-from pymeos_cffi import as_tinstant
-from pymeos_cffi.functions import temporal_timestamps, timestamptz_to_datetime, datetime_to_timestamptz, \
-    pg_timestamptz_in
+from pymeos_cffi import *
+
 from .temporal import Temporal
 from ..time import Period
 
 if TYPE_CHECKING:
     pass
 
+TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
+Self = TypeVar('Self', bound='TInstant[Any]')
 
-class TInstant(Temporal, ABC):
+
+class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of instant subtype.
     """
@@ -50,7 +56,6 @@ class TInstant(Temporal, ABC):
 
     def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, Any]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), \
             "Either string must be not None or both point and timestamp must be not"
         if _inner is not None:
@@ -62,15 +67,8 @@ class TInstant(Temporal, ABC):
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 
-    @classmethod
-    def temp_subtype(cls):
-        """
-        Subtype of the temporal value, that is, ``'Instant'``.
-        """
-        return "Instant"
-
     @property
-    def timestamp(self):
+    def timestamp(self) -> datetime:
         """
         Timestamp.
         """
@@ -79,34 +77,34 @@ class TInstant(Temporal, ABC):
         return timestamptz_to_datetime(ts[0])
 
     @property
-    def period(self):
+    def period(self) -> Period:
         """
         Period on which the temporal value is defined ignoring the potential
         time gaps.
         """
         return Period(lower=self.timestamp, upper=self.timestamp, lower_inc=True, upper_inc=True)
 
-    def value(self):
+    def value(self) -> TBase:
         """
         Value component.
         """
         return self.start_value
 
     @property
-    def start_instant(self):
+    def start_instant(self: Self) -> Self:
         """
         Start instant.
         """
         return self
 
     @property
-    def end_instant(self):
+    def end_instant(self: Self) -> Self:
         """
         End instant.
         """
         return self
 
-    def instant_n(self, n: int):
+    def instant_n(self: Self, n: int) -> Self:
         """
         N-th instant.
         """
@@ -116,27 +114,27 @@ class TInstant(Temporal, ABC):
             raise Exception("ERROR: Out of range")
 
     @property
-    def instants(self):
+    def instants(self: Self) -> List[Self]:
         """
         List of instants.
         """
         return [self]
 
     @property
-    def start_timestamp(self):
+    def start_timestamp(self) -> datetime:
         """
         Start timestamp.
         """
         return self.timestamp
 
     @property
-    def end_timestamp(self):
+    def end_timestamp(self) -> datetime:
         """
         End timestamp.
         """
         return self.timestamp
 
-    def timestamp_n(self, n):
+    def timestamp_n(self, n) -> datetime:
         """
         N-th timestamp
         """
@@ -146,7 +144,7 @@ class TInstant(Temporal, ABC):
             raise Exception("ERROR: Out of range")
 
     @property
-    def timestamps(self):
+    def timestamps(self) -> List[datetime]:
         """
         List of timestamps.
         """

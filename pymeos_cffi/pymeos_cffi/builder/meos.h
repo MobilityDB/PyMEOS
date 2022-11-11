@@ -78,8 +78,6 @@ typedef struct varlena bytea;
 //#include <liblwgeom.h>
 
 
-extern char *text2cstring(const text *textptr);
-extern text *cstring2text(const char *cstring);
 
 typedef uint16_t lwflags_t;
 
@@ -663,7 +661,8 @@ extern char *pg_date_out(DateADT date);
 extern int pg_interval_cmp(const Interval *interval1, const Interval *interval2);
 extern Interval *pg_interval_in(const char *str, int32 typmod);
 extern Interval *pg_interval_make(int32 years, int32 months, int32 weeks, int32 days, int32 hours, int32 mins, double secs);
-extern char *pg_interval_out(Interval *span);
+extern char *pg_interval_out(const Interval *span);
+extern Interval *pg_interval_mul(const Interval *span, double factor);
 extern Interval *pg_interval_pl(const Interval *span1, const Interval *span2);
 extern TimeADT pg_time_in(const char *str, int32 typmod);
 extern char *pg_time_out(TimeADT time);
@@ -1241,6 +1240,11 @@ extern bool stbox_gt(const STBOX *box1, const STBOX *box2);
 
 
 
+extern text *cstring2text(const char *cstring);
+extern char *text2cstring(const text *textptr);
+
+
+
 extern Temporal *tbool_in(const char *str);
 extern char *tbool_out(const Temporal *temp);
 extern char *temporal_as_hexwkb(const Temporal *temp, uint8_t variant, size_t *size_out);
@@ -1301,10 +1305,11 @@ extern TSequence *tintseq_from_base(int i, const TSequence *seq);
 extern TSequence *tintseq_from_base_time(int i, const Period *p);
 extern TSequenceSet *tintseqset_from_base(int i, const TSequenceSet *ss);
 extern TSequenceSet *tintseqset_from_base_time(int i, const PeriodSet *ps);
-extern TSequence *tsequence_make(const TInstant **instants, int count,  int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make(const TInstant **instants, int count, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make_exp(const TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequence *tpointseq_make_coords(const double *xcoords, const double *ycoords, const double *zcoords,
   const TimestampTz *times, int count, int32 srid, bool geodetic, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
-extern TSequence *tsequence_make_free(TInstant **instants, int count, int maxcount, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
+extern TSequence *tsequence_make_free(TInstant **instants, int count, bool lower_inc, bool upper_inc, interpType interp, bool normalize);
 extern TSequenceSet *tsequenceset_make(const TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bool normalize);
 extern TSequenceSet *tsequenceset_make_gaps(const TInstant **instants, int count, interpType interp, float maxdist, Interval *maxt);
@@ -1348,6 +1353,7 @@ extern int temporal_num_timestamps(const Temporal *temp);
 extern TSequence **temporal_segments(const Temporal *temp, int *count);
 extern TSequence *temporal_sequence_n(const Temporal *temp, int i);
 extern TSequence **temporal_sequences(const Temporal *temp, int *count);
+extern size_t temporal_size(const Temporal *temp);
 extern const TInstant *temporal_start_instant(const Temporal *temp);
 extern TSequence *temporal_start_sequence(const Temporal *temp);
 extern TimestampTz temporal_start_timestamp(const Temporal *temp);
@@ -1384,12 +1390,14 @@ extern TSequence *tsequence_compact(const TSequence *seq);
 extern Temporal *temporal_append_tinstant(Temporal *temp, const TInstant *inst, bool expand);
 extern Temporal *temporal_merge(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *temporal_merge_array(Temporal **temparr, int count);
+extern Temporal *temporal_shift(const Temporal *temp, const Interval *shift);
 extern Temporal *temporal_shift_tscale(const Temporal *temp, const Interval *shift, const Interval *duration);
 extern Temporal *temporal_step_to_linear(const Temporal *temp);
 extern Temporal *temporal_to_tinstant(const Temporal *temp);
 extern Temporal *temporal_to_tdiscseq(const Temporal *temp);
 extern Temporal *temporal_to_tsequence(const Temporal *temp);
 extern Temporal *temporal_to_tsequenceset(const Temporal *temp);
+extern Temporal *temporal_tscale(const Temporal *temp, const Interval *duration);
 
 
 
@@ -1952,8 +1960,12 @@ extern Temporal *ttouches_tpoint_geo(const Temporal *temp, const GSERIALIZED *gs
 
 
 
+extern Temporal *temporal_insert(const Temporal *temp1, const Temporal *temp2, bool connect);
+extern Temporal *temporal_update(const Temporal *temp1, const Temporal *temp2, bool connect);
 extern Temporal *temporal_delete_timestamp(const Temporal *temp, TimestampTz t, bool connect);
 extern Temporal *temporal_delete_timestampset(const Temporal *temp, const TimestampSet *ts, bool connect);
+extern Temporal *temporal_delete_period(const Temporal *temp, const Period *p, bool connect);
+extern Temporal *temporal_delete_periodset(const Temporal *temp, const PeriodSet *ps, bool connect);
 
 
 

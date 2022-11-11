@@ -26,38 +26,22 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime, timedelta
 from typing import Optional, List, Union, TYPE_CHECKING, Set
 
-from dateutil.parser import parse
-from pymeos_cffi import tfloat_to_tint, tnumber_to_span, tfloat_min_value, \
-    tfloat_max_value, tfloat_spans, adjacent_tfloat_float, tfloat_ever_eq
-from pymeos_cffi.functions import tfloat_start_value, tfloat_end_value, tfloat_values, tfloat_value_at_timestamp, \
-    datetime_to_timestamptz, tfloat_out, tfloatinst_make, tfloat_in, tfloat_value_split, tfloat_from_base, \
-    tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time, tfloat_minus_value, \
-    tfloat_at_value, tfloat_at_values, tfloat_minus_values, floatspan_to_floatrange, tfloat_degrees, tfloat_derivative, \
-    contained_tfloat_float, contains_tfloat_float, overlaps_tfloat_float, same_tfloat_float, tfloat_always_lt, \
-    tfloat_always_le, tfloat_always_eq, tfloat_ever_lt, tfloat_ever_le, tlt_tfloat_float, tle_tfloat_float, \
-    teq_tfloat_float, tne_tfloat_float, tge_tfloat_float, tgt_tfloat_float, pg_timestamptz_in, timedelta_to_interval, \
-    tfloat_value_time_split, pg_interval_in
+from pymeos_cffi import *
 from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox
     from .tint import TInt
 
 
-class TFloat(TNumber, ABC):
-    """
-    Abstract class for representing temporal floats of any subtype.
-    """
-
+class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], ABC):
     BaseClass = float
-    BaseClassDiscrete = False
     _parse_function = tfloat_in
 
     def is_adjacent(self, other: Union[int, float,
@@ -198,7 +182,7 @@ class TFloat(TNumber, ABC):
 
     def at(self, other: Union[int, float, List[float], List[int],
                               intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+                              datetime, TimestampSet, Period, PeriodSet]) -> TFloat:
         if isinstance(other, float) or isinstance(other, int):
             result = tfloat_at_value(self._inner, float(other))
         elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
@@ -231,8 +215,7 @@ class TFloat(TNumber, ABC):
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: float, base: Union[datetime, TimestampSet, Period, PeriodSet],
-                       interpolation: TInterpolation = None) -> TFloat:
+    def from_base_time(value: float, base: Time, interpolation: TInterpolation = None) -> TFloat:
         if isinstance(base, datetime):
             return TFloatInst(_inner=tfloatinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
@@ -244,7 +227,7 @@ class TFloat(TNumber, ABC):
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         if value.startswith('Interp=Stepwise;'):
@@ -349,23 +332,7 @@ class TFloat(TNumber, ABC):
         return tfloat_out(self._inner, precision)
 
 
-class TFloatInst(TInstant, TFloat):
-    """
-    Class for representing temporal floats of instant subtype.
-
-    ``TFloatInst`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TFloatInst(string='10.0@2019-09-01')
-
-    Another possibility is to give the ``value`` and the ``time`` arguments,
-    which can be instances of ``str``, ``float`` or ``datetime``.
-
-        >>> TFloatInst(value='10.0', timestamp='2019-09-08 00:00:00+01')
-        >>> TFloatInst(value=10.0, timestamp=parse('2019-09-08 00:00:00+01'))
-
-    """
-
+class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
     _make_function = tfloatinst_make
     _cast_function = int
 
@@ -374,72 +341,17 @@ class TFloatInst(TInstant, TFloat):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TFloatSeq(TSequence, TFloat):
-    """
-    Class for representing temporal floats of sequence subtype.
-
-    ``TFloatSeq`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TFloatSeq('[10.0@2019-09-01 00:00:00+01, 20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]')
-        >>> TFloatSeq('Interp=Stepwise;[10.0@2019-09-01 00:00:00+01, 20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]')
-
-    Another possibility is to give the arguments as follows:
-
-    * ``instantList`` is the list of composing instants, which can be instances of
-      ``str`` or ``TFloatInst``,
-    * ``lower_inc`` and ``upper_inc`` are instances of ``bool`` specifying
-      whether the bounds are inclusive or not. By default ``lower_inc``
-      is ``True`` and ``upper_inc`` is ``False``.
-    * ``interp`` which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``, the first being
-      the default.
-
-    Some pymeos_examples are shown next.
-
-        >>> TFloatSeq(['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'])
-        >>> TFloatSeq([TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01')])
-        >>> TFloatSeq(['10.0@2019-09-01 00:00:00+01', '20.0@2019-09-02 00:00:00+01', '10.0@2019-09-03 00:00:00+01'], True, True, 'Stepwise')
-        >>> TFloatSeq([TFloatInst('10.0@2019-09-01 00:00:00+01'), TFloatInst('20.0@2019-09-02 00:00:00+01'), TFloatInst('10.0@2019-09-03 00:00:00+01')], True, True, 'Stepwise')
-
-    """
-
+class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
     ComponentClass = TFloatInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
+                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation, normalize=normalize, _inner=_inner)
+                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TFloatSeqSet(TSequenceSet, TFloat):
-    """
-    Class for representing temporal floats of sequence subtype.
-
-    ``TFloatSeqSet`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TFloatSeqSet('{[10.0@2019-09-01 00:00:00+01], [20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]}')
-        >>> TFloatSeqSet('Interp=Stepwise;{[10.0@2019-09-01 00:00:00+01], [20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]}')
-
-    Another possibility is to give the arguments as follows:
-
-    * ``sequenceList`` is a list of composing sequences, which can be
-      instances of ``str`` or ``TFloatSeq``,
-    * ``interp`` can be ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``, the first being
-      the default.
-
-    Some pymeos_examples are shown next.
-
-        >>> TFloatSeqSet(['[10.0@2019-09-01 00:00:00+01]', '[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]'])
-        >>> TFloatSeqSet(['[10.0@2019-09-01 00:00:00+01]', '[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]'], 'Linear')
-        >>> TFloatSeqSet(['Interp=Stepwise;[10.0@2019-09-01 00:00:00+01]', 'Interp=Stepwise;[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]'], 'Stepwise')
-        >>> TFloatSeqSet([TFloatSeq('[10.0@2019-09-01 00:00:00+01]'), TFloatSeq('[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]')])
-        >>> TFloatSeqSet([TFloatSeq('[10.0@2019-09-01 00:00:00+01]'),  TFloatSeq('[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]')], 'Linear')
-        >>> TFloatSeqSet([TFloatSeq('Interp=Stepwise;[10.0@2019-09-01 00:00:00+01]'), TFloatSeq('Interp=Stepwise;[20.0@2019-09-02 00:00:00+01, 10.0@2019-09-03 00:00:00+01]')], 'Stepwise')
-
-    """
-
+class TFloatSeqSet(TSequenceSet[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
     ComponentClass = TFloatSeq
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,

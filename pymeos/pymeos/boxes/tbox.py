@@ -25,54 +25,16 @@
 ###############################################################################
 from __future__ import annotations
 
-from datetime import datetime, timedelta
 from typing import Optional, Union, List
 
-from dateutil.parser import parse
-from pymeos_cffi import int_to_tbox, float_to_tbox, span_to_tbox, datetime_to_timestamptz, tnumber_to_tbox, \
-    tbox_to_period, adjacent_tbox_tnumber, tbox_to_floatspan, floatspan_to_floatrange
-from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
-    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
-    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
-    adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
-    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy, tbox_as_hexwkb, tbox_from_hexwkb, \
-    intspan_make, timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox, int_timestamp_to_tbox, \
-    float_timestamp_to_tbox, int_period_to_tbox, float_period_to_tbox, span_timestamp_to_tbox, span_period_to_tbox, \
-    tbox_ne, contained_tbox_tnumber, contains_tbox_tnumber, overlaps_tbox_tnumber, same_tbox_tnumber, nad_tbox_tbox, \
-    left_tbox_tnumber, overleft_tbox_tnumber, right_tbox_tnumber, overright_tbox_tnumber, before_tbox_tnumber, \
-    overbefore_tbox_tnumber, after_tbox_tnumber, overafter_tbox_tnumber, tbox_tile_list, pg_timestamptz_in, \
-    pg_interval_in
+from pymeos_cffi import *
 from spans import intrange, floatrange
 
 from ..main import TNumber
-from ..time import TimestampSet, Period, PeriodSet
+from ..time import *
 
 
 class TBox:
-    """
-    Class for representing bounding boxes with value (``X``) and/or time (``T``)
-    dimensions.
-
-
-    ``TBox`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TBox(string="TBOX((1.0, 2000-01-01), (2.0, 2000-01-02))")
-        >>> TBox(string="TBOX((1.0,), (2.0,))")
-        >>> TBox(string="TBOX((, 2000-01-01), (, 2000-01-02))")
-
-    Another possibility is to give the bounds in the following order:
-    ``xmin``, ``tmin``, ``xmax``, ``tmax``, where the bounds can be
-    instances of ``str``, ``float`` or ``datetime``. All arguments are
-    optional but they must be given in pairs for each dimension and at
-    least one pair must be given.
-
-        >>> TBox(xmin="1.0", tmin="2000-01-01", xmax="2.0", tmax="2000-01-02")
-        >>> TBox(xmin=1.0, xmax=2.0)
-        >>> TBox(tmin=parse("2000-01-01"), tmax=parse("2000-01-02"))
-
-    """
     __slots__ = ['_inner']
 
     def __init__(self, string: Optional[str] = None, *,
@@ -124,7 +86,7 @@ class TBox:
         return TBox(_inner=result)
 
     @staticmethod
-    def from_time(time: Union[datetime, TimestampSet, Period, PeriodSet]) -> TBox:
+    def from_time(time: Time) -> TBox:
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
@@ -168,16 +130,16 @@ class TBox:
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
     def tile(self, size: float, duration: Union[timedelta, str],
-             origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
+             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else None
+            else tbox_tmin(self._inner)
         tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
         return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
 
     def tile_flat(self, size: float, duration: Union[timedelta, str],
-                  origin: Optional[float] = None, start: Union[datetime, str, None] = None) -> List[TBox]:
+                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
         tiles = self.tile(size, duration, origin, start)
         return [box for row in tiles for box in row]
 
@@ -424,7 +386,7 @@ class TBox:
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _):
         if not value:
             return None
         return TBox(string=value)

@@ -2,25 +2,9 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Union, List, TYPE_CHECKING
+from typing import Union, List, TYPE_CHECKING, TypeVar
 
-from pymeos_cffi import tnumber_integral, tnumber_twavg, tnumber_at_span, intrange_to_intspan, \
-    floatrange_to_floatspan, tnumber_at_spans, tnumber_at_tbox
-from pymeos_cffi.functions import add_tint_int, add_tfloat_float, add_tnumber_tnumber, div_tint_int, div_tfloat_float, \
-    div_tnumber_tnumber, sub_tnumber_tnumber, sub_tfloat_float, sub_tint_int, mult_tint_int, mult_tfloat_float, \
-    mult_tnumber_tnumber, tnumber_minus_span, tnumber_minus_spans, \
-    tnumber_minus_tbox, add_int_tint, add_float_tfloat, sub_float_tfloat, sub_int_tint, mult_int_tint, \
-    mult_float_tfloat, div_float_tfloat, div_int_tint, adjacent_tnumber_tbox, adjacent_tnumber_tnumber, \
-    adjacent_tnumber_span, contained_tnumber_span, contained_tnumber_tnumber, contained_tnumber_tbox, \
-    contains_tnumber_tbox, contains_tnumber_tnumber, contains_tnumber_span, left_tint_int, left_tfloat_float, \
-    overlaps_tnumber_span, overlaps_tnumber_tnumber, overlaps_tnumber_tbox, overleft_tint_int, overleft_tfloat_float, \
-    overright_tint_int, overright_tfloat_float, right_tint_int, right_tfloat_float, same_tnumber_span, \
-    same_tnumber_tnumber, same_tnumber_tbox, distance_tfloat_float, distance_tnumber_tnumber, \
-    nad_tfloat_float, nad_tnumber_tbox, nad_tfloat_tfloat, left_tnumber_tbox, left_tnumber_tnumber, \
-    overleft_tnumber_tbox, overleft_tnumber_tnumber, right_tnumber_tbox, right_tnumber_tnumber, overright_tnumber_tbox, \
-    overright_tnumber_tnumber, before_tnumber_tbox, before_tnumber_tnumber, overbefore_tnumber_tbox, \
-    overbefore_tnumber_tnumber, after_tnumber_tbox, after_tnumber_tnumber, overafter_tnumber_tbox, \
-    overafter_tnumber_tnumber, overright_tnumber_span, right_tnumber_span, left_tnumber_span, overleft_tnumber_span
+from pymeos_cffi import *
 from spans import intrange, floatrange
 
 from ..temporal import Temporal
@@ -28,9 +12,16 @@ from ..temporal import Temporal
 if TYPE_CHECKING:
     from ..boxes import TBox
     from ..time import TimestampSet, Period, PeriodSet
+    from .tfloat import TFloat
+
+TBase = TypeVar('TBase', int, float)
+TG = TypeVar('TG', 'TNumber[int]', 'TNumber[float]')
+TI = TypeVar('TI', 'TInstant[int]', 'TInstant[float]')
+TS = TypeVar('TS', 'TSequence[int]', 'TSequence[float]')
+TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
 
 
-class TNumber(Temporal, ABC):
+class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def is_adjacent(self, other: Union[TBox, TNumber, floatrange, intrange,
                                        Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
@@ -71,7 +62,7 @@ class TNumber(Temporal, ABC):
         else:
             return super().contains(content)
 
-    def is_left(self, other: [int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+    def is_left(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
             return left_tint_int(self._inner, other)
         elif isinstance(other, float):
@@ -87,7 +78,7 @@ class TNumber(Temporal, ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_left(self, other: [int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+    def is_over_or_left(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
             return overleft_tint_int(self._inner, other)
         elif isinstance(other, float):
@@ -116,7 +107,7 @@ class TNumber(Temporal, ABC):
         else:
             return super().overlaps(other)
 
-    def is_over_or_right(self, other: [int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+    def is_over_or_right(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
             return overright_tint_int(self._inner, other)
         elif isinstance(other, float):
@@ -132,7 +123,7 @@ class TNumber(Temporal, ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_right(self, other: [int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+    def is_right(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
             return right_tint_int(self._inner, other)
         elif isinstance(other, float):
@@ -194,7 +185,7 @@ class TNumber(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+                              datetime, TimestampSet, Period, PeriodSet]) -> TG:
         from ..boxes import TBox
         if isinstance(other, intrange):
             result = tnumber_at_span(self._inner, intrange_to_intspan(other))
@@ -213,7 +204,7 @@ class TNumber(Temporal, ABC):
         return Temporal._factory(result)
 
     def minus(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+                                 datetime, TimestampSet, Period, PeriodSet]) -> TG:
         if isinstance(other, intrange):
             result = tnumber_minus_span(self._inner, intrange_to_intspan(other))
         elif isinstance(other, floatrange):
@@ -230,7 +221,7 @@ class TNumber(Temporal, ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
-    def distance(self, other: Union[int, float, TNumber]) -> TNumber:
+    def distance(self, other: Union[int, float, TNumber]) -> TFloat:
         if isinstance(other, int):
             result = distance_tfloat_float(self._inner, float(other))
         elif isinstance(other, float):
@@ -264,7 +255,7 @@ class TNumber(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def radd(self, other: Union[int, float]):
+    def radd(self, other: Union[int, float]) -> TNumber:
         if isinstance(other, int):
             result = add_int_tint(other, self._inner)
         elif isinstance(other, float):
@@ -284,7 +275,7 @@ class TNumber(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def rsub(self, other: Union[int, float]):
+    def rsub(self, other: Union[int, float]) -> TNumber:
         if isinstance(other, int):
             result = sub_int_tint(other, self._inner)
         elif isinstance(other, float):
@@ -304,7 +295,7 @@ class TNumber(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def rmul(self, other: Union[int, float]):
+    def rmul(self, other: Union[int, float]) -> TNumber:
         if isinstance(other, int):
             result = mult_int_tint(other, self._inner)
         elif isinstance(other, float):
@@ -324,7 +315,7 @@ class TNumber(Temporal, ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def rdiv(self, other: Union[int, float]):
+    def rdiv(self, other: Union[int, float]) -> TNumber:
         if isinstance(other, int):
             result = div_int_tint(other, self._inner)
         elif isinstance(other, float):

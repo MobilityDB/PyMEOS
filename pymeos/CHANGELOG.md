@@ -1,5 +1,9 @@
 ## 1.2.0
 
+
+
+## 1.1.1
+
 All MEOS functions are added to PyMEOS.
 
 ## 1.1.0

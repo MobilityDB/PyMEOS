@@ -28,17 +28,24 @@ class BoxPlotter:
         return BoxPlotter._plot_box(stbox.tmin, stbox.tmax, stbox.ymin, stbox.ymax, *args, axes=axes, **kwargs)
 
     @staticmethod
-    def _plot_box(xmin, xmax, ymin, ymax, *args, axes=None, rotate_xticks=True, **kwargs):
+    def _plot_box(xmin, xmax, ymin, ymax, *args, axes=None, rotate_xticks=True, draw_filling=True, **kwargs):
         base = axes or plt.gca()
         plot = base.plot([xmin, xmax, xmax, xmin, xmin],
                          [ymin, ymin, ymax, ymax, ymin],
                          *args, **kwargs)
+
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()
         kwargs.pop('label', None)
-        f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args,
-                              alpha=0.3, **kwargs)
+
+        return_array = [plot]
+
+        if draw_filling:
+            f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args,
+                                  alpha=0.3, **kwargs)
+            return_array.append(f)
 
         if rotate_xticks:
             base.tick_params(axis="x", rotation=45)
-        return [plot, f]
+
+        return return_array
