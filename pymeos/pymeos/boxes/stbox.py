@@ -529,7 +529,7 @@ class STBox:
         return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return STBox(string=value)

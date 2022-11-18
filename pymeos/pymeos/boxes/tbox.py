@@ -386,7 +386,7 @@ class TBox:
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return TBox(string=value)

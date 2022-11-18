@@ -378,7 +378,7 @@ class Period:
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return Period(string=value)

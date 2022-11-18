@@ -101,10 +101,11 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
     def to_dataframe(self) -> DataFrame:
+        sequences = self.sequences
         data = {
-            'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.num_instants)],
-            'time': [t for seq in self.sequences for t in seq.timestamps],
-            'value': [v for seq in self.sequences for v in seq.values()]
+            'sequence': [i for i, seq in enumerate(sequences, start=1) for _ in range(seq.num_instants)],
+            'time': [t for seq in sequences for t in seq.timestamps],
+            'value': [v for seq in sequences for v in seq.values()]
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])
 

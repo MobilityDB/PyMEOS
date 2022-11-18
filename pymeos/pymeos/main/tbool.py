@@ -165,7 +165,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         return tbool_out(self._inner)
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':

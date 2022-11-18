@@ -443,7 +443,7 @@ class PeriodSet:
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return PeriodSet(string=value)
