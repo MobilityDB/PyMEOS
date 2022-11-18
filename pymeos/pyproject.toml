@@ -29,8 +29,12 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-db = [
+dbp = [
     'psycopg2'
+]
+
+dba = [
+    'asyncpg'
 ]
 
 plot = [

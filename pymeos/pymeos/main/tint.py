@@ -235,7 +235,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':

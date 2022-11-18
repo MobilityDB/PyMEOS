@@ -227,7 +227,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value.startswith('Interp=Stepwise;'):

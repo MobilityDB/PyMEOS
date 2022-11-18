@@ -678,7 +678,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         return Temporal._factory(result)
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value.startswith('Interp=Stepwise;'):
@@ -775,7 +775,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         return Temporal._factory(result)
 
     @staticmethod
-    def read_from_cursor(value, _):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value.startswith('Interp=Stepwise;'):
