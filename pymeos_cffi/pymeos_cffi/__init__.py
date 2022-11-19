@@ -1,5 +1,7 @@
 from .functions import *
 
+__version__ = '0.0.18'
+
 __all__ = [
     'create_pointer',
     'datetime_to_timestamptz',
