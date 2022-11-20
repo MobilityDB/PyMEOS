@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymeos"
-version = "1.1.2"
+version = "1.1.2-1"
 authors = [
     { name = "Victor Divi", email = "vdiviloper@gmail.com" },
     { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
@@ -30,6 +30,10 @@ dependencies = [
 
 [project.optional-dependencies]
 dbp = [
+    'psycopg'
+]
+
+dbp2 = [
     'psycopg2'
 ]
 

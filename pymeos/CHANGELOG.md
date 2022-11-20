@@ -1,11 +1,12 @@
 ## 1.1.2
 
 - Add support for `asyncpg`.
+- Add support for `psycopg` (psycopg v3).
 
 ### Breaking changes
 
-- `MobilityDB` using `psycopg2` has been moved from `pymeos.db` to `pymeos.db.psycopg` due to the addition of `asyncpg`
-  support.
+- `MobilityDB` using `psycopg2` has been moved from `pymeos.db` to `pymeos.db.psycopg2` due to the addition of `asyncpg` 
+   and `psycopg` support.
 
 ## 1.1.1
 
