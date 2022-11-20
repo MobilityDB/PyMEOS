@@ -36,7 +36,8 @@ class TempType(Enum):
             return cls.GM_POINT
         elif temp_type == 26:
             return cls.GG_POINT
-        raise Exception()
+        raise Exception(f'Invalid temporal type: {temp_type}. Valid temporal types are: 12 (bool), 18 (float), '
+                        f'21 (int), 22 (text), 25 (geometric point) and 26 (geographical point).')
 
     @classmethod
     def get_sub_type(cls, c):
@@ -47,7 +48,8 @@ class TempType(Enum):
             return cls.SEQUENCE
         elif subtype == 3:
             return cls.SEQUENCE_SET
-        raise Exception()
+        raise Exception(
+            f'Invalid subtype: {subtype}. Valid subtypes are: 1 (Instant), 2 (Sequence) and 3 (Sequence Set)')
 
     @classmethod
     def get_type(cls, c):

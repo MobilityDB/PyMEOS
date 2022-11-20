@@ -7,11 +7,14 @@ from build_helpers import ADDITIONAL_DEFINITIONS
 def main(header_path):
     with open(header_path, 'r') as f:
         content = f.read()
-        content = content.replace('#', '//#')
-        content = content.replace(*ADDITIONAL_DEFINITIONS)
         # Remove comments
         content = re.sub(r'//.*', '', content)
         content = re.sub(r'/\*.*?\*/', '', content, flags=re.RegexFlag.MULTILINE)
+        # Comment macros
+        content = content.replace('#', '//#')
+        content = re.sub(r'^//(#define \w+ \d+)\s*$', '\g<1>', content, flags=re.RegexFlag.MULTILINE)
+        # Add additional definitions
+        content = content.replace(*ADDITIONAL_DEFINITIONS)
     with open('pymeos_cffi/builder/meos.h', 'w') as f:
         f.write(content)
 

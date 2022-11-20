@@ -23,63 +23,69 @@
 # PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
 #
 ###############################################################################
-from abc import ABC
-from typing import Optional, List, Union, Any
+from __future__ import annotations
 
-from pymeos_cffi.functions import temporal_num_sequences, temporal_start_sequence, temporal_end_sequence, \
-    temporal_sequence_n, temporal_sequences, \
-    tsequenceset_make
+from abc import ABC
+from typing import Optional, List, Union, Any, TypeVar, Type
+
+from pandas import DataFrame
+from pymeos_cffi import *
 
 from ..temporal.temporal import Temporal
 
+TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
+Self = TypeVar('Self', bound='TSequenceSet[Any]')
 
-class TSequenceSet(Temporal, ABC):
+
+class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of sequence set subtype.
     """
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, Any]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__()
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
         if _inner is not None:
-            self._inner = _inner
+            self._inner = as_tsequenceset(_inner)
         elif string is not None:
-            self._inner = self.__class__._parse_function(string)
+            self._inner = as_tsequenceset(self.__class__._parse_function(string))
         else:
             sequences = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x)
                          for x in sequence_list]
             self._inner = tsequenceset_make(sequences, len(sequences), normalize)
 
-    def temp_subtype(cls):
-        """
-        Subtype of the temporal value, that is, ``'SequenceSet'``.
-        """
-        return "SequenceSet"
+    @classmethod
+    def from_sequences(cls: Type[Self], sequence_list: Optional[List[Union[str, Any]]] = None,
+                       normalize: bool = True) -> Self:
+        return cls(sequence_list=sequence_list, normalize=normalize)
 
     @property
-    def num_sequences(self):
+    def num_sequences(self) -> int:
         """
         Number of sequences.
         """
         return temporal_num_sequences(self._inner)
 
     @property
-    def start_sequence(self):
+    def start_sequence(self) -> TS:
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     @property
-    def end_sequence(self):
+    def end_sequence(self) -> TS:
         """
         End sequence.
         """
         return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
-    def sequence_n(self, n):
+    def sequence_n(self, n) -> TS:
         """
         N-th sequence.
         """
@@ -87,9 +93,22 @@ class TSequenceSet(Temporal, ABC):
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
     @property
-    def sequences(self):
+    def sequences(self) -> List[TS]:
         """
         List of sequences.
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
+
+    def to_dataframe(self) -> DataFrame:
+        sequences = self.sequences
+        data = {
+            'sequence': [i for i, seq in enumerate(sequences, start=1) for _ in range(seq.num_instants)],
+            'time': [t for seq in sequences for t in seq.timestamps],
+            'value': [v for seq in sequences for v in seq.values()]
+        }
+        return DataFrame(data).set_index(keys=['sequence', 'time'])
+
+    def plot(self, *args, **kwargs):
+        from ..plotters import TemporalSequenceSetPlotter
+        return TemporalSequenceSetPlotter.plot(self, *args, **kwargs)

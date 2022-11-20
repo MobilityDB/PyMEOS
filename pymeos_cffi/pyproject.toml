@@ -7,9 +7,9 @@ py-modules = []
 
 [project]
 name = "pymeos_cffi"
-version = "0.0.16"
+version = "0.0.18"
 authors = [
-    { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
+    { name = "Victor Divi", email = "vdiviloper@gmail.com" }
 ]
 description = "PyMEOS wrapper for the MEOS C Library."
 classifiers = [
@@ -18,7 +18,7 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = { text = "PostgreSQL" }
 
 requires-python = ">=3.7"
 dependencies = [

@@ -1,3 +1,12 @@
+from typing import Callable
+
+
+def array_length_remover_modifier(list_name: str, length_param_name: str = 'count') -> Callable[[str], str]:
+    return lambda function: function \
+        .replace(f', {length_param_name}: int', '') \
+        .replace(f', {length_param_name}', f', len({list_name})')
+
+
 def period_shift_tscale_modifier(function: str) -> str:
     return function \
         .replace(') ->', ', result: "Optional[\'Period *\']") ->') \
@@ -24,6 +33,42 @@ def timestampset_make_modifier(function: str) -> str:
         .replace('times: int', 'times: List[int]') \
         .replace("times_converted = _ffi.cast('const TimestampTz *', times)",
                  "times_converted = [_ffi.cast('const TimestampTz', x) for x in times]")
+
+
+def tint_at_values_modifier(function: str) -> str:
+    return function \
+        .replace("values: 'int *', count: int", 'values: List[int]') \
+        .replace("_ffi.cast('int *', values)",
+                 "_ffi.new('int []', values)") \
+        .replace(', count', ', len(values_converted)')
+
+
+def tint_minus_values_modifier(function: str) -> str:
+    return tint_at_values_modifier(function)
+
+
+def tfloat_at_values_modifier(function: str) -> str:
+    return function \
+        .replace("values: 'double *', count: int", 'values: List[float]') \
+        .replace("_ffi.cast('double *', values)",
+                 "_ffi.new('double []', values)") \
+        .replace(', count', ', len(values_converted)')
+
+
+def tfloat_minus_values_modifier(function: str) -> str:
+    return tfloat_at_values_modifier(function)
+
+
+def tbool_at_values_modifier(function: str) -> str:
+    return function \
+        .replace("values: 'bool *', count: int", 'values: List[bool]') \
+        .replace("_ffi.cast('bool *', values)",
+                 "_ffi.new('bool []', values)") \
+        .replace(', count', ', len(values_converted)')
+
+
+def tbool_minus_values_modifier(function: str) -> str:
+    return tbool_at_values_modifier(function)
 
 
 def gserialized_from_lwgeom_modifier(function: str) -> str:

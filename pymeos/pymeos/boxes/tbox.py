@@ -25,51 +25,16 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
-from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Optional, Union, List
 
-from dateutil.parser import parse
-from pymeos_cffi.functions import tbox_in, floatspan_make, tbox_make, tbox_out, tbox_eq, tbox_hasx, tbox_hast, \
-    tbox_xmin, tbox_tmin, timestamptz_to_datetime, tbox_tmax, tbox_xmax, tbox_expand, tbox_expand_value, \
-    tbox_expand_temporal, timedelta_to_interval, tbox_shift_tscale, contains_tbox_tbox, contained_tbox_tbox, \
-    adjacent_tbox_tbox, overlaps_tbox_tbox, same_tbox_tbox, overafter_tbox_tbox, left_tbox_tbox, overleft_tbox_tbox, \
-    right_tbox_tbox, overright_tbox_tbox, before_tbox_tbox, overbefore_tbox_tbox, after_tbox_tbox, union_tbox_tbox, \
-    intersection_tbox_tbox, tbox_cmp, tbox_lt, tbox_le, tbox_gt, tbox_ge, tbox_copy
+from pymeos_cffi import *
+from spans import intrange, floatrange
 
-from ..time.period import Period
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
+from ..main import TNumber
+from ..time import *
 
 
 class TBox:
-    """
-    Class for representing bounding boxes with value (``X``) and/or time (``T``)
-    dimensions.
-
-
-    ``TBox`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> TBox(string="TBOX((1.0, 2000-01-01), (2.0, 2000-01-02))")
-        >>> TBox(string="TBOX((1.0,), (2.0,))")
-        >>> TBox(string="TBOX((, 2000-01-01), (, 2000-01-02))")
-
-    Another possibility is to give the bounds in the following order:
-    ``xmin``, ``tmin``, ``xmax``, ``tmax``, where the bounds can be
-    instances of ``str``, ``float`` or ``datetime``. All arguments are
-    optional but they must be given in pairs for each dimension and at
-    least one pair must be given.
-
-        >>> TBox(xmin="1.0", tmin="2000-01-01", xmax="2.0", tmax="2000-01-02")
-        >>> TBox(xmin=1.0, xmax=2.0)
-        >>> TBox(tmin=parse("2000-01-01"), tmax=parse("2000-01-02"))
-
-    """
     __slots__ = ['_inner']
 
     def __init__(self, string: Optional[str] = None, *,
@@ -77,6 +42,10 @@ class TBox:
                  tmin: Optional[Union[str, datetime]] = None,
                  xmax: Optional[Union[str, float]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
+                 xmin_inc: bool = True,
+                 xmax_inc: bool = True,
+                 tmin_inc: bool = True,
+                 tmax_inc: bool = True,
                  _inner=None):
         assert (_inner is not None) or (string is not None) != (
                 (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
@@ -89,10 +58,96 @@ class TBox:
             span = None
             period = None
             if xmin is not None and xmax is not None:
-                span = floatspan_make(float(xmin), float(xmax), True, True)
+                span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
             if tmin is not None and tmax is not None:
-                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = tbox_make(period, span)
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> TBox:
+        result = tbox_from_hexwkb(hexwkb)
+        return TBox(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return tbox_as_hexwkb(self._inner, -1)[0]
+
+    @staticmethod
+    def from_value(value: Union[int, float, intrange, floatrange]) -> TBox:
+        if isinstance(value, int):
+            result = int_to_tbox(value)
+        elif isinstance(value, float):
+            result = float_to_tbox(value)
+        elif isinstance(value, intrange):
+            result = span_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+        elif isinstance(value, floatrange):
+            result = span_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+        else:
+            raise TypeError(f'Operation not supported with type {value.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_time(time: Time) -> TBox:
+        if isinstance(time, datetime):
+            result = timestamp_to_tbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TimestampSet):
+            result = timestampset_to_tbox(time)
+        elif isinstance(time, Period):
+            result = period_to_tbox(time)
+        elif isinstance(time, PeriodSet):
+            result = periodset_to_tbox(time)
+        else:
+            raise TypeError(f'Operation not supported with type {time.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_value_time(value: Union[int, float, intrange, floatrange],
+                        time: Union[datetime, Period]) -> TBox:
+        if isinstance(value, int) and isinstance(time, datetime):
+            result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, int) and isinstance(time, Period):
+            result = int_period_to_tbox(value, time)
+        elif isinstance(value, float) and isinstance(time, datetime):
+            result = float_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, float) and isinstance(time, Period):
+            result = float_period_to_tbox(value, time)
+        elif isinstance(value, intrange) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                            datetime_to_timestamptz(time))
+        elif isinstance(value, intrange) and isinstance(time, Period):
+            result = span_period_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc), time)
+        elif isinstance(value, floatrange) and isinstance(time, Period):
+            result = span_period_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                         time)
+        elif isinstance(value, floatrange) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
+                                            datetime_to_timestamptz(time))
+        else:
+            raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
+        return TBox(_inner=result)
+
+    @staticmethod
+    def from_tnumber(temporal: TNumber) -> TBox:
+        return TBox(_inner=tnumber_to_tbox(temporal._inner))
+
+    def tile(self, size: float, duration: Union[timedelta, str],
+             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else tbox_tmin(self._inner)
+        tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
+        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
+
+    def tile_flat(self, size: float, duration: Union[timedelta, str],
+                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
+        tiles = self.tile(size, duration, origin, start)
+        return [box for row in tiles for box in row]
+
+    def to_floatrange(self) -> floatrange:
+        return floatspan_to_floatrange(tbox_to_floatspan(self._inner))
+
+    def to_period(self) -> Period:
+        return Period(_inner=tbox_to_period(self._inner))
 
     @property
     def has_x(self):
@@ -130,14 +185,17 @@ class TBox:
         """
         return timestamptz_to_datetime(tbox_tmax(self._inner))
 
-    def expand(self, other: Union[TBox, float, timedelta]) -> None:
+    def expand(self, other: Union[TBox, float, timedelta]) -> TBox:
         if isinstance(other, TBox):
-            tbox_expand(other._inner, self._inner)
+            result = tbox_copy(self._inner)
+            tbox_expand(other._inner, result)
         elif isinstance(other, float):
-            self._inner = tbox_expand_value(self._inner, other)
+            result = tbox_expand_value(self._inner, other)
         elif isinstance(other, timedelta):
-            self._inner = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = tbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return TBox(_inner=result)
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
         """
@@ -153,47 +211,120 @@ class TBox:
     def union(self, other: TBox) -> TBox:
         return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
 
-    def intersection(self, other: TBox) -> TBox:
-        return TBox(_inner=intersection_tbox_tbox(self._inner, other._inner))
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: TBox) -> Optional[TBox]:
+        result = intersection_tbox_tbox(self._inner, other._inner)
+        return TBox(_inner=result) if result else None
 
-    def is_adjacent(self, container: TBox) -> bool:
-        return adjacent_tbox_tbox(self._inner, container._inner)
+    def is_adjacent(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return adjacent_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return adjacent_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: TBox) -> bool:
-        return contained_tbox_tbox(self._inner, container._inner)
+    def is_contained_in(self, container: Union[TBox, TNumber]) -> bool:
+        if isinstance(container, TBox):
+            return contained_tbox_tbox(self._inner, container._inner)
+        elif isinstance(container, TNumber):
+            return contained_tbox_tnumber(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: TBox) -> bool:
-        return contains_tbox_tbox(self._inner, content._inner)
+    def contains(self, content: Union[TBox, TNumber]) -> bool:
+        if isinstance(content, TBox):
+            return contains_tbox_tbox(self._inner, content._inner)
+        elif isinstance(content, TNumber):
+            return contains_tbox_tnumber(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, content: TBox) -> bool:
-        return overlaps_tbox_tbox(self._inner, content._inner)
+    def overlaps(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overlaps_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overlaps_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, content: TBox) -> bool:
-        return same_tbox_tbox(self._inner, content._inner)
+    def is_same(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return same_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return same_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_left(self, content: TBox) -> bool:
-        return left_tbox_tbox(self._inner, content._inner)
+    def is_left(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return left_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return left_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_left(self, content: TBox) -> bool:
-        return overleft_tbox_tbox(self._inner, content._inner)
+    def is_over_or_left(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overleft_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overleft_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_right(self, content: TBox) -> bool:
-        return right_tbox_tbox(self._inner, content._inner)
+    def is_right(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return right_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return right_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_right(self, content: TBox) -> bool:
-        return overright_tbox_tbox(self._inner, content._inner)
+    def is_over_or_right(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overright_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overright_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, content: TBox) -> bool:
-        return before_tbox_tbox(self._inner, content._inner)
+    def is_before(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return before_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return before_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, content: TBox) -> bool:
-        return overbefore_tbox_tbox(self._inner, content._inner)
+    def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overbefore_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overbefore_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, content: TBox) -> bool:
-        return after_tbox_tbox(self._inner, content._inner)
+    def is_after(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return after_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return after_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, content: TBox) -> bool:
-        return overafter_tbox_tbox(self._inner, content._inner)
+    def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
+        if isinstance(other, TBox):
+            return overafter_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return overafter_tbox_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def nearest_approach_distance(self, other: TBox) -> float:
+        if isinstance(other, TBox):
+            return nad_tbox_tbox(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __add__(self, other):
         return self.union(other)
@@ -208,6 +339,11 @@ class TBox:
         if isinstance(other, self.__class__):
             return tbox_eq(self._inner, other._inner)
         return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return tbox_ne(self._inner, other._inner)
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
@@ -239,21 +375,18 @@ class TBox:
         return TBox(_inner=inner_copy)
 
     def __str__(self):
-        return tbox_out(self._inner, 3)
+        return tbox_out(self._inner, 6)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
+    def plot(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_tbox(self, *args, **kwargs)
+
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return TBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.

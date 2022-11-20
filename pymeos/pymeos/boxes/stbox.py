@@ -25,73 +25,17 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
-from datetime import datetime, timedelta
-from typing import Optional, Union
+from typing import Optional, Union, List
 
-from pymeos_cffi.functions import stbox_in, stbox_make, stbox_eq, stbox_out, stbox_isgeodetic, stbox_hasx, stbox_hast, \
-    stbox_hasz, stbox_xmin, stbox_ymin, stbox_zmin, timestamptz_to_datetime, stbox_tmin, stbox_xmax, stbox_ymax, \
-    stbox_zmax, stbox_tmax, stbox_expand, stbox_expand_spatial, stbox_expand_temporal, timedelta_to_interval, \
-    stbox_shift_tscale, stbox_set_srid, adjacent_stbox_stbox, contained_stbox_stbox, contains_stbox_stbox, \
-    overlaps_stbox_stbox, same_stbox_stbox, overafter_stbox_stbox, after_stbox_stbox, overbefore_stbox_stbox, \
-    before_stbox_stbox, overback_stbox_stbox, back_stbox_stbox, overfront_stbox_stbox, front_stbox_stbox, \
-    overabove_stbox_stbox, above_stbox_stbox, overbelow_stbox_stbox, below_stbox_stbox, overright_stbox_stbox, \
-    right_stbox_stbox, overleft_stbox_stbox, left_stbox_stbox, union_stbox_stbox, intersection_stbox_stbox, stbox_gt, \
-    stbox_le, stbox_lt, stbox_ge, stbox_cmp, stbox_copy
+from postgis import Geometry
+from pymeos_cffi import *
+from shapely.geometry.base import BaseGeometry
 
-from ..time.period import Period
-
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
+from ..main import TPoint
+from ..time import *
 
 
 class STBox:
-    """
-    Class for representing bounding boxes composed of coordinate and/or time
-    dimensions, where the coordinates may be in 2D (``X`` and ``Y``) or in 3D
-    (``X``, ``Y``, and ``Z``). For each dimension, minimum and maximum values
-    are stored. The coordinates may be either Cartesian (planar) or geodetic
-    (spherical). Additionally, the SRID of coordinates can be specified.
-
-
-    ``STBox`` objects can be created with a single argument of type string
-    as in MobilityDB.
-
-        >>> "STBOX ((1.0, 2.0), (1.0, 2.0))",
-        >>> "STBOX Z((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-        >>> "STBOX T((1.0, 2.0, 2001-01-03 00:00:00+01), (1.0, 2.0, 2001-01-03 00:00:00+01))",
-        >>> "STBOX ZT((1.0, 2.0, 3.0, 2001-01-04 00:00:00+01), (1.0, 2.0, 3.0, 2001-01-04 00:00:00+01))",
-        >>> "STBOX T(, 2001-01-03 00:00:00+01), (, 2001-01-03 00:00:00+01))",
-        >>> "GEODSTBOX((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-        >>> "GEODSTBOX T((1.0, 2.0, 3.0, 2001-01-03 00:00:00+01), (1.0, 2.0, 3.0, 2001-01-04 00:00:00+01))",
-        >>> "GEODSTBOX T((, 2001-01-03 00:00:00+01), (, 2001-01-03 00:00:00+01))",
-        >>> "SRID=5676;STBOX T((1.0, 2.0, 2001-01-04), (1.0, 2.0, 2001-01-04))",
-        >>> "SRID=4326;GEODSTBOX((1.0, 2.0, 3.0), (1.0, 2.0, 3.0))",
-
-    Another possibility is to give the bounds in the following order:
-    ``xmin``, ``ymin``, ``zmin``, ``tmin``, ``xmax``, ``ymax``, ``zmax``,
-    ``tmax``, where the bounds can be instances of ``str``, ``float``
-    and ``datetime``. All arguments are optional but they must be given
-    in pairs for each dimension and at least one pair must be given.
-    When three pairs are given, by default, the third pair will be
-    interpreted as representing the ``Z`` dimension unless the ``dimt``
-    parameter is given. Finally, the ``geodetic`` parameter determines
-    whether the coordinates in the bounds are planar or spherical.
-
-        >>> STBox((1.0, 2.0, 1.0, 2.0))
-        >>> STBox((1.0, 2.0, 3.0, 1.0, 2.0, 3.0))
-        >>> STBox((1.0, 2.0, '2001-01-03', 1.0, 2.0, '2001-01-03'), dimt=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-04'))
-        >>> STBox(('2001-01-03', '2001-01-03'))
-        >>> STBox((1.0, 2.0, 3.0, 1.0, 2.0, 3.0), geodetic=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-03'), geodetic=True)
-        >>> STBox((1.0, 2.0, 3.0, '2001-01-04', 1.0, 2.0, 3.0, '2001-01-03'), geodetic=True, srid=4326)
-        >>> STBox(('2001-01-03', '2001-01-03'), geodetic=True)
-
-    """
     __slots__ = ['_inner']
 
     def __init__(self, string: Optional[str] = None, *,
@@ -99,6 +43,7 @@ class STBox:
                  ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
                  zmin: Optional[Union[str, float]] = None, zmax: Optional[Union[str, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None, tmax: Optional[Union[str, datetime]] = None,
+                 tmin_inc: bool = True, tmax_inc: bool = True,
                  geodetic: bool = False, srid: Optional[int] = None,
                  _inner=None):
 
@@ -118,12 +63,113 @@ class STBox:
             hasx = xmin is not None and xmax is not None and ymin is not None and ymax is not None
             hasz = zmin is not None and zmax is not None
             if hast:
-                period = Period(lower=tmin, upper=tmax, lower_inc=True, upper_inc=True)._inner
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
 
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> STBox:
+        result = stbox_from_hexwkb(hexwkb)
+        return STBox(_inner=result)
+
+    def as_hexwkb(self) -> str:
+        return stbox_as_hexwkb(self._inner, -1)[0]
+
+    @staticmethod
+    def from_space(value: Geometry) -> STBox:
+        return STBox.from_geometry(value)
+
+    @staticmethod
+    def from_geometry(geom: Geometry) -> STBox:
+        gs = gserialized_in(geom.to_ewkb(), -1)
+        return STBox(_inner=geo_to_stbox(gs))
+
+    @staticmethod
+    def from_time(time: Time) -> STBox:
+        if isinstance(time, datetime):
+            result = timestamp_to_stbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TimestampSet):
+            result = timestampset_to_stbox(time)
+        elif isinstance(time, Period):
+            result = period_to_stbox(time)
+        elif isinstance(time, PeriodSet):
+            result = periodset_to_stbox(time)
+        else:
+            raise TypeError(f'Operation not supported with type {time.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_expanding_bounding_box(value: Union[Geometry, TPoint], expansion: float):
+        if isinstance(value, Geometry):
+            gs = gserialized_in(value.to_ewkb(), -1)
+            result = geo_expand_spatial(gs, expansion)
+        elif isinstance(value, TPoint):
+            result = tpoint_expand_spatial(value._inner, expansion)
+        else:
+            raise TypeError(f'Operation not supported with type {value.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_space_time(value: Geometry, time: Union[datetime, Period]) -> STBox:
+        return STBox.from_geometry_time(value, time)
+
+    @staticmethod
+    def from_geometry_time(geometry: Geometry, time: Union[datetime, Period]) -> STBox:
+        gs = gserialized_in(geometry.to_ewkb(), -1)
+        if isinstance(time, datetime):
+            result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
+        elif isinstance(time, Period):
+            result = geo_period_to_stbox(gs, time._inner)
+        else:
+            raise TypeError(f'Operation not supported with types {geometry.__class__} and {time.__class__}')
+        return STBox(_inner=result)
+
+    @staticmethod
+    def from_tpoint(temporal: TPoint) -> STBox:
+        return STBox(_inner=tpoint_to_stbox(temporal._inner))
+
+    def tile(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+             origin: Optional[Union[BaseGeometry, Geometry]] = None,
+             start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1) if isinstance(duration, str) \
+            else None
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else datetime_to_timestamptz(self.tmin) if self.has_t \
+            else 0
+        gs = geometry_to_gserialized(origin) if origin is not None \
+            else gserialized_in('Point(0 0 0)', -1)
+        tiles, dimensions = stbox_tile_list(self._inner, size, dt, gs, st)
+        x_size = dimensions[0] or 1
+        y_size = dimensions[1] or 1
+        z_size = dimensions[2] or 1
+        t_size = dimensions[3] or 1
+        x_factor = y_size * z_size * t_size
+        y_factor = z_size * t_size
+        z_factor = t_size
+        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) for t in range(t_size)]
+                  for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
+
+    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+                  origin: Optional[Union[BaseGeometry, Geometry]] = None,
+                  start: Union[datetime, str, None] = None) -> List[STBox]:
+        boxes = self.tile(size, duration, origin, start)
+        return [b
+                for x in boxes
+                for y in x
+                for z in y
+                for b in z
+                ]
+
+    def to_geometry(self, precision: int = 5) -> BaseGeometry:
+        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
+
+    def to_period(self) -> Period:
+        return Period(_inner=stbox_to_period(self._inner))
+
     @property
-    def has_x(self):
+    def has_xy(self):
         return stbox_hasx(self._inner)
 
     @property
@@ -204,18 +250,20 @@ class STBox:
         """
         return self._inner.srid
 
-    @srid.setter
-    def srid(self, value: int):
-        self._inner = stbox_set_srid(self._inner, value)
+    def set_srid(self, value: int) -> STBox:
+        return STBox(_inner=stbox_set_srid(self._inner, value))
 
-    def expand(self, other: Union[STBox, float, timedelta]) -> None:
+    def expand(self, other: Union[STBox, float, timedelta]) -> STBox:
         if isinstance(other, STBox):
-            stbox_expand(other._inner, self._inner)
+            result = stbox_copy(self._inner)
+            stbox_expand(other._inner, result)
         elif isinstance(other, float):
-            self._inner = stbox_expand_spatial(self._inner, other)
+            result = stbox_expand_spatial(self._inner, other)
         elif isinstance(other, timedelta):
-            self._inner = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = stbox_expand_temporal(self._inner, timedelta_to_interval(other))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return STBox(_inner=result)
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None, scale_delta: Optional[timedelta] = None):
         """
@@ -231,71 +279,187 @@ class STBox:
     def union(self, other: STBox, strict: bool = True) -> STBox:
         return STBox(_inner=union_stbox_stbox(self._inner, other._inner, strict))
 
-    def intersection(self, other: STBox) -> STBox:
-        return STBox(_inner=intersection_stbox_stbox(self._inner, other._inner))
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: STBox) -> Optional[STBox]:
+        result = intersection_stbox_stbox(self._inner, other._inner)
+        return STBox(_inner=result) if result else None
 
-    def is_adjacent(self, container: STBox) -> bool:
-        return adjacent_stbox_stbox(self._inner, container._inner)
+    def is_adjacent(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return adjacent_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return adjacent_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_contained_in(self, container: STBox) -> bool:
-        return contained_stbox_stbox(self._inner, container._inner)
+    def is_contained_in(self, container: Union[STBox, TPoint]) -> bool:
+        if isinstance(container, STBox):
+            return contained_stbox_stbox(self._inner, container._inner)
+        elif isinstance(container, TPoint):
+            return contained_stbox_tpoint(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
 
-    def contains(self, content: STBox) -> bool:
-        return contains_stbox_stbox(self._inner, content._inner)
+    def contains(self, content: Union[STBox, TPoint]) -> bool:
+        if isinstance(content, STBox):
+            return contains_stbox_stbox(self._inner, content._inner)
+        elif isinstance(content, TPoint):
+            return contains_stbox_tpoint(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
 
-    def overlaps(self, other: STBox) -> bool:
-        return overlaps_stbox_stbox(self._inner, other._inner)
+    def overlaps(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overlaps_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overlaps_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, other: STBox) -> bool:
-        return same_stbox_stbox(self._inner, other._inner)
+    def is_same(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return same_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return same_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_left(self, other: STBox) -> bool:
-        return left_stbox_stbox(self._inner, other._inner)
+    def is_left(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return left_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return left_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_left(self, other: STBox) -> bool:
-        return overleft_stbox_stbox(self._inner, other._inner)
+    def is_over_or_left(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overleft_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overleft_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_right(self, other: STBox) -> bool:
-        return right_stbox_stbox(self._inner, other._inner)
+    def is_right(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return right_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return right_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_right(self, other: STBox) -> bool:
-        return overright_stbox_stbox(self._inner, other._inner)
+    def is_over_or_right(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overright_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overright_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_below(self, other: STBox) -> bool:
-        return below_stbox_stbox(self._inner, other._inner)
+    def is_below(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return below_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return below_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_below(self, other: STBox) -> bool:
-        return overbelow_stbox_stbox(self._inner, other._inner)
+    def is_over_or_below(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overbelow_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbelow_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_above(self, other: STBox) -> bool:
-        return above_stbox_stbox(self._inner, other._inner)
+    def is_above(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return above_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return above_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_above(self, other: STBox) -> bool:
-        return overabove_stbox_stbox(self._inner, other._inner)
+    def is_over_or_above(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overabove_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overabove_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_front(self, other: STBox) -> bool:
-        return front_stbox_stbox(self._inner, other._inner)
+    def is_front(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return front_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return front_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_front(self, other: STBox) -> bool:
-        return overfront_stbox_stbox(self._inner, other._inner)
+    def is_over_or_front(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overfront_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overfront_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_back(self, other: STBox) -> bool:
-        return back_stbox_stbox(self._inner, other._inner)
+    def is_back(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return back_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return back_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_back(self, other: STBox) -> bool:
-        return overback_stbox_stbox(self._inner, other._inner)
+    def is_over_or_back(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overback_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overback_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: STBox) -> bool:
-        return before_stbox_stbox(self._inner, other._inner)
+    def is_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return before_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return before_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: STBox) -> bool:
-        return overbefore_stbox_stbox(self._inner, other._inner)
+    def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overbefore_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overbefore_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other: STBox) -> bool:
-        return after_stbox_stbox(self._inner, other._inner)
+    def is_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return after_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return after_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: STBox) -> bool:
-        return overafter_stbox_stbox(self._inner, other._inner)
+    def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
+        if isinstance(other, STBox):
+            return overafter_stbox_stbox(self._inner, other._inner)
+        elif isinstance(other, TPoint):
+            return overafter_stbox_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def nearest_approach_distance(self, other: Union[Geometry, STBox]) -> float:
+        if isinstance(other, Geometry):
+            gs = gserialized_in(other.to_ewkb(), -1)
+            return nad_stbox_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            return nad_stbox_stbox(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __add__(self, other):
         return self.union(other)
@@ -310,6 +474,11 @@ class STBox:
         if isinstance(other, self.__class__):
             return stbox_eq(self._inner, other._inner)
         return False
+
+    def __ne__(self, other):
+        if isinstance(other, self.__class__):
+            return stbox_ne(self._inner, other._inner)
+        return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
@@ -341,21 +510,26 @@ class STBox:
         return STBox(_inner=inner_copy)
 
     def __str__(self):
-        return stbox_out(self._inner, 3)
+        return stbox_out(self._inner, 6)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
+    def plot_xy(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_xy(self, *args, **kwargs)
+
+    def plot_xt(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_xt(self, *args, **kwargs)
+
+    def plot_yt(self, *args, **kwargs):
+        from ..plotters import BoxPlotter
+        return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
+
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         return STBox(string=value)
-
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
-
-    # End Psycopg2 interface.

@@ -2,9 +2,9 @@ import faulthandler
 
 faulthandler.enable()
 
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos import pymeos_initialize, pymeos_finalize
 
-meos_initialize()
+pymeos_initialize()
 print("#########################################################################################")
 print("##########################################TTime##########################################")
 print("#########################################################################################")
@@ -39,4 +39,4 @@ print("#########################################################################
 import pymeos.examples.tgeompoint
 
 
-meos_finish()
+pymeos_finalize()

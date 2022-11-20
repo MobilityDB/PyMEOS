@@ -26,31 +26,69 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
-from typing import Optional, Union, List
+from typing import Optional, Union, List, Set
 
-from dateutil.parser import parse
+from pymeos_cffi import *
 
-from pymeos_cffi.functions import ttext_in, ttextinst_make, datetime_to_timestamptz, ttext_out, \
-    ttext_start_value, ttext_end_value, ttext_value_at_timestamp, ttext_values, text2cstring, ttext_upper, ttext_lower, \
-    textcat_ttext_text, textcat_ttext_ttext
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..time import *
 
 
-class TText(Temporal, ABC):
-    """
-    Abstract class for representing temporal strings of any subtype.
-    """
-
+class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC):
     BaseClass = str
-    BaseClassDiscrete = True
 
     _parse_function = ttext_in
 
+    def __init__(self, _inner) -> None:
+        super().__init__()
+
+    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> TText:
+        if isinstance(other, str):
+            result = ttext_at_value(self._inner, other)
+        elif isinstance(other, list):
+            result = ttext_at_values(self._inner, other)
+        else:
+            return super().at(other)
+        return Temporal._factory(result)
+
+    def minus(self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]) -> TText:
+        if isinstance(other, str):
+            result = ttext_minus_value(self._inner, other)
+        elif isinstance(other, list):
+            result = ttext_minus_values(self._inner, other)
+        else:
+            return super().minus(other)
+        return Temporal._factory(result)
+
+    @staticmethod
+    def from_base(value: str, base: Temporal) -> TText:
+        result = ttext_from_base(value, base._inner)
+        return Temporal._factory(result)
+
+    @staticmethod
+    def from_base_time(value: str, base: Time) -> TText:
+        if isinstance(base, datetime):
+            return TTextInst(_inner=ttextinst_make(value, datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TTextSeq(_inner=ttextdiscseq_from_base_time(value, base._inner))
+        elif isinstance(base, Period):
+            return TTextSeq(_inner=ttextseq_from_base_time(value, base._inner))
+        elif isinstance(base, PeriodSet):
+            return TTextSeqSet(_inner=ttextseqset_from_base_time(value, base._inner))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
+
     @property
-    def values(self):
+    def value_set(self) -> Set[str]:
         values, count = ttext_values(self._inner)
-        return [text2cstring(values[i]) for i in range(count)]
+        return {text2cstring(values[i]) for i in range(count)}
+
+    @property
+    def min_value(self):
+        return ttext_min_value(self._inner)
+
+    @property
+    def max_value(self):
+        return ttext_max_value(self._inner)
 
     @property
     def start_value(self):
@@ -66,15 +104,118 @@ class TText(Temporal, ABC):
     def lower(self) -> TText:
         return self.__class__(_inner=ttext_lower(self._inner))
 
-    def concatenate(self, other: Union[str, TText]):
+    def concatenate(self, other: Union[str, TText], other_before: bool = False):
         if isinstance(other, str):
-            return self.__class__(_inner=textcat_ttext_text(self._inner, other))
+            result = textcat_ttext_text(self._inner, other) if not other_before \
+                else textcat_text_ttext(other, self._inner)
         elif isinstance(other, TText):
-            return self.__class__(_inner=textcat_ttext_ttext(self._inner, other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = textcat_ttext_ttext(self._inner, other._inner) if not other_before \
+                else textcat_ttext_ttext(other._inner, self._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.__class__(_inner=result)
+
+    def always_less(self, value: str) -> bool:
+        return ttext_always_lt(self._inner, value)
+
+    def always_less_or_equal(self, value: str) -> bool:
+        return ttext_always_le(self._inner, value)
+
+    def always_equal(self, value: str) -> bool:
+        return ttext_always_eq(self._inner, value)
+
+    def always_not_equal(self, value: str) -> bool:
+        return not ttext_ever_eq(self._inner, value)
+
+    def always_greater_or_equal(self, value: str) -> bool:
+        return not ttext_ever_lt(self._inner, value)
+
+    def always_greater(self, value: str) -> bool:
+        return not ttext_ever_le(self._inner, value)
+
+    def ever_less(self, value: str) -> bool:
+        return ttext_ever_lt(self._inner, value)
+
+    def ever_less_or_equal(self, value: str) -> bool:
+        return ttext_ever_le(self._inner, value)
+
+    def ever_equal(self, value: str) -> bool:
+        return ttext_ever_eq(self._inner, value)
+
+    def ever_not_equal(self, value: str) -> bool:
+        return not ttext_always_eq(self._inner, value)
+
+    def ever_greater_or_equal(self, value: str) -> bool:
+        return not ttext_always_lt(self._inner, value)
+
+    def ever_greater(self, value: str) -> bool:
+        return not ttext_always_le(self._inner, value)
+
+    def never_less(self, value: str) -> bool:
+        return not ttext_ever_lt(self._inner, value)
+
+    def never_less_or_equal(self, value: str) -> bool:
+        return not ttext_ever_le(self._inner, value)
+
+    def never_equal(self, value: str) -> bool:
+        return not ttext_ever_eq(self._inner, value)
+
+    def never_not_equal(self, value: str) -> bool:
+        return ttext_always_eq(self._inner, value)
+
+    def never_greater_or_equal(self, value: str) -> bool:
+        return ttext_always_lt(self._inner, value)
+
+    def never_greater(self, value: str) -> bool:
+        return ttext_always_le(self._inner, value)
+
+    def temporal_less(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tlt_ttext_text(self._inner, other)
+        else:
+            return super().temporal_less(other)
+        return Temporal._factory(result)
+
+    def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tle_ttext_text(self._inner, other)
+        else:
+            return super().temporal_less_or_equal(other)
+        return Temporal._factory(result)
+
+    def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = teq_ttext_text(self._inner, other)
+        else:
+            return super().temporal_equal(other)
+        return Temporal._factory(result)
+
+    def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tne_ttext_text(self._inner, other)
+        else:
+            return super().temporal_not_equal(other)
+        return Temporal._factory(result)
+
+    def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tge_ttext_text(self._inner, other)
+        else:
+            return super().temporal_greater_or_equal(other)
+        return Temporal._factory(result)
+
+    def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
+        if isinstance(other, str):
+            result = tgt_ttext_text(self._inner, other)
+        else:
+            return super().temporal_greater(other)
+        return Temporal._factory(result)
 
     def __add__(self, other):
         return self.concatenate(other)
+
+    def __radd__(self, other):
+        return self.concatenate(other, True)
 
     def value_at_timestamp(self, timestamp):
         """
@@ -82,18 +223,14 @@ class TText(Temporal, ABC):
         """
         return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    @property
-    def interpolation(self) -> TInterpolation:
-        """
-        Interpolation of the temporal value, that is, ``'Stepwise'``.
-        """
-        return TInterpolation.STEPWISE
-
     def __str__(self):
         return ttext_out(self._inner)
 
+    def as_wkt(self):
+        return ttext_out(self._inner)
+
     @staticmethod
-    def read_from_cursor(value, cursor=None):
+    def read_from_cursor(value, _=None):
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
@@ -108,29 +245,7 @@ class TText(Temporal, ABC):
         raise Exception("ERROR: Could not parse temporal text value")
 
 
-class TTextInst(TInstant, TText):
-    """
-    Class for representing temporal strings of instant subtype.
-
-    ``TTextInst`` objects can be created 
-    with a single argument of type string as in MobilityDB.
-
-        >>> TTextInst('AA@2019-09-01')
-
-    Another possibility is to give the ``value`` and the ``time`` arguments,
-    which can be instances of ``str`` or ``datetime``.
-
-        >>> TTextInst('AA', '2019-09-08 00:00:00+01')
-        >>> TTextInst(['AA', '2019-09-08 00:00:00+01'])
-        >>> TTextInst('AA', parse('2019-09-08 00:00:00+01'))
-        >>> TTextInst(['AA', parse('2019-09-08 00:00:00+01')])
-
-    """
-
-    """It is not possible to call super().__init__(value, time) since it is necessary
-    to strip the eventual double quotes enclosing the value
-    """
-
+class TTextInst(TInstant[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     _make_function = ttextinst_make
     _cast_function = str
 
@@ -138,66 +253,18 @@ class TTextInst(TInstant, TText):
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
-    @property
-    def value(self):
-        """
-        Geometry representing the values taken by the temporal value.
-        """
-        return self.values[0]
 
-
-class TTextSeq(TSequence, TText):
-    """
-    Class for representing temporal strings of sequence subtype.
-
-    ``TTextSeq`` objects can be created 
-    with a single argument of type string as in MobilityDB.
-
-        >>> TTextSeq('[AA@2019-09-01 00:00:00+01, BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')
-
-    Another possibility is to give the arguments as follows:
-
-    * ``instantList`` is the list of composing instants, which can be instances of
-      ``str`` or ``TTextInst``,
-    * ``lower_inc`` and ``upper_inc`` are instances of ``bool`` specifying
-      whether the bounds are inclusive or not. By default ``lower_inc``
-      is ``True`` and ``upper_inc`` is ``False``.
-
-    Some pymeos_examples are given next.
-
-        >>> TTextSeq(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'])
-        >>> TTextSeq(TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01')])
-        >>> TTextSeq(['AA@2019-09-01 00:00:00+01', 'BB@2019-09-02 00:00:00+01', 'AA@2019-09-03 00:00:00+01'], True, True)
-        >>> TTextSeq([TTextInst('AA@2019-09-01 00:00:00+01'), TTextInst('BB@2019-09-02 00:00:00+01'), TTextInst('AA@2019-09-03 00:00:00+01')], True, True)
-
-    """
-
+class TTextSeq(TSequence[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     ComponentClass = TTextInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TTextInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
+                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation, normalize=normalize, _inner=_inner)
+                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TTextSeqSet(TSequenceSet, TText):
-    """
-    Class for representing temporal strings of sequence subtype.
-
-    ``TTextSeqSet`` objects can be created with a single argument of typestring as in MobilityDB.
-
-        >>> TTextSeqSet('{[AA@2019-09-01 00:00:00+01], [BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]}')
-
-    Another possibility is to give the list of composing sequences, which can be
-    instances of ``str`` or ``TTextSeq``.
-
-        >>> TTextSeqSet(['[AA@2019-09-01 00:00:00+01]', '[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]'])
-        >>> TTextSeqSet([TTextSeq('[AA@2019-09-01 00:00:00+01]'), TTextSeq('[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')])
-        >>> TTextSeqSet([TTextSeq('[AA@2019-09-01 00:00:00+01]'), TTextSeq('[BB@2019-09-02 00:00:00+01, AA@2019-09-03 00:00:00+01]')])
-
-    """
-
+class TTextSeqSet(TSequenceSet[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], TText):
     ComponentClass = TTextSeq
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TTextSeq]]] = None,

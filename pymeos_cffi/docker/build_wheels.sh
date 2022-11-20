@@ -13,7 +13,7 @@ function repair_wheel {
 }
 
 for PYBIN in /opt/python/*/bin; do
-  echo "================$PYBIN================"
+  echo "================START $PYBIN================"
   echo "================COMPILE================"
   "${PYBIN}/pip" install -r /PyMEOS/pymeos_cffi/dev-requirements.txt
   "${PYBIN}/pip" wheel /PyMEOS/pymeos_cffi/ --no-deps -w /wheelhouse_int/
@@ -25,6 +25,6 @@ for PYBIN in /opt/python/*/bin; do
   done
   echo "==============TEST=============="
   "${PYBIN}/pip" install pymeos_cffi -f /wheelhouse
-  "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finish; meos_initialize(); meos_finish()"
-  echo "=========FINISH $PYBIN========="
+  "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finish; meos_initialize('UTC'); meos_finish()"
+  echo "==============FINISH $PYBIN========="
 done

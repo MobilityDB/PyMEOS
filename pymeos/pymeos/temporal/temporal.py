@@ -25,45 +25,27 @@
 ###############################################################################
 from __future__ import annotations
 
-import warnings
 from abc import ABC, abstractmethod
-from datetime import timedelta, datetime
-from typing import Optional, List, Union, TYPE_CHECKING, Tuple
+from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
 
-from pymeos_cffi import temporal_frechet_distance, temporal_time_split, temporal_at_timestampset, temporal_at_timestamp, \
-    temporal_at_periodset, temporal_at_period
-from pymeos_cffi.functions import temporal_intersects_timestamp, datetime_to_timestamptz, \
-    temporal_intersects_timestampset, \
-    temporal_intersects_period, temporal_intersects_periodset, temporal_time, interval_to_timedelta, temporal_duration, \
-    temporal_timespan, temporal_num_instants, periodset_to_period, temporal_num_timestamps, timestamptz_to_datetime, \
-    temporal_start_timestamp, temporal_end_timestamp, temporal_timestamp_n, temporal_timestamps, temporal_shift_tscale, \
-    timedelta_to_interval, temporal_hash, temporal_copy, temporal_as_mfjson, teq_temporal_temporal, \
-    tlt_temporal_temporal, tle_temporal_temporal, tne_temporal_temporal, tge_temporal_temporal, tgt_temporal_temporal, \
-    after_temporal_period, after_temporal_periodset, after_temporal_timestamp, after_temporal_timestampset, \
-    after_temporal_temporal, before_temporal_temporal, before_temporal_timestampset, before_temporal_timestamp, \
-    before_temporal_periodset, before_temporal_period, overafter_temporal_period, overafter_temporal_periodset, \
-    overafter_temporal_timestamp, overafter_temporal_timestampset, overafter_temporal_temporal, \
-    overbefore_temporal_period, overbefore_temporal_periodset, overbefore_temporal_timestamp, \
-    overbefore_temporal_timestampset, overbefore_temporal_temporal, temporal_from_hexwkb, temporal_start_instant, \
-    temporal_end_instant, temporal_instant_n, temporal_instants, temporal_interpolation, temporal_max_instant, \
-    temporal_min_instant, temporal_segments, temporal_dyntimewarp_distance, temporal_dyntimewarp_path, \
-    temporal_frechet_path, temporal_minus_period, temporal_minus_periodset, temporal_minus_timestamp, \
-    temporal_minus_timestampset
+from pandas import DataFrame
+from pymeos_cffi import *
 
 from .interpolation import TInterpolation
-from ..time import Period, PeriodSet, TimestampSet
+from ..time import *
 
 if TYPE_CHECKING:
-    from .tsequence import TSequence
+    from .tinstant import TInstant
+    from ..main import TBool
+TBase = TypeVar('TBase')
+TG = TypeVar('TG', bound='Temporal[Any]')
+TI = TypeVar('TI', bound='TInstant[Any]')
+TS = TypeVar('TS', bound='TSequence[Any]')
+TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
+Self = TypeVar('Self', bound='Temporal[Any]')
 
-try:
-    # Do not make psycopg2 a requirement.
-    from psycopg2.extensions import ISQLQuote
-except ImportError:
-    warnings.warn('psycopg2 not installed', ImportWarning)
 
-
-class Temporal(ABC):
+class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     __slots__ = ['_inner']
     """
     Abstract class for representing temporal values of any subtype.
@@ -72,12 +54,6 @@ class Temporal(ABC):
     BaseClass = None
     """
     Class of the base type, for example, ``float`` for ``TFloat``
-    """
-
-    BaseClassDiscrete = None
-    """
-    Boolean value that states whether the base type is discrete or not, 
-    for example, ``True`` for ``int`` and ``False`` for ``float``
     """
 
     ComponentClass = None
@@ -90,14 +66,9 @@ class Temporal(ABC):
 
     _parse_function = None
 
-    @classmethod
-    @abstractmethod
-    def temp_subtype(cls):
-        """
-        Subtype of the temporal value, that is, one of ``'Instant'``,
-        ``'InstantSet'``, ``'Sequence'``, or ``'SequenceSet'``.
-        """
-        pass
+    @property
+    def _expandable(self) -> bool:
+        return False
 
     @property
     def interpolation(self) -> TInterpolation:
@@ -105,26 +76,24 @@ class Temporal(ABC):
         Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
         """
         val = temporal_interpolation(self._inner)
-        if val == 'Discrete':
-            return TInterpolation.DISCRETE
-        elif val == 'Linear':
-            return TInterpolation.LINEAR
-        elif val == 'Stepwise':
-            return TInterpolation.STEPWISE
-        else:
-            return TInterpolation.NONE
+        return TInterpolation.from_string(val)
 
     @property
     @abstractmethod
-    def values(self):
+    def value_set(self) -> Set[TBase]:
         """
         List of distinct values taken by the temporal value.
         """
         pass
 
-    @property
+    def values(self) -> List[TBase]:
+        """
+        List values taken by the temporal value.
+        """
+        return [i.value() for i in self.instants]
+
     @abstractmethod
-    def start_value(self):
+    def start_value(self) -> TBase:
         """
         Start value.
         """
@@ -132,28 +101,28 @@ class Temporal(ABC):
 
     @property
     @abstractmethod
-    def end_value(self):
+    def end_value(self) -> TBase:
         """
         End value.
         """
         pass
 
     @property
-    def min_value(self):
+    def min_value(self) -> TBase:
         """
         Minimum value.
         """
-        return min(self.values)
+        return min(self.value_set)
 
     @property
-    def max_value(self):
+    def max_value(self) -> TBase:
         """
         Maximum value.
         """
-        return max(self.values)
+        return max(self.value_set)
 
     @abstractmethod
-    def value_at_timestamp(self, timestamp):
+    def value_at_timestamp(self, timestamp) -> TBase:
         """
         Value at timestamp.
         """
@@ -187,7 +156,7 @@ class Temporal(ABC):
         Period on which the temporal value is defined ignoring potential
         time gaps.
         """
-        return Period(_inner=periodset_to_period(temporal_time(self._inner)))
+        return Period(_inner=temporal_to_period(self._inner))
 
     @property
     def num_instants(self) -> int:
@@ -197,7 +166,7 @@ class Temporal(ABC):
         return temporal_num_instants(self._inner)
 
     @property
-    def start_instant(self):
+    def start_instant(self) -> TI:
         """
          Start instant.
         """
@@ -205,7 +174,7 @@ class Temporal(ABC):
         return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
     @property
-    def end_instant(self):
+    def end_instant(self) -> TI:
         """
         End instant.
         """
@@ -213,7 +182,7 @@ class Temporal(ABC):
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
     @property
-    def max_instant(self):
+    def max_instant(self) -> TI:
         """
         Max instant.
         """
@@ -221,14 +190,14 @@ class Temporal(ABC):
         return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
     @property
-    def min_instant(self):
+    def min_instant(self) -> TI:
         """
         Min instant.
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_min_instant(self._inner))
 
-    def instant_n(self, n: int):
+    def instant_n(self, n: int) -> TI:
         """
         N-th instant.
         """
@@ -236,7 +205,7 @@ class Temporal(ABC):
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
 
     @property
-    def instants(self):
+    def instants(self) -> List[TI]:
         """
         List of instants.
         """
@@ -280,15 +249,15 @@ class Temporal(ABC):
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     @property
-    def segments(self) -> List[TSequence]:
+    def segments(self) -> List[TS]:
         seqs, count = temporal_segments(self._inner)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
-    def shift_tscale(self, shift_delta: Optional[timedelta] = None,
-                     scale_delta: Optional[timedelta] = None) -> Temporal:
+    def shift_tscale(self: Self, shift_delta: Union[str, timedelta, None] = None,
+                     scale_delta: Union[str, timedelta, None] = None) -> Self:
         """
-        Shift the temporal value by a time interval
+        Shift and or scale the temporal value by a time interval
         """
         assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
         scaled = temporal_shift_tscale(
@@ -296,90 +265,175 @@ class Temporal(ABC):
             timedelta_to_interval(shift_delta) if shift_delta else None,
             timedelta_to_interval(scale_delta) if scale_delta else None
         )
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(scaled)
+        return Temporal._factory(scaled)
 
-    def intersects(self, other: Union[Period, PeriodSet, datetime, TimestampSet]) -> bool:
-        if isinstance(other, Period):
-            return temporal_intersects_period(self._inner, other._inner)
+    def shift(self: Self, delta: Union[str, timedelta] = None) -> Self:
+        """
+        Shift the temporal value by a time interval
+        """
+        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
+        scaled = temporal_shift(self._inner, dt)
+        return Temporal._factory(scaled)
+
+    def tscale(self: Self, delta: Union[str, timedelta] = None) -> Self:
+        """
+        Scale the temporal value by a time interval
+        """
+        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
+        scaled = temporal_tscale(self._inner, dt)
+        return Temporal._factory(scaled)
+
+    def to_instant(self) -> TInstant[TBase]:
+        inst = temporal_to_tinstant(self._inner)
+        return Temporal._factory(inst)
+
+    def to_sequence(self, discrete: bool = False) -> TS:
+        seq = temporal_to_tsequence(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
+        return Temporal._factory(seq)
+
+    def to_sequenceset(self) -> TSS:
+        ss = temporal_to_tsequenceset(self._inner)
+        return Temporal._factory(ss)
+
+    def to_dataframe(self) -> DataFrame:
+        data = {
+            'time': self.timestamps,
+            'value': [i.value() for i in self.instants]
+        }
+        return DataFrame(data).set_index(keys='time')
+
+    def append(self, instant: TInstant[TBase]) -> TG:
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def merge(self, other: Union[Temporal[TBase], List[Temporal[TBase]]]) -> TG:
+        if isinstance(other, Temporal):
+            new_temp = temporal_merge(self._inner, other._inner)
+        elif isinstance(other, list):
+            new_temp = temporal_merge_array([self._inner, *(o._inner for o in other)], len(other) + 1)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(new_temp)
+
+    def insert(self, other: TG, connect: bool = False) -> TG:
+        new_inner = temporal_insert(self._inner, other._inner, connect)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def update(self, other: TG, connect: bool = False) -> TG:
+        new_inner = temporal_update(self._inner, other._inner, connect)
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def delete(self, other: Time, connect: bool = False) -> TG:
+        if isinstance(other, datetime):
+            new_inner = temporal_delete_timestamp(self._inner, datetime_to_timestamptz(other), connect)
+        elif isinstance(other, TimestampSet):
+            new_inner = temporal_delete_timestampset(self._inner, other._inner, connect)
+        elif isinstance(other, Period):
+            new_inner = temporal_delete_period(self._inner, other._inner, connect)
         elif isinstance(other, PeriodSet):
-            return temporal_intersects_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+            new_inner = temporal_delete_periodset(self._inner, other._inner, connect)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    # TODO: Move to proper classes (Sequence[Set] with continuous base type)
+    def to_linear(self: Self) -> Self:
+        new_temp = temporal_step_to_linear(self._inner)
+        return Temporal._factory(new_temp)
+
+    def intersects(self, other: Time) -> bool:
+        if isinstance(other, datetime):
             return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return temporal_intersects_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return temporal_intersects_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return temporal_intersects_periodset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def as_mf_json(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
-        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
-
-    def is_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
-        if isinstance(other, Period):
-            return after_temporal_period(self._inner, other._inner)
-        elif isinstance(other, PeriodSet):
-            return after_temporal_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+    def is_after(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
             return after_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return after_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return after_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return after_temporal_periodset(self._inner, other._inner)
         elif isinstance(other, Temporal):
             return after_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
-        if isinstance(other, Period):
-            return before_temporal_period(self._inner, other._inner)
-        elif isinstance(other, PeriodSet):
-            return before_temporal_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+    def is_before(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
             return before_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return before_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return before_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return before_temporal_periodset(self._inner, other._inner)
         elif isinstance(other, Temporal):
             return before_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
-        if isinstance(other, Period):
-            return overafter_temporal_period(self._inner, other._inner)
-        elif isinstance(other, PeriodSet):
-            return overafter_temporal_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+    def is_over_or_after(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
             return overafter_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overafter_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return overafter_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overafter_temporal_periodset(self._inner, other._inner)
         elif isinstance(other, Temporal):
             return overafter_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: Union[datetime, TimestampSet, Period, PeriodSet, Temporal]) -> bool:
-        if isinstance(other, Period):
-            return overbefore_temporal_period(self._inner, other._inner)
-        elif isinstance(other, PeriodSet):
-            return overbefore_temporal_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+    def is_over_or_before(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
             return overbefore_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overbefore_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return overbefore_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overbefore_temporal_periodset(self._inner, other._inner)
         elif isinstance(other, Temporal):
             return overbefore_temporal_temporal(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def at(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
-        if isinstance(other, Period):
-            result = temporal_at_period(self._inner, other._inner)
-        elif isinstance(other, PeriodSet):
-            result = temporal_at_periodset(self._inner, other._inner)
-        elif isinstance(other, datetime):
+    def at(self, other: Time) -> TG:
+        if isinstance(other, datetime):
             result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             result = temporal_at_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            result = temporal_at_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            result = temporal_at_periodset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
 
-    def minus(self, other: Union[datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def at_max(self) -> TG:
+        result = temporal_at_max(self._inner)
+        return Temporal._factory(result)
+
+    def at_min(self) -> TG:
+        result = temporal_at_min(self._inner)
+        return Temporal._factory(result)
+
+    def minus(self, other: Time) -> TG:
         if isinstance(other, Period):
             result = temporal_minus_period(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
@@ -390,8 +444,85 @@ class Temporal(ABC):
             result = temporal_minus_timestampset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return Temporal._factory(result)
+
+    def minus_max(self) -> TG:
+        result = temporal_minus_max(self._inner)
+        return Temporal._factory(result)
+
+    def minus_min(self) -> TG:
+        result = temporal_minus_min(self._inner)
+        return Temporal._factory(result)
+
+    def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
+            return adjacent_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return adjacent_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return adjacent_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return adjacent_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return adjacent_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container: Union[Time, Temporal]) -> bool:
+        if isinstance(container, datetime):
+            return contained_temporal_timestamp(self._inner, datetime_to_timestamptz(container))
+        elif isinstance(container, TimestampSet):
+            return contained_temporal_timestampset(self._inner, container._inner)
+        elif isinstance(container, Period):
+            return contained_temporal_period(self._inner, container._inner)
+        elif isinstance(container, PeriodSet):
+            return contained_temporal_periodset(self._inner, container._inner)
+        elif isinstance(container, Temporal):
+            return contained_temporal_temporal(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content: Union[Time, Temporal]) -> bool:
+        if isinstance(content, datetime):
+            return contains_temporal_timestamp(self._inner, datetime_to_timestamptz(content))
+        elif isinstance(content, TimestampSet):
+            return contains_temporal_timestampset(self._inner, content._inner)
+        elif isinstance(content, Period):
+            return contains_temporal_period(self._inner, content._inner)
+        elif isinstance(content, PeriodSet):
+            return contains_temporal_periodset(self._inner, content._inner)
+        elif isinstance(content, Temporal):
+            return contains_temporal_temporal(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def overlaps(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
+            return overlaps_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return overlaps_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return overlaps_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return overlaps_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return overlaps_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_same(self, other: Union[Time, Temporal]) -> bool:
+        if isinstance(other, datetime):
+            return same_temporal_timestamp(self._inner, datetime_to_timestamptz(other))
+        elif isinstance(other, TimestampSet):
+            return same_temporal_timestampset(self._inner, other._inner)
+        elif isinstance(other, Period):
+            return same_temporal_period(self._inner, other._inner)
+        elif isinstance(other, PeriodSet):
+            return same_temporal_periodset(self._inner, other._inner)
+        elif isinstance(other, Temporal):
+            return same_temporal_temporal(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def frechet_distance(self, other: Temporal) -> float:
         """
@@ -419,86 +550,122 @@ class Temporal(ABC):
         matches, count = temporal_dyntimewarp_path(self._inner, other._inner)
         return [(matches[i].i, matches[i].j) for i in range(count)]
 
-    def time_split(self, start: datetime, end: datetime, units: int, origin: datetime, count: int) -> List[Temporal]:
-        tiles, buckets, new_count = temporal_time_split(self._inner,
-                                                        datetime_to_timestamptz(start),
-                                                        datetime_to_timestamptz(end),
-                                                        units,
-                                                        datetime_to_timestamptz(origin),
-                                                        count)
-
+    def time_split(self, start: Union[str, datetime], duration: Union[str, timedelta]) -> List[TG]:
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        tiles, new_count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    def __comparable(self, other) -> bool:
+    def time_split_n(self, n: int) -> List[TG]:
+        st = temporal_start_timestamp(self._inner)
+        dt = timedelta_to_interval((self.end_timestamp - self.start_timestamp) / n)
+        tiles, new_count = temporal_time_split(self._inner, dt, st)
+        from ..factory import _TemporalFactory
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+
+    def __comparable(self, other: Temporal) -> bool:
+        if not isinstance(other, Temporal):
+            return False
         if self.BaseClass == other.BaseClass:
             return True
         if self.BaseClass in [int, float] and other.BaseClass in [int, float]:
             return True
         return False
 
+    def __assert_comparable(self, other: Temporal) -> None:
+        if not self.__comparable(other):
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def temporal_less(self, other: Temporal) -> TBool:
+        """
+        Temporal less than
+        """
+        self.__assert_comparable(other)
+        result = tlt_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
+    def temporal_less_or_equal(self, other: Temporal) -> TBool:
+        """
+        Temporal less or equal
+        """
+        self.__assert_comparable(other)
+        result = tle_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
+    def temporal_equal(self, other: Temporal) -> TBool:
+        """
+        Temporal equality
+        """
+        self.__assert_comparable(other)
+        result = teq_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
+    def temporal_not_equal(self, other: Temporal) -> TBool:
+        """
+        Temporal inequality
+        """
+        self.__assert_comparable(other)
+        result = tne_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
+    def temporal_greater_or_equal(self, other: Temporal) -> TBool:
+        """
+        Temporal greater or equal
+        """
+        self.__assert_comparable(other)
+        result = tge_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
+    def temporal_greater(self, other: Temporal) -> TBool:
+        """
+        Temporal greater than
+        """
+        self.__assert_comparable(other)
+        result = tgt_temporal_temporal(self._inner, other._inner)
+        return Temporal._factory(result)
+
     def __lt__(self, other):
         """
-        Less than
+        Temporal less than
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tlt_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_less(other)
 
     def __le__(self, other):
         """
-        Less or equal
+        Temporal less or equal
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tle_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_less_or_equal(other)
 
     def __eq__(self, other):
         """
-        Equality
+        Temporal equality
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = teq_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_equal(other)
 
     def __ne__(self, other):
         """
-        Inequality
+        Temporal inequality
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tne_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_not_equal(other)
 
     def __ge__(self, other):
         """
-        Greater or equal
+        Temporal greater or equal
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tge_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_greater_or_equal(other)
 
     def __gt__(self, other):
         """
-        Greater than
+        Temporal greater than
         """
-        if not self.__comparable(other):
-            return NotImplemented
-        from ..factory import _TemporalFactory
-        result = tgt_temporal_temporal(self._inner, other._inner)
-        return _TemporalFactory.create_temporal(result)
+        return self.temporal_greater(other)
 
     def __hash__(self) -> int:
         return temporal_hash(self._inner)
+
+    def __contains__(self, item):
+        return self.contains(item)
 
     def __str__(self):
         """
@@ -512,20 +679,39 @@ class Temporal(ABC):
 
     def __copy__(self):
         inner_copy = temporal_copy(self._inner)
-        return self.__class__(_inner=inner_copy)
+        return self.__class__._factory(inner_copy)
 
-    # Psycopg2 interface.
-    def __conform__(self, protocol):
-        if protocol is ISQLQuote:
-            return self
+    @abstractmethod
+    def as_wkt(self) -> str:
+        pass
 
-    def getquoted(self):
-        return "{}".format(self.__str__())
+    def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
+        return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
-    # End Psycopg2 interface.
+    def as_hexwkb(self) -> str:
+        return temporal_as_hexwkb(self._inner, 0)[0]
 
-    @staticmethod
-    def temporal_from_hexwkb(hexwkb: str):
+    @classmethod
+    def from_merge(cls: Type[Self], *temporals: TG) -> Self:
+        result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
+        return Temporal._factory(result)
+
+    @classmethod
+    def from_merge_array(cls: Type[Self], temporals: List[TG]) -> Self:
+        result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
+        return Temporal._factory(result)
+
+    @classmethod
+    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
         result = temporal_from_hexwkb(hexwkb)
+        return Temporal._factory(result)
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        result = temporal_from_mfjson(mfjson)
+        return Temporal._factory(result)
+
+    @classmethod
+    def _factory(cls, inner):
         from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(result)
+        return _TemporalFactory.create_temporal(inner)

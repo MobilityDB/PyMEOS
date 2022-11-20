@@ -1,24 +1,38 @@
+from .aggregators import *
 from .boxes import *
 from .main import *
+from .meos_init import *
 from .temporal import *
 from .time import *
-from pymeos_cffi.functions import meos_initialize, meos_finish
 
+__version__ = '1.1.2'
 __all__ = [
-    #initialization
-    'meos_initialize', 'meos_finish',
+    # initialization
+    'pymeos_initialize', 'pymeos_finalize',
     # boxes
-    'TBox', 'STBox',
+    'Box', 'TBox', 'STBox',
     # main
-    'TBool', 'TBoolInst', 'TBoolInstSet', 'TBoolSeq', 'TBoolSeqSet',
-    'TInt', 'TIntInst', 'TIntInstSet', 'TIntSeq', 'TIntSeqSet',
-    'TFloat', 'TFloatInst', 'TFloatInstSet', 'TFloatSeq', 'TFloatSeqSet',
-    'TText', 'TTextInst', 'TTextInstSet', 'TTextSeq', 'TTextSeqSet',
-    'TPointInst', 'TPointInstSet', 'TPointSeq', 'TPointSeqSet',
-    'TGeomPoint', 'TGeomPointInst', 'TGeomPointInstSet', 'TGeomPointSeq', 'TGeomPointSeqSet',
-    'TGeogPoint', 'TGeogPointInst', 'TGeogPointInstSet', 'TGeogPointSeq', 'TGeogPointSeqSet',
+    'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet',
+    'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet',
+    'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet',
+    'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet',
+    'TPointInst', 'TPointSeq', 'TPointSeqSet',
+    'TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet',
+    'TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet',
     # temporal
     'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
     # time
-    'Period', 'TimestampSet', 'PeriodSet'
-    ]
+    'Time', 'Period', 'TimestampSet', 'PeriodSet',
+    # extras
+    'TInterpolation',
+    # aggregators
+    'TemporalInstantCountAggregator', 'TemporalPeriodCountAggregator', 'TemporalExtentAggregator',
+    'TemporalAndAggregator', 'TemporalOrAggregator',
+    'TemporalAverageAggregator',
+    'TemporalNumberExtentAggregator',
+    'TemporalIntMaxAggregator', 'TemporalIntMinAggregator', 'TemporalIntSumAggregator',
+    'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
+    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
+    'TemporalPointExtentAggregator',
+    'TemporalTimestampUnionAggregator', 'TemporalPeriodUnionAggregator',
+]

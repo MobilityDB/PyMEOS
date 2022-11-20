@@ -2,8 +2,7 @@ import re
 from re import RegexFlag
 from typing import List, Optional
 
-from build_pymeos_functions_modifiers import period_shift_tscale_modifier, cstring2text_modifier, text2cstring_modifier, \
-    timestampset_make_modifier, gserialized_from_lwgeom_modifier, tpointseq_make_coords_modifier
+from build_pymeos_functions_modifiers import *
 from objects import conversion_map, Conversion
 
 
@@ -18,26 +17,13 @@ class Parameter:
         self.cp_conversion = cp_conversion
 
     def is_interoperable(self):
-        return any(self.ctype.startswith(x) for x in ['int', 'bool', 'double'])
+        return any(self.ctype.startswith(x) for x in ['int', 'bool', 'double', 'TimestampTz'])
 
     def get_ptype_without_pointers(self):
         if self.is_interoperable():
             return self.ptype.replace(" *'", "'").replace("**", '*')
         else:
             return self.ptype
-
-    def get_ptype(self, nullable: bool) -> str:
-        if nullable:
-            return f'"Optional[{self.ptype}]"'
-        return self.ptype
-
-    def get_conversion(self, nullable: bool) -> Optional[str]:
-        if self.cp_conversion is None:
-            return None
-        conversion = self.cp_conversion
-        if nullable:
-            conversion += f' if {self.name} is not None else _ffi.NULL'
-        return conversion
 
     def __str__(self) -> str:
         return f'{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, {self.cp_conversion=}'
@@ -53,12 +39,15 @@ class ReturnType:
 
 
 BASE = """from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional, List
+from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
+import postgis as pg
 import shapely.geometry as spg
 from dateutil.parser import parse
-from postgis import Point
+from shapely import wkt, wkb
+from shapely.geometry.base import BaseGeometry
+from spans.types import floatrange, intrange
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -85,16 +74,55 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def lwpoint_to_point(lwpoint: Any) -> Point:
-    return Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint),
-                 lwpoint_get_z(lwpoint) if lwgeom_has_z(lwpoint) else None,
-                 lwpoint_get_m(lwpoint) if lwgeom_has_m(lwpoint) else None,
-                 lwgeom_get_srid(lwpoint))
+def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
+    if isinstance(geom, pg.Geometry):
+        text = geom.to_ewkb()
+    elif isinstance(geom, BaseGeometry):
+        text = wkb.dumps(geom, hex=True)
+    else:
+        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
+    return gserialized_in(text, -1)
 
 
-def lwpoint_to_shapely_point(lwpoint: Any) -> spg.Point:
-    return spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint), lwpoint_get_z(lwpoint)) if lwgeom_has_z(lwpoint) \\
-        else spg.Point(lwpoint_get_x(lwpoint), lwpoint_get_y(lwpoint))
+def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
+    return wkt.loads(gserialized_as_text(geom, precision))
+
+
+def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
+    return wkt.loads(gserialized_as_text(geom, precision))
+
+
+def intrange_to_intspan(irange: intrange) -> 'Span *':
+    return intspan_make(irange.lower, irange.upper, irange.lower_inc, irange.upper_inc)
+
+
+def intspan_to_intrange(ispan: 'Span *') -> intrange:
+    return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
+
+
+def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
+    return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
+
+
+def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
+    return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
+
+
+def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':
+    return _ffi.cast('TInstant *', temporal)
+
+
+def as_tsequence(temporal: 'Temporal *') -> 'TSequence *':
+    return _ffi.cast('TSequence *', temporal)
+
+
+def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
+    return _ffi.cast('TSequenceSet *', temporal)
+
+
+# -----------------------------------------------------------------------------
+# ----------------------End of manually-defined functions----------------------
+# -----------------------------------------------------------------------------
 
 
 """
@@ -107,6 +135,16 @@ function_modifiers = {
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
+    'tint_at_values': tint_at_values_modifier,
+    'tint_minus_values': tint_minus_values_modifier,
+    'tfloat_at_values': tfloat_at_values_modifier,
+    'tfloat_minus_values': tfloat_minus_values_modifier,
+    'tbool_at_values': tbool_at_values_modifier,
+    'tbool_minus_values': tbool_minus_values_modifier,
+    'ttext_at_values': array_length_remover_modifier('values_converted'),
+    'ttext_minus_values': array_length_remover_modifier('values_converted'),
+    'tpoint_at_values': array_length_remover_modifier('values_converted'),
+    'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
 }
@@ -129,11 +167,20 @@ output_parameters = {
     ('tint_value_split', 'newcount'),
     ('tfloat_value_split', 'buckets'),
     ('tfloat_value_split', 'newcount'),
+    ('tint_value_time_split', 'newcount'),
+    ('tfloat_value_time_split', 'newcount'),
+    ('tbox_as_hexwkb', 'size'),
+    ('stbox_as_hexwkb', 'size'),
+    ('tbox_tile_list', 'rows'),
+    ('tbox_tile_list', 'columns'),
+    ('stbox_tile_list', 'cellcount'),
 }
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
+    ('meos_initialize', 'tz_str'),
     ('temporal_as_mfjson', 'srs'),
+    ('gserialized_as_geojson', 'srs'),
     ('period_shift_tscale', 'duration'),
     ('period_shift_tscale', 'start'),
     ('period_shift_tscale', 'start'),
@@ -150,12 +197,47 @@ nullable_parameters = {
     ('tbox_make', 's'),
     ('stbox_make', 'p'),
     ('tpointseq_make_coords', 'zcoords'),
+    ('temporal_tcount_transfn', 'state'),
+    ('temporal_extent_transfn', 'p'),
+    ('tnumber_extent_transfn', 'box'),
+    ('tpoint_extent_transfn', 'box'),
+    ('tbool_tand_transfn', 'state'),
+    ('tbool_tor_transfn', 'state'),
+    ('tint_tmin_transfn', 'state'),
+    ('tfloat_tmin_transfn', 'state'),
+    ('tint_tmax_transfn', 'state'),
+    ('tfloat_tmax_transfn', 'state'),
+    ('tint_tsum_transfn', 'state'),
+    ('tfloat_tsum_transfn', 'state'),
+    ('tnumber_tavg_transfn', 'state'),
+    ('ttext_tmin_transfn', 'state'),
+    ('ttext_tmax_transfn', 'state'),
+    ('temporal_tcount_transfn', 'interval'),
+    ('timestamp_tcount_transfn', 'interval'),
+    ('timestampset_tcount_transfn', 'interval'),
+    ('period_tcount_transfn', 'interval'),
+    ('periodset_tcount_transfn', 'interval'),
+    ('timestamp_extent_transfn', 'p'),
+    ('timestampset_extent_transfn', 'p'),
+    ('period_extent_transfn', 'p'),
+    ('periodset_extent_transfn', 'p'),
+    ('timestamp_tunion_transfn', 'state'),
+    ('timestampset_tunion_transfn', 'state'),
+    ('period_tunion_transfn', 'state'),
+    ('periodset_tunion_transfn', 'state'),
+    ('timestamp_tcount_transfn', 'state'),
+    ('timestampset_tcount_transfn', 'state'),
+    ('period_tcount_transfn', 'state'),
+    ('periodset_tcount_transfn', 'state'),
+    ('stbox_tile_list', 'duration'),
+    ('tbox_tile_list', 'xorigin'),
+    ('tbox_tile_list', 'torigin'),
 }
 
 
 # Checks if parameter in function is nullable
-def is_nullable_parameter(function: str, parameter: Parameter) -> bool:
-    return (function, parameter.name) in nullable_parameters
+def is_nullable_parameter(function: str, parameter: str) -> bool:
+    return (function, parameter) in nullable_parameters
 
 
 # Checks if parameter in function is actually a result parameter
@@ -198,18 +280,27 @@ def main():
             inner_return_type = named['returnType']
             return_type = get_return_type(inner_return_type)
             inner_params = named['params']
-            params = get_params(inner_params)
+            params = get_params(function, inner_params)
             function_string = build_function_string(function, return_type, params)
             file.write(function_string)
             file.write('\n\n\n')
 
+    with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
+        content = funcs.read()
+        f_names = re.finditer(r'def (\w+)\(', content)
+        init.write('from .functions import *\n\n')
+        init.write('__all__ = [\n')
+        for fn in f_names:
+            init.write(f"    '{fn.group(1)}',\n")
+        init.write(']\n')
 
-def get_params(inner_params: str) -> List[Parameter]:
-    return [p for p in (get_param(param.strip()) for param in inner_params.split(',')) if p is not None]
+
+def get_params(function: str, inner_params: str) -> List[Parameter]:
+    return [p for p in (get_param(function, param.strip()) for param in inner_params.split(',')) if p is not None]
 
 
 # Creates Parameter object from a function parameter
-def get_param(inner_param: str) -> Optional[Parameter]:
+def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     # Split param name and type
     split = inner_param.split(' ')
 
@@ -238,15 +329,22 @@ def get_param(inner_param: str) -> Optional[Parameter]:
     # Get the type conversion
     conversion = get_param_conversion(param_type)
 
-    # If no parameter conversion is available, assume none is necessary and give python type Any
-    if conversion is None:
-        return Parameter(param_name, param_name, 'Any', param_type, '')
+    # Check if parameter is nullable
+    nullable = is_nullable_parameter(function, param_name)
 
     # If no conversion is needed between c and python types, use parameter name also as converted name
     if conversion.p_to_c is None:
+        # If nullable, add null check
+        if nullable:
+            return Parameter(param_name, f'{param_name}_converted', param_type, f"'Optional[{conversion.p_type}]'",
+                             f'{param_name}_converted = {param_name} if {param_name} is not None else _ffi.NULL')
         return Parameter(param_name, param_name, param_type, conversion.p_type, None)
 
     # If a conversion is needed, create new name and add the conversion
+    if nullable:
+        return Parameter(param_name, f'{param_name}_converted', param_type, f'"Optional[{conversion.p_type}]"',
+                         f'{param_name}_converted = {conversion.p_to_c(param_name)} '
+                         f'if {param_name} is not None else _ffi.NULL')
     return Parameter(param_name, f'{param_name}_converted', param_type, conversion.p_type,
                      f'{param_name}_converted = {conversion.p_to_c(param_name)}')
 
@@ -295,11 +393,11 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
 
     # Create wrapper function parameter list
-    params = ', '.join(f'{p.name}: {p.get_ptype(is_nullable_parameter(function_name, p))}' for p in parameters
+    params = ', '.join(f'{p.name}: {p.ptype}' for p in parameters
                        if p not in out_params)
 
     # Create necessary conversions for the parameters
-    param_conversions = '\n    '.join(p.get_conversion(is_nullable_parameter(function_name, p)) for p in parameters
+    param_conversions = '\n    '.join(p.cp_conversion for p in parameters
                                       if p.cp_conversion is not None and p not in out_params)
 
     # Create CFFI function parameter list
@@ -350,7 +448,7 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         # Add its type to the return type of the function, removing the pointer modifier if necessary
         function_return_type += ', ' + out_param.get_ptype_without_pointers()
         # Add it to the return statement
-        result_manipulation += f', {out_param.name + ("[0]" if out_param.name == "count" else "")}'
+        result_manipulation += f', {out_param.name}[0]'
 
     # If there are output params, wrap function return type in a Tuple
     if len(out_params) > 0:

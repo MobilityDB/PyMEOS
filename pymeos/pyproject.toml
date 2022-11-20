@@ -4,9 +4,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymeos"
-version = "1.0.3"
+version = "1.1.2"
 authors = [
-    { name = "Víctor Diví", email = "vdiviloper@gmail.com" },
+    { name = "Victor Divi", email = "vdiviloper@gmail.com" },
     { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
     { name = "Krishna Chaitanya Bommakanti", email = "bkchaitan94@gmail.com" },
 ]
@@ -16,11 +16,11 @@ classifiers = [
     "Operating System :: OS Independent",
 ]
 readme = "README.md"
-license = {text = "PostgreSQL"}
+license = { text = "PostgreSQL" }
 
 requires-python = ">=3.7"
 dependencies = [
-    'pymeos-cffi',
+    'pymeos-cffi==0.0.18',
     'python-dateutil',
     'spans',
     'postgis',
@@ -28,6 +28,20 @@ dependencies = [
     'geopandas'
 ]
 
+[project.optional-dependencies]
+dbp = [
+    'psycopg2'
+]
+
+dba = [
+    'asyncpg'
+]
+
+plot = [
+    'matplotlib'
+]
+
 [project.urls]
 "Homepage" = "https://github.com/MobilityDB/PyMEOS"
 "Bug Tracker" = "https://github.com/MobilityDB/PyMEOS/issues"
+"Changelog" = "https://github.com/MobilityDB/PyMEOS/blob/master/pymeos/CHANGELOG.md"

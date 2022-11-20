@@ -1,6 +1,7 @@
 from .period import Period
-from .timestampset import TimestampSet
 from .periodset import PeriodSet
-from .timestamp import *
+from .time import Time
+from .timestampset import TimestampSet
+from datetime import datetime, timedelta
 
-__all__ = ['Period', 'TimestampSet', 'PeriodSet']
+__all__ = ['Time', 'datetime', 'TimestampSet', 'Period', 'PeriodSet', 'timedelta']
