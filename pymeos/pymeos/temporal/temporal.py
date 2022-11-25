@@ -78,7 +78,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         val = temporal_interpolation(self._inner)
         return TInterpolation.from_string(val)
 
-    @property
     @abstractmethod
     def value_set(self) -> Set[TBase]:
         """
@@ -111,14 +110,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         Minimum value.
         """
-        return min(self.value_set)
+        return min(self.value_set())
 
     @property
     def max_value(self) -> TBase:
         """
         Maximum value.
         """
-        return max(self.value_set)
+        return max(self.value_set())
 
     @abstractmethod
     def value_at_timestamp(self, timestamp) -> TBase:
