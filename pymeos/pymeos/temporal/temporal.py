@@ -99,7 +99,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         pass
 
-    @property
     @abstractmethod
     def end_value(self) -> TBase:
         """
