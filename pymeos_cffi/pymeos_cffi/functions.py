@@ -410,35 +410,6 @@ def period_out(s: 'const Span *') -> str:
     return result if result != _ffi.NULL else None
 
 
-def periodset_as_hexwkb(ps: 'const PeriodSet *', variant: int) -> "Tuple[str, 'size_t *']":
-    ps_converted = _ffi.cast('const PeriodSet *', ps)
-    variant_converted = _ffi.cast('uint8_t', variant)
-    size_out = _ffi.new('size_t *')
-    result = _lib.periodset_as_hexwkb(ps_converted, variant_converted, size_out)
-    result = _ffi.string(result).decode('utf-8')
-    return result if result != _ffi.NULL else None, size_out[0]
-
-
-def periodset_as_wkb(ps: 'const PeriodSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
-    ps_converted = _ffi.cast('const PeriodSet *', ps)
-    variant_converted = _ffi.cast('uint8_t', variant)
-    size_out = _ffi.new('size_t *')
-    result = _lib.periodset_as_wkb(ps_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
-
-
-def periodset_from_hexwkb(hexwkb: str) -> 'PeriodSet *':
-    hexwkb_converted = hexwkb.encode('utf-8')
-    result = _lib.periodset_from_hexwkb(hexwkb_converted)
-    return result if result != _ffi.NULL else None
-
-
-def periodset_from_wkb(wkb: 'const uint8_t *', size: int) -> 'PeriodSet *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    result = _lib.periodset_from_wkb(wkb_converted, size)
-    return result if result != _ffi.NULL else None
-
-
 def periodset_in(string: str) -> 'PeriodSet *':
     string_converted = string.encode('utf-8')
     result = _lib.periodset_in(string_converted)
@@ -4538,10 +4509,10 @@ def tnumber_at_span(temp: 'const Temporal *', span: 'const Span *') -> 'Temporal
     return result if result != _ffi.NULL else None
 
 
-def tnumber_at_spans(temp: 'const Temporal *', spans: 'Span **', count: int) -> 'Temporal *':
+def tnumber_at_spanset(temp: 'const Temporal *', spansset: 'SpanSet *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    spans_converted = [_ffi.cast('Span *', x) for x in spans]
-    result = _lib.tnumber_at_spans(temp_converted, spans_converted, count)
+    spansset_converted = _ffi.cast('SpanSet *', spansset)
+    result = _lib.tnumber_at_spanset(temp_converted, spansset_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -4559,10 +4530,10 @@ def tnumber_minus_span(temp: 'const Temporal *', span: 'const Span *') -> 'Tempo
     return result if result != _ffi.NULL else None
 
 
-def tnumber_minus_spans(temp: 'const Temporal *', spans: 'Span **', count: int) -> 'Temporal *':
+def tnumber_minus_spanset(temp: 'const Temporal *', spansset: 'SpanSet *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
-    spans_converted = [_ffi.cast('Span *', x) for x in spans]
-    result = _lib.tnumber_minus_spans(temp_converted, spans_converted, count)
+    spansset_converted = _ffi.cast('SpanSet *', spansset)
+    result = _lib.tnumber_minus_spanset(temp_converted, spansset_converted)
     return result if result != _ffi.NULL else None
 
 

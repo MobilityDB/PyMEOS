@@ -74,11 +74,11 @@ class PeriodSet:
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> PeriodSet:
-        result = periodset_from_hexwkb(hexwkb)
+        result = spanset_from_hexwkb(hexwkb)
         return PeriodSet(_inner=result)
 
     def as_hexwkb(self) -> str:
-        return periodset_as_hexwkb(self._inner, -1)[0]
+        return spanset_as_hexwkb(self._inner, -1)[0]
 
     @property
     def duration(self) -> timedelta:
