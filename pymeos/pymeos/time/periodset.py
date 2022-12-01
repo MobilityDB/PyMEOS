@@ -70,7 +70,7 @@ class PeriodSet:
             self._inner = periodset_in(string)
         else:
             periods = [period_in(period) if isinstance(period, str) else period._inner for period in period_list]
-            self._inner = periodset_make(periods, len(periods), normalize)
+            self._inner = spanset_make(periods, len(periods), normalize)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> PeriodSet:
@@ -99,7 +99,7 @@ class PeriodSet:
         Period on which the period set is defined ignoring the potential time gaps
         """
         from .period import Period
-        return Period(_inner=periodset_to_period(self._inner))
+        return Period(_inner=spanset_to_span(self._inner))
 
     @property
     def num_timestamps(self) -> int:
@@ -142,7 +142,7 @@ class PeriodSet:
         """
         Number of periods
         """
-        return periodset_num_periods(self._inner)
+        return spanset_num_spans(self._inner)
 
     @property
     def start_period(self) -> Period:
@@ -150,7 +150,7 @@ class PeriodSet:
         Start period
         """
         from .period import Period
-        return Period(_inner=periodset_start_period(self._inner))
+        return Period(_inner=periodset_lower(self._inner))
 
     @property
     def end_period(self) -> Period:
@@ -158,7 +158,7 @@ class PeriodSet:
         End period
         """
         from .period import Period
-        return Period(_inner=periodset_end_period(self._inner))
+        return Period(_inner=periodset_upper(self._inner))
 
     def period_n(self, n: int) -> Period:
         """
@@ -166,7 +166,7 @@ class PeriodSet:
         """
         # 1-based
         from .period import Period
-        return Period(_inner=periodset_period_n(self._inner, n))
+        return Period(_inner=spanset_span_n(self._inner, n))
 
     @property
     def periods(self) -> List[Period]:
@@ -174,7 +174,7 @@ class PeriodSet:
         Periods
         """
         from .period import Period
-        ps, count = periodset_periods(self._inner)
+        ps, count = spanset_spans(self._inner)
         return [Period(_inner=ps[i]) for i in range(count)]
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None,
@@ -195,9 +195,9 @@ class PeriodSet:
         from .timestampset import TimestampSet
         from ..temporal import Temporal
         if isinstance(other, Period):
-            return adjacent_periodset_period(self._inner, other._inner)
+            return adjacent_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return adjacent_periodset_periodset(self._inner, other._inner)
+            return adjacent_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return adjacent_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
@@ -211,9 +211,9 @@ class PeriodSet:
         from .period import Period
         from ..temporal import Temporal
         if isinstance(container, Period):
-            return contained_periodset_period(self._inner, container._inner)
+            return contained_spanset_span(self._inner, container._inner)
         elif isinstance(container, PeriodSet):
-            return contained_periodset_periodset(self._inner, container._inner)
+            return contained_spanset_spanset(self._inner, container._inner)
         elif isinstance(container, Temporal):
             return contained_periodset_temporal(self._inner, container._inner)
         else:
@@ -224,9 +224,9 @@ class PeriodSet:
         from .timestampset import TimestampSet
         from ..temporal import Temporal
         if isinstance(content, Period):
-            return contains_periodset_period(self._inner, content._inner)
+            return contains_spanset_span(self._inner, content._inner)
         if isinstance(content, PeriodSet):
-            return contains_periodset_periodset(self._inner, content._inner)
+            return contains_spanset_spanset(self._inner, content._inner)
         elif isinstance(content, datetime):
             return contains_periodset_timestamp(self._inner, datetime_to_timestamptz(content))
         elif isinstance(content, TimestampSet):
@@ -241,9 +241,9 @@ class PeriodSet:
         from .timestampset import TimestampSet
         from ..temporal import Temporal
         if isinstance(other, Period):
-            return overlaps_periodset_period(self._inner, other._inner)
+            return overlaps_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return overlaps_periodset_periodset(self._inner, other._inner)
+            return overlaps_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, TimestampSet):
             return overlaps_periodset_timestampset(self._inner, other._inner)
         elif isinstance(other, Temporal):
@@ -255,9 +255,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return after_periodset_period(self._inner, other._inner)
+            return right_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return after_periodset_periodset(self._inner, other._inner)
+            return right_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return after_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
@@ -271,9 +271,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return before_periodset_period(self._inner, other._inner)
+            return left_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return before_periodset_periodset(self._inner, other._inner)
+            return left_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return before_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
@@ -287,9 +287,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return overafter_periodset_period(self._inner, other._inner)
+            return overright_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return overafter_periodset_periodset(self._inner, other._inner)
+            return overright_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overafter_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
@@ -303,9 +303,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return overbefore_periodset_period(self._inner, other._inner)
+            return overleft_spanset_span(self._inner, other._inner)
         if isinstance(other, PeriodSet):
-            return overbefore_periodset_periodset(self._inner, other._inner)
+            return overleft_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
             return overbefore_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
@@ -356,9 +356,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return PeriodSet(_inner=intersection_periodset_period(self._inner, other._inner))
+            return PeriodSet(_inner=intersection_spanset_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=intersection_periodset_periodset(self._inner, other._inner))
+            return PeriodSet(_inner=intersection_spanset_spanset(self._inner, other._inner))
         elif isinstance(other, datetime):
             return timestamptz_to_datetime(
                 intersection_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
@@ -371,9 +371,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return PeriodSet(_inner=minus_periodset_period(self._inner, other._inner))
+            return PeriodSet(_inner=minus_spanset_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=minus_periodset_periodset(self._inner, other._inner))
+            return PeriodSet(_inner=minus_spanset_spanset(self._inner, other._inner))
         elif isinstance(other, datetime):
             return PeriodSet(_inner=minus_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
@@ -385,9 +385,9 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, Period):
-            return PeriodSet(_inner=union_periodset_period(self._inner, other._inner))
+            return PeriodSet(_inner=union_spanset_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=union_periodset_periodset(self._inner, other._inner))
+            return PeriodSet(_inner=union_spanset_spanset(self._inner, other._inner))
         elif isinstance(other, datetime):
             return PeriodSet(_inner=union_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
@@ -409,37 +409,37 @@ class PeriodSet:
 
     def __eq__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_eq(self._inner, other._inner)
+            return spanset_eq(self._inner, other._inner)
         return False
 
     def __ne__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_ne(self._inner, other._inner)
+            return spanset_ne(self._inner, other._inner)
         return True
 
     def __cmp__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_cmp(self._inner, other._inner)
+            return spanset_cmp(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_lt(self._inner, other._inner)
+            return spanset_lt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __le__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_le(self._inner, other._inner)
+            return spanset_le(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ge__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_ge(self._inner, other._inner)
+            return spanset_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __gt__(self, other):
         if isinstance(other, self.__class__):
-            return periodset_gt(self._inner, other._inner)
+            return spanset_gt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     @staticmethod
@@ -449,14 +449,14 @@ class PeriodSet:
         return PeriodSet(string=value)
 
     def __copy__(self):
-        inner_copy = periodset_copy(self._inner)
+        inner_copy = spanset_copy(self._inner)
         return PeriodSet(_inner=inner_copy)
 
     def __str__(self):
         return periodset_out(self._inner)
 
     def __hash__(self) -> int:
-        return periodset_hash(self._inner)
+        return spanset_hash(self._inner)
 
     def __repr__(self):
         return (f'{self.__class__.__name__}'
