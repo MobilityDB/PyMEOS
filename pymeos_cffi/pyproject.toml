@@ -7,7 +7,7 @@ py-modules = []
 
 [project]
 name = "pymeos_cffi"
-version = "0.0.18"
+version = "0.0.19"
 authors = [
     { name = "Victor Divi", email = "vdiviloper@gmail.com" }
 ]
