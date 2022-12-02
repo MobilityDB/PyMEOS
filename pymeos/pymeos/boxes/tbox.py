@@ -149,36 +149,30 @@ class TBox:
     def to_period(self) -> Period:
         return Period(_inner=tbox_to_period(self._inner))
 
-    @property
     def has_x(self):
         return tbox_hasx(self._inner)
 
-    @property
     def has_t(self):
         return tbox_hast(self._inner)
 
-    @property
     def xmin(self):
         """
         Minimum X
         """
         return tbox_xmin(self._inner)
 
-    @property
     def tmin(self):
         """
         Minimum T
         """
         return timestamptz_to_datetime(tbox_tmin(self._inner))
 
-    @property
     def xmax(self):
         """
         Maximum X
         """
         return tbox_xmax(self._inner)
 
-    @property
     def tmax(self):
         """
         Maximum T

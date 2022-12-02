@@ -15,7 +15,7 @@ class TimePlotter:
     @staticmethod
     def plot_timestampset(timestampset: TimestampSet, *args, axes=None, **kwargs):
         base = axes or plt.gca()
-        stamps = timestampset.timestamps
+        stamps = timestampset.timestamps()
         plot = base.axvline(stamps[0], *args, **kwargs)
         kwargs.pop('label', None)
         plots = [plot]
@@ -34,7 +34,7 @@ class TimePlotter:
 
     @staticmethod
     def plot_periodset(periodset: PeriodSet, *args, axes=None, **kwargs):
-        periods = periodset.periods
+        periods = periodset.periods()
         line = TimePlotter.plot_period(periods[0], *args, axes=axes, **kwargs)
         kwargs.pop('label', None)
         lines = [line]

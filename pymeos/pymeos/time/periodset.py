@@ -80,19 +80,17 @@ class PeriodSet:
     def as_hexwkb(self) -> str:
         return spanset_as_hexwkb(self._inner, -1)[0]
 
-    @property
     def duration(self) -> timedelta:
         """
         Time interval on which the period set is defined
         """
         return interval_to_timedelta(periodset_duration(self._inner))
 
-    @property
     def timespan(self) -> timedelta:
         """
         Time interval on which the period set is defined
         """
-        return self.end_timestamp - self.start_timestamp
+        return self.end_timestamp() - self.start_timestamp()
 
     def to_period(self) -> Period:
         """
@@ -101,21 +99,18 @@ class PeriodSet:
         from .period import Period
         return Period(_inner=spanset_to_span(self._inner))
 
-    @property
     def num_timestamps(self) -> int:
         """
         Number of distinct timestamps
         """
         return periodset_num_timestamps(self._inner)
 
-    @property
     def start_timestamp(self) -> datetime:
         """
         Start timestamp
         """
         return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
-    @property
     def end_timestamp(self) -> datetime:
         """
         End timestamp
@@ -129,7 +124,6 @@ class PeriodSet:
         # 1-based
         return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n))
 
-    @property
     def timestamps(self) -> List[datetime]:
         """
         Distinct timestamps
@@ -137,14 +131,12 @@ class PeriodSet:
         ts, count = periodset_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    @property
     def num_periods(self) -> int:
         """
         Number of periods
         """
         return spanset_num_spans(self._inner)
 
-    @property
     def start_period(self) -> Period:
         """
         Start period
@@ -152,7 +144,6 @@ class PeriodSet:
         from .period import Period
         return Period(_inner=periodset_lower(self._inner))
 
-    @property
     def end_period(self) -> Period:
         """
         End period
@@ -168,7 +159,6 @@ class PeriodSet:
         from .period import Period
         return Period(_inner=spanset_span_n(self._inner, n))
 
-    @property
     def periods(self) -> List[Period]:
         """
         Periods

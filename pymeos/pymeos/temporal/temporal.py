@@ -66,11 +66,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     _parse_function = None
 
-    @property
     def _expandable(self) -> bool:
         return False
 
-    @property
     def interpolation(self) -> TInterpolation:
         """
         Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
@@ -89,7 +87,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         List values taken by the temporal value.
         """
-        return [i.value() for i in self.instants]
+        return [i.value() for i in self.instants()]
 
     @abstractmethod
     def start_value(self) -> TBase:
@@ -105,14 +103,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         pass
 
-    @property
     def min_value(self) -> TBase:
         """
         Minimum value.
         """
         return min(self.value_set())
 
-    @property
     def max_value(self) -> TBase:
         """
         Maximum value.
@@ -126,21 +122,18 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         pass
 
-    @property
     def time(self) -> PeriodSet:
         """
         Period set on which the temporal value is defined.
         """
         return PeriodSet(_inner=temporal_time(self._inner))
 
-    @property
     def duration(self) -> timedelta:
         """
         Interval on which the temporal value is defined.
         """
         return interval_to_timedelta(temporal_duration(self._inner))
 
-    @property
     def timespan(self) -> timedelta:
         """
         Interval on which the temporal value is defined ignoring potential
@@ -148,7 +141,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return interval_to_timedelta(temporal_timespan(self._inner))
 
-    @property
     def period(self) -> Period:
         """
         Period on which the temporal value is defined ignoring potential
@@ -156,14 +148,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return Period(_inner=temporal_to_period(self._inner))
 
-    @property
     def num_instants(self) -> int:
         """
         Number of distinct instants.
         """
         return temporal_num_instants(self._inner)
 
-    @property
     def start_instant(self) -> TI:
         """
          Start instant.
@@ -171,7 +161,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
-    @property
     def end_instant(self) -> TI:
         """
         End instant.
@@ -179,7 +168,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
-    @property
     def max_instant(self) -> TI:
         """
         Max instant.
@@ -187,7 +175,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
-    @property
     def min_instant(self) -> TI:
         """
         Min instant.
@@ -202,7 +189,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
 
-    @property
     def instants(self) -> List[TI]:
         """
         List of instants.
@@ -211,21 +197,18 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         ins, count = temporal_instants(self._inner)
         return [_TemporalFactory.create_temporal(ins[i]) for i in range(count)]
 
-    @property
     def num_timestamps(self) -> int:
         """
         Number of distinct timestamps.
         """
         return temporal_num_timestamps(self._inner)
 
-    @property
     def start_timestamp(self) -> datetime:
         """
         Start timestamp.
         """
         return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
 
-    @property
     def end_timestamp(self) -> datetime:
         """
         End timestamp.
@@ -238,7 +221,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
 
-    @property
     def timestamps(self) -> List[datetime]:
         """
         List of timestamps.
@@ -246,7 +228,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         ts, count = temporal_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    @property
     def segments(self) -> List[TS]:
         seqs, count = temporal_segments(self._inner)
         from ..factory import _TemporalFactory
@@ -296,12 +277,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def to_dataframe(self) -> DataFrame:
         data = {
             'time': self.timestamps,
-            'value': [i.value() for i in self.instants]
+            'value': [i.value() for i in self.instants()]
         }
         return DataFrame(data).set_index(keys='time')
 
     def append(self, instant: TInstant[TBase]) -> TG:
-        new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable)
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable())
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
@@ -557,7 +538,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def time_split_n(self, n: int) -> List[TG]:
         st = temporal_start_timestamp(self._inner)
-        dt = timedelta_to_interval((self.end_timestamp - self.start_timestamp) / n)
+        dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
         tiles, new_count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]

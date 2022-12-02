@@ -67,7 +67,6 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 
-    @property
     def timestamp(self) -> datetime:
         """
         Timestamp.
@@ -76,13 +75,12 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         assert count == 1
         return timestamptz_to_datetime(ts[0])
 
-    @property
     def period(self) -> Period:
         """
         Period on which the temporal value is defined ignoring the potential
         time gaps.
         """
-        return Period(lower=self.timestamp, upper=self.timestamp, lower_inc=True, upper_inc=True)
+        return Period(lower=self.timestamp(), upper=self.timestamp(), lower_inc=True, upper_inc=True)
 
     def value(self) -> TBase:
         """
@@ -90,14 +88,12 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.start_value
 
-    @property
     def start_instant(self: Self) -> Self:
         """
         Start instant.
         """
         return self
 
-    @property
     def end_instant(self: Self) -> Self:
         """
         End instant.
@@ -113,39 +109,35 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         else:
             raise Exception("ERROR: Out of range")
 
-    @property
     def instants(self: Self) -> List[Self]:
         """
         List of instants.
         """
         return [self]
 
-    @property
     def start_timestamp(self) -> datetime:
         """
         Start timestamp.
         """
-        return self.timestamp
+        return self.timestamp()
 
-    @property
     def end_timestamp(self) -> datetime:
         """
         End timestamp.
         """
-        return self.timestamp
+        return self.timestamp()
 
     def timestamp_n(self, n) -> datetime:
         """
         N-th timestamp
         """
         if n == 1:
-            return self.timestamp
+            return self.timestamp()
         else:
             raise Exception("ERROR: Out of range")
 
-    @property
     def timestamps(self) -> List[datetime]:
         """
         List of timestamps.
         """
-        return [self.timestamp]
+        return [self.timestamp()]

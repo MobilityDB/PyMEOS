@@ -77,24 +77,19 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return TTextSeqSet(_inner=ttextseqset_from_base_time(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
-    @property
     def value_set(self) -> Set[str]:
         values, count = ttext_values(self._inner)
         return {text2cstring(values[i]) for i in range(count)}
 
-    @property
     def min_value(self):
         return ttext_min_value(self._inner)
 
-    @property
     def max_value(self):
         return ttext_max_value(self._inner)
 
-    @property
     def start_value(self):
         return ttext_start_value(self._inner)
 
-    @property
     def end_value(self):
         return ttext_end_value(self._inner)
 

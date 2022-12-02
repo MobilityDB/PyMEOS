@@ -72,7 +72,6 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return TBoolSeqSet(_inner=tboolseqset_from_base_time(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
-    @property
     def value_set(self) -> Set[bool]:
         """
         List of distinct values.
@@ -80,14 +79,12 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         values, count = tbool_values(self._inner)
         return {values[i] for i in range(count)}
 
-    @property
     def start_value(self) -> bool:
         """
         Start value.
         """
         return tbool_start_value(self._inner)
 
-    @property
     def end_value(self) -> bool:
         """
         End value.

@@ -247,34 +247,29 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
                 return TFloatSeq(string=value)
         raise Exception("ERROR: Could not parse temporal float value")
 
-    @property
     def value_range(self) -> floatrange:
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
         return self.to_floatrange()
 
-    @property
     def value_ranges(self) -> List[floatrange]:
         spanset = tfloat_spanset(self._inner)
         spans, count = spanset_spans(spanset)
         return [floatspan_to_floatrange(spans[i]) for i in range(count)]
 
-    @property
     def start_value(self) -> float:
         """
         Start value.
         """
         return tfloat_start_value(self._inner)
 
-    @property
     def end_value(self) -> float:
         """
         End value.
         """
         return tfloat_end_value(self._inner)
 
-    @property
     def value_set(self) -> Set[float]:
         """
         List of distinct values.
@@ -282,14 +277,12 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         values, count = tfloat_values(self._inner)
         return {values[i] for i in range(count)}
 
-    @property
     def min_value(self) -> float:
         """
         Minimum value.
         """
         return tfloat_min_value(self._inner)
 
-    @property
     def max_value(self) -> float:
         """
         Maximum value.

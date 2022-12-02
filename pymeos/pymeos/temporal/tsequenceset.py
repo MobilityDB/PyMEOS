@@ -64,21 +64,18 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
                        normalize: bool = True) -> Self:
         return cls(sequence_list=sequence_list, normalize=normalize)
 
-    @property
     def num_sequences(self) -> int:
         """
         Number of sequences.
         """
         return temporal_num_sequences(self._inner)
 
-    @property
     def start_sequence(self) -> TS:
         """
         Start sequence.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
-    @property
     def end_sequence(self) -> TS:
         """
         End sequence.
@@ -92,7 +89,6 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         # 1-based
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
 
-    @property
     def sequences(self) -> List[TS]:
         """
         List of sequences.
@@ -101,10 +97,10 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
     def to_dataframe(self) -> DataFrame:
-        sequences = self.sequences
+        sequences = self.sequences()
         data = {
-            'sequence': [i for i, seq in enumerate(sequences, start=1) for _ in range(seq.num_instants)],
-            'time': [t for seq in sequences for t in seq.timestamps],
+            'sequence': [i for i, seq in enumerate(sequences, start=1) for _ in range(seq.num_instants())],
+            'time': [t for seq in sequences for t in seq.timestamps()],
             'value': [v for seq in sequences for v in seq.values()]
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])

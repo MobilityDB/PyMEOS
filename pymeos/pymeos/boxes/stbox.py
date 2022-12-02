@@ -136,7 +136,7 @@ class STBox:
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin) if self.has_t \
+            else datetime_to_timestamptz(self.tmin()) if self.has_t \
             else 0
         gs = geometry_to_gserialized(origin) if origin is not None \
             else gserialized_in('Point(0 0 0)', -1)
@@ -168,82 +168,69 @@ class STBox:
     def to_period(self) -> Period:
         return Period(_inner=stbox_to_period(self._inner))
 
-    @property
     def has_xy(self):
         return stbox_hasx(self._inner)
 
-    @property
     def has_z(self):
         return stbox_hasz(self._inner)
 
-    @property
     def has_t(self):
         return stbox_hast(self._inner)
 
-    @property
     def geodetic(self):
         """
         Is the box is geodetic?
         """
         return stbox_isgeodetic(self._inner)
 
-    @property
     def xmin(self):
         """
         Minimum X
         """
         return stbox_xmin(self._inner)
 
-    @property
     def ymin(self):
         """
         Minimum Y
         """
         return stbox_ymin(self._inner)
 
-    @property
     def zmin(self):
         """
         Minimum Z
         """
         return stbox_zmin(self._inner)
 
-    @property
     def tmin(self):
         """
         Minimum T
         """
         return timestamptz_to_datetime(stbox_tmin(self._inner))
 
-    @property
     def xmax(self):
         """
         Maximum X
         """
         return stbox_xmax(self._inner)
 
-    @property
     def ymax(self):
         """
         Maximum Y
         """
         return stbox_ymax(self._inner)
 
-    @property
     def zmax(self):
         """
         Maximum Z
         """
         return stbox_zmax(self._inner)
 
-    @property
     def tmax(self):
         """
         Maximum T
         """
         return timestamptz_to_datetime(stbox_tmax(self._inner))
 
-    @property
     def srid(self):
         """
         SRID of the geographic coordinates

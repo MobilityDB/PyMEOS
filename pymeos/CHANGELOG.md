@@ -1,3 +1,10 @@
+## 1.2.0
+
+### Breaking changes
+
+- All `@property` decorators have been removed to reflect that the elements return are computed.
+  They may be added again in the future, probably with some caching mechanism.
+
 ## 1.1.2
 
 - Add support for `asyncpg`.

@@ -81,14 +81,12 @@ class TimestampSet:
     def as_hexwkb(self) -> str:
         return timestampset_as_hexwkb(self._inner, -1)[0]
 
-    @property
     def timespan(self) -> timedelta:
         """
         Interval on which the timestamp set is defined ignoring the potential time gaps
         """
         return interval_to_timedelta(timestampset_timespan(self._inner))
 
-    @property
     def period(self) -> Period:
         """
         Period on which the timestamp set is defined ignoring the potential time gaps
@@ -98,21 +96,18 @@ class TimestampSet:
                       upper=pg_timestamptz_out(timestampset_end_timestamp(self._inner)),
                       lower_inc=True, upper_inc=True)
 
-    @property
     def num_timestamps(self) -> int:
         """
         Number of timestamps
         """
         return timestampset_num_timestamps(self._inner)
 
-    @property
     def start_timestamp(self) -> datetime:
         """
         Start timestamp
         """
         return timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
-    @property
     def end_timestamp(self) -> datetime:
         """
         End timestamp
@@ -126,13 +121,12 @@ class TimestampSet:
         # 1-based
         return timestamptz_to_datetime(timestampset_timestamp_n(self._inner, n))
 
-    @property
     def timestamps(self) -> List[datetime]:
         """
         Distinct timestamps
         """
         tss = timestampset_timestamps(self._inner)
-        return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps)]
+        return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps())]
 
     def shift_tscale(self, shift_delta: Optional[timedelta] = None,
                      scale_delta: Optional[timedelta] = None) -> TimestampSet:

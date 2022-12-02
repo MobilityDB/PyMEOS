@@ -249,28 +249,24 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
                 return TIntSeq(string=value)
         raise Exception("ERROR: Could not parse temporal integer value")
 
-    @property
     def value_range(self) -> intrange:
         """
         Range of values taken by the temporal value as defined by its minimum and maximum value
         """
         return self.to_intrange()
 
-    @property
     def start_value(self) -> int:
         """
         Start value.
         """
         return tint_start_value(self._inner)
 
-    @property
     def end_value(self) -> int:
         """
         End value.
         """
         return tint_end_value(self._inner)
 
-    @property
     def value_set(self) -> Set[int]:
         """
         List of distinct values.
@@ -278,14 +274,12 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         values, count = tint_values(self._inner)
         return {values[i] for i in range(count)}
 
-    @property
     def min_value(self) -> int:
         """
         Minimum value.
         """
         return tint_min_value(self._inner)
 
-    @property
     def max_value(self) -> int:
         """
         Maximum value.

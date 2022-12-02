@@ -68,7 +68,6 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
                                                  interpolation.value, normalize)
         self._expandable_sequence = bool(expandable) or self._inner.maxcount > self._inner.count
 
-    @property
     def _expandable(self) -> bool:
         return self._expandable_sequence
 
@@ -79,35 +78,30 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return cls(instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc, interpolation=interpolation,
                    normalize=normalize)
 
-    @property
     def lower_inc(self) -> bool:
         """
         Is the lower bound inclusive?
         """
         return self._inner.period.lower_inc
 
-    @property
     def upper_inc(self) -> bool:
         """
         Is the upper bound inclusive?
         """
         return self._inner.period.upper_inc
 
-    @property
     def num_sequences(self) -> int:
         """
         Number of sequences.
         """
         return 1
 
-    @property
     def start_sequence(self: Self) -> Self:
         """
         Start sequence.
         """
         return self
 
-    @property
     def end_sequence(self: Self) -> Self:
         """
         End sequence.
@@ -124,7 +118,6 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
         else:
             raise Exception("ERROR: Out of range")
 
-    @property
     def sequences(self: Self) -> List[Self]:
         """
         List of sequences.

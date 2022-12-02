@@ -66,42 +66,36 @@ class Period:
     def as_hexwkb(self) -> str:
         return span_as_hexwkb(self._inner, -1)[0]
 
-    @property
     def lower(self) -> datetime:
         """
         Lower bound
         """
         return timestamptz_to_datetime(period_lower(self._inner))
 
-    @property
     def upper(self) -> datetime:
         """
         Upper bound
         """
         return timestamptz_to_datetime(period_upper(self._inner))
 
-    @property
     def lower_inc(self) -> bool:
         """
         Is the lower bound inclusive?
         """
         return self._inner.lower_inc
 
-    @property
     def upper_inc(self) -> bool:
         """
         Is the upper bound inclusive?
         """
         return self._inner.upper_inc
 
-    @property
     def duration(self) -> timedelta:
         """
         Time interval on which the period is defined
         """
-        return self.upper - self.lower
+        return self.upper() - self.lower()
 
-    @property
     def width(self) -> float:
         return span_width(self._inner)
 

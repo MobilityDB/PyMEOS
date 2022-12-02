@@ -55,7 +55,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def __init__(self, _inner) -> None:
         super().__init__()
 
-    @property
     def srid(self):
         """
         Returns the SRID.
@@ -66,7 +65,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     def values(self, precision: int = 6) -> List[shp.Point]:
-        return [i.value(precision=precision) for i in self.instants]
+        return [i.value(precision=precision) for i in self.instants()]
 
     def start_value(self, precision: int = 6) -> shp.Point:
         return gserialized_to_shapely_point(tpoint_start_value(self._inner), precision)
@@ -552,7 +551,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def to_dataframe(self) -> GeoDataFrame:
         data = {
             'time': self.timestamps,
-            'geometry': [i.value() for i in self.instants]
+            'geometry': [i.value() for i in self.instants()]
         }
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
 
@@ -592,15 +591,15 @@ class TPointSeq(TSequence[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS
 
 class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC):
 
-    @property
     def speed(self):
         return TFloatSeqSet(_inner=tpoint_speed(self._inner))
 
     def to_dataframe(self, precision: int = 6) -> GeoDataFrame:
+        sequences = self.sequences()
         data = {
-            'sequence': [i + 1 for i, seq in enumerate(self.sequences) for _ in range(seq.instants)],
-            'time': [t for seq in self.sequences for t in seq.timestamps],
-            'geometry': [v for seq in self.sequences for v in seq.values(precision=precision)]
+            'sequence': [i + 1 for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],
+            'time': [t for seq in sequences for t in seq.timestamps()],
+            'geometry': [v for seq in sequences for v in seq.values(precision=precision)]
         }
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['sequence', 'time'])
 
@@ -698,7 +697,6 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
                 return TGeomPointSeq(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
 
-    @property
     def hasz(self):
         """
         Does the temporal point has Z dimension?
@@ -795,7 +793,6 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
                 return TGeogPointSeq(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
 
-    @property
     def hasz(self):
         """
         Does the temporal point has Z dimension?
