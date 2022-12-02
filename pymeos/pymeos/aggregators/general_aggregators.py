@@ -61,7 +61,7 @@ class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
             state = span_extent_transfn(state, temporal._inner)
             pass
         elif isinstance(temporal, PeriodSet):
-            state = periodset_extent_transfn(state, temporal._inner)
+            state = spanset_extent_transfn(state, temporal._inner)
         else:
             cls._error(temporal)
         return state

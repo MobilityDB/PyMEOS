@@ -193,10 +193,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], intrange):
             spans = [intrange_to_intspan(ir) for ir in other]
-            result = tnumber_at_spans(self._inner, spans, len(spans))
+            spanset = spanset_make(spans, len(spans), True)
+            result = tnumber_at_spanset(self._inner, spanset)
         elif isinstance(other, list) and isinstance(other[0], floatrange):
             spans = [floatrange_to_floatspan(fr) for fr in other]
-            result = tnumber_at_spans(self._inner, spans, len(spans))
+            spanset = spanset_make(spans, len(spans), True)
+            result = tnumber_at_spanset(self._inner, spanset)
         elif isinstance(other, TBox):
             result = tnumber_at_tbox(self._inner, other._inner)
         else:
@@ -211,10 +213,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             result = tnumber_minus_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], intrange):
             spans = [intrange_to_intspan(ir) for ir in other]
-            result = tnumber_minus_spans(self._inner, spans, len(spans))
+            spanset = spanset_make(spans, len(spans), True)
+            result = tnumber_minus_spanset(self._inner, spanset)
         elif isinstance(other, list) and isinstance(other[0], floatrange):
             spans = [floatrange_to_floatspan(fr) for fr in other]
-            result = tnumber_minus_spans(self._inner, spans, len(spans))
+            spanset = spanset_make(spans, len(spans), True)
+            result = tnumber_minus_spanset(self._inner, spanset)
         elif isinstance(other, TBox):
             result = tnumber_minus_tbox(self._inner, other._inner)
         else:

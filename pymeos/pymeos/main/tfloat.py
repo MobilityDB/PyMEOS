@@ -256,7 +256,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
     @property
     def value_ranges(self) -> List[floatrange]:
-        spans, count = tfloat_spans(self._inner)
+        spanset = tfloat_spanset(self._inner)
+        spans, count = spanset_spans(spanset)
         return [floatspan_to_floatrange(spans[i]) for i in range(count)]
 
     @property

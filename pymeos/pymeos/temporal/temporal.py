@@ -349,13 +349,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def intersects(self, other: Time) -> bool:
         if isinstance(other, datetime):
-            return temporal_intersects_timestamp(self._inner, datetime_to_timestamptz(other))
+            return temporal_overlaps_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            return temporal_intersects_timestampset(self._inner, other._inner)
+            return temporal_overlaps_timestampset(self._inner, other._inner)
         elif isinstance(other, Period):
-            return temporal_intersects_period(self._inner, other._inner)
+            return temporal_overlaps_period(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            return temporal_intersects_periodset(self._inner, other._inner)
+            return temporal_overlaps_periodset(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_after(self, other: Union[Time, Temporal]) -> bool:
