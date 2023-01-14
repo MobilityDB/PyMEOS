@@ -69,9 +69,9 @@ class Period:
 
     def as_hexwkb(self) -> str:
         """
-        Return the WKB representation of a span in hex-encoded ASCII.
+        Return the WKB representation of ``self`` in hex-encoded ASCII.
         Returns:
-            A :class:`str` object with the WKB representation of a span in hex-encoded ASCII.
+            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
         MEOS Functions:
             span_as_hexwkb
@@ -237,7 +237,7 @@ class Period:
 
     def to_periodset(self) -> PeriodSet:
         """
-        Return a period set containing ``self``
+        Return a period set containing ``self``.
 
         Returns:
             A new :class:`PeriodSet` instance
@@ -485,7 +485,7 @@ class Period:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_after(self, other: Time) -> bool:
+    def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Return whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
@@ -526,7 +526,7 @@ class Period:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other: Time) -> bool:
+    def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Return whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
@@ -547,7 +547,7 @@ class Period:
 
         MEOS Functions:
             overleft_span_span, overleft_span_spanset, overbefore_period_timestamp,
-            overbefore_period_timestampset,
+            overbefore_period_timestampset, overbefore_period_temporal
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
