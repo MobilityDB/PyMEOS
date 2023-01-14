@@ -407,7 +407,7 @@ class Period:
 
     def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is strictly after ``other``.That is, ``self`` starts after ``other`` ends.
+        Return whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
 
         Examples:
             >>> Period('[2012-01-02, 2012-01-03]').is_after(Period('[2012-01-01, 2012-01-02)'))

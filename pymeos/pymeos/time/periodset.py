@@ -79,7 +79,7 @@ class PeriodSet:
         i.e. the sum of the durations of the periods within.
 
         Returns:
-            A :class:`datetime.timedelta` instance representing the duration of the period
+            A :class:`datetime.timedelta` instance representing the duration of the periodset
 
         MEOS Functions:
             periodset_duration
@@ -88,11 +88,11 @@ class PeriodSet:
 
     def timespan(self) -> timedelta:
         """
-        Return the duration of the period ignoring any gap, i.e. the duration from the
+        Return the duration of the periodset ignoring any gap, i.e. the duration from the
         lower bound of the first period to the upper bound of the last period.
 
         Returns:
-            A :class:`datetime.timedelta` instance representing the duration of the period
+            A :class:`datetime.timedelta` instance representing the duration of the periodset
 
         MEOS Functions:
             periodset_duration
@@ -300,7 +300,7 @@ class PeriodSet:
         Examples:
             >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_adjacent(PeriodSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{2012-01-01, 2012-01-02}').is_adjacent(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').is_adjacent(PeriodSet('{[2012-01-02, 2012-01-03]}'))
             >>> False  # Both contain bound
             >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_adjacent(PeriodSet('{[(2012-01-02, 2012-01-03]]}'))
             >>> False  # Neither contain bound
