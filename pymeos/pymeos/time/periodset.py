@@ -49,7 +49,7 @@ class PeriodSet:
     @staticmethod
     def from_hexwkb(hexwkb: str) -> PeriodSet:
         """
-        Return a `PeriodSet` from its WKB representation in hex-encoded ASCII.
+        Returns a `PeriodSet` from its WKB representation in hex-encoded ASCII.
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
@@ -64,7 +64,7 @@ class PeriodSet:
 
     def as_hexwkb(self) -> str:
         """
-        Return the WKB representation of ``self`` in hex-encoded ASCII.
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
@@ -75,7 +75,7 @@ class PeriodSet:
 
     def duration(self) -> timedelta:
         """
-        Return the duration of the periodset taking into account the gaps within,
+        Returns the duration of the periodset taking into account the gaps within,
         i.e. the sum of the durations of the periods within.
 
         Returns:
@@ -88,7 +88,7 @@ class PeriodSet:
 
     def timespan(self) -> timedelta:
         """
-        Return the duration of the periodset ignoring any gap, i.e. the duration from the
+        Returns the duration of the periodset ignoring any gap, i.e. the duration from the
         lower bound of the first period to the upper bound of the last period.
 
         Returns:
@@ -101,7 +101,7 @@ class PeriodSet:
 
     def to_period(self) -> Period:
         """
-        Return a period that encompasses ``self``.
+        Returns a period that encompasses ``self``.
 
         Returns:
             A new :class:`Period` instance
@@ -114,7 +114,7 @@ class PeriodSet:
 
     def num_timestamps(self) -> int:
         """
-        Return the number of timestamps in ``self``.
+        Returns the number of timestamps in ``self``.
         Returns:
             An :class:`int`
 
@@ -125,7 +125,7 @@ class PeriodSet:
 
     def start_timestamp(self) -> datetime:
         """
-        Return the first timestamp in ``self``.
+        Returns the first timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -136,7 +136,7 @@ class PeriodSet:
 
     def end_timestamp(self) -> datetime:
         """
-        Return the last timestamp in ``self``.
+        Returns the last timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -147,7 +147,7 @@ class PeriodSet:
 
     def timestamp_n(self, n: int) -> datetime:
         """
-        Return the n-th timestamp in ``self``.
+        Returns the n-th timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -158,7 +158,7 @@ class PeriodSet:
 
     def timestamps(self) -> List[datetime]:
         """
-        Return the list of distinc timestamps in ``self``.
+        Returns the list of distinc timestamps in ``self``.
         Returns:
             A :class:`list[datetime]` instance
 
@@ -170,7 +170,7 @@ class PeriodSet:
 
     def num_periods(self) -> int:
         """
-        Return the number of periods in ``self``.
+        Returns the number of periods in ``self``.
         Returns:
             An :class:`int`
 
@@ -181,7 +181,7 @@ class PeriodSet:
 
     def start_period(self) -> Period:
         """
-        Return the first period in ``self``.
+        Returns the first period in ``self``.
         Returns:
             A :class:`Period` instance
 
@@ -193,7 +193,7 @@ class PeriodSet:
 
     def end_period(self) -> Period:
         """
-        Return the last period in ``self``.
+        Returns the last period in ``self``.
         Returns:
             A :class:`Period` instance
 
@@ -205,7 +205,7 @@ class PeriodSet:
 
     def period_n(self, n: int) -> Period:
         """
-        Return the n-th period in ``self``.
+        Returns the n-th period in ``self``.
         Returns:
             A :class:`Period` instance
 
@@ -217,7 +217,7 @@ class PeriodSet:
 
     def periods(self) -> List[Period]:
         """
-        Return the list of periods in ``self``.
+        Returns the list of periods in ``self``.
         Returns:
             A :class:`list[Period]` instance
 
@@ -230,7 +230,7 @@ class PeriodSet:
 
     def shift(self, delta: timedelta) -> PeriodSet:
         """
-        Return a new periodset that is the result of shifting ``self`` by ``delta``
+        Returns a new periodset that is the result of shifting ``self`` by ``delta``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').shift(timedelta(days=2))
@@ -249,7 +249,7 @@ class PeriodSet:
 
     def tscale(self, duration: timedelta) -> PeriodSet:
         """
-        Return a new periodset that starts as ``self`` but has duration ``duration``
+        Returns a new periodset that starts as ``self`` but has duration ``duration``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').tscale(timedelta(days=2))
@@ -268,7 +268,7 @@ class PeriodSet:
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> PeriodSet:
         """
-        Return a new periodset that starts at ``self`` shifted by ``shift`` and has duration ``duration``
+        Returns a new periodset that starts at ``self`` shifted by ``shift`` and has duration ``duration``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
@@ -294,7 +294,7 @@ class PeriodSet:
 
     def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
+        Returns whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
         contains it.
 
         Examples:
@@ -333,7 +333,7 @@ class PeriodSet:
 
     def is_contained_in(self, container: Union[Period, PeriodSet, Temporal]) -> bool:
         """
-        Return whether ``self`` is temporally contained in ``container``.
+        Returns whether ``self`` is temporally contained in ``container``.
 
         Examples:
             >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_contained_in(Period('{[2012-01-01, 2012-01-04]}'))
@@ -365,7 +365,7 @@ class PeriodSet:
 
     def contains(self, content: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` temporally contains ``content``.
+        Returns whether ``self`` temporally contains ``content``.
 
         Examples:
             >>> PeriodSet('{[2012-01-01, 2012-01-04]}').contains(PeriodSet('{[2012-01-02, 2012-01-03]}'))
@@ -403,7 +403,7 @@ class PeriodSet:
 
     def overlaps(self, other: Union[Period, PeriodSet, TimestampSet, Temporal]) -> bool:
         """
-        Return whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
+        Returns whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
 
         Examples:
             >>> PeriodSet('{[2012-01-01, 2012-01-02]}').overlaps(PeriodSet('{[2012-01-02, 2012-01-03]}'))
@@ -439,7 +439,7 @@ class PeriodSet:
 
     def is_after(self, other: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` is strictly after ``other``.That is, ``self`` starts after ``other`` ends.
+        Returns whether ``self`` is strictly after ``other``.That is, ``self`` starts after ``other`` ends.
 
         Examples:
             >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_after(PeriodSet('{[2012-01-01, 2012-01-02)}'))
@@ -476,7 +476,7 @@ class PeriodSet:
 
     def is_before(self, other: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
         Examples:
             >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_before(PeriodSet('{[2012-01-02, 2012-01-03]}'))
@@ -513,7 +513,7 @@ class PeriodSet:
 
     def is_over_or_after(self, other: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
+        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
 
         Examples:
@@ -551,7 +551,7 @@ class PeriodSet:
 
     def is_over_or_before(self, other: Union[Time, Temporal]) -> bool:
         """
-        Return whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
+        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
 
         Examples:
@@ -589,7 +589,7 @@ class PeriodSet:
 
     def is_same(self, other: Temporal) -> bool:
         """
-        Return whether ``self`` and ``other`` have the same temporal dimension.
+        Returns whether ``self`` and ``other`` have the same temporal dimension.
 
         Args:
             other: temporal object to compare with
@@ -608,7 +608,7 @@ class PeriodSet:
 
     def distance(self, other: Time) -> timedelta:
         """
-        Return the temporal distance between ``self`` and ``other``.
+        Returns the temporal distance between ``self`` and ``other``.
 
         Args:
             other: temporal object to compare with
@@ -651,7 +651,7 @@ class PeriodSet:
 
     def intersection(self, other: Time) -> Union[PeriodSet, datetime, TimestampSet]:
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -679,7 +679,7 @@ class PeriodSet:
 
     def minus(self, other: Time) -> PeriodSet:
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
@@ -706,7 +706,7 @@ class PeriodSet:
 
     def union(self, other: Time) -> PeriodSet:
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -733,7 +733,7 @@ class PeriodSet:
 
     def __mul__(self, other):
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -749,7 +749,7 @@ class PeriodSet:
 
     def __add__(self, other):
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -765,7 +765,7 @@ class PeriodSet:
 
     def __sub__(self, other):
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
@@ -781,7 +781,7 @@ class PeriodSet:
 
     def __contains__(self, item):
         """
-        Return whether ``self`` temporally contains ``content``.
+        Returns whether ``self`` temporally contains ``content``.
 
         Examples:
             >>> PeriodSet('{[2012-01-01, 2012-01-04]}').contains(PeriodSet('{[2012-01-02, 2012-01-03]}'))

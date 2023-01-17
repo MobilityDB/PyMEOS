@@ -50,7 +50,7 @@ class TimestampSet:
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TimestampSet:
         """
-        Return a `TimestampSet` from its WKB representation in hex-encoded ASCII.
+        Returns a `TimestampSet` from its WKB representation in hex-encoded ASCII.
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
@@ -65,7 +65,7 @@ class TimestampSet:
 
     def as_hexwkb(self) -> str:
         """
-        Return the WKB representation of ``self`` in hex-encoded ASCII.
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
@@ -76,7 +76,7 @@ class TimestampSet:
 
     def timespan(self) -> timedelta:
         """
-        Return the duration of the time ignoring gaps, i.e. the duration from the
+        Returns the duration of the time ignoring gaps, i.e. the duration from the
         first timestamp to the last one.
 
         Returns:
@@ -89,7 +89,7 @@ class TimestampSet:
 
     def period(self) -> Period:
         """
-        Return a period that encompasses ``self``.
+        Returns a period that encompasses ``self``.
 
         Returns:
             A new :class:`Period` instance
@@ -104,7 +104,7 @@ class TimestampSet:
 
     def to_periodset(self) -> PeriodSet:
         """
-        Return a PeriodSet that contains a Period for each Timestamp in ``self``.
+        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
 
         Returns:
             A new :class:`PeriodSet` instance
@@ -117,7 +117,7 @@ class TimestampSet:
 
     def num_timestamps(self) -> int:
         """
-        Return the number of timestamps in ``self``.
+        Returns the number of timestamps in ``self``.
         Returns:
             An :class:`int`
 
@@ -128,7 +128,7 @@ class TimestampSet:
 
     def start_timestamp(self) -> datetime:
         """
-        Return the first timestamp in ``self``.
+        Returns the first timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -139,7 +139,7 @@ class TimestampSet:
 
     def end_timestamp(self) -> datetime:
         """
-        Return the last timestamp in ``self``.
+        Returns the last timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -150,7 +150,7 @@ class TimestampSet:
 
     def timestamp_n(self, n: int) -> datetime:
         """
-        Return the n-th timestamp in ``self``.
+        Returns the n-th timestamp in ``self``.
         Returns:
             A :class:`datetime` instance
 
@@ -161,7 +161,7 @@ class TimestampSet:
 
     def timestamps(self) -> List[datetime]:
         """
-        Return the list of distinc timestamps in ``self``.
+        Returns the list of distinc timestamps in ``self``.
         Returns:
             A :class:`list[datetime]` instance
 
@@ -173,7 +173,7 @@ class TimestampSet:
 
     def shift(self, delta: timedelta) -> TimestampSet:
         """
-        Return a new TimestampSet that is the result of shifting ``self`` by ``delta``
+        Returns a new TimestampSet that is the result of shifting ``self`` by ``delta``
 
         Examples:
             >>> TimestampSet('{2000-01-01, 2000-01-10}').shift(timedelta(days=2))
@@ -192,7 +192,7 @@ class TimestampSet:
 
     def tscale(self, duration: timedelta) -> TimestampSet:
         """
-        Return a new TimestampSet that starts as ``self`` but has duration ``duration``
+        Returns a new TimestampSet that starts as ``self`` but has duration ``duration``
 
         Examples:
             >>> TimestampSet('{2000-01-01, 2000-01-10}').tscale(timedelta(days=2))
@@ -211,7 +211,7 @@ class TimestampSet:
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> TimestampSet:
         """
-        Return a new TimestampSet that starts at ``self`` shifted by ``shift`` and has duration ``duration``
+        Returns a new TimestampSet that starts at ``self`` shifted by ``shift`` and has duration ``duration``
 
         Examples:
             >>> TimestampSet('{2000-01-01, 2000-01-10}').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
@@ -237,7 +237,7 @@ class TimestampSet:
 
     def is_adjacent(self, other: Union[Period, PeriodSet, Temporal]) -> bool:
         """
-        Return whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
+        Returns whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
         contains it.
 
         Examples:
@@ -271,7 +271,7 @@ class TimestampSet:
 
     def is_contained_in(self, container: Union[Period, PeriodSet, TimestampSet, Temporal]) -> bool:
         """
-        Return whether ``self`` is temporally contained in ``container``.
+        Returns whether ``self`` is temporally contained in ``container``.
 
         Examples:
             >>> TimestampSet('{2012-01-02, 2012-01-03}').is_contained_in(Period('[2012-01-01, 2012-01-04]'))
@@ -307,7 +307,7 @@ class TimestampSet:
 
     def contains(self, content: Union[datetime, TimestampSet, Temporal]) -> bool:
         """
-        Return whether ``self`` temporally contains ``content``.
+        Returns whether ``self`` temporally contains ``content``.
 
         Examples:
             >>> TimestampSet('{2012-01-01, 2012-01-04}').contains(parse('2012-01-01]'))
@@ -338,7 +338,7 @@ class TimestampSet:
 
     def overlaps(self, other: Union[Period, PeriodSet, TimestampSet, Temporal]) -> bool:
         """
-        Return whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
+        Returns whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
 
         Examples:
             >>> TimestampSet('{2012-01-01, 2012-01-02}').overlaps(TimestampSet('{2012-01-02, 2012-01-03}'))
@@ -374,7 +374,7 @@ class TimestampSet:
 
     def is_after(self, other: Time) -> bool:
         """
-        Return whether ``self`` is strictly after ``other``. That is, the first timestamp in ``self``
+        Returns whether ``self`` is strictly after ``other``. That is, the first timestamp in ``self``
         is after ``other``.
 
         Examples:
@@ -412,7 +412,7 @@ class TimestampSet:
 
     def is_before(self, other: Time) -> bool:
         """
-        Return whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
         Examples:
             >>> TimestampSet('{2012-01-01, 2012-01-02}').is_before(TimestampSet('{2012-01-03}'))
@@ -449,7 +449,7 @@ class TimestampSet:
 
     def is_over_or_after(self, other: Time) -> bool:
         """
-        Return whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
+        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
 
         Examples:
@@ -487,7 +487,7 @@ class TimestampSet:
 
     def is_over_or_before(self, other: Time) -> bool:
         """
-        Return whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
+        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
 
         Examples:
@@ -525,7 +525,7 @@ class TimestampSet:
 
     def is_same(self, other: Temporal) -> bool:
         """
-        Return whether ``self`` and ``other`` have the same temporal dimension.
+        Returns whether ``self`` and ``other`` have the same temporal dimension.
 
         Args:
             other: temporal object to compare with
@@ -544,7 +544,7 @@ class TimestampSet:
 
     def distance(self, other: Time) -> timedelta:
         """
-        Return the temporal distance between ``self`` and ``other``.
+        Returns the temporal distance between ``self`` and ``other``.
 
         Args:
             other: temporal object to compare with
@@ -578,7 +578,7 @@ class TimestampSet:
 
     def intersection(self, other: Time) -> Union[datetime, TimestampSet]:
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -606,7 +606,7 @@ class TimestampSet:
 
     def minus(self, other: Time) -> TimestampSet:
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
@@ -641,7 +641,7 @@ class TimestampSet:
 
     def union(self, other: Time) -> Union[PeriodSet, TimestampSet]:
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -668,7 +668,7 @@ class TimestampSet:
 
     def __mul__(self, other):
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -684,7 +684,7 @@ class TimestampSet:
 
     def __add__(self, other):
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -700,7 +700,7 @@ class TimestampSet:
 
     def __sub__(self, other):
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
@@ -716,7 +716,7 @@ class TimestampSet:
 
     def __contains__(self, item):
         """
-        Return whether ``self`` temporally contains ``content``.
+        Returns whether ``self`` temporally contains ``content``.
 
         Examples:
             >>> TimestampSet('{2012-01-01, 2012-01-04}').contains(parse('2012-01-01]'))
@@ -739,7 +739,7 @@ class TimestampSet:
 
     def __eq__(self, other):
         """
-        Return whether ``self`` and ``other`` are equal.
+        Returns whether ``self`` and ``other`` are equal.
 
         Args:
             other: temporal object to compare with
@@ -756,7 +756,7 @@ class TimestampSet:
 
     def __ne__(self, other):
         """
-        Return whether ``self`` and ``other`` are not equal.
+        Returns whether ``self`` and ``other`` are not equal.
 
         Args:
             other: temporal object to compare with
@@ -773,7 +773,7 @@ class TimestampSet:
 
     def __cmp__(self, other):
         """
-        Return the result of comparing ``self`` and ``other``.
+        Returns the result of comparing ``self`` and ``other``.
 
         Args:
             other: temporal object to compare with

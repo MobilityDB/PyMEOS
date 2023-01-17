@@ -54,7 +54,7 @@ class Period:
     @staticmethod
     def from_hexwkb(hexwkb: str) -> Period:
         """
-        Return a `Period` from its WKB representation in hex-encoded ASCII.
+        Returns a `Period` from its WKB representation in hex-encoded ASCII.
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
@@ -69,7 +69,7 @@ class Period:
 
     def as_hexwkb(self) -> str:
         """
-        Return the WKB representation of ``self`` in hex-encoded ASCII.
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
@@ -80,7 +80,7 @@ class Period:
 
     def lower(self) -> datetime:
         """
-        Return the lower bound of a period
+        Returns the lower bound of a period
 
         Returns:
             The lower bound of the period as a :class:`datetime.datetime`
@@ -92,7 +92,7 @@ class Period:
 
     def upper(self) -> datetime:
         """
-        Return the upper bound of a period
+        Returns the upper bound of a period
 
         Returns:
             The upper bound of the period as a :class:`datetime.datetime`
@@ -104,7 +104,7 @@ class Period:
 
     def lower_inc(self) -> bool:
         """
-        Return whether the lower bound of the period is inclusive or not
+        Returns whether the lower bound of the period is inclusive or not
 
         Returns:
             True if the lower bound of the period is inclusive and False otherwise
@@ -116,7 +116,7 @@ class Period:
 
     def upper_inc(self) -> bool:
         """
-        Return whether the upper bound of the period is inclusive or not
+        Returns whether the upper bound of the period is inclusive or not
 
         Returns:
             True if the upper bound of the period is inclusive and False otherwise
@@ -128,7 +128,7 @@ class Period:
 
     def duration(self) -> timedelta:
         """
-        Return the duration of the period.
+        Returns the duration of the period.
 
         Returns:
             A :class:`datetime.timedelta` instance representing the duration of the period
@@ -140,7 +140,7 @@ class Period:
 
     def duration_in_seconds(self) -> float:
         """
-        Return the duration of the period.
+        Returns the duration of the period.
 
         Returns:
             Returns a `float` representing the duration of the period in seconds
@@ -152,7 +152,7 @@ class Period:
 
     def shift(self, delta: timedelta) -> Period:
         """
-        Return a new period that is the result of shifting ``self`` by ``delta``
+        Returns a new period that is the result of shifting ``self`` by ``delta``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').shift(timedelta(days=2))
@@ -171,7 +171,7 @@ class Period:
 
     def tscale(self, duration: timedelta) -> Period:
         """
-        Return a new period that starts as ``self`` but has duration ``duration``
+        Returns a new period that starts as ``self`` but has duration ``duration``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').tscale(timedelta(days=2))
@@ -190,7 +190,7 @@ class Period:
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Period:
         """
-        Return a new period that starts at ``self`` shifted by ``shift`` and has duration ``duration``
+        Returns a new period that starts at ``self`` shifted by ``shift`` and has duration ``duration``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-10]').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
@@ -216,7 +216,7 @@ class Period:
 
     def expand(self, other: Period) -> Period:
         """
-        Return a new period that includes both ``self`` and ``other``
+        Returns a new period that includes both ``self`` and ``other``
 
         Examples:
             >>> Period('[2000-01-01, 2000-01-04)').expand(Period('[2000-01-05, 2000-01-10]'))
@@ -237,7 +237,7 @@ class Period:
 
     def to_periodset(self) -> PeriodSet:
         """
-        Return a period set containing ``self``.
+        Returns a period set containing ``self``.
 
         Returns:
             A new :class:`PeriodSet` instance
@@ -250,7 +250,7 @@ class Period:
 
     def is_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
+        Returns whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
         contains it.
 
         Examples:
@@ -292,7 +292,7 @@ class Period:
 
     def is_contained_in(self, container: Union[Period, PeriodSet, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is temporally contained in ``container``.
+        Returns whether ``self`` is temporally contained in ``container``.
 
         Examples:
             >>> Period('[2012-01-02, 2012-01-03]').is_contained_in(Period('[2012-01-01, 2012-01-04]'))
@@ -327,7 +327,7 @@ class Period:
 
     def contains(self, content: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` temporally contains ``content``.
+        Returns whether ``self`` temporally contains ``content``.
 
         Examples:
             >>> Period('[2012-01-01, 2012-01-04]').contains(Period('[2012-01-02, 2012-01-03]'))
@@ -368,7 +368,7 @@ class Period:
 
     def overlaps(self, other: Union[Period, PeriodSet, TimestampSet, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
+        Returns whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
 
         Examples:
             >>> Period('[2012-01-01, 2012-01-02]').overlaps(Period('[2012-01-02, 2012-01-03]'))
@@ -407,7 +407,7 @@ class Period:
 
     def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
+        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
 
         Examples:
             >>> Period('[2012-01-02, 2012-01-03]').is_after(Period('[2012-01-01, 2012-01-02)'))
@@ -447,7 +447,7 @@ class Period:
 
     def is_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
         Examples:
             >>> Period('[2012-01-01, 2012-01-02)').is_before(Period('[2012-01-02, 2012-01-03]'))
@@ -487,7 +487,7 @@ class Period:
 
     def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
+        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
 
         Examples:
@@ -528,7 +528,7 @@ class Period:
 
     def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Return whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
+        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
 
         Examples:
@@ -569,7 +569,7 @@ class Period:
 
     def is_same(self, other: Temporal) -> bool:
         """
-        Return whether ``self`` and ``other`` have the same temporal dimension.
+        Returns whether ``self`` and ``other`` have the same temporal dimension.
 
         Args:
             other: temporal object to compare with
@@ -588,7 +588,7 @@ class Period:
 
     def distance(self, other: Union[Time, Box]) -> timedelta:
         """
-        Return the temporal distance between ``self`` and ``other``.
+        Returns the temporal distance between ``self`` and ``other``.
 
         Args:
             other: temporal object to compare with
@@ -633,7 +633,7 @@ class Period:
 
     def intersection(self, other: Time) -> Time:
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -660,7 +660,7 @@ class Period:
 
     def minus(self, other: Time) -> PeriodSet:
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
@@ -687,7 +687,7 @@ class Period:
 
     def union(self, other: Time) -> PeriodSet:
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -714,7 +714,7 @@ class Period:
 
     def __mul__(self, other):
         """
-        Return the temporal intersection of ``self`` and ``other``.
+        Returns the temporal intersection of ``self`` and ``other``.
 
         Args:
             other: temporal object to intersect with
@@ -730,7 +730,7 @@ class Period:
 
     def __add__(self, other):
         """
-        Return the temporal union of ``self`` and ``other``.
+        Returns the temporal union of ``self`` and ``other``.
 
         Args:
             other: temporal object to merge with
@@ -746,7 +746,7 @@ class Period:
 
     def __sub__(self, other):
         """
-        Return the temporal difference of ``self`` and ``other``.
+        Returns the temporal difference of ``self`` and ``other``.
 
         Args:
             other: temporal object to diff with
