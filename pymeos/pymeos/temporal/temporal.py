@@ -71,7 +71,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def interpolation(self) -> TInterpolation:
         """
-        Interpolation of the temporal value, which is either ``'Linear'``, ``'Stepwise'`` or ``'Discrete'``.
+        Returns the interpolation of `self`
+
+        MEOS Functions:
+            temporal_interpolation
         """
         val = temporal_interpolation(self._inner)
         return TInterpolation.from_string(val)
@@ -79,119 +82,150 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     @abstractmethod
     def value_set(self) -> Set[TBase]:
         """
-        List of distinct values taken by the temporal value.
+        Returns the unique values in `self`.
         """
         pass
 
     def values(self) -> List[TBase]:
         """
-        List values taken by the temporal value.
+        Returns the list of values taken by `self`.
         """
         return [i.value() for i in self.instants()]
 
     @abstractmethod
     def start_value(self) -> TBase:
         """
-        Start value.
+        Returns the starting value of `self`.
         """
         pass
 
     @abstractmethod
     def end_value(self) -> TBase:
         """
-        End value.
+        Returns the end value of `self`.
         """
         pass
 
     def min_value(self) -> TBase:
         """
-        Minimum value.
+        Returns the minimum value that `self` takes.
         """
         return min(self.value_set())
 
     def max_value(self) -> TBase:
         """
-        Maximum value.
+        Returns the maximum value that `self` takes.
         """
         return max(self.value_set())
 
     @abstractmethod
-    def value_at_timestamp(self, timestamp) -> TBase:
+    def value_at_timestamp(self, timestamp: datetime) -> TBase:
         """
-        Value at timestamp.
+        Returns the value that `self` takes at a certain moment.
         """
         pass
 
     def time(self) -> PeriodSet:
         """
-        Period set on which the temporal value is defined.
+        Returns the :class:`PeriodSet` on which `self` is defined.
+
+        MEOS Functions:
+            temporal_time
         """
         return PeriodSet(_inner=temporal_time(self._inner))
 
     def duration(self) -> timedelta:
         """
-        Interval on which the temporal value is defined.
+        Returns the duration of `self` taking into account any possible gap.
+
+        MEOS Functions:
+            temporal_duration
         """
-        return interval_to_timedelta(temporal_duration(self._inner))
+        return interval_to_timedelta(temporal_duration(self._inner, False))
 
     def timespan(self) -> timedelta:
         """
-        Interval on which the temporal value is defined ignoring potential
-        time gaps.
+        Returns the duration of `self` ignoring any potential gap.
+
+        MEOS Functions:
+            temporal_duration
         """
-        return interval_to_timedelta(temporal_timespan(self._inner))
+        return interval_to_timedelta(temporal_duration(self._inner, True))
 
     def period(self) -> Period:
         """
-        Period on which the temporal value is defined ignoring potential
-        time gaps.
+        Returns the :class:`Period` on which `self` is defined ignoring potential time gaps.
+
+        MEOS Functions:
+            temporal_to_period
         """
         return Period(_inner=temporal_to_period(self._inner))
 
     def num_instants(self) -> int:
         """
-        Number of distinct instants.
+        Returns the number of instants in `self`.
+
+        MEOS Functions:
+            temporal_num_instants
         """
         return temporal_num_instants(self._inner)
 
     def start_instant(self) -> TI:
         """
-         Start instant.
+        Returns the first instant in `self`.
+
+        MEOS Functions:
+            temporal_start_instant
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
     def end_instant(self) -> TI:
         """
-        End instant.
+        Returns the last instant in `self`.
+
+        MEOS Functions:
+            temporal_end_instant
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
     def max_instant(self) -> TI:
         """
-        Max instant.
+        Returns the instant in `self` with the maximum value.
+
+        MEOS Functions:
+            temporal_max_instant
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
     def min_instant(self) -> TI:
         """
-        Min instant.
+        Returns the instant in `self` with the minimum value.
+
+        MEOS Functions:
+            temporal_min_instant
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_min_instant(self._inner))
 
     def instant_n(self, n: int) -> TI:
         """
-        N-th instant.
+        Returns the n-th instant in `self`.
+
+        MEOS Functions:
+            temporal_instant_n
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
 
     def instants(self) -> List[TI]:
         """
-        List of instants.
+        Returns the instants in `self`.
+
+        MEOS Functions:
+            temporal_instants
         """
         from ..factory import _TemporalFactory
         ins, count = temporal_instants(self._inner)
@@ -199,82 +233,149 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def num_timestamps(self) -> int:
         """
-        Number of distinct timestamps.
+        Returns the number of timestamps in `self`.
+
+        MEOS Functions:
+            temporal_num_timestamps
         """
         return temporal_num_timestamps(self._inner)
 
     def start_timestamp(self) -> datetime:
         """
-        Start timestamp.
+        Returns the first timestamp in `self`.
+
+        MEOS Functions:
+            temporal_start_timestamps
         """
         return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
 
     def end_timestamp(self) -> datetime:
         """
-        End timestamp.
+        Returns the last timestamp in `self`.
+
+        MEOS Functions:
+            temporal_end_timestamps
         """
         return timestamptz_to_datetime(temporal_end_timestamp(self._inner))
 
     def timestamp_n(self, n: int) -> datetime:
         """
-        N-th timestamp.
+        Returns the n-th timestamp in `self`.
+
+        MEOS Functions:
+            temporal_timestamp_n
         """
         return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
 
     def timestamps(self) -> List[datetime]:
         """
-        List of timestamps.
+        Returns the timestamps in `self`.
+
+        MEOS Functions:
+            temporal_timestamps
         """
         ts, count = temporal_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     def segments(self) -> List[TS]:
+        """
+        Returns the temporal segments in `self`.
+
+        MEOS Functions:
+            temporal_segments
+        """
         seqs, count = temporal_segments(self._inner)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
-    def shift_tscale(self: Self, shift_delta: Union[str, timedelta, None] = None,
-                     scale_delta: Union[str, timedelta, None] = None) -> Self:
+    def shift(self, delta: timedelta) -> Period:
         """
-        Shift and or scale the temporal value by a time interval
+        Returns a new :class:`Temporal` that starts like ``self`` shifted by ``shift``.
+
+        Examples:
+            >>> Period('[2000-01-01, 2000-01-10]').shift(timedelta(days=2))
+            >>> 'Period([2000-01-03 00:00:00+01, 2000-01-12 00:00:00+01])'
+
+        Args:
+            delta: :class:`datetime.timedelta` instance to shift
+
+        MEOS Functions:
+            temporal_shift_tscale
         """
-        assert shift_delta is not None or scale_delta is not None, 'shift and scale deltas must not be both None'
+        return self.shift_tscale(shift=delta)
+
+    def tscale(self, duration: timedelta) -> Period:
+        """
+        Returns a new :class:`Temporal` that starts like ``self``but has duration ``duration``.
+
+        Examples:
+            >>> Period('[2000-01-01, 2000-01-10]').tscale(timedelta(days=2))
+            >>> 'Period([2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01])'
+
+        Args:
+            duration: :class:`datetime.timedelta` instance representing the duration of the new period
+
+        MEOS Functions:
+            temporal_shift_tscale
+        """
+        return self.shift_tscale(duration=duration)
+
+    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Self:
+        """
+        Returns a new :class:`Temporal` that starts like ``self`` shifted by ``shift`` and has duration ``duration``.
+
+        Args:
+            shift: :class:`datetime.timedelta` instance to shift
+            duration: :class:`datetime.timedelta` instance representing the duration of the new period
+
+        MEOS Functions:
+            temporal_shift_tscale
+        """
+        assert shift is not None or duration is not None, 'shift and duration must not be both None'
         scaled = temporal_shift_tscale(
             self._inner,
-            timedelta_to_interval(shift_delta) if shift_delta else None,
-            timedelta_to_interval(scale_delta) if scale_delta else None
+            timedelta_to_interval(shift) if shift else None,
+            timedelta_to_interval(duration) if duration else None
         )
         return Temporal._factory(scaled)
 
-    def shift(self: Self, delta: Union[str, timedelta] = None) -> Self:
+    def to_instant(self) -> TI:
         """
-        Shift the temporal value by a time interval
-        """
-        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
-        scaled = temporal_shift(self._inner, dt)
-        return Temporal._factory(scaled)
+        Returns `self` as a :class:`TInstant`.
 
-    def tscale(self: Self, delta: Union[str, timedelta] = None) -> Self:
+        MEOS Functions:
+            temporal_to_tinstant
         """
-        Scale the temporal value by a time interval
-        """
-        dt = timedelta_to_interval(delta) if isinstance(delta, timedelta) else pg_interval_in(delta, -1)
-        scaled = temporal_tscale(self._inner, dt)
-        return Temporal._factory(scaled)
-
-    def to_instant(self) -> TInstant[TBase]:
         inst = temporal_to_tinstant(self._inner)
         return Temporal._factory(inst)
 
     def to_sequence(self, discrete: bool = False) -> TS:
-        seq = temporal_to_tsequence(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
+        """
+        Returns `self` as a :class:`TSequence`.
+
+        Args:
+            discrete: whether the sequence returned is discrete or continuous (stepwise or linear depending on subtype).
+
+        MEOS Functions:
+            temporal_to_tcontseq, temporal_to_tdiscseq
+        """
+        seq = temporal_to_tcontseq(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
         return Temporal._factory(seq)
 
     def to_sequenceset(self) -> TSS:
+        """
+        Returns `self` as a :class:`TSequenceSet`.
+
+        MEOS Functions:
+            temporal_to_tsequenceset
+        """
         ss = temporal_to_tsequenceset(self._inner)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> DataFrame:
+        """
+        Returns `self` as a :class:`pd.DataFrame` with two columns: `time` and `value`.
+        """
         data = {
             'time': self.timestamps,
             'value': [i.value() for i in self.instants()]
@@ -282,12 +383,24 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return DataFrame(data).set_index(keys='time')
 
     def append(self, instant: TInstant[TBase]) -> TG:
+        """
+        Returns a new :class:`Temporal` object equal to `self` with `instant` appended.
+
+        MEOS Functions:
+            temporal_append_tinstant
+        """
         new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable())
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
 
     def merge(self, other: Union[Temporal[TBase], List[Temporal[TBase]]]) -> TG:
+        """
+        Returns a new :class:`Temporal` object that is the result of merging `self` with `other`.
+
+        MEOS Functions:
+            temporal_merge, temporal_merge_array
+        """
         if isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
@@ -297,18 +410,48 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(new_temp)
 
     def insert(self, other: TG, connect: bool = False) -> TG:
+        """
+        Returns a new :class:`Temporal` object equal to `self` with `other` inserted.
+
+        Args:
+            other: :class:`Temporal` object to insert in `self`
+            connect: wether to connect the inserted elements with the existing elements.
+
+        MEOS Functions:
+            temporal_insert
+        """
         new_inner = temporal_insert(self._inner, other._inner, connect)
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
 
     def update(self, other: TG, connect: bool = False) -> TG:
+        """
+        Returns a new :class:`Temporal` object equal to `self` udpated with `other`.
+
+        Args:
+            other: :class:`Temporal` object to update `self` with
+            connect: wether to connect the updated elements with the existing elements.
+
+        MEOS Functions:
+            temporal_update
+        """
         new_inner = temporal_update(self._inner, other._inner, connect)
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
 
     def delete(self, other: Time, connect: bool = False) -> TG:
+        """
+        Returns a new :class:`Temporal` object equal to `self` with elements at `other` removed.
+
+        Args:
+            other: :class:`Time` object to remove from `self`
+            connect: wether to connect the potential gaps generated by the deletions.
+
+        MEOS Functions:
+            temporal_update
+        """
         if isinstance(other, datetime):
             new_inner = temporal_delete_timestamp(self._inner, datetime_to_timestamptz(other), connect)
         elif isinstance(other, TimestampSet):
@@ -325,10 +468,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     # TODO: Move to proper classes (Sequence[Set] with continuous base type)
     def to_linear(self: Self) -> Self:
+        """
+        Returns `self` transformed from stepwise to linear interpolation.
+
+        MEOS Functions:
+            temporal_step_to_linear
+        """
         new_temp = temporal_step_to_linear(self._inner)
         return Temporal._factory(new_temp)
 
     def intersects(self, other: Time) -> bool:
+        """
+        Returns whther `self` transformed from stepwise to linear interpolation.
+
+        MEOS Functions:
+            temporal_step_to_linear
+        """
         if isinstance(other, datetime):
             return temporal_overlaps_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
