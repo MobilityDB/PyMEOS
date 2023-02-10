@@ -26,8 +26,8 @@ class Period:
         >>> Period('(2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01)')
 
     Another possibility is to provide the ``lower`` and ``upper`` named parameters (of type str or datetime), and
-     optionally indicate whether the bounds are inclusive or exclusive (by default, lower in inclusive and upper
-     exclusive):
+    optionally indicate whether the bounds are inclusive or exclusive (by default, the lower bound is inclusive and the
+    upper is exclusive):
 
         >>> Period(lower='2019-09-08 00:00:00+01', upper='2019-09-10 00:00:00+01')
         >>> Period(lower='2019-09-08 00:00:00+01', upper='2019-09-10 00:00:00+01', lower_inc=False, upper_inc=True)
