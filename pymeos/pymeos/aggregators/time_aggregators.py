@@ -8,6 +8,13 @@ from ..time import TimestampSet, Period, PeriodSet
 
 
 class TemporalTimestampUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):
+    """
+    Temporal union of instantanious time objects (:class:'~datetime.datetime' and
+    :class:`~pymeos.time.timestampset.TimestampSet`).
+
+    MEOS Functions:
+        timestamp_tunion_transfn, timestampset_tunion_transfn, timestamp_tunion_finalfn
+    """
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, datetime):
@@ -25,6 +32,13 @@ class TemporalTimestampUnionAggregator(BaseAggregator[Union[datetime, TimestampS
 
 
 class TemporalPeriodUnionAggregator(BaseAggregator[Union[Period, PeriodSet], PeriodSet]):
+    """
+    Temporal union of continuous time objects (:class:`~pymeos.time.period.Period` and
+    :class:`~pymeos.time.periodset.PeriodSet`).
+
+    MEOS Functions:
+        period_tunion_transfn, periodset_tunion_transfn, period_tunion_finalfn
+    """
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, Period):

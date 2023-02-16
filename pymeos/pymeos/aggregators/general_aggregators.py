@@ -10,9 +10,24 @@ from ..temporal import Temporal, TInterpolation
 from ..time import Time, TimestampSet, Period, PeriodSet
 
 
-class TemporalInstantCountAggregator(BaseGranularAggregator[Union[Time, Temporal], TIntSeq]):
+class TemporalInstantCountAggregator(BaseGranularAggregator[
+                                         Union[datetime, TimestampSet, Temporal],
+                                         TIntSeq,
+                                         Union[str, timedelta, None],
+                                         Union[str, datetime]]):
+    """
+    Temporal count for instantaneous temporal objects:
+
+     - :class:`~datetime.datetime`
+     - :class:`~pymeos.time.timestampset.TimestampSet`
+     - :class:`~pymeos.temporal.temporal.Temporal` with Discrete interpolation
+
+    MEOS Functions:
+        timestamp_tcount_transfn, timestampset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
+    """
+
     @classmethod
-    def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
+    def _add(cls, state, temporal, interval, origin):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
             pg_interval_in(interval, -1) if isinstance(interval, str) else None
         origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
@@ -29,9 +44,24 @@ class TemporalInstantCountAggregator(BaseGranularAggregator[Union[Time, Temporal
         return state
 
 
-class TemporalPeriodCountAggregator(BaseGranularAggregator[Union[Time, Temporal], TIntSeqSet]):
+class TemporalPeriodCountAggregator(BaseGranularAggregator[
+                                        Union[Period, PeriodSet, Temporal],
+                                        TIntSeqSet,
+                                        Union[str, timedelta, None],
+                                        Union[str, datetime]]):
+    """
+    Temporal count for non-instantaneous temporal objects:
+
+     - :class:`~pymeos.time.period.Period`
+     - :class:`~pymeos.time.periodset.PeriodSet`
+     - :class:`~pymeos.temporal.temporal.Temporal` without Discrete interpolation
+
+    MEOS Functions:
+        period_tcount_transfn, periodset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
+    """
+
     @classmethod
-    def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
+    def _add(cls, state, temporal, interval, origin):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
             pg_interval_in(interval, -1) if isinstance(interval, str) else None
         origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
@@ -48,6 +78,14 @@ class TemporalPeriodCountAggregator(BaseGranularAggregator[Union[Time, Temporal]
 
 
 class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
+    """
+    Temporal extent of any kind of temporal object, i.e. smallest :class:`~pymeos.time.period.Period` that includes
+    all aggregated temporal objects.
+
+    MEOS Functions:
+        temporal_extent_transfn, timestamp_extent_transfn, timestampset_extent_transfn, span_extent_transfn,
+         spanset_extent_transfn, temporal_tagg_finalfn
+    """
 
     @classmethod
     def _add(cls, state, temporal):

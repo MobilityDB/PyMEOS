@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import abc
 from datetime import datetime, timedelta
-from typing import Optional, Union, List, Generic, TypeVar
+from typing import Optional, Union, List, Generic, TypeVar, Callable
 
 from pymeos_cffi import *
 
@@ -17,6 +17,9 @@ StateType = TypeVar('StateType')
 SourceMeosType = TypeVar('SourceMeosType')
 ResultMeosType = TypeVar('ResultMeosType')
 SelfAgg = TypeVar('SelfAgg', bound='Aggregation')
+
+IntervalType = TypeVar('IntervalType')
+OriginType = TypeVar('OriginType')
 
 
 class BaseAggregator(Generic[SourceType, ResultType], abc.ABC):
@@ -175,18 +178,78 @@ class Aggregation(Generic[SourceType, ResultType]):
         return self._finish_function(self._state)
 
 
-class BaseGranularAggregator(BaseAggregator[SourceType, ResultType]):
+class BaseGranularAggregator(Generic[SourceType, ResultType, IntervalType, OriginType]):
     """
     Abstract class for granular aggregations.
     """
 
     @staticmethod
-    def _add_function(state: Optional[StateType], meos_object: SourceMeosType, interval=None,
-                      origin=None) -> StateType:
+    def _add_function(state: Optional[StateType], meos_object: SourceMeosType, interval: IntervalType,
+                      origin: OriginType) -> StateType:
+        """
+        Add `meos_object` to the aggregation. Usually a MEOS function.
+        Args:
+            state: current state of the aggregation.
+            meos_object: new MEOS object to aggregate.
+            interval: width of the aggregation intervals
+            origin: starting value of the first interval
+
+        Returns:
+            New state of the aggregation after adding `meos_object`.
+
+        """
         raise NotImplemented
 
+    @staticmethod
+    def _final_function(state: StateType) -> ResultMeosType:
+        """
+        Return the current value of the aggregation. Usually a MEOS function.
+        Args:
+            state: current state of the aggregation.
+
+        Returns:
+            Value of the aggregation.
+
+        """
+        return temporal_tagg_finalfn(state)
+
     @classmethod
-    def aggregate(cls, temporals: List[SourceType], interval=None, origin=None) -> ResultType:
+    def _add(cls, state: Optional[StateType], temporal: SourceType, interval: IntervalType,
+             origin: OriginType) -> StateType:
+        """
+        Add the `temporal` object to the aggregation.
+        Args:
+            state: current state of the aggregation.
+            temporal: new PyMEOS object to aggregate.
+            interval: width of the aggregation intervals
+            origin: starting value of the first interval
+
+        Returns:
+            New state of the aggregation after adding `temporal`.
+
+        """
+        interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
+            pg_interval_in(interval, -1) if isinstance(interval, str) else None
+        origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
+            pg_timestamptz_in(origin, -1)
+        return cls._add_function(state, temporal._inner, interval_converted, origin_converted)
+
+    @classmethod
+    def _finish(cls, state: StateType) -> ResultType:
+        """
+        Return the current value of the aggregation.
+        Args:
+            state: current state of the aggregation.
+
+        Returns:
+            Value of the aggregation.
+
+        """
+        result = cls._final_function(state)
+        return _TemporalFactory.create_temporal(result)
+
+    @classmethod
+    def aggregate(cls, temporals: List[SourceType], interval: IntervalType, origin: OriginType) -> ResultType:
         """
         Aggregate a list of PyMEOS object at once with certain granularity.
 
@@ -210,31 +273,18 @@ class BaseGranularAggregator(BaseAggregator[SourceType, ResultType]):
         return cls._finish(state)
 
     @classmethod
-    def _add(cls, state: Optional[StateType], temporal: SourceType, interval=None, origin=None) -> StateType:
-        """
-        Add the `temporal` object to the aggregation.
-        Args:
-            state: current state of the aggregation.
-            temporal: new PyMEOS object to aggregate.
-            interval: width of the aggregation intervals
-            origin: starting value of the first interval
-
-        Returns:
-            New state of the aggregation after adding `temporal`.
-
-        """
-        interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
-            pg_interval_in(interval, -1) if isinstance(interval, str) else None
-        origin_converted = datetime_to_timestamptz(origin) if isinstance(origin, datetime) else \
-            pg_timestamptz_in(origin, -1)
-        return cls._add_function(state, temporal._inner, interval_converted, origin_converted)
-
-    @classmethod
-    def start_aggregation(cls, interval=None, origin=None) -> GranularAggregation[SourceType, ResultType]:
+    def start_aggregation(cls, interval: IntervalType, origin: OriginType) -> \
+            GranularAggregation[SourceType, ResultType, IntervalType, OriginType]:
         return GranularAggregation(cls._add, cls._finish, interval, origin)
 
+    @classmethod
+    def _error(cls, element):
+        raise TypeError(f'Cannot perform aggregation ({cls.__name__}) with the following element: '
+                        f'{element} (Class: {element.__class__})')
 
-class GranularAggregation(Aggregation[SourceType, ResultType]):
+
+class GranularAggregation(Aggregation[SourceType, ResultType],
+                          Generic[SourceType, ResultType, IntervalType, OriginType]):
     """
     Class representing a granular aggregation in process.
 
@@ -242,7 +292,11 @@ class GranularAggregation(Aggregation[SourceType, ResultType]):
     of :class:`BaseGranularAggregator` subclasses, and shouldn't be created directly by the final user.
     """
 
-    def __init__(self, add_function, finish_function, interval, origin) -> None:
+    def __init__(self,
+                 add_function: Callable[[Optional[StateType], SourceType, IntervalType, OriginType], StateType],
+                 finish_function: Callable[[StateType], ResultType],
+                 interval: IntervalType,
+                 origin: OriginType) -> None:
         super().__init__(add_function, finish_function)
         self._interval = interval
         self._origin = origin
