@@ -6,6 +6,7 @@
   They may be added again in the future, probably with some caching mechanism.
 - `Period` method `distance` now returns a `datetime.timedelta` with the distance instead
   of returning the number of seconds.
+- `BaseGranularityAggregator` renamed to `BaseGranularAggregator`
 
 ## 1.1.2
 

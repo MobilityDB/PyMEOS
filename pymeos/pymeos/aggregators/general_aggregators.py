@@ -3,14 +3,14 @@ from typing import Union
 
 from pymeos_cffi import *
 
-from .aggregator import BaseAggregator, BaseGranularityAggregator
+from .aggregator import BaseAggregator, BaseGranularAggregator
 from ..boxes import Box
 from ..main import TIntSeq, TIntSeqSet
 from ..temporal import Temporal, TInterpolation
 from ..time import Time, TimestampSet, Period, PeriodSet
 
 
-class TemporalInstantCountAggregator(BaseGranularityAggregator[Union[Time, Temporal], TIntSeq]):
+class TemporalInstantCountAggregator(BaseGranularAggregator[Union[Time, Temporal], TIntSeq]):
     @classmethod
     def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \
@@ -29,7 +29,7 @@ class TemporalInstantCountAggregator(BaseGranularityAggregator[Union[Time, Tempo
         return state
 
 
-class TemporalPeriodCountAggregator(BaseGranularityAggregator[Union[Time, Temporal], TIntSeqSet]):
+class TemporalPeriodCountAggregator(BaseGranularAggregator[Union[Time, Temporal], TIntSeqSet]):
     @classmethod
     def _add(cls, state, temporal, interval=None, origin='1970-01-01'):
         interval_converted = timedelta_to_interval(interval) if isinstance(interval, timedelta) else \

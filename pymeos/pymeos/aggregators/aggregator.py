@@ -62,7 +62,7 @@ class Aggregation(Generic[SourceType, ResultType]):
         return self._finish_function(self._state)
 
 
-class BaseGranularityAggregator(BaseAggregator[SourceType, ResultType]):
+class BaseGranularAggregator(BaseAggregator[SourceType, ResultType]):
 
     @classmethod
     def aggregate(cls, temporals: List[SourceType], interval: Optional[Union[str, timedelta]] = None,
