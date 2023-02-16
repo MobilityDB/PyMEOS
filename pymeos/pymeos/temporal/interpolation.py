@@ -24,6 +24,9 @@ class TInterpolation(IntEnum):
         Returns:
             A new :class:`TInterpolation` instance.
 
+        Raises:
+            ValueError: when `source` doesn't represent any valid interpolation and `none` is False
+
         """
         if source.lower() == 'discrete':
             return TInterpolation.DISCRETE
