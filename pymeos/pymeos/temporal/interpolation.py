@@ -16,6 +16,7 @@ class TInterpolation(IntEnum):
     def from_string(source: str, none: bool = True) -> TInterpolation:
         """
         Returns the :class:`TInterpolation` element equivalent to `source`.
+
         Args:
             source: :class:`string` representing the interpolation
             none: indicates whther to return `TIntepolation.NONE` when `source` represents an invalid interpolation
