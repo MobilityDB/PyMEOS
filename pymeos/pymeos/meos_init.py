@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pymeos_cffi import meos_initialize, meos_finish
+from pymeos_cffi import meos_initialize, meos_finalize
 
 
 def pymeos_initialize(timezone: Optional[str] = None) -> None:
@@ -25,4 +25,4 @@ def pymeos_finalize() -> None:
     MEOS Functions:
         meos_finish
     """
-    meos_finish()
+    meos_finalize()

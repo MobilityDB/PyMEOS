@@ -38,17 +38,17 @@ class TempType(Enum):
             A :class:`TempType` representing the temporal type (int, float, bool, etc.).
         """
         temp_type = c.temptype
-        if temp_type == 12:
+        if temp_type == 20:
             return cls.BOOL
-        elif temp_type == 18:
+        elif temp_type == 27:
             return cls.FLOAT
-        elif temp_type == 21:
+        elif temp_type == 29:
             return cls.INT
-        elif temp_type == 22:
+        elif temp_type == 35:
             return cls.TEXT
-        elif temp_type == 25:
+        elif temp_type == 40:
             return cls.GM_POINT
-        elif temp_type == 26:
+        elif temp_type == 41:
             return cls.GG_POINT
         raise Exception(f'Invalid temporal type: {temp_type}. Valid temporal types are: 12 (bool), 18 (float), '
                         f'21 (int), 22 (text), 25 (geometric point) and 26 (geographical point).')
