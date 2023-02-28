@@ -9,7 +9,7 @@ class TemporalSequenceSetPlotter:
 
     @staticmethod
     def plot(sequence_set: Union[TSequenceSet, List[TSequence]], *args, **kwargs):
-        seqs = sequence_set.sequences if isinstance(sequence_set, TSequenceSet) else sequence_set
+        seqs = sequence_set.sequences() if isinstance(sequence_set, TSequenceSet) else sequence_set
         plot = TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()

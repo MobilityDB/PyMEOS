@@ -26,10 +26,10 @@ class TimePlotter:
     @staticmethod
     def plot_period(period: Period, *args, axes=None, **kwargs):
         base = axes or plt.gca()
-        ll = base.axvline(period.lower, *args, linestyle='-' if period.lower_inc else '--', **kwargs)
+        ll = base.axvline(period.lower(), *args, linestyle='-' if period.lower_inc() else '--', **kwargs)
         kwargs.pop('label', None)
-        ul = base.axvline(period.upper, *args, linestyle='-' if period.upper_inc else '--', **kwargs)
-        s = base.axvspan(period.lower, period.upper, *args, alpha=0.3, **kwargs)
+        ul = base.axvline(period.upper(), *args, linestyle='-' if period.upper_inc() else '--', **kwargs)
+        s = base.axvspan(period.lower(), period.upper(), *args, alpha=0.3, **kwargs)
         return [ll, ul, s]
 
     @staticmethod

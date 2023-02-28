@@ -86,7 +86,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         Value component.
         """
-        return self.start_value
+        return self.start_value()
 
     def start_instant(self: Self) -> Self:
         """

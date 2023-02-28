@@ -9,23 +9,23 @@ class BoxPlotter:
 
     @staticmethod
     def plot_tbox(tbox: TBox, *args, axes=None, **kwargs):
-        if not tbox.has_t:
+        if not tbox.has_t():
             return RangePlotter.plot_range(tbox.to_floatrange(), *args, axes=axes, **kwargs)
-        if not tbox.has_x:
+        if not tbox.has_x():
             return TimePlotter.plot_period(tbox.to_period(), *args, axes=axes, **kwargs)
-        return BoxPlotter._plot_box(tbox.tmin, tbox.tmax, tbox.xmin, tbox.xmax, *args, axes=axes, **kwargs)
+        return BoxPlotter._plot_box(tbox.tmin(), tbox.tmax(), tbox.xmin(), tbox.xmax(), *args, axes=axes, **kwargs)
 
     @staticmethod
     def plot_stbox_xy(stbox: STBox, *args, axes=None, **kwargs):
-        return BoxPlotter._plot_box(stbox.xmin, stbox.xmax, stbox.ymin, stbox.ymax, *args, axes=axes, **kwargs)
+        return BoxPlotter._plot_box(stbox.xmin(), stbox.xmax(), stbox.ymin(), stbox.ymax(), *args, axes=axes, **kwargs)
 
     @staticmethod
     def plot_stbox_xt(stbox: STBox, *args, axes=None, **kwargs):
-        return BoxPlotter._plot_box(stbox.tmin, stbox.tmax, stbox.xmin, stbox.xmax, *args, axes=axes, **kwargs)
+        return BoxPlotter._plot_box(stbox.tmin(), stbox.tmax(), stbox.xmin(), stbox.xmax(), *args, axes=axes, **kwargs)
 
     @staticmethod
     def plot_stbox_yt(stbox: STBox, *args, axes=None, **kwargs):
-        return BoxPlotter._plot_box(stbox.tmin, stbox.tmax, stbox.ymin, stbox.ymax, *args, axes=axes, **kwargs)
+        return BoxPlotter._plot_box(stbox.tmin(), stbox.tmax(), stbox.ymin(), stbox.ymax(), *args, axes=axes, **kwargs)
 
     @staticmethod
     def _plot_box(xmin, xmax, ymin, ymax, *args, axes=None, rotate_xticks=True, draw_filling=True, **kwargs):

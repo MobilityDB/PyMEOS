@@ -550,10 +550,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def to_dataframe(self) -> GeoDataFrame:
         data = {
-            'time': self.timestamps,
+            'time': self.timestamps(),
             'geometry': [i.value() for i in self.instants()]
         }
-        return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
+        return GeoDataFrame(data, crs=self.srid()).set_index(keys=['time'])
 
     def __str__(self):
         return tpoint_out(self._inner, 6)
@@ -601,7 +601,7 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
             'time': [t for seq in sequences for t in seq.timestamps()],
             'geometry': [v for seq in sequences for v in seq.values(precision=precision)]
         }
-        return GeoDataFrame(data, crs=self.srid).set_index(keys=['sequence', 'time'])
+        return GeoDataFrame(data, crs=self.srid()).set_index(keys=['sequence', 'time'])
 
     def plot(self, *args, **kwargs):
         from ..plotters import TemporalPointSequenceSetPlotter

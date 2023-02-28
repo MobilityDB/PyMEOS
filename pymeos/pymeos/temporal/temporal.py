@@ -276,7 +276,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def to_dataframe(self) -> DataFrame:
         data = {
-            'time': self.timestamps,
+            'time': self.timestamps(),
             'value': [i.value() for i in self.instants()]
         }
         return DataFrame(data).set_index(keys='time')

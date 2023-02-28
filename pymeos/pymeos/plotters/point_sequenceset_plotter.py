@@ -9,7 +9,7 @@ class TemporalPointSequenceSetPlotter:
 
     @staticmethod
     def plot_xy(sequence_set: Union[TPointSeqSet, List[TPointSeq]], *args, **kwargs):
-        seqs = sequence_set.sequences if isinstance(sequence_set, TPointSeqSet) else sequence_set
+        seqs = sequence_set.sequences() if isinstance(sequence_set, TPointSeqSet) else sequence_set
         plot = TemporalPointSequencePlotter.plot_xy(seqs[0], *args, **kwargs)
         if 'color' not in kwargs:
             kwargs['color'] = plot[0].get_color()
