@@ -55,6 +55,7 @@ class Period:
     def from_hexwkb(hexwkb: str) -> Period:
         """
         Returns a `Period` from its WKB representation in hex-encoded ASCII.
+
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
@@ -70,6 +71,7 @@ class Period:
     def as_hexwkb(self) -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
