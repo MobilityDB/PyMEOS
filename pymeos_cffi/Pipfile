@@ -11,6 +11,3 @@ shapely = "*"
 
 [dev-packages]
 build = "*"
-
-[requires]
-python_version = "3.8"
