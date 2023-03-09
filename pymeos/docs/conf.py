@@ -33,6 +33,7 @@ intersphinx_mapping = {
     'asyncpg': ('https://magicstack.github.io/asyncpg/current/', None),
     'psycopg': ('https://www.psycopg.org/psycopg3/docs/', None),
     'psycopg2': ('https://www.psycopg.org/docs/', None),
+    'shapely': ('https://shapely.readthedocs.io/en/stable/', None),
     'python': ('https://docs.python.org/3', None)
 }
 
