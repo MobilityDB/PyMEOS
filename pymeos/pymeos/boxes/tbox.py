@@ -53,7 +53,7 @@ class TBox:
 
     Note that you can create a TBox with only the numerical or the temporal dimension. In these cases, it will be
     equivalent to a :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or to a
-    :class:`~spans.floatrange` (if it only has the numeric dimension.
+    :class:`~spans.floatrange` (if it only has the numeric dimension).
     """
     __slots__ = ['_inner']
 
@@ -125,16 +125,16 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            int_to_tbox, float_to_tbox, span_to_tbox, intspan_make, span_to_tbox, floatspan_make
+            int_to_tbox, float_to_tbox, span_to_tbox, span_to_tbox
         """
         if isinstance(value, int):
             result = int_to_tbox(value)
         elif isinstance(value, float):
             result = float_to_tbox(value)
         elif isinstance(value, intrange):
-            result = span_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+            result = numspan_to_tbox(intrange_to_intspan(value))
         elif isinstance(value, floatrange):
-            result = span_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc))
+            result = numspan_to_tbox(floatrange_to_floatspan(value))
         else:
             raise TypeError(f'Operation not supported with type {value.__class__}')
         return TBox(_inner=result)
@@ -157,7 +157,7 @@ class TBox:
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = timestampset_to_tbox(time)
+            result = tstzset_to_tbox(time)
         elif isinstance(time, Period):
             result = period_to_tbox(time)
         elif isinstance(time, PeriodSet):
@@ -181,7 +181,7 @@ class TBox:
 
         MEOS Functions:
         int_timestamp_to_tbox, int_period_to_tbox, float_timestamp_to_tbox, float_period_to_tbox,
-        span_timestamp_to_tbox, span_period_to_tbox, intspan_make, floatspan_make
+        span_timestamp_to_tbox, span_period_to_tbox
         """
         if isinstance(value, int) and isinstance(time, datetime):
             result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
@@ -192,16 +192,13 @@ class TBox:
         elif isinstance(value, float) and isinstance(time, Period):
             result = float_period_to_tbox(value, time)
         elif isinstance(value, intrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
-                                            datetime_to_timestamptz(time))
+            result = span_timestamp_to_tbox(intrange_to_intspan(value), datetime_to_timestamptz(time))
         elif isinstance(value, intrange) and isinstance(time, Period):
-            result = span_period_to_tbox(intspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc), time)
+            result = span_period_to_tbox(intrange_to_intspan(value), time)
         elif isinstance(value, floatrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
-                                            datetime_to_timestamptz(time))
+            result = span_timestamp_to_tbox(floatrange_to_floatspan(value), datetime_to_timestamptz(time))
         elif isinstance(value, floatrange) and isinstance(time, Period):
-            result = span_period_to_tbox(floatspan_make(value.lower, value.upper, value.lower_inc, value.upper_inc),
-                                         time)
+            result = span_period_to_tbox(floatrange_to_floatspan(value), time)
         else:
             raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
         return TBox(_inner=result)
@@ -468,12 +465,12 @@ class TBox:
             True if adjacent, False otherwise
 
         MEOS Functions:
-            adjacent_tbox_tbox, adjacent_tbox_tnumber
+            adjacent_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(other, TBox):
             return adjacent_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return adjacent_tbox_tnumber(self._inner, other._inner)
+            return adjacent_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -496,12 +493,12 @@ class TBox:
             True if contained, False otherwise
 
         MEOS Functions:
-            contained_tbox_tbox, contained_tbox_tnumber
+            contained_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(container, TBox):
             return contained_tbox_tbox(self._inner, container._inner)
         elif isinstance(container, TNumber):
-            return contained_tbox_tnumber(self._inner, container._inner)
+            return contained_tbox_tbox(self._inner, tnumber_to_tbox(container._inner))
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
@@ -524,26 +521,18 @@ class TBox:
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_tbox_tbox, contains_tbox_tnumber
+            contains_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(content, TBox):
             return contains_tbox_tbox(self._inner, content._inner)
         elif isinstance(content, TNumber):
-            return contains_tbox_tnumber(self._inner, content._inner)
+            return contains_tbox_tbox(self._inner, tnumber_to_tbox(content._inner))
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
     def overlaps(self, other: Union[TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` overlaps ``other``. That is, both share at least an instant or a value.
-
-        Examples:
-            >>> Period('[2012-01-01, 2012-01-02]').overlaps(Period('[2012-01-02, 2012-01-03]'))
-            >>> True
-            >>> Period('[2012-01-01, 2012-01-02)').overlaps(Period('[2012-01-02, 2012-01-03]'))
-            >>> False
-            >>> Period('[2012-01-01, 2012-01-02)').overlaps(Period('(2012-01-02, 2012-01-03]'))
-            >>> False
 
         Args:
             other: temporal object to compare with
@@ -552,90 +541,217 @@ class TBox:
             True if overlaps, False otherwise
 
         MEOS Functions:
-            overlaps_tbox_tbox, overlaps_tbox_tnumber
+            overlaps_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(other, TBox):
             return overlaps_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overlaps_tbox_tnumber(self._inner, other._inner)
+            return overlaps_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_same(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is the same as ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if same, False otherwise
+
+        MEOS Functions:
+            same_tbox_tbox, tnumber_to_tbox
+
+        """
         if isinstance(other, TBox):
             return same_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return same_tbox_tnumber(self._inner, other._inner)
+            return same_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_left(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the left of ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if left, False otherwise
+
+        MEOS Functions:
+            left_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return left_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return left_tbox_tnumber(self._inner, other._inner)
+            return left_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_left(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is to the left of ``other`` allowing overlap. That is, ``self`` does not extend to the
+        right of ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overleft, False otherwise
+
+        MEOS Functions:
+            overleft_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return overleft_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overleft_tbox_tnumber(self._inner, other._inner)
+            return overleft_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_right(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the right of ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if right, False otherwise
+
+        MEOS Functions:
+            right_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return right_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return right_tbox_tnumber(self._inner, other._inner)
+            return right_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_right(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is to the right of ``other`` allowing overlap. That is, ``self`` does not extend to the
+        left of ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overright, False otherwise
+
+        MEOS Functions:
+            overright_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return overright_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overright_tbox_tnumber(self._inner, other._inner)
+            return overright_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_before(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is strictly before ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if before, False otherwise
+
+        MEOS Functions:
+            before_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return before_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return before_tbox_tnumber(self._inner, other._inner)
+            return before_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` does not extend after
+        ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overbefore, False otherwise
+
+        MEOS Functions:
+            overbefore_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return overbefore_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overbefore_tbox_tnumber(self._inner, other._inner)
+            return overbefore_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_after(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is strictly after ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if after, False otherwise
+
+        MEOS Functions:
+            after_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return after_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return after_tbox_tnumber(self._inner, other._inner)
+            return after_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
+        """
+        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` does not extend before
+        ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overafter, False otherwise
+
+        MEOS Functions:
+            overafter_tbox_tbox, tnumber_to_tbox
+        """
         if isinstance(other, TBox):
             return overafter_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overafter_tbox_tnumber(self._inner, other._inner)
+            return overafter_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def nearest_approach_distance(self, other: TBox) -> float:
+    def nearest_approach_distance(self, other: Union[TBox, TNumber]) -> float:
+        """
+        Returns the distance between the nearest points of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            A :class:`float` with the distance between the nearest points of ``self`` and ``other``.
+
+        MEOS Functions:
+            nad_tbox_tbox
+        """
         if isinstance(other, TBox):
             return nad_tbox_tbox(self._inner, other._inner)
+        elif isinstance(other, TNumber):
+            return nad_tnumber_tbox(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -688,62 +804,189 @@ class TBox:
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_tbox_tbox, contains_tbox_tnumber
+            contains_tbox_tbox, tnumber_to_tbox
         """
         return self.contains(item)
 
     def __eq__(self, other):
+        """
+        Returns whether ``self`` is equal to ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if equal, False otherwise
+
+        MEOS Functions:
+            tbox_eq
+        """
         if isinstance(other, self.__class__):
             return tbox_eq(self._inner, other._inner)
         return False
 
     def __ne__(self, other):
+        """
+        Returns whether ``self`` is not equal to ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if not equal, False otherwise
+
+        MEOS Functions:
+            tbox_ne
+        """
         if isinstance(other, self.__class__):
             return tbox_ne(self._inner, other._inner)
         return True
 
-    def __cmp__(self, other):
+    def __cmp__(self, other) -> int:
+        """
+        Returns the result of comparing ``self`` to ``other``. The time dimension is compared first, then the space
+        dimension.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            -1 if ``self`` is less than ``other``, 0 if ``self`` is equal to ``other``, 1 if ``self`` is greater than
+             ``other``.
+
+        MEOS Functions:
+            tbox_cmp
+        """
         if isinstance(other, self.__class__):
             return tbox_cmp(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __lt__(self, other):
+        """
+        Returns whether ``self`` is less than ``other``. The time dimension is compared first, then the space dimension.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if less than, False otherwise
+
+        MEOS Functions:
+            tbox_lt
+        """
         if isinstance(other, self.__class__):
             return tbox_lt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __le__(self, other):
+        """
+        Returns whether ``self`` is less than or equal to ``other``. The time dimension is compared first, then the
+        space dimension.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if less than or equal to, False otherwise
+
+        MEOS Functions:
+            tbox_le
+        """
         if isinstance(other, self.__class__):
             return tbox_le(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __gt__(self, other):
+        """
+        Returns whether ``self`` is greater than ``other``. The time dimension is compared first, then the space
+        dimension.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if greater than, False otherwise
+
+        MEOS Functions:
+            tbox_gt
+        """
         if isinstance(other, self.__class__):
             return tbox_gt(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __ge__(self, other):
+        """
+        Returns whether ``self`` is greater than or equal to ``other``. The time dimension is compared first, then the
+        space dimension.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if greater than or equal to, False otherwise
+
+        MEOS Functions:
+            tbox_ge
+        """
         if isinstance(other, self.__class__):
             return tbox_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __copy__(self) -> TBox:
+        """
+        Returns a copy of ``self``.
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            tbox_copy
+        """
         inner_copy = tbox_copy(self._inner)
         return TBox(_inner=inner_copy)
 
+
     def __str__(self):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A string.
+
+        MEOS Functions:
+            tbox_out
+        """
         return tbox_out(self._inner, 15)
 
     def __repr__(self):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A string.
+
+        MEOS Functions:
+            tbox_out
+        """
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
     def plot(self, *args, **kwargs):
+        """
+        Plots ``self``.
+
+        See Also:
+            :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_tbox`
+        """
         from ..plotters import BoxPlotter
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     @staticmethod
     def read_from_cursor(value, _=None):
+        """
+        Reads a :class:`TBox` from a database cursor. Used when automatically loading objects from the database.
+        Users should use the class constructor instead.
+        """
         if not value:
             return None
         return TBox(string=value)

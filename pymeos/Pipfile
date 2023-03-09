@@ -16,6 +16,3 @@ psycopg2 = "*"
 tqdm = "*"
 sphinx = "*"
 pytest = "*"
-
-[requires]
-python_version = "3.8"
