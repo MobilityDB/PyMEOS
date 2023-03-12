@@ -1,28 +1,3 @@
-###############################################################################
-#
-# This MobilityDB code is provided under The PostgreSQL License.
-#
-# Copyright (c) 2019-2022, Université libre de Bruxelles and MobilityDB
-# contributors
-#
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for any purpose, without fee, and without a written 
-# agreement is hereby granted, provided that the above copyright notice and
-# this paragraph and the following two paragraphs appear in all copies.
-#
-# IN NO EVENT SHALL UNIVERSITE LIBRE DE BRUXELLES BE LIABLE TO ANY PARTY FOR
-# DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
-# LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
-# EVEN IF UNIVERSITE LIBRE DE BRUXELLES HAS BEEN ADVISED OF THE POSSIBILITY 
-# OF SUCH DAMAGE.
-#
-# UNIVERSITE LIBRE DE BRUXELLES SPECIFICALLY DISCLAIMS ANY WARRANTIES, 
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
-# AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO 
-# PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
-#
-###############################################################################
 from __future__ import annotations
 
 from abc import ABC
@@ -43,7 +18,7 @@ Self = TypeVar('Self', bound='TSequenceSet[Any]')
 
 class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
-    Abstract class for representing temporal values of sequence set subtype.
+    Base class for temporal sequence set types, i.e. temporal values that are defined by a set of temporal sequences.
     """
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, Any]]] = None,
@@ -62,49 +37,67 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     @classmethod
     def from_sequences(cls: Type[Self], sequence_list: Optional[List[Union[str, Any]]] = None,
                        normalize: bool = True) -> Self:
+        """
+        Create a temporal sequence set from a list of sequences.
+
+        Args:
+            sequence_list: List of sequences.
+            normalize: Whether to normalize the temporal sequence set.
+
+        Returns:
+            A temporal sequence set.
+        """
         return cls(sequence_list=sequence_list, normalize=normalize)
 
     def num_sequences(self) -> int:
         """
-        Number of sequences.
+        Returns the number of sequences in ``self``.
         """
         return temporal_num_sequences(self._inner)
 
     def start_sequence(self) -> TS:
         """
-        Start sequence.
+        Returns the first sequence in ``self``.
         """
         return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     def end_sequence(self) -> TS:
         """
-        End sequence.
+        Returns the last sequence in ``self``.
         """
         return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
     def sequence_n(self, n) -> TS:
         """
-        N-th sequence.
+        Returns the ``n``-th sequence in ``self``.
         """
-        # 1-based
-        return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n))
+        return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n + 1))
 
     def sequences(self) -> List[TS]:
         """
-        List of sequences.
+        Returns the list of sequences in ``self``.
         """
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
     def to_dataframe(self) -> DataFrame:
+        """
+        Returns a pandas DataFrame representation of ``self``.
+        """
         sequences = self.sequences()
         data = {
-            'sequence': [i for i, seq in enumerate(sequences, start=1) for _ in range(seq.num_instants())],
+            'sequence': [i for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],
             'time': [t for seq in sequences for t in seq.timestamps()],
             'value': [v for seq in sequences for v in seq.values()]
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])
 
     def plot(self, *args, **kwargs):
+        """
+        Plot the temporal sequence set.
+
+        See Also:
+            :meth:`pymeos.plotters.TemporalSequenceSetPlotter.plot`
+        """
         from ..plotters import TemporalSequenceSetPlotter
         return TemporalSequenceSetPlotter.plot(self, *args, **kwargs)
