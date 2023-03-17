@@ -305,6 +305,7 @@ class STBox:
         return Period(_inner=stbox_to_period(self._inner))
 
     def has_xy(self) -> bool:
+
         """
         Returns whether ``self`` has a spatial (XY) dimension.
 

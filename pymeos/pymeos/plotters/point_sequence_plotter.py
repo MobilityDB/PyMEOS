@@ -21,7 +21,7 @@ class TemporalPointSequencePlotter:
         else:
             plot_func = base.scatter
 
-        ins = sequence.instants if isinstance(sequence, TPointSeq) else sequence
+        ins = sequence.instants() if isinstance(sequence, TPointSeq) else sequence
         x = [i.x().value() for i in ins]
         y = [i.y().value() for i in ins]
 

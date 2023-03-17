@@ -49,7 +49,7 @@ class Period:
         else:
             lower_ts = pg_timestamptz_in(lower, -1) if isinstance(lower, str) else datetime_to_timestamptz(lower)
             upper_ts = pg_timestamptz_in(upper, -1) if isinstance(upper, str) else datetime_to_timestamptz(upper)
-            self._inner = period_make(lower_ts, upper_ts, lower_inc, upper_inc)
+            self._inner = tstzspan_make(lower_ts, upper_ts, lower_inc, upper_inc)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> Period:
@@ -209,12 +209,13 @@ class Period:
             period_shift_tscale
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        p = period_shift_tscale(
+        shifted = span_copy(self._inner)
+        period_shift_tscale(
+            shifted,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
-            self._inner
         )
-        return Period(_inner=p)
+        return Period(_inner=shifted)
 
     def expand(self, other: Period) -> Period:
         """
@@ -280,13 +281,13 @@ class Period:
         if isinstance(other, Period):
             return adjacent_span_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            return adjacent_span_spanset(self._inner, other._inner)
+            return adjacent_spanset_span(other._inner, self._inner)
         elif isinstance(other, datetime):
             return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            return adjacent_period_timestampset(self._inner, other._inner)
+            return adjacent_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return adjacent_period_temporal(self._inner, other._inner)
+            return adjacent_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return adjacent_span_span(self._inner, other.to_period()._inner)
         else:
@@ -321,7 +322,7 @@ class Period:
         elif isinstance(container, PeriodSet):
             return contained_span_spanset(self._inner, container._inner)
         elif isinstance(container, Temporal):
-            return contained_period_temporal(self._inner, container._inner)
+            return contained_span_span(self._inner, temporal_to_period(container._inner))
         elif isinstance(container, Box):
             return contained_span_span(self._inner, container.to_period()._inner)
         else:
@@ -360,9 +361,9 @@ class Period:
         elif isinstance(content, datetime):
             return contains_period_timestamp(self._inner, datetime_to_timestamptz(content))
         elif isinstance(content, TimestampSet):
-            return contains_period_timestampset(self._inner, content._inner)
+            return contains_span_span(self._inner, content._inner.span)
         elif isinstance(content, Temporal):
-            return contains_period_temporal(self._inner, content._inner)
+            return contains_span_span(self._inner, temporal_to_period(content._inner))
         elif isinstance(content, Box):
             return contains_span_span(self._inner, content.to_period()._inner)
         else:
@@ -397,11 +398,11 @@ class Period:
         if isinstance(other, Period):
             return overlaps_span_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            return overlaps_span_spanset(self._inner, other._inner)
+            return overlaps_spanset_span(other._inner, self._inner)
         elif isinstance(other, TimestampSet):
-            return overlaps_period_timestampset(self._inner, other._inner)
+            return overlaps_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return overlaps_period_temporal(self._inner, other._inner)
+            return overlaps_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return overlaps_span_span(self._inner, other.to_period()._inner)
         else:
@@ -437,11 +438,11 @@ class Period:
         elif isinstance(other, PeriodSet):
             return right_span_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            return after_period_timestamp(self._inner, datetime_to_timestamptz(other))
+            return overbefore_timestamp_period(datetime_to_timestamptz(other), self._inner)
         if isinstance(other, TimestampSet):
-            return after_period_timestampset(self._inner, other._inner)
+            return right_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return after_period_temporal(self._inner, other._inner)
+            return right_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return right_span_span(self._inner, other.to_period()._inner)
         else:
@@ -477,11 +478,11 @@ class Period:
         elif isinstance(other, PeriodSet):
             return left_span_spanset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            return before_period_timestamp(self._inner, datetime_to_timestamptz(other))
+            return overafter_timestamp_period(datetime_to_timestamptz(other), self._inner)
         if isinstance(other, TimestampSet):
-            return before_period_timestampset(self._inner, other._inner)
+            return left_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return before_period_temporal(self._inner, other._inner)
+            return left_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return left_span_span(self._inner, other.to_period()._inner)
         else:
@@ -520,9 +521,9 @@ class Period:
         elif isinstance(other, datetime):
             return overafter_period_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
-            return overafter_period_timestampset(self._inner, other._inner)
+            return overright_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return overafter_period_temporal(self._inner, other._inner)
+            return overright_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return overright_span_span(self._inner, other.to_period()._inner)
         else:
@@ -561,9 +562,9 @@ class Period:
         elif isinstance(other, datetime):
             return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
-            return overbefore_period_timestampset(self._inner, other._inner)
+            return overleft_span_span(self._inner, other._inner.span)
         elif isinstance(other, Temporal):
-            return overbefore_period_temporal(self._inner, other._inner)
+            return overleft_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, Box):
             return overleft_span_span(self._inner, other.to_period()._inner)
         else:
@@ -571,7 +572,7 @@ class Period:
 
     def is_same(self, other: Temporal) -> bool:
         """
-        Returns whether ``self`` and ``other`` have the same temporal dimension.
+        Returns whether ``self`` and the bounding period of ``other`` is the same.
 
         Args:
             other: temporal object to compare with
@@ -584,7 +585,7 @@ class Period:
         """
         from ..temporal import Temporal
         if isinstance(other, Temporal):
-            return same_period_temporal(self._inner, other._inner)
+            return span_eq(self._inner, temporal_to_period(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -599,7 +600,7 @@ class Period:
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_span_span, distance_period_periodset, distance_period_timestamp, distance_period_timestampset
+            distance_span_span, distance_spanset_span, distance_period_timestamp
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
@@ -607,30 +608,26 @@ class Period:
         if isinstance(other, Period):
             return timedelta(seconds=distance_span_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
-            return timedelta(seconds=distance_period_periodset(self._inner, other._inner))
+            return timedelta(seconds=distance_spanset_span(other._inner, self._inner))
         elif isinstance(other, datetime):
             return timedelta(seconds=distance_period_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return timedelta(seconds=distance_period_timestampset(self._inner, other._inner))
+            return timedelta(seconds=distance_span_span(self._inner, other._inner.span))
         elif isinstance(other, Box):
             return timedelta(seconds=distance_span_span(self._inner, other.to_period()._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+
+    @overload
+    def intersection(self, other: datetime) -> datetime:
+        ...
     @overload
     def intersection(self, other: Period) -> Period:
         ...
 
     @overload
-    def intersection(self, other: PeriodSet) -> PeriodSet:
-        ...
-
-    @overload
-    def intersection(self, other: datetime) -> datetime:
-        ...
-
-    @overload
-    def intersection(self, other: TimestampSet) -> TimestampSet:
+    def intersection(self, other: Union[TimestampSet, PeriodSet]) -> PeriodSet:
         ...
 
     def intersection(self, other: Time) -> Time:
@@ -644,19 +641,18 @@ class Period:
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_span_span, intersection_span_spanset, intersection_period_timestamp,
-            intersection_period_timestampset
+        intersection_span_span, intersection_spanset_span, intersection_period_timestamp
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
-        if isinstance(other, Period):
-            return Period(_inner=intersection_span_span(self._inner, other._inner))
-        elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=intersection_span_spanset(self._inner, other._inner))
-        elif isinstance(other, datetime):
+        if isinstance(other, datetime):
             return timestamptz_to_datetime(intersection_period_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return TimestampSet(_inner=intersection_period_timestampset(self._inner, other._inner))
+            return TimestampSet(_inner=intersection_spanset_span(set_to_spanset(other._inner), self._inner))
+        elif isinstance(other, Period):
+            return Period(_inner=intersection_span_span(self._inner, other._inner))
+        elif isinstance(other, PeriodSet):
+            return PeriodSet(_inner=intersection_spanset_span(other._inner, self._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -671,19 +667,18 @@ class Period:
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            minus_span_span, minus_span_spanset, minus_period_timestamp,
-            minus_period_timestampset
+        minus_period_timestamp, minus_span_spanset, minus_span_span
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
-        if isinstance(other, Period):
+        if isinstance(other, datetime):
+            return PeriodSet(_inner=minus_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return PeriodSet(_inner=minus_span_spanset(self._inner, set_to_spanset(other._inner)))
+        elif isinstance(other, Period):
             return PeriodSet(_inner=minus_span_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
             return PeriodSet(_inner=minus_span_spanset(self._inner, other._inner))
-        elif isinstance(other, datetime):
-            return PeriodSet(_inner=minus_period_timestamp(self._inner, datetime_to_timestamptz(other)))
-        elif isinstance(other, TimestampSet):
-            return PeriodSet(_inner=minus_period_timestampset(self._inner, other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -698,19 +693,18 @@ class Period:
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_span_span, union_span_spanset, union_period_timestamp,
-            union_period_timestampset
+        union_period_timestamp, union_spanset_span, union_span_span
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+        if isinstance(other, datetime):
+            return PeriodSet(_inner=union_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, TimestampSet):
+            return PeriodSet(_inner=union_spanset_span(set_to_spanset(other._inner), self._inner))
         if isinstance(other, Period):
             return PeriodSet(_inner=union_span_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=union_span_spanset(self._inner, other._inner))
-        elif isinstance(other, datetime):
-            return PeriodSet(_inner=union_period_timestamp(self._inner, datetime_to_timestamptz(other)))
-        elif isinstance(other, TimestampSet):
-            return PeriodSet(_inner=union_period_timestampset(self._inner, other._inner))
+            return PeriodSet(_inner=union_spanset_span(other._inner, self._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -725,8 +719,7 @@ class Period:
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_span_span, intersection_span_spanset, intersection_period_timestamp,
-            intersection_period_timestampset
+        intersection_span_span, intersection_spanset_span, intersection_period_timestamp
         """
         return self.intersection(other)
 
@@ -741,8 +734,7 @@ class Period:
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_span_span, union_span_spanset, union_period_timestamp,
-            union_period_timestampset
+        union_period_timestamp, union_spanset_span, union_span_span
         """
         return self.union(other)
 
@@ -757,8 +749,7 @@ class Period:
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            minus_span_span, minus_span_spanset, minus_period_timestamp,
-            minus_period_timestampset
+        minus_period_timestamp, minus_span_spanset, minus_span_span
         """
         return self.minus(other)
 
@@ -907,6 +898,10 @@ class Period:
 
     @staticmethod
     def read_from_cursor(value, _=None):
+        """
+        Reads a :class:`Period` from a database cursor. Used when automatically loading objects from the database.
+        Users should use the class constructor instead.
+        """
         if not value:
             return None
         return Period(string=value)

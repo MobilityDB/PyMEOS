@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Union, TYPE_CHECKING, Tuple, Set, Generic, TypeVar, Type
+from typing import Optional, List, Union, TYPE_CHECKING, Set, Generic, TypeVar, Type
 
 from pandas import DataFrame
 from pymeos_cffi import *
@@ -40,6 +40,21 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     """
 
     _parse_function = None
+
+    @staticmethod
+    def from_base_time(value: TBase, base: Time) -> TG:
+        """
+        Create a temporal object from a boolean value and a time object.
+
+        Args:
+            value: Base value.
+            base: Time object to use as temporal dimension.
+
+        Returns:
+            A new temporal object.
+
+        """
+        pass
 
     def _expandable(self) -> bool:
         return False
@@ -609,7 +624,24 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
         """
-        Returns whether the bounding period of `self` is adjacent to the bounding period of `other`.
+        Returns whether the bounding box of `self` is adjacent to the bounding box of `other`.
+        Temporal subclasses may override this method to provide more specific behavior related to their types and
+        check adjacency over more dimensions.
+
+        Args:
+            other: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if adjacent, False otherwise.
+
+        See Also:
+            :meth:`Period.is_adjacent`
+        """
+        return self.period().is_adjacent(other)
+
+    def is_temporally_adjacent(self, other: Union[Time, Temporal]) -> bool:
+        """
+        Returns whether the bounding period of `self` is temporally adjacent to the bounding period of `other`.
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -625,6 +657,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def is_contained_in(self, container: Union[Time, Temporal]) -> bool:
         """
         Returns whether the bounding period of `self` is contained in the bounding period of `container`.
+        Temporal subclasses may override this method to provide more specific behavior related to their types
 
         Args:
             container: A time or temporal object to compare to `self`.
@@ -640,6 +673,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def contains(self, content: Union[Time, Temporal]) -> bool:
         """
         Returns whether the bounding period of `self` contains the bounding period of `content`.
+        Temporal subclasses may override this method to provide more specific behavior related to their types
 
         Args:
             content: A time or temporal object to compare to `self`.
@@ -655,6 +689,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def overlaps(self, other: Union[Time, Temporal]) -> bool:
         """
         Returns whether the bounding period of `self` overlaps the bounding period of `other`.
+        Temporal subclasses may override this method to provide more specific behavior related to their types
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -670,6 +705,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def is_same(self, other: Union[Time, Temporal]) -> bool:
         """
         Returns whether the bounding period of `self` is the same as the bounding period of `other`.
+        Temporal subclasses may override this method to provide more specific behavior related to their types
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -979,7 +1015,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         Returns whether the bounding period of `self` contains the bounding period of `content`.
 
         Args:
-            content: A time or temporal object to compare to `self`.
+            item: A time or temporal object to compare to `self`.
 
         Returns:
             True if contains, False otherwise.

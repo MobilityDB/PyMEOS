@@ -7,7 +7,6 @@ from typing import Optional, Union, Any, TYPE_CHECKING, TypeVar, List
 from pymeos_cffi import *
 
 from .temporal import Temporal
-from ..time import Period
 
 if TYPE_CHECKING:
     pass
