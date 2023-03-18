@@ -131,10 +131,9 @@ function_notes = {
 }
 
 function_modifiers = {
-    'period_shift_tscale': period_shift_tscale_modifier,
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
-    'timestampset_make': timestampset_make_modifier,
+    'tstzset_make': tstzset_make_modifier,
     'tint_at_values': tint_at_values_modifier,
     'tint_minus_values': tint_minus_values_modifier,
     'tfloat_at_values': tfloat_at_values_modifier,

@@ -7,13 +7,6 @@ def array_length_remover_modifier(list_name: str, length_param_name: str = 'coun
         .replace(f', {length_param_name}', f', len({list_name})')
 
 
-def period_shift_tscale_modifier(function: str) -> str:
-    return function \
-        .replace(') ->', ', result: "Optional[\'Period *\']") ->') \
-        .replace("out_result = _ffi.new('Period *')",
-                 "out_result = _ffi.cast('Period *', result) if result is not None else _ffi.new('Period *')")
-
-
 def cstring2text_modifier(_: str) -> str:
     return """def cstring2text(cstring: str) -> 'text *':
     cstring_converted = cstring.encode('utf-8')
@@ -28,7 +21,7 @@ def text2cstring_modifier(_: str) -> str:
     return result"""
 
 
-def timestampset_make_modifier(function: str) -> str:
+def tstzset_make_modifier(function: str) -> str:
     return function \
         .replace('times: int', 'times: List[int]') \
         .replace("times_converted = _ffi.cast('const TimestampTz *', times)",
