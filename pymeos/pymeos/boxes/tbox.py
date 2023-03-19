@@ -57,6 +57,14 @@ class TBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = tbox_make(period, span)
 
+    def _inner_period(self):
+        from pymeos_cffi.functions import _ffi
+        return _ffi.addressof(self._inner.period)
+
+    def _inner_span(self):
+        from pymeos_cffi.functions import _ffi
+        return _ffi.addressof(self._inner.span)
+
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TBox:
         """
@@ -419,7 +427,7 @@ class TBox:
         result = intersection_tbox_tbox(self._inner, other._inner)
         return TBox(_inner=result) if result else None
 
-    def is_adjacent(self, other: Union[TBox, TNumber]) -> bool:
+    def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share only the temporal or numerical bound
         and only one of them contains it.
@@ -433,7 +441,7 @@ class TBox:
             >>> False  # Adjacent in both bounds
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if adjacent, False otherwise
@@ -441,7 +449,16 @@ class TBox:
         MEOS Functions:
             adjacent_tbox_tbox, tnumber_to_tbox
         """
-        if isinstance(other, TBox):
+        if isinstance(other, int):
+            return adjacent_span_span(self._inner_span(), float_to_floaspan(float(other)))
+        elif isinstance(other, float):
+            return adjacent_span_span(self._inner_span(), float_to_floaspan(other))
+        elif isinstance(other, intrange):
+            from pymeos_cffi.functions import _ffi
+            return adjacent_span_span(_ffi.addressof(self._inner, 'span'), intrange_to_intspan(other))
+        elif isinstance(other, floatrange):
+            return adjacent_span_span(self._inner.span, floatrange_to_floatspan(other))
+        elif isinstance(other, TBox):
             return adjacent_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
             return adjacent_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
@@ -918,7 +935,6 @@ class TBox:
         """
         inner_copy = tbox_copy(self._inner)
         return TBox(_inner=inner_copy)
-
 
     def __str__(self):
         """

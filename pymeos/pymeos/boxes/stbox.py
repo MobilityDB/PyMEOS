@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-from typing import Optional, Union, List
+from typing import Optional, Union, List, TYPE_CHECKING
 
-from postgis import Geometry
+import postgis as pg
 from pymeos_cffi import *
-from shapely.geometry.base import BaseGeometry
+import shapely.geometry.base as shp
 
 from ..main import TPoint
+from ..temporal import Temporal
 from ..time import *
+
+Geometry = Union[pg.Geometry, shp.BaseGeometry]
+
+if TYPE_CHECKING:
+    from .box import Box
 
 
 class STBox:
@@ -63,6 +69,29 @@ class STBox:
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
 
     @staticmethod
+    def _get_box(other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
+                 allow_time_only: bool = False) -> STBox:
+        if allow_space_only and isinstance(other, Geometry):
+            other_box = geo_to_stbox(geometry_to_gserialized(other))
+        elif isinstance(other, STBox):
+            other_box = other._inner
+        elif isinstance(other, TPoint):
+            other_box = tpoint_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, Temporal):
+            other_box = period_to_stbox(temporal_to_period(other._inner))
+        elif allow_time_only and isinstance(other, datetime):
+            other_box = timestamp_to_stbox(datetime_to_timestamptz(other))
+        elif allow_time_only and isinstance(other, TimestampSet):
+            other_box = tstzset_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, Period):
+            other_box = period_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, PeriodSet):
+            other_box = periodset_to_stbox(other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return other_box
+
+    @staticmethod
     def from_hexwkb(hexwkb: str) -> STBox:
         """
         Returns a `STBox` from its WKB representation in hex-encoded ASCII.
@@ -105,7 +134,7 @@ class STBox:
         MEOS Functions:
             gserialized_in, geo_to_stbox
         """
-        gs = gserialized_in(geom.to_ewkb(), -1)
+        gs = geometry_to_gserialized(geom)
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
@@ -150,7 +179,7 @@ class STBox:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
         if isinstance(value, Geometry):
-            gs = gserialized_in(value.to_ewkb(), -1)
+            gs = geometry_to_gserialized(value)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
             result = tpoint_expand_space(value._inner, expansion)
@@ -175,7 +204,7 @@ class STBox:
         MEOS Functions:
             geo_timestamp_to_stbox, geo_period_to_stbox
         """
-        gs = gserialized_in(geometry.to_ewkb(), -1)
+        gs = geometry_to_gserialized(geometry)
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
@@ -205,7 +234,7 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     def tile(self, size: Optional[float] = None, duration: Optional[Union[timedelta, str]] = None,
-             origin: Optional[Union[BaseGeometry, Geometry]] = None,
+             origin: Optional[Geometry] = None,
              start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
         """
         Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the tiles of ``self``.
@@ -249,7 +278,7 @@ class STBox:
                   for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
 
     def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
-                  origin: Optional[Union[BaseGeometry, Geometry]] = None,
+                  origin: Optional[Geometry] = None,
                   start: Union[datetime, str, None] = None) -> List[STBox]:
         """
         Returns a flat list of `STBox` instances representing the tiles of ``self``.
@@ -277,7 +306,7 @@ class STBox:
                 for b in z
                 ]
 
-    def to_geometry(self, precision: int = 15) -> BaseGeometry:
+    def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:
         """
         Returns the spatial dimension of ``self`` as a `shapely` :class:`~shapely.BaseGeometry` instance.
 
@@ -599,10 +628,11 @@ class STBox:
         result = intersection_stbox_stbox(self._inner, other._inner)
         return STBox(_inner=result) if result else None
 
-    def is_adjacent(self, other: Union[STBox, TPoint]) -> bool:
+    def is_adjacent(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` and `other` are adjacent. Two spatiotemporal boxes are adjacent if they share n
-        dimensions and the intersection is of at most n-1 dimensions.
+        dimensions and the intersection is of at most n-1 dimensions. Note that for `TPoint` instances, the bounding box
+        of the temporal point is used.
 
         Args:
             other: The other spatiotemporal object to check adjacency with ``self``.
@@ -611,16 +641,11 @@ class STBox:
             ``True`` if ``self`` and `other` are adjacent, ``False`` otherwise.
 
         MEOS Functions:
-            adjacent_stbox_stbox, tpoint_to_stbox
+            adjacent_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return adjacent_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return adjacent_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return adjacent_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
 
-    def is_contained_in(self, container: Union[STBox, TPoint]) -> bool:
+    def is_contained_in(self, container: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is contained in `container`. Note that for `TPoint` instances, the bounding
         box of the temporal point is used.
@@ -632,18 +657,14 @@ class STBox:
             ``True`` if ``self`` is contained in `container`, ``False`` otherwise.
 
         MEOS Functions:
-            contained_stbox_stbox, tpoint_to_stbox
+            contained_stbox_stbox
         """
-        if isinstance(container, STBox):
-            return contained_stbox_stbox(self._inner, container._inner)
-        elif isinstance(container, TPoint):
-            return contained_stbox_stbox(self._inner, tpoint_to_stbox(container._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {container.__class__}')
+        return contained_stbox_stbox(self._inner, self._get_box(container, allow_time_only=True))
 
-    def contains(self, content: Union[STBox, TPoint]) -> bool:
+    def contains(self, content: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` contains `content`.
+        Returns whether ``self`` contains `content`. Note that for `TPoint` instances, the bounding box of
+        the temporal point is used.
 
         Args:
             content: The spatiotemporal object to check containment with ``self``.
@@ -652,18 +673,14 @@ class STBox:
             ``True`` if ``self`` contains `content`, ``False`` otherwise.
 
         MEOS Functions:
-            contains_stbox_stbox, tpoint_to_stbox
+            contains_stbox_stbox
         """
-        if isinstance(content, STBox):
-            return contains_stbox_stbox(self._inner, content._inner)
-        elif isinstance(content, TPoint):
-            return contains_stbox_stbox(self._inner, tpoint_to_stbox(content._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {content.__class__}')
+        return contains_stbox_stbox(self._inner, self._get_box(content, allow_time_only=True))
 
-    def overlaps(self, other: Union[STBox, TPoint]) -> bool:
+    def overlaps(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` overlaps `other`.
+        Returns whether ``self`` overlaps `other`. Note that for `TPoint` instances, the bounding box of
+        the temporal point is used.
 
         Args:
             other: The spatiotemporal object to check overlap with ``self``.
@@ -672,16 +689,11 @@ class STBox:
             ``True`` if ``self`` overlaps `other`, ``False`` otherwise.
 
         MEOS Functions:
-            overlaps_stbox_stbox, tpoint_to_stbox
+            overlaps_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return overlaps_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overlaps_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overlaps_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
 
-    def is_same(self, other: Union[STBox, TPoint]) -> bool:
+    def is_same(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is the same as `other`. Note that for `TPoint` instances, the bounding box of
         the temporal point is used.
@@ -693,16 +705,11 @@ class STBox:
             ``True`` if ``self`` is the same as `other`, ``False`` otherwise.
 
         MEOS Functions:
-            same_stbox_stbox, tpoint_to_stbox
+            same_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return same_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return same_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return same_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
 
-    def is_left(self, other: Union[STBox, TPoint]) -> bool:
+    def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly to the left  of `other`. Checks the X dimension.
 
@@ -713,16 +720,11 @@ class STBox:
             ``True`` if ``self`` is strictly to the left of `other`, ``False`` otherwise.
 
         MEOS Functions:
-            left_stbox_stbox, tpoint_to_stbox
+            left_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return left_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return left_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return left_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_left(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is to the left `other` allowing for overlap. That is, ``self`` does not extend
         to the right of `other`. Checks the X dimension.
@@ -736,14 +738,9 @@ class STBox:
         MEOS Functions:
             overleft_stbox_stbox, tpoint_to_stbox
         """
-        if isinstance(other, STBox):
-            return overleft_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overleft_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overleft_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_right(self, other: Union[STBox, TPoint]) -> bool:
+    def is_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly to the right of `other`. Checks the X dimension.
 
@@ -754,16 +751,11 @@ class STBox:
             ``True`` if ``self`` is strictly to the right of `other`, ``False`` otherwise.
 
         MEOS Functions:
-            right_stbox_stbox, tpoint_to_stbox
+            right_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return right_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return right_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return right_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_right(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is to the right of `other` allowing for overlap. That is, ``self`` does not
         extend to the left of `other`. Checks the X dimension.
@@ -775,16 +767,11 @@ class STBox:
             ``True`` if ``self`` is to the right of `other` allowing for overlap, ``False`` otherwise.
 
         MEOS Functions:
-            overright_stbox_stbox, tpoint_to_stbox
+            overright_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return overright_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overright_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overright_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_below(self, other: Union[STBox, TPoint]) -> bool:
+    def is_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly below `other`. Checks the Y dimension.
 
@@ -795,16 +782,11 @@ class STBox:
             ``True`` if ``self`` is strictly below `other`, ``False`` otherwise.
 
         MEOS Functions:
-            below_stbox_stbox, tpoint_to_stbox
+            below_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return below_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return below_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return below_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_below(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is below `other` allowing for overlap. That is, ``self`` does not extend
         above `other`. Checks the Y dimension.
@@ -816,16 +798,11 @@ class STBox:
             ``True`` if ``self`` is below `other` allowing for overlap, ``False`` otherwise.
 
         MEOS Functions:
-            overbelow_stbox_stbox, tpoint_to_stbox
+            overbelow_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return overbelow_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overbelow_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overbelow_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_above(self, other: Union[STBox, TPoint]) -> bool:
+    def is_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly above `other`. Checks the Y dimension.
 
@@ -836,16 +813,11 @@ class STBox:
             ``True`` if ``self`` is strictly above `other`, ``False`` otherwise.
 
         MEOS Functions:
-            above_stbox_stbox, tpoint_to_stbox
+            above_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return above_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return above_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return above_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_above(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is above `other` allowing for overlap. That is, ``self`` does not extend
         below `other`. Checks the Y dimension.
@@ -857,16 +829,11 @@ class STBox:
             ``True`` if ``self`` is above `other` allowing for overlap, ``False`` otherwise.
 
         MEOS Functions:
-            overabove_stbox_stbox, tpoint_to_stbox
+            overabove_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return overabove_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overabove_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overabove_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_front(self, other: Union[STBox, TPoint]) -> bool:
+    def is_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly in front of `other`. Checks the Z dimension.
 
@@ -877,16 +844,11 @@ class STBox:
             ``True`` if ``self`` is strictly in front of `other`, ``False`` otherwise.
 
         MEOS Functions:
-            front_stbox_stbox, tpoint_to_stbox
+            front_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return front_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return front_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return front_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_front(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is in front of `other` allowing for overlap. That is, ``self`` does not extend
         behind `other`. Checks the Z dimension.
@@ -898,16 +860,11 @@ class STBox:
             ``True`` if ``self`` is in front of `other` allowing for overlap, ``False`` otherwise.
 
         MEOS Functions:
-            overfront_stbox_stbox, tpoint_to_stbox
+            overfront_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return overfront_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overfront_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return overfront_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_behind(self, other: Union[STBox, TPoint]) -> bool:
+    def is_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly behind `other`. Checks the Z dimension.
 
@@ -918,16 +875,11 @@ class STBox:
             ``True`` if ``self`` is strictly behind `other`, ``False`` otherwise.
 
         MEOS Functions:
-            back_stbox_stbox, tpoint_to_stbox
+            back_stbox_stbox
         """
-        if isinstance(other, STBox):
-            return back_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return back_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return back_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_behind(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is behind `other` allowing for overlap. That is, ``self`` does not extend
         in front of `other`. Checks the Z dimension.
@@ -937,15 +889,13 @@ class STBox:
 
         Returns:
             ``True`` if ``self`` is behind `other` allowing for overlap, ``False`` otherwise.
-        """
-        if isinstance(other, STBox):
-            return overback_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overback_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_before(self, other: Union[STBox, TPoint]) -> bool:
+        MEOS Functions:
+            overback_stbox_stbox
+        """
+        return overback_stbox_stbox(self._inner, self._get_box(other))
+
+    def is_before(self, other: Union[Box, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is strictly before `other`. Checks the time dimension.
 
@@ -955,14 +905,9 @@ class STBox:
         Returns:
             ``True`` if ``self`` is strictly before `other`, ``False`` otherwise.
         """
-        if isinstance(other, STBox):
-            return before_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return before_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.to_period().is_before(other)
 
-    def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_before(self, other: Union[Box, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is before `other` allowing for overlap. That is, ``self`` does not extend
         after `other`. Checks the time dimension.
@@ -973,14 +918,9 @@ class STBox:
         Returns:
             ``True`` if ``self`` is before `other` allowing for overlap, ``False`` otherwise.
         """
-        if isinstance(other, STBox):
-            return overbefore_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overbefore_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.to_period().is_over_or_before(other)
 
-    def is_after(self, other: Union[STBox, TPoint]) -> bool:
+    def is_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is strictly after `other`. Checks the time dimension.
 
@@ -989,18 +929,10 @@ class STBox:
 
         Returns:
             ``True`` if ``self`` is strictly after `other`, ``False`` otherwise.
-
-        MEOS Functions:
-            after_stbox_stbox, tpoint_to_stbox
         """
-        if isinstance(other, STBox):
-            return after_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return after_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.to_period().is_after(other)
 
-    def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
+    def is_over_or_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is after `other` allowing for overlap. That is, ``self`` does not extend
         before `other`. Checks the time dimension.
@@ -1010,16 +942,8 @@ class STBox:
 
         Returns:
             ``True`` if ``self`` is after `other` allowing for overlap, ``False`` otherwise.
-
-        MEOS Functions:
-            overafter_stbox_stbox, tpoint_to_stbox
         """
-        if isinstance(other, STBox):
-            return overafter_stbox_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overafter_stbox_stbox(self._inner, tpoint_to_stbox(other._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.to_period().is_over_or_after(other)
 
     def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
         """
@@ -1035,7 +959,7 @@ class STBox:
             nad_stbox_geo, nad_stbox_stbox
         """
         if isinstance(other, Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+            gs = geometry_to_gserialized(other)
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):
             return nad_stbox_stbox(self._inner, other._inner)

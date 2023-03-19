@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from datetime import datetime
 from typing import Union, List, TYPE_CHECKING, TypeVar
 
 from pymeos_cffi import *
@@ -11,7 +10,7 @@ from ..temporal import Temporal
 
 if TYPE_CHECKING:
     from ..boxes import TBox
-    from ..time import TimestampSet, Period, PeriodSet
+    from ..time import Time
     from .tfloat import TFloat
 
 TBase = TypeVar('TBase', int, float)
@@ -23,169 +22,164 @@ TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
 
 class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
-    def is_adjacent(self, other: Union[TBox, TNumber, floatrange, intrange,
-                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, TBox):
-            return adjacent_tnumber_tbox(self._inner, other._inner)
+    def bounding_box(self) -> TBox:
+        """
+        Returns the bounding box of `self`.
+
+        Returns:
+            The bounding box of `self`.
+
+        MEOS Functions:
+            tbox_tnumber
+        """
+        from ..boxes import TBox
+        return TBox(_inner=tnumber_to_tbox(self._inner))
+
+    def is_adjacent(self, other: Union[int, float, floatrange, intrange, TBox, TNumber, Time, Temporal]) -> bool:
+        """
+        Returns whether the bounding box of `self` is adjacent to the bounding box of `other`.
+
+        Args:
+            other: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if adjacent, False otherwise.
+
+        MEOS Functions:
+            adjacent_floatspan_float, adjacent_tbox_tbox, adjacent_span_span
+        """
+        if isinstance(other, int):
+            return adjacent_floatspan_float(tnumber_to_span(self._inner), float(other))
+        elif isinstance(other, float):
+            return adjacent_floatspan_float(tnumber_to_span(self._inner), other)
+        elif isinstance(other, TBox):
+            return adjacent_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return adjacent_tnumber_tnumber(self._inner, other._inner)
+            return adjacent_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         elif isinstance(other, floatrange):
-            return adjacent_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return adjacent_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, intrange):
-            return adjacent_tnumber_span(self._inner, intrange_to_intspan(other))
+            return adjacent_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         else:
             return super().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[TBox, TNumber, floatrange, intrange,
-                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+    def is_contained_in(self, container: Union[TBox, TNumber, floatrange, intrange, Time, Temporal]) -> bool:
         if isinstance(container, TBox):
-            return contained_tnumber_tbox(self._inner, container._inner)
+            return contained_tbox_tbox(tnumber_to_tbox(self._inner), container._inner)
         elif isinstance(container, TNumber):
-            return contained_tnumber_tnumber(self._inner, container._inner)
+            return contained_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(container._inner))
         elif isinstance(container, floatrange):
-            return contained_tnumber_span(self._inner, floatrange_to_floatspan(container))
+            return contained_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(container))
         elif isinstance(container, intrange):
-            return contained_tnumber_span(self._inner, intrange_to_intspan(container))
+            return contained_span_span(tnumber_to_span(self._inner), intrange_to_intspan(container))
         else:
             return super().is_contained_in(container)
 
-    def contains(self, content: Union[TBox, TNumber, floatrange, intrange,
-                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(content, TBox):
-            return contains_tnumber_tbox(self._inner, content._inner)
+    def contains(self, content: Union[int, float, floatrange, intrange, TBox, TNumber, Time, Temporal]) -> bool:
+        if isinstance(content, int):
+            return contains_floatspanset_float(tfloat_spanset(self._inner), float(content))
+        elif isinstance(content, float):
+            return contains_floatspanset_float(tfloat_spanset(self._inner), content)
+        elif isinstance(content, TBox):
+            return contains_tbox_tbox(tnumber_to_tbox(self._inner), content._inner)
         elif isinstance(content, TNumber):
-            return contains_tnumber_tnumber(self._inner, content._inner)
+            return contains_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(content._inner))
         elif isinstance(content, floatrange):
-            return contains_tnumber_span(self._inner, floatrange_to_floatspan(content))
+            return contains_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(content))
         elif isinstance(content, intrange):
-            return contains_tnumber_span(self._inner, intrange_to_intspan(content))
+            return contains_span_span(tnumber_to_span(self._inner), intrange_to_intspan(content))
         else:
             return super().contains(content)
 
     def is_left(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
-            return left_tint_int(self._inner, other)
+            return left_intspan_int(tnumber_to_span(self._inner), other)
         elif isinstance(other, float):
-            return left_tfloat_float(self._inner, other)
+            return left_floatspan_float(tnumber_to_span(self._inner), other)
         elif isinstance(other, intrange):
-            return left_tnumber_span(self._inner, intrange_to_intspan(other))
+            return left_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            return left_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return left_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, TBox):
-            return left_tnumber_tbox(self._inner, other._inner)
+            return left_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return left_tnumber_tnumber(self._inner, other._inner)
+            return left_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_left(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
-            return overleft_tint_int(self._inner, other)
+            return overleft_intspan_int(tnumber_to_span(self._inner), other)
         elif isinstance(other, float):
-            return overleft_tfloat_float(self._inner, other)
+            return overleft_floatspan_float(tnumber_to_span(self._inner), other)
         elif isinstance(other, intrange):
-            return overleft_tnumber_span(self._inner, intrange_to_intspan(other))
+            return overleft_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            return overleft_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return overleft_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, TBox):
-            return overleft_tnumber_tbox(self._inner, other._inner)
+            return overleft_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return overleft_tnumber_tnumber(self._inner, other._inner)
+            return overleft_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def overlaps(self, other: Union[TBox, TNumber, floatrange, intrange,
-                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+    def overlaps(self, other: Union[TBox, TNumber, floatrange, intrange, Time, Temporal]) -> bool:
         if isinstance(other, TBox):
-            return overlaps_tnumber_tbox(self._inner, other._inner)
+            return overlaps_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return overlaps_tnumber_tnumber(self._inner, other._inner)
+            return overlaps_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         elif isinstance(other, floatrange):
-            return overlaps_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return overlaps_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, intrange):
-            return overlaps_tnumber_span(self._inner, intrange_to_intspan(other))
+            return overlaps_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         else:
             return super().overlaps(other)
 
     def is_over_or_right(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
-            return overright_tint_int(self._inner, other)
+            return overright_intspan_int(tnumber_to_span(self._inner), other)
         elif isinstance(other, float):
-            return overright_tfloat_float(self._inner, other)
+            return overright_floatspan_float(tnumber_to_span(self._inner), other)
         elif isinstance(other, intrange):
-            return overright_tnumber_span(self._inner, intrange_to_intspan(other))
+            return overright_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            return overright_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return overright_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, TBox):
-            return overright_tnumber_tbox(self._inner, other._inner)
+            return overright_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return overright_tnumber_tnumber(self._inner, other._inner)
+            return overright_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_right(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         if isinstance(other, int):
-            return right_tint_int(self._inner, other)
+            return right_intspan_int(tnumber_to_span(self._inner), other)
         elif isinstance(other, float):
-            return right_tfloat_float(self._inner, other)
+            return right_floatspan_float(tnumber_to_span(self._inner), other)
         elif isinstance(other, intrange):
-            return right_tnumber_span(self._inner, intrange_to_intspan(other))
+            return right_span_span(tnumber_to_span(self._inner), intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            return right_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return right_span_span(tnumber_to_span(self._inner), floatrange_to_floatspan(other))
         elif isinstance(other, TBox):
-            return right_tnumber_tbox(self._inner, other._inner)
+            return right_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return right_tnumber_tnumber(self._inner, other._inner)
+            return right_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, other: Union[TBox, TNumber, floatrange, intrange,
-                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
+    def is_same(self, other: Union[TBox, TNumber, floatrange, intrange, Time, Temporal]) -> bool:
         if isinstance(other, TBox):
-            return same_tnumber_tbox(self._inner, other._inner)
+            return same_tbox_tbox(tnumber_to_tbox(self._inner), other._inner)
         elif isinstance(other, TNumber):
-            return same_tnumber_tnumber(self._inner, other._inner)
+            return same_tbox_tbox(tnumber_to_tbox(self._inner), tnumber_to_tbox(other._inner))
         elif isinstance(other, floatrange):
-            return same_tnumber_span(self._inner, floatrange_to_floatspan(other))
+            return same_tbox_tbox(tnumber_to_tbox(self._inner), numspan_to_tbox(floatrange_to_floatspan(other)))
         elif isinstance(other, intrange):
-            return same_tnumber_span(self._inner, intrange_to_intspan(other))
+            return same_tbox_tbox(tnumber_to_tbox(self._inner), numspan_to_tbox(intrange_to_intspan(other)))
         else:
             return super().is_same(other)
 
-    def is_before(self, other: Union[TBox, TNumber]) -> bool:
-        if isinstance(other, TBox):
-            return before_tnumber_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return before_tnumber_tnumber(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
-        if isinstance(other, TBox):
-            return overbefore_tnumber_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return overbefore_tnumber_tnumber(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_after(self, other: Union[TBox, TNumber]) -> bool:
-        if isinstance(other, TBox):
-            return after_tnumber_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return after_tnumber_tnumber(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
-        if isinstance(other, TBox):
-            return overafter_tnumber_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return overafter_tnumber_tnumber(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> TG:
+    def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
         from ..boxes import TBox
         if isinstance(other, intrange):
             result = tnumber_at_span(self._inner, intrange_to_intspan(other))
@@ -205,8 +199,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> TG:
+    def minus(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
         if isinstance(other, intrange):
             result = tnumber_minus_span(self._inner, intrange_to_intspan(other))
         elif isinstance(other, floatrange):
@@ -237,6 +230,18 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+        """
+        Returns the nearest approach distance between `self` and `other`.
+
+        Args:
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
+
+        Returns:
+            A :class:`float` with the nearest approach distance between `self` and `other`.
+
+        MEOS Functions:
+            nad_tfloat_float, nad_tfloat_tfloat, nad_tnumber_tbox
+        """
         if isinstance(other, int):
             return nad_tfloat_float(self._inner, float(other))
         elif isinstance(other, float):

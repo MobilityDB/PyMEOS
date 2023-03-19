@@ -1,32 +1,7 @@
-###############################################################################
-#
-# This MobilityDB code is provided under The PostgreSQL License.
-#
-# Copyright (c) 2019-2022, Université libre de Bruxelles and MobilityDB
-# contributors
-#
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for any purpose, without fee, and without a written 
-# agreement is hereby granted, provided that the above copyright notice and
-# this paragraph and the following two paragraphs appear in all copies.
-#
-# IN NO EVENT SHALL UNIVERSITE LIBRE DE BRUXELLES BE LIABLE TO ANY PARTY FOR
-# DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
-# LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
-# EVEN IF UNIVERSITE LIBRE DE BRUXELLES HAS BEEN ADVISED OF THE POSSIBILITY 
-# OF SUCH DAMAGE.
-#
-# UNIVERSITE LIBRE DE BRUXELLES SPECIFICALLY DISCLAIMS ANY WARRANTIES, 
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
-# AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO 
-# PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
-#
-###############################################################################
-
 from __future__ import annotations
 
 from abc import ABC
+from functools import reduce, cache
 from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar
 
 import postgis as pg
@@ -64,28 +39,42 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def set_srid(self: Self, srid: int) -> Self:
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
-    def values(self, precision: int = 6) -> List[shp.Point]:
+    @cache
+    def bounding_box(self) -> STBox:
+        from ..boxes import STBox
+        return STBox(_inner=tpoint_to_stbox(self._inner))
+
+    def values(self, precision: int = 15) -> List[shp.Point]:
         return [i.value(precision=precision) for i in self.instants()]
 
-    def start_value(self, precision: int = 6) -> shp.Point:
+    def start_value(self, precision: int = 15) -> shp.Point:
         return gserialized_to_shapely_point(tpoint_start_value(self._inner), precision)
 
-    def end_value(self, precision: int = 6) -> shp.Point:
+    def end_value(self, precision: int = 15) -> shp.Point:
         return gserialized_to_shapely_point(tpoint_end_value(self._inner), precision)
 
-    def value_set(self, precision: int = 6) -> Set[shp.Point]:
+    def value_set(self, precision: int = 15) -> Set[shp.Point]:
         values, count = tpoint_values(self._inner)
         return {gserialized_to_shapely_point(values[i], precision) for i in range(count)}
 
-    def value_at_timestamp(self, timestamp: datetime, precision: int = 6) -> shp.Point:
+    def value_at_timestamp(self, timestamp: datetime, precision: int = 15) -> shp.Point:
         """
         Value at timestamp.
         """
         return gserialized_to_shapely_point(
             tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0], precision)
 
-    def simplify(self: Self, tolerance: float, synchronized: bool = False) -> Self:
-        return self.__class__(_inner=temporal_simplify(self._inner, tolerance, synchronized))
+    def simplify_min_dist(self: Self, tolerance: float) -> Self:
+        return self.__class__(_inner=temporal_simplify_min_dist(self._inner, tolerance))
+
+    def simplify_min_time_delta(self: Self, tolerance: float) -> Self:
+        return self.__class__(_inner=temporal_simplify_min_tdelta(self._inner, tolerance))
+
+    def simplify_douglas_peucker(self: Self, tolerance: float, synchronized: bool = False) -> Self:
+        return self.__class__(_inner=temporal_simplify_dp(self._inner, tolerance, synchronized))
+
+    def simplify_max_dist(self: Self, tolerance: float, synchronized: bool = False) -> Self:
+        return self.__class__(_inner=temporal_simplify_max_dist(self._inner, tolerance, synchronized))
 
     def length(self) -> float:
         return tpoint_length(self._inner)
@@ -123,260 +112,16 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(result[i]) for i in range(count)]
 
-    def is_adjacent(self, other: Union[pg.Geometry, STBox, TPoint,
-                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return adjacent_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return adjacent_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return adjacent_tpoint_tpoint(self._inner, other._inner)
-        else:
-            return super().is_adjacent(other)
-
-    def is_contained_in(self, container: Union[pg.Geometry, STBox, TPoint,
-                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        from ..boxes import STBox
-        if isinstance(container, pg.Geometry):
-            gs = gserialized_in(container.to_ewkb(), -1)
-            return contained_tpoint_geo(self._inner, gs)
-        elif isinstance(container, STBox):
-            return contained_tpoint_stbox(self._inner, container._inner)
-        elif isinstance(container, TPoint):
-            return contained_tpoint_tpoint(self._inner, container._inner)
-        else:
-            return super().is_contained_in(container)
-
-    def contains(self, content: Union[pg.Geometry, STBox, TPoint,
-                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        from ..boxes import STBox
-        if isinstance(content, pg.Geometry):
-            gs = gserialized_in(content.to_ewkb(), -1)
-            return contains_tpoint_geo(self._inner, gs)
-        elif isinstance(content, STBox):
-            return contains_tpoint_stbox(self._inner, content._inner)
-        elif isinstance(content, TPoint):
-            return contains_tpoint_tpoint(self._inner, content._inner)
-        else:
-            return super().contains(content)
-
-    def overlaps(self, other: Union[pg.Geometry, STBox, TPoint,
-                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overlaps_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overlaps_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overlaps_tpoint_tpoint(self._inner, other._inner)
-        else:
-            return super().overlaps(other)
-
-    def is_same(self, other: Union[pg.Geometry, STBox, TPoint,
-                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return same_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return same_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return same_tpoint_tpoint(self._inner, other._inner)
-        else:
-            return super().is_same(other)
-
-    def is_left(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return left_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return left_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return left_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_left(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overleft_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overleft_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overleft_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_right(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return right_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return right_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return right_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_right(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overright_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overright_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overright_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_below(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return below_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return below_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return below_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_below(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overbelow_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overbelow_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overbelow_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_above(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return above_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return above_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return above_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_above(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overabove_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overabove_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overabove_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_front(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return front_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return front_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return front_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_front(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overfront_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overfront_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overfront_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_back(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return back_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return back_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return back_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_back(self, other: Union[pg.Geometry, STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            return overback_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return overback_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overback_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_before(self, other: Union[STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, STBox):
-            return before_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return before_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_before(self, other: Union[STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, STBox):
-            return overbefore_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overbefore_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_after(self, other: Union[STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, STBox):
-            return after_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return after_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_after(self, other: Union[STBox, TPoint]) -> bool:
-        from ..boxes import STBox
-        if isinstance(other, STBox):
-            return overafter_tpoint_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return overafter_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
     def at(self, other: Union[pg.Geometry, List[pg.Geometry], shpb.BaseGeometry, List[shpb.BaseGeometry], STBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> TG:
+    datetime, TimestampSet, Period, PeriodSet]) -> TG:
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
             result = tpoint_at_geometry(self._inner, gs)
         elif isinstance(other, list):
             gss = [geometry_to_gserialized(gm) for gm in other]
-            result = tpoint_at_values(self._inner, gss)
+            results = [tpoint_at_geometry(self._inner, gs) for gs in gss]
+            result = temporal_merge_array(results, len(results))
         elif isinstance(other, STBox):
             result = tpoint_at_stbox(self._inner, other._inner)
         else:
@@ -384,14 +129,14 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return Temporal._factory(result)
 
     def minus(self, other: Union[pg.Geometry, List[pg.Geometry], shpb.BaseGeometry, List[shpb.BaseGeometry], STBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> TG:
+    datetime, TimestampSet, Period, PeriodSet]) -> TG:
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
             result = tpoint_minus_geometry(self._inner, gs)
         elif isinstance(other, list):
             gss = [geometry_to_gserialized(gm) for gm in other]
-            result = tpoint_minus_values(self._inner, gss)
+            result = reduce(tpoint_minus_value, gss, self._inner)
         elif isinstance(other, STBox):
             result = tpoint_minus_stbox(self._inner, other._inner)
         else:
@@ -430,14 +175,14 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def is_ever_contained(self, container: pg.Geometry) -> bool:
         gs = gserialized_in(container.to_ewkb(), -1)
-        return contains_geo_tpoint(gs, self._inner) == 1
+        return econtains_geo_tpoint(gs, self._inner) == 1
 
     def is_ever_disjoint(self, other: Union[pg.Geometry, TPoint]) -> bool:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
-            result = disjoint_tpoint_geo(self._inner, gs)
+            result = edisjoint_tpoint_geo(self._inner, gs)
         elif isinstance(other, TPoint):
-            result = disjoint_tpoint_tpoint(self._inner, other._inner)
+            result = edisjoint_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
@@ -445,9 +190,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def is_ever_within_distance(self, other: Union[pg.Geometry, TPoint], distance: float) -> bool:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
-            result = dwithin_tpoint_geo(self._inner, gs, distance)
+            result = edwithin_tpoint_geo(self._inner, gs, distance)
         elif isinstance(other, TPoint):
-            result = dwithin_tpoint_tpoint(self._inner, other._inner, distance)
+            result = edwithin_tpoint_tpoint(self._inner, other._inner, distance)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
@@ -455,16 +200,16 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def ever_intersects(self, other: Union[pg.Geometry, TPoint]) -> bool:
         if isinstance(other, pg.Geometry):
             gs = gserialized_in(other.to_ewkb(), -1)
-            result = intersects_tpoint_geo(self._inner, gs)
+            result = eintersects_tpoint_geo(self._inner, gs)
         elif isinstance(other, TPoint):
-            result = intersects_tpoint_tpoint(self._inner, other._inner)
+            result = eintersects_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
 
     def ever_touches(self, other: pg.Geometry) -> bool:
         gs = gserialized_in(other.to_ewkb(), -1)
-        return touches_tpoint_geo(gs, self._inner) == 1
+        return etouches_tpoint_geo(gs, self._inner) == 1
 
     def distance(self, other: Union[pg.Geometry, TPoint]) -> TFloat:
         if isinstance(other, pg.Geometry):
@@ -542,10 +287,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         tiles = bbox.tile_flat(size, duration, origin, start)
         return [x for x in (self.at(tile) for tile in tiles) if x]
 
-    def as_geojson(self, option: int = 1, precision: int = 6, srs: Optional[str] = None) -> str:
+    def as_geojson(self, option: int = 1, precision: int = 15, srs: Optional[str] = None) -> str:
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
-    def to_shapely_geometry(self, precision: int = 6) -> shpb.BaseGeometry:
+    def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner), precision)
 
     def to_dataframe(self) -> GeoDataFrame:
@@ -556,17 +301,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return GeoDataFrame(data, crs=self.srid).set_index(keys=['time'])
 
     def __str__(self):
-        return tpoint_out(self._inner, 6)
+        return tpoint_out(self._inner, 15)
 
-    def as_wkt(self, precision: int = 6):
+    def as_wkt(self, precision: int = 15):
         return tpoint_out(self._inner, precision)
 
-    def as_ewkt(self, precision: int = 6):
+    def as_ewkt(self, precision: int = 15):
         return tpoint_as_ewkt(self._inner, precision)
 
 
 class TPointInst(TInstant[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC):
-    def value(self, precision: int = 6) -> shp.Point:
+    def value(self, precision: int = 15) -> shp.Point:
         return self.start_value(precision=precision)
 
 
@@ -594,7 +339,7 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
     def speed(self):
         return TFloatSeqSet(_inner=tpoint_speed(self._inner))
 
-    def to_dataframe(self, precision: int = 6) -> GeoDataFrame:
+    def to_dataframe(self, precision: int = 15) -> GeoDataFrame:
         sequences = self.sequences()
         data = {
             'sequence': [i + 1 for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],

@@ -12,6 +12,7 @@ from ..time import *
 if TYPE_CHECKING:
     from .tinstant import TInstant
     from ..main import TBool
+    from ..boxes import Box
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
 TI = TypeVar('TI', bound='TInstant[Any]')
@@ -460,7 +461,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         new_temp = temporal_step_to_linear(self._inner)
         return Temporal._factory(new_temp)
 
-    def is_after(self, other: Union[Time, Temporal]) -> bool:
+    def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is after `other`.
 
@@ -475,7 +476,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_after(other)
 
-    def is_before(self, other: Union[Time, Temporal]) -> bool:
+    def is_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is before `other`.
 
@@ -490,7 +491,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_before(other)
 
-    def is_over_or_after(self, other: Union[Time, Temporal]) -> bool:
+    def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is after `other` allowing overlap. That is, `self` doesn't extend before `other`.
 
@@ -505,7 +506,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_over_or_after(other)
 
-    def is_over_or_before(self, other: Union[Time, Temporal]) -> bool:
+    def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is before `other` allowing overlap. That is, `self` doesn't extend after `other`.
 
@@ -622,7 +623,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         result = temporal_minus_min(self._inner)
         return Temporal._factory(result)
 
-    def is_adjacent(self, other: Union[Time, Temporal]) -> bool:
+    def is_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding box of `self` is adjacent to the bounding box of `other`.
         Temporal subclasses may override this method to provide more specific behavior related to their types and
@@ -639,7 +640,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_adjacent(other)
 
-    def is_temporally_adjacent(self, other: Union[Time, Temporal]) -> bool:
+    def is_temporally_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` is temporally adjacent to the bounding period of `other`.
 
@@ -654,7 +655,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[Time, Temporal]) -> bool:
+    def is_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` is contained in the bounding period of `container`.
         Temporal subclasses may override this method to provide more specific behavior related to their types
@@ -670,7 +671,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_contained_in(container)
 
-    def contains(self, content: Union[Time, Temporal]) -> bool:
+    def is_temporally_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding period of `self` is contained in the bounding period of `container`.
+
+        Args:
+            container: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if contained, False otherwise.
+
+        See Also:
+            :meth:`Period.is_contained_in`
+        """
+        return self.period().is_contained_in(container)
+
+    def contains(self, content: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` contains the bounding period of `content`.
         Temporal subclasses may override this method to provide more specific behavior related to their types
@@ -686,7 +702,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().contains(content)
 
-    def overlaps(self, other: Union[Time, Temporal]) -> bool:
+    def temporally_contains(self, content: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding period of `self` contains the bounding period of `content`.
+
+        Args:
+            content: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if contains, False otherwise.
+
+        See Also:
+            :meth:`Period.contains`
+        """
+        return self.period().contains(content)
+
+    def overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` overlaps the bounding period of `other`.
         Temporal subclasses may override this method to provide more specific behavior related to their types
@@ -702,7 +733,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().overlaps(other)
 
-    def is_same(self, other: Union[Time, Temporal]) -> bool:
+    def temporally_overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding period of `self` overlaps the bounding period of `other`.
+
+        Args:
+            other: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if overlaps, False otherwise.
+
+        See Also:
+            :meth:`Period.overlaps`
+        """
+        return self.period().overlaps(other)
+
+    def is_same(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` is the same as the bounding period of `other`.
         Temporal subclasses may override this method to provide more specific behavior related to their types
@@ -804,7 +850,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def __assert_comparable(self, other: Temporal) -> None:
         if not self.__comparable(other):
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f'Operation not supported with type {other.__class__}. '
+                            f'{self.BaseClass} and {other.BaseClass} are not comparable.')
 
     def temporal_less(self, other: Temporal) -> TBool:
         """
