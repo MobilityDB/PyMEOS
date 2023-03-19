@@ -366,14 +366,20 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         }
         return DataFrame(data).set_index(keys='time')
 
-    def append(self, instant: TInstant[TBase]) -> TG:
+    def append(self, instant: TInstant[TBase], max_dist: float, max_time: timedelta) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with `instant` appended.
+
+        Args:
+            instant: :class:`TInstant` to append
+            max_dist: Maximum distance for defining a gap
+            max_time: Maximum time for defining a gap
 
         MEOS Functions:
             temporal_append_tinstant
         """
-        new_inner = temporal_append_tinstant(self._inner, instant._inner, self._expandable())
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, max_dist, timedelta_to_interval(max_time),
+                                             self._expandable())
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
@@ -793,6 +799,21 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_dyntimewarp_distance
         """
         return temporal_dyntimewarp_distance(self._inner, other._inner)
+
+    def hausdorff_distance(self, other: Temporal) -> float:
+        """
+        Returns the Hausdorff distance between `self` and `other`.
+
+        Args:
+            other: A temporal object to compare to `self`.
+
+        Returns:
+            A :class:`float` with the Hausdorff distance.
+
+        MEOS Functions:
+            temporal_hausdorff_distance
+        """
+        return temporal_hausdorff_distance(self._inner, other._inner)
 
     def time_split(self, duration: Union[str, timedelta], start: Optional[Union[str, datetime]] = None) -> List[TG]:
         """
