@@ -165,7 +165,7 @@ class TimestampSet:
         MEOS Functions:
             tstzset_timestamps
         """
-        tss = tstzset_timestamps(self._inner)
+        tss = tstzset_values(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps())]
 
     def shift(self, delta: timedelta) -> TimestampSet:

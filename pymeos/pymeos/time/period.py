@@ -214,6 +214,7 @@ class Period:
             shifted,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
+            None, None
         )
         return Period(_inner=shifted)
 

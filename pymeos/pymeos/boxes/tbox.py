@@ -384,14 +384,19 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            tbox_shift_tscale
+            period_shift_tscale
+
+        See Also:
+            :meth:`Period.shift_tscale`
         """
         assert shift is not None or duration is not None, 'shift and duration deltas must not be both None'
-        new_inner = temporal_copy(self._inner)
-        tbox_shift_tscale(
-            new_inner,
+        new_inner = tbox_copy(self._inner)
+        new_period = get_address(new_inner.period)
+        period_shift_tscale(
+            new_period,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None
+            timedelta_to_interval(duration) if duration else None,
+            None, None
         )
         return TBox(_inner=new_inner)
 

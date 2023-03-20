@@ -544,7 +544,7 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_tscale
+            periodshift_tscale
 
         See Also:
             :meth:`Period.shift`
@@ -562,7 +562,7 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_tscale
+            period_shift_tscale
 
         See Also:
             :meth:`Period.tscale`
@@ -581,17 +581,19 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_tscale
+            period_shift_tscale
 
         See Also:
             :meth:`Period.shift_tscale`
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
         new_inner = stbox_copy(self._inner)
-        stbox_shift_tscale(
+        new_period = get_address(new_inner.period)
+        period_shift_tscale(
+            new_period,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
-            new_inner
+            None, None
         )
         return STBox(_inner=new_inner)
 
