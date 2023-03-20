@@ -55,6 +55,10 @@ _lib = _meos_cffi.lib
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
     return _ffi.new(f'{type} *', object)
+    
+
+def get_address(value: 'Any') -> 'Any *':
+    return _ffi.addressof(value)
 
 
 def datetime_to_timestamptz(dt: datetime) -> int:
@@ -177,6 +181,8 @@ output_parameters = {
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
+    ('period_shift_tscale', 'delta'),
+    ('period_shift_tscale', 'scale'),
     ('meos_initialize', 'tz_str'),
     ('temporal_as_mfjson', 'srs'),
     ('gserialized_as_geojson', 'srs'),
