@@ -77,9 +77,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def contains(self, content: Union[int, float, floatrange, intrange, TBox, TNumber, Time, Temporal]) -> bool:
         if isinstance(content, int):
-            return contains_floatspanset_float(tfloat_spanset(self._inner), float(content))
+            return contains_floatspanset_float(tnumber_values(self._inner), float(content))
         elif isinstance(content, float):
-            return contains_floatspanset_float(tfloat_spanset(self._inner), content)
+            return contains_floatspanset_float(tnumber_values(self._inner), content)
         elif isinstance(content, TBox):
             return contains_tbox_tbox(tnumber_to_tbox(self._inner), content._inner)
         elif isinstance(content, TNumber):

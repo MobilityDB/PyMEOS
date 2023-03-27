@@ -575,7 +575,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_spanset
         """
-        spanset = tfloat_spanset(self._inner)
+        spanset = tnumber_values(self._inner)
         spans, count = spanset_spans(spanset)
         return [floatspan_to_floatrange(spans[i]) for i in range(count)]
 

@@ -4,10 +4,10 @@ from typing import Union
 from pymeos_cffi import *
 
 from .aggregator import BaseAggregator
-from ..time import TimestampSet
+from ..time import TimestampSet, Period, PeriodSet
 
 
-class TemporalTimestampUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):
+class TemporalInstantaneousUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):
     """
     Temporal union of instantaneous time objects (:class:'~datetime.datetime' and
     :class:`~pymeos.time.timestampset.TimestampSet`).
@@ -31,25 +31,24 @@ class TemporalTimestampUnionAggregator(BaseAggregator[Union[datetime, TimestampS
         result = set_union_finalfn(state)
         return TimestampSet(_inner=result)
 
-# class TemporalPeriodUnionAggregator(BaseAggregator[Union[Period, PeriodSet], PeriodSet]):
-#     """
-#     Temporal union of continuous time objects (:class:`~pymeos.time.period.Period` and
-#     :class:`~pymeos.time.periodset.PeriodSet`).
-#
-#     MEOS Functions:
-#         period_tunion_transfn, periodset_tunion_transfn, period_tunion_finalfn
-#     """
-#     @classmethod
-#     def _add(cls, state, temporal):
-#         if isinstance(temporal, Period):
-#             state = period_tunion_transfn(state, temporal._inner)
-#         elif isinstance(temporal, PeriodSet):
-#             state = periodset_tunion_transfn(state, temporal._inner)
-#         else:
-#             cls._error(temporal)
-#         return state
-#
-#     @classmethod
-#     def _finish(cls, state) -> PeriodSet:
-#         result = period_tunion_finalfn(state)
-#         return PeriodSet(_inner=result)
+class TemporalContinuousUnionAggregator(BaseAggregator[Union[Period, PeriodSet], PeriodSet]):
+    """
+    Temporal union of continuous time objects (:class:`~pymeos.time.period.Period` and
+    :class:`~pymeos.time.periodset.PeriodSet`).
+
+    MEOS Functions:
+        union_spanset_span, union_spanset_spanset
+    """
+    @classmethod
+    def _add(cls, state, temporal):
+        if isinstance(temporal, Period):
+            state = union_spanset_span(state, temporal._inner)
+        elif isinstance(temporal, PeriodSet):
+            state = union_spanset_spanset(state, temporal._inner)
+        else:
+            cls._error(temporal)
+        return state
+
+    @classmethod
+    def _finish(cls, state) -> PeriodSet:
+        return PeriodSet(_inner=state)
