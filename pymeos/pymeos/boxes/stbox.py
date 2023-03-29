@@ -242,9 +242,9 @@ class STBox:
         is missing a dimension, the resulting matrix will have a size of 1 for that dimension.
 
         Args:
-            size: The size of the spatial tiles. If the `STBox` instance is has a spatial dimension and this
+            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
                 argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance is has a time dimension and this
+            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
                 argument is not provided, the tiling will be only spatial.
             origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
@@ -284,9 +284,9 @@ class STBox:
         Returns a flat list of `STBox` instances representing the tiles of ``self``.
 
         Args:
-            size: The size of the spatial tiles. If the `STBox` instance is has a spatial dimension and this
+            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
                 argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance is has a time dimension and this
+            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
                 argument is not provided, the tiling will be only spatial.
             origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
