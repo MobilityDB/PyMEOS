@@ -34,5 +34,5 @@ __all__ = [
     'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
     'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
     'TemporalPointExtentAggregator',
-    'TemporalTimestampUnionAggregator', #'TemporalPeriodUnionAggregator',
+    'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
 ]

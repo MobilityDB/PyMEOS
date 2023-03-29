@@ -7,7 +7,7 @@ from .aggregator import BaseAggregator
 from ..time import TimestampSet, Period, PeriodSet
 
 
-class TemporalInstantaneousUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):
+class TimeInstantaneousUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):
     """
     Temporal union of instantaneous time objects (:class:'~datetime.datetime' and
     :class:`~pymeos.time.timestampset.TimestampSet`).
@@ -31,7 +31,8 @@ class TemporalInstantaneousUnionAggregator(BaseAggregator[Union[datetime, Timest
         result = set_union_finalfn(state)
         return TimestampSet(_inner=result)
 
-class TemporalContinuousUnionAggregator(BaseAggregator[Union[Period, PeriodSet], PeriodSet]):
+
+class TimeContinuousUnionAggregator(BaseAggregator[Union[Period, PeriodSet], PeriodSet]):
     """
     Temporal union of continuous time objects (:class:`~pymeos.time.period.Period` and
     :class:`~pymeos.time.periodset.PeriodSet`).
@@ -39,6 +40,7 @@ class TemporalContinuousUnionAggregator(BaseAggregator[Union[Period, PeriodSet],
     MEOS Functions:
         union_spanset_span, union_spanset_spanset
     """
+
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, Period):
