@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce, cache
+from functools import reduce
 from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar
 
 import postgis as pg
@@ -53,7 +53,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
-    @cache
     def bounding_box(self) -> STBox:
         """
         Returns the bounding box of the `self`.

@@ -22,7 +22,6 @@ requires-python = ">=3.7"
 dependencies = [
     'pymeos-cffi==0.0.19',
     'python-dateutil',
-    'functools',
     'spans',
     'postgis',
     'shapely',
