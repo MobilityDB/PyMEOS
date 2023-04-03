@@ -9,6 +9,11 @@ from .main import TBoolInst, TBoolSeq, TBoolSeqSet, \
 
 
 class TempType(Enum):
+    """
+    Enum for representing the different base/temporal types present in MEOS.
+
+    This class is used internally by PyMEOS classes and there shouldn't be any need to be used outside of them.
+    """
     BOOL = 1
     FLOAT = 2
     INT = 3
@@ -23,24 +28,42 @@ class TempType(Enum):
 
     @classmethod
     def get_temp_type(cls, c):
+        """
+        Return the temporal type of `c`.
+
+        Args:
+            c: MEOS object.
+
+        Returns:
+            A :class:`TempType` representing the temporal type (int, float, bool, etc.).
+        """
         temp_type = c.temptype
-        if temp_type == 12:
+        if temp_type == 20:
             return cls.BOOL
-        elif temp_type == 18:
+        elif temp_type == 27:
             return cls.FLOAT
-        elif temp_type == 21:
+        elif temp_type == 29:
             return cls.INT
-        elif temp_type == 22:
+        elif temp_type == 35:
             return cls.TEXT
-        elif temp_type == 25:
+        elif temp_type == 40:
             return cls.GM_POINT
-        elif temp_type == 26:
+        elif temp_type == 41:
             return cls.GG_POINT
         raise Exception(f'Invalid temporal type: {temp_type}. Valid temporal types are: 12 (bool), 18 (float), '
                         f'21 (int), 22 (text), 25 (geometric point) and 26 (geographical point).')
 
     @classmethod
     def get_sub_type(cls, c):
+        """
+        Return the temporal subtype of `c`.
+
+        Args:
+            c: MEOS object.
+
+        Returns:
+            A :class:`TempType` representing the temporal subtype (instant, sequence or sequenceSet).
+        """
         subtype = c.subtype
         if subtype == 1:
             return cls.INSTANT
@@ -53,10 +76,25 @@ class TempType(Enum):
 
     @classmethod
     def get_type(cls, c):
+        """
+        Return the temporal MEOS type of `c` as a tuple of temporal type and subtype.
+
+        Args:
+            c: MEOS object.
+
+        Returns:
+            Tuple of two :class:`TempType` representing the temporal type (int, float, bool, etc.) and the temporal
+             subtype (instant, sequence or sequenceSet).
+        """
         return TempType.get_temp_type(c), TempType.get_sub_type(c)
 
 
 class _TemporalFactory:
+    """
+    Factory class to create the proper PyMEOS class from a MEOS object.
+
+    This class is used internally by PyMEOS classes and there shouldn't be any need to be used outside of them.
+    """
     _mapper = {
         (TempType.BOOL, TempType.INSTANT): TBoolInst,
         (TempType.BOOL, TempType.SEQUENCE): TBoolSeq,
@@ -85,6 +123,15 @@ class _TemporalFactory:
 
     @staticmethod
     def create_temporal(inner):
+        """
+        Creates the appropriate PyMEOS Temporal class from a meos object.
+
+        Args:
+            inner: MEOS object.
+
+        Returns:
+            An appropriate subclass of :class:`Temporal` wrapping `inner`.
+        """
         if inner is None:
             return None
         temp_type = TempType.get_type(inner)

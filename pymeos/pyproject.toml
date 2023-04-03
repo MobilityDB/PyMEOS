@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pymeos"
-version = "1.1.2-6"
+version = "1.2.0-alpha"
 authors = [
     { name = "Victor Divi", email = "vdiviloper@gmail.com" },
     { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
@@ -20,7 +20,7 @@ license = { text = "PostgreSQL" }
 
 requires-python = ">=3.7"
 dependencies = [
-    'pymeos-cffi==0.0.18',
+    'pymeos-cffi==0.0.19',
     'python-dateutil',
     'spans',
     'postgis',

@@ -7,14 +7,13 @@ py-modules = []
 
 [project]
 name = "pymeos_cffi"
-version = "0.0.19"
+version = "0.0.19-alpha"
 authors = [
     { name = "Victor Divi", email = "vdiviloper@gmail.com" }
 ]
 description = "PyMEOS wrapper for the MEOS C Library."
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
 readme = "README.md"

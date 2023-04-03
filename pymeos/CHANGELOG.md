@@ -4,6 +4,10 @@
 
 - All `@property` decorators have been removed to reflect that the elements return are computed.
   They may be added again in the future, probably with some caching mechanism.
+- `Period` method `distance` now returns a `datetime.timedelta` with the distance instead
+  of returning the number of seconds.
+- `BaseGranularityAggregator` renamed to `BaseGranularAggregator` and no longer subclass of `BaseAggregator`
+- Time aggregators renamed to `TimeInstantaneousUnionAggregator` and `TimeContinuousUnionAggregator`
 
 ## 1.1.2
 

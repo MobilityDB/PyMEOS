@@ -1,31 +1,7 @@
-###############################################################################
-#
-# This MobilityDB code is provided under The PostgreSQL License.
-#
-# Copyright (c) 2019-2022, Université libre de Bruxelles and MobilityDB
-# contributors
-#
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for any purpose, without fee, and without a written 
-# agreement is hereby granted, provided that the above copyright notice and
-# this paragraph and the following two paragraphs appear in all copies.
-#
-# IN NO EVENT SHALL UNIVERSITE LIBRE DE BRUXELLES BE LIABLE TO ANY PARTY FOR
-# DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
-# LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
-# EVEN IF UNIVERSITE LIBRE DE BRUXELLES HAS BEEN ADVISED OF THE POSSIBILITY 
-# OF SUCH DAMAGE.
-#
-# UNIVERSITE LIBRE DE BRUXELLES SPECIFICALLY DISCLAIMS ANY WARRANTIES, 
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
-# AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO 
-# PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
-#
-###############################################################################
 from __future__ import annotations
 
 from abc import ABC
+from functools import reduce
 from typing import Optional, List, Union, TYPE_CHECKING, Set
 
 from pymeos_cffi import *
@@ -44,101 +20,289 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
     BaseClass = float
     _parse_function = tfloat_in
 
-    def is_adjacent(self, other: Union[int, float,
-                                       TBox, TNumber, floatrange, intrange,
-                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int) or isinstance(other, float):
-            return adjacent_tfloat_float(self._inner, float(other))
-        else:
-            return super().is_adjacent(other)
-
-    def is_contained_in(self, container: Union[int, float,
-                                               TBox, TNumber, floatrange, intrange,
-                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(container, int) or isinstance(container, float):
-            return contained_tfloat_float(self._inner, float(container))
-        else:
-            return super().is_contained_in(container)
-
-    def contains(self, content: Union[int, float,
-                                      TBox, TNumber, floatrange, intrange,
-                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(content, int) or isinstance(content, float):
-            return contains_tfloat_float(self._inner, float(content))
-        else:
-            return super().contains(content)
-
-    def overlaps(self, other: Union[int, float,
-                                    TBox, TNumber, floatrange, intrange,
-                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int) or isinstance(other, float):
-            return overlaps_tfloat_float(self._inner, float(other))
-        else:
-            return super().overlaps(other)
-
-    def is_same(self, other: Union[int, float,
-                                   TBox, TNumber, floatrange, intrange,
-                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int) or isinstance(other, float):
-            return same_tfloat_float(self._inner, float(other))
-        else:
-            return super().is_same(other)
-
     def always_less(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always less than `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always less than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_lt
+        """
         return tfloat_always_lt(self._inner, value)
 
     def always_less_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always less than or equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always less than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_le
+        """
         return tfloat_always_le(self._inner, value)
 
     def always_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_eq
+        """
         return tfloat_always_eq(self._inner, value)
 
     def always_not_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always not equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always not equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_eq
+        """
         return not tfloat_ever_eq(self._inner, value)
 
     def always_greater_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always greater than or equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always greater than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_lt
+        """
         return not tfloat_ever_lt(self._inner, value)
 
     def always_greater(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are always greater than `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always greater than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_le
+        """
         return not tfloat_ever_le(self._inner, value)
 
     def ever_less(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever less than `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever less than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_lt
+        """
         return tfloat_ever_lt(self._inner, value)
 
     def ever_less_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever less than or equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever less than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_le
+        """
         return tfloat_ever_le(self._inner, value)
 
     def ever_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_eq
+        """
         return tfloat_ever_eq(self._inner, value)
 
     def ever_not_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever not equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever not equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_eq
+        """
         return not tfloat_always_eq(self._inner, value)
 
     def ever_greater_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever greater than or equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever greater than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_lt
+        """
         return not tfloat_always_lt(self._inner, value)
 
     def ever_greater(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are ever greater than `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever greater than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_le
+        """
         return not tfloat_always_le(self._inner, value)
 
     def never_less(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never less than `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never less than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_lt
+        """
         return not tfloat_ever_lt(self._inner, value)
 
     def never_less_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never less than or equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never less than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_le
+        """
         return not tfloat_ever_le(self._inner, value)
 
     def never_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_ever_eq
+        """
         return not tfloat_ever_eq(self._inner, value)
 
     def never_not_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never not equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never not equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_eq
+        """
         return tfloat_always_eq(self._inner, value)
 
     def never_greater_or_equal(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never greater than or equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never greater than or equal to `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_lt
+        """
         return tfloat_always_lt(self._inner, value)
 
     def never_greater(self, value: float) -> bool:
+        """
+        Returns whether the values of `self` are never greater than `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never greater than `value`, `False` otherwise.
+
+        MEOS Functions:
+            tfloat_always_le
+        """
         return tfloat_always_le(self._inner, value)
 
     def temporal_less(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal less than relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal less than relation.
+
+        MEOS Functions:
+            tlt_tfloat_float, tlt_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = tlt_tfloat_float(self._inner, float(other))
         else:
@@ -146,6 +310,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal less or equal relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal less or equal relation.
+
+        MEOS Functions:
+            tle_tfloat_float, tle_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = tle_tfloat_float(self._inner, float(other))
         else:
@@ -153,6 +329,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal equality relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal equality relation.
+
+        MEOS Functions:
+            teq_tfloat_float, teq_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = teq_tfloat_float(self._inner, float(other))
         else:
@@ -160,6 +348,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal not equal relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal not equal relation.
+
+        MEOS Functions:
+            tne_tfloat_float, tne_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = tne_tfloat_float(self._inner, float(other))
         else:
@@ -167,6 +367,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal greater or equal relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal greater or equal relation.
+
+        MEOS Functions:
+            tge_tfloat_float, tge_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = tge_tfloat_float(self._inner, float(other))
         else:
@@ -174,48 +386,138 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_greater(self, other: Union[int, float, Temporal]) -> Temporal:
+        """
+        Returns the temporal greater than relation between `self` and `other`.
+
+        Args:
+            other: An :class:`int`, :class:`float` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal greater than relation.
+
+        MEOS Functions:
+            tgt_tfloat_float, tgt_temporal_temporal
+        """
         if isinstance(other, int) or isinstance(other, float):
             result = tgt_tfloat_float(self._inner, float(other))
         else:
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def at(self, other: Union[int, float, List[float], List[int],
-                              intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> TFloat:
+    def at(self, other: Union[int, float, List[float], List[int], intrange, floatrange, List[intrange], List[
+        floatrange], TBox, Time]) -> TFloat:
+        """
+        Returns a new temporal float with the values of `self` restricted to the time or value `other`.
+
+        Args:
+            other: Time or value to restrict to.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tfloat_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+        """
         if isinstance(other, float) or isinstance(other, int):
             result = tfloat_at_value(self._inner, float(other))
         elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
-            result = tfloat_at_values(self._inner, [float(x) for x in other])
+            # result = tfloat_at_values(self._inner, [float(x) for x in other])
+            results = [tfloat_at_value(self._inner, float(value)) for value in other]
+            result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[float, List[float],
-                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[
+        float, List[float], intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> Temporal:
+        """
+        Returns a new temporal float with the values of `self` restricted to the complement of the time or value
+         `other`.
+
+        Args:
+            other: Time or value to restrict to the complement of.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tfloat_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
+            temporal_minus_periodset
+        """
         if isinstance(other, float):
             result = tfloat_minus_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], float):
-            result = tfloat_minus_values(self._inner, other)
+            result = reduce(tfloat_minus_value, other, self._inner)
         else:
             return super().minus(other)
         return Temporal._factory(result)
 
     def to_tint(self) -> TInt:
+        """
+        Returns a new temporal integer with the values of `self` floored.
+        This operation can only be performed when the interpolation is stepwise or discrete.
+
+        Returns:
+            A new temporal integer.
+
+        MEOS Functions:
+            tfloat_to_tint
+
+        Raises:
+            ValueError: If the interpolation is linear.
+        """
         from ..factory import _TemporalFactory
+        if self.interpolation() == TInterpolation.LINEAR:
+            raise ValueError("Cannot convert a temporal float with linear interpolation to a temporal integer")
         return _TemporalFactory.create_temporal(tfloat_to_tint(self._inner))
 
     def to_floatrange(self) -> floatrange:
+        """
+        Returns value span of `self`.
+
+        Returns:
+            An :class:`floatrange` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
+        """
         return floatspan_to_floatrange(tnumber_to_span(self._inner))
 
     @staticmethod
     def from_base(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
+        """
+        Returns a new temporal float with the value `value` and the temporal frame of `base`.
+
+        Args:
+            value: Value of the temporal float.
+            base: Temporal object to get the temporal frame from.
+            interpolation: Interpolation of the temporal float.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tfloat_from_base
+        """
         result = tfloat_from_base(value, base._inner, interpolation)
         return Temporal._factory(result)
 
     @staticmethod
     def from_base_time(value: float, base: Time, interpolation: TInterpolation = None) -> TFloat:
+        """
+        Returns a new temporal float with the value `value` and the temporal frame of `base`.
+
+        Args:
+            value: Value of the temporal float.
+            base: Time object to get the temporal frame from.
+            interpolation: Interpolation of the temporal float.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tfloatinst_make, tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time
+        """
         if isinstance(base, datetime):
             return TFloatInst(_inner=tfloatinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
@@ -228,6 +530,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
     @staticmethod
     def read_from_cursor(value, _=None):
+        """
+        Reads a :class:`TFloat` from a database cursor. Used when automatically loading objects from the database.
+        Users should use the class constructor instead.
+        """
         if not value:
             return None
         if value.startswith('Interp=Stepwise;'):
@@ -249,84 +555,237 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
     def value_range(self) -> floatrange:
         """
-        Range of values taken by the temporal value as defined by its minimum and maximum value
+        Returns the value span of `self`.
+
+        Returns:
+            An :class:`floatrange` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
         """
         return self.to_floatrange()
 
     def value_ranges(self) -> List[floatrange]:
-        spanset = tfloat_spanset(self._inner)
+        """
+        Returns the value spans of `self` taking into account gaps.
+
+        Returns:
+            A list of :class:`floatrange` with the value spans of `self`.
+
+        MEOS Functions:
+            tfloat_spanset
+        """
+        spanset = tnumber_values(self._inner)
         spans, count = spanset_spans(spanset)
         return [floatspan_to_floatrange(spans[i]) for i in range(count)]
 
     def start_value(self) -> float:
         """
-        Start value.
+        Returns the start value of `self`.
+
+        Returns:
+            A :class:`float` with the start value.
+
+        MEOS Functions:
+            tfloat_start_value
         """
         return tfloat_start_value(self._inner)
 
     def end_value(self) -> float:
         """
-        End value.
+        Returns the end value of `self`.
+
+        Returns:
+            A :class:`float` with the end value.
+
+        MEOS Functions:
+            tfloat_end_value
         """
         return tfloat_end_value(self._inner)
 
     def value_set(self) -> Set[float]:
         """
-        List of distinct values.
+        Returns the set of values of `self`.
+        Note that when the interpolation is linear, the set will contain only the waypoints.
+
+        Returns:
+            A :class:`set` with the values of `self`.
+
+        MEOS Functions:
+            tint_values
         """
         values, count = tfloat_values(self._inner)
         return {values[i] for i in range(count)}
 
     def min_value(self) -> float:
         """
-        Minimum value.
+        Returns the minimum value of the `self`.
+
+        Returns:
+            A :class:`float` with the minimum value.
+
+        MEOS Functions:
+            tfloat_min_value
         """
         return tfloat_min_value(self._inner)
 
     def max_value(self) -> float:
         """
-        Maximum value.
+        Returns the maximum value of the `self`.
+
+        Returns:
+            A :class:`float` with the maximum value.
+
+        MEOS Functions:
+            tfloat_max_value
         """
         return tfloat_max_value(self._inner)
 
     def value_at_timestamp(self, timestamp) -> float:
         """
-        Value at timestamp.
+        Returns the value that `self` takes at a certain moment.
+
+        Args:
+            timestamp: The moment to get the value.
+
+        Returns:
+            A class:`float` with the value of `self` at `timestamp`.
+
+        MEOS Functions:
+            tfloat_value_at_timestamp
         """
         return tfloat_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    def to_str(self, max_decimals=5) -> str:
-        return tfloat_out(self._inner, max_decimals)
-
     def value_split(self, start: float, size: float) -> List[Temporal]:
+        """
+        Splits `self` into fragments with respect to value buckets
+
+        Args:
+            start: Start value of the first value bucket.
+            size: Size of the value buckets.
+
+        Returns:
+            A list of temporal floats.
+
+        MEOS Functions:
+            tfloat_value_split
+        """
         tiles, new_count = tfloat_value_split(self._inner, size, start)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
     def time_value_split(self, value_start: float, value_size: float, time_start: Union[str, datetime],
                          duration: Union[str, timedelta]) -> List[Temporal]:
+        """
+        Splits `self` into fragments with respect to value and period buckets.
+
+        Args:
+            value_start: Start value of the first value bucket.
+            value_size: Size of the value buckets.
+            time_start: Start time of the first period bucket.
+            duration: Duration of the period buckets.
+
+        Returns:
+            A list of temporal floats.
+
+        MEOS Functions:
+            tfloat_value_time_split
+        """
         st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
             else pg_timestamptz_in(time_start, -1)
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
         tiles, new_count = tfloat_value_time_split(self._inner, value_size, value_start, dt, st)
         return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
-    def to_degrees(self) -> TNumber:
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(tfloat_degrees(self._inner))
+    def to_degrees(self, normalize: bool = True) -> TFloat:
+        """
+        Returns a copy of `self` converted from radians to degrees.
 
-    def derivative(self) -> TNumber:
+        Args:
+            normalize: If True, the result will be normalized to the range [0, 360).
+
+        Returns:
+            A new :class:`TFloat` instance.
+
+        MEOS Functions:
+            tfloat_degrees
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tfloat_degrees(self._inner, normalize))
+
+    def to_radians(self) -> TFloat:
+        """
+        Returns a copy of `self` converted from degrees to radians.
+
+        Returns:
+            A new :class:`TFloat` instance.
+
+        MEOS Functions:
+            tfloat_radians
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tfloat_radians(self._inner))
+
+    def derivative(self) -> TFloat:
+        """
+        Returns the derivative of `self`.
+
+        Returns:
+            A new :class:`TFloat` instance.
+
+        MEOS Functions:
+            tfloat_derivative
+        """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_derivative(self._inner))
 
-    def __str__(self):
-        return tfloat_out(self._inner, 6)
+    def to_str(self, max_decimals=15) -> str:
+        """
+        Returns a string representation of `self` with a maximum number of decimals.
 
-    def as_wkt(self, precision: int = 6) -> str:
+        Args:
+            max_decimals: The maximum number of decimals.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tfloat_out
+        """
+        return tfloat_out(self._inner, max_decimals)
+
+    def __str__(self):
+        """
+        Returns a string representation of `self`.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tfloat_out
+        """
+        return tfloat_out(self._inner, 15)
+
+    def as_wkt(self, precision: int = 15) -> str:
+        """
+        Returns a WKT representation of `self`.
+
+        Args:
+            precision: The number of decimals to use.
+
+        Returns:
+            A WKT representation of `self`.
+
+        MEOS Functions:
+            tfloat_out
+        """
         return tfloat_out(self._inner, precision)
 
 
 class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
+    """
+    Class for representing temporal floats at a single instant.
+    """
     _make_function = tfloatinst_make
     _cast_function = int
 
@@ -336,6 +795,9 @@ class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeq
 
 
 class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
+    """
+    Class for representing temporal floats over a period of time.
+    """
     ComponentClass = TFloatInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
@@ -346,6 +808,9 @@ class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeq
 
 
 class TFloatSeqSet(TSequenceSet[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], TFloat):
+    """
+    Class for representing temporal floats over a period of time with gaps.
+    """
     ComponentClass = TFloatSeq
 
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,

@@ -20,5 +20,5 @@ __all__ = [
     # Point
     'TemporalPointExtentAggregator',
     # Time
-    'TemporalTimestampUnionAggregator', 'TemporalPeriodUnionAggregator',
+    'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
 ]

@@ -55,6 +55,10 @@ _lib = _meos_cffi.lib
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
     return _ffi.new(f'{type} *', object)
+    
+
+def get_address(value: 'Any') -> 'Any *':
+    return _ffi.addressof(value)
 
 
 def datetime_to_timestamptz(dt: datetime) -> int:
@@ -131,10 +135,9 @@ function_notes = {
 }
 
 function_modifiers = {
-    'period_shift_tscale': period_shift_tscale_modifier,
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
-    'timestampset_make': timestampset_make_modifier,
+    'tstzset_make': tstzset_make_modifier,
     'tint_at_values': tint_at_values_modifier,
     'tint_minus_values': tint_minus_values_modifier,
     'tfloat_at_values': tfloat_at_values_modifier,
@@ -178,6 +181,8 @@ output_parameters = {
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
+    ('period_shift_tscale', 'delta'),
+    ('period_shift_tscale', 'scale'),
     ('meos_initialize', 'tz_str'),
     ('temporal_as_mfjson', 'srs'),
     ('gserialized_as_geojson', 'srs'),
