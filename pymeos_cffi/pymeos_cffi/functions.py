@@ -2632,6 +2632,12 @@ def geo_timestamp_to_stbox(gs: 'const GSERIALIZED *', t: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    result = _lib.geo_to_stbox(gs_converted)
+    return result if result != _ffi.NULL else None
+
+
 def int_period_to_tbox(i: int, p: 'const Span *') -> 'TBox *':
     p_converted = _ffi.cast('const Span *', p)
     result = _lib.int_period_to_tbox(i, p_converted)
@@ -2691,12 +2697,6 @@ def stbox_to_geo(box: 'const STBox *') -> 'GSERIALIZED *':
 def tpoint_to_stbox(temp: 'const Temporal *') -> 'STBox *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_to_stbox(temp_converted)
-    return result if result != _ffi.NULL else None
-
-
-def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    result = _lib.geo_to_stbox(gs_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -4681,6 +4681,12 @@ def tnumber_delta_value(temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def tnumber_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tnumber_angular_difference(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def textcat_text_ttext(txt: str, temp: 'const Temporal *') -> 'Temporal *':
     txt_converted = cstring2text(txt)
     temp_converted = _ffi.cast('const Temporal *', temp)
@@ -5458,6 +5464,12 @@ def bearing_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *') 
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.bearing_tpoint_tpoint(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tpoint_angular_difference(temp_converted)
     return result if result != _ffi.NULL else None
 
 
