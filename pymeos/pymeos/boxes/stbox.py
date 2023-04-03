@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Union, List, TYPE_CHECKING
+from typing import Optional, Union, List, TYPE_CHECKING, get_args
 
 import postgis as pg
 from pymeos_cffi import *
@@ -71,7 +71,7 @@ class STBox:
     @staticmethod
     def _get_box(other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
-        if allow_space_only and isinstance(other, Geometry):
+        if allow_space_only and isinstance(other, get_args(Geometry)):
             other_box = geo_to_stbox(geometry_to_gserialized(other))
         elif isinstance(other, STBox):
             other_box = other._inner
@@ -178,7 +178,7 @@ class STBox:
         MEOS Functions:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
-        if isinstance(value, Geometry):
+        if isinstance(value, get_args(Geometry)):
             gs = geometry_to_gserialized(value)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
@@ -960,7 +960,7 @@ class STBox:
         MEOS Functions:
             nad_stbox_geo, nad_stbox_stbox
         """
-        if isinstance(other, Geometry):
+        if isinstance(other, get_args(Geometry)):
             gs = geometry_to_gserialized(other)
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):

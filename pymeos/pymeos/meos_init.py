@@ -23,6 +23,6 @@ def pymeos_finalize() -> None:
     Should be called at the end after PyMEOS is no longer used.
 
     MEOS Functions:
-        meos_finish
+        meos_finalize
     """
     meos_finalize()
