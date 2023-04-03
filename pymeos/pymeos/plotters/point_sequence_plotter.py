@@ -34,7 +34,7 @@ class TemporalPointSequencePlotter:
         linear = False
         if isinstance(sequence, list):
             plot_func = base.scatter
-        elif sequence.interpolation == TInterpolation.LINEAR:
+        elif sequence.interpolation() == TInterpolation.LINEAR:
             plot_func = base.plot
             linear = True
         else:

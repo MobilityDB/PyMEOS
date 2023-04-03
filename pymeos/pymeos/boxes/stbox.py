@@ -262,7 +262,7 @@ class STBox:
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin()) if self.has_t \
+            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
             else 0
         gs = geometry_to_gserialized(origin) if origin is not None \
             else gserialized_in('Point(0 0 0)', -1)
