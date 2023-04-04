@@ -2907,6 +2907,12 @@ def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def stbox_get_space(box: 'const STBox *') -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.stbox_get_space(box_converted)
+    return result if result != _ffi.NULL else None
+
+
 def stbox_expand_space(box: 'const STBox *', d: float) -> 'STBox *':
     box_converted = _ffi.cast('const STBox *', box)
     result = _lib.stbox_expand_space(box_converted, d)
@@ -3204,6 +3210,13 @@ def intersection_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'S
     box2_converted = _ffi.cast('const STBox *', box2)
     result = _lib.intersection_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
+
+
+def stbox_quad_split(box: 'const STBox *') -> "Tuple['STBox *', 'int']":
+    box_converted = _ffi.cast('const STBox *', box)
+    count = _ffi.new('int *')
+    result = _lib.stbox_quad_split(box_converted, count)
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def tbox_eq(box1: 'const TBox *', box2: 'const TBox *') -> 'bool':
