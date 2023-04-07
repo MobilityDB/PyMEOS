@@ -1,20 +1,18 @@
-FROM quay.io/pypa/manylinux2014_x86_64
+FROM pymeos/mobilitydb:latest
+WORKDIR MobilityDB
 
-RUN yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-RUN yum -y update
-RUN yum -y install gcc gcc-c++ make cmake postgresql13-devel proj-devel json-c-devel geos39-devel gsl-devel
-RUN git clone --branch libmeos https://github.com/estebanzimanyi/MobilityDB
-WORKDIR MobilityDB/build
+RUN git fetch
+RUN git checkout b7ebd168
+
+
+RUN sed -i '730 c\  ' ./meos/include/meos.h
+RUN sed -i '21 c\  tpoint_tempspatialrels_meos.c' ./meos/src/point/CMakeLists.txt
+
+WORKDIR build
 
 RUN cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so
 RUN make -j
 RUN make install
-
-RUN cp /MobilityDB/postgis/postgis_revision.h /usr/local/include/
-RUN cp /MobilityDB/postgis/postgis_config.h /usr/local/include/
-RUN cp /MobilityDB/postgis/liblwgeom/lwinline.h /usr/local/include/
-RUN cp /MobilityDB/postgis/liblwgeom/liblwgeom.h /usr/local/include
-RUN sed -i 's/\.\.\/postgis/postgis/' /usr/local/include/liblwgeom.h
 
 COPY build_wheels.sh /build_wheels.sh
 RUN chmod +x /build_wheels.sh
