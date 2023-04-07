@@ -860,6 +860,25 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
+    def stops(self, max_distance: float, min_duration: timedelta) -> TSS:
+        """
+        Return the subsequences where the objects stays within an area with a given maximum size for at least
+        the specified duration.
+
+        Args:
+            max_distance: A :class:`float` with the maximum distance of a stop.
+            min_duration: A :class:`timedelta` with the minimum duration of a stop.
+
+        Returns:
+            A :class:`SequenceSet` of the same subtype as `self` with the stops.
+
+        MEOS Functions:
+            temporal_stops
+        """
+        new_inner = temporal_stops(self._inner, max_distance, timedelta_to_interval(min_duration))
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(new_inner)
+
     def __comparable(self, other: Temporal) -> bool:
         if not isinstance(other, Temporal):
             return False

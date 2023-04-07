@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Optional, Union, List, TYPE_CHECKING
+from typing import Optional, Union, List, TYPE_CHECKING, get_args
 
 import postgis as pg
-from pymeos_cffi import *
 import shapely.geometry.base as shp
+from pymeos_cffi import *
 
 from ..main import TPoint
 from ..temporal import Temporal
@@ -71,7 +71,7 @@ class STBox:
     @staticmethod
     def _get_box(other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
-        if allow_space_only and isinstance(other, Geometry):
+        if allow_space_only and isinstance(other, get_args(Geometry)):
             other_box = geo_to_stbox(geometry_to_gserialized(other))
         elif isinstance(other, STBox):
             other_box = other._inner
@@ -178,7 +178,7 @@ class STBox:
         MEOS Functions:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
-        if isinstance(value, Geometry):
+        if isinstance(value, get_args(Geometry)):
             gs = geometry_to_gserialized(value)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
@@ -233,6 +233,68 @@ class STBox:
         """
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
+    def quad_split_flat(self) -> List[STBox]:
+        """
+        Returns a list of 4 (or 8 if `self`has Z dimension) :class:`STBox` instances resulting from the quad
+        split of ``self``.
+
+        Indices of returned array are as follows (back only present if Z dimension is present):
+
+           >>> #    (front)          (back)
+           >>> # -------------   -------------
+           >>> # |  2  |  3  |   |  6  |  7  |
+           >>> # ------------- + -------------
+           >>> # |  0  |  1  |   |  4  |  5  |
+           >>> # -------------   -------------
+
+        Returns:
+            A :class:`list` of :class:`STBox` instances.
+
+        MEOS Functions:
+            stbox_quad_split
+        """
+        boxes, count = stbox_quad_split(self._inner)
+        return [STBox(_inner=boxes + i) for i in range(count)]
+
+    def quad_split(self) -> Union[List[List[STBox]], List[List[List[STBox]]]]:
+        """
+        Returns a 2D (YxX) or 3D (ZxYxX) list of :class:`STBox` instances resulting from the quad split of ``self``.
+
+        Indices of returned array are as follows:
+
+           >>> #       (front)
+           >>> # -------------------
+           >>> # | [1][0] | [1][1] |
+           >>> # -------------------
+           >>> # | [0][0] | [0][1] |
+           >>> # -------------------
+
+        If Z dimension is present:
+
+           >>> #          (front)                      (back)
+           >>> # -------------------------   -------------------------
+           >>> # | [0][1][0] | [0][1][1] |   | [1][1][0] | [1][1][1] |
+           >>> # ------------------------- + -------------------------
+           >>> # | [0][0][0] | [0][0][1] |   | [1][0][0] | [1][0][1] |
+           >>> # -------------------------   -------------------------
+
+
+        Returns:
+            A 2D or 3D :class:`list` of :class:`STBox` instances.
+
+        MEOS Functions:
+            stbox_quad_split
+
+        """
+        boxes, count = stbox_quad_split(self._inner)
+        if self.has_z():
+            return [
+                [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]],
+                [[STBox(_inner=boxes + i) for i in range(4, 6)], [STBox(_inner=boxes + i) for i in range(6, 8)]]
+            ]
+        else:
+            return [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]]
+
     def tile(self, size: Optional[float] = None, duration: Optional[Union[timedelta, str]] = None,
              origin: Optional[Geometry] = None,
              start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
@@ -256,13 +318,14 @@ class STBox:
         MEOS Functions:
             stbox_tile_list
         """
-        sz = size or (max(self.xmax() - self.xmin(), self.ymax() - self.ymin(), self.zmax() - self.zmin()) + 1)
+        sz = size or (max(self.xmax() - self.xmin(), self.ymax() - self.ymin(),
+                          (self.zmax() - self.zmin() if self.has_z() else 0)) + 1)
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1) if isinstance(duration, str) \
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin()) if self.has_t \
+            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
             else 0
         gs = geometry_to_gserialized(origin) if origin is not None \
             else gserialized_in('Point(0 0 0)', -1)
@@ -960,7 +1023,7 @@ class STBox:
         MEOS Functions:
             nad_stbox_geo, nad_stbox_stbox
         """
-        if isinstance(other, Geometry):
+        if isinstance(other, get_args(Geometry)):
             gs = geometry_to_gserialized(other)
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):

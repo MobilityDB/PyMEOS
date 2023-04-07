@@ -1,8 +1,7 @@
 import re
-import sys
 import subprocess
+import sys
 
-from build_helpers import ADDITIONAL_DEFINITIONS
 
 def get_defined_functions(library_path):
     result = subprocess.check_output(['nm', '-gD', library_path])
@@ -35,7 +34,7 @@ def main(header_path, so_path=None):
         content = re.sub(r'/\*.*?\*/', '', content, flags=re.RegexFlag.MULTILINE)
         # Comment macros that are not number constants
         content = content.replace('#', '//#')
-        content = re.sub(r'^//(#define \w+ \d+)\s*$', '\g<1>', content, flags=re.RegexFlag.MULTILINE)
+        content = re.sub(r'^//(#define \w+ \d+)\s*$', r'\g<1>', content, flags=re.RegexFlag.MULTILINE)
         # Add additional definitions
         # content = content.replace(*ADDITIONAL_DEFINITIONS)
 

@@ -2632,6 +2632,12 @@ def geo_timestamp_to_stbox(gs: 'const GSERIALIZED *', t: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    result = _lib.geo_to_stbox(gs_converted)
+    return result if result != _ffi.NULL else None
+
+
 def int_period_to_tbox(i: int, p: 'const Span *') -> 'TBox *':
     p_converted = _ffi.cast('const Span *', p)
     result = _lib.int_period_to_tbox(i, p_converted)
@@ -2691,12 +2697,6 @@ def stbox_to_geo(box: 'const STBox *') -> 'GSERIALIZED *':
 def tpoint_to_stbox(temp: 'const Temporal *') -> 'STBox *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_to_stbox(temp_converted)
-    return result if result != _ffi.NULL else None
-
-
-def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    result = _lib.geo_to_stbox(gs_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -2904,6 +2904,12 @@ def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
     box_converted = _ffi.cast('const STBox *', box)
     srid_converted = _ffi.cast('int32', srid)
     result = _lib.stbox_set_srid(box_converted, srid_converted)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_get_space(box: 'const STBox *') -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.stbox_get_space(box_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3204,6 +3210,13 @@ def intersection_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'S
     box2_converted = _ffi.cast('const STBox *', box2)
     result = _lib.intersection_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
+
+
+def stbox_quad_split(box: 'const STBox *') -> "Tuple['STBox *', 'int']":
+    box_converted = _ffi.cast('const STBox *', box)
+    count = _ffi.new('int *')
+    result = _lib.stbox_quad_split(box_converted, count)
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def tbox_eq(box1: 'const TBox *', box2: 'const TBox *') -> 'bool':
@@ -4681,6 +4694,12 @@ def tnumber_delta_value(temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def tnumber_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tnumber_angular_difference(temp_converted)
+    return result if result != _ffi.NULL else None
+
+
 def textcat_text_ttext(txt: str, temp: 'const Temporal *') -> 'Temporal *':
     txt_converted = cstring2text(txt)
     temp_converted = _ffi.cast('const Temporal *', temp)
@@ -5458,6 +5477,12 @@ def bearing_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *') 
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.bearing_tpoint_tpoint(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tpoint_angular_difference(temp_converted)
     return result if result != _ffi.NULL else None
 
 

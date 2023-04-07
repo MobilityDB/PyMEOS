@@ -33,9 +33,9 @@ class TemporalSequencePlotter:
         if isinstance(sequence, list):
             plot_func = base.scatter
             show_markers = False
-        elif sequence.interpolation == TInterpolation.LINEAR:
+        elif sequence.interpolation() == TInterpolation.LINEAR:
             plot_func = base.plot
-        elif sequence.interpolation == TInterpolation.STEPWISE:
+        elif sequence.interpolation() == TInterpolation.STEPWISE:
             plot_func = partial(base.step, where='post')
         else:
             plot_func = base.scatter
