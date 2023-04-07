@@ -2,7 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from pymeos import Period
+from pymeos import Period, PeriodSet, TimestampSet, TBoolSeq, TBox
 from tests.conftest import TestPyMEOS
 
 
@@ -109,3 +109,19 @@ class TestPeriodAccessors(TestPeriod):
         assert self.period.duration_in_seconds() == 172800
         assert self.period2.duration_in_seconds() == 172800
 
+
+class TestPeriodPositionFunctions(TestPeriod):
+    period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
+    periodset = PeriodSet('{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), '
+                          '(2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
+    timestamp = datetime(year=2020, month=1, day=1)
+    timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
+    temporal = TBoolSeq('(TRUE@2000-01-01, FALSE@2000-01-10, TRUE@2000-01-20, TRUE@2000-01-31)')
+    box = TBox('TBox XT([0, 10),[2020-01-01, 2020-01-31])')
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, temporal, box]
+    )
+    def test_is_adjacent(self, other):
+        self.period.is_adjacent(other)
