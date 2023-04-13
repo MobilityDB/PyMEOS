@@ -856,7 +856,7 @@ def bigintset_value_n(s: 'const Set *', n: int) -> 'int64':
     result = _lib.bigintset_value_n(s_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def bigintset_values(s: 'const Set *') -> 'int64 *':
@@ -907,7 +907,7 @@ def floatset_value_n(s: 'const Set *', n: int) -> 'double':
     result = _lib.floatset_value_n(s_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def floatset_values(s: 'const Set *') -> 'double *':
@@ -958,7 +958,7 @@ def intset_value_n(s: 'const Set *', n: int) -> 'int':
     result = _lib.intset_value_n(s_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def intset_values(s: 'const Set *') -> 'int *':
@@ -1034,7 +1034,7 @@ def set_value_n(s: 'const Set *', n: int) -> 'Datum *':
     result = _lib.set_value_n(s_converted, n, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def set_values(s: 'const Set *') -> 'Datum *':
@@ -1097,7 +1097,7 @@ def periodset_timestamp_n(ps: 'const SpanSet *', n: int) -> int:
     result = _lib.periodset_timestamp_n(ps_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def periodset_timestamps(ps: 'const SpanSet *') -> "Tuple['TimestampTz *', 'int']":
@@ -1229,7 +1229,7 @@ def tstzset_timestamp_n(ts: 'const Set *', n: int) -> int:
     result = _lib.tstzset_timestamp_n(ts_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tstzset_values(ts: 'const Set *') -> 'TimestampTz *':
@@ -1937,7 +1937,7 @@ def intersection_period_timestamp(p: 'const Span *', t: int) -> int:
     result = _lib.intersection_period_timestamp(p_converted, t_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def intersection_periodset_timestamp(ps: 'const SpanSet *', t: int) -> int:
@@ -1947,7 +1947,7 @@ def intersection_periodset_timestamp(ps: 'const SpanSet *', t: int) -> int:
     result = _lib.intersection_periodset_timestamp(ps_converted, t_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def intersection_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
@@ -1978,7 +1978,7 @@ def intersection_timestampset_timestamp(ts: 'const Set *', t: int) -> int:
     result = _lib.intersection_timestampset_timestamp(ts_converted, t_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def minus_set_set(s1: 'const Set *', s2: 'const Set *') -> 'Set *':
@@ -2037,7 +2037,7 @@ def minus_timestamp_period(t: int, p: 'const Span *') -> int:
     result = _lib.minus_timestamp_period(t_converted, p_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def minus_timestamp_periodset(t: int, ps: 'const SpanSet *') -> int:
@@ -2047,7 +2047,7 @@ def minus_timestamp_periodset(t: int, ps: 'const SpanSet *') -> int:
     result = _lib.minus_timestamp_periodset(t_converted, ps_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def minus_timestampset_timestamp(ts: 'const Set *', t: int) -> 'Set *':
@@ -2632,12 +2632,6 @@ def geo_timestamp_to_stbox(gs: 'const GSERIALIZED *', t: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
-def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    result = _lib.geo_to_stbox(gs_converted)
-    return result if result != _ffi.NULL else None
-
-
 def int_period_to_tbox(i: int, p: 'const Span *') -> 'TBox *':
     p_converted = _ffi.cast('const Span *', p)
     result = _lib.int_period_to_tbox(i, p_converted)
@@ -2700,6 +2694,12 @@ def tpoint_to_stbox(temp: 'const Temporal *') -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def geo_to_stbox(gs: 'const GSERIALIZED *') -> 'STBox *':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    result = _lib.geo_to_stbox(gs_converted)
+    return result if result != _ffi.NULL else None
+
+
 def timestamp_to_stbox(t: int) -> 'STBox *':
     t_converted = _ffi.cast('TimestampTz', t)
     result = _lib.timestamp_to_stbox(t_converted)
@@ -2742,7 +2742,7 @@ def tbox_xmin(box: 'const TBox *') -> 'double':
     result = _lib.tbox_xmin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tbox_xmax(box: 'const TBox *') -> 'double':
@@ -2751,7 +2751,7 @@ def tbox_xmax(box: 'const TBox *') -> 'double':
     result = _lib.tbox_xmax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tbox_tmin(box: 'const TBox *') -> int:
@@ -2760,7 +2760,7 @@ def tbox_tmin(box: 'const TBox *') -> int:
     result = _lib.tbox_tmin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tbox_tmax(box: 'const TBox *') -> int:
@@ -2769,7 +2769,7 @@ def tbox_tmax(box: 'const TBox *') -> int:
     result = _lib.tbox_tmax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_hasx(box: 'const STBox *') -> 'bool':
@@ -2802,7 +2802,7 @@ def stbox_xmin(box: 'const STBox *') -> 'double':
     result = _lib.stbox_xmin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_xmax(box: 'const STBox *') -> 'double':
@@ -2811,7 +2811,7 @@ def stbox_xmax(box: 'const STBox *') -> 'double':
     result = _lib.stbox_xmax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_ymin(box: 'const STBox *') -> 'double':
@@ -2820,7 +2820,7 @@ def stbox_ymin(box: 'const STBox *') -> 'double':
     result = _lib.stbox_ymin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_ymax(box: 'const STBox *') -> 'double':
@@ -2829,7 +2829,7 @@ def stbox_ymax(box: 'const STBox *') -> 'double':
     result = _lib.stbox_ymax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_zmin(box: 'const STBox *') -> 'double':
@@ -2838,7 +2838,7 @@ def stbox_zmin(box: 'const STBox *') -> 'double':
     result = _lib.stbox_zmin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_zmax(box: 'const STBox *') -> 'double':
@@ -2847,7 +2847,7 @@ def stbox_zmax(box: 'const STBox *') -> 'double':
     result = _lib.stbox_zmax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_tmin(box: 'const STBox *') -> int:
@@ -2856,7 +2856,7 @@ def stbox_tmin(box: 'const STBox *') -> int:
     result = _lib.stbox_tmin(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_tmax(box: 'const STBox *') -> int:
@@ -2865,7 +2865,7 @@ def stbox_tmax(box: 'const STBox *') -> int:
     result = _lib.stbox_tmax(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def stbox_srid(box: 'const STBox *') -> 'int32':
@@ -2904,12 +2904,6 @@ def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
     box_converted = _ffi.cast('const STBox *', box)
     srid_converted = _ffi.cast('int32', srid)
     result = _lib.stbox_set_srid(box_converted, srid_converted)
-    return result if result != _ffi.NULL else None
-
-
-def stbox_get_space(box: 'const STBox *') -> 'STBox *':
-    box_converted = _ffi.cast('const STBox *', box)
-    result = _lib.stbox_get_space(box_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3178,7 +3172,7 @@ def inter_tbox_tbox(box1: 'const TBox *', box2: 'const TBox *') -> 'TBox *':
     result = _lib.inter_tbox_tbox(box1_converted, box2_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def intersection_tbox_tbox(box1: 'const TBox *', box2: 'const TBox *') -> 'TBox *':
@@ -3202,7 +3196,7 @@ def inter_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'STBox *'
     result = _lib.inter_stbox_stbox(box1_converted, box2_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def intersection_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'STBox *':
@@ -3210,13 +3204,6 @@ def intersection_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'S
     box2_converted = _ffi.cast('const STBox *', box2)
     result = _lib.intersection_stbox_stbox(box1_converted, box2_converted)
     return result if result != _ffi.NULL else None
-
-
-def stbox_quad_split(box: 'const STBox *') -> "Tuple['STBox *', 'int']":
-    box_converted = _ffi.cast('const STBox *', box)
-    count = _ffi.new('int *')
-    result = _lib.stbox_quad_split(box_converted, count)
-    return result if result != _ffi.NULL else None, count[0]
 
 
 def tbox_eq(box1: 'const TBox *', box2: 'const TBox *') -> 'bool':
@@ -3986,7 +3973,7 @@ def temporal_timestamp_n(temp: 'const Temporal *', n: int) -> int:
     result = _lib.temporal_timestamp_n(temp_converted, n, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def temporal_timestamps(temp: 'const Temporal *') -> "Tuple['TimestampTz *', 'int']":
@@ -4233,7 +4220,7 @@ def tbool_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 
     result = _lib.tbool_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def temporal_at_max(temp: 'const Temporal *') -> 'Temporal *':
@@ -4335,7 +4322,7 @@ def tfloat_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) ->
     result = _lib.tfloat_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tint_at_value(temp: 'const Temporal *', i: int) -> 'Temporal *':
@@ -4357,7 +4344,7 @@ def tint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> '
     result = _lib.tint_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tnumber_at_span(temp: 'const Temporal *', span: 'const Span *') -> 'Temporal *':
@@ -4451,7 +4438,7 @@ def tpoint_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) ->
     result = _lib.tpoint_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tsequence_at_period(seq: 'const TSequence *', p: 'const Span *') -> 'TSequence *':
@@ -4482,7 +4469,7 @@ def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 
     result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tand_bool_tbool(b: bool, temp: 'const Temporal *') -> 'Temporal *':
@@ -4694,12 +4681,6 @@ def tnumber_delta_value(temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tnumber_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
-    temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.tnumber_angular_difference(temp_converted)
-    return result if result != _ffi.NULL else None
-
-
 def textcat_text_ttext(txt: str, temp: 'const Temporal *') -> 'Temporal *':
     txt_converted = cstring2text(txt)
     temp_converted = _ffi.cast('const Temporal *', temp)
@@ -4862,7 +4843,7 @@ def shortestline_tpoint_geo(temp: 'const Temporal *', gs: 'const GSERIALIZED *')
     result = _lib.shortestline_tpoint_geo(temp_converted, gs_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def shortestline_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'GSERIALIZED **':
@@ -4872,7 +4853,7 @@ def shortestline_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal
     result = _lib.shortestline_tpoint_tpoint(temp1_converted, temp2_converted, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tbool_always_eq(temp: 'const Temporal *', b: bool) -> 'bool':
@@ -5463,7 +5444,7 @@ def bearing_point_point(geo1: 'const GSERIALIZED *', geo2: 'const GSERIALIZED *'
     result = _lib.bearing_point_point(geo1_converted, geo2_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def bearing_tpoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *', invert: bool) -> 'Temporal *':
@@ -5477,12 +5458,6 @@ def bearing_tpoint_tpoint(temp1: 'const Temporal *', temp2: 'const Temporal *') 
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.bearing_tpoint_tpoint(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_angular_difference(temp: 'const Temporal *') -> 'Temporal *':
-    temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.tpoint_angular_difference(temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5510,7 +5485,7 @@ def tpoint_direction(temp: 'const Temporal *') -> 'double':
     result = _lib.tpoint_direction(temp_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 
 def tpoint_get_coord(temp: 'const Temporal *', coord: int) -> 'Temporal *':
@@ -6060,6 +6035,6 @@ def tpoint_to_geo_measure(tpoint: 'const Temporal *', measure: 'const Temporal *
     result = _lib.tpoint_to_geo_measure(tpoint_converted, measure_converted, segmentize, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
-    raise Exception(f'C call went wrong: {result}')
+    return None
 
 

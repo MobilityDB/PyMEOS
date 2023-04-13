@@ -432,10 +432,11 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
 
         # If original C function returned bool, use it to return it when result is True, or raise exception when False
         if return_type.return_type == 'bool':
-            result_manipulation = (result_manipulation or '') + "    if result:\n" \
-                                                                f"        return {returning_object} if " \
-                                                                f"{returning_object} != _ffi.NULL else None\n" \
-                                                                "    raise Exception(f'C call went wrong: {result}')"
+
+            result_manipulation = (result_manipulation or '') + \
+                                  "    if result:\n" \
+                                  f"        return {returning_object} if {returning_object} != _ffi.NULL else None\n" \
+                                  "    return None"
         # Otherwise, just return it normally
         else:
             result_manipulation = (result_manipulation or '') + f'    return {returning_object} if {returning_object}' \
