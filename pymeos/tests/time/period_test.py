@@ -197,6 +197,13 @@ class TestPeriodPositionFunctions(TestPeriod):
     def test_is_after(self, other):
         self.period.is_after(other)
 
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, temporal, box]
+    )
+    def test_distance(self, other):
+        self.period.distance(other)
+
 
 class TestPeriodSetFunctions(TestPeriod):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')

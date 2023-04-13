@@ -608,7 +608,7 @@ class Period:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def distance(self, other: Union[Time, Box]) -> timedelta:
+    def distance(self, other: Union[Time, Box, Temporal]) -> timedelta:
         """
         Returns the temporal distance between ``self`` and ``other``.
 
@@ -623,8 +623,11 @@ class Period:
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+        from ..temporal import Temporal
         from ..boxes import Box
-        if isinstance(other, Period):
+        if isinstance(other, Temporal):
+            return timedelta(seconds=distance_span_span(self._inner, temporal_to_period(other._inner)))
+        elif isinstance(other, Period):
             return timedelta(seconds=distance_span_span(self._inner, other._inner))
         elif isinstance(other, PeriodSet):
             return timedelta(seconds=distance_spanset_span(other._inner, self._inner))
