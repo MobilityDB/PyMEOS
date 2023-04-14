@@ -189,7 +189,7 @@ class PeriodSet:
             periodset_lower
         """
         from .period import Period
-        return Period(_inner=periodset_lower(self._inner))
+        return Period(_inner=spanset_start_span(self._inner))
 
     def end_period(self) -> Period:
         """
@@ -201,7 +201,7 @@ class PeriodSet:
             periodset_upper
         """
         from .period import Period
-        return Period(_inner=periodset_upper(self._inner))
+        return Period(_inner=spanset_end_span(self._inner))
 
     def period_n(self, n: int) -> Period:
         """
@@ -661,15 +661,17 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, datetime):
-            return timestamptz_to_datetime(
-                intersection_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
+            result = intersection_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
+            return timestamptz_to_datetime(result) if result is not None else None
         elif isinstance(other, TimestampSet):
-            return TimestampSet(_inner=intersection_spanset_spanset(self._inner, set_to_spanset(other._inner)))
+            result = intersection_spanset_spanset(self._inner, set_to_spanset(other._inner))
+            return TimestampSet(_inner=result) if result is not None else None
         elif isinstance(other, Period):
-            return PeriodSet(_inner=intersection_spanset_span(self._inner, other._inner))
+            result = intersection_spanset_span(self._inner, other._inner)
+            return PeriodSet(_inner=result) if result is not None else None
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=intersection_spanset_spanset(self._inner, other._inner))
-
+            result = intersection_spanset_spanset(self._inner, other._inner)
+            return PeriodSet(_inner=result) if result is not None else None
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -689,16 +691,16 @@ class PeriodSet:
         from .period import Period
         from .timestampset import TimestampSet
         if isinstance(other, datetime):
-            return PeriodSet(_inner=minus_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
+            result = minus_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            return PeriodSet(_inner=minus_spanset_spanset(self._inner, set_to_spanset(other._inner)))
+            result = minus_spanset_spanset(self._inner, set_to_spanset(other._inner))
         elif isinstance(other, Period):
-            return PeriodSet(_inner=minus_spanset_span(self._inner, other._inner))
+            result = minus_spanset_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=minus_spanset_spanset(self._inner, other._inner))
-
+            result = minus_spanset_spanset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+        return PeriodSet(_inner=result) if result is not None else None
 
     def union(self, other: Time) -> PeriodSet:
         """

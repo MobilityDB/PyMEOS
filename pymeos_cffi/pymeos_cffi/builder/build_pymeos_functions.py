@@ -181,14 +181,13 @@ output_parameters = {
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
-    ('period_shift_tscale', 'delta'),
-    ('period_shift_tscale', 'scale'),
     ('meos_initialize', 'tz_str'),
     ('temporal_as_mfjson', 'srs'),
     ('gserialized_as_geojson', 'srs'),
+    ('period_shift_tscale', 'shift'),
     ('period_shift_tscale', 'duration'),
-    ('period_shift_tscale', 'start'),
-    ('period_shift_tscale', 'start'),
+    ('period_shift_tscale', 'delta'),
+    ('period_shift_tscale', 'scale'),
     ('timestampset_shift_tscale', 'start'),
     ('timestampset_shift_tscale', 'duration'),
     ('timestampset_shift_tscale', 'start'),

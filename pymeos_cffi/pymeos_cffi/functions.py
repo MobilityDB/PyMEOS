@@ -1278,9 +1278,9 @@ def periodset_tprecision(ss: 'const SpanSet *', duration: 'const Interval *', to
     return result if result != _ffi.NULL else None
 
 
-def period_shift_tscale(p: 'Span *', shift: 'const Interval *', duration: "Optional['const Interval *']", delta: "Optional[int]", scale: "Optional['double *']") -> None:
+def period_shift_tscale(p: 'Span *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']", delta: "Optional[int]", scale: "Optional['double *']") -> None:
     p_converted = _ffi.cast('Span *', p)
-    shift_converted = _ffi.cast('const Interval *', shift)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     delta_converted = _ffi.cast('TimestampTz *', delta) if delta is not None else _ffi.NULL
     scale_converted = _ffi.cast('double *', scale) if scale is not None else _ffi.NULL
