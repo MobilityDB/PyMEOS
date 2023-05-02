@@ -1287,9 +1287,9 @@ def period_shift_tscale(p: 'Span *', shift: "Optional['const Interval *']", dura
     _lib.period_shift_tscale(p_converted, shift_converted, duration_converted, delta_converted, scale_converted)
 
 
-def periodset_shift_tscale(ps: 'const SpanSet *', shift: 'const Interval *', duration: "Optional['const Interval *']") -> 'SpanSet *':
+def periodset_shift_tscale(ps: 'const SpanSet *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'SpanSet *':
     ps_converted = _ffi.cast('const SpanSet *', ps)
-    shift_converted = _ffi.cast('const Interval *', shift)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.periodset_shift_tscale(ps_converted, shift_converted, duration_converted)
     return result if result != _ffi.NULL else None
@@ -1316,10 +1316,10 @@ def timestamp_tprecision(t: int, duration: 'const Interval *', torigin: int) -> 
     return result if result != _ffi.NULL else None
 
 
-def tstzset_shift_tscale(ts: 'const Set *', shift: 'const Interval *', duration: 'const Interval *') -> 'Set *':
+def tstzset_shift_tscale(ts: 'const Set *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'Set *':
     ts_converted = _ffi.cast('const Set *', ts)
-    shift_converted = _ffi.cast('const Interval *', shift)
-    duration_converted = _ffi.cast('const Interval *', duration)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     result = _lib.tstzset_shift_tscale(ts_converted, shift_converted, duration_converted)
     return result if result != _ffi.NULL else None
 
