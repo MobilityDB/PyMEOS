@@ -79,6 +79,12 @@ class TestPeriodConstructors(TestPeriod):
         self.assert_period_equality(period, datetime(2019, 9, 8, tzinfo=timezone.utc),
                                     datetime(2019, 9, 10, tzinfo=timezone.utc), False, False)
 
+    def test_copy_constructor(self):
+        period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
+        other = copy(period)
+        assert period == other
+        assert period is not other
+
 
 class TestPeriodOutputs(TestPeriod):
     period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
@@ -245,6 +251,64 @@ class TestPeriodPositionFunctions(TestPeriod):
         self.period.distance(other)
 
 
+class TestPeriodSetFunctions(TestPeriod):
+    period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
+    periodset = PeriodSet(
+        '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
+    timestamp = datetime(year=2020, month=1, day=1)
+    timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset],
+        ids=['period', 'periodset', 'timestamp', 'timestampset']
+    )
+    def test_intersection(self, other):
+        self.period.intersection(other)
+        self.period * other
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset],
+        ids=['period', 'periodset', 'timestamp', 'timestampset']
+    )
+    def test_union(self, other):
+        self.period.union(other)
+        self.period + other
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset],
+        ids=['period', 'periodset', 'timestamp', 'timestampset']
+    )
+    def test_minus(self, other):
+        self.period.minus(other)
+        self.period - other
+
+
+class TestPeriodComparisonFunctions(TestPeriod):
+    period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
+    other = Period('(2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0)')
+
+    def test_eq(self):
+        _ = self.period == self.other
+
+    def test_ne(self):
+        _ = self.period != self.other
+
+    def test_lt(self):
+        _ = self.period < self.other
+
+    def test_le(self):
+        _ = self.period <= self.other
+
+    def test_gt(self):
+        _ = self.period > self.other
+
+    def test_ge(self):
+        _ = self.period >= self.other
+
+
 class TestPeriodManipulationFunctions(TestPeriod):
     period = Period('(2020-01-01 00:00:00+0, 2020-02-01 00:00:00+0)')
 
@@ -289,66 +353,9 @@ class TestPeriodManipulationFunctions(TestPeriod):
         self.assert_period_equality(shifted_scaled, datetime(2020, 1, 5, 0, tzinfo=timezone.utc),
                                     datetime(2020, 1, 5, 4, tzinfo=timezone.utc), False, False)
 
-    class TestPeriodSetFunctions(TestPeriod):
-        period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
-        periodset = PeriodSet(
-            '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
-        timestamp = datetime(year=2020, month=1, day=1)
-        timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
 
-        @pytest.mark.parametrize(
-            'other',
-            [period, periodset, timestamp, timestampset]
-        )
-        def test_intersection(self, other):
-            self.period.intersection(other)
-            self.period * other
+class TestPeriodMiscFunctions(TestPeriod):
+    period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
 
-        @pytest.mark.parametrize(
-            'other',
-            [period, periodset, timestamp, timestampset]
-        )
-        def test_union(self, other):
-            self.period.union(other)
-            self.period + other
-
-        @pytest.mark.parametrize(
-            'other',
-            [period, periodset, timestamp, timestampset]
-        )
-        def test_minus(self, other):
-            self.period.minus(other)
-            self.period - other
-
-    class TestPeriodComparisonFunctions(TestPeriod):
-        period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
-        other = Period('(2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0)')
-
-        def test_eq(self):
-            _ = self.period == self.other
-
-        def test_ne(self):
-            _ = self.period != self.other
-
-        def test_lt(self):
-            _ = self.period < self.other
-
-        def test_le(self):
-            _ = self.period <= self.other
-
-        def test_gt(self):
-            _ = self.period > self.other
-
-        def test_ge(self):
-            _ = self.period >= self.other
-
-    class TestPeriodMiscFunctions(TestPeriod):
-        period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
-
-        def test_hash(self):
-            hash(self.period)
-
-        def test_copy(self):
-            other = copy(self.period)
-            assert self.period == other
-            assert self.period is not other
+    def test_hash(self):
+        hash(self.period)

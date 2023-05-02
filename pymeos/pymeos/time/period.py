@@ -364,7 +364,7 @@ class Period:
             return contains_span_span(self._inner, set_to_span(content._inner))
         elif isinstance(content, Temporal):
             return contains_span_span(self._inner, temporal_to_period(content._inner))
-        elif isinstance(content, Box):
+        elif isinstance(content, get_args(Box)):
             return contains_span_span(self._inner, content.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
@@ -641,18 +641,18 @@ class Period:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     @overload
-    def intersection(self, other: datetime) -> datetime:
+    def intersection(self, other: datetime) -> Optional[datetime]:
         ...
 
     @overload
-    def intersection(self, other: Period) -> Period:
+    def intersection(self, other: Period) -> Optional[Period]:
         ...
 
     @overload
-    def intersection(self, other: Union[TimestampSet, PeriodSet]) -> PeriodSet:
+    def intersection(self, other: Union[TimestampSet, PeriodSet]) -> Optional[PeriodSet]:
         ...
 
-    def intersection(self, other: Time) -> Time:
+    def intersection(self, other: Time) -> Optional[Time]:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 
