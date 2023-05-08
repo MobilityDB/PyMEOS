@@ -838,25 +838,6 @@ class TBox:
             return tbox_ne(self._inner, other._inner)
         return True
 
-    def __cmp__(self, other) -> int:
-        """
-        Returns the result of comparing ``self`` to ``other``. The time dimension is compared first, then the space
-        dimension.
-
-        Args:
-            other: temporal object to compare with
-
-        Returns:
-            -1 if ``self`` is less than ``other``, 0 if ``self`` is equal to ``other``, 1 if ``self`` is greater than
-             ``other``.
-
-        MEOS Functions:
-            tbox_cmp
-        """
-        if isinstance(other, self.__class__):
-            return tbox_cmp(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
-
     def __lt__(self, other):
         """
         Returns whether ``self`` is less than ``other``. The time dimension is compared first, then the space dimension.

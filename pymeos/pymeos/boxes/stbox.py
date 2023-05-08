@@ -1121,25 +1121,6 @@ class STBox:
             return stbox_ne(self._inner, other._inner)
         return True
 
-    def __cmp__(self, other):
-        """
-        Returns the result of comparing ``self`` to ``other``. Compares first the SRID, then the time dimension,
-        and finally the spatial dimension (X, then Y then Z lower bounds and then the upper bounds).
-
-        Args:
-            other: The spatiotemporal object to compare with ``self``.
-
-        Returns:
-            -1 if ``self`` is less than ``other``, 0 if ``self`` is equal to ``other``, 1 if ``self`` is greater than
-             ``other``.
-
-        MEOS Functions:
-            stbox_cmp
-        """
-        if isinstance(other, self.__class__):
-            return stbox_cmp(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
-
     def __lt__(self, other):
         """
         Returns whether ``self`` is less than `other`. Compares first the SRID, then the time dimension,

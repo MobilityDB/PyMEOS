@@ -832,23 +832,6 @@ class PeriodSet:
             return spanset_ne(self._inner, other._inner)
         return True
 
-    def __cmp__(self, other):
-        """
-        Return the result of comparing ``self`` and ``other``.
-
-        Args:
-            other: temporal object to compare with
-
-        Returns:
-            -1 if less than, 0 if equal, and 1 if greater than
-
-        MEOS Functions:
-            spanset_cmp
-        """
-        if isinstance(other, self.__class__):
-            return spanset_cmp(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
-
     def __lt__(self, other):
         """
         Return whether ``self`` is less than ``other``.
