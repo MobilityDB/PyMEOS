@@ -82,7 +82,7 @@ class STBox:
         elif allow_time_only and isinstance(other, datetime):
             other_box = timestamp_to_stbox(datetime_to_timestamptz(other))
         elif allow_time_only and isinstance(other, TimestampSet):
-            other_box = tstzset_to_stbox(other._inner)
+            other_box = timestampset_to_stbox(other._inner)
         elif allow_time_only and isinstance(other, Period):
             other_box = period_to_stbox(other._inner)
         elif allow_time_only and isinstance(other, PeriodSet):
@@ -149,12 +149,12 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            timestamp_to_stbox, tstzset_to_stbox, period_to_stbox, periodset_to_stbox
+            timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox
         """
         if isinstance(time, datetime):
             result = timestamp_to_stbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = tstzset_to_stbox(time)
+            result = timestampset_to_stbox(time)
         elif isinstance(time, Period):
             result = period_to_stbox(time)
         elif isinstance(time, PeriodSet):
@@ -208,7 +208,7 @@ class STBox:
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = geo_period_to_stbox(gs, set_to_span(time._inner))
+            result = geo_period_to_stbox(gs, set_span(time._inner))
         elif isinstance(time, Period):
             result = geo_period_to_stbox(gs, time._inner)
         elif isinstance(time, PeriodSet):

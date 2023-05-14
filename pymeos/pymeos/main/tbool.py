@@ -74,7 +74,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         MEOS Functions:
             tbool_from_base
         """
-        result = tbool_from_base(value, base._inner)
+        result = tbool_from_base_temp(value, base._inner)
         return Temporal._factory(result)
 
     @staticmethod

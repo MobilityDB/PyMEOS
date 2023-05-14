@@ -139,7 +139,7 @@ class TBox:
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = tstzset_to_tbox(time)
+            result = timestampset_to_tbox(time)
         elif isinstance(time, Period):
             result = period_to_tbox(time)
         elif isinstance(time, PeriodSet):

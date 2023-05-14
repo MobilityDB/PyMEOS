@@ -42,11 +42,11 @@ class TimestampSet:
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
-            self._inner = tstzset_in(string)
+            self._inner = timestampset_in(string)
         else:
             times = [pg_timestamp_in(ts, -1) if isinstance(ts, str) else datetime_to_timestamptz(ts)
                      for ts in timestamp_list]
-            self._inner = tstzset_make(times, len(times))
+            self._inner = timestampset_make(times, len(times))
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TimestampSet:
@@ -85,7 +85,7 @@ class TimestampSet:
         MEOS Functions:
             period_duration
         """
-        return interval_to_timedelta(period_duration(set_to_span(self._inner)))
+        return interval_to_timedelta(period_duration(set_span(self._inner)))
 
     def period(self) -> Period:
         """
@@ -95,10 +95,10 @@ class TimestampSet:
             A new :class:`Period` instance
 
         MEOS Functions:
-            set_to_span
+            set_span
         """
         from .period import Period
-        return Period(_inner=set_to_span(self._inner))
+        return Period(_inner=set_span(self._inner))
 
     def to_periodset(self) -> PeriodSet:
         """
@@ -131,9 +131,9 @@ class TimestampSet:
             A :class:`datetime` instance
 
         MEOS Functions:
-            tstzset_start_timestamp
+            timestampset_start_timestamp
         """
-        return timestamptz_to_datetime(tstzset_start_timestamp(self._inner))
+        return timestamptz_to_datetime(timestampset_start_timestamp(self._inner))
 
     def end_timestamp(self) -> datetime:
         """
@@ -142,9 +142,9 @@ class TimestampSet:
             A :class:`datetime` instance
 
         MEOS Functions:
-            tstzset_end_timestamp
+            timestampset_end_timestamp
         """
-        return timestamptz_to_datetime(tstzset_end_timestamp(self._inner))
+        return timestamptz_to_datetime(timestampset_end_timestamp(self._inner))
 
     def timestamp_n(self, n: int) -> datetime:
         """
@@ -153,9 +153,9 @@ class TimestampSet:
             A :class:`datetime` instance
 
         MEOS Functions:
-            tstzset_timestamp_n
+            timestampset_timestamp_n
         """
-        result = tstzset_timestamp_n(self._inner, n + 1)
+        result = timestampset_timestamp_n(self._inner, n + 1)
         if result is None:
             raise IndexError(f"Index {n} out of range 0 - {self.num_timestamps() - 1}")
         return timestamptz_to_datetime(result)
@@ -167,9 +167,9 @@ class TimestampSet:
             A :class:`list[datetime]` instance
 
         MEOS Functions:
-            tstzset_timestamps
+            timestampset_timestamps
         """
-        tss = tstzset_values(self._inner)
+        tss = timestampset_values(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps())]
 
     def shift(self, delta: timedelta) -> TimestampSet:
@@ -187,7 +187,7 @@ class TimestampSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            tstzset_shift_tscale
+            timestampset_shift_tscale
         """
         return self.shift_tscale(shift=delta)
 
@@ -206,7 +206,7 @@ class TimestampSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            tstzset_shift_tscale
+            timestampset_shift_tscale
         """
         return self.shift_tscale(duration=duration)
 
@@ -226,10 +226,10 @@ class TimestampSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            tstzset_shift_tscale
+            timestampset_shift_tscale
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        tss = tstzset_shift_tscale(
+        tss = timestampset_shift_tscale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None
@@ -263,13 +263,13 @@ class TimestampSet:
         from ..temporal import Temporal
         from ..boxes import Box
         if isinstance(other, Period):
-            return adjacent_span_span(set_to_span(self._inner), other._inner)
+            return adjacent_span_span(set_span(self._inner), other._inner)
         elif isinstance(other, PeriodSet):
             return adjacent_spanset_spanset(other._inner, set_to_spanset(self._inner))
         elif isinstance(other, Temporal):
-            return adjacent_span_span(set_to_span(self._inner), temporal_to_period(other._inner))
+            return adjacent_span_span(set_span(self._inner), temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
-            return adjacent_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return adjacent_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -299,15 +299,15 @@ class TimestampSet:
         from ..temporal import Temporal
         from ..boxes import Box
         if isinstance(container, Period):
-            return contained_span_span(set_to_span(self._inner), container._inner)
+            return contained_span_span(set_span(self._inner), container._inner)
         elif isinstance(container, PeriodSet):
-            return contained_span_spanset(set_to_span(self._inner), container._inner)
+            return contained_span_spanset(set_span(self._inner), container._inner)
         elif isinstance(container, TimestampSet):
             return contained_set_set(self._inner, container._inner)
         elif isinstance(container, Temporal):
             return contained_spanset_spanset(set_to_spanset(self._inner), temporal_time(container._inner))
         elif isinstance(container, Box):
-            return contained_span_span(set_to_span(self._inner), container.to_period()._inner)
+            return contained_span_span(set_span(self._inner), container.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
@@ -372,13 +372,13 @@ class TimestampSet:
         elif isinstance(other, TimestampSet):
             return overlaps_set_set(self._inner, other._inner)
         elif isinstance(other, Period):
-            return overlaps_span_span(set_to_span(self._inner), other._inner)
+            return overlaps_span_span(set_span(self._inner), other._inner)
         elif isinstance(other, PeriodSet):
             return overlaps_spanset_spanset(set_to_spanset(self._inner), other._inner)
         elif isinstance(other, Temporal):
             return overlaps_spanset_spanset(set_to_spanset(self._inner), temporal_time(other._inner))
         elif isinstance(other, Box):
-            return overlaps_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return overlaps_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -413,13 +413,13 @@ class TimestampSet:
         elif isinstance(other, TimestampSet):
             return right_set_set(self._inner, other._inner)
         elif isinstance(other, Period):
-            return right_span_span(set_to_span(self._inner), other._inner)
+            return right_span_span(set_span(self._inner), other._inner)
         elif isinstance(other, PeriodSet):
-            return right_span_spanset(set_to_span(self._inner), other._inner)
+            return right_span_spanset(set_span(self._inner), other._inner)
         elif isinstance(other, Temporal):
-            return right_span_span(set_to_span(self._inner), temporal_to_period(other._inner))
+            return right_span_span(set_span(self._inner), temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
-            return right_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return right_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -449,17 +449,17 @@ class TimestampSet:
         from ..temporal import Temporal
         from ..boxes import Box
         if isinstance(other, datetime):
-            return overafter_timestamp_period(datetime_to_timestamptz(other), set_to_span(self._inner))
+            return overafter_timestamp_period(datetime_to_timestamptz(other), set_span(self._inner))
         elif isinstance(other, TimestampSet):
             return left_set_set(self._inner, other._inner)
         elif isinstance(other, Period):
-            return left_span_span(set_to_span(self._inner), other._inner)
+            return left_span_span(set_span(self._inner), other._inner)
         elif isinstance(other, PeriodSet):
-            return left_span_spanset(set_to_span(self._inner), other._inner)
+            return left_span_spanset(set_span(self._inner), other._inner)
         elif isinstance(other, Temporal):
-            return left_span_span(set_to_span(self._inner), temporal_to_period(other._inner))
+            return left_span_span(set_span(self._inner), temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
-            return left_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return left_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -490,17 +490,17 @@ class TimestampSet:
         from ..temporal import Temporal
         from ..boxes import Box
         if isinstance(other, datetime):
-            return overafter_period_timestamp(set_to_span(self._inner), datetime_to_timestamptz(other))
+            return overafter_period_timestamp(set_span(self._inner), datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return overright_set_set(self._inner, other._inner)
         elif isinstance(other, Period):
-            return overright_span_span(set_to_span(self._inner), other._inner)
+            return overright_span_span(set_span(self._inner), other._inner)
         elif isinstance(other, PeriodSet):
-            return overright_span_spanset(set_to_span(self._inner), other._inner)
+            return overright_span_spanset(set_span(self._inner), other._inner)
         elif isinstance(other, Temporal):
-            return overright_span_span(set_to_span(self._inner), temporal_to_period(other._inner))
+            return overright_span_span(set_span(self._inner), temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
-            return overright_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return overright_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -531,17 +531,17 @@ class TimestampSet:
         from ..temporal import Temporal
         from ..boxes import Box
         if isinstance(other, datetime):
-            return overbefore_period_timestamp(set_to_span(self._inner), datetime_to_timestamptz(other))
+            return overbefore_period_timestamp(set_span(self._inner), datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
             return overleft_set_set(self._inner, other._inner)
         if isinstance(other, Period):
-            return overleft_span_span(set_to_span(self._inner), other._inner)
+            return overleft_span_span(set_span(self._inner), other._inner)
         if isinstance(other, PeriodSet):
-            return overleft_span_spanset(set_to_span(self._inner), other._inner)
+            return overleft_span_spanset(set_span(self._inner), other._inner)
         elif isinstance(other, Temporal):
-            return overleft_span_span(set_to_span(self._inner), temporal_to_period(other._inner))
+            return overleft_span_span(set_span(self._inner), temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
-            return overleft_span_span(set_to_span(self._inner), other.to_period()._inner)
+            return overleft_span_span(set_span(self._inner), other.to_period()._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -567,13 +567,13 @@ class TimestampSet:
         elif isinstance(other, TimestampSet):
             return timedelta(seconds=distance_set_set(self._inner, other._inner))
         elif isinstance(other, Period):
-            return timedelta(seconds=distance_span_span(set_to_span(self._inner), other._inner))
+            return timedelta(seconds=distance_span_span(set_span(self._inner), other._inner))
         elif isinstance(other, PeriodSet):
-            return timedelta(seconds=distance_spanset_span(other._inner, set_to_span(self._inner)))
+            return timedelta(seconds=distance_spanset_span(other._inner, set_span(self._inner)))
         elif isinstance(other, Temporal):
-            return timedelta(seconds=distance_span_span(set_to_span(self._inner), temporal_to_period(other._inner)))
+            return timedelta(seconds=distance_span_span(set_span(self._inner), temporal_to_period(other._inner)))
         elif isinstance(other, get_args(Box)):
-            return timedelta(seconds=distance_span_span(set_to_span(self._inner), other.to_period()._inner))
+            return timedelta(seconds=distance_span_span(set_span(self._inner), other.to_period()._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

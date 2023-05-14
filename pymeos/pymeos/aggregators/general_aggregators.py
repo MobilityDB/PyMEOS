@@ -29,7 +29,7 @@ class TemporalInstantCountAggregator(BaseAggregator[
         if isinstance(temporal, datetime):
             state = timestamp_tcount_transfn(state, datetime_to_timestamptz(temporal))
         elif isinstance(temporal, TimestampSet):
-            state = tstzset_tcount_transfn(state, temporal._inner)
+            state = timestampset_tcount_transfn(state, temporal._inner)
         elif isinstance(temporal, Temporal) and temporal.interpolation() == TInterpolation.DISCRETE:
             state = temporal_tcount_transfn(state, temporal._inner)
         else:

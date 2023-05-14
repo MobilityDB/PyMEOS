@@ -108,10 +108,10 @@ class PeriodSet:
             A new :class:`Period` instance
 
         MEOS Functions:
-            spanset_to_span
+            spanset_span
         """
         from .period import Period
-        return Period(_inner=spanset_to_span(self._inner))
+        return Period(_inner=spanset_span(self._inner))
 
     def num_timestamps(self) -> int:
         """
@@ -447,7 +447,7 @@ class PeriodSet:
         if isinstance(other, PeriodSet):
             return overlaps_spanset_spanset(self._inner, other._inner)
         elif isinstance(other, TimestampSet):
-            return overlaps_spanset_span(self._inner, set_to_span(other._inner))
+            return overlaps_spanset_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return overlaps_spanset_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -483,7 +483,7 @@ class PeriodSet:
         if isinstance(other, datetime):
             return overbefore_timestamp_periodset(datetime_to_timestamptz(other), self._inner)
         elif isinstance(other, TimestampSet):
-            return right_spanset_span(self._inner, set_to_span(other._inner))
+            return right_spanset_span(self._inner, set_span(other._inner))
         elif isinstance(other, Period):
             return right_spanset_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
@@ -565,7 +565,7 @@ class PeriodSet:
         if isinstance(other, datetime):
             return overafter_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            return overright_spanset_span(self._inner, set_to_span(other._inner))
+            return overright_spanset_span(self._inner, set_span(other._inner))
         elif isinstance(other, Period):
             return overright_spanset_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
@@ -611,7 +611,7 @@ class PeriodSet:
         elif isinstance(other, datetime):
             return overbefore_periodset_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
-            return overleft_spanset_span(self._inner, set_to_span(other._inner))
+            return overleft_spanset_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return overleft_spanset_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -661,7 +661,7 @@ class PeriodSet:
         elif isinstance(other, datetime):
             return timedelta(seconds=distance_periodset_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return timedelta(seconds=distance_spanset_span(self._inner, set_to_span(other._inner)))
+            return timedelta(seconds=distance_spanset_span(self._inner, set_span(other._inner)))
         elif isinstance(other, get_args(Box)):
             return timedelta(seconds=distance_spanset_span(self._inner, other.to_period()._inner))
         else:

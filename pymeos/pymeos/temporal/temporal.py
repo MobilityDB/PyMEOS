@@ -67,7 +67,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_interpolation
         """
-        val = temporal_interpolation(self._inner)
+        val = temporal_interp(self._inner)
         return TInterpolation.from_string(val)
 
     @abstractmethod

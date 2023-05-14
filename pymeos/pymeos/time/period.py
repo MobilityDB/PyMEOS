@@ -48,7 +48,7 @@ class Period:
         else:
             lower_ts = pg_timestamptz_in(lower, -1) if isinstance(lower, str) else datetime_to_timestamptz(lower)
             upper_ts = pg_timestamptz_in(upper, -1) if isinstance(upper, str) else datetime_to_timestamptz(upper)
-            self._inner = tstzspan_make(lower_ts, upper_ts, lower_inc, upper_inc)
+            self._inner = period_make(lower_ts, upper_ts, lower_inc, upper_inc)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> Period:
@@ -208,14 +208,12 @@ class Period:
             period_shift_tscale
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        shifted = span_copy(self._inner)
-        period_shift_tscale(
-            shifted,
+        modified = period_shift_tscale(
+            self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
-            None, None
         )
-        return Period(_inner=shifted)
+        return Period(_inner=modified)
 
     def expand(self, other: Period) -> Period:
         """
@@ -285,7 +283,7 @@ class Period:
         elif isinstance(other, datetime):
             return adjacent_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            return adjacent_span_span(self._inner, set_to_span(other._inner))
+            return adjacent_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return adjacent_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -361,7 +359,7 @@ class Period:
         elif isinstance(content, datetime):
             return contains_period_timestamp(self._inner, datetime_to_timestamptz(content))
         elif isinstance(content, TimestampSet):
-            return contains_span_span(self._inner, set_to_span(content._inner))
+            return contains_span_span(self._inner, set_span(content._inner))
         elif isinstance(content, Temporal):
             return contains_span_span(self._inner, temporal_to_period(content._inner))
         elif isinstance(content, get_args(Box)):
@@ -402,7 +400,7 @@ class Period:
         elif isinstance(other, datetime):
             return overlaps_span_span(self._inner, timestamp_to_period(datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return overlaps_span_span(self._inner, set_to_span(other._inner))
+            return overlaps_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return overlaps_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -443,7 +441,7 @@ class Period:
         elif isinstance(other, datetime):
             return overafter_timestamp_period(datetime_to_timestamptz(other), self._inner)
         if isinstance(other, TimestampSet):
-            return left_span_span(self._inner, set_to_span(other._inner))
+            return left_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return left_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -485,7 +483,7 @@ class Period:
         elif isinstance(other, datetime):
             return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
-            return overleft_span_span(self._inner, set_to_span(other._inner))
+            return overleft_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return overleft_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -527,7 +525,7 @@ class Period:
         elif isinstance(other, datetime):
             return overafter_period_timestamp(self._inner, datetime_to_timestamptz(other))
         if isinstance(other, TimestampSet):
-            return overright_span_span(self._inner, set_to_span(other._inner))
+            return overright_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return overright_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -568,7 +566,7 @@ class Period:
         elif isinstance(other, datetime):
             return overbefore_timestamp_period(datetime_to_timestamptz(other), self._inner)
         if isinstance(other, TimestampSet):
-            return right_span_span(self._inner, set_to_span(other._inner))
+            return right_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Temporal):
             return right_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -600,11 +598,11 @@ class Period:
         elif isinstance(other, Period):
             return span_eq(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            return span_eq(self._inner, spanset_to_span(other._inner))
+            return span_eq(self._inner, spanset_span(other._inner))
         elif isinstance(other, datetime):
             return span_eq(self._inner, timestamp_to_period(datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return span_eq(self._inner, set_to_span(other._inner))
+            return span_eq(self._inner, set_span(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -634,7 +632,7 @@ class Period:
         elif isinstance(other, datetime):
             return timedelta(seconds=distance_period_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return timedelta(seconds=distance_span_span(self._inner, set_to_span(other._inner)))
+            return timedelta(seconds=distance_span_span(self._inner, set_span(other._inner)))
         elif isinstance(other, get_args(Box)):
             return timedelta(seconds=distance_span_span(self._inner, other.to_period()._inner))
         else:
