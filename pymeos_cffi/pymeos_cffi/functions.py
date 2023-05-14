@@ -723,9 +723,9 @@ def spanset_copy(ps: 'const SpanSet *') -> 'SpanSet *':
     return result if result != _ffi.NULL else None
 
 
-def spanset_make(spans: 'Span *', count: int, normalize: bool) -> 'SpanSet *':
-    spans_converted = _ffi.cast('Span *', spans)
-    result = _lib.spanset_make(spans_converted, count, normalize)
+def spanset_make(spans: 'List[Span *]', normalize: bool) -> 'SpanSet *':
+    spans_converted = _ffi.new('Span []', spans)
+    result = _lib.spanset_make(spans_converted, len(spans), normalize)
     return result if result != _ffi.NULL else None
 
 

@@ -60,6 +60,14 @@ def tbool_at_values_modifier(function: str) -> str:
         .replace(', count', ', len(values_converted)')
 
 
+def spanset_make_modifier(function: str) -> str:
+    return function \
+        .replace("spans: 'Span *', count: int", "spans: 'List[Span *]'") \
+        .replace("_ffi.cast('Span *', spans)",
+                 "_ffi.new('Span []', spans)") \
+        .replace(', count', ', len(spans)')
+
+
 def tbool_minus_values_modifier(function: str) -> str:
     return tbool_at_values_modifier(function)
 

@@ -150,6 +150,7 @@ function_modifiers = {
     'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
+    'spanset_make': spanset_make_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)
