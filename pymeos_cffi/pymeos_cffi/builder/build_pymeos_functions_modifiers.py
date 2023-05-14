@@ -21,11 +21,11 @@ def text2cstring_modifier(_: str) -> str:
     return result"""
 
 
-def tstzset_make_modifier(function: str) -> str:
+def timestampset_make_modifier(function: str) -> str:
     return function \
-        .replace('times: int', 'times: List[int]') \
-        .replace("times_converted = _ffi.cast('const TimestampTz *', times)",
-                 "times_converted = [_ffi.cast('const TimestampTz', x) for x in times]")
+        .replace('values: int', 'values: List[int]') \
+        .replace("values_converted = _ffi.cast('const TimestampTz *', values)",
+                 "values_converted = [_ffi.cast('const TimestampTz', x) for x in values]")
 
 
 def tint_at_values_modifier(function: str) -> str:
