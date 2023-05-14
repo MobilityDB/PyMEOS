@@ -111,11 +111,11 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         if isinstance(base, datetime):
             return TBoolInst(_inner=tboolinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TBoolSeq(_inner=tbooldiscseq_from_base_time(value, base._inner))
+            return TBoolSeq(_inner=tboolseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TBoolSeq(_inner=tboolseq_from_base_time(value, base._inner))
+            return TBoolSeq(_inner=tboolseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TBoolSeqSet(_inner=tboolseqset_from_base_time(value, base._inner))
+            return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     def value_set(self) -> Set[bool]:
@@ -206,7 +206,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return not tbool_ever_eq(self._inner, value)
 
-    def when_true(self) -> PeriodSet:
+    def when_true(self) -> Optional[PeriodSet]:
         """
         Returns a period set with the periods where `self` is True.
 
@@ -216,9 +216,10 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         MEOS Function:
             tbool_when_true
         """
-        return PeriodSet(_inner=tbool_when_true(self._inner))
+        result = tbool_when_true(self._inner)
+        return PeriodSet(_inner=result) if result is not None else None
 
-    def when_false(self) -> PeriodSet:
+    def when_false(self) -> Optional[PeriodSet]:
         """
         Returns a period set with the periods where `self` is False.
 
@@ -228,7 +229,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         MEOS Function:
             tbool_when_true, tnot_tbool
         """
-        return PeriodSet(_inner=tbool_when_true(tnot_tbool(self._inner)))
+        result = tbool_when_true(tnot_tbool(self._inner))
+        return PeriodSet(_inner=result) if result is not None else None
 
     def temporal_equal(self, other: Union[bool, Temporal]) -> TBool:
         """

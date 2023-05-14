@@ -997,93 +997,93 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def __lt__(self, other):
         """
-        Returns the temporal less than relation between `self` and `other`.
+        Returns whether `self` is less than `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal less than relation.
+            A :class:`bool` with the result of the less than relation.
 
         MEOS Functions:
-            tlt_temporal_temporal
+            temporal_lt
         """
-        return self.temporal_less(other)
+        return temporal_lt(self._inner, other._inner)
 
     def __le__(self, other):
         """
-        Returns the temporal less or equal relation between `self` and `other`.
+        Returns whether `self` is less or equal than `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal less or equal relation.
+            A :class:`bool` with the result of the less or equal than relation.
 
         MEOS Functions:
-            tle_temporal_temporal
+            temporal_le
         """
-        return self.temporal_less_or_equal(other)
+        return temporal_le(self._inner, other._inner)
 
     def __eq__(self, other):
         """
-        Returns the temporal equality relation between `self` and `other`.
+        Returns whether `self` is equal to `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
+            A :class:`bool` with the result of the equality relation.
 
         MEOS Functions:
-            teq_temporal_temporal
+            temporal_eq
         """
-        return self.temporal_equal(other)
+        return temporal_eq(self._inner, other._inner)
 
     def __ne__(self, other):
         """
-        Returns the temporal not equal relation between `self` and `other`.
+        Returns whether `self` is not equal to `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal not equal relation.
+            A :class:`bool` with the result of the not equal relation.
 
         MEOS Functions:
-            tne_temporal_temporal
+            temporal_ne
         """
-        return self.temporal_not_equal(other)
+        return temporal_ne(self._inner, other._inner)
 
     def __ge__(self, other):
         """
-        Returns the temporal greater or equal relation between `self` and `other`.
+        Returns whether `self` is greater or equal than `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater or equal relation.
+            A :class:`bool` with the result of the greater or equal than relation.
 
         MEOS Functions:
-            tge_temporal_temporal
+            temporal_ge
         """
-        return self.temporal_greater_or_equal(other)
+        return temporal_ge(self._inner, other._inner)
 
     def __gt__(self, other):
         """
-        Returns the temporal greater than relation between `self` and `other`.
+        Returns whether `self` is greater than `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater than relation.
+            A :class:`bool` with the result of the greater than relation.
 
         MEOS Functions:
-            tgt_temporal_temporal
+            temporal_gt
         """
-        return self.temporal_greater(other)
+        return temporal_gt(self._inner, other._inner)
 
     def __hash__(self) -> int:
         """
