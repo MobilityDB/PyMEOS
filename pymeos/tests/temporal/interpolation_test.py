@@ -11,9 +11,10 @@ class TestTInterpolation(TestPyMEOS):
             ('discrete', TInterpolation.DISCRETE),
             ('linear', TInterpolation.LINEAR),
             ('stepwise', TInterpolation.STEPWISE),
+            ('step', TInterpolation.STEPWISE),
             ('none', TInterpolation.NONE),
         ],
-        ids=['period', 'periodset', 'timestamp', 'timestampset']
+        ids=['discrete', 'linear', 'stepwise', 'step', 'none']
     )
     def test_from_string(self, source, result):
         assert TInterpolation.from_string(source) == result
