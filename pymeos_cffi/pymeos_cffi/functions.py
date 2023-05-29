@@ -5,7 +5,7 @@ import _meos_cffi
 import postgis as pg
 import shapely.geometry as spg
 from dateutil.parser import parse
-from shapely import wkt, wkb
+from shapely import wkt, wkb, get_srid
 from shapely.geometry.base import BaseGeometry
 from spans.types import floatrange, intrange
 
@@ -38,14 +38,23 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
+def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Optional[bool] = None) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
         text = geom.to_ewkb()
+        if geom.has_srid():
+            text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
         text = wkb.dumps(geom, hex=True)
+        if get_srid(geom) > 0:
+            text = f'SRID={get_srid(geom)};{text}'
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    return gserialized_in(text, -1)
+    gs = gserialized_in(text, -1)
+    if geodetic is not None:
+        # GFlags is an 8-bit integer, where the 4th bit is the geodetic flag (0x80)
+        # If geodetic is True, then set the 4th bit to 1, otherwise set it to 0
+        gs.gflags = (gs.gflags | 0x08) if geodetic else (gs.gflags & 0xF7)
+    return gs
 
 
 def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
