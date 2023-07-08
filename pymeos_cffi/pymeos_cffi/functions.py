@@ -5133,31 +5133,10 @@ def temporal_cmp(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'int':
     return result if result != _ffi.NULL else None
 
 
-def temporal_le(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_le(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def temporal_lt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_lt(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
 def temporal_eq(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.temporal_eq(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def temporal_ne(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_ne(temp1_converted, temp2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5172,6 +5151,27 @@ def temporal_gt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.temporal_gt(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_le(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_le(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_lt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_lt(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_ne(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_ne(temp1_converted, temp2_converted)
     return result if result != _ffi.NULL else None
 
 
