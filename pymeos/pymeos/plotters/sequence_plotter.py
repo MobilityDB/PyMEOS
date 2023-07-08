@@ -67,3 +67,25 @@ class TemporalSequencePlotter:
         base.tick_params(axis="x", rotation=45)
 
         return plots
+
+    @staticmethod
+    def plot_sequences(sequences: List[TSequence], *args, **kwargs):
+        """
+        Plot a list of :class:`TSequence` on the given axes. Every sequence will be plotted in a different color.
+
+        Params:
+            sequences: The list of :class:`TSequence` to plot.
+            *args: Additional arguments to pass to the plot function.
+            **kwargs: Additional keyword arguments to pass to the plot function.
+
+        Returns:
+            List of lists with the plotted elements of each sequence.
+
+        See Also:
+            :func:`~pymeos.plotters.sequence_plotter.TemporalSequencePlotter.plot`,
+            :meth:`~pymeos.plotters.sequenceset_plotter.TemporalSequenceSetPlotter.plot`
+        """
+        plots = []
+        for seq in sequences:
+            plots.append(TemporalSequencePlotter.plot(seq, *args, **kwargs))
+        return plots
