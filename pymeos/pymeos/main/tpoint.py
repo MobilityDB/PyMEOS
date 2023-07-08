@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from functools import reduce
-from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar
+from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar, Type
 
 import postgis as pg
 import shapely.geometry as shp
@@ -32,6 +32,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def __init__(self, _inner) -> None:
         super().__init__()
+
+    @classmethod
+    def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
+        result = super().from_hexwkb(hexwkb)
+        return result.set_srid(srid) if srid is not None else result
 
     def srid(self) -> int:
         """
@@ -76,7 +81,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_values
         """
-        return [i.value(precision=precision) for i in self.instants()]
+        result, count = tpoint_values(self._inner)
+        return [gserialized_to_shapely_point(result[i], precision) for i in range(count)]
 
     def start_value(self, precision: int = 15) -> shp.Point:
         """
@@ -348,13 +354,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
-            result = tpoint_at_geometry(self._inner, gs)
+            result = tpoint_at_value(self._inner, gs)
         elif isinstance(other, list):
             gss = [geometry_to_gserialized(gm) for gm in other]
-            results = [tpoint_at_geometry(self._inner, gs) for gs in gss]
+            results = [tpoint_at_value(self._inner, gs) for gs in gss]
             result = temporal_merge_array(results, len(results))
         elif isinstance(other, STBox):
-            result = tpoint_at_stbox(self._inner, other._inner)
+            result = tpoint_at_stbox(self._inner, other._inner, True)
         else:
             return super().at(other)
         return Temporal._factory(result)
@@ -378,17 +384,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
-            result = tpoint_minus_geometry(self._inner, gs)
+            result = tpoint_minus_value(self._inner, gs)
         elif isinstance(other, list):
             gss = [geometry_to_gserialized(gm) for gm in other]
             result = reduce(tpoint_minus_value, gss, self._inner)
         elif isinstance(other, STBox):
-            result = tpoint_minus_stbox(self._inner, other._inner)
+            result = tpoint_minus_stbox(self._inner, other._inner, True)
         else:
             return super().minus(other)
         return Temporal._factory(result)
 
-    def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint], distance: float) -> TBool:
+    def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox], distance: float) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory is within `distance` of `other`.
 
@@ -402,16 +408,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tdwithin_tpoint_geo, tdwithin_tpoint_tpoint
         """
+        from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
             result = tdwithin_tpoint_geo(self._inner, gs, distance, False, False)
+        elif isinstance(other, STBox):
+            result = tdwithin_tpoint_geo(self._inner, stbox_to_geo(other._inner), distance, False, False)
         elif isinstance(other, TPoint):
             result = tdwithin_tpoint_tpoint(self._inner, other._inner, distance, False, False)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def intersects(self, other: pg.Geometry) -> TBool:
+    def intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory intersects `other`.
 
@@ -424,11 +433,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tintersects_tpoint_geo
         """
-        gs = gserialized_in(other.to_ewkb(), -1)
-        result = tintersects_tpoint_geo(self._inner, gs, False, False)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
+            result = tintersects_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = tintersects_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def touches(self, other: pg.Geometry) -> TBool:
+    def touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory touches `other`.
 
@@ -441,11 +456,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             ttouches_tpoint_geo
         """
-        gs = gserialized_in(other.to_ewkb(), -1)
-        result = ttouches_tpoint_geo(self._inner, gs, False, False)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
+            result = ttouches_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = ttouches_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def is_contained(self, container: pg.Geometry) -> TBool:
+    def is_spatially_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory is contained by `container`.
 
@@ -458,11 +479,18 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tcontains_geo_tpoint
         """
-        gs = gserialized_in(container.to_ewkb(), -1)
-        result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        from ..boxes import STBox
+        if isinstance(container, pg.Geometry) or isinstance(container, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(container)
+            result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        elif isinstance(container, STBox):
+            gs = stbox_to_geo(container._inner)
+            result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
         return Temporal._factory(result)
 
-    def disjoint(self, other: pg.Geometry) -> TBool:
+    def disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory is disjoint from `other`.
 
@@ -475,11 +503,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tdisjoint_tpoint_geo
         """
-        gs = gserialized_in(other.to_ewkb(), -1)
-        result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
+            result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = tdisjoint_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def is_ever_contained(self, container: pg.Geometry) -> bool:
+    def is_ever_contained(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
         Returns whether the trajectory is ever contained by `container`.
 
@@ -492,10 +526,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             econtains_geo_tpoint
         """
-        gs = gserialized_in(container.to_ewkb(), -1)
-        return econtains_geo_tpoint(gs, self._inner) == 1
+        from ..boxes import STBox
+        if isinstance(container, pg.Geometry) or isinstance(container, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(container)
+            result = econtains_geo_tpoint(self._inner, gs)
+        elif isinstance(container, STBox):
+            result = econtains_geo_tpoint(self._inner, stbox_to_geo(container._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+        return result == 1
 
-    def is_ever_disjoint(self, other: Union[pg.Geometry, TPoint]) -> bool:
+    def is_ever_disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> bool:
         """
         Returns whether the trajectory is ever disjoint from `other`.
 
@@ -508,16 +549,18 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             edisjoint_tpoint_geo, edisjoint_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
-            result = edisjoint_tpoint_geo(self._inner, gs)
-        elif isinstance(other, TPoint):
-            result = edisjoint_tpoint_tpoint(self._inner, other._inner)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
+            result = edisjoint_tpoint_tpoint(self._inner, gs)
+        elif isinstance(other, STBox):
+            result = edisjoint_tpoint_tpoint(self._inner, stbox_to_geo(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
 
-    def is_ever_within_distance(self, other: Union[pg.Geometry, TPoint], distance: float) -> bool:
+    def is_ever_within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox],
+                                distance: float) -> bool:
         """
         Returns whether the trajectory is ever within `distance` of `other`.
 
@@ -531,16 +574,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             edwithin_tpoint_geo, edwithin_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = edwithin_tpoint_geo(self._inner, gs, distance)
+        elif isinstance(other, STBox):
+            result = edwithin_tpoint_geo(self._inner, stbox_to_geo(other._inner), distance)
         elif isinstance(other, TPoint):
             result = edwithin_tpoint_tpoint(self._inner, other._inner, distance)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
 
-    def ever_intersects(self, other: Union[pg.Geometry, TPoint]) -> bool:
+    def ever_intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> bool:
         """
         Returns whether the trajectory ever intersects `other`.
 
@@ -553,16 +599,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             eintersects_tpoint_geo, eintersects_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = eintersects_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            result = eintersects_tpoint_geo(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TPoint):
             result = eintersects_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
 
-    def ever_touches(self, other: pg.Geometry) -> bool:
+    def ever_touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
         Returns whether the trajectory ever touches `other`.
 
@@ -575,10 +624,17 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             etouches_tpoint_geo
         """
-        gs = gserialized_in(other.to_ewkb(), -1)
-        return etouches_tpoint_geo(gs, self._inner) == 1
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
+            result = etouches_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            result = etouches_tpoint_geo(self._inner, stbox_to_geo(other._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return result == 1
 
-    def distance(self, other: Union[pg.Geometry, TPoint]) -> TFloat:
+    def distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> TFloat:
         """
         Returns the temporal distance between the trajectory and `other`.
 
@@ -591,16 +647,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             distance_tpoint_geo, distance_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = distance_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            result = distance_tpoint_geo(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TPoint):
             result = distance_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def nearest_approach_distance(self, other: Union[pg.Geometry, STBox, TPoint]) -> float:
+    def nearest_approach_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox, TPoint]) -> float:
         """
         Returns the nearest approach distance between the trajectory and `other`.
 
@@ -614,8 +673,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint
         """
         from ..boxes import STBox
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             return nad_tpoint_geo(self._inner, gs)
         elif isinstance(other, STBox):
             return nad_tpoint_stbox(self._inner, other._inner)
@@ -624,7 +683,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def nearest_approach_instant(self, other: Union[pg.Geometry, TPoint]) -> TI:
+    def nearest_approach_instant(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TI:
         """
         Returns the nearest approach instant between the trajectory and `other`.
 
@@ -637,8 +696,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             nai_tpoint_geo, nai_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = nai_tpoint_geo(self._inner, gs)
         elif isinstance(other, TPoint):
             result = nai_tpoint_tpoint(self._inner, other._inner)
@@ -646,7 +705,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def shortest_line(self, other: Union[pg.Geometry, TPoint]) -> shpb.BaseGeometry:
+    def shortest_line(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> shpb.BaseGeometry:
         """
         Returns the shortest line between the trajectory and `other`.
 
@@ -660,8 +719,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             shortestline_tpoint_geo, shortestline_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = shortestline_tpoint_geo(self._inner, gs)
         elif isinstance(other, TPoint):
             result = shortestline_tpoint_tpoint(self._inner, other._inner)
@@ -669,7 +728,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return gserialized_to_shapely_geometry(result[0], 10)
 
-    def bearing(self, other: Union[pg.Geometry, TPoint]) -> TFloat:
+    def bearing(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TFloat:
         """
         Returns the temporal bearing between the trajectory and `other`.
 
@@ -682,8 +741,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             bearing_tpoint_point, bearing_tpoint_tpoint
         """
-        if isinstance(other, pg.Geometry):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other)
             result = bearing_tpoint_point(self._inner, gs, False)
         elif isinstance(other, TPoint):
             result = bearing_tpoint_tpoint(self._inner, other._inner)
@@ -827,7 +886,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_out
         """
-        return tpoint_out(self._inner, 15)
+        return tpoint_as_text(self._inner, 15)
 
     def as_wkt(self, precision: int = 15) -> str:
         """
@@ -979,11 +1038,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     """
     Abstract class for temporal geometric points.
     """
-    BaseClass = pg.Point
+    BaseClass = shp.Point
     _parse_function = tgeompoint_in
 
     @staticmethod
-    def from_base(value: pg.Geometry, base: Temporal,
+    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal,
                   interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
         """
         Creates a temporal geometric point from a base geometry and the time frame of another temporal object.
@@ -999,12 +1058,13 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_from_base
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         result = tgeompoint_from_base(gs, base._inner, interpolation)
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: pg.Geometry, base: Time, interpolation: TInterpolation = None) -> TGeomPoint:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Time,
+                       interpolation: TInterpolation = None) -> TGeomPoint:
         """
         Creates a temporal geometric point from a base geometry and a time value.
 
@@ -1020,7 +1080,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             tgeompointinst_make, tgeompointdiscseq_from_base_time, tgeompointseq_from_base_time,
             tgeompointseqset_from_base_time
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):
             return TGeomPointInst(_inner=tgeompointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
@@ -1044,7 +1104,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         result = tgeompoint_tgeogpoint(self._inner, True)
         return Temporal._factory(result)
 
-    def always_equal(self, value: pg.Geometry) -> bool:
+    def always_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -1057,10 +1117,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeompoint_always_eq(self._inner, gs)
 
-    def always_not_equal(self, value: pg.Geometry) -> bool:
+    def always_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always different to `value`.
 
@@ -1073,10 +1133,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeompoint_ever_eq(self._inner, gs)
 
-    def ever_equal(self, value: pg.Geometry) -> bool:
+    def ever_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -1089,10 +1149,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeompoint_ever_eq(self._inner, gs)
 
-    def ever_not_equal(self, value: pg.Geometry) -> bool:
+    def ever_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is ever different to `value`.
 
@@ -1105,10 +1165,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeompoint_always_eq(self._inner, gs)
 
-    def never_equal(self, value: pg.Geometry) -> bool:
+    def never_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -1121,10 +1181,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeompoint_ever_eq(self._inner, gs)
 
-    def never_not_equal(self, value: pg.Geometry) -> bool:
+    def never_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is never different to `value`.
 
@@ -1137,10 +1197,10 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeompoint_always_eq(self._inner, gs)
 
-    def temporal_equal(self, other: Union[pg.Point, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -1153,14 +1213,14 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             teq_tgeompoint_point, teq_temporal_temporal
         """
-        if isinstance(other, pg.Point):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Point) or isinstance(other, shp.Point):
+            gs = geometry_to_gserialized(other)
             result = teq_tgeompoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[pg.Point, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> Temporal:
         """
         Returns the temporal inequality relation between `self` and `other`.
 
@@ -1173,8 +1233,8 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tne_tgeompoint_point, tne_temporal_temporal
         """
-        if isinstance(other, pg.Point):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Point) or isinstance(other, shp.Point):
+            gs = geometry_to_gserialized(other)
             result = tne_tgeompoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
@@ -1210,11 +1270,11 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     """
     Abstract class for representing temporal geographic points.
     """
-    BaseClass = pg.Point
+    BaseClass = shp.Point
     _parse_function = tgeogpoint_in
 
     @staticmethod
-    def from_base(value: pg.Geometry, base: Temporal,
+    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal,
                   interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
         """
         Creates a temporal geographic point from a base geometry and the time frame of another temporal object.
@@ -1230,12 +1290,13 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_from_base
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         result = tgeogpoint_from_base(gs, base._inner, interpolation)
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base_time(value: pg.Geometry, base: Time, interpolation: TInterpolation = None) -> TGeogPoint:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Time,
+                       interpolation: TInterpolation = None) -> TGeogPoint:
         """
         Creates a temporal geographic point from a base geometry and a time object.
 
@@ -1251,7 +1312,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             tgeogpointinst_make, tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time,
             tgeogpointseqset_from_base_time
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):
             return TGeogPointInst(_inner=tgeogpointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
@@ -1275,7 +1336,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         result = tgeompoint_tgeogpoint(self._inner, False)
         return Temporal._factory(result)
 
-    def always_equal(self, value: pg.Geometry) -> bool:
+    def always_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -1288,10 +1349,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeogpoint_always_eq(self._inner, gs)
 
-    def always_not_equal(self, value: pg.Geometry) -> bool:
+    def always_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always different to `value`.
 
@@ -1304,10 +1365,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeogpoint_ever_eq(self._inner, gs)
 
-    def ever_equal(self, value: pg.Geometry) -> bool:
+    def ever_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -1320,10 +1381,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeogpoint_ever_eq(self._inner, gs)
 
-    def ever_not_equal(self, value: pg.Geometry) -> bool:
+    def ever_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is ever different to `value`.
 
@@ -1336,10 +1397,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeogpoint_always_eq(self._inner, gs)
 
-    def never_equal(self, value: pg.Geometry) -> bool:
+    def never_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -1352,10 +1413,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_ever_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return not tgeogpoint_ever_eq(self._inner, gs)
 
-    def never_not_equal(self, value: pg.Geometry) -> bool:
+    def never_not_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is never different to `value`.
 
@@ -1368,10 +1429,10 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_always_eq
         """
-        gs = gserialized_in(value.to_ewkb(), -1)
+        gs = geometry_to_gserialized(value)
         return tgeogpoint_always_eq(self._inner, gs)
 
-    def temporal_equal(self, other: Union[pg.Point, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -1384,14 +1445,14 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             teq_tgeogpoint_point, teq_temporal_temporal
         """
-        if isinstance(other, pg.Point):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Point) or isinstance(other, shp.Point):
+            gs = geometry_to_gserialized(other)
             result = teq_tgeogpoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[pg.Point, Temporal]) -> TBool:
+    def temporal_not_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> TBool:
         """
         Returns the temporal inequality relation between `self` and `other`.
 
@@ -1404,8 +1465,8 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tne_tgeogpoint_point, tne_temporal_temporal
         """
-        if isinstance(other, pg.Point):
-            gs = gserialized_in(other.to_ewkb(), -1)
+        if isinstance(other, pg.Point) or isinstance(other, shp.Point):
+            gs = geometry_to_gserialized(other)
             result = tne_tgeogpoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
@@ -1444,7 +1505,7 @@ class TGeomPointInst(TPointInst['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, pg.Point]] = None,
+    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, pg.Point, shp.Point]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
@@ -1459,7 +1520,7 @@ class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
     _cast_function = lambda x: None
 
     def __init__(self, string: Optional[str] = None, *,
-                 point: Optional[Union[str, pg.Point, Tuple[float, float]]] = None,
+                 point: Optional[Union[str, pg.Point, shp.Point, Tuple[float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:

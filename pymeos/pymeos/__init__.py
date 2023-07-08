@@ -5,7 +5,7 @@ from .meos_init import *
 from .temporal import *
 from .time import *
 
-__version__ = '1.1.2'
+__version__ = '1.1.3a1'
 __all__ = [
     # initialization
     'pymeos_initialize', 'pymeos_finalize',

@@ -65,14 +65,13 @@ class STBox:
             hasz = zmin is not None and zmax is not None
             if hast:
                 period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
-            self._inner = stbox_make(period, hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
-                                     float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0))
+            self._inner = stbox_make(hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
+                                     float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0), period)
 
-    @staticmethod
-    def _get_box(other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
+    def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
         if allow_space_only and isinstance(other, get_args(Geometry)):
-            other_box = geo_to_stbox(geometry_to_gserialized(other))
+            other_box = geo_to_stbox(geometry_to_gserialized(other, self.geodetic()))
         elif isinstance(other, STBox):
             other_box = other._inner
         elif isinstance(other, TPoint):
@@ -121,12 +120,13 @@ class STBox:
         return stbox_as_hexwkb(self._inner, -1)[0]
 
     @staticmethod
-    def from_geometry(geom: Geometry) -> STBox:
+    def from_geometry(geom: Geometry, geodetic: bool = False) -> STBox:
         """
         Returns a `STBox` from a `Geometry`.
 
         Args:
             geom: A `Geometry` instance.
+            geodetic: Whether to create a geodetic or geometric `STBox`.
 
         Returns:
             A new :class:`STBox` instance.
@@ -134,7 +134,7 @@ class STBox:
         MEOS Functions:
             gserialized_in, geo_to_stbox
         """
-        gs = geometry_to_gserialized(geom)
+        gs = geometry_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
@@ -164,13 +164,15 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox], expansion: float) -> STBox:
+    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox], expansion: float,
+                                    geodetic: Optional[bool] = False) -> STBox:
         """
         Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
 
         Args:
             value: A `Geometry`, `TPoint` or `STBox` instance.
             expansion: The amount to expand the bounding box.
+            geodetic: Whether to create a geodetic or geometric `STBox`. Only used when value is a `Geometry` instance.
 
         Returns:
             A new :class:`STBox` instance.
@@ -179,7 +181,7 @@ class STBox:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
         if isinstance(value, get_args(Geometry)):
-            gs = geometry_to_gserialized(value)
+            gs = geometry_to_gserialized(value, geodetic)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
             result = tpoint_expand_space(value._inner, expansion)
@@ -190,13 +192,14 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry_time(geometry: Geometry, time: Time) -> STBox:
+    def from_geometry_time(geometry: Geometry, time: Time, geodetic: bool = False) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
 
         Args:
             geometry: A `Geometry` instance representing the space dimension.
             time: A `Time` instance representing the time dimension.
+            geodetic: Whether to create a geodetic or geometric `STBox`.
 
         Returns:
             A new :class:`STBox` instance.
@@ -204,7 +207,7 @@ class STBox:
         MEOS Functions:
             geo_timestamp_to_stbox, geo_period_to_stbox
         """
-        gs = geometry_to_gserialized(geometry)
+        gs = geometry_to_gserialized(geometry, geodetic)
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
@@ -1024,7 +1027,7 @@ class STBox:
             nad_stbox_geo, nad_stbox_stbox
         """
         if isinstance(other, get_args(Geometry)):
-            gs = geometry_to_gserialized(other)
+            gs = geometry_to_gserialized(other, self.geodetic())
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):
             return nad_stbox_stbox(self._inner, other._inner)

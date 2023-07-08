@@ -287,9 +287,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             delta: :class:`datetime.timedelta` instance to shift
 
         MEOS Functions:
-            temporal_shift_tscale
+            temporal_shift
         """
-        return self.shift_tscale(shift=delta)
+        shifted = temporal_shift(self._inner,timedelta_to_interval(delta))
+        return Temporal._factory(shifted)
 
     def tscale(self, duration: timedelta) -> Period:
         """
@@ -299,9 +300,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration: :class:`datetime.timedelta` instance representing the duration of the new temporal
 
         MEOS Functions:
-            temporal_shift_tscale
+            temporal_tscale
         """
-        return self.shift_tscale(duration=duration)
+        scaled = temporal_tscale(self._inner,timedelta_to_interval(duration))
+        return Temporal._factory(scaled)
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Self:
         """
@@ -333,17 +335,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         inst = temporal_to_tinstant(self._inner)
         return Temporal._factory(inst)
 
-    def to_sequence(self, discrete: bool = False) -> TS:
+    def to_sequence(self) -> TS:
         """
-        Returns `self` as a :class:`TSequence`.
-
-        Args:
-            discrete: whether the sequence returned is discrete or continuous (stepwise or linear depending on subtype).
+        Converts `self` into a :class:`TSequence`.
 
         MEOS Functions:
-            temporal_to_tcontseq, temporal_to_tdiscseq
+            temporal_to_sequence
         """
-        seq = temporal_to_tcontseq(self._inner) if not discrete else temporal_to_tdiscseq(self._inner)
+        seq = temporal_to_tsequence(self._inner)
         return Temporal._factory(seq)
 
     def to_sequenceset(self) -> TSS:
@@ -456,15 +455,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             return self
         return Temporal._factory(new_inner)
 
-    # TODO: Move to proper classes (Sequence[Set] with continuous base type)
-    def to_linear(self: Self) -> Self:
+    def set_interpolation(self: Self, interpolation: TInterpolation) -> Self:
         """
-        Returns `self` transformed from stepwise to linear interpolation.
+        Returns a new :class:`Temporal` object equal to `self` with the given interpolation.
 
         MEOS Functions:
-            temporal_step_to_linear
+            temporal_set_interpolation
         """
-        new_temp = temporal_step_to_linear(self._inner)
+        new_temp = temporal_set_interp(self._inner, interpolation)
         return Temporal._factory(new_temp)
 
     def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
@@ -862,7 +860,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def stops(self, max_distance: float, min_duration: timedelta) -> TSS:
         """
-        Return the subsequences where the objects stays within an area with a given maximum size for at least
+        Return the subsequences where the objects stay within an area with a given maximum size for at least
         the specified duration.
 
         Args:
