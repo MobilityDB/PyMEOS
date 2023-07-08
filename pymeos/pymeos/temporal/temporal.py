@@ -43,6 +43,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     _parse_function = None
 
     @staticmethod
+    @abstractmethod
     def from_base_time(value: TBase, base: Time) -> TG:
         """
         Create a temporal object from a boolean value and a time object.
@@ -125,25 +126,30 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return PeriodSet(_inner=temporal_time(self._inner))
 
-    def duration(self) -> timedelta:
+    def duration(self, ignore_gaps=False) -> timedelta:
         """
-        Returns the duration of `self` taking into account any possible gap.
+        Returns the duration of `self`. By default, the gaps in `self` are taken into account, but this can be
+        changed by setting `ignore_gaps` to ``True``. This will only potentially alter the result for sequence sets and
+        discrete sequences.
+
+        Parameters:
+            ignore_gaps: Whether to take into account potential time gaps in the temporal value.
 
         MEOS Functions:
             temporal_duration
         """
-        return interval_to_timedelta(temporal_duration(self._inner, False))
-
-    def timespan(self) -> timedelta:
-        """
-        Returns the duration of `self` ignoring any potential gap.
-
-        MEOS Functions:
-            temporal_duration
-        """
-        return interval_to_timedelta(temporal_duration(self._inner, True))
+        return interval_to_timedelta(temporal_duration(self._inner, ignore_gaps))
 
     def period(self) -> Period:
+        """
+        Returns the :class:`Period` on which `self` is defined ignoring potential time gaps.
+
+        MEOS Functions:
+            temporal_to_period
+        """
+        return self.timespan()
+
+    def timespan(self) -> Period:
         """
         Returns the :class:`Period` on which `self` is defined ignoring potential time gaps.
 
@@ -184,6 +190,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def max_instant(self) -> TI:
         """
         Returns the instant in `self` with the maximum value.
+        If multiple instants have the maximum value, the first one is returned.
 
         MEOS Functions:
             temporal_max_instant
@@ -194,6 +201,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def min_instant(self) -> TI:
         """
         Returns the instant in `self` with the minimum value.
+        If multiple instants have the minimum value, the first one is returned.
 
         MEOS Functions:
             temporal_min_instant
@@ -203,13 +211,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def instant_n(self, n: int) -> TI:
         """
-        Returns the n-th instant in `self`.
+        Returns the n-th instant in `self`. (0-based)
 
         MEOS Functions:
             temporal_instant_n
         """
         from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n))
+        return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n + 1))
 
     def instants(self) -> List[TI]:
         """
@@ -251,12 +259,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def timestamp_n(self, n: int) -> datetime:
         """
-        Returns the n-th timestamp in `self`.
+        Returns the n-th timestamp in `self`. (0-based)
 
         MEOS Functions:
             temporal_timestamp_n
         """
-        return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n))
+        return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n + 1))
 
     def timestamps(self) -> List[datetime]:
         """
@@ -289,7 +297,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_shift
         """
-        shifted = temporal_shift(self._inner,timedelta_to_interval(delta))
+        shifted = temporal_shift(self._inner, timedelta_to_interval(delta))
         return Temporal._factory(shifted)
 
     def tscale(self, duration: timedelta) -> Period:
@@ -302,7 +310,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_tscale
         """
-        scaled = temporal_tscale(self._inner,timedelta_to_interval(duration))
+        scaled = temporal_tscale(self._inner, timedelta_to_interval(duration))
         return Temporal._factory(scaled)
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Self:

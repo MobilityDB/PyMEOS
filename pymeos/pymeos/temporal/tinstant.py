@@ -71,7 +71,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return self
 
     def instant_n(self: Self, n: int) -> Self:
-        if n == 1:
+        if n == 0:
             return self
         else:
             raise Exception("ERROR: Out of range")
@@ -86,7 +86,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return self.timestamp()
 
     def timestamp_n(self, n) -> datetime:
-        if n == 1:
+        if n == 0:
             return self.timestamp()
         else:
             raise Exception("ERROR: Out of range")

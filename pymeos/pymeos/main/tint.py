@@ -514,7 +514,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_from_base
         """
-        result = tint_from_base(value, base._inner)
+        result = tint_from_base_temp(value, base._inner)
         return Temporal._factory(result)
 
     @staticmethod
@@ -535,11 +535,11 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         if isinstance(base, datetime):
             return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TIntSeq(_inner=tintdiscseq_from_base_time(value, base._inner))
+            return TIntSeq(_inner=tintseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TIntSeq(_inner=tintseq_from_base_time(value, base._inner))
+            return TIntSeq(_inner=tintseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TIntSeqSet(_inner=tintseqset_from_base_time(value, base._inner))
+            return TIntSeqSet(_inner=tintseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod

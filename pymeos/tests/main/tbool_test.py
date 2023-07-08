@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 import pytest
 
@@ -142,6 +142,19 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
+            (tbi, TInterpolation.NONE),
+            (tbsd, TInterpolation.DISCRETE),
+            (tbs, TInterpolation.STEPWISE),
+            (tbss, TInterpolation.STEPWISE)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_interpolation(self, temporal, expected):
+        assert temporal.interpolation() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             (tbi, {True}),
             (tbsd, {True, False}),
             (tbs, {True, False}),
@@ -151,6 +164,19 @@ class TestTBoolAccessors(TestTBool):
     )
     def test_value_set(self, temporal, expected):
         assert temporal.value_set() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, [True]),
+            (tbsd, [True, False]),
+            (tbs, [True, False]),
+            (tbss, [True, False, True, True])
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_values(self, temporal, expected):
+        assert temporal.values() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -182,6 +208,32 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
+            (tbsd, False),
+            (tbs, False),
+            (tbss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_min_value(self, temporal, expected):
+        assert temporal.min_value() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, True),
+            (tbsd, True),
+            (tbs, True),
+            (tbss, True)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_max_value(self, temporal, expected):
+        assert temporal.max_value() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, True),
             (tbsd, True),
             (tbs, True),
             (tbss, True)
@@ -190,6 +242,248 @@ class TestTBoolAccessors(TestTBool):
     )
     def test_value_at_timestamp(self, temporal, expected):
         assert temporal.value_at_timestamp(datetime(2019, 9, 1)) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, PeriodSet('{[2019-09-01, 2019-09-01]}')),
+            (tbsd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (tbs, PeriodSet('{[2019-09-01, 2019-09-02]}')),
+            (tbss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_time(self, temporal, expected):
+        assert temporal.time() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, timedelta()),
+            (tbsd, timedelta()),
+            (tbs, timedelta(days=1)),
+            (tbss, timedelta(days=3)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_duration(self, temporal, expected):
+        assert temporal.duration() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, timedelta()),
+            (tbsd, timedelta(days=1)),
+            (tbs, timedelta(days=1)),
+            (tbss, timedelta(days=4)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_duration_ignoring_gaps(self, temporal, expected):
+        assert temporal.duration(ignore_gaps=True) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, Period('[2019-09-01, 2019-09-01]')),
+            (tbsd, Period('[2019-09-01, 2019-09-02]')),
+            (tbs, Period('[2019-09-01, 2019-09-02]')),
+            (tbss, Period('[2019-09-01, 2019-09-05]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_period(self, temporal, expected):
+        assert temporal.period() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, Period('[2019-09-01, 2019-09-01]')),
+            (tbsd, Period('[2019-09-01, 2019-09-02]')),
+            (tbs, Period('[2019-09-01, 2019-09-02]')),
+            (tbss, Period('[2019-09-01, 2019-09-05]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_timespan(self, temporal, expected):
+        assert temporal.timespan() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 1),
+            (tbsd, 2),
+            (tbs, 2),
+            (tbss, 4),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_num_instants(self, temporal, expected):
+        assert temporal.num_instants() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, tbi),
+            (tbsd, tbi),
+            (tbs, tbi),
+            (tbss, tbi),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_start_instant(self, temporal, expected):
+        assert temporal.start_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, tbi),
+            (tbsd, TBoolInst('False@2019-09-02')),
+            (tbs, TBoolInst('False@2019-09-02')),
+            (tbss, TBoolInst('True@2019-09-05')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_end_instant(self, temporal, expected):
+        assert temporal.end_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, tbi),
+            (tbsd, tbi),
+            (tbs, tbi),
+            (tbss, tbi),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_max_instant(self, temporal, expected):
+        assert temporal.max_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, tbi),
+            (tbsd, TBoolInst('False@2019-09-02')),
+            (tbs, TBoolInst('False@2019-09-02')),
+            (tbss, TBoolInst('False@2019-09-02')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_min_instant(self, temporal, expected):
+        assert temporal.min_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, n, expected',
+        [
+            (tbi, 0, tbi),
+            (tbsd, 1, TBoolInst('False@2019-09-02')),
+            (tbs, 1, TBoolInst('False@2019-09-02')),
+            (tbss, 2, TBoolInst('True@2019-09-03')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_instant_n(self, temporal, n, expected):
+        assert temporal.instant_n(n) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, [tbi]),
+            (tbsd, [tbi, TBoolInst('False@2019-09-02')]),
+            (tbs, [tbi, TBoolInst('False@2019-09-02')]),
+            (tbss, [tbi, TBoolInst('False@2019-09-02'), TBoolInst('True@2019-09-03'), TBoolInst('True@2019-09-05')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_instants(self, temporal, expected):
+        assert temporal.instants() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 1),
+            (tbsd, 2),
+            (tbs, 2),
+            (tbss, 4),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_num_timestamps(self, temporal, expected):
+        assert temporal.num_timestamps() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbsd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbs, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_start_timestamp(self, temporal, expected):
+        assert temporal.start_timestamp() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbsd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbs, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_end_timestamp(self, temporal, expected):
+        assert temporal.end_timestamp() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, n, expected',
+        [
+            (tbi, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbsd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbs, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_timestamp_n(self, temporal, n, expected):
+        assert temporal.timestamp_n(n) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
+            (tbsd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
+            (tbs, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                   datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
+            (tbss, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=3, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_timestamps(self, temporal, expected):
+        assert temporal.timestamps() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbsd, [TBoolSeq('[t@2019-09-01]'), TBoolSeq('[f@2019-09-02]')]),
+            (tbs, [TBoolSeq('[t@2019-09-01, t@2019-09-02)'),
+                   TBoolSeq('[f@2019-09-02]')]),
+            (tbss,
+             [TBoolSeq('[t@2019-09-01, t@2019-09-02)'),
+              TBoolSeq('[f@2019-09-02]'),
+              TBoolSeq('[t@2019-09-03, t@2019-09-05]')]),
+        ],
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_segments(self, temporal, expected):
+        assert temporal.segments() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
