@@ -23,7 +23,7 @@
  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
  * AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
  * AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO
- * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
+ * PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
  *****************************************************************************/
 
@@ -41,6 +41,9 @@
 //#ifndef POSTGRES_H
 //#define POSTGRES_H
 
+//#define DatumGetPointer(X) ((Pointer) (X))
+
+typedef char *Pointer;
 typedef uintptr_t Datum;
 
 typedef signed char int8;
@@ -83,6 +86,37 @@ typedef struct varlena bytea;
 //#define _LIBLWGEOM_H
 
 
+
+/**
+* Macros for manipulating the 'flags' byte. A uint8_t used as follows:
+* VVSRGBMZ
+* Version bit, followed by
+* Validty, Solid, ReadOnly, Geodetic, HasBBox, HasM and HasZ flags.
+*/
+//#define LWFLAG_Z        0x01
+//#define LWFLAG_M        0x02
+//#define LWFLAG_BBOX     0x04
+//#define LWFLAG_GEODETIC 0x08
+//#define LWFLAG_READONLY 0x10
+//#define LWFLAG_SOLID    0x20
+
+//#define FLAGS_GET_Z(flags)         ((flags) & LWFLAG_Z)
+//#define FLAGS_GET_M(flags)        (((flags) & LWFLAG_M)>>1)
+//#define FLAGS_GET_BBOX(flags)     (((flags) & LWFLAG_BBOX)>>2)
+//#define FLAGS_GET_GEODETIC(flags) (((flags) & LWFLAG_GEODETIC)>>3)
+//#define FLAGS_GET_READONLY(flags) (((flags) & LWFLAG_READONLY)>>4)
+//#define FLAGS_GET_SOLID(flags)    (((flags) & LWFLAG_SOLID)>>5)
+
+//#define FLAGS_SET_Z(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_Z) : ((flags) & ~LWFLAG_Z))
+//#define FLAGS_SET_M(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_M) : ((flags) & ~LWFLAG_M))
+//#define FLAGS_SET_BBOX(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_BBOX) : ((flags) & ~LWFLAG_BBOX))
+//#define FLAGS_SET_GEODETIC(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_GEODETIC) : ((flags) & ~LWFLAG_GEODETIC))
+//#define FLAGS_SET_READONLY(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_READONLY) : ((flags) & ~LWFLAG_READONLY))
+//#define FLAGS_SET_SOLID(flags, value) ((flags) = (value) ? ((flags) | LWFLAG_SOLID) : ((flags) & ~LWFLAG_SOLID))
+
+//#define FLAGS_NDIMS(flags) (2 + FLAGS_GET_Z(flags) + FLAGS_GET_M(flags))
+//#define FLAGS_GET_ZM(flags) (FLAGS_GET_M(flags) + FLAGS_GET_Z(flags) * 2)
+//#define FLAGS_NDIMS_BOX(flags) (FLAGS_GET_GEODETIC(flags) ? 3 : FLAGS_NDIMS(flags))
 
 /*
 ** Variants available for WKB and WKT output types
@@ -569,6 +603,17 @@ typedef enum
   STEP =           2,
   LINEAR =         3,
 } interpType;
+
+/**
+ * @brief Enumeration that defines the spatial relationships for which a call
+ * to GEOS is made.
+ */
+typedef enum
+{
+  INTERSECTS =     0,
+  CONTAINS =       1,
+  TOUCHES =        2,
+} spatialRel;
 
 /**
  * Structure to represent the common structure of temporal values of
@@ -1621,12 +1666,12 @@ extern bool ttext_ever_lt(const Temporal *temp, text *txt);
 
 
 extern int temporal_cmp(const Temporal *temp1, const Temporal *temp2);
-extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);
-extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);
-extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);
 extern bool temporal_le(const Temporal *temp1, const Temporal *temp2);
 extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_eq(const Temporal *temp1, const Temporal *temp2);
 extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_ge(const Temporal *temp1, const Temporal *temp2);
+extern bool temporal_gt(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *teq_float_tfloat(double d, const Temporal *temp);
 extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
@@ -1773,7 +1818,7 @@ extern Span *floatspan_bucket_list(const Span *bounds, double size, double origi
 extern int int_bucket(int value, int size, int origin);
 extern Span *intspan_bucket_list(const Span *bounds, int size, int origin, int *newcount);
 extern Span *period_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *newcount);
-extern STBox *stbox_tile_list(const STBox *bounds, double size, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int **cellcount);
+extern STBox *stbox_tile_list(const STBox *bounds, double xsize, double ysize, double zsize, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int **cellcount);
 extern TBox *tbox_tile_list(const TBox *bounds, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *rows, int *columns);
 extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, int *newcount);
 extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, int *newcount);
@@ -1802,7 +1847,7 @@ Temporal *temporal_simplify_min_tdelta(const Temporal *temp, const Interval *min
 Temporal *temporal_simplify_dp(const Temporal *temp, double eps_dist, bool synchronized);
 Temporal *temporal_simplify_max_dist(const Temporal *temp, double eps_dist, bool synchronized);
 bool tpoint_AsMVTGeom(const Temporal *temp, const STBox *bounds, int32_t extent, int32_t buffer, bool clip_geom, GSERIALIZED **geom, int64 **timesarr, int *count);
-bool tpoint_to_geo_measure(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
+bool tpoint_to_geo_meas(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
 
 
 

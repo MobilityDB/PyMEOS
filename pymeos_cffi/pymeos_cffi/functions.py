@@ -5133,27 +5133,6 @@ def temporal_cmp(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'int':
     return result if result != _ffi.NULL else None
 
 
-def temporal_eq(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_eq(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def temporal_ge(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_ge(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
-def temporal_gt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
-    temp1_converted = _ffi.cast('const Temporal *', temp1)
-    temp2_converted = _ffi.cast('const Temporal *', temp2)
-    result = _lib.temporal_gt(temp1_converted, temp2_converted)
-    return result if result != _ffi.NULL else None
-
-
 def temporal_le(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
@@ -5168,10 +5147,31 @@ def temporal_lt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def temporal_eq(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_eq(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
 def temporal_ne(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
     temp1_converted = _ffi.cast('const Temporal *', temp1)
     temp2_converted = _ffi.cast('const Temporal *', temp2)
     result = _lib.temporal_ne(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_ge(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_ge(temp1_converted, temp2_converted)
+    return result if result != _ffi.NULL else None
+
+
+def temporal_gt(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'bool':
+    temp1_converted = _ffi.cast('const Temporal *', temp1)
+    temp2_converted = _ffi.cast('const Temporal *', temp2)
+    result = _lib.temporal_gt(temp1_converted, temp2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5964,13 +5964,13 @@ def period_bucket_list(bounds: 'const Span *', duration: 'const Interval *', ori
     return result if result != _ffi.NULL else None
 
 
-def stbox_tile_list(bounds: 'const STBox *', size: float, duration: "Optional['const Interval *']", sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBox *', 'int *']":
+def stbox_tile_list(bounds: 'const STBox *', xsize: float, ysize: float, zsize: float, duration: "Optional['const Interval *']", sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBox *', 'int *']":
     bounds_converted = _ffi.cast('const STBox *', bounds)
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
     torigin_converted = _ffi.cast('TimestampTz', torigin)
     cellcount = _ffi.new('int **')
-    result = _lib.stbox_tile_list(bounds_converted, size, duration_converted, sorigin_converted, torigin_converted, cellcount)
+    result = _lib.stbox_tile_list(bounds_converted, xsize, ysize, zsize, duration_converted, sorigin_converted, torigin_converted, cellcount)
     return result if result != _ffi.NULL else None, cellcount[0]
 
 
@@ -6114,11 +6114,11 @@ def tpoint_AsMVTGeom(temp: 'const Temporal *', bounds: 'const STBox *', extent: 
     return result if result != _ffi.NULL else None, count[0]
 
 
-def tpoint_to_geo_measure(tpoint: 'const Temporal *', measure: 'const Temporal *', segmentize: bool) -> 'GSERIALIZED **':
+def tpoint_to_geo_meas(tpoint: 'const Temporal *', measure: 'const Temporal *', segmentize: bool) -> 'GSERIALIZED **':
     tpoint_converted = _ffi.cast('const Temporal *', tpoint)
     measure_converted = _ffi.cast('const Temporal *', measure)
     out_result = _ffi.new('GSERIALIZED **')
-    result = _lib.tpoint_to_geo_measure(tpoint_converted, measure_converted, segmentize, out_result)
+    result = _lib.tpoint_to_geo_meas(tpoint_converted, measure_converted, segmentize, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
     return None
