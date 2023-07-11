@@ -87,7 +87,7 @@ class TestTTextConstructors(TestTText):
             ('AAA', datetime(2019, 9, 1, tzinfo=timezone.utc)),
             ('AAA', '2019-09-01'),
         ],
-        ids=['int-datetime', 'string-datetime', 'int-string', 'string-string']
+        ids=['string', 'datetime']
     )
     def test_value_timestamp_instant_constructor(self, value, timestamp):
         tti = TTextInst(value=value, timestamp=timestamp)
@@ -611,8 +611,8 @@ class TestTTextTextOperations(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_concat_text(self, temporal):
-        assert temporal.temporal_concat('BBB') == expected
+    def test_temporal_concat_text(self, temporal, expected):
+        assert temporal.concatenate('BBB') == expected
         assert (temporal + 'BBB') == expected
 
     @pytest.mark.parametrize(
@@ -625,7 +625,7 @@ class TestTTextTextOperations(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_lowercase(self, expected):
+    def test_temporal_lowercase(self, temporal, expected):
         assert temporal.temporal_lowercase() == expected
 
     @pytest.mark.parametrize(
@@ -633,7 +633,7 @@ class TestTTextTextOperations(TestTText):
         [tti, ttsd, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_uppercase(self, expected):
+    def test_temporal_uppercase(self, temporal, expected):
         assert temporal.temporal_uppercase() == temporal
 
     @pytest.mark.parametrize(
@@ -659,7 +659,7 @@ class TestTTextTextOperations(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_equal_int(self, temporal):
+    def test_temporal_equal_int(self, temporal, expected):
         assert temporal.temporal_equal('AAA') == expected
 
         assert temporal.temporal_equal('BBB') == ~expected
@@ -687,7 +687,7 @@ class TestTTextTextOperations(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_not_equal_int(self, temporal):
+    def test_temporal_not_equal_int(self, temporal, expected):
         assert temporal.temporal_not_equal(1) == expected
 
         assert temporal.temporal_not_equal(2) == ~expected

@@ -1,6 +1,7 @@
 from datetime import datetime, timezone, timedelta
 
 import pytest
+from shapely import Point
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, TGeomPoint, \
     TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, TInterpolation, TimestampSet, Period, PeriodSet
@@ -586,7 +587,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_equal_int(self, temporal):
+    def test_temporal_equal_int(self, temporal, expected):
         assert temporal.temporal_equal(1) == expected
 
         assert temporal.temporal_equal(2) == ~expected
@@ -614,7 +615,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_not_equal_int(self, temporal):
+    def test_temporal_not_equal_int(self, temporal, expected):
         assert temporal.temporal_not_equal(1) == expected
 
         assert temporal.temporal_not_equal(2) == ~expected

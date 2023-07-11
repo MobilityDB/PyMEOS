@@ -613,7 +613,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_add_int(self, temporal):
+    def test_temporal_add_int(self, temporal, expected):
         assert temporal.temporal_add(1) == expected
         assert (temporal + 1) == expected
 
@@ -632,6 +632,7 @@ class TestTIntArithmeticOperations(TestTInt):
         assert temporal - self.argument == expected
 
     @pytest.mark.parametrize(
+        'temporal, expected',
         [
             (tii, TIntInst('0@2019-09-01')),
             (tisd, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
@@ -640,7 +641,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_sub_int(self, temporal):
+    def test_temporal_sub_int(self, temporal, expected):
         assert temporal.temporal_sub(1) == expected
         assert (temporal - 1) == expected
 
@@ -668,7 +669,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_mul_int(self, temporal):
+    def test_temporal_mul_int(self, temporal, expected):
         assert temporal.temporal_mul(0) == TInt.from_base(0, temporal)
         assert (temporal * 0) == TInt.from_base(0, temporal)
 
@@ -695,14 +696,14 @@ class TestTIntArithmeticOperations(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tii, TIntInst('0.5@2019-09-01')),
-            (tisd, TIntSeq('{0.5@2019-09-01, 1@2019-09-02}')),
-            (tis, TIntSeq('[0.5@2019-09-01, 1@2019-09-02]')),
-            (tiss, TIntSeqSet('{[0.5@2019-09-01, 1@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}'))
+            (tii, TFloatInst('0.5@2019-09-01')),
+            (tisd, TFloatSeq('{0.5@2019-09-01, 1@2019-09-02}')),
+            (tis, TFloatSeq('[0.5@2019-09-01, 1@2019-09-02]')),
+            (tiss, TFloatSeqSet('{[0.5@2019-09-01, 1@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}'))
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_div_int(self, temporal):
+    def test_temporal_div_int(self, temporal, expected):
         assert temporal.temporal_div(1) == temporal
         assert (temporal / 1) == temporal
 
@@ -732,7 +733,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_equal_int(self, temporal):
+    def test_temporal_equal_int(self, temporal, expected):
         assert temporal.temporal_equal(1) == expected
 
         assert temporal.temporal_equal(2) == ~expected
@@ -760,7 +761,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_not_equal_int(self, temporal):
+    def test_temporal_not_equal_int(self, temporal, expected):
         assert temporal.temporal_not_equal(1) == expected
 
         assert temporal.temporal_not_equal(2) == ~expected
