@@ -1,17 +1,13 @@
-import pytest
-
 from pymeos import pymeos_initialize, pymeos_finalize
 
 
-@pytest.fixture(scope="session")
-def setup_meos(request):
+def pytest_configure(config):
     pymeos_initialize('UTC')
-    request.addfinalizer(pymeos_finalize)
 
 
-@pytest.mark.usefixtures('setup_meos')
+def pytest_unconfigure(config):
+    pymeos_finalize()
+
+
 class TestPyMEOS:
     pass
-
-
-pymeos_initialize('UTC')
