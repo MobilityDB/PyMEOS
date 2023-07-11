@@ -80,9 +80,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttext_from_base
+            ttext_from_base_temp
         """
-        result = ttext_from_base(value, base._inner)
+        result = ttext_from_base_temp(value, base._inner)
         return Temporal._factory(result)
 
     @staticmethod

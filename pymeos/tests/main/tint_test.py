@@ -540,7 +540,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_1(self, temporal, expected):
-        assert temporal.ever(1) == expected
+        assert temporal.ever_equal(1) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -553,7 +553,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_2(self, temporal, expected):
-        assert temporal.ever(2) == expected
+        assert temporal.ever_equal(2) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -566,7 +566,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_1(self, temporal, expected):
-        assert temporal.never(1) == expected
+        assert temporal.never_equal(1) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -579,7 +579,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_2(self, temporal, expected):
-        assert temporal.never(2) == expected
+        assert temporal.never_equal(2) == expected
 
 
 class TestTIntArithmeticOperations(TestTInt):
@@ -614,7 +614,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_add_int(self, temporal, expected):
-        assert temporal.temporal_add(1) == expected
+        assert temporal.add(1) == expected
         assert (temporal + 1) == expected
 
     @pytest.mark.parametrize(
@@ -642,7 +642,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_sub_int(self, temporal, expected):
-        assert temporal.temporal_sub(1) == expected
+        assert temporal.sub(1) == expected
         assert (temporal - 1) == expected
 
     @pytest.mark.parametrize(
@@ -656,7 +656,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_mul_temporal(self, temporal, expected):
-        assert temporal.temporal_add(self.argument) == expected
+        assert temporal.temporal_mul(self.argument) == expected
         assert temporal * self.argument == expected
 
     @pytest.mark.parametrize(
@@ -670,13 +670,13 @@ class TestTIntArithmeticOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_mul_int(self, temporal, expected):
-        assert temporal.temporal_mul(0) == TInt.from_base(0, temporal)
+        assert temporal.mul(0) == TInt.from_base(0, temporal)
         assert (temporal * 0) == TInt.from_base(0, temporal)
 
-        assert temporal.temporal_mul(1) == temporal
+        assert temporal.mul(1) == temporal
         assert (temporal * 1) == temporal
 
-        assert temporal.temporal_mul(2) == expected
+        assert temporal.mul(2) == expected
         assert (temporal * 2) == expected
 
     @pytest.mark.parametrize(
@@ -704,11 +704,19 @@ class TestTIntArithmeticOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_div_int(self, temporal, expected):
-        assert temporal.temporal_div(1) == temporal
+        assert temporal.div(1) == temporal
         assert (temporal / 1) == temporal
 
-        assert temporal.temporal_div(2) == expected
+        assert temporal.div(2) == expected
         assert (temporal / 2) == expected
+
+
+class TestTIntBooleanOperations(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+    argument = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -827,9 +835,9 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('1@2019-09-01')),
-            (tisd, TIntSeq('{1@2019-09-01}')),
-            (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
-            (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
+            (tisd, TIntSeq('{2@2019-09-02}')),
+            (tis, TIntSeq('{[2@2019-09-02]}')),
+            (tiss, TIntSeqSet('{[2@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -840,9 +848,9 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('1@2019-09-01')),
-            (tisd, TIntSeq('{2@2019-09-02}')),
-            (tis, TIntSeq('[2@2019-09-02]')),
-            (tiss, TIntSeqSet('{[2@2019-09-02]}')),
+            (tisd, TIntSeq('{1@2019-09-01}')),
+            (tis, TIntSeq('{[1@2019-09-01, 1@2019-09-02)}')),
+            (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -987,97 +995,113 @@ class TestTIntOutputs(TestTInt):
         'temporal, expected',
         [
             (tii, '{\n'
-                  '  "type": "MovingInt",\n'
-                  '  "period": {\n'
-                  '    "begin": "2019-09-01T00:00:00+00",\n'
-                  '    "end": "2019-09-01T00:00:00+00",\n'
-                  '    "lower_inc": true,\n'
-                  '    "upper_inc": true\n'
-                  '  },\n'
-                  '  "values": [\n'
-                  '    1\n'
-                  '  ],\n'
-                  '  "datetimes": [\n'
-                  '    "2019-09-01T00:00:00+00"\n'
-                  '  ],\n'
-                  '  "interpolation": "None"\n'
-                  '}'),
+                  '   "type": "MovingInteger",\n'
+                  '   "bbox": [\n'
+                  '     1,\n'
+                  '     1\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
             (tisd, '{\n'
-                   '  "type": "MovingInt",\n'
-                   '  "period": {\n'
-                   '    "begin": "2019-09-01T00:00:00+00",\n'
-                   '    "end": "2019-09-02T00:00:00+00",\n'
-                   '    "lower_inc": true,\n'
-                   '    "upper_inc": true\n'
-                   '  },\n'
-                   '  "values": [\n'
-                   '    1,\n'
-                   '    2\n'
-                   '  ],\n'
-                   '  "datetimes": [\n'
-                   '    "2019-09-01T00:00:00+00",\n'
-                   '    "2019-09-02T00:00:00+00"\n'
-                   '  ],\n'
-                   '  "lower_inc": true,\n'
-                   '  "upper_inc": true,\n'
-                   '  "interpolation": "Discrete"\n'
-                   '}'),
+                   '   "type": "MovingInteger",\n'
+                   '   "bbox": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "values": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
             (tis, '{\n'
-                  '  "type": "MovingInt",\n'
-                  '  "period": {\n'
-                  '    "begin": "2019-09-01T00:00:00+00",\n'
-                  '    "end": "2019-09-02T00:00:00+00",\n'
-                  '    "lower_inc": true,\n'
-                  '    "upper_inc": true\n'
-                  '  },\n'
-                  '  "values": [\n'
-                  '    1,\n'
-                  '    2\n'
-                  '  ],\n'
-                  '  "datetimes": [\n'
-                  '    "2019-09-01T00:00:00+00",\n'
-                  '    "2019-09-02T00:00:00+00"\n'
-                  '  ],\n'
-                  '  "lower_inc": true,\n'
-                  '  "upper_inc": true,\n'
-                  '  "interpolation": "Step"\n'
-                  '}'),
+                  '   "type": "MovingInteger",\n'
+                  '   "bbox": [\n'
+                  '     1,\n'
+                  '     2\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1,\n'
+                  '     2\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Step"\n'
+                  ' }'),
             (tiss, '{\n'
-                   '  "type": "MovingInt",\n'
-                   '  "period": {\n'
-                   '    "begin": "2019-09-01T00:00:00+00",\n'
-                   '    "end": "2019-09-05T00:00:00+00",\n'
-                   '    "lower_inc": true,\n'
-                   '    "upper_inc": true\n'
-                   '  },\n'
-                   '  "sequences": [\n'
-                   '    {\n'
-                   '      "values": [\n'
-                   '        1,\n'
-                   '        2\n'
-                   '      ],\n'
-                   '      "datetimes": [\n'
-                   '        "2019-09-01T00:00:00+00",\n'
-                   '        "2019-09-02T00:00:00+00"\n'
-                   '      ],\n'
-                   '      "lower_inc": true,\n'
-                   '      "upper_inc": true\n'
-                   '    },\n'
-                   '    {\n'
-                   '      "values": [\n'
-                   '        1,\n'
-                   '        1\n'
-                   '      ],\n'
-                   '      "datetimes": [\n'
-                   '        "2019-09-03T00:00:00+00",\n'
-                   '        "2019-09-05T00:00:00+00"\n'
-                   '      ],\n'
-                   '      "lower_inc": true,\n'
-                   '      "upper_inc": true\n'
-                   '    }\n'
-                   '  ],\n'
-                   '  "interpolation": "Step"\n'
-                   '}')
+                   '   "type": "MovingInteger",\n'
+                   '   "bbox": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1,\n'
+                   '         2\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1,\n'
+                   '         1\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Step"\n'
+                   ' }')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

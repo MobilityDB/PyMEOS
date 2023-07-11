@@ -633,8 +633,16 @@ class TestTTextTextOperations(TestTText):
         [tti, ttsd, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_uppercase(self, temporal, expected):
+    def test_temporal_uppercase(self, temporal):
         assert temporal.temporal_uppercase() == temporal
+
+
+class TestTTextBooleanOperations(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+    argument = TTextSeq('[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -884,11 +892,11 @@ class TestTTextOutputs(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tti, 'AAA@2019-09-01 00:00:00+00'),
-            (ttsd, '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00}'),
-            (tts, '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00]'),
-            (ttss, '{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], '
-                   '[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]}')
+            (tti, '"AAA"@2019-09-01 00:00:00+00'),
+            (ttsd, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
+            (tts, '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00]'),
+            (ttss, '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
+                   '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]}')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -913,97 +921,97 @@ class TestTTextOutputs(TestTText):
         'temporal, expected',
         [
             (tti, '{\n'
-                  '  "type": "MovingFloat",\n'
-                  '  "period": {\n'
-                  '    "begin": "2019-09-01T00:00:00+00",\n'
-                  '    "end": "2019-09-01T00:00:00+00",\n'
-                  '    "lower_inc": true,\n'
-                  '    "upper_inc": true\n'
-                  '  },\n'
-                  '  "values": [\n'
-                  '    "AAA"\n'
-                  '  ],\n'
-                  '  "datetimes": [\n'
-                  '    "2019-09-01T00:00:00+00"\n'
-                  '  ],\n'
-                  '  "interpolation": "None"\n'
-                  '}'),
+                  '   "type": "MovingText",\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     "AAA"\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
             (ttsd, '{\n'
-                   '  "type": "MovingFloat",\n'
-                   '  "period": {\n'
-                   '    "begin": "2019-09-01T00:00:00+00",\n'
-                   '    "end": "2019-09-02T00:00:00+00",\n'
-                   '    "lower_inc": true,\n'
-                   '    "upper_inc": true\n'
-                   '  },\n'
-                   '  "values": [\n'
-                   '    "AAA",\n'
-                   '    "BBB"\n'
-                   '  ],\n'
-                   '  "datetimes": [\n'
-                   '    "2019-09-01T00:00:00+00",\n'
-                   '    "2019-09-02T00:00:00+00"\n'
-                   '  ],\n'
-                   '  "lower_inc": true,\n'
-                   '  "upper_inc": true,\n'
-                   '  "interpolation": "Discrete"\n'
-                   '}'),
+                   '   "type": "MovingText",\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "values": [\n'
+                   '     "AAA",\n'
+                   '     "BBB"\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
             (tts, '{\n'
-                  '  "type": "MovingFloat",\n'
-                  '  "period": {\n'
-                  '    "begin": "2019-09-01T00:00:00+00",\n'
-                  '    "end": "2019-09-02T00:00:00+00",\n'
-                  '    "lower_inc": true,\n'
-                  '    "upper_inc": true\n'
-                  '  },\n'
-                  '  "values": [\n'
-                  '    "AAA",\n'
-                  '    "BBB"\n'
-                  '  ],\n'
-                  '  "datetimes": [\n'
-                  '    "2019-09-01T00:00:00+00",\n'
-                  '    "2019-09-02T00:00:00+00"\n'
-                  '  ],\n'
-                  '  "lower_inc": true,\n'
-                  '  "upper_inc": true,\n'
-                  '  "interpolation": "Step"\n'
-                  '}'),
+                  '   "type": "MovingText",\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     "AAA",\n'
+                  '     "BBB"\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Step"\n'
+                  ' }'),
             (ttss, '{\n'
-                   '  "type": "MovingFloat",\n'
-                   '  "period": {\n'
-                   '    "begin": "2019-09-01T00:00:00+00",\n'
-                   '    "end": "2019-09-05T00:00:00+00",\n'
-                   '    "lower_inc": true,\n'
-                   '    "upper_inc": true\n'
-                   '  },\n'
-                   '  "sequences": [\n'
-                   '    {\n'
-                   '      "values": [\n'
-                   '        "AAA",\n'
-                   '        "BBB"\n'
-                   '      ],\n'
-                   '      "datetimes": [\n'
-                   '        "2019-09-01T00:00:00+00",\n'
-                   '        "2019-09-02T00:00:00+00"\n'
-                   '      ],\n'
-                   '      "lower_inc": true,\n'
-                   '      "upper_inc": true\n'
-                   '    },\n'
-                   '    {\n'
-                   '      "values": [\n'
-                   '        "AAA",\n'
-                   '        "AAA"\n'
-                   '      ],\n'
-                   '      "datetimes": [\n'
-                   '        "2019-09-03T00:00:00+00",\n'
-                   '        "2019-09-05T00:00:00+00"\n'
-                   '      ],\n'
-                   '      "lower_inc": true,\n'
-                   '      "upper_inc": true\n'
-                   '    }\n'
-                   '  ],\n'
-                   '  "interpolation": "Step"\n'
-                   '}')
+                   '   "type": "MovingText",\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         "AAA",\n'
+                   '         "BBB"\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         "AAA",\n'
+                   '         "AAA"\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Step"\n'
+                   ' }')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

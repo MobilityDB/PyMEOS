@@ -497,9 +497,9 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             A new temporal float.
 
         MEOS Functions:
-            tfloat_from_base
+            tfloat_from_base_temp
         """
-        result = tfloat_from_base(value, base._inner, interpolation)
+        result = tfloat_from_base_temp(value, base._inner)
         return Temporal._factory(result)
 
     @staticmethod
@@ -516,16 +516,16 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             A new temporal float.
 
         MEOS Functions:
-            tfloatinst_make, tfloatdiscseq_from_base_time, tfloatseq_from_base_time, tfloatseqset_from_base_time
+            tfloatinst_make, tfloatseq_from_base_timestampset, tfloatseq_from_base_time, tfloatseqset_from_base_time
         """
         if isinstance(base, datetime):
             return TFloatInst(_inner=tfloatinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TFloatSeq(_inner=tfloatdiscseq_from_base_time(value, base._inner))
+            return TFloatSeq(_inner=tfloatseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TFloatSeq(_inner=tfloatseq_from_base_time(value, base._inner, interpolation))
+            return TFloatSeq(_inner=tfloatseq_from_base_period(value, base._inner, interpolation))
         elif isinstance(base, PeriodSet):
-            return TFloatSeqSet(_inner=tfloatseqset_from_base_time(value, base._inner, interpolation))
+            return TFloatSeqSet(_inner=tfloatseqset_from_base_periodset(value, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     @staticmethod
