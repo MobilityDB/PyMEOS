@@ -8,9 +8,6 @@ from pymeos_cffi import *
 
 from .temporal import Temporal
 
-if TYPE_CHECKING:
-    pass
-
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
 TI = TypeVar('TI', bound='TInstant[Any]')
