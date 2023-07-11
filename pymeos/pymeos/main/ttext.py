@@ -119,11 +119,11 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         if isinstance(base, datetime):
             return TTextInst(_inner=ttextinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TTextSeq(_inner=ttextdiscseq_from_base_time(value, base._inner))
+            return TTextSeq(_inner=ttextseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TTextSeq(_inner=ttextseq_from_base_time(value, base._inner))
+            return TTextSeq(_inner=ttextseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TTextSeqSet(_inner=ttextseqset_from_base_time(value, base._inner))
+            return TTextSeqSet(_inner=ttextseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     def value_set(self) -> Set[str]:
@@ -210,7 +210,6 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             ttext_lower
         """
         return self.__class__(_inner=ttext_lower(self._inner))
-
 
     def concatenate(self, other: Union[str, TText], other_before: bool = False):
         """

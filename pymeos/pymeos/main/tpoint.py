@@ -1042,8 +1042,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     _parse_function = tgeompoint_in
 
     @staticmethod
-    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal,
-                  interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeomPoint:
+    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
         """
         Creates a temporal geometric point from a base geometry and the time frame of another temporal object.
 
@@ -1059,7 +1058,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             tgeompoint_from_base
         """
         gs = geometry_to_gserialized(value)
-        result = tgeompoint_from_base(gs, base._inner, interpolation)
+        result = tgeompoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
 
     @staticmethod
@@ -1084,11 +1083,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         if isinstance(base, datetime):
             return TGeomPointInst(_inner=tgeompointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TGeomPointSeq(_inner=tgeompointdiscseq_from_base_time(gs, base._inner))
+            return TGeomPointSeq(_inner=tgeompointseq_from_base_timestampset(gs, base._inner))
         elif isinstance(base, Period):
-            return TGeomPointSeq(_inner=tgeompointseq_from_base_time(gs, base._inner, interpolation))
+            return TGeomPointSeq(_inner=tgeompointseq_from_base_period(gs, base._inner, interpolation))
         elif isinstance(base, PeriodSet):
-            return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_time(gs, base._inner, interpolation))
+            return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_periodset(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     def to_geographic(self) -> TGeogPoint:
@@ -1274,8 +1273,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     _parse_function = tgeogpoint_in
 
     @staticmethod
-    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal,
-                  interpolation: TInterpolation = TInterpolation.LINEAR) -> TGeogPoint:
+    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
         """
         Creates a temporal geographic point from a base geometry and the time frame of another temporal object.
 
@@ -1291,7 +1289,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             tgeogpoint_from_base
         """
         gs = geometry_to_gserialized(value)
-        result = tgeogpoint_from_base(gs, base._inner, interpolation)
+        result = tgeogpoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
 
     @staticmethod
@@ -1316,11 +1314,11 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         if isinstance(base, datetime):
             return TGeogPointInst(_inner=tgeogpointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TGeogPointSeq(_inner=tgeogpointdiscseq_from_base_time(gs, base._inner))
+            return TGeogPointSeq(_inner=tgeogpointseq_from_base_timestampset(gs, base._inner))
         elif isinstance(base, Period):
-            return TGeogPointSeq(_inner=tgeogpointseq_from_base_time(gs, base._inner, interpolation))
+            return TGeogPointSeq(_inner=tgeogpointseq_from_base_period(gs, base._inner, interpolation))
         elif isinstance(base, PeriodSet):
-            return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_time(gs, base._inner, interpolation))
+            return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_periodset(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     def to_geometric(self) -> TGeomPoint:
