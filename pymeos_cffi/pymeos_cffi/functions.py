@@ -4488,13 +4488,14 @@ def ttext_minus_value(temp: 'const Temporal *', txt: str) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'text **':
+def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> str:
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
     out_result = _ffi.new('text **')
     result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    t_result = text2cstring(out_result)
     if result:
-        return out_result if out_result != _ffi.NULL else None
+        return out_result if t_result != _ffi.NULL else None
     return None
 
 

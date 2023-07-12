@@ -37,7 +37,7 @@ class TestTTextConstructors(TestTText):
             (Period('[2000-01-01, 2000-01-02]'), TTextSeq, TInterpolation.STEPWISE),
             (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TTextSeqSet, TInterpolation.STEPWISE)
         ],
-        ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_base_time_constructor(self, source, type, interpolation):
         tt = TText.from_base_time('AAA', source)
@@ -133,7 +133,7 @@ class TestTTextConstructors(TestTText):
 
 class TestTTextAccessors(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
@@ -141,7 +141,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, TInterpolation.NONE),
-            (ttsd, TInterpolation.DISCRETE),
+            (ttds, TInterpolation.DISCRETE),
             (tts, TInterpolation.STEPWISE),
             (ttss, TInterpolation.STEPWISE)
         ],
@@ -154,7 +154,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, {'AAA'}),
-            (ttsd, {'AAA', 'BBB'}),
+            (ttds, {'AAA', 'BBB'}),
             (tts, {'AAA', 'BBB'}),
             (ttss, {'AAA', 'BBB'})
         ],
@@ -167,7 +167,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, ['AAA']),
-            (ttsd, ['AAA', 'BBB']),
+            (ttds, ['AAA', 'BBB']),
             (tts, ['AAA', 'BBB']),
             (ttss, ['AAA', 'BBB', 'AAA', 'AAA'])
         ],
@@ -180,7 +180,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 'AAA'),
-            (ttsd, 'AAA'),
+            (ttds, 'AAA'),
             (tts, 'AAA'),
             (ttss, 'AAA')
         ],
@@ -193,7 +193,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 'AAA'),
-            (ttsd, 'BBB'),
+            (ttds, 'BBB'),
             (tts, 'BBB'),
             (ttss, 'AAA')
         ],
@@ -206,7 +206,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 'AAA'),
-            (ttsd, 'AAA'),
+            (ttds, 'AAA'),
             (tts, 'AAA'),
             (ttss, 'AAA')
         ],
@@ -219,7 +219,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 'AAA'),
-            (ttsd, 'BBB'),
+            (ttds, 'BBB'),
             (tts, 'BBB'),
             (ttss, 'BBB')
         ],
@@ -232,7 +232,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 'AAA'),
-            (ttsd, 'AAA'),
+            (ttds, 'AAA'),
             (tts, 'AAA'),
             (ttss, 'AAA')
         ],
@@ -245,7 +245,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (ttsd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (ttds, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
             (tts, PeriodSet('{[2019-09-01, 2019-09-02]}')),
             (ttss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
         ],
@@ -258,7 +258,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, timedelta()),
-            (ttsd, timedelta()),
+            (ttds, timedelta()),
             (tts, timedelta(days=1)),
             (ttss, timedelta(days=3)),
         ],
@@ -271,7 +271,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, timedelta()),
-            (ttsd, timedelta(days=1)),
+            (ttds, timedelta(days=1)),
             (tts, timedelta(days=1)),
             (ttss, timedelta(days=4)),
         ],
@@ -284,7 +284,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, Period('[2019-09-01, 2019-09-01]')),
-            (ttsd, Period('[2019-09-01, 2019-09-02]')),
+            (ttds, Period('[2019-09-01, 2019-09-02]')),
             (tts, Period('[2019-09-01, 2019-09-02]')),
             (ttss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -297,7 +297,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, Period('[2019-09-01, 2019-09-01]')),
-            (ttsd, Period('[2019-09-01, 2019-09-02]')),
+            (ttds, Period('[2019-09-01, 2019-09-02]')),
             (tts, Period('[2019-09-01, 2019-09-02]')),
             (ttss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -310,7 +310,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 1),
-            (ttsd, 2),
+            (ttds, 2),
             (tts, 2),
             (ttss, 4),
         ],
@@ -323,7 +323,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, tti),
-            (ttsd, tti),
+            (ttds, tti),
             (tts, tti),
             (ttss, tti),
         ],
@@ -336,7 +336,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, tti),
-            (ttsd, TTextInst('BBB@2019-09-02')),
+            (ttds, TTextInst('BBB@2019-09-02')),
             (tts, TTextInst('BBB@2019-09-02')),
             (ttss, TTextInst('AAA@2019-09-05')),
         ],
@@ -349,7 +349,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, tti),
-            (ttsd, TTextInst('BBB@2019-09-02')),
+            (ttds, TTextInst('BBB@2019-09-02')),
             (tts, TTextInst('BBB@2019-09-02')),
             (ttss, TTextInst('BBB@2019-09-02')),
         ],
@@ -362,7 +362,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, tti),
-            (ttsd, tti),
+            (ttds, tti),
             (tts, tti),
             (ttss, tti),
         ],
@@ -375,7 +375,7 @@ class TestTTextAccessors(TestTText):
         'temporal, n, expected',
         [
             (tti, 0, tti),
-            (ttsd, 1, TTextInst('BBB@2019-09-02')),
+            (ttds, 1, TTextInst('BBB@2019-09-02')),
             (tts, 1, TTextInst('BBB@2019-09-02')),
             (ttss, 2, TTextInst('AAA@2019-09-03')),
         ],
@@ -388,7 +388,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, [tti]),
-            (ttsd, [tti, TTextInst('BBB@2019-09-02')]),
+            (ttds, [tti, TTextInst('BBB@2019-09-02')]),
             (tts, [tti, TTextInst('BBB@2019-09-02')]),
             (ttss, [tti, TTextInst('BBB@2019-09-02'), TTextInst('AAA@2019-09-03'), TTextInst('AAA@2019-09-05')]),
         ],
@@ -401,7 +401,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, 1),
-            (ttsd, 2),
+            (ttds, 2),
             (tts, 2),
             (ttss, 4),
         ],
@@ -414,7 +414,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (ttsd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (ttds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tts, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (ttss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
@@ -427,7 +427,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (ttsd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (ttds, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tts, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (ttss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
         ],
@@ -440,7 +440,7 @@ class TestTTextAccessors(TestTText):
         'temporal, n, expected',
         [
             (tti, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (ttsd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (ttds, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tts, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (ttss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
         ],
@@ -453,7 +453,7 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
-            (ttsd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+            (ttds, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                     datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
             (tts, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
@@ -470,7 +470,7 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (ttsd, [TTextSeq('[AAA@2019-09-01]'), TTextSeq('[BBB@2019-09-02]')]),
+            (ttds, [TTextSeq('[AAA@2019-09-01]'), TTextSeq('[BBB@2019-09-02]')]),
             (tts, [TTextSeq('[AAA@2019-09-01, AAA@2019-09-02)'),
                    TTextSeq('[BBB@2019-09-02]')]),
             (ttss,
@@ -486,7 +486,7 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (ttsd, True),
+            (ttds, True),
             (tts, True),
         ],
         ids=['Discrete Sequence', 'Sequence']
@@ -497,7 +497,7 @@ class TestTTextAccessors(TestTText):
 
 class TestTTextEverAlwaysOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
@@ -505,7 +505,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, True),
-            (ttsd, False),
+            (ttds, False),
             (tts, False),
             (ttss, False)
         ],
@@ -518,7 +518,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, False),
-            (ttsd, False),
+            (ttds, False),
             (tts, False),
             (ttss, False)
         ],
@@ -531,7 +531,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, True),
-            (ttsd, True),
+            (ttds, True),
             (tts, True),
             (ttss, True)
         ],
@@ -544,7 +544,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, False),
-            (ttsd, True),
+            (ttds, True),
             (tts, True),
             (ttss, True)
         ],
@@ -557,7 +557,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, False),
-            (ttsd, False),
+            (ttds, False),
             (tts, False),
             (ttss, False)
         ],
@@ -570,7 +570,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         'temporal, expected',
         [
             (tti, True),
-            (ttsd, False),
+            (ttds, False),
             (tts, False),
             (ttss, False)
         ],
@@ -582,7 +582,7 @@ class TestTTextEverAlwaysOperations(TestTText):
 
 class TestTTextTextOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
     argument = TTextSeq('[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]')
@@ -591,7 +591,7 @@ class TestTTextTextOperations(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAABBB@2019-09-01')),
-            (ttsd, TTextSeq('{AAABBB@2019-09-01, BBBAAA@2019-09-02}')),
+            (ttds, TTextSeq('{AAABBB@2019-09-01, BBBAAA@2019-09-02}')),
             (tts, TTextSeq('[AAABBB@2019-09-01, BBBAAA@2019-09-02]')),
             (ttss, TTextSeqSet('{[AAABBB@2019-09-01, BBBAAA@2019-09-02],[AAAAAA@2019-09-03]}'))
         ],
@@ -605,7 +605,7 @@ class TestTTextTextOperations(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAABBB@2019-09-01')),
-            (ttsd, TTextSeq('{AAABBB@2019-09-01, BBBBBB@2019-09-02}')),
+            (ttds, TTextSeq('{AAABBB@2019-09-01, BBBBBB@2019-09-02}')),
             (tts, TTextSeq('[AAABBB@2019-09-01, BBBBBB@2019-09-02]')),
             (ttss, TTextSeqSet('{[AAABBB@2019-09-01, BBBBBB@2019-09-02],[AAABBB@2019-09-03, AAABBB@2019-09-05]}'))
         ],
@@ -619,7 +619,7 @@ class TestTTextTextOperations(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('aaa@2019-09-01')),
-            (ttsd, TTextSeq('{aaa@2019-09-01, bbb@2019-09-02}')),
+            (ttds, TTextSeq('{aaa@2019-09-01, bbb@2019-09-02}')),
             (tts, TTextSeq('[aaa@2019-09-01, bbb@2019-09-02]')),
             (ttss, TTextSeqSet('{[aaa@2019-09-01, bbb@2019-09-02],[aaa@2019-09-03, aaa@2019-09-05]}'))
         ],
@@ -630,7 +630,7 @@ class TestTTextTextOperations(TestTText):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tti, ttsd, tts, ttss],
+        [tti, ttds, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_upper(self, temporal):
@@ -639,7 +639,7 @@ class TestTTextTextOperations(TestTText):
 
 class TestTTextBooleanOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
     argument = TTextSeq('[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]')
@@ -648,7 +648,7 @@ class TestTTextBooleanOperations(TestTText):
         'temporal, expected',
         [
             (tti, TBoolInst('False@2019-09-01')),
-            (ttsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (ttds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tts, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
             (ttss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
         ],
@@ -661,7 +661,7 @@ class TestTTextBooleanOperations(TestTText):
         'temporal, expected',
         [
             (tti, TBoolInst('True@2019-09-01')),
-            (ttsd, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (ttds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tts, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
             (ttss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -676,7 +676,7 @@ class TestTTextBooleanOperations(TestTText):
         'temporal, expected',
         [
             (tti, TBoolInst('True@2019-09-01')),
-            (ttsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (ttds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tts, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
             (ttss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
         ],
@@ -689,7 +689,7 @@ class TestTTextBooleanOperations(TestTText):
         'temporal, expected',
         [
             (tti, TBoolInst('False@2019-09-01')),
-            (ttsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (ttds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tts, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (ttss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -703,7 +703,7 @@ class TestTTextBooleanOperations(TestTText):
 
 class TestTTextRestrictors(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
@@ -722,12 +722,12 @@ class TestTTextRestrictors(TestTText):
             (tti, 'AAA', TTextInst('AAA@2019-09-01')),
             (tti, 'BBB', None),
 
-            (ttsd, instant, TTextSeq('{AAA@2019-09-01}')),
-            (ttsd, instant_set, TTextSeq('{AAA@2019-09-01}')),
-            (ttsd, sequence, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
-            (ttsd, sequence_set, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
-            (ttsd, 'AAA', TTextSeq('{AAA@2019-09-01}')),
-            (ttsd, 'BBB', TTextSeq('{BBB@2019-09-02}')),
+            (ttds, instant, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, instant_set, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, sequence, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+            (ttds, sequence_set, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+            (ttds, 'AAA', TTextSeq('{AAA@2019-09-01}')),
+            (ttds, 'BBB', TTextSeq('{BBB@2019-09-02}')),
 
             (tts, instant, TTextSeq('[AAA@2019-09-01]')),
             (tts, instant_set, TTextSeq('{AAA@2019-09-01}')),
@@ -761,7 +761,7 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAA@2019-09-01')),
-            (ttsd, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, TTextSeq('{BBB@2019-09-02}')),
             (tts, TTextSeq('{[BBB@2019-09-02]}')),
             (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
         ],
@@ -774,7 +774,7 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAA@2019-09-01')),
-            (ttsd, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, TTextSeq('{AAA@2019-09-01}')),
             (tts, TTextSeq('{[AAA@2019-09-01, AAA@2019-09-02)}')),
             (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}')),
         ],
@@ -793,12 +793,12 @@ class TestTTextRestrictors(TestTText):
             (tti, 'AAA', None),
             (tti, 'BBB', TTextInst('AAA@2019-09-01')),
 
-            (ttsd, instant, TTextSeq('{BBB@2019-09-02}')),
-            (ttsd, instant_set, TTextSeq('{BBB@2019-09-02}')),
-            (ttsd, sequence, None),
-            (ttsd, sequence_set, None),
-            (ttsd, 'AAA', TTextSeq('{BBB@2019-09-02}')),
-            (ttsd, 'BBB', TTextSeq('{AAA@2019-09-01}')),
+            (ttds, instant, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, instant_set, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, sequence, None),
+            (ttds, sequence_set, None),
+            (ttds, 'AAA', TTextSeq('{BBB@2019-09-02}')),
+            (ttds, 'BBB', TTextSeq('{AAA@2019-09-01}')),
 
             (tts, instant, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
             (tts, instant_set, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
@@ -832,7 +832,7 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, None),
-            (ttsd, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, TTextSeq('{AAA@2019-09-01}')),
             (tts, TTextSeq('{[AAA@2019-09-01, AAA@2019-09-02)}')),
             (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}')),
         ],
@@ -845,7 +845,7 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, None),
-            (ttsd, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, TTextSeq('{BBB@2019-09-02}')),
             (tts, TTextSeq('{[BBB@2019-09-02]}')),
             (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
         ],
@@ -857,7 +857,7 @@ class TestTTextRestrictors(TestTText):
 
 class TestTTextOutputs(TestTText):
     tti = TTextInst('AAA@2019-09-01')
-    ttsd = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
@@ -865,7 +865,7 @@ class TestTTextOutputs(TestTText):
         'temporal, expected',
         [
             (tti, '"AAA"@2019-09-01 00:00:00+00'),
-            (ttsd, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
+            (ttds, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
             (tts, '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00]'),
             (ttss, '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
                    '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]}')
@@ -879,7 +879,7 @@ class TestTTextOutputs(TestTText):
         'temporal, expected',
         [
             (tti, 'TTextInst("AAA"@2019-09-01 00:00:00+00)'),
-            (ttsd, 'TTextSeq({"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00})'),
+            (ttds, 'TTextSeq({"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00})'),
             (tts, 'TTextSeq(["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00])'),
             (ttss, 'TTextSeqSet({["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
                    '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]})')
@@ -893,7 +893,7 @@ class TestTTextOutputs(TestTText):
         'temporal, expected',
         [
             (tti, '"AAA"@2019-09-01 00:00:00+00'),
-            (ttsd, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
+            (ttds, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
             (tts, '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00]'),
             (ttss, '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
                    '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]}')
@@ -907,7 +907,7 @@ class TestTTextOutputs(TestTText):
         'temporal, expected',
         [
             (tti, '0123000104000000000000004141410000A01E4E71340200'),
-            (ttsd, '01230006020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'),
+            (ttds, '01230006020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'),
             (tts, '0123000A020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'),
             (ttss, '0123000B02000000020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'       '02000000030400000000000000414141000060CD899934020004000000000000004141410000207CC5C1340200')
         ],
@@ -935,7 +935,7 @@ class TestTTextOutputs(TestTText):
                   '   ],\n'
                   '   "interpolation": "None"\n'
                   ' }'),
-            (ttsd, '{\n'
+            (ttds, '{\n'
                    '   "type": "MovingText",\n'
                    '   "period": {\n'
                    '     "begin": "2019-09-01T00:00:00+00",\n'

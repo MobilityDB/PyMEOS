@@ -135,7 +135,7 @@ class TestTIntConstructors(TestTInt):
 
 class TestTIntAccessors(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
@@ -143,7 +143,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, TInterpolation.NONE),
-            (tisd, TInterpolation.DISCRETE),
+            (tids, TInterpolation.DISCRETE),
             (tis, TInterpolation.STEPWISE),
             (tiss, TInterpolation.STEPWISE)
         ],
@@ -156,7 +156,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, {1}),
-            (tisd, {1, 2}),
+            (tids, {1, 2}),
             (tis, {1, 2}),
             (tiss, {1, 2})
         ],
@@ -169,7 +169,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, [1]),
-            (tisd, [1, 2]),
+            (tids, [1, 2]),
             (tis, [1, 2]),
             (tiss, [1, 2, 1, 1])
         ],
@@ -182,7 +182,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 1),
+            (tids, 1),
             (tis, 1),
             (tiss, 1)
         ],
@@ -195,7 +195,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 2),
+            (tids, 2),
             (tis, 2),
             (tiss, 1)
         ],
@@ -208,7 +208,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 1),
+            (tids, 1),
             (tis, 1),
             (tiss, 1)
         ],
@@ -221,7 +221,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 2),
+            (tids, 2),
             (tis, 2),
             (tiss, 2)
         ],
@@ -234,7 +234,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 1),
+            (tids, 1),
             (tis, 1),
             (tiss, 1)
         ],
@@ -247,7 +247,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (tisd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (tids, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
             (tis, PeriodSet('{[2019-09-01, 2019-09-02]}')),
             (tiss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
         ],
@@ -260,7 +260,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, timedelta()),
-            (tisd, timedelta()),
+            (tids, timedelta()),
             (tis, timedelta(days=1)),
             (tiss, timedelta(days=3)),
         ],
@@ -273,7 +273,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, timedelta()),
-            (tisd, timedelta(days=1)),
+            (tids, timedelta(days=1)),
             (tis, timedelta(days=1)),
             (tiss, timedelta(days=4)),
         ],
@@ -286,7 +286,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, Period('[2019-09-01, 2019-09-01]')),
-            (tisd, Period('[2019-09-01, 2019-09-02]')),
+            (tids, Period('[2019-09-01, 2019-09-02]')),
             (tis, Period('[2019-09-01, 2019-09-02]')),
             (tiss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -299,7 +299,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, Period('[2019-09-01, 2019-09-01]')),
-            (tisd, Period('[2019-09-01, 2019-09-02]')),
+            (tids, Period('[2019-09-01, 2019-09-02]')),
             (tis, Period('[2019-09-01, 2019-09-02]')),
             (tiss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -312,7 +312,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 2),
+            (tids, 2),
             (tis, 2),
             (tiss, 4),
         ],
@@ -325,7 +325,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, tii),
-            (tisd, tii),
+            (tids, tii),
             (tis, tii),
             (tiss, tii),
         ],
@@ -338,7 +338,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, tii),
-            (tisd, TIntInst('2@2019-09-02')),
+            (tids, TIntInst('2@2019-09-02')),
             (tis, TIntInst('2@2019-09-02')),
             (tiss, TIntInst('1@2019-09-05')),
         ],
@@ -351,7 +351,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, tii),
-            (tisd, TIntInst('2@2019-09-02')),
+            (tids, TIntInst('2@2019-09-02')),
             (tis, TIntInst('2@2019-09-02')),
             (tiss, TIntInst('2@2019-09-02')),
         ],
@@ -364,7 +364,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, tii),
-            (tisd, tii),
+            (tids, tii),
             (tis, tii),
             (tiss, tii),
         ],
@@ -377,7 +377,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, n, expected',
         [
             (tii, 0, tii),
-            (tisd, 1, TIntInst('2@2019-09-02')),
+            (tids, 1, TIntInst('2@2019-09-02')),
             (tis, 1, TIntInst('2@2019-09-02')),
             (tiss, 2, TIntInst('1@2019-09-03')),
         ],
@@ -390,7 +390,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, [tii]),
-            (tisd, [tii, TIntInst('2@2019-09-02')]),
+            (tids, [tii, TIntInst('2@2019-09-02')]),
             (tis, [tii, TIntInst('2@2019-09-02')]),
             (tiss, [tii, TIntInst('2@2019-09-02'), TIntInst('1@2019-09-03'), TIntInst('1@2019-09-05')]),
         ],
@@ -403,7 +403,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, 1),
-            (tisd, 2),
+            (tids, 2),
             (tis, 2),
             (tiss, 4),
         ],
@@ -416,7 +416,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tisd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tids, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tis, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tiss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
@@ -429,7 +429,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tisd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tids, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tis, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tiss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
         ],
@@ -442,7 +442,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, n, expected',
         [
             (tii, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tisd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tids, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tis, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tiss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
         ],
@@ -455,7 +455,7 @@ class TestTIntAccessors(TestTInt):
         'temporal, expected',
         [
             (tii, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
-            (tisd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+            (tids, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                     datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
             (tis, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
@@ -472,7 +472,7 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tisd, [TIntSeq('[1@2019-09-01]'), TIntSeq('[2@2019-09-02]')]),
+            (tids, [TIntSeq('[1@2019-09-01]'), TIntSeq('[2@2019-09-02]')]),
             (tis, [TIntSeq('[1@2019-09-01, 1@2019-09-02)'),
                    TIntSeq('[2@2019-09-02]')]),
             (tiss,
@@ -488,7 +488,7 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tisd, True),
+            (tids, True),
             (tis, True),
         ],
         ids=['Discrete Sequence', 'Sequence']
@@ -499,7 +499,7 @@ class TestTIntAccessors(TestTInt):
 
 class TestTIntEverAlwaysOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
@@ -507,7 +507,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, True),
-            (tisd, False),
+            (tids, False),
             (tis, False),
             (tiss, False)
         ],
@@ -520,7 +520,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, False),
-            (tisd, False),
+            (tids, False),
             (tis, False),
             (tiss, False)
         ],
@@ -533,7 +533,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, True),
-            (tisd, True),
+            (tids, True),
             (tis, True),
             (tiss, True)
         ],
@@ -546,7 +546,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, False),
-            (tisd, True),
+            (tids, True),
             (tis, True),
             (tiss, True)
         ],
@@ -559,7 +559,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, False),
-            (tisd, False),
+            (tids, False),
             (tis, False),
             (tiss, False)
         ],
@@ -572,7 +572,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         'temporal, expected',
         [
             (tii, True),
-            (tisd, False),
+            (tids, False),
             (tis, False),
             (tiss, False)
         ],
@@ -584,7 +584,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
 
 class TestTIntArithmeticOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
     intarg = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
@@ -594,7 +594,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('3@2019-09-01')),
-            (tisd, TIntSeq('{3@2019-09-01, 3@2019-09-02}')),
+            (tids, TIntSeq('{3@2019-09-01, 3@2019-09-02}')),
             (tis, TIntSeq('[3@2019-09-01, 3@2019-09-02]')),
             (tiss, TIntSeqSet('{[3@2019-09-01, 3@2019-09-02],[2@2019-09-03]}'))
         ],
@@ -608,7 +608,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('2@2019-09-01')),
-            (tisd, TIntSeq('{2@2019-09-01, 3@2019-09-02}')),
+            (tids, TIntSeq('{2@2019-09-01, 3@2019-09-02}')),
             (tis, TIntSeq('[2@2019-09-01, 3@2019-09-02]')),
             (tiss, TIntSeqSet('{[2@2019-09-01, 3@2019-09-02],[2@2019-09-03, 2@2019-09-05]}'))
         ],
@@ -622,7 +622,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('-1@2019-09-01')),
-            (tisd, TIntSeq('{-1@2019-09-01, 1@2019-09-02}')),
+            (tids, TIntSeq('{-1@2019-09-01, 1@2019-09-02}')),
             (tis, TIntSeq('[-1@2019-09-01, 1@2019-09-02]')),
             (tiss, TIntSeqSet('{[-1@2019-09-01, 1@2019-09-02],[0@2019-09-03]}'))
         ],
@@ -636,7 +636,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('0@2019-09-01')),
-            (tisd, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
+            (tids, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
             (tis, TIntSeq('[0@2019-09-01, 1@2019-09-02]')),
             (tiss, TIntSeqSet('{[0@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}'))
         ],
@@ -650,7 +650,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('2@2019-09-01')),
-            (tisd, TIntSeq('{2@2019-09-01, 2@2019-09-02}')),
+            (tids, TIntSeq('{2@2019-09-01, 2@2019-09-02}')),
             (tis, TIntSeq('[2@2019-09-01, 2@2019-09-02]')),
             (tiss, TIntSeqSet('{[2@2019-09-01, 2@2019-09-02],[1@2019-09-03]}'))
         ],
@@ -664,7 +664,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('2@2019-09-01')),
-            (tisd, TIntSeq('{2@2019-09-01, 4@2019-09-02}')),
+            (tids, TIntSeq('{2@2019-09-01, 4@2019-09-02}')),
             (tis, TIntSeq('[2@2019-09-01, 4@2019-09-02]')),
             (tiss, TIntSeqSet('{[2@2019-09-01, 4@2019-09-02],[2@2019-09-03, 2@2019-09-05]}'))
         ],
@@ -684,7 +684,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('0@2019-09-01')),
-            (tisd, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
+            (tids, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
             (tis, TIntSeq('[0@2019-09-01, 1@2019-09-02]')),
             (tiss, TIntSeqSet('{[0@2019-09-01, 1@2019-09-02],[1@2019-09-03]}'))
         ],
@@ -698,7 +698,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TFloatInst('0.5@2019-09-01')),
-            (tisd, TFloatSeq('{0.5@2019-09-01, 2@2019-09-02}')),
+            (tids, TFloatSeq('{0.5@2019-09-01, 2@2019-09-02}')),
             (tis, TFloatSeqSet('{[0.5@2019-09-01, 1@2019-09-02), [2@2019-09-02]}')),
             (tiss, TFloatSeqSet('{[0.5@2019-09-01, 1@2019-09-02), [2@2019-09-02],[1@2019-09-03]}'))
         ],
@@ -712,7 +712,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('0@2019-09-01')),
-            (tisd, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
+            (tids, TIntSeq('{0@2019-09-01, 1@2019-09-02}')),
             (tis, TIntSeq('[0@2019-09-01, 1@2019-09-02]')),
             (tiss, TIntSeqSet('{[0@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}'))
         ],
@@ -729,7 +729,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TFloatInst('0.5@2019-09-01')),
-            (tisd, TFloatSeq('{0.5@2019-09-01, 1@2019-09-02}')),
+            (tids, TFloatSeq('{0.5@2019-09-01, 1@2019-09-02}')),
             (tis, TFloatSeq('[0.5@2019-09-01, 1@2019-09-02]')),
             (tiss, TFloatSeqSet('{[0.5@2019-09-01, 1@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}'))
         ],
@@ -743,7 +743,7 @@ class TestTIntArithmeticOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TFloatInst('0.5@2019-09-01')),
-            (tisd, TFloatSeq('{0.5@2019-09-01, 1@2019-09-02}')),
+            (tids, TFloatSeq('{0.5@2019-09-01, 1@2019-09-02}')),
             (tis, TFloatSeq('Interp=Step;[0.5@2019-09-01, 1@2019-09-02]')),
             (tiss, TFloatSeqSet('Interp=Step;{[0.5@2019-09-01, 1@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}'))
         ],
@@ -755,7 +755,7 @@ class TestTIntArithmeticOperations(TestTInt):
 
 class TestTIntBooleanOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
     argument = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
@@ -764,7 +764,7 @@ class TestTIntBooleanOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TBoolInst('False@2019-09-01')),
-            (tisd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tids, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tis, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
             (tiss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
         ],
@@ -777,7 +777,7 @@ class TestTIntBooleanOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TBoolInst('True@2019-09-01')),
-            (tisd, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tids, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tis, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
             (tiss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -792,7 +792,7 @@ class TestTIntBooleanOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TBoolInst('True@2019-09-01')),
-            (tisd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tids, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tis, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
             (tiss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
         ],
@@ -805,7 +805,7 @@ class TestTIntBooleanOperations(TestTInt):
         'temporal, expected',
         [
             (tii, TBoolInst('False@2019-09-01')),
-            (tisd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tids, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tis, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tiss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -819,7 +819,7 @@ class TestTIntBooleanOperations(TestTInt):
 
 class TestTIntRestrictors(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
@@ -838,12 +838,12 @@ class TestTIntRestrictors(TestTInt):
             (tii, 1, TIntInst('1@2019-09-01')),
             (tii, 2, None),
 
-            (tisd, instant, TIntSeq('{1@2019-09-01}')),
-            (tisd, instant_set, TIntSeq('{1@2019-09-01}')),
-            (tisd, sequence, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
-            (tisd, sequence_set, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
-            (tisd, 1, TIntSeq('{1@2019-09-01}')),
-            (tisd, 2, TIntSeq('{2@2019-09-02}')),
+            (tids, instant, TIntSeq('{1@2019-09-01}')),
+            (tids, instant_set, TIntSeq('{1@2019-09-01}')),
+            (tids, sequence, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tids, sequence_set, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tids, 1, TIntSeq('{1@2019-09-01}')),
+            (tids, 2, TIntSeq('{2@2019-09-02}')),
 
             (tis, instant, TIntSeq('[1@2019-09-01]')),
             (tis, instant_set, TIntSeq('{1@2019-09-01}')),
@@ -877,7 +877,7 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('1@2019-09-01')),
-            (tisd, TIntSeq('{2@2019-09-02}')),
+            (tids, TIntSeq('{2@2019-09-02}')),
             (tis, TIntSeq('{[2@2019-09-02]}')),
             (tiss, TIntSeqSet('{[2@2019-09-02]}')),
         ],
@@ -890,7 +890,7 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, TIntInst('1@2019-09-01')),
-            (tisd, TIntSeq('{1@2019-09-01}')),
+            (tids, TIntSeq('{1@2019-09-01}')),
             (tis, TIntSeq('{[1@2019-09-01, 1@2019-09-02)}')),
             (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
         ],
@@ -909,12 +909,12 @@ class TestTIntRestrictors(TestTInt):
             (tii, 1, None),
             (tii, 2, TIntInst('1@2019-09-01')),
 
-            (tisd, instant, TIntSeq('{2@2019-09-02}')),
-            (tisd, instant_set, TIntSeq('{2@2019-09-02}')),
-            (tisd, sequence, None),
-            (tisd, sequence_set, None),
-            (tisd, 1, TIntSeq('{2@2019-09-02}')),
-            (tisd, 2, TIntSeq('{1@2019-09-01}')),
+            (tids, instant, TIntSeq('{2@2019-09-02}')),
+            (tids, instant_set, TIntSeq('{2@2019-09-02}')),
+            (tids, sequence, None),
+            (tids, sequence_set, None),
+            (tids, 1, TIntSeq('{2@2019-09-02}')),
+            (tids, 2, TIntSeq('{1@2019-09-01}')),
 
             (tis, instant, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
             (tis, instant_set, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
@@ -948,9 +948,9 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, None),
-            (tisd, TIntSeq('{2@2019-09-02}')),
-            (tis, TIntSeq('[2@2019-09-02]')),
-            (tiss, TIntSeqSet('{[2@2019-09-02]}')),
+            (tids, TIntSeq('{1@2019-09-01}')),
+            (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
+            (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -961,9 +961,9 @@ class TestTIntRestrictors(TestTInt):
         'temporal, expected',
         [
             (tii, None),
-            (tisd, TIntSeq('{1@2019-09-01}')),
-            (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
-            (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
+            (tids, TIntSeq('{2@2019-09-02}')),
+            (tis, TIntSeq('[2@2019-09-02]')),
+            (tiss, TIntSeqSet('{[2@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -973,7 +973,7 @@ class TestTIntRestrictors(TestTInt):
 
 class TestTIntOutputs(TestTInt):
     tii = TIntInst('1@2019-09-01')
-    tisd = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
@@ -981,7 +981,7 @@ class TestTIntOutputs(TestTInt):
         'temporal, expected',
         [
             (tii, '1@2019-09-01 00:00:00+00'),
-            (tisd, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
+            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
             (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
             (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
                    '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
@@ -995,7 +995,7 @@ class TestTIntOutputs(TestTInt):
         'temporal, expected',
         [
             (tii, 'TIntInst(1@2019-09-01 00:00:00+00)'),
-            (tisd, 'TIntSeq({1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00})'),
+            (tids, 'TIntSeq({1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00})'),
             (tis, 'TIntSeq([1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00])'),
             (tiss, 'TIntSeqSet({[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
                    '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]})')
@@ -1009,7 +1009,7 @@ class TestTIntOutputs(TestTInt):
         'temporal, expected',
         [
             (tii, '1@2019-09-01 00:00:00+00'),
-            (tisd, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
+            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
             (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
             (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
                    '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
@@ -1022,11 +1022,11 @@ class TestTIntOutputs(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tii, '011400010100A01E4E71340200'),
-            (tisd, '0114000602000000030100A01E4E71340200000000F66B85340200'),
-            (tis, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
-            (tiss, '0114000B0200000002000000030100A01E4E71340200000000F'
-                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
+            (tii, '011D00010100000000A01E4E71340200'),
+            (tids, '011D000602000000030100000000A01E4E71340200020000000000F66B85340200'),
+            (tis, '011D000A02000000030100000000A01E4E71340200020000000000F66B85340200'),
+            (tiss, '011D000B0200000002000000030100000000A01E4E71340200020000000000F66B85340200'
+                '0200000003010000000060CD89993402000100000000207CC5C1340200')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1056,7 +1056,7 @@ class TestTIntOutputs(TestTInt):
                   '   ],\n'
                   '   "interpolation": "None"\n'
                   ' }'),
-            (tisd, '{\n'
+            (tids, '{\n'
                    '   "type": "MovingInteger",\n'
                    '   "bbox": [\n'
                    '     1,\n'

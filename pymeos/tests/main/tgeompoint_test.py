@@ -85,10 +85,10 @@ class TestTGeomPointConstructors(TestTGeomPoint):
     @pytest.mark.parametrize(
         'value, timestamp',
         [
-            (Point(1.0,1.0), datetime(2019, 9, 1, tzinfo=timezone.utc)),
-            ('Point(1,1)', datetime(2019, 9, 1, tzinfo=timezone.utc)),
+            (Point(1,1), datetime(2019, 9, 1, tzinfo=timezone.utc)),
+            ('POINT(1 1)', datetime(2019, 9, 1, tzinfo=timezone.utc)),
             (Point(1,1), '2019-09-01'),
-            ('Point(1,1)', '2019-09-01'),
+            ('POINT(1 1)', '2019-09-01'),
         ],
         ids=['point-datetime', 'string-datetime', 'point-string', 'string-string']
     )
@@ -136,7 +136,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
 
 class TestTGeomPointAccessors(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpsd = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
@@ -144,7 +144,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TInterpolation.NONE),
-            (tpsd, TInterpolation.DISCRETE),
+            (tpds, TInterpolation.DISCRETE),
             (tps, TInterpolation.LINEAR),
             (tpss, TInterpolation.LINEAR)
         ],
@@ -157,7 +157,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, {Point(1,1)}),
-            (tpsd, {Point(1,1), Point(2,2)}),
+            (tpds, {Point(1,1), Point(2,2)}),
             (tps, {Point(1,1), Point(2,2)}),
             (tpss, {Point(1,1), Point(2,2)})
         ],
@@ -170,7 +170,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, [Point(1,1)]),
-            (tpsd, [Point(1,1), Point(2,2)]),
+            (tpds, [Point(1,1), Point(2,2)]),
             (tps, [Point(1,1), Point(2,2)]),
             (tpss, [Point(1,1), Point(2,2)])
         ],
@@ -183,7 +183,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, Point(1,1)),
-            (tpsd, Point(1,1)),
+            (tpds, Point(1,1)),
             (tps, Point(1,1)),
             (tpss, Point(1,1))
         ],
@@ -196,7 +196,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, Point(1,1)),
-            (tpsd, Point(2,2)),
+            (tpds, Point(2,2)),
             (tps, Point(2,2)),
             (tpss, Point(1,1))
         ],
@@ -209,7 +209,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, Point(1,1)),
-            (tpsd, Point(1,1)),
+            (tpds, Point(1,1)),
             (tps, Point(1,1)),
             (tpss, Point(1,1))
         ],
@@ -222,7 +222,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (tpsd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (tpds, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
             (tps, PeriodSet('{[2019-09-01, 2019-09-02]}')),
             (tpss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
         ],
@@ -235,7 +235,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, timedelta()),
-            (tpsd, timedelta()),
+            (tpds, timedelta()),
             (tps, timedelta(days=1)),
             (tpss, timedelta(days=3)),
         ],
@@ -248,7 +248,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, timedelta()),
-            (tpsd, timedelta(days=1)),
+            (tpds, timedelta(days=1)),
             (tps, timedelta(days=1)),
             (tpss, timedelta(days=4)),
         ],
@@ -261,7 +261,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, Period('[2019-09-01, 2019-09-01]')),
-            (tpsd, Period('[2019-09-01, 2019-09-02]')),
+            (tpds, Period('[2019-09-01, 2019-09-02]')),
             (tps, Period('[2019-09-01, 2019-09-02]')),
             (tpss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -274,7 +274,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, Period('[2019-09-01, 2019-09-01]')),
-            (tpsd, Period('[2019-09-01, 2019-09-02]')),
+            (tpds, Period('[2019-09-01, 2019-09-02]')),
             (tps, Period('[2019-09-01, 2019-09-02]')),
             (tpss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -287,7 +287,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, 1),
-            (tpsd, 2),
+            (tpds, 2),
             (tps, 2),
             (tpss, 4),
         ],
@@ -300,7 +300,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, tpi),
-            (tpsd, tpi),
+            (tpds, tpi),
             (tps, tpi),
             (tpss, tpi),
         ],
@@ -313,7 +313,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, tpi),
-            (tpsd, TGeomPointInst('Point(2 2)@2019-09-02')),
+            (tpds, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tps, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tpss, TGeomPointInst('Point(1 1)@2019-09-05')),
         ],
@@ -326,7 +326,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, tpi),
-            (tpsd, TGeomPointInst('Point(2 2)@2019-09-02')),
+            (tpds, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tps, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tpss, TGeomPointInst('Point(2 2)@2019-09-02')),
         ],
@@ -339,7 +339,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, tpi),
-            (tpsd, tpi),
+            (tpds, tpi),
             (tps, tpi),
             (tpss, tpi),
         ],
@@ -352,7 +352,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, n, expected',
         [
             (tpi, 0, tpi),
-            (tpsd, 1, TGeomPointInst('Point(2 2)@2019-09-02')),
+            (tpds, 1, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tps, 1, TGeomPointInst('Point(2 2)@2019-09-02')),
             (tpss, 2, TGeomPointInst('Point(1 1)@2019-09-03')),
         ],
@@ -365,7 +365,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, [tpi]),
-            (tpsd, [tpi, TGeomPointInst('Point(2 2)@2019-09-02')]),
+            (tpds, [tpi, TGeomPointInst('Point(2 2)@2019-09-02')]),
             (tps, [tpi, TGeomPointInst('Point(2 2)@2019-09-02')]),
             (tpss, [tpi, TGeomPointInst('Point(2 2)@2019-09-02'), TGeomPointInst('Point(1 1)@2019-09-03'), TGeomPointInst('Point(1 1)@2019-09-05')]),
         ],
@@ -378,7 +378,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, 1),
-            (tpsd, 2),
+            (tpds, 2),
             (tps, 2),
             (tpss, 4),
         ],
@@ -391,7 +391,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tpsd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tpds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tps, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tpss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
@@ -404,7 +404,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tpsd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tpds, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tps, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tpss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
         ],
@@ -417,7 +417,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, n, expected',
         [
             (tpi, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tpsd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tpds, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tps, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tpss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
         ],
@@ -430,7 +430,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
-            (tpsd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+            (tpds, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                     datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
             (tps, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
@@ -447,7 +447,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpsd, [TGeomPointSeq('[Point(1 1)@2019-09-01]'), TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
+            (tpds, [TGeomPointSeq('[Point(1 1)@2019-09-01]'), TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
             (tps, [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')]),
             (tpss,
              [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
@@ -461,7 +461,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpsd, True),
+            (tpds, True),
             (tps, True),
         ],
         ids=['Discrete Sequence', 'Sequence']
@@ -472,7 +472,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
 
 class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpsd = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
@@ -480,7 +480,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, True),
-            (tpsd, False),
+            (tpds, False),
             (tps, False),
             (tpss, False)
         ],
@@ -493,7 +493,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, False),
-            (tpsd, False),
+            (tpds, False),
             (tps, False),
             (tpss, False)
         ],
@@ -506,7 +506,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, True),
-            (tpsd, True),
+            (tpds, True),
             (tps, True),
             (tpss, True)
         ],
@@ -519,7 +519,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, False),
-            (tpsd, True),
+            (tpds, True),
             (tps, True),
             (tpss, True)
         ],
@@ -532,7 +532,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, False),
-            (tpsd, False),
+            (tpds, False),
             (tps, False),
             (tpss, False)
         ],
@@ -545,7 +545,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, True),
-            (tpsd, False),
+            (tpds, False),
             (tps, False),
             (tpss, False)
         ],
@@ -557,7 +557,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
 
 class TestTGeomPointBooleanOperations(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpsd = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
     argument = TGeomPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
@@ -566,7 +566,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('False@2019-09-01')),
-            (tpsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
                  '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
@@ -581,7 +581,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('True@2019-09-01')),
-            (tpsd, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tpds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tps, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -594,7 +594,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('False@2019-09-01')),
-            (tpsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tpds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tps, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -607,7 +607,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('True@2019-09-01')),
-            (tpsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tpds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tps, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
                 '(True@2019-09-01 12:00:00+00, True@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
@@ -622,7 +622,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('False@2019-09-01')),
-            (tpsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tpds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tps, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -635,7 +635,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, TBoolInst('True@2019-09-01')),
-            (tpsd, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tpds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tps, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
             (tpss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -647,7 +647,7 @@ class TestTGeomPointBooleanOperations(TestTGeomPoint):
 
 class TestTGeomPointRestrictors(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpsd = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
@@ -666,12 +666,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             (tpi, Point(1,1), TGeomPointInst('Point(1 1)@2019-09-01')),
             (tpi, Point(2,2), None),
 
-            (tpsd, instant, TGeomPointSeq('{Point(1 1)@2019-09-01}')),
-            (tpsd, instant_set, TGeomPointSeq('{Point(1 1)@2019-09-01}')),
-            (tpsd, sequence, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
-            (tpsd, sequence_set, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
-            (tpsd, Point(1,1), TGeomPointSeq('{Point(1 1)@2019-09-01}')),
-            (tpsd, Point(2,2), TGeomPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, instant, TGeomPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, instant_set, TGeomPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, sequence, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tpds, sequence_set, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tpds, Point(1,1), TGeomPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, Point(2,2), TGeomPointSeq('{Point(2 2)@2019-09-02}')),
 
             (tps, instant, TGeomPointSeq('[Point(1 1)@2019-09-01]')),
             (tps, instant_set, TGeomPointSeq('{Point(1 1)@2019-09-01}')),
@@ -712,12 +712,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             (tpi, Point(1,1), None),
             (tpi, Point(2,2), TGeomPointInst('Point(1 1)@2019-09-01')),
 
-            (tpsd, instant, TGeomPointSeq('{Point(2 2)@2019-09-02}')),
-            (tpsd, instant_set, TGeomPointSeq('{Point(2 2)@2019-09-02}')),
-            (tpsd, sequence, None),
-            (tpsd, sequence_set, None),
-            (tpsd, Point(1,1), TGeomPointSeq('{Point(2 2)@2019-09-02}')),
-            (tpsd, Point(2,2), TGeomPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, instant, TGeomPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, instant_set, TGeomPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, sequence, None),
+            (tpds, sequence_set, None),
+            (tpds, Point(1,1), TGeomPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, Point(2,2), TGeomPointSeq('{Point(1 1)@2019-09-01}')),
 
             (tps, instant, TGeomPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
             (tps, instant_set, TGeomPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
@@ -750,7 +750,7 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
 
 class TestTGeomPointOutputs(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpsd = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
@@ -758,7 +758,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
-            (tpsd, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
+            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
             (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
             (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
                    '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
@@ -772,7 +772,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
         'temporal, expected',
         [
             (tpi, 'TGeomPointInst(POINT(1 1)@2019-09-01 00:00:00+00)'),
-            (tpsd, 'TGeomPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})'),
+            (tpds, 'TGeomPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})'),
             (tps, 'TGeomPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])'),
             (tpss, 'TGeomPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
                    '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})')
@@ -785,11 +785,11 @@ class TestTGeomPointOutputs(TestTGeomPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpi, 'Point(1 1)@2019-09-01 00:00:00+00'),
-            (tpsd, '{Point(1 1)@2019-09-01 00:00:00+00, Point(2 2)@2019-09-02 00:00:00+00}'),
-            (tps, '[Point(1 1)@2019-09-01 00:00:00+00, Point(2 2)@2019-09-02 00:00:00+00]'),
-            (tpss, '{[Point(1 1)@2019-09-01 00:00:00+00, Point(2 2)@2019-09-02 00:00:00+00], '
-                   '[Point(1 1)@2019-09-03 00:00:00+00, Point(1 1)@2019-09-05 00:00:00+00]}')
+            (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
+            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
+            (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
+            (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -799,11 +799,15 @@ class TestTGeomPointOutputs(TestTGeomPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpi, '011400010100A01E4E71340200'),
-            (tpsd, '0114000602000000030100A01E4E71340200000000F66B85340200'),
-            (tps, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
-            (tpss, '0114000B0200000002000000030100A01E4E71340200000000F'
-                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
+            (tpi, '01280001000000000000F03F000000000000F03F00A01E4E71340200'),
+            (tpds, '012800060200000003000000000000F03F000000000000F03F00A01E4E71340200'
+                '000000000000004000000000000000400000F66B85340200'),
+            (tps, '0128000E0200000003000000000000F03F000000000000F03F00A01E4E71340200'
+                '000000000000004000000000000000400000F66B85340200'),
+            (tpss, '0128000F020000000200000003000000000000F03F000'
+                '000000000F03F00A01E4E7134020000000000000000400'
+                '0000000000000400000F66B853402000200000003000000'
+                '000000F03F000000000000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -842,7 +846,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                   '   ],\n'
                   '   "interpolation": "None"\n'
                   ' }'),
-            (tpsd, '{\n'
+            (tpds, '{\n'
                    '   "type": "MovingGeomPoint",\n'
                    '   "bbox": [\n'
                    '     [\n'

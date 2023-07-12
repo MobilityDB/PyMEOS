@@ -37,7 +37,7 @@ class TestTBoolConstructors(TestTBool):
             (Period('[2000-01-01, 2000-01-02]'), TBoolSeq, TInterpolation.STEPWISE),
             (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TBoolSeqSet, TInterpolation.STEPWISE)
         ],
-        ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_base_time_constructor(self, source, type, interpolation):
         tb = TBool.from_base_time(True, source)
@@ -135,7 +135,7 @@ class TestTBoolConstructors(TestTBool):
 
 class TestTBoolAccessors(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
@@ -143,7 +143,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, TInterpolation.NONE),
-            (tbsd, TInterpolation.DISCRETE),
+            (tbds, TInterpolation.DISCRETE),
             (tbs, TInterpolation.STEPWISE),
             (tbss, TInterpolation.STEPWISE)
         ],
@@ -156,7 +156,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, {True}),
-            (tbsd, {True, False}),
+            (tbds, {True, False}),
             (tbs, {True, False}),
             (tbss, {True, False})
         ],
@@ -169,7 +169,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, [True]),
-            (tbsd, [True, False]),
+            (tbds, [True, False]),
             (tbs, [True, False]),
             (tbss, [True, False, True, True])
         ],
@@ -182,7 +182,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
             (tbss, True)
         ],
@@ -195,7 +195,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, True)
         ],
@@ -208,7 +208,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, False)
         ],
@@ -221,7 +221,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
             (tbss, True)
         ],
@@ -234,7 +234,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
             (tbss, True)
         ],
@@ -247,7 +247,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (tbsd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (tbds, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
             (tbs, PeriodSet('{[2019-09-01, 2019-09-02]}')),
             (tbss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
         ],
@@ -260,7 +260,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, timedelta()),
-            (tbsd, timedelta()),
+            (tbds, timedelta()),
             (tbs, timedelta(days=1)),
             (tbss, timedelta(days=3)),
         ],
@@ -273,7 +273,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, timedelta()),
-            (tbsd, timedelta(days=1)),
+            (tbds, timedelta(days=1)),
             (tbs, timedelta(days=1)),
             (tbss, timedelta(days=4)),
         ],
@@ -286,7 +286,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, Period('[2019-09-01, 2019-09-01]')),
-            (tbsd, Period('[2019-09-01, 2019-09-02]')),
+            (tbds, Period('[2019-09-01, 2019-09-02]')),
             (tbs, Period('[2019-09-01, 2019-09-02]')),
             (tbss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -299,7 +299,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, Period('[2019-09-01, 2019-09-01]')),
-            (tbsd, Period('[2019-09-01, 2019-09-02]')),
+            (tbds, Period('[2019-09-01, 2019-09-02]')),
             (tbs, Period('[2019-09-01, 2019-09-02]')),
             (tbss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -312,7 +312,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, 1),
-            (tbsd, 2),
+            (tbds, 2),
             (tbs, 2),
             (tbss, 4),
         ],
@@ -325,7 +325,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, tbi),
-            (tbsd, tbi),
+            (tbds, tbi),
             (tbs, tbi),
             (tbss, tbi),
         ],
@@ -338,7 +338,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, tbi),
-            (tbsd, TBoolInst('False@2019-09-02')),
+            (tbds, TBoolInst('False@2019-09-02')),
             (tbs, TBoolInst('False@2019-09-02')),
             (tbss, TBoolInst('True@2019-09-05')),
         ],
@@ -351,7 +351,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, tbi),
-            (tbsd, tbi),
+            (tbds, tbi),
             (tbs, tbi),
             (tbss, tbi),
         ],
@@ -364,7 +364,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, tbi),
-            (tbsd, TBoolInst('False@2019-09-02')),
+            (tbds, TBoolInst('False@2019-09-02')),
             (tbs, TBoolInst('False@2019-09-02')),
             (tbss, TBoolInst('False@2019-09-02')),
         ],
@@ -377,7 +377,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, n, expected',
         [
             (tbi, 0, tbi),
-            (tbsd, 1, TBoolInst('False@2019-09-02')),
+            (tbds, 1, TBoolInst('False@2019-09-02')),
             (tbs, 1, TBoolInst('False@2019-09-02')),
             (tbss, 2, TBoolInst('True@2019-09-03')),
         ],
@@ -390,7 +390,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, [tbi]),
-            (tbsd, [tbi, TBoolInst('False@2019-09-02')]),
+            (tbds, [tbi, TBoolInst('False@2019-09-02')]),
             (tbs, [tbi, TBoolInst('False@2019-09-02')]),
             (tbss, [tbi, TBoolInst('False@2019-09-02'), TBoolInst('True@2019-09-03'), TBoolInst('True@2019-09-05')]),
         ],
@@ -403,7 +403,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, 1),
-            (tbsd, 2),
+            (tbds, 2),
             (tbs, 2),
             (tbss, 4),
         ],
@@ -416,7 +416,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tbsd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tbs, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tbss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
@@ -429,7 +429,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tbsd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbds, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tbs, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tbss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
         ],
@@ -442,7 +442,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, n, expected',
         [
             (tbi, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tbsd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbds, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tbs, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tbss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
         ],
@@ -455,7 +455,7 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
-            (tbsd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+            (tbds, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                     datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
             (tbs, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
@@ -472,7 +472,7 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tbsd, [TBoolSeq('[t@2019-09-01]'), TBoolSeq('[f@2019-09-02]')]),
+            (tbds, [TBoolSeq('[t@2019-09-01]'), TBoolSeq('[f@2019-09-02]')]),
             (tbs, [TBoolSeq('[t@2019-09-01, t@2019-09-02)'),
                    TBoolSeq('[f@2019-09-02]')]),
             (tbss,
@@ -488,7 +488,7 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
         ],
         ids=['Discrete Sequence', 'Sequence']
@@ -499,7 +499,7 @@ class TestTBoolAccessors(TestTBool):
 
 class TestTBoolEverAlwaysOperations(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
@@ -507,7 +507,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, False)
         ],
@@ -520,7 +520,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, False),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, False)
         ],
@@ -533,7 +533,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
             (tbss, True)
         ],
@@ -546,7 +546,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, False),
-            (tbsd, True),
+            (tbds, True),
             (tbs, True),
             (tbss, True)
         ],
@@ -559,7 +559,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, False),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, False)
         ],
@@ -572,7 +572,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, True),
-            (tbsd, False),
+            (tbds, False),
             (tbs, False),
             (tbss, False)
         ],
@@ -584,7 +584,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
 
 class TestTBoolBooleanOperations(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
     compared = TBoolSeq('[False@2019-09-01, True@2019-09-02, True@2019-09-03]')
@@ -593,7 +593,7 @@ class TestTBoolBooleanOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('False@2019-09-01')),
-            (tbsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tbds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tbs, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tbss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -608,7 +608,7 @@ class TestTBoolBooleanOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('False@2019-09-01')),
-            (tbsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
             (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
         ],
@@ -620,7 +620,7 @@ class TestTBoolBooleanOperations(TestTBool):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbsd, tbs, tbss],
+        [tbi, tbds, tbs, tbss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_and_bool(self, temporal):
@@ -634,7 +634,7 @@ class TestTBoolBooleanOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('True@2019-09-01')),
-            (tbsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
             (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[True@2019-09-03]}'))
         ],
@@ -646,7 +646,7 @@ class TestTBoolBooleanOperations(TestTBool):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbsd, tbs, tbss],
+        [tbi, tbds, tbs, tbss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_or_bool(self, temporal):
@@ -660,7 +660,7 @@ class TestTBoolBooleanOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('False@2019-09-01')),
-            (tbsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
             (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
         ],
@@ -671,7 +671,7 @@ class TestTBoolBooleanOperations(TestTBool):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbsd, tbs, tbss],
+        [tbi, tbds, tbs, tbss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_equal_bool(self, temporal):
@@ -683,7 +683,7 @@ class TestTBoolBooleanOperations(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('True@2019-09-01')),
-            (tbsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
             (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
         ],
@@ -694,7 +694,7 @@ class TestTBoolBooleanOperations(TestTBool):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbsd, tbs, tbss],
+        [tbi, tbds, tbs, tbss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_not_equal_bool(self, temporal):
@@ -705,7 +705,7 @@ class TestTBoolBooleanOperations(TestTBool):
 
 class TestTBoolManipulationFunctions(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
     compared = TBoolSeq('[False@2019-09-01, True@2019-09-02, True@2019-09-03]')
@@ -714,12 +714,12 @@ class TestTBoolManipulationFunctions(TestTBool):
         'temporal, shift, expected',
         [
             (tbi, timedelta(days=1), TBoolInst('True@2019-09-02')),
-            (tbsd, timedelta(days=1), TBoolSeq('{True@2019-09-02, False@2019-09-03}')),
+            (tbds, timedelta(days=1), TBoolSeq('{True@2019-09-02, False@2019-09-03}')),
             (tbs, timedelta(days=1), TBoolSeq('[True@2019-09-02, False@2019-09-03]')),
             (tbss, timedelta(days=1),
              TBoolSeqSet('{[True@2019-09-02, False@2019-09-03],[True@2019-09-04, True@2019-09-06]}')),
             (tbi, timedelta(days=-1), TBoolInst('True@2019-08-31')),
-            (tbsd, timedelta(days=-1), TBoolSeq('{True@2019-08-31, False@2019-09-01}')),
+            (tbds, timedelta(days=-1), TBoolSeq('{True@2019-08-31, False@2019-09-01}')),
             (tbs, timedelta(days=-1), TBoolSeq('[True@2019-08-31, False@2019-09-01]')),
             (tbss, timedelta(days=-1),
              TBoolSeqSet('{[True@2019-08-31, False@2019-09-01],[True@2019-09-02, True@2019-09-04]}')),
@@ -734,7 +734,7 @@ class TestTBoolManipulationFunctions(TestTBool):
         'temporal, scale, expected',
         [
             (tbi, timedelta(days=10), TBoolInst('True@2019-09-01')),
-            (tbsd, timedelta(days=10), TBoolSeq('{True@2019-09-01, False@2019-09-11}')),
+            (tbds, timedelta(days=10), TBoolSeq('{True@2019-09-01, False@2019-09-11}')),
             (tbs, timedelta(days=10), TBoolSeq('[True@2019-09-01, False@2019-09-11]')),
             (tbss, timedelta(days=10),
              TBoolSeqSet('{[True@2019-09-01, False@2019-09-03 12:00:00],[True@2019-09-06, True@2019-09-11]}')),
@@ -748,12 +748,12 @@ class TestTBoolManipulationFunctions(TestTBool):
         'temporal, shift, scale, expected',
         [
             (tbi, timedelta(days=1), timedelta(days=10), TBoolInst('True@2019-09-02')),
-            (tbsd, timedelta(days=1), timedelta(days=10), TBoolSeq('{True@2019-09-02, False@2019-09-12}')),
+            (tbds, timedelta(days=1), timedelta(days=10), TBoolSeq('{True@2019-09-02, False@2019-09-12}')),
             (tbs, timedelta(days=1), timedelta(days=10), TBoolSeq('[True@2019-09-02, False@2019-09-12]')),
             (tbss, timedelta(days=1), timedelta(days=10),
              TBoolSeqSet('{[True@2019-09-02, False@2019-09-04 12:00:00],[True@2019-09-07, True@2019-09-12]}')),
             (tbi, timedelta(days=-1), timedelta(days=10), TBoolInst('True@2019-08-31')),
-            (tbsd, timedelta(days=-1), timedelta(days=10), TBoolSeq('{True@2019-08-31, False@2019-09-10}')),
+            (tbds, timedelta(days=-1), timedelta(days=10), TBoolSeq('{True@2019-08-31, False@2019-09-10}')),
             (tbs, timedelta(days=-1), timedelta(days=10), TBoolSeq('[True@2019-08-31, False@2019-09-10]')),
             (tbss, timedelta(days=-1), timedelta(days=10),
              TBoolSeqSet('{[True@2019-08-31, False@2019-09-02 12:00:00],[True@2019-09-05, True@2019-09-010]}')),
@@ -767,7 +767,7 @@ class TestTBoolManipulationFunctions(TestTBool):
 
 class TestTBoolRestrictors(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
@@ -780,7 +780,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (tbsd, PeriodSet('{[2019-09-01, 2019-09-01]}')),
+            (tbds, PeriodSet('{[2019-09-01, 2019-09-01]}')),
             (tbs, PeriodSet('{[2019-09-01, 2019-09-02)}')),
             (tbss, PeriodSet('{[2019-09-01, 2019-09-02),[2019-09-03, 2019-09-05]}'))
         ],
@@ -793,7 +793,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, None),
-            (tbsd, PeriodSet('{[2019-09-02, 2019-09-02]}')),
+            (tbds, PeriodSet('{[2019-09-02, 2019-09-02]}')),
             (tbs, PeriodSet('{[2019-09-02, 2019-09-02]}')),
             (tbss, PeriodSet('{[2019-09-02, 2019-09-02]}'))
         ],
@@ -812,12 +812,12 @@ class TestTBoolRestrictors(TestTBool):
             (tbi, True, TBoolInst('True@2019-09-01')),
             (tbi, False, None),
 
-            (tbsd, instant, TBoolSeq('{True@2019-09-01}')),
-            (tbsd, instant_set, TBoolSeq('{True@2019-09-01}')),
-            (tbsd, sequence, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tbsd, sequence_set, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tbsd, True, TBoolSeq('{True@2019-09-01}')),
-            (tbsd, False, TBoolSeq('{False@2019-09-02}')),
+            (tbds, instant, TBoolSeq('{True@2019-09-01}')),
+            (tbds, instant_set, TBoolSeq('{True@2019-09-01}')),
+            (tbds, sequence, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tbds, sequence_set, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tbds, True, TBoolSeq('{True@2019-09-01}')),
+            (tbds, False, TBoolSeq('{False@2019-09-02}')),
 
             (tbs, instant, TBoolSeq('[True@2019-09-01]')),
             (tbs, instant_set, TBoolSeq('{True@2019-09-01}')),
@@ -851,7 +851,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('True@2019-09-01')),
-            (tbsd, TBoolSeq('{True@2019-09-01}')),
+            (tbds, TBoolSeq('{True@2019-09-01}')),
             (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02)')),
             (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}')),
         ],
@@ -864,7 +864,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, TBoolInst('True@2019-09-01')),
-            (tbsd, TBoolSeq('{False@2019-09-02}')),
+            (tbds, TBoolSeq('{False@2019-09-02}')),
             (tbs, TBoolSeq('[False@2019-09-02]')),
             (tbss, TBoolSeqSet('{[False@2019-09-02]}')),
         ],
@@ -883,12 +883,12 @@ class TestTBoolRestrictors(TestTBool):
             (tbi, True, None),
             (tbi, False, TBoolInst('True@2019-09-01')),
 
-            (tbsd, instant, TBoolSeq('{False@2019-09-02}')),
-            (tbsd, instant_set, TBoolSeq('{False@2019-09-02}')),
-            (tbsd, sequence, None),
-            (tbsd, sequence_set, None),
-            (tbsd, True, TBoolSeq('{False@2019-09-02}')),
-            (tbsd, False, TBoolSeq('{True@2019-09-01}')),
+            (tbds, instant, TBoolSeq('{False@2019-09-02}')),
+            (tbds, instant_set, TBoolSeq('{False@2019-09-02}')),
+            (tbds, sequence, None),
+            (tbds, sequence_set, None),
+            (tbds, True, TBoolSeq('{False@2019-09-02}')),
+            (tbds, False, TBoolSeq('{True@2019-09-01}')),
 
             (tbs, instant, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
             (tbs, instant_set, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
@@ -922,7 +922,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, None),
-            (tbsd, TBoolSeq('{False@2019-09-02}')),
+            (tbds, TBoolSeq('{False@2019-09-02}')),
             (tbs, TBoolSeq('[False@2019-09-02]')),
             (tbss, TBoolSeqSet('{[False@2019-09-02]}')),
         ],
@@ -935,7 +935,7 @@ class TestTBoolRestrictors(TestTBool):
         'temporal, expected',
         [
             (tbi, None),
-            (tbsd, TBoolSeq('{True@2019-09-01}')),
+            (tbds, TBoolSeq('{True@2019-09-01}')),
             (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02)')),
             (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}')),
         ],
@@ -947,7 +947,7 @@ class TestTBoolRestrictors(TestTBool):
 
 class TestTBoolOutputs(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
-    tbsd = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
@@ -955,7 +955,7 @@ class TestTBoolOutputs(TestTBool):
         'temporal, expected',
         [
             (tbi, 't@2019-09-01 00:00:00+00'),
-            (tbsd, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
+            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
             (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
             (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
                    '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
@@ -969,7 +969,7 @@ class TestTBoolOutputs(TestTBool):
         'temporal, expected',
         [
             (tbi, 'TBoolInst(t@2019-09-01 00:00:00+00)'),
-            (tbsd, 'TBoolSeq({t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00})'),
+            (tbds, 'TBoolSeq({t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00})'),
             (tbs, 'TBoolSeq([t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00])'),
             (tbss, 'TBoolSeqSet({[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
                    '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]})')
@@ -983,7 +983,7 @@ class TestTBoolOutputs(TestTBool):
         'temporal, expected',
         [
             (tbi, 't@2019-09-01 00:00:00+00'),
-            (tbsd, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
+            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
             (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
             (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
                    '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
@@ -997,7 +997,7 @@ class TestTBoolOutputs(TestTBool):
         'temporal, expected',
         [
             (tbi, '011400010100A01E4E71340200'),
-            (tbsd, '0114000602000000030100A01E4E71340200000000F66B85340200'),
+            (tbds, '0114000602000000030100A01E4E71340200000000F66B85340200'),
             (tbs, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
             (tbss, '0114000B0200000002000000030100A01E4E71340200000000F'
                    '66B853402000200000003010060CD89993402000100207CC5C1340200')
@@ -1026,7 +1026,7 @@ class TestTBoolOutputs(TestTBool):
                   '   ],\n'
                   '   "interpolation": "None"\n'
                   ' }'),
-            (tbsd, '{\n'
+            (tbds, '{\n'
                    '   "type": "MovingBoolean",\n'
                    '   "period": {\n'
                    '     "begin": "2019-09-01T00:00:00+00",\n'

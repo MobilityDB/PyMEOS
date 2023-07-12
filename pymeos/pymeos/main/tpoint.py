@@ -901,7 +901,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_out
         """
-        return tpoint_out(self._inner, precision)
+        return tpoint_as_text(self._inner, precision)
 
     def as_ewkt(self, precision: int = 15) -> str:
         """

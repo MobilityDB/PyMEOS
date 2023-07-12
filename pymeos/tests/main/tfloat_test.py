@@ -136,7 +136,7 @@ class TestTFloatConstructors(TestTFloat):
 
 class TestTFloatAccessors(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
@@ -144,7 +144,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, TInterpolation.NONE),
-            (tfsd, TInterpolation.DISCRETE),
+            (tfds, TInterpolation.DISCRETE),
             (tfs, TInterpolation.LINEAR),
             (tfss, TInterpolation.LINEAR)
         ],
@@ -157,7 +157,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, {1.5}),
-            (tfsd, {1.5, 2.5}),
+            (tfds, {1.5, 2.5}),
             (tfs, {1.5, 2.5}),
             (tfss, {1.5, 2.5})
         ],
@@ -170,7 +170,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, [1.5]),
-            (tfsd, [1.5, 2.5]),
+            (tfds, [1.5, 2.5]),
             (tfs, [1.5, 2.5]),
             (tfss, [1.5, 2.5, 1.5, 1.5])
         ],
@@ -183,7 +183,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1.5),
-            (tfsd, 1.5),
+            (tfds, 1.5),
             (tfs, 1.5),
             (tfss, 1.5)
         ],
@@ -196,7 +196,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1.5),
-            (tfsd, 2.5),
+            (tfds, 2.5),
             (tfs, 2.5),
             (tfss, 1.5)
         ],
@@ -209,7 +209,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1.5),
-            (tfsd, 1.5),
+            (tfds, 1.5),
             (tfs, 1.5),
             (tfss, 1.5)
         ],
@@ -222,7 +222,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1.5),
-            (tfsd, 2.5),
+            (tfds, 2.5),
             (tfs, 2.5),
             (tfss, 2.5)
         ],
@@ -235,7 +235,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1.5),
-            (tfsd, 1.5),
+            (tfds, 1.5),
             (tfs, 1.5),
             (tfss, 1.5)
         ],
@@ -248,7 +248,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, PeriodSet('{[2019-09-01, 2019-09-01]}')),
-            (tfsd, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
+            (tfds, PeriodSet('{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}')),
             (tfs, PeriodSet('{[2019-09-01, 2019-09-02]}')),
             (tfss, PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}')),
         ],
@@ -261,7 +261,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, timedelta()),
-            (tfsd, timedelta()),
+            (tfds, timedelta()),
             (tfs, timedelta(days=1)),
             (tfss, timedelta(days=3)),
         ],
@@ -274,7 +274,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, timedelta()),
-            (tfsd, timedelta(days=1)),
+            (tfds, timedelta(days=1)),
             (tfs, timedelta(days=1)),
             (tfss, timedelta(days=4)),
         ],
@@ -287,7 +287,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, Period('[2019-09-01, 2019-09-01]')),
-            (tfsd, Period('[2019-09-01, 2019-09-02]')),
+            (tfds, Period('[2019-09-01, 2019-09-02]')),
             (tfs, Period('[2019-09-01, 2019-09-02]')),
             (tfss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -300,7 +300,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, Period('[2019-09-01, 2019-09-01]')),
-            (tfsd, Period('[2019-09-01, 2019-09-02]')),
+            (tfds, Period('[2019-09-01, 2019-09-02]')),
             (tfs, Period('[2019-09-01, 2019-09-02]')),
             (tfss, Period('[2019-09-01, 2019-09-05]')),
         ],
@@ -313,7 +313,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1),
-            (tfsd, 2),
+            (tfds, 2),
             (tfs, 2),
             (tfss, 4),
         ],
@@ -326,7 +326,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, tfi),
-            (tfsd, tfi),
+            (tfds, tfi),
             (tfs, tfi),
             (tfss, tfi),
         ],
@@ -339,7 +339,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, tfi),
-            (tfsd, TFloatInst('2.5@2019-09-02')),
+            (tfds, TFloatInst('2.5@2019-09-02')),
             (tfs, TFloatInst('2.5@2019-09-02')),
             (tfss, TFloatInst('1.5@2019-09-05')),
         ],
@@ -352,7 +352,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, tfi),
-            (tfsd, TFloatInst('2.5@2019-09-02')),
+            (tfds, TFloatInst('2.5@2019-09-02')),
             (tfs, TFloatInst('2.5@2019-09-02')),
             (tfss, TFloatInst('2.5@2019-09-02')),
         ],
@@ -365,7 +365,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, tfi),
-            (tfsd, tfi),
+            (tfds, tfi),
             (tfs, tfi),
             (tfss, tfi),
         ],
@@ -378,7 +378,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, n, expected',
         [
             (tfi, 0, tfi),
-            (tfsd, 1, TFloatInst('2.5@2019-09-02')),
+            (tfds, 1, TFloatInst('2.5@2019-09-02')),
             (tfs, 1, TFloatInst('2.5@2019-09-02')),
             (tfss, 2, TFloatInst('1.5@2019-09-03')),
         ],
@@ -391,7 +391,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, [tfi]),
-            (tfsd, [tfi, TFloatInst('2.5@2019-09-02')]),
+            (tfds, [tfi, TFloatInst('2.5@2019-09-02')]),
             (tfs, [tfi, TFloatInst('2.5@2019-09-02')]),
             (tfss, [tfi, TFloatInst('2.5@2019-09-02'), TFloatInst('1.5@2019-09-03'), TFloatInst('1.5@2019-09-05')]),
         ],
@@ -404,7 +404,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, 1),
-            (tfsd, 2),
+            (tfds, 2),
             (tfs, 2),
             (tfss, 4),
         ],
@@ -417,7 +417,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tfsd, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tfds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tfs, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
             (tfss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
@@ -430,7 +430,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tfsd, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tfds, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tfs, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tfss, datetime(year=2019, month=9, day=5, tzinfo=timezone.utc)),
         ],
@@ -443,7 +443,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, n, expected',
         [
             (tfi, 0, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
-            (tfsd, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tfds, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tfs, 1, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
             (tfss, 2, datetime(year=2019, month=9, day=3, tzinfo=timezone.utc)),
         ],
@@ -456,7 +456,7 @@ class TestTFloatAccessors(TestTFloat):
         'temporal, expected',
         [
             (tfi, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
-            (tfsd, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+            (tfds, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                     datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
             (tfs, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)]),
@@ -473,7 +473,7 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tfsd, [TFloatSeq('[1.5@2019-09-01]'), TFloatSeq('[2.5@2019-09-02]')]),
+            (tfds, [TFloatSeq('[1.5@2019-09-01]'), TFloatSeq('[2.5@2019-09-02]')]),
             (tfs, [TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')]),
             (tfss,
              [TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
@@ -487,7 +487,7 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tfsd, True),
+            (tfds, True),
             (tfs, True),
         ],
         ids=['Discrete Sequence', 'Sequence']
@@ -498,7 +498,7 @@ class TestTFloatAccessors(TestTFloat):
 
 class TestTFloatEverAlwaysOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
@@ -506,7 +506,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, True),
-            (tfsd, False),
+            (tfds, False),
             (tfs, False),
             (tfss, False)
         ],
@@ -519,7 +519,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, False),
-            (tfsd, False),
+            (tfds, False),
             (tfs, False),
             (tfss, False)
         ],
@@ -532,7 +532,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, True),
-            (tfsd, True),
+            (tfds, True),
             (tfs, True),
             (tfss, True)
         ],
@@ -545,7 +545,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, False),
-            (tfsd, True),
+            (tfds, True),
             (tfs, True),
             (tfss, True)
         ],
@@ -558,7 +558,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, False),
-            (tfsd, False),
+            (tfds, False),
             (tfs, False),
             (tfss, False)
         ],
@@ -571,7 +571,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, True),
-            (tfsd, False),
+            (tfds, False),
             (tfs, False),
             (tfss, False)
         ],
@@ -583,7 +583,7 @@ class TestTFloatEverAlwaysOperations(TestTFloat):
 
 class TestTFloatArithmeticOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
     intarg = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
@@ -593,7 +593,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('3.5@2019-09-01')),
-            (tfsd, TFloatSeq('{3.5@2019-09-01, 3.5@2019-09-02}')),
+            (tfds, TFloatSeq('{3.5@2019-09-01, 3.5@2019-09-02}')),
             (tfs, TFloatSeqSet('{[3.5@2019-09-01, 4.5@2019-09-02),[3.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{[3.5@2019-09-01, 4.5@2019-09-02),[3.5@2019-09-02],[2.5@2019-09-03]}'))
         ],
@@ -607,7 +607,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('2.5@2019-09-01')),
-            (tfsd, TFloatSeq('{2.5@2019-09-01, 3.5@2019-09-02}')),
+            (tfds, TFloatSeq('{2.5@2019-09-01, 3.5@2019-09-02}')),
             (tfs, TFloatSeq('[2.5@2019-09-01, 3.5@2019-09-02]')),
             (tfss, TFloatSeqSet('{[2.5@2019-09-01, 3.5@2019-09-02],[2.5@2019-09-03, 2.5@2019-09-05]}'))
         ],
@@ -621,7 +621,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('-0.5@2019-09-01')),
-            (tfsd, TFloatSeq('{-0.5@2019-09-01, 1.5@2019-09-02}')),
+            (tfds, TFloatSeq('{-0.5@2019-09-01, 1.5@2019-09-02}')),
             (tfs, TFloatSeqSet('{[-0.5@2019-09-01, 0.5@2019-09-02), [1.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{[-0.5@2019-09-01, 0.5@2019-09-02), [1.5@2019-09-02],[0.5@2019-09-03]}'))
         ],
@@ -635,7 +635,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('0.5@2019-09-01')),
-            (tfsd, TFloatSeq('{0.5@2019-09-01, 1.5@2019-09-02}')),
+            (tfds, TFloatSeq('{0.5@2019-09-01, 1.5@2019-09-02}')),
             (tfs, TFloatSeq('[0.5@2019-09-01, 1.5@2019-09-02]')),
             (tfss, TFloatSeqSet('{[0.5@2019-09-01, 1.5@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}'))
         ],
@@ -649,7 +649,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('3@2019-09-01')),
-            (tfsd, TFloatSeq('{3@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, TFloatSeq('{3@2019-09-01, 2.5@2019-09-02}')),
             (tfs, TFloatSeqSet('{[3@2019-09-01, 5@2019-09-02 00:00:00+00), [2.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{[3@2019-09-01, 5@2019-09-02 00:00:00+00), [2.5@2019-09-02],[1.5@2019-09-03]}'))
         ],
@@ -663,7 +663,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('3@2019-09-01')),
-            (tfsd, TFloatSeq('{3@2019-09-01, 5@2019-09-02}')),
+            (tfds, TFloatSeq('{3@2019-09-01, 5@2019-09-02}')),
             (tfs, TFloatSeq('[3@2019-09-01, 5@2019-09-02]')),
             (tfss, TFloatSeqSet('{[3@2019-09-01, 5@2019-09-02],[3@2019-09-03, 3@2019-09-05]}'))
         ],
@@ -683,7 +683,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('0.75@2019-09-01')),
-            (tfsd, TFloatSeq('{0.75@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, TFloatSeq('{0.75@2019-09-01, 2.5@2019-09-02}')),
             (tfs, TFloatSeqSet('{[0.75@2019-09-01, 1.25@2019-09-02 00:00:00+00), [2.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{[0.75@2019-09-01, 1.25@2019-09-02 00:00:00+00), [2.5@2019-09-02], [1.5@2019-09-03]}'))
         ],
@@ -697,7 +697,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('0.75@2019-09-01')),
-            (tfsd, TFloatSeq('{0.75@2019-09-01, 1.25@2019-09-02}')),
+            (tfds, TFloatSeq('{0.75@2019-09-01, 1.25@2019-09-02}')),
             (tfs, TFloatSeq('[0.75@2019-09-01, 1.25@2019-09-02]')),
             (tfss, TFloatSeqSet('{[0.75@2019-09-01, 1.25@2019-09-02],[0.75@2019-09-03, 0.75@2019-09-05]}'))
         ],
@@ -713,7 +713,7 @@ class TestTFloatArithmeticOperations(TestTFloat):
 
 class TestTFloatBooleanOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
     intarg = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
@@ -723,7 +723,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('False@2019-09-01')),
-            (tfsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tfds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tfs, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
               '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
             (tfss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
@@ -738,7 +738,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('False@2019-09-01')),
-            (tfsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tfds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tfs, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
             (tfss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -751,7 +751,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('False@2019-09-01')),
-            (tfsd, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tfds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
             (tfs, TBoolSeq('{[False@2019-09-01, True@2019-09-01 12:00:00], (False@2019-09-01 12:00:00, False@2019-09-02]}')),
             (tfss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00],'
               '(False@2019-09-01 12:00:00, False@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
@@ -765,7 +765,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('True@2019-09-01')),
-            (tfsd, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tfds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tfs, TBoolSeq('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
             (tfss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -778,7 +778,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('False@2019-09-01')),
-            (tfsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tfds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tfs, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tfss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -791,7 +791,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('True@2019-09-01')),
-            (tfsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tfds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tfs, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
                  '(True@2019-09-01 12:00:00+00, True@2019-09-02]}')),
             (tfss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
@@ -806,7 +806,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('False@2019-09-01')),
-            (tfsd, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tfds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
             (tfs, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
             (tfss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
         ],
@@ -819,7 +819,7 @@ class TestTFloatBooleanOperations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TBoolInst('True@2019-09-01')),
-            (tfsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tfds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tfs, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00],'
                 '(True@2019-09-01 12:00:00, True@2019-09-02]}')),
             (tfss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00],'
@@ -833,7 +833,7 @@ class TestTFloatBooleanOperations(TestTFloat):
 
 class TestTFloatRestrictors(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
@@ -852,12 +852,12 @@ class TestTFloatRestrictors(TestTFloat):
             (tfi, 1.5, TFloatInst('1.5@2019-09-01')),
             (tfi, 2.5, None),
 
-            (tfsd, instant, TFloatSeq('{1.5@2019-09-01}')),
-            (tfsd, instant_set, TFloatSeq('{1.5@2019-09-01}')),
-            (tfsd, sequence, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
-            (tfsd, sequence_set, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
-            (tfsd, 1.5, TFloatSeq('{1.5@2019-09-01}')),
-            (tfsd, 2.5, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, instant, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, instant_set, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, sequence, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, sequence_set, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, 1.5, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, 2.5, TFloatSeq('{2.5@2019-09-02}')),
 
             (tfs, instant, TFloatSeq('[1.5@2019-09-01]')),
             (tfs, instant_set, TFloatSeq('{1.5@2019-09-01}')),
@@ -891,7 +891,7 @@ class TestTFloatRestrictors(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('1.5@2019-09-01')),
-            (tfsd, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, TFloatSeq('{2.5@2019-09-02}')),
             (tfs, TFloatSeq('{[2.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{[2.5@2019-09-02]}')),
         ],
@@ -904,7 +904,7 @@ class TestTFloatRestrictors(TestTFloat):
         'temporal, expected',
         [
             (tfi, TFloatInst('1.5@2019-09-01')),
-            (tfsd, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, TFloatSeq('{1.5@2019-09-01}')),
             (tfs, TFloatSeq('{[1.5@2019-09-01]}')),
             (tfss, TFloatSeqSet('{[1.5@2019-09-01],[1.5@2019-09-03, 1.5@2019-09-05]}')),
         ],
@@ -923,12 +923,12 @@ class TestTFloatRestrictors(TestTFloat):
             (tfi, 1.5, None),
             (tfi, 2.5, TFloatInst('1.5@2019-09-01')),
 
-            (tfsd, instant, TFloatSeq('{2.5@2019-09-02}')),
-            (tfsd, instant_set, TFloatSeq('{2.5@2019-09-02}')),
-            (tfsd, sequence, None),
-            (tfsd, sequence_set, None),
-            (tfsd, 1.5, TFloatSeq('{2.5@2019-09-02}')),
-            (tfsd, 2.5, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, instant, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, instant_set, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, sequence, None),
+            (tfds, sequence_set, None),
+            (tfds, 1.5, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, 2.5, TFloatSeq('{1.5@2019-09-01}')),
 
             (tfs, instant, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfs, instant_set, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
@@ -962,7 +962,7 @@ class TestTFloatRestrictors(TestTFloat):
         'temporal, expected',
         [
             (tfi, None),
-            (tfsd, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, TFloatSeq('{1.5@2019-09-01}')),
             (tfs, TFloatSeq('{[1.5@2019-09-01, 2.5@2019-09-02)}')),
             (tfss, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02), [1.5@2019-09-03, 1.5@2019-09-05]}')),
         ],
@@ -975,7 +975,7 @@ class TestTFloatRestrictors(TestTFloat):
         'temporal, expected',
         [
             (tfi, None),
-            (tfsd, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, TFloatSeq('{2.5@2019-09-02}')),
             (tfs, TFloatSeq('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfss, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
         ],
@@ -987,7 +987,7 @@ class TestTFloatRestrictors(TestTFloat):
 
 class TestTFloatOutputs(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfsd = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
@@ -995,7 +995,7 @@ class TestTFloatOutputs(TestTFloat):
         'temporal, expected',
         [
             (tfi, '1.5@2019-09-01 00:00:00+00'),
-            (tfsd, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
+            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
             (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
             (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
                    '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
@@ -1009,7 +1009,7 @@ class TestTFloatOutputs(TestTFloat):
         'temporal, expected',
         [
             (tfi, 'TFloatInst(1.5@2019-09-01 00:00:00+00)'),
-            (tfsd, 'TFloatSeq({1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00})'),
+            (tfds, 'TFloatSeq({1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00})'),
             (tfs, 'TFloatSeq([1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00])'),
             (tfss, 'TFloatSeqSet({[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
                    '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]})')
@@ -1023,7 +1023,7 @@ class TestTFloatOutputs(TestTFloat):
         'temporal, expected',
         [
             (tfi, '1.5@2019-09-01 00:00:00+00'),
-            (tfsd, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
+            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
             (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
             (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
                    '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
@@ -1037,7 +1037,7 @@ class TestTFloatOutputs(TestTFloat):
         'temporal, expected',
         [
             (tfi, '011B0001000000000000F83F00A01E4E71340200'),
-            (tfsd, '0114000602000000030100A01E4E71340200000000F66B85340200'),
+            (tfds, '0114000602000000030100A01E4E71340200000000F66B85340200'),
             (tfs, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
             (tfss, '0114000B0200000002000000030100A01E4E71340200000000F'
                    '66B853402000200000003010060CD89993402000100207CC5C1340200')
@@ -1070,7 +1070,7 @@ class TestTFloatOutputs(TestTFloat):
                   '   ],\n'
                   '   "interpolation": "None"\n'
                   ' }'),
-            (tfsd, '{\n'
+            (tfds, '{\n'
                    '   "type": "MovingFloat",\n'
                    '   "bbox": [\n'
                    '     1.500000,\n'
