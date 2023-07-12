@@ -83,6 +83,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
             temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period, temporal_minus_periodset
         """
+        from ..boxes import TBox
         if isinstance(other, intrange):
             result = tnumber_minus_span(self._inner, intrange_to_intspan(other))
         elif isinstance(other, floatrange):

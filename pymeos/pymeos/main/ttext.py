@@ -68,7 +68,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base(value: str, base: Temporal) -> TText:
+    def from_base_temporal(value: str, base: Temporal) -> TText:
         """
         Create a temporal string from a string and the time frame of another temporal object.
 
@@ -113,7 +113,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttextinst_make, ttextdiscseq_from_base_time, ttextseq_from_base_time, ttextseqset_from_base_time
+            ttextinst_make, ttextseq_from_base_timestampset,
+            ttextseq_from_base_period, ttextseqset_from_base_periodset
 
         """
         if isinstance(base, datetime):

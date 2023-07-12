@@ -500,7 +500,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return intspan_to_intrange(tnumber_to_span(self._inner))
 
     @staticmethod
-    def from_base(value: int, base: Temporal) -> TInt:
+    def from_base_temporal(value: int, base: Temporal) -> TInt:
         """
         Returns a new temporal int with the value `value` and the temporal frame of `base`.
 
@@ -530,7 +530,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             A new temporal int.
 
         MEOS Functions:
-            tintinst_make, tintdiscseq_from_base_time, tintseq_from_base_time, tintseqset_from_base_time
+            tintinst_make, tintseq_from_base_timestampset,
+            tintseq_from_base_period, tintseqset_from_base_periodset
         """
         if isinstance(base, datetime):
             return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))

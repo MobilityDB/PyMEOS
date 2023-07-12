@@ -1042,7 +1042,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     _parse_function = tgeompoint_in
 
     @staticmethod
-    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
+    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
         """
         Creates a temporal geometric point from a base geometry and the time frame of another temporal object.
 
@@ -1055,7 +1055,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tgeompoint_from_base
+            tgeompoint_from_base_temp
         """
         gs = geometry_to_gserialized(value)
         result = tgeompoint_from_base_temp(gs, base._inner)
@@ -1076,8 +1076,8 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tgeompointinst_make, tgeompointdiscseq_from_base_time, tgeompointseq_from_base_time,
-            tgeompointseqset_from_base_time
+            tgeompointinst_make, tgeompointseq_from_base_timestampset,
+            tgeompointseq_from_base_period, tgeompointseqset_from_base_periodset
         """
         gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):
@@ -1273,7 +1273,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     _parse_function = tgeogpoint_in
 
     @staticmethod
-    def from_base(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
+    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
         """
         Creates a temporal geographic point from a base geometry and the time frame of another temporal object.
 
@@ -1286,7 +1286,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             A new :class:`TGeogPoint` object.
 
         MEOS Functions:
-            tgeogpoint_from_base
+            tgeogpoint_from_base_temp
         """
         gs = geometry_to_gserialized(value)
         result = tgeogpoint_from_base_temp(gs, base._inner)
@@ -1307,8 +1307,8 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             A new :class:`TGeogPoint` object.
 
         MEOS Functions:
-            tgeogpointinst_make, tgeogpointdiscseq_from_base_time, tgeogpointseq_from_base_time,
-            tgeogpointseqset_from_base_time
+            tgeogpointinst_make, tgeogpointseq_from_base_timestampset,
+            tgeogpointseq_from_base_period, tgeogpointseqset_from_base_periodset
         """
         gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):

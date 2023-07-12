@@ -484,7 +484,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return floatspan_to_floatrange(tnumber_to_span(self._inner))
 
     @staticmethod
-    def from_base(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
+    def from_base_temporal(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
         """
         Returns a new temporal float with the value `value` and the temporal frame of `base`.
 
@@ -787,7 +787,7 @@ class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeq
     Class for representing temporal floats at a single instant.
     """
     _make_function = tfloatinst_make
-    _cast_function = int
+    _cast_function = float
 
     def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, float]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
@@ -801,7 +801,7 @@ class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeq
     ComponentClass = TFloatInst
 
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TFloatInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
+                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, float] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
                          expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)

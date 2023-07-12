@@ -25,7 +25,7 @@ class TestTTextConstructors(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_base_constructor(self, source, type, interpolation):
-        tt = TText.from_base('AAA', source)
+        tt = TText.from_base_temporal('AAA', source)
         assert isinstance(tt, type)
         assert tt.interpolation() == interpolation
 
@@ -47,14 +47,14 @@ class TestTTextConstructors(TestTText):
     @pytest.mark.parametrize(
         'source, type, interpolation, expected',
         [
-            ('AAA@2019-09-01', TTextInst, TInterpolation.NONE, 'AAA@2019-09-01 00:00:00+00'),
+            ('AAA@2019-09-01', TTextInst, TInterpolation.NONE, '"AAA"@2019-09-01 00:00:00+00'),
             ('{AAA@2019-09-01, BBB@2019-09-02}', TTextSeq, TInterpolation.DISCRETE,
-             '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00}'),
+             '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
             ('[AAA@2019-09-01, BBB@2019-09-02]', TTextSeq, TInterpolation.STEPWISE,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00]'),
             ('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}', TTextSeqSet,
-             TInterpolation.STEPWISE, '{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], '
-                                      '[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]}'),
+             TInterpolation.STEPWISE, '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
+                                      '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]}'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -68,11 +68,11 @@ class TestTTextConstructors(TestTText):
         'source, type, expected',
         [
             ('[AAA@2019-09-01, AAA@2019-09-02, AAA@2019-09-03, BBB@2019-09-05]', TTextSeq,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-05 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-05 00:00:00+00]'),
             ('{[AAA@2019-09-01, AAA@2019-09-02, AAA@2019-09-03, BBB@2019-09-05],'
              '[AAA@2019-09-07, AAA@2019-09-08, AAA@2019-09-09]}', TTextSeqSet,
-             '{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-05 00:00:00+00], '
-             '[AAA@2019-09-07 00:00:00+00, AAA@2019-09-09 00:00:00+00]}'),
+             '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-05 00:00:00+00], '
+             '["AAA"@2019-09-07 00:00:00+00, "AAA"@2019-09-09 00:00:00+00]}'),
         ],
         ids=['Sequence', 'SequenceSet']
     )
@@ -91,31 +91,31 @@ class TestTTextConstructors(TestTText):
     )
     def test_value_timestamp_instant_constructor(self, value, timestamp):
         tti = TTextInst(value=value, timestamp=timestamp)
-        assert str(tti) == 'AAA@2019-09-01 00:00:00+00'
+        assert str(tti) == '"AAA"@2019-09-01 00:00:00+00'
 
     @pytest.mark.parametrize(
         'list, interpolation, normalize, expected',
         [
             (['AAA@2019-09-01', 'BBB@2019-09-03'], TInterpolation.DISCRETE, False,
-             '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00}'),
+             '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00}'),
             (['AAA@2019-09-01', 'BBB@2019-09-03'], TInterpolation.STEPWISE, False,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
             ([TTextInst('AAA@2019-09-01'), TTextInst('BBB@2019-09-03')], TInterpolation.DISCRETE, False,
-             '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00}'),
+             '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00}'),
             ([TTextInst('AAA@2019-09-01'), TTextInst('BBB@2019-09-03')], TInterpolation.STEPWISE, False,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
             (['AAA@2019-09-01', TTextInst('BBB@2019-09-03')], TInterpolation.DISCRETE, False,
-             '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00}'),
+             '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00}'),
             (['AAA@2019-09-01', TTextInst('BBB@2019-09-03')], TInterpolation.STEPWISE, False,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
 
             (['AAA@2019-09-01', 'AAA@2019-09-02', 'BBB@2019-09-03'], TInterpolation.STEPWISE, True,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
             ([TTextInst('AAA@2019-09-01'), TTextInst('AAA@2019-09-02'), TTextInst('BBB@2019-09-03')],
              TInterpolation.STEPWISE, True,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
             (['AAA@2019-09-01', 'AAA@2019-09-02', TTextInst('BBB@2019-09-03')], TInterpolation.STEPWISE, True,
-             '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-03 00:00:00+00]'),
+             '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-03 00:00:00+00]'),
         ],
         ids=['String Discrete', 'String Stepwise', 'TTextInst Discrete', 'TTextInst Stepwise', 'Mixed Discrete',
              'Mixed Stepwise', 'String Stepwise Normalized', 'TTextInst Stepwise Normalized',
@@ -512,7 +512,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_always_AAA(self, temporal, expected):
-        assert temporal.always('AAA') == expected
+        assert temporal.always_equal('AAA') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -525,7 +525,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_always_BBB(self, temporal, expected):
-        assert temporal.always('BBB') == expected
+        assert temporal.always_equal('BBB') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -538,7 +538,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_AAA(self, temporal, expected):
-        assert temporal.ever('AAA') == expected
+        assert temporal.ever_equal('AAA') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -551,7 +551,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_BBB(self, temporal, expected):
-        assert temporal.ever('BBB') == expected
+        assert temporal.ever_equal('BBB') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -564,7 +564,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_AAA(self, temporal, expected):
-        assert temporal.never('AAA') == expected
+        assert temporal.never_equal('AAA') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -577,7 +577,7 @@ class TestTTextEverAlwaysOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_BBB(self, temporal, expected):
-        assert temporal.never('BBB') == expected
+        assert temporal.never_equal('BBB') == expected
 
 
 class TestTTextTextOperations(TestTText):
@@ -598,8 +598,8 @@ class TestTTextTextOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_concat_temporal(self, temporal, expected):
-        assert temporal.temporal_add(self.intarg) == expected
-        assert temporal + self.intarg == expected
+        assert temporal.concatenate(self.argument) == expected
+        assert temporal + self.argument == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -625,16 +625,16 @@ class TestTTextTextOperations(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_lowercase(self, temporal, expected):
-        assert temporal.temporal_lowercase() == expected
+    def test_temporal_lower(self, temporal, expected):
+        assert temporal.lower() == expected
 
     @pytest.mark.parametrize(
         'temporal',
         [tti, ttsd, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_uppercase(self, temporal):
-        assert temporal.temporal_uppercase() == temporal
+    def test_temporal_upper(self, temporal):
+        assert temporal.upper() == temporal
 
 
 class TestTTextBooleanOperations(TestTText):
@@ -678,7 +678,7 @@ class TestTTextBooleanOperations(TestTText):
             (tti, TBoolInst('True@2019-09-01')),
             (ttsd, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tts, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
-            (ttss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[True@2019-09-03]}'))
+            (ttss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -696,9 +696,9 @@ class TestTTextBooleanOperations(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_not_equal_int(self, temporal, expected):
-        assert temporal.temporal_not_equal(1) == expected
+        assert temporal.temporal_not_equal('AAA') == expected
 
-        assert temporal.temporal_not_equal(2) == ~expected
+        assert temporal.temporal_not_equal('BBB') == ~expected
 
 
 class TestTTextRestrictors(TestTText):
@@ -740,8 +740,8 @@ class TestTTextRestrictors(TestTText):
             (ttss, instant_set, TTextSeq('{AAA@2019-09-01, AAA@2019-09-03}')),
             (ttss, sequence, TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
             (
-                    ttss, sequence_set,
-                    TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
+                ttss, sequence_set,
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'AAA', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'BBB', TTextSeqSet('{[BBB@2019-09-02]}'))
 
@@ -761,9 +761,9 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAA@2019-09-01')),
-            (ttsd, TTextSeq('{AAA@2019-09-01}')),
-            (tts, TTextSeq('[AAA@2019-09-01, AAA@2019-09-02)')),
-            (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
+            (ttsd, TTextSeq('{BBB@2019-09-02}')),
+            (tts, TTextSeq('{[BBB@2019-09-02]}')),
+            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -774,9 +774,9 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, TTextInst('AAA@2019-09-01')),
-            (ttsd, TTextSeq('{BBB@2019-09-02}')),
-            (tts, TTextSeq('[BBB@2019-09-02]')),
-            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
+            (ttsd, TTextSeq('{AAA@2019-09-01}')),
+            (tts, TTextSeq('{[AAA@2019-09-01, AAA@2019-09-02)}')),
+            (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -808,8 +808,8 @@ class TestTTextRestrictors(TestTText):
             (tts, 'BBB', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02)}')),
 
             (
-                    ttss, instant,
-                    TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
+                ttss, instant,
+                TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, instant_set,
              TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],(AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, sequence, TTextSeqSet('{[AAA@2019-09-03, AAA@2019-09-05]}')),
@@ -832,9 +832,9 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, None),
-            (ttsd, TTextSeq('{BBB@2019-09-02}')),
-            (tts, TTextSeq('[BBB@2019-09-02]')),
-            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
+            (ttsd, TTextSeq('{AAA@2019-09-01}')),
+            (tts, TTextSeq('{[AAA@2019-09-01, AAA@2019-09-02)}')),
+            (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -845,9 +845,9 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, None),
-            (ttsd, TTextSeq('{AAA@2019-09-01}')),
-            (tts, TTextSeq('[AAA@2019-09-01, AAA@2019-09-02)')),
-            (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
+            (ttsd, TTextSeq('{BBB@2019-09-02}')),
+            (tts, TTextSeq('{[BBB@2019-09-02]}')),
+            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -864,11 +864,11 @@ class TestTTextOutputs(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tti, 'AAA@2019-09-01 00:00:00+00'),
-            (ttsd, '{AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00}'),
-            (tts, '[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00]'),
-            (ttss, '{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], '
-                   '[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]}')
+            (tti, '"AAA"@2019-09-01 00:00:00+00'),
+            (ttsd, '{"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00}'),
+            (tts, '["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00]'),
+            (ttss, '{["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
+                   '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]}')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -878,11 +878,11 @@ class TestTTextOutputs(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tti, 'TTextInst(AAA@2019-09-01 00:00:00+00)'),
-            (ttsd, 'TTextSeq({AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00})'),
-            (tts, 'TTextSeq([AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00])'),
-            (ttss, 'TTextSeqSet({[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], '
-                   '[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]})')
+            (tti, 'TTextInst("AAA"@2019-09-01 00:00:00+00)'),
+            (ttsd, 'TTextSeq({"AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00})'),
+            (tts, 'TTextSeq(["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00])'),
+            (ttss, 'TTextSeqSet({["AAA"@2019-09-01 00:00:00+00, "BBB"@2019-09-02 00:00:00+00], '
+                   '["AAA"@2019-09-03 00:00:00+00, "AAA"@2019-09-05 00:00:00+00]})')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -906,11 +906,10 @@ class TestTTextOutputs(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tti, '011400010100A01E4E71340200'),
-            (ttsd, '0114000602000000030100A01E4E71340200000000F66B85340200'),
-            (tts, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
-            (ttss, '0114000B0200000002000000030100A01E4E71340200000000F'
-                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
+            (tti, '0123000104000000000000004141410000A01E4E71340200'),
+            (ttsd, '01230006020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'),
+            (tts, '0123000A020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'),
+            (ttss, '0123000B02000000020000000304000000000000004141410000A01E4E713402000400000000000000424242000000F66B85340200'       '02000000030400000000000000414141000060CD899934020004000000000000004141410000207CC5C1340200')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

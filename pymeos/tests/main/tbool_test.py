@@ -25,7 +25,7 @@ class TestTBoolConstructors(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_base_constructor(self, source, type, interpolation):
-        tb = TBool.from_base(True, source)
+        tb = TBool.from_base_temporal(True, source)
         assert isinstance(tb, type)
         assert tb.interpolation() == interpolation
 
@@ -514,7 +514,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_always_true(self, temporal, expected):
-        assert temporal.always(True) == expected
+        assert temporal.always_eq(True) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -527,7 +527,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_always_false(self, temporal, expected):
-        assert temporal.always(False) == expected
+        assert temporal.always_eq(False) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -540,7 +540,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_true(self, temporal, expected):
-        assert temporal.ever(True) == expected
+        assert temporal.ever_eq(True) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -553,7 +553,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_ever_false(self, temporal, expected):
-        assert temporal.ever(False) == expected
+        assert temporal.ever_eq(False) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -566,7 +566,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_true(self, temporal, expected):
-        assert temporal.never(True) == expected
+        assert temporal.never_eq(True) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -579,7 +579,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_never_false(self, temporal, expected):
-        assert temporal.never(False) == expected
+        assert temporal.never_eq(False) == expected
 
 
 class TestTBoolBooleanOperations(TestTBool):
@@ -627,8 +627,8 @@ class TestTBoolBooleanOperations(TestTBool):
         assert temporal.temporal_and(True) == temporal
         assert (temporal & True) == temporal
 
-        assert temporal.temporal_and(False) == TBool.from_base(False, temporal)
-        assert (temporal & False) == TBool.from_base(False, temporal)
+        assert temporal.temporal_and(False) == TBool.from_base_temporal(False, temporal)
+        assert (temporal & False) == TBool.from_base_temporal(False, temporal)
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -650,8 +650,8 @@ class TestTBoolBooleanOperations(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_temporal_or_bool(self, temporal):
-        assert temporal.temporal_or(True) == TBool.from_base(True, temporal)
-        assert (temporal | True) == TBool.from_base(True, temporal)
+        assert temporal.temporal_or(True) == TBool.from_base_temporal(True, temporal)
+        assert (temporal | True) == TBool.from_base_temporal(True, temporal)
 
         assert temporal.temporal_or(False) == temporal
         assert (temporal | False) == temporal

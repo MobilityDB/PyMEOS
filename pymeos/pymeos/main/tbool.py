@@ -60,7 +60,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         return Temporal._factory(result)
 
     @staticmethod
-    def from_base(value: bool, base: Temporal) -> TBool:
+    def from_base_temporal(value: bool, base: Temporal) -> TBool:
         """
         Create a temporal boolean from a boolean value and the time frame of another temporal object.
 
@@ -105,7 +105,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             A new temporal boolean.
 
         MEOS Functions:
-            tboolinst_make, tbooldiscseq_from_base_time, tboolseq_from_base_time, tboolseqset_from_base_time
+            tboolinst_make, tboolseq_from_base_timestampset,
+            tboolseq_from_base_period, tboolseqset_from_base_periodset
 
         """
         if isinstance(base, datetime):
@@ -161,7 +162,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
-    def always(self, value: bool) -> bool:
+    def always_eq(self, value: bool) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -176,7 +177,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return tbool_always_eq(self._inner, value)
 
-    def ever(self, value: bool) -> bool:
+    def ever_eq(self, value: bool) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -191,7 +192,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return tbool_ever_eq(self._inner, value)
 
-    def never(self, value: bool) -> bool:
+    def never_eq(self, value: bool) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
