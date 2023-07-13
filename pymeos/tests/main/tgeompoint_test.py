@@ -93,7 +93,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         ids=['point-datetime', 'string-datetime', 'point-string', 'string-string']
     )
     def test_value_timestamp_instant_constructor(self, value, timestamp):
-        tpi = TGeomPointInst(value=value, timestamp=timestamp)
+        tpi = TGeomPointInst(point=value, timestamp=timestamp)
         assert str(tpi) == 'POINT(1 1)@2019-09-01 00:00:00+00'
 
     @pytest.mark.parametrize(

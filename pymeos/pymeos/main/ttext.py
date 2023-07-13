@@ -665,7 +665,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         MEOS Functions:
             ttext_value_at_timestamp
         """
-        return ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+        result = ttext_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+        return text2cstring(result[0])
 
     def __str__(self) -> str:
         """

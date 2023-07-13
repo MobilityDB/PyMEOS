@@ -78,7 +78,7 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        tp = type(source, normalize=1)
+        tp = type(source, normalize=True)
         assert isinstance(tp, type)
         assert str(tp) == expected
 
@@ -93,7 +93,7 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         ids=['point-datetime', 'string-datetime', 'point-string', 'string-string']
     )
     def test_value_timestamp_instant_constructor(self, value, timestamp):
-        tpi = TGeogPointInst(value=value, timestamp=timestamp)
+        tpi = TGeogPointInst(point=value, timestamp=timestamp)
         assert str(tpi) == 'POINT(1 1)@2019-09-01 00:00:00+00'
 
     @pytest.mark.parametrize(
