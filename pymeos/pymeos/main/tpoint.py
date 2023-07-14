@@ -1057,7 +1057,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         MEOS Functions:
             tgeompoint_from_base_temp
         """
-        gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
+        gs = geometry_to_gserialized(value, False)
         result = tgeompoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
 
@@ -1079,7 +1079,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             tgeompointinst_make, tgeompointseq_from_base_timestampset,
             tgeompointseq_from_base_period, tgeompointseqset_from_base_periodset
         """
-        gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
+        gs = geometry_to_gserialized(value, False)
         if isinstance(base, datetime):
             return TGeomPointInst(_inner=tgeompointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
@@ -1288,7 +1288,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         MEOS Functions:
             tgeogpoint_from_base_temp
         """
-        gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
+        gs = geometry_to_gserialized(value, True)
         result = tgeogpoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
 
@@ -1310,7 +1310,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             tgeogpointinst_make, tgeogpointseq_from_base_timestampset,
             tgeogpointseq_from_base_period, tgeogpointseqset_from_base_periodset
         """
-        gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
+        gs = geometry_to_gserialized(value, True)
         if isinstance(base, datetime):
             return TGeogPointInst(_inner=tgeogpointinst_make(gs, datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
