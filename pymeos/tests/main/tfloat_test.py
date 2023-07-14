@@ -19,8 +19,24 @@ class TestTFloatConstructors(TestTFloat):
         [
             (TIntInst('1@2000-01-01'), TFloatInst, TInterpolation.NONE),
             (TIntSeq('{1@2000-01-01, 2@2000-01-02}'), TFloatSeq, TInterpolation.DISCRETE),
-            (TIntSeq('[1@2000-01-01, 2@2000-01-02]'), TFloatSeq, TInterpolation.LINEAR),
+            (TIntSeq('[1@2000-01-01, 2@2000-01-02]'), TFloatSeq, TInterpolation.STEPWISE),
             (TIntSeqSet('{[1@2000-01-01, 2@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
+             TFloatSeqSet, TInterpolation.STEPWISE)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_from_base_constructor(self, source, type, interpolation):
+        tf = TFloat.from_base_temporal(1.5, source)
+        assert isinstance(tf, type)
+        assert tf.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        'source, type, interpolation',
+        [
+            (TFloatInst('1@2000-01-01'), TFloatInst, TInterpolation.NONE),
+            (TFloatSeq('{1@2000-01-01, 2@2000-01-02}'), TFloatSeq, TInterpolation.DISCRETE),
+            (TFloatSeq('[1@2000-01-01, 2@2000-01-02]'), TFloatSeq, TInterpolation.LINEAR),
+            (TFloatSeqSet('{[1@2000-01-01, 2@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
              TFloatSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -1037,10 +1053,10 @@ class TestTFloatOutputs(TestTFloat):
         'temporal, expected',
         [
             (tfi, '011B0001000000000000F83F00A01E4E71340200'),
-            (tfds, '0114000602000000030100A01E4E71340200000000F66B85340200'),
-            (tfs, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
-            (tfss, '0114000B0200000002000000030100A01E4E71340200000000F'
-                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
+            (tfds, '011B00060200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
+            (tfs, '011B000E0200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
+            (tfss, '011B000F020000000200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'
+                '0200000003000000000000F83F0060CD8999340200000000000000F83F00207CC5C1340200')
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

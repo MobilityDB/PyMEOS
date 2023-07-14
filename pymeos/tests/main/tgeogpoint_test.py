@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 from shapely import Point
+import shapely.geometry
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, TGeogPoint, \
     TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet, TInterpolation, TimestampSet, Period, PeriodSet
@@ -469,6 +470,20 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     def test_lower_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
 
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 4326),
+            (tpds, 4326),
+            (tps, 4326),
+            (tpss, 4326)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_srid(self, temporal, expected):
+        assert temporal.srid() == expected
+
+
 """
 class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
     tpi = TGeogPointInst('Point(1 1)@2019-09-01')
@@ -487,7 +502,8 @@ class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_always_p_1_1(self, temporal, expected):
-        assert temporal.always_equal(Point(1,1)) == expected
+        assert temporal.always_equal(shapely.set_srid(shapely.Point(1,1), 4326)) == expected
+
 
     @pytest.mark.parametrize(
         'temporal, expected',

@@ -552,7 +552,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geometry_to_gserialized(other)
-            result = edisjoint_tpoint_tpoint(self._inner, gs)
+            result = edisjoint_tpoint_geo(self._inner, gs)
         elif isinstance(other, STBox):
             result = edisjoint_tpoint_tpoint(self._inner, stbox_to_geo(other._inner))
         else:
