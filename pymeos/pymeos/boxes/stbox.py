@@ -494,7 +494,10 @@ class STBox:
         MEOS Functions:
             stbox_tmin
         """
-        return timestamptz_to_datetime(stbox_tmin(self._inner))
+        result = stbox_tmin(self._inner)
+        if not result:
+            return None
+        return timestamptz_to_datetime(result)
 
     def xmax(self) -> float:
         """
@@ -542,7 +545,10 @@ class STBox:
         MEOS Functions:
             stbox_tmax
         """
-        return timestamptz_to_datetime(stbox_tmax(self._inner))
+        result = stbox_tmax(self._inner)
+        if not result:
+            return None
+        return timestamptz_to_datetime(result)
 
     def srid(self) -> int:
         """

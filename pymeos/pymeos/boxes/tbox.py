@@ -283,7 +283,10 @@ class TBox:
         MEOS Functions:
             tbox_tmin
         """
-        return timestamptz_to_datetime(tbox_tmin(self._inner))
+        result = tbox_tmin(self._inner)
+        if not result:
+            return None
+        return timestamptz_to_datetime(result)
 
     def tmax(self):
         """
@@ -295,7 +298,10 @@ class TBox:
         MEOS Functions:
             tbox_tmax
         """
-        return timestamptz_to_datetime(tbox_tmax(self._inner))
+        result = tbox_tmax(self._inner)
+        if not result:
+            return None
+        return timestamptz_to_datetime(result)
 
     def tile(self, size: float, duration: Union[timedelta, str],
              origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
