@@ -13,7 +13,7 @@ function repair_wheel {
   fi
 }
 
-for PYBIN in /opt/python/*/bin; do
+for PYBIN in /opt/python/cp*/bin; do
   echo "================START $PYBIN================"
   echo "================COMPILE================"
   "${PYBIN}/pip" install -r /PyMEOS/pymeos_cffi/dev-requirements.txt
