@@ -332,7 +332,7 @@ class STBox:
             else 0
         gs = geometry_to_gserialized(origin) if origin is not None \
             else gserialized_in('Point(0 0 0)', -1)
-        tiles, dimensions = stbox_tile_list(self._inner, sz, dt, gs, st)
+        tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
         x_size = dimensions[0] or 1
         y_size = dimensions[1] or 1
         z_size = dimensions[2] or 1
