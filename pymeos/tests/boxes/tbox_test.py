@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 from spans.types import intrange, floatrange
 
@@ -9,7 +10,33 @@ from tests.conftest import TestPyMEOS
 
 
 class TestTBox(TestPyMEOS):
-    pass
+
+    @staticmethod
+    def assert_tbox_equality(tbox: TBox,
+                             xmin: float = None,
+                             xmax: float = None,
+                             tmin: datetime = None,
+                             tmax: datetime = None,
+                             xmin_inc: bool = None,
+                             xmax_inc: bool = None,
+                             tmin_inc: bool = None,
+                             tmax_inc: bool = None):
+        if xmin is not None:
+            assert tbox.xmin() == xmin
+        if xmax is not None:
+            assert tbox.xmax() == xmax
+        if tmin is not None:
+            assert tbox.tmin() == tmin
+        if tmax is not None:
+            assert tbox.tmax() == tmax
+        if xmin_inc is not None:
+            assert tbox.xmin_inc() == xmin_inc
+        if xmax_inc is not None:
+            assert tbox.xmax_inc() == xmax_inc
+        if tmin_inc is not None:
+            assert tbox.tmin_inc() == tmin_inc
+        if tmax_inc is not None:
+            assert tbox.tmax_inc() == tmax_inc
 
 class TestTBoxConstructors(TestTBox):
 
@@ -29,6 +56,20 @@ class TestTBoxConstructors(TestTBox):
         assert isinstance(tb, type)
         assert str(tb) == expected
 
+    def test_hexwkb_constructor(self):
+        source = '010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040'
+        tbox = TBox.from_hexwkb(source)
+        self.assert_tbox_equality(1, 2, 
+                                  datetime(2019, 9, 1, tzinfo=timezone.utc),
+                                  datetime(2019, 9, 2, tzinfo=timezone.utc),
+                                  True, True, True, True)
+
+    def test_copy_constructor(self):
+        tbox = TBox('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
+        other = copy(tbox)
+        assert tbox == other
+        assert tbox is not other
+
     @pytest.mark.parametrize(
         'time, expected',
         [
@@ -39,7 +80,7 @@ class TestTBoxConstructors(TestTBox):
             (Period('[2019-09-01, 2019-09-02]'),
                 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
             (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
-                'TBOX T([2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])')
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
         ],
         ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
     )
@@ -154,3 +195,19 @@ class TestTBoxAccessors(TestTBox):
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
 
+class TestTBoxOutputs(TestTBox):
+    tbx = TBox('TBOX X([1,2])')
+    tbt = TBox('TBOX T([2019-01-01,2019-01-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-01-01,2019-01-02])')
+                                                                  
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbx, '0101070003000000000000F03F0000000000000040'),
+            (tbt, '01022100030080AEFA5821020000E085186D210200'),
+            (tbxt, '01032100030080AEFA5821020000E085186D210200070003000000000000F03F0000000000000040'),
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_as_hexwkb(self, tbox, expected):
+        assert tbox.as_hexwkb() == expected

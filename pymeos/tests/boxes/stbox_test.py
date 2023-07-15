@@ -198,3 +198,25 @@ class TestSTBoxAccessors(TestSTBox):
     )
     def test_tmax(self, stbox, expected):
         assert stbox.tmax() == expected
+
+class TestSTBoxOutputs(TestSTBox):
+    stbx = STBox('STBOX X((1,1),(2,2))')
+    stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt = STBox('STBOX T([2019-01-01,2019-01-02])')
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-01-01,2019-01-02])')
+    stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-01-01,2019-01-02])')
+                                                                  
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
+            (stbx, '0101000000000000F03F0000000000000040000000000000F03F0000000000000040'),
+            (stbz, '0111000000000000F03F0000000000000040000000000000F03F0000000000000040000000000000F03F0000000000000040'),
+            (stbt, '01022100030080AEFA5821020000E085186D210200'),
+            (stbxt, '01032100030080AEFA5821020000E085186D210200000000000000F03F0000000000000040000000000000F03F0000000000000040'),
+            (stbzt, '01132100030080AEFA5821020000E085186D210200000000000000F03F0000000000000040000000000000F03F0000000000000040'
+                '000000000000F03F0000000000000040'),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_as_hexwkb(self, stbox, expected):
+        assert stbox.as_hexwkb() == expected

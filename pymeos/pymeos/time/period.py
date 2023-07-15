@@ -35,9 +35,12 @@ class Period:
 
     __slots__ = ['_inner']
 
-    def __init__(self, string: Optional[str] = None, *, lower: Optional[Union[str, datetime]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 lower: Optional[Union[str, datetime]] = None,
                  upper: Optional[Union[str, datetime]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, _inner=None):
+                 lower_inc: bool = True,
+                 upper_inc: bool = False,
+                 _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (lower is not None and upper is not None)), \
             "Either string must be not None or both lower and upper must be not"
