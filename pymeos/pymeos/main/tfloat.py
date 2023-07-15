@@ -754,7 +754,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         return tfloat_out(self._inner, max_decimals)
 
-    def __str__(self):
+    def __str__(self, max_decimals=15):
         """
         Returns a string representation of `self`.
 
@@ -764,7 +764,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_out
         """
-        return tfloat_out(self._inner, 15)
+        return tfloat_out(self._inner, max_decimals)
 
     def as_wkt(self, precision: int = 15) -> str:
         """

@@ -137,13 +137,14 @@ class TBox:
             timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox
         """
         if isinstance(time, datetime):
-            result = timestamp_to_tbox(datetime_to_timestamptz(time))
+            result = (datetime, datetime)
         elif isinstance(time, TimestampSet):
-            result = timestampset_to_tbox(time)
+            result = (time.start_timestamp(), time.end_timestamp())
         elif isinstance(time, Period):
-            result = period_to_tbox(time)
+            result = (time.lower, time.upper, time.lower_inc, time.upper_inc)
         elif isinstance(time, PeriodSet):
-            result = periodset_to_tbox(time)
+            result = (time.start_period().lower, time.end_period().upper,
+                time.start_period().lower_inc, time.end_period().upper_inc)
         else:
             raise TypeError(f'Operation not supported with type {time.__class__}')
         return TBox(_inner=result)
@@ -928,7 +929,22 @@ class TBox:
         inner_copy = tbox_copy(self._inner)
         return TBox(_inner=inner_copy)
 
-    def __str__(self):
+    def to_str(self, max_decimals=15) -> str:
+        """
+        Returns a string representation of `self` with a maximum number of decimals.
+
+        Args:
+            max_decimals: The maximum number of decimals.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __str__(self, max_decimals=15):
         """
         Returns a string representation of ``self``.
 
@@ -938,9 +954,9 @@ class TBox:
         MEOS Functions:
             tbox_out
         """
-        return tbox_out(self._inner, 15)
+        return tbox_out(self._inner, max_decimals)
 
-    def __repr__(self):
+    def __repr__(self, max_decimals=15):
         """
         Returns a string representation of ``self``.
 

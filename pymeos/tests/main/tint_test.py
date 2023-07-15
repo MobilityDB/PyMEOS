@@ -37,7 +37,7 @@ class TestTIntConstructors(TestTInt):
             (Period('[2000-01-01, 2000-01-02]'), TIntSeq, TInterpolation.STEPWISE),
             (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TIntSeqSet, TInterpolation.STEPWISE)
         ],
-        ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_base_time_constructor(self, source, type, interpolation):
         ti = TInt.from_base_time(1, source)

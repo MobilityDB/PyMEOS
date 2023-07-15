@@ -152,13 +152,14 @@ class STBox:
             timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox
         """
         if isinstance(time, datetime):
-            result = timestamp_to_stbox(datetime_to_timestamptz(time))
+            result = (datetime, datetime)
         elif isinstance(time, TimestampSet):
-            result = timestampset_to_stbox(time)
+            result = (time.start_timestamp(), time.end_timestamp())
         elif isinstance(time, Period):
-            result = period_to_stbox(time)
+            result = (time.lower, time.upper, time.lower_inc, time.upper_inc)
         elif isinstance(time, PeriodSet):
-            result = periodset_to_stbox(time)
+            result = (time.start_period().lower, time.end_period().upper,
+                time.start_period().lower_inc, time.end_period().upper_inc)
         else:
             raise TypeError(f'Operation not supported with type {time.__class__}')
         return STBox(_inner=result)
@@ -192,7 +193,8 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry_time(geometry: Geometry, time: Time, geodetic: bool = False) -> STBox:
+    def from_geometry_time(geometry: Geometry, time: Union[datetime, Period],
+                           geodetic: bool = False) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
 
@@ -210,12 +212,8 @@ class STBox:
         gs = geometry_to_gserialized(geometry, geodetic)
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
-        elif isinstance(time, TimestampSet):
-            result = geo_period_to_stbox(gs, set_span(time._inner))
         elif isinstance(time, Period):
             result = geo_period_to_stbox(gs, time._inner)
-        elif isinstance(time, PeriodSet):
-            result = geo_period_to_stbox(gs, time._inner.span)
         else:
             raise TypeError(f'Operation not supported with types {geometry.__class__} and {time.__class__}')
         return STBox(_inner=result)

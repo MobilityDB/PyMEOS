@@ -28,7 +28,7 @@ class TestPeriod(TestPyMEOS):
 class TestPeriodConstructors(TestPeriod):
 
     @pytest.mark.parametrize(
-        'source,params',
+        'source, params',
         [
             ('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)',
              (datetime(2019, 9, 8, tzinfo=timezone.utc), datetime(2019, 9, 10, tzinfo=timezone.utc), False, False)),
