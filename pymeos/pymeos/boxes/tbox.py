@@ -36,10 +36,10 @@ class TBox:
                  xmax: Optional[Union[str, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
-                 xmin_inc: bool = True,
-                 xmax_inc: bool = True,
-                 tmin_inc: bool = True,
-                 tmax_inc: bool = True,
+                 xmin_inc: Optional[bool] = True,
+                 xmax_inc: Optional[bool] = False,
+                 tmin_inc: Optional[bool] = True,
+                 tmax_inc: Optional[bool] = False,
                  _inner=None):
         assert (_inner is not None) or (string is not None) != (
                 (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
@@ -262,6 +262,18 @@ class TBox:
         """
         return tbox_xmin(self._inner)
 
+    def xmin_inc(self) -> bool:
+        """
+        Returns whether the xmin value of the tbox is inclusive or not
+
+        Returns:
+            True if the xmin value of the tbox is inclusive and False otherwise
+
+        MEOS Functions:
+            tbox_xmin_inc
+        """
+        return tbox_xmin_inc(self._inner)
+
     def xmax(self) -> float:
         """
         Returns the numeric upper bound of ``self``.
@@ -273,6 +285,18 @@ class TBox:
             tbox_xmax
         """
         return tbox_xmax(self._inner)
+
+    def xmax_inc(self) -> bool:
+        """
+        Returns whether the xmax value of the tbox is inclusive or not
+
+        Returns:
+            True if the xmax value of the tbox is inclusive and False otherwise
+
+        MEOS Functions:
+            tbox_xmax_inc
+        """
+        return tbox_xmax_inc(self._inner)
 
     def tmin(self):
         """
@@ -289,6 +313,18 @@ class TBox:
             return None
         return timestamptz_to_datetime(result)
 
+    def tmin_inc(self) -> bool:
+        """
+        Returns whether the tmin value of the tbox is inclusive or not
+
+        Returns:
+            True if the tmin value of the tbox is inclusive and False otherwise
+
+        MEOS Functions:
+            tbox_tmin_inc
+        """
+        return tbox_tmin_inc(self._inner)
+
     def tmax(self):
         """
         Returns the temporal upper bound of ``self``.
@@ -303,6 +339,18 @@ class TBox:
         if not result:
             return None
         return timestamptz_to_datetime(result)
+
+    def tmax_inc(self) -> bool:
+        """
+        Returns whether the tmax value of the tbox is inclusive or not
+
+        Returns:
+            True if the tmax value of the tbox is inclusive and False otherwise
+
+        MEOS Functions:
+            tbox_tmax_inc
+        """
+        return tbox_tmax_inc(self._inner)
 
     def tile(self, size: float, duration: Union[timedelta, str],
              origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
@@ -944,7 +992,7 @@ class TBox:
         """
         return tbox_out(self._inner, max_decimals)
 
-    def __str__(self, max_decimals=15):
+    def __str__(self, max_decimals: int = 15):
         """
         Returns a string representation of ``self``.
 

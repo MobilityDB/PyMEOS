@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 from typing import List
 
@@ -5,7 +6,6 @@ import pytest
 
 from pymeos import Period, PeriodSet, TimestampSet, TFloatInst, TFloatSeq, STBox, TFloatSeqSet, TBox
 from tests.conftest import TestPyMEOS
-from copy import copy
 
 
 class TestPeriodSet(TestPyMEOS):

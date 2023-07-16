@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -12,6 +13,12 @@ class TestTBool(TestPyMEOS):
 
 
 class TestTBoolConstructors(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+    tbsts = TBoolSeq('Interp=Step;[True@2019-09-01, False@2019-09-02]')
+    tbstss = TBoolSeqSet('Interp=Step;{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -131,6 +138,17 @@ class TestTBoolConstructors(TestTBool):
         tbs2 = TBoolSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tbs2) == expected
         assert tbs2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss, tbsts, tbstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
+    def test_copy_constructor(self, temporal):
+        other = copy(temporal)
+        assert temporal == other
+        assert temporal is not other
 
 
 class TestTBoolAccessors(TestTBool):

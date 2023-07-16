@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -12,6 +13,12 @@ class TestTInt(TestPyMEOS):
 
 
 class TestTIntConstructors(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+    tists = TIntSeq('Interp=Step;[1@2019-09-01, 2@2019-09-02]')
+    tistss = TIntSeqSet('Interp=Step;{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -37,7 +44,7 @@ class TestTIntConstructors(TestTInt):
             (Period('[2000-01-01, 2000-01-02]'), TIntSeq, TInterpolation.STEPWISE),
             (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TIntSeqSet, TInterpolation.STEPWISE)
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence',    'SequenceSet']
     )
     def test_from_base_time_constructor(self, source, type, interpolation):
         ti = TInt.from_base_time(1, source)
@@ -131,6 +138,17 @@ class TestTIntConstructors(TestTInt):
         tis2 = TIntSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tis2) == expected
         assert tis2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tii, tids, tis, tiss, tists, tistss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
+    def test_copy_constructor(self, temporal):
+        other = copy(temporal)
+        assert temporal == other
+        assert temporal is not other
 
 
 class TestTIntAccessors(TestTInt):

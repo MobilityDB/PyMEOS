@@ -1173,7 +1173,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_as_hexwkb
         """
-        return temporal_as_hexwkb(self._inner, 0)[0]
+        return temporal_as_hexwkb(self._inner, 4)[0]
 
     @classmethod
     def from_merge(cls: Type[Self], *temporals: TG) -> Self:

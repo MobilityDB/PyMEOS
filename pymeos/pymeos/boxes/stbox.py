@@ -1213,7 +1213,7 @@ class STBox:
         inner_copy = stbox_copy(self._inner)
         return STBox(_inner=inner_copy)
 
-    def __str__(self):
+    def __str__(self, max_decimals: int = 15):
         """
         Returns a string representation of ``self``.
 
@@ -1223,7 +1223,7 @@ class STBox:
         MEOS Functions:
             stbox_out
         """
-        return stbox_out(self._inner, 15)
+        return stbox_out(self._inner, max_decimals)
 
     def __repr__(self):
         """

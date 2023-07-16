@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -13,6 +14,12 @@ class TestTFloat(TestPyMEOS):
 
 
 class TestTFloatConstructors(TestTFloat):
+    tfi = TFloatInst('1.5@2019-09-01')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+    tfsts = TFloatSeq('Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfstss = TFloatSeqSet('Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -148,6 +155,17 @@ class TestTFloatConstructors(TestTFloat):
         tfs2 = TFloatSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tfs2) == expected
         assert tfs2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tfi, tfds, tfs, tfss, tfsts, tfstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
+    def test_copy_constructor(self, temporal):
+        other = copy(temporal)
+        assert temporal == other
+        assert temporal is not other
 
 
 class TestTFloatAccessors(TestTFloat):
@@ -1069,8 +1087,8 @@ class TestTFloatOutputs(TestTFloat):
             (tfi, '{\n'
                   '   "type": "MovingFloat",\n'
                   '   "bbox": [\n'
-                  '     1.500000,\n'
-                  '     1.500000\n'
+                  '     1.5,\n'
+                  '     1.5\n'
                   '   ],\n'
                   '   "period": {\n'
                   '     "begin": "2019-09-01T00:00:00+00",\n'
@@ -1079,7 +1097,7 @@ class TestTFloatOutputs(TestTFloat):
                   '     "upper_inc": true\n'
                   '   },\n'
                   '   "values": [\n'
-                  '     1.500000\n'
+                  '     1.5\n'
                   '   ],\n'
                   '   "datetimes": [\n'
                   '     "2019-09-01T00:00:00+00"\n'
@@ -1089,8 +1107,8 @@ class TestTFloatOutputs(TestTFloat):
             (tfds, '{\n'
                    '   "type": "MovingFloat",\n'
                    '   "bbox": [\n'
-                   '     1.500000,\n'
-                   '     2.500000\n'
+                   '     1.5,\n'
+                   '     2.5\n'
                    '   ],\n'
                    '   "period": {\n'
                    '     "begin": "2019-09-01T00:00:00+00",\n'
@@ -1099,8 +1117,8 @@ class TestTFloatOutputs(TestTFloat):
                    '     "upper_inc": true\n'
                    '   },\n'
                    '   "values": [\n'
-                   '     1.500000,\n'
-                   '     2.500000\n'
+                   '     1.5,\n'
+                   '     2.5\n'
                    '   ],\n'
                    '   "datetimes": [\n'
                    '     "2019-09-01T00:00:00+00",\n'
@@ -1113,8 +1131,8 @@ class TestTFloatOutputs(TestTFloat):
             (tfs, '{\n'
                   '   "type": "MovingFloat",\n'
                   '   "bbox": [\n'
-                  '     1.500000,\n'
-                  '     2.500000\n'
+                  '     1.5,\n'
+                  '     2.5\n'
                   '   ],\n'
                   '   "period": {\n'
                   '     "begin": "2019-09-01T00:00:00+00",\n'
@@ -1123,8 +1141,8 @@ class TestTFloatOutputs(TestTFloat):
                   '     "upper_inc": true\n'
                   '   },\n'
                   '   "values": [\n'
-                  '     1.500000,\n'
-                  '     2.500000\n'
+                  '     1.5,\n'
+                  '     2.5\n'
                   '   ],\n'
                   '   "datetimes": [\n'
                   '     "2019-09-01T00:00:00+00",\n'
@@ -1137,8 +1155,8 @@ class TestTFloatOutputs(TestTFloat):
             (tfss, '{\n'
                    '   "type": "MovingFloat",\n'
                    '   "bbox": [\n'
-                   '     1.500000,\n'
-                   '     2.500000\n'
+                   '     1.5,\n'
+                   '     2.5\n'
                    '   ],\n'
                    '   "period": {\n'
                    '     "begin": "2019-09-01T00:00:00+00",\n'
@@ -1149,8 +1167,8 @@ class TestTFloatOutputs(TestTFloat):
                    '   "sequences": [\n'
                    '     {\n'
                    '       "values": [\n'
-                   '         1.500000,\n'
-                   '         2.500000\n'
+                   '         1.5,\n'
+                   '         2.5\n'
                    '       ],\n'
                    '       "datetimes": [\n'
                    '         "2019-09-01T00:00:00+00",\n'
@@ -1161,8 +1179,8 @@ class TestTFloatOutputs(TestTFloat):
                    '     },\n'
                    '     {\n'
                    '       "values": [\n'
-                   '         1.500000,\n'
-                   '         1.500000\n'
+                   '         1.5,\n'
+                   '         1.5\n'
                    '       ],\n'
                    '       "datetimes": [\n'
                    '         "2019-09-03T00:00:00+00",\n'

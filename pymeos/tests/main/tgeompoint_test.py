@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -14,6 +15,15 @@ class TestTGeomPoint(TestPyMEOS):
 
 
 class TestTGeomPointConstructors(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+    tpi3d = TGeomPointInst('Point(1 1 1)@2019-09-01')
+    tpds3d = TGeomPointSeq('{Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02}')
+    tps3d = TGeomPointSeq('[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02]')
+    tpss3d = TGeomPointSeqSet('{[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02],'
+      '[Point(1 1 1)@2019-09-03, Point(1 1 1)@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -133,6 +143,17 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         tps2 = TGeomPointSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tps2) == expected
         assert tps2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tpi, tpds, tps, tpss, tpi3d, tpds3d, tps3d, tpss3d],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
+    )
+    def test_copy_constructor(self, temporal):
+        other = copy(temporal)
+        assert temporal == other
+        assert temporal is not other
 
 
 class TestTGeomPointAccessors(TestTGeomPoint):

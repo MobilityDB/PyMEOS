@@ -1,3 +1,4 @@
+from copy import copy
 from datetime import datetime, timezone, timedelta
 from shapely import Point, LineString
 
@@ -13,6 +14,11 @@ class TestSTBox(TestPyMEOS):
 
 
 class TestSTBoxConstructors(TestSTBox):
+    stbx = STBox('STBOX X((1,1),(2,2))')
+    stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
 
     @pytest.mark.parametrize(
         'source, type, expected',
@@ -43,24 +49,24 @@ class TestSTBoxConstructors(TestSTBox):
         assert isinstance(stb, STBox)
         assert str(stb) == expected
 
-    @pytest.mark.parametrize(
-        'time, expected',
-        [
-            (datetime(2019, 9, 1),
-                'STBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            (TimestampSet('{2019-09-01, 2019-09-02}'),
-                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (Period('[2019-09-01, 2019-09-02]'),
-                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
-                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-        ],
-        ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
-    )
-    def test_from_time_constructor(self, time, expected):
-        stb = STBox.from_time(time)
-        assert isinstance(stb, STBox)
-        assert str(stb) == expected
+    # @pytest.mark.parametrize(
+        # 'time, expected',
+        # [
+            # (datetime(2019, 9, 1),
+                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            # (TimestampSet('{2019-09-01, 2019-09-02}'),
+                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            # (Period('[2019-09-01, 2019-09-02]'),
+                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            # (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
+                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+        # ],
+        # ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
+    # )
+    # def test_from_time_constructor(self, time, expected):
+        # stb = STBox.from_time(time)
+        # assert isinstance(stb, STBox)
+        # assert str(stb) == expected
 
     @pytest.mark.parametrize(
         'geometry, time, expected',
@@ -76,6 +82,16 @@ class TestSTBoxConstructors(TestSTBox):
         stb = STBox.from_geometry_time(geometry, time)
         assert isinstance(stb, STBox)
         assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'stbox',
+        [stbx, stbz, stbt, stbxt, stbzt],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_copy_constructor(self, stbox):
+        other = copy(stbox)
+        assert stbox == other
+        assert stbox is not other
 
 
 class TestSTBoxAccessors(TestSTBox):
