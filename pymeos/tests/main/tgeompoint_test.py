@@ -150,10 +150,254 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
+    def test_from_hexwkb_constructor(self, temporal):
+        assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tpi, tpds, tps, tpss, tpi3d, tpds3d, tps3d, tpss3d],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
+    )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)
         assert temporal == other
         assert temporal is not other
+
+
+class TestTGeomPointOutputs(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
+            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
+            (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
+            (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_str(self, temporal, expected):
+        assert str(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 'TGeomPointInst(POINT(1 1)@2019-09-01 00:00:00+00)'),
+            (tpds, 'TGeomPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})'),
+            (tps, 'TGeomPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])'),
+            (tpss, 'TGeomPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_repr(self, temporal, expected):
+        assert repr(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
+            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
+            (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
+            (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_wkt(self, temporal, expected):
+        assert temporal.as_wkt() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, '01280001000000000000F03F000000000000F03F00A01E4E71340200'),
+            (tpds, '012800060200000003000000000000F03F000000000000F03F00A01E4E71340200'
+                '000000000000004000000000000000400000F66B85340200'),
+            (tps, '0128000E0200000003000000000000F03F000000000000F03F00A01E4E71340200'
+                '000000000000004000000000000000400000F66B85340200'),
+            (tpss, '0128000F020000000200000003000000000000F03F000'
+                '000000000F03F00A01E4E7134020000000000000000400'
+                '0000000000000400000F66B853402000200000003000000'
+                '000000F03F000000000000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_hexwkb(self, temporal, expected):
+        assert temporal.as_hexwkb() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, '{\n'
+                  '   "type": "MovingGeomPoint",\n'
+                  '   "bbox": [\n'
+                  '     [\n'
+                  '       1,\n'
+                  '       1\n'
+                  '     ],\n'
+                  '     [\n'
+                  '       1,\n'
+                  '       1\n'
+                  '     ]\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "coordinates": [\n'
+                  '     [\n'
+                  '       1,\n'
+                  '       1\n'
+                  '     ]\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
+            (tpds, '{\n'
+                   '   "type": "MovingGeomPoint",\n'
+                   '   "bbox": [\n'
+                   '     [\n'
+                   '       1,\n'
+                   '       1\n'
+                   '     ],\n'
+                   '     [\n'
+                   '       2,\n'
+                   '       2\n'
+                   '     ]\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "coordinates": [\n'
+                   '     [\n'
+                   '       1,\n'
+                   '       1\n'
+                   '     ],\n'
+                   '     [\n'
+                   '       2,\n'
+                   '       2\n'
+                   '     ]\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
+            (tps, '{\n'
+                  '   "type": "MovingGeomPoint",\n'
+                  '   "bbox": [\n'
+                  '     [\n'
+                  '       1,\n'
+                  '       1\n'
+                  '     ],\n'
+                  '     [\n'
+                  '       2,\n'
+                  '       2\n'
+                  '     ]\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "coordinates": [\n'
+                  '     [\n'
+                  '       1,\n'
+                  '       1\n'
+                  '     ],\n'
+                  '     [\n'
+                  '       2,\n'
+                  '       2\n'
+                  '     ]\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Linear"\n'
+                  ' }'),
+            (tpss, '{\n'
+                   '   "type": "MovingGeomPoint",\n'
+                   '   "bbox": [\n'
+                   '     [\n'
+                   '       1,\n'
+                   '       1\n'
+                   '     ],\n'
+                   '     [\n'
+                   '       2,\n'
+                   '       2\n'
+                   '     ]\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "coordinates": [\n'
+                   '         [\n'
+                   '           1,\n'
+                   '           1\n'
+                   '         ],\n'
+                   '         [\n'
+                   '           2,\n'
+                   '           2\n'
+                   '         ]\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "coordinates": [\n'
+                   '         [\n'
+                   '           1,\n'
+                   '           1\n'
+                   '         ],\n'
+                   '         [\n'
+                   '           1,\n'
+                   '           1\n'
+                   '         ]\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Linear"\n'
+                   ' }')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_mfjson(self, temporal, expected):
+        assert temporal.as_mfjson() == expected
 
 
 class TestTGeomPointAccessors(TestTGeomPoint):
@@ -604,8 +848,22 @@ class TestTGeomPointAccessors(TestTGeomPoint):
         ],
         ids=['Discrete Sequence', 'Sequence']
     )
-    def test_lower_inc(self, temporal, expected):
+    def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 382694564),
+            (tpds, 1664033448),
+            (tps, 1664033448),
+            (tpss, 2878566103)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_hash(self, temporal, expected):
+        assert hash(temporal) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -923,241 +1181,6 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
     )
     def test_minus(self, temporal, restrictor, expected):
         assert temporal.minus(restrictor) == expected
-
-
-class TestTGeomPointOutputs(TestTGeomPoint):
-    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
-    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
-    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
-            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
-            (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
-            (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_str(self, temporal, expected):
-        assert str(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, 'TGeomPointInst(POINT(1 1)@2019-09-01 00:00:00+00)'),
-            (tpds, 'TGeomPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})'),
-            (tps, 'TGeomPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])'),
-            (tpss, 'TGeomPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_repr(self, temporal, expected):
-        assert repr(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, 'POINT(1 1)@2019-09-01 00:00:00+00'),
-            (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
-            (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
-            (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_wkt(self, temporal, expected):
-        assert temporal.as_wkt() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, '01280001000000000000F03F000000000000F03F00A01E4E71340200'),
-            (tpds, '012800060200000003000000000000F03F000000000000F03F00A01E4E71340200'
-                '000000000000004000000000000000400000F66B85340200'),
-            (tps, '0128000E0200000003000000000000F03F000000000000F03F00A01E4E71340200'
-                '000000000000004000000000000000400000F66B85340200'),
-            (tpss, '0128000F020000000200000003000000000000F03F000'
-                '000000000F03F00A01E4E7134020000000000000000400'
-                '0000000000000400000F66B853402000200000003000000'
-                '000000F03F000000000000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, '{\n'
-                  '   "type": "MovingGeomPoint",\n'
-                  '   "bbox": [\n'
-                  '     [\n'
-                  '       1,\n'
-                  '       1\n'
-                  '     ],\n'
-                  '     [\n'
-                  '       1,\n'
-                  '       1\n'
-                  '     ]\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-01T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "coordinates": [\n'
-                  '     [\n'
-                  '       1,\n'
-                  '       1\n'
-                  '     ]\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "interpolation": "None"\n'
-                  ' }'),
-            (tpds, '{\n'
-                   '   "type": "MovingGeomPoint",\n'
-                   '   "bbox": [\n'
-                   '     [\n'
-                   '       1,\n'
-                   '       1\n'
-                   '     ],\n'
-                   '     [\n'
-                   '       2,\n'
-                   '       2\n'
-                   '     ]\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-02T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "coordinates": [\n'
-                   '     [\n'
-                   '       1,\n'
-                   '       1\n'
-                   '     ],\n'
-                   '     [\n'
-                   '       2,\n'
-                   '       2\n'
-                   '     ]\n'
-                   '   ],\n'
-                   '   "datetimes": [\n'
-                   '     "2019-09-01T00:00:00+00",\n'
-                   '     "2019-09-02T00:00:00+00"\n'
-                   '   ],\n'
-                   '   "lower_inc": true,\n'
-                   '   "upper_inc": true,\n'
-                   '   "interpolation": "Discrete"\n'
-                   ' }'),
-            (tps, '{\n'
-                  '   "type": "MovingGeomPoint",\n'
-                  '   "bbox": [\n'
-                  '     [\n'
-                  '       1,\n'
-                  '       1\n'
-                  '     ],\n'
-                  '     [\n'
-                  '       2,\n'
-                  '       2\n'
-                  '     ]\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-02T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "coordinates": [\n'
-                  '     [\n'
-                  '       1,\n'
-                  '       1\n'
-                  '     ],\n'
-                  '     [\n'
-                  '       2,\n'
-                  '       2\n'
-                  '     ]\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00",\n'
-                  '     "2019-09-02T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "lower_inc": true,\n'
-                  '   "upper_inc": true,\n'
-                  '   "interpolation": "Linear"\n'
-                  ' }'),
-            (tpss, '{\n'
-                   '   "type": "MovingGeomPoint",\n'
-                   '   "bbox": [\n'
-                   '     [\n'
-                   '       1,\n'
-                   '       1\n'
-                   '     ],\n'
-                   '     [\n'
-                   '       2,\n'
-                   '       2\n'
-                   '     ]\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-05T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "sequences": [\n'
-                   '     {\n'
-                   '       "coordinates": [\n'
-                   '         [\n'
-                   '           1,\n'
-                   '           1\n'
-                   '         ],\n'
-                   '         [\n'
-                   '           2,\n'
-                   '           2\n'
-                   '         ]\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-01T00:00:00+00",\n'
-                   '         "2019-09-02T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     },\n'
-                   '     {\n'
-                   '       "coordinates": [\n'
-                   '         [\n'
-                   '           1,\n'
-                   '           1\n'
-                   '         ],\n'
-                   '         [\n'
-                   '           1,\n'
-                   '           1\n'
-                   '         ]\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-03T00:00:00+00",\n'
-                   '         "2019-09-05T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     }\n'
-                   '   ],\n'
-                   '   "interpolation": "Linear"\n'
-                   ' }')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_mfjson(self, temporal, expected):
-        assert temporal.as_mfjson() == expected
 
 
 class TestTGeomPointEverSpatialOperations(TestTGeomPoint):

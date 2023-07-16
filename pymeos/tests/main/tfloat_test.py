@@ -162,10 +162,199 @@ class TestTFloatConstructors(TestTFloat):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
+    def test_from_hexwkb_constructor(self, temporal):
+        assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tfi, tfds, tfs, tfss, tfsts, tfstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)
         assert temporal == other
         assert temporal is not other
+
+
+class TestTFloatOutputs(TestTFloat):
+    tfi = TFloatInst('1.5@2019-09-01')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, '1.5@2019-09-01 00:00:00+00'),
+            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
+            (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
+            (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
+                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_str(self, temporal, expected):
+        assert str(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, 'TFloatInst(1.5@2019-09-01 00:00:00+00)'),
+            (tfds, 'TFloatSeq({1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00})'),
+            (tfs, 'TFloatSeq([1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00])'),
+            (tfss, 'TFloatSeqSet({[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
+                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]})')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_repr(self, temporal, expected):
+        assert repr(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, '1.5@2019-09-01 00:00:00+00'),
+            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
+            (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
+            (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
+                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_wkt(self, temporal, expected):
+        assert temporal.as_wkt() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, '011B0001000000000000F83F00A01E4E71340200'),
+            (tfds, '011B00060200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
+            (tfs, '011B000E0200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
+            (tfss, '011B000F020000000200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'
+                '0200000003000000000000F83F0060CD8999340200000000000000F83F00207CC5C1340200')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_hexwkb(self, temporal, expected):
+        assert temporal.as_hexwkb() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, '{\n'
+                  '   "type": "MovingFloat",\n'
+                  '   "bbox": [\n'
+                  '     1.5,\n'
+                  '     1.5\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1.5\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
+            (tfds, '{\n'
+                   '   "type": "MovingFloat",\n'
+                   '   "bbox": [\n'
+                   '     1.5,\n'
+                   '     2.5\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "values": [\n'
+                   '     1.5,\n'
+                   '     2.5\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
+            (tfs, '{\n'
+                  '   "type": "MovingFloat",\n'
+                  '   "bbox": [\n'
+                  '     1.5,\n'
+                  '     2.5\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1.5,\n'
+                  '     2.5\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Linear"\n'
+                  ' }'),
+            (tfss, '{\n'
+                   '   "type": "MovingFloat",\n'
+                   '   "bbox": [\n'
+                   '     1.5,\n'
+                   '     2.5\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1.5,\n'
+                   '         2.5\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1.5,\n'
+                   '         1.5\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Linear"\n'
+                   ' }')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_mfjson(self, temporal, expected):
+        assert temporal.as_mfjson() == expected
 
 
 class TestTFloatAccessors(TestTFloat):
@@ -526,8 +715,22 @@ class TestTFloatAccessors(TestTFloat):
         ],
         ids=['Discrete Sequence', 'Sequence']
     )
-    def test_lower_inc(self, temporal, expected):
+    def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, 1307112078),
+            (tfds, 1935376725),
+            (tfs, 1935376725),
+            (tfss, 4247071962)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_hash(self, temporal, expected):
+        assert hash(temporal) == expected
 
 
 class TestTFloatEverAlwaysOperations(TestTFloat):
@@ -1019,181 +1222,3 @@ class TestTFloatRestrictors(TestTFloat):
         assert temporal.minus_min() == expected
 
 
-class TestTFloatOutputs(TestTFloat):
-    tfi = TFloatInst('1.5@2019-09-01')
-    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
-    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
-    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, '1.5@2019-09-01 00:00:00+00'),
-            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
-            (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
-            (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
-                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_str(self, temporal, expected):
-        assert str(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, 'TFloatInst(1.5@2019-09-01 00:00:00+00)'),
-            (tfds, 'TFloatSeq({1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00})'),
-            (tfs, 'TFloatSeq([1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00])'),
-            (tfss, 'TFloatSeqSet({[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
-                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]})')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_repr(self, temporal, expected):
-        assert repr(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, '1.5@2019-09-01 00:00:00+00'),
-            (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
-            (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
-            (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
-                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_wkt(self, temporal, expected):
-        assert temporal.as_wkt() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, '011B0001000000000000F83F00A01E4E71340200'),
-            (tfds, '011B00060200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
-            (tfs, '011B000E0200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'),
-            (tfss, '011B000F020000000200000003000000000000F83F00A01E4E7134020000000000000004400000F66B85340200'
-                '0200000003000000000000F83F0060CD8999340200000000000000F83F00207CC5C1340200')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, '{\n'
-                  '   "type": "MovingFloat",\n'
-                  '   "bbox": [\n'
-                  '     1.5,\n'
-                  '     1.5\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-01T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     1.5\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "interpolation": "None"\n'
-                  ' }'),
-            (tfds, '{\n'
-                   '   "type": "MovingFloat",\n'
-                   '   "bbox": [\n'
-                   '     1.5,\n'
-                   '     2.5\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-02T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "values": [\n'
-                   '     1.5,\n'
-                   '     2.5\n'
-                   '   ],\n'
-                   '   "datetimes": [\n'
-                   '     "2019-09-01T00:00:00+00",\n'
-                   '     "2019-09-02T00:00:00+00"\n'
-                   '   ],\n'
-                   '   "lower_inc": true,\n'
-                   '   "upper_inc": true,\n'
-                   '   "interpolation": "Discrete"\n'
-                   ' }'),
-            (tfs, '{\n'
-                  '   "type": "MovingFloat",\n'
-                  '   "bbox": [\n'
-                  '     1.5,\n'
-                  '     2.5\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-02T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     1.5,\n'
-                  '     2.5\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00",\n'
-                  '     "2019-09-02T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "lower_inc": true,\n'
-                  '   "upper_inc": true,\n'
-                  '   "interpolation": "Linear"\n'
-                  ' }'),
-            (tfss, '{\n'
-                   '   "type": "MovingFloat",\n'
-                   '   "bbox": [\n'
-                   '     1.5,\n'
-                   '     2.5\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-05T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "sequences": [\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         1.5,\n'
-                   '         2.5\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-01T00:00:00+00",\n'
-                   '         "2019-09-02T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     },\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         1.5,\n'
-                   '         1.5\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-03T00:00:00+00",\n'
-                   '         "2019-09-05T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     }\n'
-                   '   ],\n'
-                   '   "interpolation": "Linear"\n'
-                   ' }')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_mfjson(self, temporal, expected):
-        assert temporal.as_mfjson() == expected

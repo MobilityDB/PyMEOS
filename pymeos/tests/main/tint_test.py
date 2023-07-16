@@ -145,11 +145,200 @@ class TestTIntConstructors(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
+    def test_from_hexwkb_constructor(self, temporal):
+        assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tii, tids, tis, tiss, tists, tistss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)
         assert temporal == other
         assert temporal is not other
 
+
+class TestTIntOutputs(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, '1@2019-09-01 00:00:00+00'),
+            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
+            (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
+            (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
+                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_str(self, temporal, expected):
+        assert str(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, 'TIntInst(1@2019-09-01 00:00:00+00)'),
+            (tids, 'TIntSeq({1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00})'),
+            (tis, 'TIntSeq([1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00])'),
+            (tiss, 'TIntSeqSet({[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
+                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]})')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_repr(self, temporal, expected):
+        assert repr(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, '1@2019-09-01 00:00:00+00'),
+            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
+            (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
+            (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
+                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_wkt(self, temporal, expected):
+        assert temporal.as_wkt() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, '011D00010100000000A01E4E71340200'),
+            (tids, '011D000602000000030100000000A01E4E71340200020000000000F66B85340200'),
+            (tis, '011D000A02000000030100000000A01E4E71340200020000000000F66B85340200'),
+            (tiss, '011D000B0200000002000000030100000000A01E4E71340200020000000000F66B85340200'
+                '0200000003010000000060CD89993402000100000000207CC5C1340200')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_hexwkb(self, temporal, expected):
+        assert temporal.as_hexwkb() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, '{\n'
+                  '   "type": "MovingInteger",\n'
+                  '   "bbox": [\n'
+                  '     1,\n'
+                  '     1\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
+            (tids, '{\n'
+                   '   "type": "MovingInteger",\n'
+                   '   "bbox": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "values": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
+            (tis, '{\n'
+                  '   "type": "MovingInteger",\n'
+                  '   "bbox": [\n'
+                  '     1,\n'
+                  '     2\n'
+                  '   ],\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     1,\n'
+                  '     2\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Step"\n'
+                  ' }'),
+            (tiss, '{\n'
+                   '   "type": "MovingInteger",\n'
+                   '   "bbox": [\n'
+                   '     1,\n'
+                   '     2\n'
+                   '   ],\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1,\n'
+                   '         2\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         1,\n'
+                   '         1\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Step"\n'
+                   ' }')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_mfjson(self, temporal, expected):
+        assert temporal.as_mfjson() == expected
+        
 
 class TestTIntAccessors(TestTInt):
     tii = TIntInst('1@2019-09-01')
@@ -511,8 +700,22 @@ class TestTIntAccessors(TestTInt):
         ],
         ids=['Discrete Sequence', 'Sequence']
     )
-    def test_lower_inc(self, temporal, expected):
+    def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, 440045287),
+            (tids, 3589664982),
+            (tis, 3589664982),
+            (tiss, 205124107)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_hash(self, temporal, expected):
+        assert hash(temporal) == expected
 
 
 class TestTIntEverAlwaysOperations(TestTInt):
@@ -1067,181 +1270,4 @@ class TestTIntRestrictors(TestTInt):
         assert temporal.minus_min() == expected
 
 
-class TestTIntOutputs(TestTInt):
-    tii = TIntInst('1@2019-09-01')
-    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
-    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
-    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, '1@2019-09-01 00:00:00+00'),
-            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
-            (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
-            (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
-                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_str(self, temporal, expected):
-        assert str(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, 'TIntInst(1@2019-09-01 00:00:00+00)'),
-            (tids, 'TIntSeq({1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00})'),
-            (tis, 'TIntSeq([1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00])'),
-            (tiss, 'TIntSeqSet({[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
-                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]})')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_repr(self, temporal, expected):
-        assert repr(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, '1@2019-09-01 00:00:00+00'),
-            (tids, '{1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00}'),
-            (tis, '[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00]'),
-            (tiss, '{[1@2019-09-01 00:00:00+00, 2@2019-09-02 00:00:00+00], '
-                   '[1@2019-09-03 00:00:00+00, 1@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_wkt(self, temporal, expected):
-        assert temporal.as_wkt() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, '011D00010100000000A01E4E71340200'),
-            (tids, '011D000602000000030100000000A01E4E71340200020000000000F66B85340200'),
-            (tis, '011D000A02000000030100000000A01E4E71340200020000000000F66B85340200'),
-            (tiss, '011D000B0200000002000000030100000000A01E4E71340200020000000000F66B85340200'
-                '0200000003010000000060CD89993402000100000000207CC5C1340200')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, '{\n'
-                  '   "type": "MovingInteger",\n'
-                  '   "bbox": [\n'
-                  '     1,\n'
-                  '     1\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-01T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     1\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "interpolation": "None"\n'
-                  ' }'),
-            (tids, '{\n'
-                   '   "type": "MovingInteger",\n'
-                   '   "bbox": [\n'
-                   '     1,\n'
-                   '     2\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-02T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "values": [\n'
-                   '     1,\n'
-                   '     2\n'
-                   '   ],\n'
-                   '   "datetimes": [\n'
-                   '     "2019-09-01T00:00:00+00",\n'
-                   '     "2019-09-02T00:00:00+00"\n'
-                   '   ],\n'
-                   '   "lower_inc": true,\n'
-                   '   "upper_inc": true,\n'
-                   '   "interpolation": "Discrete"\n'
-                   ' }'),
-            (tis, '{\n'
-                  '   "type": "MovingInteger",\n'
-                  '   "bbox": [\n'
-                  '     1,\n'
-                  '     2\n'
-                  '   ],\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-02T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     1,\n'
-                  '     2\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00",\n'
-                  '     "2019-09-02T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "lower_inc": true,\n'
-                  '   "upper_inc": true,\n'
-                  '   "interpolation": "Step"\n'
-                  ' }'),
-            (tiss, '{\n'
-                   '   "type": "MovingInteger",\n'
-                   '   "bbox": [\n'
-                   '     1,\n'
-                   '     2\n'
-                   '   ],\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-05T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "sequences": [\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         1,\n'
-                   '         2\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-01T00:00:00+00",\n'
-                   '         "2019-09-02T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     },\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         1,\n'
-                   '         1\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-03T00:00:00+00",\n'
-                   '         "2019-09-05T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     }\n'
-                   '   ],\n'
-                   '   "interpolation": "Step"\n'
-                   ' }')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_mfjson(self, temporal, expected):
-        assert temporal.as_mfjson() == expected

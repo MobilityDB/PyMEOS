@@ -145,10 +145,183 @@ class TestTBoolConstructors(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
+    def test_from_hexwkb_constructor(self, temporal):
+        assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss, tbsts, tbstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)
         assert temporal == other
         assert temporal is not other
+
+
+class TestTBoolOutputs(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 't@2019-09-01 00:00:00+00'),
+            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
+            (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
+            (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
+                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_str(self, temporal, expected):
+        assert str(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 'TBoolInst(t@2019-09-01 00:00:00+00)'),
+            (tbds, 'TBoolSeq({t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00})'),
+            (tbs, 'TBoolSeq([t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00])'),
+            (tbss, 'TBoolSeqSet({[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
+                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]})')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_repr(self, temporal, expected):
+        assert repr(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 't@2019-09-01 00:00:00+00'),
+            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
+            (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
+            (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
+                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_wkt(self, temporal, expected):
+        assert temporal.as_wkt() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, '011400010100A01E4E71340200'),
+            (tbds, '0114000602000000030100A01E4E71340200000000F66B85340200'),
+            (tbs, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
+            (tbss, '0114000B0200000002000000030100A01E4E71340200000000F'
+                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_hexwkb(self, temporal, expected):
+        assert temporal.as_hexwkb() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, '{\n'
+                  '   "type": "MovingBoolean",\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-01T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     true\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "interpolation": "None"\n'
+                  ' }'),
+            (tbds, '{\n'
+                   '   "type": "MovingBoolean",\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-02T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "values": [\n'
+                   '     true,\n'
+                   '     false\n'
+                   '   ],\n'
+                   '   "datetimes": [\n'
+                   '     "2019-09-01T00:00:00+00",\n'
+                   '     "2019-09-02T00:00:00+00"\n'
+                   '   ],\n'
+                   '   "lower_inc": true,\n'
+                   '   "upper_inc": true,\n'
+                   '   "interpolation": "Discrete"\n'
+                   ' }'),
+            (tbs, '{\n'
+                  '   "type": "MovingBoolean",\n'
+                  '   "period": {\n'
+                  '     "begin": "2019-09-01T00:00:00+00",\n'
+                  '     "end": "2019-09-02T00:00:00+00",\n'
+                  '     "lower_inc": true,\n'
+                  '     "upper_inc": true\n'
+                  '   },\n'
+                  '   "values": [\n'
+                  '     true,\n'
+                  '     false\n'
+                  '   ],\n'
+                  '   "datetimes": [\n'
+                  '     "2019-09-01T00:00:00+00",\n'
+                  '     "2019-09-02T00:00:00+00"\n'
+                  '   ],\n'
+                  '   "lower_inc": true,\n'
+                  '   "upper_inc": true,\n'
+                  '   "interpolation": "Step"\n'
+                  ' }'),
+            (tbss, '{\n'
+                   '   "type": "MovingBoolean",\n'
+                   '   "period": {\n'
+                   '     "begin": "2019-09-01T00:00:00+00",\n'
+                   '     "end": "2019-09-05T00:00:00+00",\n'
+                   '     "lower_inc": true,\n'
+                   '     "upper_inc": true\n'
+                   '   },\n'
+                   '   "sequences": [\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         true,\n'
+                   '         false\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-01T00:00:00+00",\n'
+                   '         "2019-09-02T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     },\n'
+                   '     {\n'
+                   '       "values": [\n'
+                   '         true,\n'
+                   '         true\n'
+                   '       ],\n'
+                   '       "datetimes": [\n'
+                   '         "2019-09-03T00:00:00+00",\n'
+                   '         "2019-09-05T00:00:00+00"\n'
+                   '       ],\n'
+                   '       "lower_inc": true,\n'
+                   '       "upper_inc": true\n'
+                   '     }\n'
+                   '   ],\n'
+                   '   "interpolation": "Step"\n'
+                   ' }')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_mfjson(self, temporal, expected):
+        assert temporal.as_mfjson() == expected
 
 
 class TestTBoolAccessors(TestTBool):
@@ -511,8 +684,22 @@ class TestTBoolAccessors(TestTBool):
         ],
         ids=['Discrete Sequence', 'Sequence']
     )
-    def test_lower_inc(self, temporal, expected):
+    def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, 440045287),
+            (tbds, 2385901957),
+            (tbs, 2385901957),
+            (tbss, 1543175996)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_hash(self, temporal, expected):
+        assert hash(temporal) == expected
 
 
 class TestTBoolEverAlwaysOperations(TestTBool):
@@ -963,165 +1150,3 @@ class TestTBoolRestrictors(TestTBool):
         assert temporal.minus_min() == expected
 
 
-class TestTBoolOutputs(TestTBool):
-    tbi = TBoolInst('True@2019-09-01')
-    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
-    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
-    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, 't@2019-09-01 00:00:00+00'),
-            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
-            (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
-            (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
-                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_str(self, temporal, expected):
-        assert str(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, 'TBoolInst(t@2019-09-01 00:00:00+00)'),
-            (tbds, 'TBoolSeq({t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00})'),
-            (tbs, 'TBoolSeq([t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00])'),
-            (tbss, 'TBoolSeqSet({[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
-                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]})')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_repr(self, temporal, expected):
-        assert repr(temporal) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, 't@2019-09-01 00:00:00+00'),
-            (tbds, '{t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00}'),
-            (tbs, '[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00]'),
-            (tbss, '{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00], '
-                   '[t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_wkt(self, temporal, expected):
-        assert temporal.as_wkt() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, '011400010100A01E4E71340200'),
-            (tbds, '0114000602000000030100A01E4E71340200000000F66B85340200'),
-            (tbs, '0114000A02000000030100A01E4E71340200000000F66B85340200'),
-            (tbss, '0114000B0200000002000000030100A01E4E71340200000000F'
-                   '66B853402000200000003010060CD89993402000100207CC5C1340200')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, '{\n'
-                  '   "type": "MovingBoolean",\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-01T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     true\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "interpolation": "None"\n'
-                  ' }'),
-            (tbds, '{\n'
-                   '   "type": "MovingBoolean",\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-02T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "values": [\n'
-                   '     true,\n'
-                   '     false\n'
-                   '   ],\n'
-                   '   "datetimes": [\n'
-                   '     "2019-09-01T00:00:00+00",\n'
-                   '     "2019-09-02T00:00:00+00"\n'
-                   '   ],\n'
-                   '   "lower_inc": true,\n'
-                   '   "upper_inc": true,\n'
-                   '   "interpolation": "Discrete"\n'
-                   ' }'),
-            (tbs, '{\n'
-                  '   "type": "MovingBoolean",\n'
-                  '   "period": {\n'
-                  '     "begin": "2019-09-01T00:00:00+00",\n'
-                  '     "end": "2019-09-02T00:00:00+00",\n'
-                  '     "lower_inc": true,\n'
-                  '     "upper_inc": true\n'
-                  '   },\n'
-                  '   "values": [\n'
-                  '     true,\n'
-                  '     false\n'
-                  '   ],\n'
-                  '   "datetimes": [\n'
-                  '     "2019-09-01T00:00:00+00",\n'
-                  '     "2019-09-02T00:00:00+00"\n'
-                  '   ],\n'
-                  '   "lower_inc": true,\n'
-                  '   "upper_inc": true,\n'
-                  '   "interpolation": "Step"\n'
-                  ' }'),
-            (tbss, '{\n'
-                   '   "type": "MovingBoolean",\n'
-                   '   "period": {\n'
-                   '     "begin": "2019-09-01T00:00:00+00",\n'
-                   '     "end": "2019-09-05T00:00:00+00",\n'
-                   '     "lower_inc": true,\n'
-                   '     "upper_inc": true\n'
-                   '   },\n'
-                   '   "sequences": [\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         true,\n'
-                   '         false\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-01T00:00:00+00",\n'
-                   '         "2019-09-02T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     },\n'
-                   '     {\n'
-                   '       "values": [\n'
-                   '         true,\n'
-                   '         true\n'
-                   '       ],\n'
-                   '       "datetimes": [\n'
-                   '         "2019-09-03T00:00:00+00",\n'
-                   '         "2019-09-05T00:00:00+00"\n'
-                   '       ],\n'
-                   '       "lower_inc": true,\n'
-                   '       "upper_inc": true\n'
-                   '     }\n'
-                   '   ],\n'
-                   '   "interpolation": "Step"\n'
-                   ' }')
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_as_mfjson(self, temporal, expected):
-        assert temporal.as_mfjson() == expected

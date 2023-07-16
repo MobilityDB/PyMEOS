@@ -39,6 +39,9 @@ class TestTBox(TestPyMEOS):
             assert tbox.tmax_inc() == tmax_inc
 
 class TestTBoxConstructors(TestTBox):
+    tbx = TBox('TBOX X([1,2])')
+    tbt = TBox('TBOX T([2019-01-01,2019-01-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-01-01,2019-01-02])')
 
     @pytest.mark.parametrize(
         'source, type, expected',
@@ -117,6 +120,16 @@ class TestTBoxConstructors(TestTBox):
         # assert isinstance(tb, TBox)
         # assert str(tb) == expected
 
+    @pytest.mark.parametrize(
+        'tbox',
+        [tbx, tbt, tbxt],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_copy_constructor(self, tbox):
+        other = copy(tbox)
+        assert tbox == other
+        assert tbox is not other
+
 
 class TestTBoxOutputs(TestTBox):
     tbx = TBox('TBOX X([1,2])')
@@ -138,6 +151,18 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         'tbox, expected',
         [
+            (tbx, 'TBox(TBOX X([1, 2]))'),
+            (tbt, 'TBox(TBOX T([2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00]))'),
+            (tbxt, 'TBox(TBOX XT([1, 2],[2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00]))'),
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_repr(self, tbox, expected):
+        assert repr(tbox) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
             (tbx, '0101070003000000000000F03F0000000000000040'),
             (tbt, '01022100030080AEFA5821020000E085186D210200'),
             (tbxt, '01032100030080AEFA5821020000E085186D210200070003000000000000F03F0000000000000040'),
@@ -152,10 +177,8 @@ class TestTBoxOutputs(TestTBox):
         [tbx, tbt, tbxt],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_copy_constructor(self, tbox):
-        other = copy(tbox)
-        assert tbox == other
-        assert tbox is not other
+    def test_from_hexwkb_constructor(self, tbox):
+        assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
 
 class TestTBoxAccessors(TestTBox):
