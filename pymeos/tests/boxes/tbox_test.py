@@ -67,12 +67,6 @@ class TestTBoxConstructors(TestTBox):
                                   # datetime(2019, 9, 2, tzinfo=timezone.utc),
                                   # True, True, True, True)
 
-    def test_copy_constructor(self):
-        tbox = TBox('TBox XT([1, 2],[2019-09-01,2019-09-02])')
-        other = copy(tbox)
-        assert tbox == other
-        assert tbox is not other
-
     # @pytest.mark.parametrize(
         # 'time, expected',
         # [
@@ -91,6 +85,21 @@ class TestTBoxConstructors(TestTBox):
         # tb = TBox.from_time(time)
         # assert isinstance(tb, TBox)
         # assert str(tb) == expected
+
+    @pytest.mark.parametrize(
+        'value, expected',
+        [
+            (1, 'TBOX X([1, 1])'),
+            (1.5, 'TBOX X([1.5, 1.5])'),
+            (intrange(1, 2, True, True), 'TBOX X([1, 2])'),
+            (floatrange(1.5, 2.5, True, True), 'TBOX X([1.5, 2.5])'),
+        ],
+        ids=['int', 'float', 'intrange', 'floatrange']
+    )
+    def test_from_value_time_constructor(self, value, expected):
+        tb = TBox.from_value(value)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
 
     # @pytest.mark.parametrize(
         # 'value, time, expected',
@@ -119,6 +128,14 @@ class TestTBoxConstructors(TestTBox):
         # tb = TBox.from_value_time(value, time)
         # assert isinstance(tb, TBox)
         # assert str(tb) == expected
+
+    @pytest.mark.parametrize(
+        'tbox',
+        [tbx, tbt, tbxt],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_from_as_hexwkb_constructor(self, tbox):
+        assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
     @pytest.mark.parametrize(
         'tbox',
@@ -257,4 +274,36 @@ class TestTBoxAccessors(TestTBox):
     )
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
+
+class TestTBoxOperators(TestTBox):
+    tbx1 = TBox('TBox X([1,2])')
+    tbt1 = TBox('TBox T([2019-09-01,2019-09-02])')
+    tbxt1 = TBox('TBox XT([1,2],[2019-09-01,2019-09-02])')
+    tbx2 = TBox('TBox X([2,3])')
+    tbt2 = TBox('TBox T([2019-09-02,2019-09-03])')
+    tbxt2 = TBox('TBox XT([2,3],[2019-09-02,2019-09-03])')
+
+    @pytest.mark.parametrize(
+        'tbox1, tbox2, expected',
+        [
+            (tbx1, tbx2, TBox('TBox X([1,3])')),
+            (tbt1, tbt2, TBox('TBox T([2019-09-01,2019-09-03])')),
+            (tbxt1, tbxt2, TBox('TBox XT([1,3],[2019-09-01,2019-09-03])'))
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_add(self, tbox1, tbox2, expected):
+        assert tbox1 + tbox2 == expected
+
+    @pytest.mark.parametrize(
+        'tbox1, tbox2, expected',
+        [
+            (tbx1, tbx2, TBox('TBox X([2,2])')),
+            (tbt1, tbt2, TBox('TBox T([2019-09-02,2019-09-02])')),
+            (tbxt1, tbxt2, TBox('TBox XT([2,2],[2019-09-02,2019-09-02])'))
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_mul(self, tbox1, tbox2, expected):
+        assert tbox1 * tbox2 == expected
 

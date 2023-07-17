@@ -1,6 +1,7 @@
 from copy import copy
 from datetime import datetime, timezone, timedelta
 from shapely import Point, LineString
+import shapely.geometry
 
 import pytest
 
@@ -39,12 +40,14 @@ class TestSTBoxConstructors(TestSTBox):
     @pytest.mark.parametrize(
         'geometry, expected',
         [
-            (Point(1,1), 'STBOX T((1,1),(1,1))'),
-            (LineString([(1,1), (2,2)]), 'STBOX T((1,1),(2,2))'),
+            (Point(1,1), 'STBOX X((1,1),(1,1))'),
+            (LineString([(1,1), (2,2)]), 'STBOX X((1,1),(2,2))'),
+            (shapely.set_srid(shapely.Point(1,1), 5676), 'SRID=5676;STBOX X((1,1),(1,1))'),
+            (shapely.set_srid(shapely.LineString([(1,1), (2,2)]), 5676), 'SRID=5676;STBOX X((1,1),(2,2))'),
         ],
-        ids=['point', 'linestring']
+        ids=['point', 'linestring', 'srid point', 'srid linestring']
     )
-    def test_from_geometry_time_constructor(self, geometry, expected):
+    def test_from_geometry_constructor(self, geometry, expected):
         stb = STBox.from_geometry(geometry)
         assert isinstance(stb, STBox)
         assert str(stb) == expected
@@ -88,7 +91,7 @@ class TestSTBoxConstructors(TestSTBox):
         [stbx, stbz, stbt, stbxt, stbzt],
         ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
     )
-    def test_from_hexwkb_constructor(self, stbox):
+    def test_from_as_hexwkb_constructor(self, stbox):
         assert stbox == stbox.from_hexwkb(stbox.as_hexwkb())
 
     @pytest.mark.parametrize(
@@ -274,3 +277,43 @@ class TestSTBoxAccessors(TestSTBox):
     def test_tmax(self, stbox, expected):
         assert stbox.tmax() == expected
 
+
+class TestSTBoxOperators(TestSTBox):
+    stbx1 = STBox('STBOX X((1,1),(2,2))')
+    stbz1 = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt1 = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt1 = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt1 = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+    stbx2 = STBox('STBOX X((2,2),(3,3))')
+    stbz2 = STBox('STBOX Z((2,2,2),(3,3,3))')
+    stbt2 = STBox('STBOX T([2019-09-02,2019-09-03])')
+    stbxt2 = STBox('STBOX XT(((2,2),(3,3)),[2019-09-02,2019-09-03])')
+    stbzt2 = STBox('STBOX ZT(((2,2,2),(3,3,3)),[2019-09-02,2019-09-03])')
+
+    @pytest.mark.parametrize(
+        'stbox1, stbox2, expected',
+        [
+            (stbx1, stbx2, STBox('STBOX X((1,1),(3,3))')),
+            (stbz1, stbz2, STBox('STBOX Z((1,1,1),(3,3,3))')),
+            (stbt1, stbt2, STBox('STBOX T([2019-09-01,2019-09-03])')),
+            (stbxt1, stbxt2, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
+            (stbzt1, stbzt2, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_add(self, stbox1, stbox2, expected):
+        assert stbox1 + stbox2 == expected
+
+    @pytest.mark.parametrize(
+        'stbox1, stbox2, expected',
+        [
+            (stbx1, stbx2, STBox('STBOX X((2,2),(2,2))')),
+            (stbz1, stbz2, STBox('STBOX Z((2,2,2),(2,2,2))')),
+            (stbt1, stbt2, STBox('STBOX T([2019-09-02,2019-09-02])')),
+            (stbxt1, stbxt2, STBox('STBOX XT(((2,2),(2,2)),[2019-09-02,2019-09-02])')),
+            (stbzt1, stbzt2, STBox('STBOX ZT(((2,2,2),(2,2,2)),[2019-09-02,2019-09-02])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_mul(self, stbox1, stbox2, expected):
+        assert stbox1 * stbox2 == expected

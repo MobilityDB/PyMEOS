@@ -148,8 +148,16 @@ class TestTTextConstructors(TestTText):
         [tti, ttds, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_from_hexwkb_constructor(self, temporal):
+    def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tti, ttds, tts, ttss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_from_as_mfjson_constructor(self, temporal):
+        assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',

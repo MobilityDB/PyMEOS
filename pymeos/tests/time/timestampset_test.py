@@ -89,6 +89,9 @@ class TestTimestampSetAccessors(TestTimestampSet):
     def test_timespan(self):
         assert self.ts_set.timespan() == timedelta(days=2)
 
+    def test_hash(self):
+        assert hash(self.ts_set) == 4286747193
+
 
 class TestTimestampSetPositionFunctions(TestTimestampSet):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')

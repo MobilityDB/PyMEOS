@@ -17,10 +17,10 @@ class TestPeriodSet(TestPyMEOS):
 
 
 class TestPeriodSetConstructors(TestPeriodSet):
+    periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
 
     def test_string_constructor(self):
-        periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
-        self.assert_periodset_equality(periodset, [
+        self.assert_periodset_equality(self.periodset, [
             Period('[2019-01-01, 2019-01-02]'),
             Period('[2019-01-03, 2019-01-04]')
         ])
@@ -35,16 +35,13 @@ class TestPeriodSetConstructors(TestPeriodSet):
             Period('[2019-01-03, 2019-01-04]')
         ])
 
-    def test_from_hexwkb_constructor(self):
-        periodset = PeriodSet.from_hexwkb(
-            '01220002000000030080AEFA5821020000E085186D2102000300405D368121020000A0345495210200')
-        assert periodset == PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
+    def test_from_as_hexwkb_constructor(self):
+        assert self.periodset == self.periodset.from_hexwkb(self.periodset.as_hexwkb())
 
     def test_copy_constructor(self):
-        periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
-        copied = copy(periodset)
-        assert periodset == copied
-        assert periodset is not copied
+        copied = copy(self.periodset)
+        assert self.periodset == copied
+        assert self.periodset is not copied
 
 
 class TestPeriodSetOutputs(TestPeriodSet):
@@ -117,6 +114,9 @@ class TestPeriodSetAccessors(TestPeriodSet):
             Period('[2019-01-01, 2019-01-02]'),
             Period('[2019-01-03, 2019-01-04]')
         ]
+
+    def test_hash(self):
+        assert hash(self.periodset) == 942160317
 
 
 class TestPeriodPositionFunctions(TestPeriodSet):

@@ -150,8 +150,17 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
-    def test_from_hexwkb_constructor(self, temporal):
+    def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tpi, tpds, tps, tpss, tpi3d, tpds3d, tps3d, tpss3d],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
+    )
+    def test_from_as_mfjson_constructor(self, temporal):
+        assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',

@@ -150,8 +150,17 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
-    def test_from_hexwkb_constructor(self, temporal):
+    def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    # @pytest.mark.parametrize(
+        # 'temporal',
+        # [tpi, tpds, tps, tpss, tpi3d, tpds3d, tps3d, tpss3d],
+        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             # 'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
+    # )
+    # def test_from_mfjson_constructor(self, temporal):
+        # assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',
@@ -734,6 +743,19 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
         assert temporal.upper_inc() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 1181779687),
+            (tpds, 1545137628),
+            (tps, 1545137628),
+            (tpss, 1008965061)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_hash(self, temporal, expected):
+        assert hash(temporal) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

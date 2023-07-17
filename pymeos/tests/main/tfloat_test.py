@@ -162,8 +162,17 @@ class TestTFloatConstructors(TestTFloat):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
-    def test_from_hexwkb_constructor(self, temporal):
+    def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tfi, tfds, tfs, tfss, tfsts, tfstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
+    def test_from_as_mfjson_constructor(self, temporal):
+        assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',
@@ -182,6 +191,8 @@ class TestTFloatOutputs(TestTFloat):
     tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+    tfsts = TFloatSeq('Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfstss = TFloatSeqSet('Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -190,9 +201,13 @@ class TestTFloatOutputs(TestTFloat):
             (tfds, '{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}'),
             (tfs, '[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
             (tfss, '{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
+                   '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}'),
+            (tfsts, 'Interp=Step;[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00]'),
+            (tfstss, 'Interp=Step;{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], '
                    '[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}')
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
     )
     def test_str(self, temporal, expected):
         assert str(temporal) == expected
@@ -362,6 +377,8 @@ class TestTFloatAccessors(TestTFloat):
     tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+    tfsts = TFloatSeq('Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfstss = TFloatSeqSet('Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -698,11 +715,15 @@ class TestTFloatAccessors(TestTFloat):
         [
             (tfds, [TFloatSeq('[1.5@2019-09-01]'), TFloatSeq('[2.5@2019-09-02]')]),
             (tfs, [TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')]),
-            (tfss,
-             [TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
-              TFloatSeq('[1.5@2019-09-03, 1.5@2019-09-05]')]),
+            (tfss, [TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
+                TFloatSeq('[1.5@2019-09-03, 1.5@2019-09-05]')]),
+            (tfsts, [TFloatSeq('Interp=Step;[1.5@2019-09-01, 1.5@2019-09-02)'),
+                TFloatSeq('Interp=Step;[2.5@2019-09-02]')]),
+            (tfstss, [TFloatSeq('Interp=Step;[1.5@2019-09-01, 1.5@2019-09-02)'),
+                TFloatSeq('Interp=Step;[2.5@2019-09-02]'),
+                TFloatSeq('Interp=Step;[1.5@2019-09-03, 1.5@2019-09-05]')]),
         ],
-        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet', 'Stepwise Sequence', 'Stepwise SequenceSet']
     )
     def test_segments(self, temporal, expected):
         assert temporal.segments() == expected
@@ -712,8 +733,9 @@ class TestTFloatAccessors(TestTFloat):
         [
             (tfds, True),
             (tfs, True),
+            (tfsts, True),
         ],
-        ids=['Discrete Sequence', 'Sequence']
+        ids=['Discrete Sequence', 'Sequence', 'Stepwise Sequence']
     )
     def test_lower_upper_inc(self, temporal, expected):
         assert temporal.lower_inc() == expected
@@ -725,9 +747,12 @@ class TestTFloatAccessors(TestTFloat):
             (tfi, 1307112078),
             (tfds, 1935376725),
             (tfs, 1935376725),
+            (tfss, 4247071962),
+            (tfs, 1935376725),
             (tfss, 4247071962)
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
     )
     def test_hash(self, temporal, expected):
         assert hash(temporal) == expected

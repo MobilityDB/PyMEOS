@@ -134,6 +134,9 @@ class TestPeriodAccessors(TestPeriod):
         assert self.period.duration_in_seconds() == 172800
         assert self.period2.duration_in_seconds() == 172800
 
+    def test_hash(self):
+        assert hash(self.period) == 1164402929
+
 
 class TestPeriodPositionFunctions(TestPeriod):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')

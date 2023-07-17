@@ -145,8 +145,17 @@ class TestTBoolConstructors(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
-    def test_from_hexwkb_constructor(self, temporal):
+    def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss, tbsts, tbstss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
+             'Stepwise Sequence', 'Stepwise SequenceSet']
+    )
+    def test_from_as_mfjson_constructor(self, temporal):
+        assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',
