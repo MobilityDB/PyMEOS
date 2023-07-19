@@ -1163,6 +1163,19 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
+    def as_wkb(self) -> bytes:
+        """
+        Returns the temporal object as a hex-encoded WKB string.
+
+        Returns:
+            The temporal object as a hex-encoded WKB string.
+
+        MEOS Functions:
+            temporal_as_hexwkb
+        """
+        bytes_array, length = temporal_as_wkb(self._inner, 4)
+        return bytes(bytes_array[i] for i in range(length))
+
     def as_hexwkb(self) -> str:
         """
         Returns the temporal object as a hex-encoded WKB string.
@@ -1204,6 +1217,23 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             A temporal object that is the result of merging the given temporal objects.
         """
         result = temporal_merge_array([temp._inner for temp in temporals], len(temporals))
+        return Temporal._factory(result)
+
+    @classmethod
+    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+        """
+        Returns a temporal object from WKB bytes.
+
+        Args:
+            wkb: The hex-encoded WKB string.
+
+        Returns:
+            A temporal object from WKB bytes.
+
+        MEOS Functions:
+            temporal_from_wkb
+        """
+        result = temporal_from_wkb(wkb)
         return Temporal._factory(result)
 
     @classmethod
