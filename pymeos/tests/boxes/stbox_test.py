@@ -5,7 +5,9 @@ import shapely.geometry
 
 import pytest
 
-from pymeos import STBox, TInterpolation, TimestampSet, Period, PeriodSet
+from pymeos import STBox, TInterpolation, TimestampSet, Period, PeriodSet, \
+    TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, \
+    TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet
 
 from tests.conftest import TestPyMEOS
 
@@ -85,6 +87,126 @@ class TestSTBoxConstructors(TestSTBox):
         stb = STBox.from_geometry_time(geometry, time)
         assert isinstance(stb, STBox)
         assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'tpoint, expected',
+        [
+            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+                'STBOX XT(((1,1),(1,1)),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                'STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                'STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+              'STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+            (TGeogPointInst('Point(1 1)@2019-09-01'), 
+                'SRID=4326;GEODSTBOX XT(((1,1),(1,1)),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                'SRID=4326;GEODSTBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                'SRID=4326;GEODSTBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+              'SRID=4326;GEODSTBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+        ],
+        ids=['TGeomPoint Instant', 'TGeomPoint Discrete Sequence', 'TGeomPoint Sequence', 'TGeomPoint Sequence Set',
+             'TGeogPoint Instant', 'TGeogPoint Discrete Sequence', 'TGeogPoint Sequence', 'TGeogPoint Sequence Set']
+    )
+    def test_from_tpoint_constructor(self, tpoint, expected):
+        stb = STBox.from_tpoint(tpoint)
+        assert isinstance(stb, STBox)
+        assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'geo, expected',
+        [
+            (Point(1,1), 'STBOX X((0,0),(2,2))'),
+            (LineString([(1,1), (2,2)]), 'STBOX X((0,0),(3,3))'),
+            (shapely.set_srid(shapely.Point(1,1), 5676), 'SRID=5676;STBOX X((0,0),(2,2))'),
+            (shapely.set_srid(shapely.LineString([(1,1), (2,2)]), 5676), 'SRID=5676;STBOX X((0,0),(3,3))'),
+        ],
+        ids=['Point', 'Line string', 'Geodetic Point', 'Geodetic line string']
+    )
+    def test_from_geo_expand_space_constructor(self, geo, expected):
+        stb = STBox.from_expanding_bounding_box(geo, 1)
+        assert isinstance(stb, STBox)
+        assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'tpoint, expected',
+        [
+            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+                'STBOX XT(((0,0),(2,2)),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                'STBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                'STBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+              'STBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+            (TGeogPointInst('Point(1 1)@2019-09-01'), 
+                'SRID=4326;GEODSTBOX XT(((0,0),(2,2)),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                'SRID=4326;GEODSTBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                'SRID=4326;GEODSTBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+              'SRID=4326;GEODSTBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+        ],
+        ids=['TGeomPoint Instant', 'TGeomPoint Discrete Sequence', 'TGeomPoint Sequence', 'TGeomPoint Sequence Set',
+             'TGeogPoint Instant', 'TGeogPoint Discrete Sequence', 'TGeogPoint Sequence', 'TGeogPoint Sequence Set']
+    )
+    def test_from_tpoint_expand_space_constructor(self, tpoint, expected):
+        stb = STBox.from_expanding_bounding_box(tpoint, 1)
+        assert isinstance(stb, STBox)
+        assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
+            (STBox('STBOX X((1,1),(2,2))'), 'STBOX X((0,0),(3,3))'),
+            (STBox('STBOX Z((1,1,1),(2,2,2))'), 'STBOX Z((0,0,0),(3,3,3))'),
+            (STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])'),
+                'STBOX XT(((0,0),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])'),
+                'STBOX ZT(((0,0,0),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
+    )
+    def test_from_geo_expand_space_constructor(self, stbox, expected):
+        stb = STBox.from_expanding_bounding_box(stbox, 1)
+        assert isinstance(stb, STBox)
+        assert str(stb) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
+            (STBox('STBOX X((1,1),(3,3))'), 
+                [STBox('STBOX X((1,1),(2,2))'), STBox('STBOX X((2,1),(3,2))'),
+                 STBox('STBOX X((1,2),(2,3))'), STBox('STBOX X((2,2),(3,3))')]),
+            (STBox('STBOX Z((1,1,1),(3,3,3))'), 
+                [STBox('STBOX Z((1,1,1),(2,2,2))'), STBox('STBOX Z((2,1,1),(3,2,2))'),
+                 STBox('STBOX Z((1,2,1),(2,3,2))'), STBox('STBOX Z((2,2,1),(3,3,2))'),
+                 STBox('STBOX Z((1,1,2),(2,2,3))'), STBox('STBOX Z((2,1,2),(3,2,3))'),
+                 STBox('STBOX Z((1,2,2),(2,3,3))'), STBox('STBOX Z((2,2,2),(3,3,3))')]),
+            (STBox('STBOX XT(((1,1),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                [STBox('STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX XT(((2,1),(3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX XT(((1,2),(2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX XT(((2,2),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])')]),
+            (STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                [STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((2,1,1),(3,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((1,2,1),(2,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((2,2,1),(3,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((1,1,2),(2,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((2,1,2),(3,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((1,2,2),(2,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+                 STBox('STBOX ZT(((2,2,2),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])')]),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
+    )
+    def test_from_quad_split_flat(self, stbox, expected):
+        stblist = STBox.quad_split_flat(stbox)
+        assert stblist == expected
 
     @pytest.mark.parametrize(
         'stbox',
@@ -289,6 +411,20 @@ class TestSTBoxOperators(TestSTBox):
     stbt2 = STBox('STBOX T([2019-09-02,2019-09-03])')
     stbxt2 = STBox('STBOX XT(((2,2),(3,3)),[2019-09-02,2019-09-03])')
     stbzt2 = STBox('STBOX ZT(((2,2,2),(3,3,3)),[2019-09-02,2019-09-03])')
+
+    @pytest.mark.parametrize(
+        'stbox1, argument',
+        [
+            (stbx1, STBox('STBOX X((1,1),(3,3))')),
+            (stbz1, STBox('STBOX Z((1,1,1),(3,3,3))')),
+            (stbt1, STBox('STBOX T([2019-09-01,2019-09-03])')),
+            (stbxt1, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
+            (stbzt1, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_in(self, stbox1, argument):
+        assert stbox1 in argument
 
     @pytest.mark.parametrize(
         'stbox1, stbox2, expected',

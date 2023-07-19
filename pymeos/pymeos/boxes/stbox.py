@@ -165,34 +165,6 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox], expansion: float,
-                                    geodetic: Optional[bool] = False) -> STBox:
-        """
-        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
-
-        Args:
-            value: A `Geometry`, `TPoint` or `STBox` instance.
-            expansion: The amount to expand the bounding box.
-            geodetic: Whether to create a geodetic or geometric `STBox`. Only used when value is a `Geometry` instance.
-
-        Returns:
-            A new :class:`STBox` instance.
-
-        MEOS Functions:
-            geo_expand_space, tpoint_expand_space, stbox_expand_space
-        """
-        if isinstance(value, get_args(Geometry)):
-            gs = geometry_to_gserialized(value, geodetic)
-            result = geo_expand_space(gs, expansion)
-        elif isinstance(value, TPoint):
-            result = tpoint_expand_space(value._inner, expansion)
-        elif isinstance(value, STBox):
-            result = stbox_expand_space(value._inner, expansion)
-        else:
-            raise TypeError(f'Operation not supported with type {value.__class__}')
-        return STBox(_inner=result)
-
-    @staticmethod
     def from_geometry_time(geometry: Geometry, time: Union[datetime, Period],
                            geodetic: bool = False) -> STBox:
         """
@@ -233,6 +205,34 @@ class STBox:
             tpoint_to_stbox
         """
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
+
+    @staticmethod
+    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox], expansion: float,
+                                    geodetic: Optional[bool] = False) -> STBox:
+        """
+        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
+
+        Args:
+            value: A `Geometry`, `TPoint` or `STBox` instance.
+            expansion: The amount to expand the bounding box.
+            geodetic: Whether to create a geodetic or geometric `STBox`. Only used when value is a `Geometry` instance.
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            geo_expand_space, tpoint_expand_space, stbox_expand_space
+        """
+        if isinstance(value, get_args(Geometry)):
+            gs = geometry_to_gserialized(value, geodetic)
+            result = geo_expand_space(gs, expansion)
+        elif isinstance(value, TPoint):
+            result = tpoint_expand_space(value._inner, expansion)
+        elif isinstance(value, STBox):
+            result = stbox_expand_space(value._inner, expansion)
+        else:
+            raise TypeError(f'Operation not supported with type {value.__class__}')
+        return STBox(_inner=result)
 
     def quad_split_flat(self) -> List[STBox]:
         """
