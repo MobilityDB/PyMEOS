@@ -21,6 +21,13 @@ def text2cstring_modifier(_: str) -> str:
     return result"""
 
 
+def temporal_from_wkb_modifier(_: str) -> str:
+    return """def temporal_from_wkb(wkb: bytes) -> 'Temporal *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.temporal_from_wkb(wkb_converted, len(wkb))
+    return result if result != _ffi.NULL else None"""
+
+
 def timestampset_make_modifier(function: str) -> str:
     return function \
         .replace('values: int', 'values: List[int]') \

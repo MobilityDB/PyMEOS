@@ -2807,10 +2807,28 @@ def tbox_xmin(box: 'const TBox *') -> 'double':
     return None
 
 
+def tbox_xmin_inc(box: 'const TBox *') -> 'bool':
+    box_converted = _ffi.cast('const TBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.tbox_xmin_inc(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
 def tbox_xmax(box: 'const TBox *') -> 'double':
     box_converted = _ffi.cast('const TBox *', box)
     out_result = _ffi.new('double *')
     result = _lib.tbox_xmax(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tbox_xmax_inc(box: 'const TBox *') -> 'bool':
+    box_converted = _ffi.cast('const TBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.tbox_xmax_inc(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     return None
@@ -2825,10 +2843,28 @@ def tbox_tmin(box: 'const TBox *') -> int:
     return None
 
 
+def tbox_tmin_inc(box: 'const TBox *') -> 'bool':
+    box_converted = _ffi.cast('const TBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.tbox_tmin_inc(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
 def tbox_tmax(box: 'const TBox *') -> int:
     box_converted = _ffi.cast('const TBox *', box)
     out_result = _ffi.new('TimestampTz *')
     result = _lib.tbox_tmax(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tbox_tmax_inc(box: 'const TBox *') -> 'bool':
+    box_converted = _ffi.cast('const TBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.tbox_tmax_inc(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     return None
@@ -2921,10 +2957,28 @@ def stbox_tmin(box: 'const STBox *') -> int:
     return None
 
 
+def stbox_tmin_inc(box: 'const STBox *') -> 'bool':
+    box_converted = _ffi.cast('const STBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.stbox_tmin_inc(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
 def stbox_tmax(box: 'const STBox *') -> int:
     box_converted = _ffi.cast('const STBox *', box)
     out_result = _ffi.new('TimestampTz *')
     result = _lib.stbox_tmax(box_converted, out_result)
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def stbox_tmax_inc(box: 'const STBox *') -> 'bool':
+    box_converted = _ffi.cast('const STBox *', box)
+    out_result = _ffi.new('bool *')
+    result = _lib.stbox_tmax_inc(box_converted, out_result)
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
     return None
@@ -3429,10 +3483,9 @@ def temporal_from_mfjson(mfjson: str) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def temporal_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'Temporal *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.temporal_from_wkb(wkb_converted, size_converted)
+def temporal_from_wkb(wkb: bytes) -> 'Temporal *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.temporal_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 
@@ -3526,12 +3579,6 @@ def tboolseq_from_base_period(b: bool, p: 'const Span *') -> 'TSequence *':
     return result if result != _ffi.NULL else None
 
 
-def tboolseq_from_base_temp(b: bool, seq: 'const TSequence *') -> 'TSequence *':
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.tboolseq_from_base_temp(b, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tboolseq_from_base_timestampset(b: bool, ts: 'const Set *') -> 'TSequence *':
     ts_converted = _ffi.cast('const Set *', ts)
     result = _lib.tboolseq_from_base_timestampset(b, ts_converted)
@@ -3541,12 +3588,6 @@ def tboolseq_from_base_timestampset(b: bool, ts: 'const Set *') -> 'TSequence *'
 def tboolseqset_from_base_periodset(b: bool, ps: 'const SpanSet *') -> 'TSequenceSet *':
     ps_converted = _ffi.cast('const SpanSet *', ps)
     result = _lib.tboolseqset_from_base_periodset(b, ps_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tboolseqset_from_base_temp(b: bool, ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.tboolseqset_from_base_temp(b, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3575,12 +3616,6 @@ def tfloatseq_from_base_period(d: float, p: 'const Span *', interp: 'interpType'
     return result if result != _ffi.NULL else None
 
 
-def tfloatseq_from_base_temp(d: float, seq: 'const TSequence *') -> 'TSequence *':
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.tfloatseq_from_base_temp(d, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tfloatseq_from_base_timestampset(d: float, ts: 'const Set *') -> 'TSequence *':
     ts_converted = _ffi.cast('const Set *', ts)
     result = _lib.tfloatseq_from_base_timestampset(d, ts_converted)
@@ -3591,12 +3626,6 @@ def tfloatseqset_from_base_periodset(d: float, ps: 'const SpanSet *', interp: 'i
     ps_converted = _ffi.cast('const SpanSet *', ps)
     interp_converted = _ffi.cast('interpType', interp)
     result = _lib.tfloatseqset_from_base_periodset(d, ps_converted, interp_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tfloatseqset_from_base_temp(d: float, ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.tfloatseqset_from_base_temp(d, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3622,24 +3651,10 @@ def tgeogpointseq_from_base_period(gs: 'const GSERIALIZED *', p: 'const Span *',
     return result if result != _ffi.NULL else None
 
 
-def tgeogpointseq_from_base_temp(gs: 'const GSERIALIZED *', seq: 'const TSequence *') -> 'TSequence *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.tgeogpointseq_from_base_temp(gs_converted, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tgeogpointseq_from_base_timestampset(gs: 'const GSERIALIZED *', ts: 'const Set *') -> 'TSequence *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ts_converted = _ffi.cast('const Set *', ts)
     result = _lib.tgeogpointseq_from_base_timestampset(gs_converted, ts_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tgeogpointseqset_from_base_temp(gs: 'const GSERIALIZED *', ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.tgeogpointseqset_from_base_temp(gs_converted, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3673,13 +3688,6 @@ def tgeompointseq_from_base_period(gs: 'const GSERIALIZED *', p: 'const Span *',
     return result if result != _ffi.NULL else None
 
 
-def tgeompointseq_from_base_temp(gs: 'const GSERIALIZED *', seq: 'const TSequence *') -> 'TSequence *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.tgeompointseq_from_base_temp(gs_converted, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tgeompointseq_from_base_timestampset(gs: 'const GSERIALIZED *', ts: 'const Set *') -> 'TSequence *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     ts_converted = _ffi.cast('const Set *', ts)
@@ -3692,13 +3700,6 @@ def tgeompointseqset_from_base_periodset(gs: 'const GSERIALIZED *', ps: 'const S
     ps_converted = _ffi.cast('const SpanSet *', ps)
     interp_converted = _ffi.cast('interpType', interp)
     result = _lib.tgeompointseqset_from_base_periodset(gs_converted, ps_converted, interp_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tgeompointseqset_from_base_temp(gs: 'const GSERIALIZED *', ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.tgeompointseqset_from_base_temp(gs_converted, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3720,12 +3721,6 @@ def tintseq_from_base_period(i: int, p: 'const Span *') -> 'TSequence *':
     return result if result != _ffi.NULL else None
 
 
-def tintseq_from_base_temp(i: int, seq: 'const TSequence *') -> 'TSequence *':
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.tintseq_from_base_temp(i, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def tintseq_from_base_timestampset(i: int, ts: 'const Set *') -> 'TSequence *':
     ts_converted = _ffi.cast('const Set *', ts)
     result = _lib.tintseq_from_base_timestampset(i, ts_converted)
@@ -3735,12 +3730,6 @@ def tintseq_from_base_timestampset(i: int, ts: 'const Set *') -> 'TSequence *':
 def tintseqset_from_base_periodset(i: int, ps: 'const SpanSet *') -> 'TSequenceSet *':
     ps_converted = _ffi.cast('const SpanSet *', ps)
     result = _lib.tintseqset_from_base_periodset(i, ps_converted)
-    return result if result != _ffi.NULL else None
-
-
-def tintseqset_from_base_temp(i: int, ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.tintseqset_from_base_temp(i, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3799,13 +3788,6 @@ def ttextseq_from_base_period(txt: str, p: 'const Span *') -> 'TSequence *':
     return result if result != _ffi.NULL else None
 
 
-def ttextseq_from_base_temp(txt: str, seq: 'const TSequence *') -> 'TSequence *':
-    txt_converted = cstring2text(txt)
-    seq_converted = _ffi.cast('const TSequence *', seq)
-    result = _lib.ttextseq_from_base_temp(txt_converted, seq_converted)
-    return result if result != _ffi.NULL else None
-
-
 def ttextseq_from_base_timestampset(txt: str, ts: 'const Set *') -> 'TSequence *':
     txt_converted = cstring2text(txt)
     ts_converted = _ffi.cast('const Set *', ts)
@@ -3817,13 +3799,6 @@ def ttextseqset_from_base_periodset(txt: str, ps: 'const SpanSet *') -> 'TSequen
     txt_converted = cstring2text(txt)
     ps_converted = _ffi.cast('const SpanSet *', ps)
     result = _lib.ttextseqset_from_base_periodset(txt_converted, ps_converted)
-    return result if result != _ffi.NULL else None
-
-
-def ttextseqset_from_base_temp(txt: str, ss: 'const TSequenceSet *') -> 'TSequenceSet *':
-    txt_converted = cstring2text(txt)
-    ss_converted = _ffi.cast('const TSequenceSet *', ss)
-    result = _lib.ttextseqset_from_base_temp(txt_converted, ss_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -4491,7 +4466,7 @@ def ttext_minus_value(temp: 'const Temporal *', txt: str) -> 'Temporal *':
 def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'text **':
     temp_converted = _ffi.cast('const Temporal *', temp)
     t_converted = _ffi.cast('TimestampTz', t)
-    out_result = _ffi.new('text *')
+    out_result = _ffi.new('text **')
     result = _lib.ttext_value_at_timestamp(temp_converted, t_converted, strict, out_result)
     if result:
         return out_result if out_result != _ffi.NULL else None
