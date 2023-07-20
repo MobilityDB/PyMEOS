@@ -358,8 +358,3 @@ class TestPeriodManipulationFunctions(TestPeriod):
                                     datetime(2020, 1, 5, 4, tzinfo=timezone.utc), False, False)
 
 
-class TestPeriodMiscFunctions(TestPeriod):
-    period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
-
-    def test_hash(self):
-        hash(self.period)

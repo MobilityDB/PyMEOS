@@ -575,11 +575,10 @@ class STBox:
         """
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
-    def expand(self, other: Union[STBox, int, float, timedelta]) -> STBox:
+    def expand(self, other: Union[int, float, timedelta]) -> STBox:
         """
         Expands ``self`` with `other`.
-        If `other` is an :class:`STBox`, the result is the smallest spatio-temporal box that contains both ``self``
-        and `other`. If `other` is a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
+        If `other` is a :class:`int` or a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
         expanded by `other` in all directions. If `other` is a :class:`timedelta`, the result is equal to ``self``
         but with the temporal dimension expanded by `other` in both directions.
 
@@ -590,12 +589,9 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            stbox_expand, stbox_expand_space, stbox_expand_time
+            stbox_expand_space, stbox_expand_time
         """
-        if isinstance(other, STBox):
-            result = stbox_copy(self._inner)
-            stbox_expand(other._inner, result)
-        elif isinstance(other, float) or isinstance(other, int):
+        if isinstance(other, int) or isinstance(other, float):
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = stbox_expand_time(self._inner, timedelta_to_interval(other))
@@ -662,8 +658,7 @@ class STBox:
         period_shift_tscale(
             new_period,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
-            None, None
+            timedelta_to_interval(duration) if duration else None
         )
         return STBox(_inner=new_inner)
 
