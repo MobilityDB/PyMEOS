@@ -4,6 +4,7 @@ from shapely import Point, LineString, Polygon
 import shapely.geometry
 
 import pytest
+import math
 
 from pymeos import STBox, TInterpolation, TimestampSet, Period, PeriodSet, \
     TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, \
@@ -556,63 +557,7 @@ class TestSTBoxAccessors(TestSTBox):
             STBox('STBOX T([2019-09-01,2019-09-02])')
 
 
-class TestSTBoxOperators(TestSTBox):
-    stbx1 = STBox('STBOX X((1,1),(2,2))')
-    stbz1 = STBox('STBOX Z((1,1,1),(2,2,2))')
-    stbt1 = STBox('STBOX T([2019-09-01,2019-09-02])')
-    stbxt1 = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
-    stbzt1 = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
-    stbx2 = STBox('STBOX X((2,2),(3,3))')
-    stbz2 = STBox('STBOX Z((2,2,2),(3,3,3))')
-    stbt2 = STBox('STBOX T([2019-09-02,2019-09-03])')
-    stbxt2 = STBox('STBOX XT(((2,2),(3,3)),[2019-09-02,2019-09-03])')
-    stbzt2 = STBox('STBOX ZT(((2,2,2),(3,3,3)),[2019-09-02,2019-09-03])')
-
-    @pytest.mark.parametrize(
-        'stbox1, argument',
-        [
-            (stbx1, STBox('STBOX X((1,1),(3,3))')),
-            (stbz1, STBox('STBOX Z((1,1,1),(3,3,3))')),
-            (stbt1, STBox('STBOX T([2019-09-01,2019-09-03])')),
-            (stbxt1, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
-            (stbzt1, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
-        ],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
-    )
-    def test_in(self, stbox1, argument):
-        assert stbox1 in argument
-
-    @pytest.mark.parametrize(
-        'stbox1, stbox2, expected',
-        [
-            (stbx1, stbx2, STBox('STBOX X((1,1),(3,3))')),
-            (stbz1, stbz2, STBox('STBOX Z((1,1,1),(3,3,3))')),
-            (stbt1, stbt2, STBox('STBOX T([2019-09-01,2019-09-03])')),
-            (stbxt1, stbxt2, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
-            (stbzt1, stbzt2, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
-        ],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
-    )
-    def test_union(self, stbox1, stbox2, expected):
-        assert stbox1.union(stbox2) == expected
-        assert stbox1 + stbox2 == expected
-
-    @pytest.mark.parametrize(
-        'stbox1, stbox2, expected',
-        [
-            (stbx1, stbx2, STBox('STBOX X((2,2),(2,2))')),
-            (stbz1, stbz2, STBox('STBOX Z((2,2,2),(2,2,2))')),
-            (stbt1, stbt2, STBox('STBOX T([2019-09-02,2019-09-02])')),
-            (stbxt1, stbxt2, STBox('STBOX XT(((2,2),(2,2)),[2019-09-02,2019-09-02])')),
-            (stbzt1, stbzt2, STBox('STBOX ZT(((2,2,2),(2,2,2)),[2019-09-02,2019-09-02])'))
-        ],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
-    )
-    def test_intersection(self, stbox1, stbox2, expected):
-        assert stbox1.intersection(stbox2) == expected
-        assert stbox1 * stbox2 == expected
-
-class TestSTBoxTopologicalOperators(TestSTBox):
+class TestSTBoxTopologicalFunctions(TestSTBox):
     stbx = STBox('STBOX X((1,1),(2,2))')
     stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
     stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
@@ -703,3 +648,224 @@ class TestSTBoxTopologicalOperators(TestSTBox):
     )
     def test_is_same(self, stbox, argument, expected):
         assert stbox.is_same(argument) == expected
+
+
+class TestSTBoxPositionFunctions(TestSTBox):
+    stbx = STBox('STBOX X((1,1),(2,2))')
+    stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbx, STBox('STBOX X((1,1),(3,3))'), False),
+            (stbx, STBox('STBOX X((3,3),(4,4))'), True),
+            (stbz, STBox('STBOX Z((1,1,1),(3,3,3))'), False),
+            (stbz, STBox('STBOX Z((3,3,3),(4,4,4))'), True),
+            (stbxt, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-02,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox X False', 'STBox X True', 'STBox Z False', 'STBox Z True',
+             'STBox XT False', 'STBox XT True', 'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_left_right(self, stbox, argument, expected):
+        assert stbox.is_left(argument) == expected
+        assert argument.is_right(stbox) == expected
+        assert stbox.is_below(argument) == expected
+        assert argument.is_above(stbox) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbx, STBox('STBOX X((1,1),(1,1))'), False),
+            (stbx, STBox('STBOX X((3,3),(4,4))'), True),
+            (stbz, STBox('STBOX Z((1,1,1),(1,1,1))'), False),
+            (stbz, STBox('STBOX Z((3,3,3),(4,4,4))'), True),
+            (stbxt, STBox('STBOX XT(((1,1),(1,1)),[2019-09-01,2019-09-03])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-02,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(1,1,1)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox X False', 'STBox X True', 'STBox Z False', 'STBox Z True',
+             'STBox XT False', 'STBox XT True', 'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_left(self, stbox, argument, expected):
+        assert stbox.is_over_or_left(argument) == expected
+        assert stbox.is_over_or_below(argument) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbx, STBox('STBOX X((0,0),(1,1))'), False),
+            (stbx, STBox('STBOX X((3,3),(4,4))'), True),
+            (stbz, STBox('STBOX Z((0,0,0),(1,1,1))'), False),
+            (stbz, STBox('STBOX Z((3,3,3),(4,4,4))'), True),
+            (stbxt, STBox('STBOX XT(((0,0),(1,1)),[2019-09-01,2019-09-03])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-02,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((0,0,0),(1,1,1)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox X False', 'STBox X True', 'STBox Z False', 'STBox Z True',
+             'STBox XT False', 'STBox XT True', 'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_right(self, stbox, argument, expected):
+        assert argument.is_over_or_right(stbox) == expected
+        assert argument.is_over_or_above(stbox) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbz, STBox('STBOX Z((1,1,1),(1,1,1))'), False),
+            (stbz, STBox('STBOX Z((3,3,3),(4,4,4))'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(1,1,1)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox Z False', 'STBox Z True', 'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_front(self, stbox, argument, expected):
+        assert stbox.is_over_or_front(argument) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbz, STBox('STBOX Z((2,2,2),(2,2,2))'), False),
+            (stbz, STBox('STBOX Z((1,1,1),(2,2,2))'), True),
+            (stbzt, STBox('STBOX ZT(((2,2,2),(2,2,2)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox Z False', 'STBox Z True', 'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_behind(self, stbox, argument, expected):
+        assert stbox.is_over_or_behind(argument) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbt, STBox('STBOX T([2019-09-01,2019-09-03])'), False),
+            (stbt, STBox('STBOX T([2019-09-03,2019-09-03])'), True),
+            (stbxt, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-03,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-03,2019-09-03])'), True)
+        ],
+        ids=['STBox T False', 'STBox T True', 'STBox XT False', 'STBox XT True',
+             'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_before_after(self, stbox, argument, expected):
+        assert stbox.is_before(argument) == expected
+        assert argument.is_after(stbox) == expected
+        
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbt, STBox('STBOX T([2019-09-01,2019-09-01])'), False),
+            (stbt, STBox('STBOX T([2019-09-03,2019-09-03])'), True),
+            (stbxt, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-01])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-03,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-01])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-03,2019-09-03])'), True)
+        ],
+        ids=['STBox T False', 'STBox T True', 'STBox XT False', 'STBox XT True',
+             'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_before(self, stbox, argument, expected):
+        assert stbox.is_over_or_before(argument) == expected
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbt, STBox('STBOX T([2019-09-03,2019-09-03])'), False),
+            (stbt, STBox('STBOX T([2019-09-01,2019-09-03])'), True),
+            (stbxt, STBox('STBOX XT(((1,1),(3,3)),[2019-09-02,2019-09-03])'), False),
+            (stbxt, STBox('STBOX XT(((3,3),(4,4)),[2019-09-01,2019-09-03])'), True),
+            (stbzt, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-02,2019-09-03])'), False),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(4,4,4)),[2019-09-01,2019-09-03])'), True)
+        ],
+        ids=['STBox T False', 'STBox T True', 'STBox XT False', 'STBox XT True',
+             'STBox ZT False', 'STBox ZT True']
+    )
+    def test_is_over_or_after(self, stbox, argument, expected):
+        assert stbox.is_over_or_after(argument) == expected
+
+
+class TestSTBoxSetFunctions(TestSTBox):
+    stbx1 = STBox('STBOX X((1,1),(2,2))')
+    stbz1 = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt1 = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt1 = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt1 = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+    stbx2 = STBox('STBOX X((2,2),(3,3))')
+    stbz2 = STBox('STBOX Z((2,2,2),(3,3,3))')
+    stbt2 = STBox('STBOX T([2019-09-02,2019-09-03])')
+    stbxt2 = STBox('STBOX XT(((2,2),(3,3)),[2019-09-02,2019-09-03])')
+    stbzt2 = STBox('STBOX ZT(((2,2,2),(3,3,3)),[2019-09-02,2019-09-03])')
+
+    @pytest.mark.parametrize(
+        'stbox1, argument',
+        [
+            (stbx1, STBox('STBOX X((1,1),(3,3))')),
+            (stbz1, STBox('STBOX Z((1,1,1),(3,3,3))')),
+            (stbt1, STBox('STBOX T([2019-09-01,2019-09-03])')),
+            (stbxt1, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
+            (stbzt1, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_in(self, stbox1, argument):
+        assert stbox1 in argument
+
+    @pytest.mark.parametrize(
+        'stbox1, stbox2, expected',
+        [
+            (stbx1, stbx2, STBox('STBOX X((1,1),(3,3))')),
+            (stbz1, stbz2, STBox('STBOX Z((1,1,1),(3,3,3))')),
+            (stbt1, stbt2, STBox('STBOX T([2019-09-01,2019-09-03])')),
+            (stbxt1, stbxt2, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])')),
+            (stbzt1, stbzt2, STBox('STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01,2019-09-03])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_union(self, stbox1, stbox2, expected):
+        assert stbox1.union(stbox2) == expected
+        assert stbox1 + stbox2 == expected
+
+    @pytest.mark.parametrize(
+        'stbox1, stbox2, expected',
+        [
+            (stbx1, stbx2, STBox('STBOX X((2,2),(2,2))')),
+            (stbz1, stbz2, STBox('STBOX Z((2,2,2),(2,2,2))')),
+            (stbt1, stbt2, STBox('STBOX T([2019-09-02,2019-09-02])')),
+            (stbxt1, stbxt2, STBox('STBOX XT(((2,2),(2,2)),[2019-09-02,2019-09-02])')),
+            (stbzt1, stbzt2, STBox('STBOX ZT(((2,2,2),(2,2,2)),[2019-09-02,2019-09-02])'))
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_intersection(self, stbox1, stbox2, expected):
+        assert stbox1.intersection(stbox2) == expected
+        assert stbox1 * stbox2 == expected
+
+
+class TestSTBoxDistanceFunctions(TestSTBox):
+    stbx = STBox('STBOX X((1,1),(2,2))')
+    stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'stbox, argument, expected',
+        [
+            (stbx, STBox('STBOX X((1,1),(3,3))'), 0),
+            (stbz, STBox('STBOX Z((3,3,3),(3,3,3))'), math.sqrt(3)),
+            (stbxt, STBox('STBOX XT(((1,1),(3,3)),[2019-09-01,2019-09-03])'), 0),
+            (stbzt, STBox('STBOX ZT(((3,3,3),(3,3,3)),[2019-09-01,2019-09-03])'), math.sqrt(3)),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
+    )
+    def test_nearest_approach_distance(self, stbox, argument, expected):
+        assert stbox.nearest_approach_distance(argument) == expected
+
