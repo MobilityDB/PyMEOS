@@ -24,10 +24,10 @@ class TestTFloatConstructors(TestTFloat):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TIntInst('1@2000-01-01'), TFloatInst, TInterpolation.NONE),
-            (TIntSeq('{1@2000-01-01, 2@2000-01-02}'), TFloatSeq, TInterpolation.DISCRETE),
-            (TIntSeq('[1@2000-01-01, 2@2000-01-02]'), TFloatSeq, TInterpolation.STEPWISE),
-            (TIntSeqSet('{[1@2000-01-01, 2@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
+            (TIntInst('1@2019-09-01'), TFloatInst, TInterpolation.NONE),
+            (TIntSeq('{1@2019-09-01, 2@2019-09-02}'), TFloatSeq, TInterpolation.DISCRETE),
+            (TIntSeq('[1@2019-09-01, 2@2019-09-02]'), TFloatSeq, TInterpolation.STEPWISE),
+            (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}'),
              TFloatSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -40,10 +40,10 @@ class TestTFloatConstructors(TestTFloat):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TFloatInst('1@2000-01-01'), TFloatInst, TInterpolation.NONE),
-            (TFloatSeq('{1@2000-01-01, 2@2000-01-02}'), TFloatSeq, TInterpolation.DISCRETE),
-            (TFloatSeq('[1@2000-01-01, 2@2000-01-02]'), TFloatSeq, TInterpolation.LINEAR),
-            (TFloatSeqSet('{[1@2000-01-01, 2@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
+            (TFloatInst('1@2019-09-01'), TFloatInst, TInterpolation.NONE),
+            (TFloatSeq('{1@2019-09-01, 2@2019-09-02}'), TFloatSeq, TInterpolation.DISCRETE),
+            (TFloatSeq('[1@2019-09-01, 2@2019-09-02]'), TFloatSeq, TInterpolation.LINEAR),
+            (TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}'),
              TFloatSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -57,9 +57,9 @@ class TestTFloatConstructors(TestTFloat):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TFloatInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TFloatSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TFloatSeq, TInterpolation.LINEAR),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TFloatSeqSet, TInterpolation.LINEAR)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TFloatSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TFloatSeq, TInterpolation.LINEAR),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TFloatSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
     )

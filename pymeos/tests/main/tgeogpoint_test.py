@@ -28,10 +28,10 @@ class TestTGeogPointConstructors(TestTGeogPoint):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TFloatInst('1.5@2000-01-01'), TGeogPointInst, TInterpolation.NONE),
-            (TFloatSeq('{1.5@2000-01-01, 0.5@2000-01-02}'), TGeogPointSeq, TInterpolation.DISCRETE),
-            (TFloatSeq('[1.5@2000-01-01, 0.5@2000-01-02]'), TGeogPointSeq, TInterpolation.LINEAR),
-            (TFloatSeqSet('{[1.5@2000-01-01, 0.5@2000-01-02],[1.5@2000-01-03, 1.5@2000-01-05]}'),
+            (TFloatInst('1.5@2019-09-01'), TGeogPointInst, TInterpolation.NONE),
+            (TFloatSeq('{1.5@2019-09-01, 0.5@2019-09-02}'), TGeogPointSeq, TInterpolation.DISCRETE),
+            (TFloatSeq('[1.5@2019-09-01, 0.5@2019-09-02]'), TGeogPointSeq, TInterpolation.LINEAR),
+            (TFloatSeqSet('{[1.5@2019-09-01, 0.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'),
              TGeogPointSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -45,9 +45,9 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TGeogPointInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TGeogPointSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TGeogPointSeq, TInterpolation.LINEAR),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TGeogPointSeqSet, TInterpolation.LINEAR)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TGeogPointSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TGeogPointSeq, TInterpolation.LINEAR),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TGeogPointSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
     )
@@ -159,7 +159,7 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              # 'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     # )
-    # def test_from_mfjson_constructor(self, temporal):
+    # def test_from_as_mfjson_constructor(self, temporal):
         # assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(

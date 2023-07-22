@@ -21,10 +21,10 @@ class TestTTextConstructors(TestTText):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TIntInst('1@2000-01-01'), TTextInst, TInterpolation.NONE),
-            (TIntSeq('{1@2000-01-01, 2@2000-01-02}'), TTextSeq, TInterpolation.DISCRETE),
-            (TIntSeq('[1@2000-01-01, 2@2000-01-02]'), TTextSeq, TInterpolation.STEPWISE),
-            (TIntSeqSet('{[1@2000-01-01, 2@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
+            (TIntInst('1@2019-09-01'), TTextInst, TInterpolation.NONE),
+            (TIntSeq('{1@2019-09-01, 2@2019-09-02}'), TTextSeq, TInterpolation.DISCRETE),
+            (TIntSeq('[1@2019-09-01, 2@2019-09-02]'), TTextSeq, TInterpolation.STEPWISE),
+            (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}'),
              TTextSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -38,9 +38,9 @@ class TestTTextConstructors(TestTText):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TTextInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TTextSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TTextSeq, TInterpolation.STEPWISE),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TTextSeqSet, TInterpolation.STEPWISE)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TTextSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TTextSeq, TInterpolation.STEPWISE),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TTextSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

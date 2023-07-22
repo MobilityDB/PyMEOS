@@ -23,10 +23,10 @@ class TestTIntConstructors(TestTInt):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TFloatInst('1.5@2000-01-01'), TIntInst, TInterpolation.NONE),
-            (TFloatSeq('{1.5@2000-01-01, 0.5@2000-01-02}'), TIntSeq, TInterpolation.DISCRETE),
-            (TFloatSeq('[1.5@2000-01-01, 0.5@2000-01-02]'), TIntSeq, TInterpolation.STEPWISE),
-            (TFloatSeqSet('{[1.5@2000-01-01, 0.5@2000-01-02],[1.5@2000-01-03, 1.5@2000-01-05]}'),
+            (TFloatInst('1.5@2019-09-01'), TIntInst, TInterpolation.NONE),
+            (TFloatSeq('{1.5@2019-09-01, 0.5@2019-09-02}'), TIntSeq, TInterpolation.DISCRETE),
+            (TFloatSeq('[1.5@2019-09-01, 0.5@2019-09-02]'), TIntSeq, TInterpolation.STEPWISE),
+            (TFloatSeqSet('{[1.5@2019-09-01, 0.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'),
              TIntSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -40,9 +40,9 @@ class TestTIntConstructors(TestTInt):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TIntInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TIntSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TIntSeq, TInterpolation.STEPWISE),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TIntSeqSet, TInterpolation.STEPWISE)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TIntSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TIntSeq, TInterpolation.STEPWISE),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TIntSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence',    'SequenceSet']
     )

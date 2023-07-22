@@ -4,7 +4,8 @@ from spans.types import intrange, floatrange
 
 import pytest
 
-from pymeos import TBox, TInterpolation, TimestampSet, Period, PeriodSet
+from pymeos import TBox, TInterpolation, TimestampSet, Period, PeriodSet, \
+    TInt, TIntInst, TIntSeq, TIntSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 
 from tests.conftest import TestPyMEOS
 
@@ -40,8 +41,8 @@ class TestTBox(TestPyMEOS):
 
 class TestTBoxConstructors(TestTBox):
     tbx = TBox('TBOX X([1,2])')
-    tbt = TBox('TBOX T([2019-01-01,2019-01-02])')
-    tbxt = TBox('TBOX XT([1,2],[2019-01-01,2019-01-02])')
+    tbt = TBox('TBOX T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
 
     @pytest.mark.parametrize(
         'source, type, expected',
@@ -49,7 +50,7 @@ class TestTBoxConstructors(TestTBox):
             ('TBox X([1,2])', TBox, 'TBOX X([1, 2])'),
             ('TBox T([2019-09-01,2019-09-02])', TBox, 
              'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            ('TBox XT([1, 2],[2019-09-01,2019-09-02])', TBox, 
+            ('TBox XT([1,2],[2019-09-01,2019-09-02])', TBox, 
              'TBOX XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])')
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
@@ -72,7 +73,7 @@ class TestTBoxConstructors(TestTBox):
         # [
             # (datetime(2019, 9, 1), 
                 # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (TimestampSet('{2019-09-01, 2000-09-02}'),
+            # (TimestampSet('{2019-09-01, 2019-09-02}'),
                 # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
             # (Period('[2019-09-01, 2019-09-02]'),
                 # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
@@ -130,6 +131,19 @@ class TestTBoxConstructors(TestTBox):
         # assert str(tb) == expected
 
     @pytest.mark.parametrize(
+        'tnumber, expected',
+        [
+            (TIntInst('1@2019-09-01'), 'TBOX XT([1, 1],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TFloatInst('1.5@2019-09-01'), 'TBOX XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+        ],
+        ids=['Tint', 'Tfloat']
+    )
+    def test_from_tnumber_constructor(self, tnumber, expected):
+        tb = TBox.from_tnumber(tnumber)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
+
+    @pytest.mark.parametrize(
         'tbox',
         [tbx, tbt, tbxt],
         ids=['TBox X', 'TBox T', 'TBox XT']
@@ -150,15 +164,15 @@ class TestTBoxConstructors(TestTBox):
 
 class TestTBoxOutputs(TestTBox):
     tbx = TBox('TBOX X([1,2])')
-    tbt = TBox('TBOX T([2019-01-01,2019-01-02])')
-    tbxt = TBox('TBOX XT([1,2],[2019-01-01,2019-01-02])')
+    tbt = TBox('TBOX T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
                                                                   
     @pytest.mark.parametrize(
         'tbox, expected',
         [
             (tbx, 'TBOX X([1, 2])'),
-            (tbt, 'TBOX T([2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00])'),
-            (tbxt, 'TBOX XT([1, 2],[2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00])'),
+            (tbt, 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (tbxt, 'TBOX XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
@@ -169,8 +183,8 @@ class TestTBoxOutputs(TestTBox):
         'tbox, expected',
         [
             (tbx, 'TBox(TBOX X([1, 2]))'),
-            (tbt, 'TBox(TBOX T([2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00]))'),
-            (tbxt, 'TBox(TBOX XT([1, 2],[2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00]))'),
+            (tbt, 'TBox(TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00]))'),
+            (tbxt, 'TBox(TBOX XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00]))'),
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
@@ -181,8 +195,8 @@ class TestTBoxOutputs(TestTBox):
         'tbox, expected',
         [
             (tbx, '0101070003000000000000F03F0000000000000040'),
-            (tbt, '01022100030080AEFA5821020000E085186D210200'),
-            (tbxt, '01032100030080AEFA5821020000E085186D210200070003000000000000F03F0000000000000040'),
+            (tbt, '010221000300A01E4E713402000000F66B85340200'),
+            (tbxt, '010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040'),
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )

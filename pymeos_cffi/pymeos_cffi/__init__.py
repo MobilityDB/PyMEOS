@@ -50,6 +50,8 @@ __all__ = [
     'pg_timestamptz_in',
     'pg_timestamptz_out',
     'text2cstring',
+    'pg_timestamptz_to_char',
+    'pg_to_timestamp',
     'gserialized_as_ewkb',
     'gserialized_as_ewkt',
     'gserialized_as_geojson',

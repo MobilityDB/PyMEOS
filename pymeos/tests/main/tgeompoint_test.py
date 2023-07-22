@@ -28,10 +28,10 @@ class TestTGeomPointConstructors(TestTGeomPoint):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TFloatInst('1.5@2000-01-01'), TGeomPointInst, TInterpolation.NONE),
-            (TFloatSeq('{1.5@2000-01-01, 0.5@2000-01-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
-            (TFloatSeq('[1.5@2000-01-01, 0.5@2000-01-02]'), TGeomPointSeq, TInterpolation.LINEAR),
-            (TFloatSeqSet('{[1.5@2000-01-01, 0.5@2000-01-02],[1.5@2000-01-03, 1.5@2000-01-05]}'),
+            (TFloatInst('1.5@2019-09-01'), TGeomPointInst, TInterpolation.NONE),
+            (TFloatSeq('{1.5@2019-09-01, 0.5@2019-09-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
+            (TFloatSeq('[1.5@2019-09-01, 0.5@2019-09-02]'), TGeomPointSeq, TInterpolation.LINEAR),
+            (TFloatSeqSet('{[1.5@2019-09-01, 0.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'),
              TGeomPointSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -45,9 +45,9 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TGeomPointInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TGeomPointSeq, TInterpolation.LINEAR),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TGeomPointSeqSet, TInterpolation.LINEAR)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TGeomPointSeq, TInterpolation.LINEAR),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TGeomPointSeqSet, TInterpolation.LINEAR)
         ],
         ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
     )

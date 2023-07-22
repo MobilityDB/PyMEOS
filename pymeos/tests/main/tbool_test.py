@@ -23,10 +23,10 @@ class TestTBoolConstructors(TestTBool):
     @pytest.mark.parametrize(
         'source, type, interpolation',
         [
-            (TIntInst('1@2000-01-01'), TBoolInst, TInterpolation.NONE),
-            (TIntSeq('{1@2000-01-01, 0@2000-01-02}'), TBoolSeq, TInterpolation.DISCRETE),
-            (TIntSeq('[1@2000-01-01, 0@2000-01-02]'), TBoolSeq, TInterpolation.STEPWISE),
-            (TIntSeqSet('{[1@2000-01-01, 0@2000-01-02],[1@2000-01-03, 1@2000-01-05]}'),
+            (TIntInst('1@2019-09-01'), TBoolInst, TInterpolation.NONE),
+            (TIntSeq('{1@2019-09-01, 0@2019-09-02}'), TBoolSeq, TInterpolation.DISCRETE),
+            (TIntSeq('[1@2019-09-01, 0@2019-09-02]'), TBoolSeq, TInterpolation.STEPWISE),
+            (TIntSeqSet('{[1@2019-09-01, 0@2019-09-02],[1@2019-09-03, 1@2019-09-05]}'),
              TBoolSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
@@ -40,9 +40,9 @@ class TestTBoolConstructors(TestTBool):
         'source, type, interpolation',
         [
             (datetime(2000, 1, 1), TBoolInst, TInterpolation.NONE),
-            (TimestampSet('{2000-01-01, 2000-01-02}'), TBoolSeq, TInterpolation.DISCRETE),
-            (Period('[2000-01-01, 2000-01-02]'), TBoolSeq, TInterpolation.STEPWISE),
-            (PeriodSet('{[2000-01-01, 2000-01-02],[2000-01-03, 2000-01-05]}'), TBoolSeqSet, TInterpolation.STEPWISE)
+            (TimestampSet('{2019-09-01, 2019-09-02}'), TBoolSeq, TInterpolation.DISCRETE),
+            (Period('[2019-09-01, 2019-09-02]'), TBoolSeq, TInterpolation.STEPWISE),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TBoolSeqSet, TInterpolation.STEPWISE)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
