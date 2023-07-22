@@ -410,6 +410,21 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def is_same(self, other: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding period of `self` is the same as the bounding period of `other`.
+
+        Args:
+            other: A time or temporal object to compare to `self`.
+
+        Returns:
+            True if same, False otherwise.
+
+        See Also:
+            :meth:`Period.is_same`
+        """
+        return self.to_period().is_same(other)
+
     # ------------------------- Position Operations ---------------------------
     def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
