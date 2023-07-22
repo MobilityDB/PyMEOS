@@ -135,8 +135,17 @@ class TestTBoxConstructors(TestTBox):
         [
             (TIntInst('1@2019-09-01'), 'TBOX XT([1, 1],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
             (TFloatInst('1.5@2019-09-01'), 'TBOX XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TIntSeq('{1@2019-09-01,2@2019-09-02}'), 'TBOX XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TFloatSeq('{1.5@2019-09-01,2.5@2019-09-02}'), 'TBOX XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TIntSeq('(1@2019-09-01,2@2019-09-02]'), 'TBOX XT([1, 2],(2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (TFloatSeq('[1.5@2019-09-01,2.5@2019-09-02)'), 'TBOX XT([1.5, 2.5),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00))'),
+            (TIntSeqSet('{(1@2019-09-01,2@2019-09-02],(1@2019-09-03,2@2019-09-05]}'),
+                'TBOX XT([1, 2],(2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+            (TFloatSeqSet('{[1.5@2019-09-01,2.5@2019-09-02),[1.5@2019-09-03,1.5@2019-09-05)}'),
+                'TBOX XT([1.5, 2.5),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00))'),
         ],
-        ids=['Tint', 'Tfloat']
+        ids=['TInt Instant', 'TFloat Instant', 'TInt Discrete Sequence', 'TFloat Discrete Sequence',
+             'TInt Sequence', 'TFloat Sequence', 'TInt Sequence Set', 'TFloat Sequence Set']
     )
     def test_from_tnumber_constructor(self, tnumber, expected):
         tb = TBox.from_tnumber(tnumber)
@@ -211,6 +220,32 @@ class TestTBoxOutputs(TestTBox):
     def test_from_hexwkb_constructor(self, tbox):
         assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbx, floatrange(1.0, 2.0, True, True)),
+            (tbxt, floatrange(1.0, 2.0, True, True)),
+        ],
+        ids=['TBox X', 'TBox XT']
+    )
+    def test_to_floatrange(self, tbox, expected):
+        tb = tbox.to_floatrange()
+        assert isinstance(tb, floatrange)
+        assert tb == expected
+
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbt, Period('[2019-09-01, 2019-09-02]')),
+            (tbxt, Period('[2019-09-01, 2019-09-02]')),
+        ],
+        ids=['TBox X', 'TBox XT']
+    )
+    def test_to_period(self, tbox, expected):
+        tb = tbox.to_period()
+        assert isinstance(tb, Period)
+        assert tb == expected
+
 
 class TestTBoxAccessors(TestTBox):
     tbx = TBox('TBox X([1,2])')
@@ -253,6 +288,18 @@ class TestTBoxAccessors(TestTBox):
     def test_xmin(self, tbox, expected):
         assert tbox.xmin() == expected
 
+    # @pytest.mark.parametrize(
+        # 'tbox, expected',
+        # [
+            # (tbx, True),
+            # (tbt, None),
+            # (tbxt, True)
+        # ],
+        # ids=['TBox X', 'TBox T', 'TBox XT']
+    # )
+    # def test_xmin_inc(self, tbox, expected):
+        # assert tbox.xmin_inc() == expected
+
     @pytest.mark.parametrize(
         'tbox, expected',
         [
@@ -264,6 +311,18 @@ class TestTBoxAccessors(TestTBox):
     )
     def test_xmax(self, tbox, expected):
         assert tbox.xmax() == expected
+
+    # @pytest.mark.parametrize(
+        # 'tbox, expected',
+        # [
+            # (tbx, True),
+            # (tbt, None),
+            # (tbxt, True)
+        # ],
+        # ids=['TBox X', 'TBox T', 'TBox XT']
+    # )
+    # def test_xmax_inc(self, tbox, expected):
+        # assert tbox.xmax_inc() == expected
 
     @pytest.mark.parametrize(
         'tbox, expected',
@@ -277,6 +336,18 @@ class TestTBoxAccessors(TestTBox):
     def test_tmin(self, tbox, expected):
         assert tbox.tmin() == expected
 
+    # @pytest.mark.parametrize(
+        # 'tbox, expected',
+        # [
+            # (tbx, None),
+            # (tbt, True),
+            # (tbxt, True)
+        # ],
+        # ids=['TBox X', 'TBox T', 'TBox XT']
+    # )
+    # def test_tmin_inc(self, tbox, expected):
+        # assert tbox.tmin_inc() == expected
+
     @pytest.mark.parametrize(
         'tbox, expected',
         [
@@ -289,7 +360,244 @@ class TestTBoxAccessors(TestTBox):
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
 
-class TestTBoxOperators(TestTBox):
+    # @pytest.mark.parametrize(
+        # 'tbox, expected',
+        # [
+            # (tbx, None),
+            # (tbt, True),
+            # (tbxt, True)
+        # ],
+        # ids=['TBox X', 'TBox T', 'TBox XT']
+    # )
+    # def test_tmax_inc(self, tbox, expected):
+        # assert tbox.tmax_inc() == expected
+
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbx, TBox('TBOX X([0, 3])')),
+            (tbxt, TBox('TBOX XT([0,3],[2019-09-01, 2019-09-02])')),
+        ],
+        ids=['TBox X', 'TBox XT']
+    )
+    def test_expand_float(self, tbox, expected):
+        tb = tbox.expand(1)
+        assert isinstance(tb, TBox)
+        assert tb == expected
+
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbt, TBox('TBOX T([2019-08-31, 2019-09-03])')),
+            (tbxt, TBox('TBOX XT([1,2],[2019-08-31, 2019-09-03])')),
+        ],
+        ids=['TBox T', 'TBox XT']
+    )
+    def test_expand_time(self, tbox, expected):
+        tb = tbox.expand(timedelta(days=1))
+        assert isinstance(tb, TBox)
+        assert tb == expected
+
+    ######################################
+    # THIS TEST DOES NOT WORK CORRECTLY
+    ######################################
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
+        [(tbt, timedelta(days=4),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+         (tbt, timedelta(days=-4),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+         (tbt, timedelta(hours=2),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+         (tbt, timedelta(hours=-2),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+         ],
+        ids=['positive days', 'negative days', 'positive hours', 'negative hours']
+    )
+    def test_shift(self, tbox, delta, expected):
+        assert tbox.shift(delta) == expected
+
+    ######################################
+    # THIS TEST DOES NOT WORK CORRECTLY
+    ######################################
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
+        [(tbt, timedelta(days=4),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+        (tbt, timedelta(hours=2),
+          TBox('TBOX T([2019-09-01,2019-09-02])')),
+         ],
+        ids=['positive days', 'positive hours']
+    )
+    def test_tscale(self, tbox, delta, expected):
+        assert tbox.tscale(delta) == expected
+
+    ######################################
+    # THIS TEST DOES NOT WORK CORRECTLY
+    ######################################
+    def test_shift_tscale(self):
+        assert self.tbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
+            TBox('TBOX T([2019-09-01,2019-09-02])')
+
+
+class TestTBoxTopologicalFunctions(TestTBox):
+    tbx = TBox('TBOX X([1,2])')
+    tbt = TBox('TBOX T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,3])'), False),
+            (tbx, TBox('TBOX X((2,3])'), True),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), False),
+            (tbt, TBox('TBOX T((2019-09-02,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT((2,3],[2019-09-02,2019-09-03])'), True),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
+             'TBox XT False', 'TBox XT True']
+    )
+    def test_is_adjacent(self, tbox, argument, expected):
+        assert tbox.is_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,3])'), True),
+            (tbx, TBox('TBOX X([2,3])'), False),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
+            (tbt, TBox('TBOX T([2019-09-02,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([2,3],[2019-09-02,2019-09-03])'), False),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
+             'TBox XT False', 'TBox XT True']
+    )
+    def test_is_contained_in_contains(self, tbox, argument, expected):
+        assert tbox.is_contained_in(argument) == expected
+        assert argument.contains(tbox) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,3])'), True),
+            (tbx, TBox('TBOX X([3,3])'), False),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
+            (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([3,3],[2019-09-02,2019-09-03])'), False),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
+             'TBox XT False', 'TBox XT True']
+    )
+    def test_overlaps(self, tbox, argument, expected):
+        assert tbox.overlaps(argument) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,2])'), True),
+            (tbx, TBox('TBOX X([3,3])'), False),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-02])'), True),
+            (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), False),
+            (tbxt, TBox('TBOX X([1,2])'), True),
+            (tbxt, TBox('TBOX X([3,3])'), False),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
+             'TBox XT False', 'TBox XT True']
+    )
+    def test_is_same(self, tbox, argument, expected):
+        assert tbox.is_same(argument) == expected
+
+
+class TestTBoxPositionFunctions(TestTBox):
+    tbx = TBox('TBOX X([1,2])')
+    tbt = TBox('TBOX T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,3])'), False),
+            (tbx, TBox('TBOX X([3,4])'), True),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-02,2019-09-03])'), True),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_left_right(self, tbox, argument, expected):
+        assert tbox.is_left(argument) == expected
+        assert argument.is_right(tbox) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,1])'), False),
+            (tbx, TBox('TBOX X([3,4])'), True),
+            (tbxt, TBox('TBOX XT([1,1],[2019-09-01,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-02,2019-09-03])'), True),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_over_or_left(self, tbox, argument, expected):
+        assert tbox.is_over_or_left(argument) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([0,1])'), False),
+            (tbx, TBox('TBOX X([3,4])'), True),
+            (tbxt, TBox('TBOX XT([0,1],[2019-09-01,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-02,2019-09-03])'), True),
+        ],
+        ids=['TBox X False', 'TBox X True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_over_or_right(self, tbox, argument, expected):
+        assert argument.is_over_or_right(tbox) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), False),
+            (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-03,2019-09-03])'), True),
+        ],
+        ids=['TBox T False', 'TBox T True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_before_after(self, tbox, argument, expected):
+        assert tbox.is_before(argument) == expected
+        assert argument.is_after(tbox) == expected
+        
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-01])'), False),
+            (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-01])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-03,2019-09-03])'), True),
+        ],
+        ids=['TBox T False', 'TBox T True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_over_or_before(self, tbox, argument, expected):
+        assert tbox.is_over_or_before(argument) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), False),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-02,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-01,2019-09-03])'), True),
+        ],
+        ids=['TBox T False', 'TBox T True', 'TBox XT False', 'TBox XT True']
+    )
+    def test_is_over_or_after(self, tbox, argument, expected):
+        assert tbox.is_over_or_after(argument) == expected
+
+
+class TestTBoxSetFunctions(TestTBox):
     tbx1 = TBox('TBox X([1,2])')
     tbt1 = TBox('TBox T([2019-09-01,2019-09-02])')
     tbxt1 = TBox('TBox XT([1,2],[2019-09-01,2019-09-02])')
@@ -306,7 +614,8 @@ class TestTBoxOperators(TestTBox):
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_add(self, tbox1, tbox2, expected):
+    def test_union(self, tbox1, tbox2, expected):
+        assert tbox1.union(tbox2) == expected
         assert tbox1 + tbox2 == expected
 
     @pytest.mark.parametrize(
@@ -318,6 +627,26 @@ class TestTBoxOperators(TestTBox):
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_mul(self, tbox1, tbox2, expected):
+    def test_intersection(self, tbox1, tbox2, expected):
+        assert tbox1.intersection(tbox2) == expected
         assert tbox1 * tbox2 == expected
 
+
+class TestTBoxDistanceFunctions(TestTBox):
+    tbx = TBox('TBOX X([1,2])')
+    tbt = TBox('TBOX T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'tbox, argument, expected',
+        [
+            (tbx, TBox('TBOX X([1,3])'), 0),
+            (tbx, TBox('TBOX X([3,4])'), 1),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), 0),
+            (tbxt, TBox('TBOX XT([3,4],[2019-09-01,2019-09-03])'), 1),
+        ],
+        ids=['STBox X Intersection', 'STBox X Distance',
+             'STBox XT Intersection', 'STBox XT Distance']
+    )
+    def test_nearest_approach_distance(self, tbox, argument, expected):
+        assert tbox.nearest_approach_distance(argument) == expected

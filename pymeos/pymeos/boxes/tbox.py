@@ -396,7 +396,7 @@ class TBox:
         tiles = self.tile(size, duration, origin, start)
         return [box for row in tiles for box in row]
 
-    def expand(self, other: Union[TBox, float, timedelta]) -> TBox:
+    def expand(self, other: Union[TBox, int, float, timedelta]) -> TBox:
         """
         Returns the result of expanding ``self`` with the ``other``. Depending on the type of ``other``, the expansion
         will be of the numeric dimension (:class:`float`), temporal (:class:`~datetime.timedelta`) or both
@@ -414,13 +414,49 @@ class TBox:
         if isinstance(other, TBox):
             result = tbox_copy(self._inner)
             tbox_expand(other._inner, result)
-        elif isinstance(other, float):
-            result = tbox_expand_value(self._inner, other)
+        elif isinstance(other, int) or isinstance(other, float):
+            result = tbox_expand_value(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = tbox_expand_time(self._inner, timedelta_to_interval(other))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return TBox(_inner=result)
+
+    def shift(self, delta: timedelta) -> TBox:
+        """
+        Returns a new `TBox` with the time dimension shifted by `delta`.
+
+        Args:
+            delta: :class:`datetime.timedelta` instance to shift
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            period_shift_tscale
+
+        See Also:
+            :meth:`Period.shift`
+        """
+        return self.shift_tscale(shift=delta)
+
+    def tscale(self, duration: timedelta) -> TBox:
+        """
+        Returns a new `TBox` with the time dimension having duration `duration`.
+
+        Args:
+            duration: :class:`datetime.timedelta` instance with new duration
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            period_shift_tscale
+
+        See Also:
+            :meth:`Period.tscale`
+        """
+        return self.shift_tscale(duration=duration)
 
     def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> TBox:
         """
@@ -451,7 +487,6 @@ class TBox:
             new_period,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
-            None, None
         )
         return TBox(_inner=new_inner)
 

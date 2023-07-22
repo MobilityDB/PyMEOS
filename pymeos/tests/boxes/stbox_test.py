@@ -501,9 +501,6 @@ class TestSTBoxAccessors(TestSTBox):
         assert isinstance(stb, STBox)
         assert stb == expected
 
-    ######################################
-    # THIS TEST DOES NOT WORK CORRECTLY
-    ######################################
     @pytest.mark.parametrize(
         'stbox, expected',
         [
@@ -552,6 +549,9 @@ class TestSTBoxAccessors(TestSTBox):
     def test_tscale(self, stbox, delta, expected):
         assert stbox.tscale(delta) == expected
 
+    ######################################
+    # THIS TEST DOES NOT WORK CORRECTLY
+    ######################################
     def test_shift_tscale(self):
         assert self.stbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
             STBox('STBOX T([2019-09-01,2019-09-02])')
