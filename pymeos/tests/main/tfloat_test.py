@@ -3,8 +3,10 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
-    TInt, TIntInst, TIntSeq, TIntSeqSet, TInterpolation, TimestampSet, Period, PeriodSet
+from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
+    TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
+    TInt, TIntInst, TIntSeq, TIntSeqSet, \
+    TInterpolation, TimestampSet, Period, PeriodSet
 
 from tests.conftest import TestPyMEOS
 

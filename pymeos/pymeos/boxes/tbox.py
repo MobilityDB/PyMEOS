@@ -65,6 +65,7 @@ class TBox:
         from pymeos_cffi.functions import _ffi
         return _ffi.addressof(self._inner.span)
 
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TBox:
         """
@@ -202,6 +203,60 @@ class TBox:
         """
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
+    def __copy__(self) -> TBox:
+        """
+        Returns a copy of ``self``.
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            tbox_copy
+        """
+        inner_copy = tbox_copy(self._inner)
+        return TBox(_inner=inner_copy)
+
+    def to_str(self, max_decimals=15) -> str:
+        """
+        Returns a string representation of `self` with a maximum number of decimals.
+
+        Args:
+            max_decimals: The maximum number of decimals.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __str__(self, max_decimals: int = 15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __repr__(self, max_decimals=15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
+    # ------------------------- Conversions ----------------------------------
     def to_floatrange(self) -> floatrange:
         """
         Returns the numeric span of ``self``.
@@ -226,6 +281,7 @@ class TBox:
         """
         return Period(_inner=tbox_to_period(self._inner))
 
+    # ------------------------- Accessors -------------------------------------
     def has_x(self) -> bool:
         """
         Returns whether ``self`` has a numeric dimension.
@@ -352,50 +408,7 @@ class TBox:
         """
         return tbox_tmax_inc(self._inner)
 
-    def tile(self, size: float, duration: Union[timedelta, str],
-             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
-        """
-        Returns 2d matrix of TBoxes resulting of tiling ``self``.
-
-        Args:
-            size: size of the numeric dimension of the tiles
-            duration: size of the temporal dimenstion of the tiles
-            origin: origin of the numeric dimension of the tiles
-            start: origin of the temporal dimension of the tiles
-
-        Returns:
-            A 2d array of :class:`TBox` instances.
-
-        MEOS Functions:
-            tbox_tile_list
-        """
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
-            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else tbox_tmin(self._inner)
-        tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
-        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
-
-    def tile_flat(self, size: float, duration: Union[timedelta, str],
-                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
-        """
-        Returns an array of TBoxes resulting of tiling ``self``.
-
-        Args:
-            size: size of the numeric dimension of the tiles
-            duration: size of the temporal dimenstion of the tiles
-            origin: origin of the numeric dimension of the tiles
-            start: origin of the temporal dimension of the tiles
-
-        Returns:
-            An array of :class:`TBox` instances.
-
-        MEOS Functions:
-            tbox_tile_list
-        """
-        tiles = self.tile(size, duration, origin, start)
-        return [box for row in tiles for box in row]
-
+    # ------------------------- Transformation --------------------------------
     def expand(self, other: Union[TBox, int, float, timedelta]) -> TBox:
         """
         Returns the result of expanding ``self`` with the ``other``. Depending on the type of ``other``, the expansion
@@ -490,6 +503,7 @@ class TBox:
         )
         return TBox(_inner=new_inner)
 
+    # ------------------------- Set Operations --------------------------------
     def union(self, other: TBox) -> TBox:
         """
         Returns the union of `self` with `other`. Fails if the union is not contiguous.
@@ -504,6 +518,21 @@ class TBox:
             union_tbox_tbox
         """
         return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
+
+    def __add__(self, other):
+        """
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            union_tbox_tbox
+        """
+        return self.union(other)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: TBox) -> Optional[TBox]:
@@ -522,6 +551,22 @@ class TBox:
         result = intersection_tbox_tbox(self._inner, other._inner)
         return TBox(_inner=result) if result else None
 
+    def __mul__(self, other):
+        """
+        Returns the intersection of `self` with `other`.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+
+        MEOS Functions:
+            intersection_tbox_tbox
+        """
+        return self.intersection(other)
+
+    # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share only the temporal or numerical bound
@@ -616,6 +661,29 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
+    def __contains__(self, item):
+        """
+        Returns whether ``self`` temporally contains ``item``.
+
+        Examples:
+            >>> TBox('TBox XT([2, 3], [2012-01-02, 2012-01-03]') in TBox('TBox XT([1, 4], [2012-01-01, 2012-01-04]')
+            >>> True
+            >>> TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)') in TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]')
+            >>> True
+            >>> TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]') in TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)')
+            >>> False
+
+        Args:
+            item: temporal object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_tbox_tbox, tnumber_to_tbox
+        """
+        return self.contains(item)
+
     def overlaps(self, other: Union[TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` overlaps ``other``. That is, both share at least an instant or a value.
@@ -636,6 +704,7 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Position Operations ---------------------------
     def is_same(self, other: Union[TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is the same as ``other``.
@@ -821,6 +890,7 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(self, other: Union[TBox, TNumber]) -> float:
         """
         Returns the distance between the nearest points of ``self`` and ``other``.
@@ -841,59 +911,52 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __add__(self, other):
+    # ------------------------- Splitting --------------------------------------
+    def tile(self, size: float, duration: Union[timedelta, str],
+             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns 2d matrix of TBoxes resulting of tiling ``self``.
 
         Args:
-            other: temporal object to merge with
+            size: size of the numeric dimension of the tiles
+            duration: size of the temporal dimenstion of the tiles
+            origin: origin of the numeric dimension of the tiles
+            start: origin of the temporal dimension of the tiles
 
         Returns:
-            A :class:`TBox` instance.
+            A 2d array of :class:`TBox` instances.
 
         MEOS Functions:
-            union_tbox_tbox
+            tbox_tile_list
         """
-        return self.union(other)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else tbox_tmin(self._inner)
+        tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
+        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
 
-    def __mul__(self, other):
+    def tile_flat(self, size: float, duration: Union[timedelta, str],
+                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
         """
-        Returns the intersection of `self` with `other`.
+        Returns an array of TBoxes resulting of tiling ``self``.
 
         Args:
-            other: temporal object to merge with
+            size: size of the numeric dimension of the tiles
+            duration: size of the temporal dimenstion of the tiles
+            origin: origin of the numeric dimension of the tiles
+            start: origin of the temporal dimension of the tiles
 
         Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+            An array of :class:`TBox` instances.
 
         MEOS Functions:
-            intersection_tbox_tbox
+            tbox_tile_list
         """
-        return self.intersection(other)
+        tiles = self.tile(size, duration, origin, start)
+        return [box for row in tiles for box in row]
 
-    def __contains__(self, item):
-        """
-        Returns whether ``self`` temporally contains ``item``.
-
-        Examples:
-            >>> TBox('TBox XT([2, 3], [2012-01-02, 2012-01-03]') in TBox('TBox XT([1, 4], [2012-01-01, 2012-01-04]')
-            >>> True
-            >>> TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)') in TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]')
-            >>> True
-            >>> TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]') in TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)')
-            >>> False
-
-        Args:
-            item: temporal object to compare with
-
-        Returns:
-            True if contains, False otherwise
-
-        MEOS Functions:
-            contains_tbox_tbox, tnumber_to_tbox
-        """
-        return self.contains(item)
-
+    # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
         """
         Returns whether ``self`` is equal to ``other``.
@@ -999,59 +1062,7 @@ class TBox:
             return tbox_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __copy__(self) -> TBox:
-        """
-        Returns a copy of ``self``.
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            tbox_copy
-        """
-        inner_copy = tbox_copy(self._inner)
-        return TBox(_inner=inner_copy)
-
-    def to_str(self, max_decimals=15) -> str:
-        """
-        Returns a string representation of `self` with a maximum number of decimals.
-
-        Args:
-            max_decimals: The maximum number of decimals.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
-    def __str__(self, max_decimals: int = 15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
-    def __repr__(self, max_decimals=15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
-
+    # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
         """
         Plots ``self``.
@@ -1062,6 +1073,7 @@ class TBox:
         from ..plotters import BoxPlotter
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """

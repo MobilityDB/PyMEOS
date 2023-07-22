@@ -3,7 +3,8 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from pymeos import TIntInst, TBool, TBoolInst, TIntSeq, TBoolSeq, TIntSeqSet, TBoolSeqSet, TInterpolation, TimestampSet, \
+from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
+    TIntInst, TIntSeq, TIntSeqSet, TInterpolation, TimestampSet, \
     Period, PeriodSet
 from tests.conftest import TestPyMEOS
 
@@ -17,8 +18,6 @@ class TestTBoolConstructors(TestTBool):
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
-    tbsts = TBoolSeq('Interp=Step;[True@2019-09-01, False@2019-09-02]')
-    tbstss = TBoolSeqSet('Interp=Step;{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -141,27 +140,24 @@ class TestTBoolConstructors(TestTBool):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbds, tbs, tbss, tbsts, tbstss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_hexwkb_constructor(self, temporal):
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbds, tbs, tbss, tbsts, tbstss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_mfjson_constructor(self, temporal):
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',
-        [tbi, tbds, tbs, tbss, tbsts, tbstss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)

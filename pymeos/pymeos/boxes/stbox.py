@@ -90,6 +90,7 @@ class STBox:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return other_box
 
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_hexwkb(hexwkb: str) -> STBox:
         """
@@ -234,142 +235,45 @@ class STBox:
             raise TypeError(f'Operation not supported with type {value.__class__}')
         return STBox(_inner=result)
 
-    def quad_split_flat(self) -> List[STBox]:
+    def __copy__(self) -> STBox:
         """
-        Returns a list of 4 (or 8 if `self`has Z dimension) :class:`STBox` instances resulting from the quad
-        split of ``self``.
-
-        Indices of returned array are as follows (back only present if Z dimension is present):
-
-           >>> #    (front)          (back)
-           >>> # -------------   -------------
-           >>> # |  2  |  3  |   |  6  |  7  |
-           >>> # ------------- + -------------
-           >>> # |  0  |  1  |   |  4  |  5  |
-           >>> # -------------   -------------
+        Returns a copy of ``self``.
 
         Returns:
-            A :class:`list` of :class:`STBox` instances.
+            A :class:`STBox` instance.
 
         MEOS Functions:
-            stbox_quad_split
+            stbox_copy
         """
-        boxes, count = stbox_quad_split(self._inner)
-        return [STBox(_inner=boxes + i) for i in range(count)]
+        inner_copy = stbox_copy(self._inner)
+        return STBox(_inner=inner_copy)
 
-    def quad_split(self) -> Union[List[List[STBox]], List[List[List[STBox]]]]:
+    def __str__(self, max_decimals: int = 15):
         """
-        Returns a 2D (YxX) or 3D (ZxYxX) list of :class:`STBox` instances resulting from the quad split of ``self``.
-
-        Indices of returned array are as follows:
-
-           >>> #       (front)
-           >>> # -------------------
-           >>> # | [1][0] | [1][1] |
-           >>> # -------------------
-           >>> # | [0][0] | [0][1] |
-           >>> # -------------------
-
-        If Z dimension is present:
-
-           >>> #          (front)                      (back)
-           >>> # -------------------------   -------------------------
-           >>> # | [0][1][0] | [0][1][1] |   | [1][1][0] | [1][1][1] |
-           >>> # ------------------------- + -------------------------
-           >>> # | [0][0][0] | [0][0][1] |   | [1][0][0] | [1][0][1] |
-           >>> # -------------------------   -------------------------
-
+        Returns a string representation of ``self``.
 
         Returns:
-            A 2D or 3D :class:`list` of :class:`STBox` instances.
+            A :class:`str` instance.
 
         MEOS Functions:
-            stbox_quad_split
-
+            stbox_out
         """
-        boxes, count = stbox_quad_split(self._inner)
-        if self.has_z():
-            return [
-                [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]],
-                [[STBox(_inner=boxes + i) for i in range(4, 6)], [STBox(_inner=boxes + i) for i in range(6, 8)]]
-            ]
-        else:
-            return [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]]
+        return stbox_out(self._inner, max_decimals)
 
-    def tile(self, size: Optional[float] = None, duration: Optional[Union[timedelta, str]] = None,
-             origin: Optional[Geometry] = None,
-             start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
+    def __repr__(self):
         """
-        Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the tiles of ``self``.
-        The resulting matrix has 4 dimensions regardless of the dimensionality of ``self``. If the ``self``
-        is missing a dimension, the resulting matrix will have a size of 1 for that dimension.
-
-        Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
+        Returns a string representation of ``self``.
 
         Returns:
-            A 4D matrix (XxYxZxT) of `STBox` instances.
+            A :class:`str` instance.
 
         MEOS Functions:
-            stbox_tile_list
+            stbox_out
         """
-        sz = size or (max(self.xmax() - self.xmin(), self.ymax() - self.ymin(),
-                          (self.zmax() - self.zmin() if self.has_z() else 0)) + 1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
-            else pg_interval_in(duration, -1) if isinstance(duration, str) \
-            else None
-        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
-            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
-            else 0
-        gs = geometry_to_gserialized(origin) if origin is not None \
-            else gserialized_in('Point(0 0 0)', -1)
-        tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
-        x_size = dimensions[0] or 1
-        y_size = dimensions[1] or 1
-        z_size = dimensions[2] or 1
-        t_size = dimensions[3] or 1
-        x_factor = y_size * z_size * t_size
-        y_factor = z_size * t_size
-        z_factor = t_size
-        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) for t in range(t_size)]
-                  for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
+        return (f'{self.__class__.__name__}'
+                f'({self})')
 
-    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
-                  origin: Optional[Geometry] = None,
-                  start: Union[datetime, str, None] = None) -> List[STBox]:
-        """
-        Returns a flat list of `STBox` instances representing the tiles of ``self``.
-
-        Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
-
-        Returns:
-            A flat list of `STBox` instances.
-
-        MEOS Functions:
-            stbox_tile_list
-        """
-        boxes = self.tile(size, duration, origin, start)
-        return [b
-                for x in boxes
-                for y in x
-                for z in y
-                for b in z
-                ]
-
+    # ------------------------- Conversions ----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:
         """
         Returns the spatial dimension of ``self`` as a `shapely` :class:`~shapely.BaseGeometry` instance.
@@ -397,6 +301,7 @@ class STBox:
         """
         return Period(_inner=stbox_to_period(self._inner))
 
+    # ------------------------- Accessors -------------------------------------
     def has_xy(self) -> bool:
 
         """
@@ -548,6 +453,7 @@ class STBox:
             return None
         return timestamptz_to_datetime(result)
 
+    # ------------------------- Spatial Reference System ----------------------
     def srid(self) -> int:
         """
         Returns the SRID of ``self``.
@@ -575,6 +481,7 @@ class STBox:
         """
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
+    # ------------------------- Transformations -------------------------------
     def expand(self, other: Union[int, float, timedelta]) -> STBox:
         """
         Expands ``self`` with `other`.
@@ -662,6 +569,7 @@ class STBox:
         )
         return STBox(_inner=new_inner)
 
+    # ------------------------- Set Operations --------------------------------
     def union(self, other: STBox, strict: bool = True) -> STBox:
         """
         Returns the smallest spatio-temporal box that contains both ``self`` and `other`.
@@ -677,6 +585,24 @@ class STBox:
             union_stbox_stbox
         """
         return STBox(_inner=union_stbox_stbox(self._inner, other._inner, strict))
+
+    def __add__(self, other):
+        """
+        Returns the non-strict union of ``self`` and `other`.
+
+        Args:
+            other: The spatiotemporal object to union with ``self``.
+
+        Returns:
+            An :class:`STBox` with the union of ``self`` and ``other``.
+
+        MEOS Functions:
+            union_stbox_stbox
+
+        See Also:
+            :meth:`STBox.union`
+        """
+        return self.union(other, strict=False)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: STBox) -> Optional[STBox]:
@@ -695,6 +621,25 @@ class STBox:
         result = intersection_stbox_stbox(self._inner, other._inner)
         return STBox(_inner=result) if result else None
 
+    def __mul__(self, other):
+        """
+        Returns the intersection of ``self`` and `other`.
+
+        Args:
+            other: The spatiotemporal object to intersect with ``self``.
+
+        Returns:
+            An :class:`STBox` with the intersection of ``self`` and ``other``.
+
+        MEOS Functions:
+            intersection_stbox_stbox
+
+        See Also:
+            :meth:`STBox.intersection`
+        """
+        return self.intersection(other)
+
+    # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` and `other` are adjacent. Two spatiotemporal boxes are adjacent if they share n
@@ -744,6 +689,24 @@ class STBox:
         """
         return contains_stbox_stbox(self._inner, self._get_box(content, allow_time_only=True))
 
+    def __contains__(self, item):
+        """
+        Returns whether ``self`` contains `item`.
+
+        Args:
+            item: The spatiotemporal object to check if it is contained in ``self``.
+
+        Returns:
+            ``True`` if ``self`` contains ``item``, ``False`` otherwise.
+
+        MEOS Functions:
+            contains_stbox_stbox
+
+        See Also:
+            :meth:`STBox.contains`
+        """
+        return self.contains(item)
+
     def overlaps(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` overlaps `other`. Note that for `TPoint` instances, the bounding box of
@@ -776,6 +739,7 @@ class STBox:
         """
         return same_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
 
+    # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly to the left  of `other`. Checks the X dimension.
@@ -1012,6 +976,7 @@ class STBox:
         """
         return self.to_period().is_over_or_after(other)
 
+    # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
         """
         Returns the distance between the nearest points of ``self`` and `other`.
@@ -1035,60 +1000,144 @@ class STBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __add__(self, other):
+    # ------------------------- Splitting --------------------------------------
+    def quad_split_flat(self) -> List[STBox]:
         """
-        Returns the non-strict union of ``self`` and `other`.
+        Returns a list of 4 (or 8 if `self`has Z dimension) :class:`STBox` instances resulting from the quad
+        split of ``self``.
 
-        Args:
-            other: The spatiotemporal object to union with ``self``.
+        Indices of returned array are as follows (back only present if Z dimension is present):
+
+           >>> #    (front)          (back)
+           >>> # -------------   -------------
+           >>> # |  2  |  3  |   |  6  |  7  |
+           >>> # ------------- + -------------
+           >>> # |  0  |  1  |   |  4  |  5  |
+           >>> # -------------   -------------
 
         Returns:
-            An :class:`STBox` with the union of ``self`` and ``other``.
+            A :class:`list` of :class:`STBox` instances.
 
         MEOS Functions:
-            union_stbox_stbox
-
-        See Also:
-            :meth:`STBox.union`
+            stbox_quad_split
         """
-        return self.union(other, strict=False)
+        boxes, count = stbox_quad_split(self._inner)
+        return [STBox(_inner=boxes + i) for i in range(count)]
 
-    def __mul__(self, other):
+    def quad_split(self) -> Union[List[List[STBox]], List[List[List[STBox]]]]:
         """
-        Returns the intersection of ``self`` and `other`.
+        Returns a 2D (YxX) or 3D (ZxYxX) list of :class:`STBox` instances resulting from the quad split of ``self``.
 
-        Args:
-            other: The spatiotemporal object to intersect with ``self``.
+        Indices of returned array are as follows:
+
+           >>> #       (front)
+           >>> # -------------------
+           >>> # | [1][0] | [1][1] |
+           >>> # -------------------
+           >>> # | [0][0] | [0][1] |
+           >>> # -------------------
+
+        If Z dimension is present:
+
+           >>> #          (front)                      (back)
+           >>> # -------------------------   -------------------------
+           >>> # | [0][1][0] | [0][1][1] |   | [1][1][0] | [1][1][1] |
+           >>> # ------------------------- + -------------------------
+           >>> # | [0][0][0] | [0][0][1] |   | [1][0][0] | [1][0][1] |
+           >>> # -------------------------   -------------------------
+
 
         Returns:
-            An :class:`STBox` with the intersection of ``self`` and ``other``.
+            A 2D or 3D :class:`list` of :class:`STBox` instances.
 
         MEOS Functions:
-            intersection_stbox_stbox
+            stbox_quad_split
 
-        See Also:
-            :meth:`STBox.intersection`
         """
-        return self.intersection(other)
+        boxes, count = stbox_quad_split(self._inner)
+        if self.has_z():
+            return [
+                [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]],
+                [[STBox(_inner=boxes + i) for i in range(4, 6)], [STBox(_inner=boxes + i) for i in range(6, 8)]]
+            ]
+        else:
+            return [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]]
 
-    def __contains__(self, item):
+    def tile(self, size: Optional[float] = None, duration: Optional[Union[timedelta, str]] = None,
+             origin: Optional[Geometry] = None,
+             start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
         """
-        Returns whether ``self`` contains `item`.
+        Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the tiles of ``self``.
+        The resulting matrix has 4 dimensions regardless of the dimensionality of ``self``. If the ``self``
+        is missing a dimension, the resulting matrix will have a size of 1 for that dimension.
 
         Args:
-            item: The spatiotemporal object to check if it is contained in ``self``.
+            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
+                argument is not provided, the tiling will be only temporal.
+            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
+                argument is not provided, the tiling will be only spatial.
+            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
+                the `STBox` time dimension.
 
         Returns:
-            ``True`` if ``self`` contains ``item``, ``False`` otherwise.
+            A 4D matrix (XxYxZxT) of `STBox` instances.
 
         MEOS Functions:
-            contains_stbox_stbox
-
-        See Also:
-            :meth:`STBox.contains`
+            stbox_tile_list
         """
-        return self.contains(item)
+        sz = size or (max(self.xmax() - self.xmin(), self.ymax() - self.ymin(),
+                          (self.zmax() - self.zmin() if self.has_z() else 0)) + 1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1) if isinstance(duration, str) \
+            else None
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
+            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
+            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
+            else 0
+        gs = geometry_to_gserialized(origin) if origin is not None \
+            else gserialized_in('Point(0 0 0)', -1)
+        tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
+        x_size = dimensions[0] or 1
+        y_size = dimensions[1] or 1
+        z_size = dimensions[2] or 1
+        t_size = dimensions[3] or 1
+        x_factor = y_size * z_size * t_size
+        y_factor = z_size * t_size
+        z_factor = t_size
+        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) for t in range(t_size)]
+                  for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
 
+    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
+                  origin: Optional[Geometry] = None,
+                  start: Union[datetime, str, None] = None) -> List[STBox]:
+        """
+        Returns a flat list of `STBox` instances representing the tiles of ``self``.
+
+        Args:
+            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
+                argument is not provided, the tiling will be only temporal.
+            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
+                argument is not provided, the tiling will be only spatial.
+            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
+                the `STBox` time dimension.
+
+        Returns:
+            A flat list of `STBox` instances.
+
+        MEOS Functions:
+            stbox_tile_list
+        """
+        boxes = self.tile(size, duration, origin, start)
+        return [b
+                for x in boxes
+                for y in x
+                for z in y
+                for b in z
+                ]
+
+    # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
         """
         Returns whether ``self`` is equal to `other`.
@@ -1195,44 +1244,7 @@ class STBox:
             return stbox_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __copy__(self) -> STBox:
-        """
-        Returns a copy of ``self``.
-
-        Returns:
-            A :class:`STBox` instance.
-
-        MEOS Functions:
-            stbox_copy
-        """
-        inner_copy = stbox_copy(self._inner)
-        return STBox(_inner=inner_copy)
-
-    def __str__(self, max_decimals: int = 15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            stbox_out
-        """
-        return stbox_out(self._inner, max_decimals)
-
-    def __repr__(self):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            stbox_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
-
+    # ------------------------- Plot Operations -------------------------------
     def plot_xy(self, *args, **kwargs):
         """
         Plots the spatial dimension (XY) of ``self``.
@@ -1263,6 +1275,7 @@ class STBox:
         from ..plotters import BoxPlotter
         return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
 
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """

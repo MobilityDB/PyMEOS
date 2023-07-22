@@ -48,6 +48,7 @@ class TimestampSet:
                      for ts in timestamp_list]
             self._inner = timestampset_make(times, len(times))
 
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TimestampSet:
         """
@@ -74,6 +75,7 @@ class TimestampSet:
         """
         return set_as_hexwkb(self._inner, -1)[0]
 
+    # ------------------------- Accessors -------------------------------------
     def timespan(self) -> timedelta:
         """
         Returns the duration of the time ignoring gaps, i.e. the duration from the
@@ -99,19 +101,6 @@ class TimestampSet:
         """
         from .period import Period
         return Period(_inner=set_span(self._inner))
-
-    def to_periodset(self) -> PeriodSet:
-        """
-        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
-
-        Returns:
-            A new :class:`PeriodSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-        from .periodset import PeriodSet
-        return PeriodSet(_inner=set_to_spanset(self._inner))
 
     def num_timestamps(self) -> int:
         """
@@ -172,6 +161,21 @@ class TimestampSet:
         tss = timestampset_values(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps())]
 
+    # ------------------------- Conversions ----------------------------------
+    def to_periodset(self) -> PeriodSet:
+        """
+        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
+
+        Returns:
+            A new :class:`PeriodSet` instance
+
+        MEOS Functions:
+            set_to_spanset
+        """
+        from .periodset import PeriodSet
+        return PeriodSet(_inner=set_to_spanset(self._inner))
+
+    # ------------------------- Transformations -------------------------------
     def shift(self, delta: timedelta) -> TimestampSet:
         """
         Returns a new TimestampSet that is the result of shifting ``self`` by ``delta``
@@ -236,6 +240,7 @@ class TimestampSet:
         )
         return TimestampSet(_inner=tss)
 
+    # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[Period, PeriodSet, Temporal, Box]) -> bool:
         """
         Returns whether ``self`` is temporally adjacent to ``other``. That is, they share a bound but only one of them
@@ -342,6 +347,29 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
+    def __contains__(self, item):
+        """
+        Returns whether ``self`` temporally contains ``content``.
+
+        Examples:
+            >>> TimestampSet('{2012-01-01, 2012-01-04}').contains(parse('2012-01-01]'))
+            >>> True
+            >>> TimestampSet('{2012-01-01, 2012-01-02}').contains(TimestampSet('{2012-01-01}'))
+            >>> True
+            >>> TimestampSet('{2012-01-01, 2012-01-02}').contains(TimestampSet('{2012-01-01, 2012-01-03}'))
+            >>> False
+
+        Args:
+            item: temporal object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_timestampset_timestamp, contains_set_set, contains_spanset_spanset
+        """
+        return self.contains(item)
+
     def overlaps(self, other: Union[Period, PeriodSet, TimestampSet, Temporal, Box]) -> bool:
         """
         Returns whether ``self`` temporally overlaps ``other``. That is, both share at least an instant
@@ -382,6 +410,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Position Operations ---------------------------
     def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``. That is, the first timestamp in ``self``
@@ -545,6 +574,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[Time, Temporal, Box]) -> timedelta:
         """
         Returns the temporal distance between ``self`` and ``other``.
@@ -577,6 +607,7 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Set Operations --------------------------------
     @overload
     def intersection(self, other: datetime) -> Optional[datetime]:
         ...
@@ -619,6 +650,21 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def __mul__(self, other):
+        """
+        Returns the temporal intersection of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to intersect with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
+        """
+        return self.intersection(other)
+
     @overload
     def minus(self, other: Union[datetime, TimestampSet]) -> Optional[TimestampSet]:
         ...
@@ -657,6 +703,21 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def __sub__(self, other):
+        """
+        Returns the temporal difference of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to diff with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
+        """
+        return self.minus(other)
+
     @overload
     def union(self, other: Union[datetime, TimestampSet]) -> TimestampSet:
         ...
@@ -691,21 +752,6 @@ class TimestampSet:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def __mul__(self, other):
-        """
-        Returns the temporal intersection of ``self`` and ``other``.
-
-        Args:
-            other: temporal object to intersect with
-
-        Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
-        """
-        return self.intersection(other)
-
     def __add__(self, other):
         """
         Returns the temporal union of ``self`` and ``other``.
@@ -721,44 +767,7 @@ class TimestampSet:
         """
         return self.union(other)
 
-    def __sub__(self, other):
-        """
-        Returns the temporal difference of ``self`` and ``other``.
-
-        Args:
-            other: temporal object to diff with
-
-        Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
-        """
-        return self.minus(other)
-
-    def __contains__(self, item):
-        """
-        Returns whether ``self`` temporally contains ``content``.
-
-        Examples:
-            >>> TimestampSet('{2012-01-01, 2012-01-04}').contains(parse('2012-01-01]'))
-            >>> True
-            >>> TimestampSet('{2012-01-01, 2012-01-02}').contains(TimestampSet('{2012-01-01}'))
-            >>> True
-            >>> TimestampSet('{2012-01-01, 2012-01-02}').contains(TimestampSet('{2012-01-01, 2012-01-03}'))
-            >>> False
-
-        Args:
-            item: temporal object to compare with
-
-        Returns:
-            True if contains, False otherwise
-
-        MEOS Functions:
-            contains_timestampset_timestamp, contains_set_set, contains_spanset_spanset
-        """
-        return self.contains(item)
-
+    # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
         """
         Returns whether ``self`` and ``other`` are equal.
@@ -861,6 +870,12 @@ class TimestampSet:
             return set_ge(self._inner, other._inner)
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Plot Operations -------------------------------
+    def plot(self, *args, **kwargs):
+        from ..plotters import TimePlotter
+        return TimePlotter.plot_timestampset(self, *args, **kwargs)
+
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """
@@ -896,18 +911,6 @@ class TimestampSet:
         """
         return set_out(self._inner, 15)
 
-    def __hash__(self) -> int:
-        """
-        Return the hash representation of ``self``.
-
-        Returns:
-            A new :class:`int` instance
-
-        MEOS Functions:
-            set_hash
-        """
-        return set_hash(self._inner)
-
     def __repr__(self):
         """
         Return the string representation of ``self``.
@@ -921,6 +924,14 @@ class TimestampSet:
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
-    def plot(self, *args, **kwargs):
-        from ..plotters import TimePlotter
-        return TimePlotter.plot_timestampset(self, *args, **kwargs)
+    def __hash__(self) -> int:
+        """
+        Return the hash representation of ``self``.
+
+        Returns:
+            A new :class:`int` instance
+
+        MEOS Functions:
+            set_hash
+        """
+        return set_hash(self._inner)

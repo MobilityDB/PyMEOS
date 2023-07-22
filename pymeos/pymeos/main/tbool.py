@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
+from functools import reduce
 from typing import Optional, Union, List, Set, overload
 
 from pymeos_cffi import *
@@ -19,60 +20,21 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
     def __init__(self, _inner) -> None:
         super().__init__()
 
-    def at(self, other: Union[bool, Time]) -> TBool:
-        """
-        Returns a new temporal boolean with the values of `self` restricted to the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to.
-
-        Returns:
-            A new temporal boolean.
-
-        MEOS Functions:
-            tbool_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
-        """
-        if isinstance(other, bool):
-            result = tbool_at_value(self._inner, other)
-        else:
-            return super().at(other)
-        return Temporal._factory(result)
-
-    def minus(self, other: Union[bool, Time]) -> TBool:
-        """
-        Returns a new temporal boolean with the values of `self` restricted to the complement of the time or value
-         `other`.
-
-        Args:
-            other: Time or value to restrict to the complement of.
-
-        Returns:
-            A new temporal boolean.
-
-        MEOS Functions:
-            tbool_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
-        """
-        if isinstance(other, bool):
-            result = tbool_minus_value(self._inner, other)
-        else:
-            return super().minus(other)
-        return Temporal._factory(result)
-
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_base_temporal(value: bool, base: Temporal) -> TBool:
         """
-        Create a temporal boolean from a boolean value and the time frame of another temporal object.
+        Create a temporal Boolean from a Boolean value and the time frame of another temporal object.
 
         Args:
             value: Boolean value.
             base: Temporal object to use as time frame.
 
         Returns:
-            A new temporal boolean.
+            A new :class:`TBool` object.
 
         MEOS Functions:
-            tbool_from_base
+            tbool_from_base_temp
         """
         result = tbool_from_base_temp(value, base._inner)
         return Temporal._factory(result)
@@ -107,7 +69,6 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         MEOS Functions:
             tboolinst_make, tboolseq_from_base_timestampset,
             tboolseq_from_base_period, tboolseqset_from_base_periodset
-
         """
         if isinstance(base, datetime):
             return TBoolInst(_inner=tboolinst_make(value, datetime_to_timestamptz(base)))
@@ -119,6 +80,25 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
+    def __str__(self):
+        """
+        Returns the string representation of `self`.
+
+        MEOS Function:
+            tbool_out
+        """
+        return tbool_out(self._inner)
+
+    def as_wkt(self):
+        """
+        Returns the string representation of `self` in WKT format.
+
+        MEOS Function:
+            tbool_out
+        """
+        return tbool_out(self._inner)
+
+    # ------------------------- Accessors -------------------------------------
     def value_set(self) -> Set[bool]:
         """
         Returns the unique values in `self`.
@@ -162,6 +142,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return tbool_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
 
+    # ------------------------- Ever and Always Comparisons -------------------
     def always_eq(self, value: bool) -> bool:
         """
         Returns whether `self` is always equal to `value`.
@@ -207,32 +188,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return not tbool_ever_eq(self._inner, value)
 
-    def when_true(self) -> Optional[PeriodSet]:
-        """
-        Returns a period set with the periods where `self` is True.
-
-        Returns:
-            A :class:`PeriodSet` with the periods where `self` is True.
-
-        MEOS Function:
-            tbool_when_true
-        """
-        result = tbool_when_true(self._inner)
-        return PeriodSet(_inner=result) if result is not None else None
-
-    def when_false(self) -> Optional[PeriodSet]:
-        """
-        Returns a period set with the periods where `self` is False.
-
-        Returns:
-            A :class:`PeriodSet` with the periods where `self` is False.
-
-        MEOS Function:
-            tbool_when_true, tnot_tbool
-        """
-        result = tbool_when_true(tnot_tbool(self._inner))
-        return PeriodSet(_inner=result) if result is not None else None
-
+    # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[bool, Temporal]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
@@ -271,18 +227,48 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not(self) -> TBool:
+    # ------------------------- Restrictions ----------------------------------
+    def at(self, other: Union[bool, Time]) -> TBool:
         """
-        Returns the temporal negation of `self`.
+        Returns a new temporal boolean with the values of `self` restricted to the time or value `other`.
+
+        Args:
+            other: Time or value to restrict to.
 
         Returns:
-            A :class:`TBool` with the temporal negation of `self`.
+            A new temporal boolean.
 
-        MEOS Function:
-            tnot_tbool
+        MEOS Functions:
+            tbool_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
         """
-        return self.__class__(_inner=tnot_tbool(self._inner))
+        if isinstance(other, bool):
+            result = tbool_at_value(self._inner, other)
+        else:
+            return super().at(other)
+        return Temporal._factory(result)
 
+    def minus(self, other: Union[bool, Time]) -> TBool:
+        """
+        Returns a new temporal boolean with the values of `self` restricted to the complement of the time or value
+         `other`.
+
+        Args:
+            other: Time or value to restrict to the complement of.
+
+        Returns:
+            A new temporal boolean.
+
+        MEOS Functions:
+            tbool_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
+            temporal_minus_periodset
+        """
+        if isinstance(other, bool):
+            result = tbool_minus_value(self._inner, other)
+        else:
+            return super().minus(other)
+        return Temporal._factory(result)
+
+    # ------------------------- Boolean Operations ----------------------------
     def temporal_and(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal conjunction of `self` and `other`.
@@ -302,6 +288,21 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    def __and__(self, other):
+        """
+        Returns the temporal conjunction of `self` and `other`.
+
+        Args:
+            other: A temporal or boolean object to combine with `self`.
+
+        Returns:
+            A :class:`TBool` with the temporal conjunction of `self` and `other`.
+
+        MEOS Functions:
+            tand_tbool_bool, tand_tbool_tbool
+        """
+        return self.temporal_and(other)
+
     def temporal_or(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal disjunction of `self` and `other`.
@@ -320,6 +321,33 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         elif isinstance(other, TBool):
             return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __or__(self, other):
+        """
+        Returns the temporal disjunction of `self` and `other`.
+
+        Args:
+            other: A temporal or boolean object to combine with `self`.
+
+        Returns:
+            A :class:`TBool` with the temporal disjunction of `self` and `other`.
+
+        MEOS Functions:
+            tor_tbool_bool, tor_tbool_tbool
+        """
+        return self.temporal_or(other)
+
+    def temporal_not(self) -> TBool:
+        """
+        Returns the temporal negation of `self`.
+
+        Returns:
+            A :class:`TBool` with the temporal negation of `self`.
+
+        MEOS Function:
+            tnot_tbool
+        """
+        return self.__class__(_inner=tnot_tbool(self._inner))
 
     def __neg__(self):
         """
@@ -345,54 +373,33 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return self.temporal_not()
 
-    def __and__(self, other):
+    def when_true(self) -> Optional[PeriodSet]:
         """
-        Returns the temporal conjunction of `self` and `other`.
-
-        Args:
-            other: A temporal or boolean object to combine with `self`.
+        Returns a period set with the periods where `self` is True.
 
         Returns:
-            A :class:`TBool` with the temporal conjunction of `self` and `other`.
+            A :class:`PeriodSet` with the periods where `self` is True.
 
-        MEOS Functions:
-            tand_tbool_bool, tand_tbool_tbool
+        MEOS Function:
+            tbool_when_true
         """
-        return self.temporal_and(other)
+        result = tbool_when_true(self._inner)
+        return PeriodSet(_inner=result) if result is not None else None
 
-    def __or__(self, other):
+    def when_false(self) -> Optional[PeriodSet]:
         """
-        Returns the temporal disjunction of `self` and `other`.
-
-        Args:
-            other: A temporal or boolean object to combine with `self`.
+        Returns a period set with the periods where `self` is False.
 
         Returns:
-            A :class:`TBool` with the temporal disjunction of `self` and `other`.
-
-        MEOS Functions:
-            tor_tbool_bool, tor_tbool_tbool
-        """
-        return self.temporal_or(other)
-
-    def __str__(self):
-        """
-        Returns the string representation of `self`.
+            A :class:`PeriodSet` with the periods where `self` is False.
 
         MEOS Function:
-            tbool_out
+            tbool_when_true, tnot_tbool
         """
-        return tbool_out(self._inner)
+        result = tbool_when_true(tnot_tbool(self._inner))
+        return PeriodSet(_inner=result) if result is not None else None
 
-    def as_wkt(self):
-        """
-        Returns the string representation of `self` in WKT format.
-
-        MEOS Function:
-            tbool_out
-        """
-        return tbool_out(self._inner)
-
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """
@@ -411,6 +418,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             else:
                 return TBoolSeq(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
+
 
 
 class TBoolInst(TInstant[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], TBool):

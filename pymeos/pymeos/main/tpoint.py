@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from functools import reduce
-from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar, Type
+from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar, Type, overload
 
 import postgis as pg
 import shapely.geometry as shp
@@ -33,31 +33,72 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def __init__(self, _inner) -> None:
         super().__init__()
 
+    # ------------------------- Input/Output ----------------------------------
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
         result = super().from_hexwkb(hexwkb)
         return result.set_srid(srid) if srid is not None else result
 
-    def srid(self) -> int:
+    def __str__(self):
         """
-        Returns the SRID.
+        Returns the string representation of the trajectory.
 
         Returns:
-            An :class:`int` representing the SRID.
+            A new :class:`str` representing the trajectory.
 
         MEOS Functions:
-            tpoint_srid
+            tpoint_out
         """
-        return tpoint_srid(self._inner)
+        return tpoint_as_text(self._inner, 15)
 
-    def set_srid(self: Self, srid: int) -> Self:
+    def as_wkt(self, precision: int = 15) -> str:
         """
-        Returns a new TPoint with the given SRID.
+        Returns the trajectory as a WKT string.
 
+        Args:
+            precision: The precision of the returned geometry.
 
+        Returns:
+            A new :class:`str` representing the trajectory.
+
+        MEOS Functions:
+            tpoint_out
         """
-        return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
+        return tpoint_as_text(self._inner, precision)
 
+    def as_ewkt(self, precision: int = 15) -> str:
+        """
+        Returns the trajectory as an EWKT string.
+
+        Args:
+            precision: The precision of the returned geometry.
+
+        Returns:
+            A new :class:`str` representing the trajectory.
+
+        MEOS Functions:
+            tpoint_as_ewkt
+        """
+        return tpoint_as_ewkt(self._inner, precision)
+
+    def as_geojson(self, option: int = 1, precision: int = 15, srs: Optional[str] = None) -> str:
+        """
+        Returns the trajectory as a GeoJSON string.
+
+        Args:
+            option: The option to use when serializing the trajectory.
+            precision: The precision of the returned geometry.
+            srs: The spatial reference system of the returned geometry.
+
+        Returns:
+            A new GeoJSON string representing the trajectory.
+
+        MEOS Functions:
+            gserialized_as_geojson
+        """
+        return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
+
+    # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> STBox:
         """
         Returns the bounding box of the `self`.
@@ -138,74 +179,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         return gserialized_to_shapely_point(
             tpoint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)[0], precision)
-
-    def simplify_min_dist(self: Self, tolerance: float) -> Self:
-        """
-        Returns a new :class:`TPoint` with the same trajectory but simplified so that there is a minimum distance
-        between points.
-
-        Args:
-            tolerance: A :class:`float` representing the tolerance in units of the coordinate system.
-
-        Returns:
-            A new :class:`TPoint` with the simplified trajectory.
-
-        MEOS Functions:
-            temporal_simplify_min_dist
-        """
-        return self.__class__(_inner=temporal_simplify_min_dist(self._inner, tolerance))
-
-    def simplify_min_time_delta(self: Self, tolerance: timedelta) -> Self:
-        """
-        Returns a new :class:`TPoint` with the same trajectory but simplified so that there is a minimum time delta
-        between points.
-
-        Args:
-            tolerance: A :class:`timedelta` representing the tolerance.
-
-        Returns:
-            A new :class:`TPoint` with the simplified trajectory.
-
-        MEOS Functions:
-            temporal_simplify_min_tdelta
-        """
-        return self.__class__(_inner=temporal_simplify_min_tdelta(self._inner, timedelta_to_interval(tolerance)))
-
-    def simplify_douglas_peucker(self: Self, tolerance: float, synchronized: bool = False) -> Self:
-        """
-        Returns a new :class:`TPoint` with the same trajectory but simplified using the Douglas-Peucker algorithm.
-
-        Args:
-            tolerance: A :class:`float` representing the tolerance in units of the coordinate system.
-            synchronized: A :class:`bool` indicating whether the simplification should use the synchronized distance
-            or the spatial-only distance.
-
-        Returns:
-            A new :class:`TPoint` with the simplified trajectory.
-
-        MEOS Functions:
-            temporal_simplify_dp
-        """
-        return self.__class__(_inner=temporal_simplify_dp(self._inner, tolerance, synchronized))
-
-    def simplify_max_dist(self: Self, tolerance: float, synchronized: bool = False) -> Self:
-        """
-        Returns a new :class:`TPoint` with the same trajectory but simplified using a single-pass implementation of
-        the Douglas-Peucker line simplification algorithm that checks whether the projected distance threshold is
-        exceeded.
-
-        Args:
-            tolerance: A :class:`float` representing the tolerance in units of the coordinate system.
-            synchronized: A :class:`bool` indicating whether the simplification should use the synchronized distance
-            or the spatial-only distance.
-
-        Returns:
-            A new :class:`TPoint` with the simplified trajectory.
-
-        MEOS Functions:
-            temporal_simplify_max_dist
-        """
-        return self.__class__(_inner=temporal_simplify_max_dist(self._inner, tolerance, synchronized))
 
     def length(self) -> float:
         """
@@ -322,6 +295,78 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         return tpoint_is_simple(self._inner)
 
+    def bearing(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TFloat:
+        """
+        Returns the temporal bearing between the trajectory and `other`.
+
+        Args:
+            other: An object to check the bearing to.
+
+        Returns:
+            A new :class:`TFloat` indicating the temporal bearing between the trajectory and `other`.
+
+        MEOS Functions:
+            bearing_tpoint_point, bearing_tpoint_tpoint
+        """
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = bearing_tpoint_point(self._inner, gs, False)
+        elif isinstance(other, TPoint):
+            result = bearing_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
+
+    def azimuth(self) -> TFloatSeqSet:
+        """
+        Returns the temporal azimuth of the trajectory.
+
+        Returns:
+            A new :class:`TFloatSeqSet` indicating the temporal azimuth of the trajectory.
+
+        MEOS Functions:
+            azimuth_tpoint
+        """
+        result = tpoint_azimuth(self._inner)
+        return Temporal._factory(result)
+
+    def time_weighted_centroid(self, precision: int = 15) -> shp.Point:
+        """
+        Returns the time weighted centroid of the trajectory.
+
+        Args:
+            precision: The precision of the returned geometry.
+
+        Returns:
+            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the time weighted centroid of the trajectory.
+
+        MEOS Functions:
+            tpoint_twcentroid
+        """
+        return gserialized_to_shapely_geometry(tpoint_twcentroid(self._inner), precision)  # type: ignore
+
+    # ------------------------- Spatial Reference System ----------------------
+    def srid(self) -> int:  
+        """
+        Returns the SRID.
+
+        Returns:
+            An :class:`int` representing the SRID.
+
+        MEOS Functions:
+            tpoint_srid
+        """
+        return tpoint_srid(self._inner)
+
+    def set_srid(self: Self, srid: int) -> Self:
+        """
+        Returns a new TPoint with the given SRID.
+
+
+        """
+        return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
+
+    # ------------------------- Transformations -------------------------------
     def make_simple(self) -> List[TPoint]:
         """
         Split the trajectory into a collection of simple trajectories.
@@ -336,6 +381,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(result[i]) for i in range(count)]
 
+    # ------------------------- Restrictions ----------------------------------
     def at(self,
            other: Union[pg.Geometry, List[pg.Geometry], shpb.BaseGeometry, List[shpb.BaseGeometry], STBox, Time]) -> TG:
         """
@@ -394,6 +440,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
+    # ------------------------- Temporal Spatial Relationships ----------------
     def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox], distance: float) -> TBool:
         """
         Returns a new temporal boolean indicating whether the trajectory is within `distance` of `other`.
@@ -513,6 +560,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
+    # ------------------------- Ever Spatial Relationships --------------------
     def is_ever_contained(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
         Returns whether the trajectory is ever contained by `container`.
@@ -634,6 +682,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
 
+    # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> TFloat:
         """
         Returns the temporal distance between the trajectory and `other`.
@@ -728,56 +777,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return gserialized_to_shapely_geometry(result[0], 10)
 
-    def bearing(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TFloat:
-        """
-        Returns the temporal bearing between the trajectory and `other`.
-
-        Args:
-            other: An object to check the bearing to.
-
-        Returns:
-            A new :class:`TFloat` indicating the temporal bearing between the trajectory and `other`.
-
-        MEOS Functions:
-            bearing_tpoint_point, bearing_tpoint_tpoint
-        """
-        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = bearing_tpoint_point(self._inner, gs, False)
-        elif isinstance(other, TPoint):
-            result = bearing_tpoint_tpoint(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
-
-    def azimuth(self) -> TFloatSeqSet:
-        """
-        Returns the temporal azimuth of the trajectory.
-
-        Returns:
-            A new :class:`TFloatSeqSet` indicating the temporal azimuth of the trajectory.
-
-        MEOS Functions:
-            azimuth_tpoint
-        """
-        result = tpoint_azimuth(self._inner)
-        return Temporal._factory(result)
-
-    def time_weighted_centroid(self, precision: int = 15) -> shp.Point:
-        """
-        Returns the time weighted centroid of the trajectory.
-
-        Args:
-            precision: The precision of the returned geometry.
-
-        Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the time weighted centroid of the trajectory.
-
-        MEOS Functions:
-            tpoint_twcentroid
-        """
-        return gserialized_to_shapely_geometry(tpoint_twcentroid(self._inner), precision)  # type: ignore
-
+    # ------------------------- Tiling Operations -----------------------------
     def tile(self, size: float, duration: Optional[Union[timedelta, str]] = None,
              origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
              start: Union[datetime, str, None] = None) -> List[List[List[List[TG]]]]:
@@ -831,23 +831,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         tiles = bbox.tile_flat(size, duration, origin, start)
         return [x for x in (self.at(tile) for tile in tiles) if x]
 
-    def as_geojson(self, option: int = 1, precision: int = 15, srs: Optional[str] = None) -> str:
-        """
-        Returns the trajectory as a GeoJSON string.
-
-        Args:
-            option: The option to use when serializing the trajectory.
-            precision: The precision of the returned geometry.
-            srs: The spatial reference system of the returned geometry.
-
-        Returns:
-            A new GeoJSON string representing the trajectory.
-
-        MEOS Functions:
-            gserialized_as_geojson
-        """
-        return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
-
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
         Returns the trajectory as a Shapely geometry.
@@ -875,48 +858,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             'geometry': [i.value() for i in self.instants()]
         }
         return GeoDataFrame(data, crs=self.srid()).set_index(keys=['time'])
-
-    def __str__(self):
-        """
-        Returns the string representation of the trajectory.
-
-        Returns:
-            A new :class:`str` representing the trajectory.
-
-        MEOS Functions:
-            tpoint_out
-        """
-        return tpoint_as_text(self._inner, 15)
-
-    def as_wkt(self, precision: int = 15) -> str:
-        """
-        Returns the trajectory as a WKT string.
-
-        Args:
-            precision: The precision of the returned geometry.
-
-        Returns:
-            A new :class:`str` representing the trajectory.
-
-        MEOS Functions:
-            tpoint_out
-        """
-        return tpoint_as_text(self._inner, precision)
-
-    def as_ewkt(self, precision: int = 15) -> str:
-        """
-        Returns the trajectory as an EWKT string.
-
-        Args:
-            precision: The precision of the returned geometry.
-
-        Returns:
-            A new :class:`str` representing the trajectory.
-
-        MEOS Functions:
-            tpoint_as_ewkt
-        """
-        return tpoint_as_ewkt(self._inner, precision)
 
 
 class TPointInst(TInstant[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC):
@@ -1041,6 +982,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     BaseClass = shp.Point
     _parse_function = tgeompoint_in
 
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
         """
@@ -1060,6 +1002,21 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         gs = geometry_to_gserialized(value, False)
         result = tgeompoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: datetime) -> TGeomPointInst:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Union[TimestampSet, Period]) -> TGeomPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: PeriodSet) -> TGeomPointSeqSet:
+        ...
 
     @staticmethod
     def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Time,
@@ -1090,6 +1047,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             return TGeomPointSeqSet(_inner=tgeompointseqset_from_base_periodset(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
+    # ------------------------- Conversions ----------------------------------
     def to_geographic(self) -> TGeogPoint:
         """
         Returns a copy of `self` converted to geographic coordinates.
@@ -1103,6 +1061,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         result = tgeompoint_tgeogpoint(self._inner, True)
         return Temporal._factory(result)
 
+    # ------------------------- Ever and Always Comparisons -------------------
     def always_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
@@ -1199,6 +1158,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
         return tgeompoint_always_eq(self._inner, gs)
 
+    # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
@@ -1239,10 +1199,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`TGeomPoint` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`TGeogPoint` from a database cursor. Used when automatically loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:
@@ -1272,6 +1233,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     BaseClass = shp.Point
     _parse_function = tgeogpoint_in
 
+    # ------------------------- Input/Output ----------------------------------
     @staticmethod
     def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
         """
@@ -1291,6 +1253,21 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         gs = geometry_to_gserialized(value, True)
         result = tgeogpoint_from_base_temp(gs, base._inner)
         return Temporal._factory(result)
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: datetime) -> TGeogPointInst:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Union[TimestampSet, Period]) -> TGeogPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: PeriodSet) -> TGeogPointSeqSet:
+        ...
 
     @staticmethod
     def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Time,
@@ -1321,6 +1298,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             return TGeogPointSeqSet(_inner=tgeogpointseqset_from_base_periodset(gs, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
+    # ------------------------- Conversions ----------------------------------
     def to_geometric(self) -> TGeomPoint:
         """
         Converts the temporal geographic point to a temporal geometric point.
@@ -1334,6 +1312,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         result = tgeompoint_tgeogpoint(self._inner, False)
         return Temporal._factory(result)
 
+    # ------------------------- Ever and Always Comparisons -------------------
     def always_equal(self, value: Union[pg.Geometry, shpb.BaseGeometry]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
@@ -1430,6 +1409,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         gs = geometry_to_gserialized(value, isinstance(self, TGeogPoint))
         return tgeogpoint_always_eq(self._inner, gs)
 
+    # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
@@ -1470,6 +1450,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """
@@ -1492,7 +1473,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             if value[1] == '[' or value[1] == '(':
                 return TGeogPointSeqSet(string=value)
             else:
-                return TGeogPointSeq(string=value)
+                return TGeomPointSeq(string=value)
         raise Exception("ERROR: Could not parse temporal point value")
 
 
