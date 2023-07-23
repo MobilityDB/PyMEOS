@@ -477,7 +477,7 @@ class TestSTBoxAccessors(TestSTBox):
         ],
         ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
     )
-    def test_tmax(self, stbox, expected):
+    def test_tmin_tmax_inc(self, stbox, expected):
         assert stbox.tmin_inc() == expected
         assert stbox.tmax_inc() == expected
 
@@ -883,4 +883,27 @@ class TestSTBoxDistanceFunctions(TestSTBox):
     )
     def test_nearest_approach_distance(self, stbox, argument, expected):
         assert stbox.nearest_approach_distance(argument) == expected
+
+
+class TestSTBoxComparisonFunctions(TestSTBox):
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    other = STBox('STBOX XT(((3,3),(4,4)),[2019-09-01,2019-09-02])')
+
+    def test_eq(self):
+        _ = self.stbxt == self.other
+
+    def test_ne(self):
+        _ = self.stbxt != self.other
+
+    def test_lt(self):
+        _ = self.stbxt < self.other
+
+    def test_le(self):
+        _ = self.stbxt <= self.other
+
+    def test_gt(self):
+        _ = self.stbxt > self.other
+
+    def test_ge(self):
+        _ = self.stbxt >= self.other
 

@@ -66,6 +66,59 @@ class TBox:
         return _ffi.addressof(self._inner.span)
 
     # ------------------------- Input/Output ----------------------------------
+    def __copy__(self) -> TBox:
+        """
+        Returns a copy of ``self``.
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            tbox_copy
+        """
+        inner_copy = tbox_copy(self._inner)
+        return TBox(_inner=inner_copy)
+
+    def to_str(self, max_decimals=15) -> str:
+        """
+        Returns a string representation of `self` with a maximum number of decimals.
+
+        Args:
+            max_decimals: The maximum number of decimals.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __str__(self, max_decimals: int = 15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __repr__(self, max_decimals=15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TBox:
         """
@@ -202,59 +255,6 @@ class TBox:
             tnumber_to_tbox
         """
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
-
-    def __copy__(self) -> TBox:
-        """
-        Returns a copy of ``self``.
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            tbox_copy
-        """
-        inner_copy = tbox_copy(self._inner)
-        return TBox(_inner=inner_copy)
-
-    def to_str(self, max_decimals=15) -> str:
-        """
-        Returns a string representation of `self` with a maximum number of decimals.
-
-        Args:
-            max_decimals: The maximum number of decimals.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
-    def __str__(self, max_decimals: int = 15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
-    def __repr__(self, max_decimals=15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
 
     # ------------------------- Conversions ----------------------------------
     def to_floatrange(self) -> floatrange:
@@ -502,69 +502,6 @@ class TBox:
             timedelta_to_interval(duration) if duration else None,
         )
         return TBox(_inner=new_inner)
-
-    # ------------------------- Set Operations --------------------------------
-    def union(self, other: TBox) -> TBox:
-        """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            union_tbox_tbox
-        """
-        return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
-
-    def __add__(self, other):
-        """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            union_tbox_tbox
-        """
-        return self.union(other)
-
-    # TODO: Check returning None for empty intersection is the desired behaviour
-    def intersection(self, other: TBox) -> Optional[TBox]:
-        """
-        Returns the intersection of `self` with `other`.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
-
-        MEOS Functions:
-            intersection_tbox_tbox
-        """
-        result = intersection_tbox_tbox(self._inner, other._inner)
-        return TBox(_inner=result) if result else None
-
-    def __mul__(self, other):
-        """
-        Returns the intersection of `self` with `other`.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
-
-        MEOS Functions:
-            intersection_tbox_tbox
-        """
-        return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
@@ -889,6 +826,69 @@ class TBox:
             return overafter_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # ------------------------- Set Operations --------------------------------
+    def union(self, other: TBox) -> TBox:
+        """
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            union_tbox_tbox
+        """
+        return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
+
+    def __add__(self, other):
+        """
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            union_tbox_tbox
+        """
+        return self.union(other)
+
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: TBox) -> Optional[TBox]:
+        """
+        Returns the intersection of `self` with `other`.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+
+        MEOS Functions:
+            intersection_tbox_tbox
+        """
+        result = intersection_tbox_tbox(self._inner, other._inner)
+        return TBox(_inner=result) if result else None
+
+    def __mul__(self, other):
+        """
+        Returns the intersection of `self` with `other`.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+
+        MEOS Functions:
+            intersection_tbox_tbox
+        """
+        return self.intersection(other)
 
     # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(self, other: Union[TBox, TNumber]) -> float:

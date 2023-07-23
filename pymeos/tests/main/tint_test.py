@@ -1279,4 +1279,3 @@ class TestTIntRestrictors(TestTInt):
         assert temporal.minus_min() == expected
 
 
-

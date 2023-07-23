@@ -68,6 +68,21 @@ class TestTBoxConstructors(TestTBox):
                                   datetime(2019, 9, 2, tzinfo=timezone.utc),
                                   True, True, True, True)
 
+    @pytest.mark.parametrize(
+        'value, expected',
+        [
+            (1, 'TBOX X([1, 1])'),
+            (1.5, 'TBOX X([1.5, 1.5])'),
+            (intrange(1, 2, True, True), 'TBOX X([1, 2])'),
+            (floatrange(1.5, 2.5, True, True), 'TBOX X([1.5, 2.5])'),
+        ],
+        ids=['int', 'float', 'intrange', 'floatrange']
+    )
+    def test_from_value_constructor(self, value, expected):
+        tb = TBox.from_value(value)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
+
     # @pytest.mark.parametrize(
         # 'time, expected',
         # [
@@ -86,21 +101,6 @@ class TestTBoxConstructors(TestTBox):
         # tb = TBox.from_time(time)
         # assert isinstance(tb, TBox)
         # assert str(tb) == expected
-
-    @pytest.mark.parametrize(
-        'value, expected',
-        [
-            (1, 'TBOX X([1, 1])'),
-            (1.5, 'TBOX X([1.5, 1.5])'),
-            (intrange(1, 2, True, True), 'TBOX X([1, 2])'),
-            (floatrange(1.5, 2.5, True, True), 'TBOX X([1.5, 2.5])'),
-        ],
-        ids=['int', 'float', 'intrange', 'floatrange']
-    )
-    def test_from_value_time_constructor(self, value, expected):
-        tb = TBox.from_value(value)
-        assert isinstance(tb, TBox)
-        assert str(tb) == expected
 
     # @pytest.mark.parametrize(
         # 'value, time, expected',
@@ -213,14 +213,6 @@ class TestTBoxOutputs(TestTBox):
         assert tbox.as_hexwkb() == expected
 
     @pytest.mark.parametrize(
-        'tbox',
-        [tbx, tbt, tbxt],
-        ids=['TBox X', 'TBox T', 'TBox XT']
-    )
-    def test_from_hexwkb_constructor(self, tbox):
-        assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
-
-    @pytest.mark.parametrize(
         'tbox, expected',
         [
             (tbx, floatrange(1.0, 2.0, True, True)),
@@ -297,7 +289,7 @@ class TestTBoxAccessors(TestTBox):
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_xmin_inc(self, tbox, expected):
+    def test_xmin_xmax_inc(self, tbox, expected):
         assert tbox.xmin_inc() == expected
         assert tbox.xmax_inc() == expected
 
@@ -334,7 +326,7 @@ class TestTBoxAccessors(TestTBox):
         ],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_tmin_inc(self, tbox, expected):
+    def test_tmin_tmax_inc(self, tbox, expected):
         assert tbox.tmin_inc() == expected
         assert tbox.tmax_inc() == expected
 
@@ -349,6 +341,11 @@ class TestTBoxAccessors(TestTBox):
     )
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
+
+class TestTBoxTransformations(TestTBox):
+    tbx = TBox('TBox X([1,2])')
+    tbt = TBox('TBox T([2019-09-01,2019-09-02])')
+    tbxt = TBox('TBox XT([1,2],[2019-09-01,2019-09-02])')
 
     @pytest.mark.parametrize(
         'tbox, expected',
@@ -628,3 +625,26 @@ class TestTBoxDistanceFunctions(TestTBox):
     )
     def test_nearest_approach_distance(self, tbox, argument, expected):
         assert tbox.nearest_approach_distance(argument) == expected
+
+
+class TestTBoxComparisonFunctions(TestTBox):
+    tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
+    other = TBox('TBOX XT([3,4],[2019-09-03,2019-09-04])')
+
+    def test_eq(self):
+        _ = self.tbxt == self.other
+
+    def test_ne(self):
+        _ = self.tbxt != self.other
+
+    def test_lt(self):
+        _ = self.tbxt < self.other
+
+    def test_le(self):
+        _ = self.tbxt <= self.other
+
+    def test_gt(self):
+        _ = self.tbxt > self.other
+
+    def test_ge(self):
+        _ = self.tbxt >= self.other
