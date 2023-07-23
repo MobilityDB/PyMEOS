@@ -935,6 +935,7 @@ class Period:
             return None
         return Period(string=value)
 
+    # ------------------------- Utilities -------------------------------------
     def __copy__(self):
         """
         Return a copy of ``self``.

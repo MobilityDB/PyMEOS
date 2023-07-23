@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 
-from pymeos import Period, PeriodSet, TimestampSet, TFloatInst, TFloatSeq, STBox, TFloatSeqSet, TBox
+from pymeos import Period, PeriodSet, TimestampSet, TBox, STBox, TFloatInst, TFloatSeq, TFloatSeqSet
 
 from tests.conftest import TestPyMEOS
 

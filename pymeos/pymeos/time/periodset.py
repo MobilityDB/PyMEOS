@@ -963,6 +963,7 @@ class PeriodSet:
             return None
         return PeriodSet(string=value)
 
+    # ------------------------- Utilities -------------------------------------
     def __copy__(self):
         """
         Return a copy of ``self``.

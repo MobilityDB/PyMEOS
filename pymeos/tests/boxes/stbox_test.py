@@ -469,6 +469,21 @@ class TestSTBoxAccessors(TestSTBox):
     @pytest.mark.parametrize(
         'stbox, expected',
         [
+            (stbx, None),
+            (stbz, None),
+            (stbt, True),
+            (stbxt, True),
+            (stbzt, True)
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_tmax(self, stbox, expected):
+        assert stbox.tmin_inc() == expected
+        assert stbox.tmax_inc() == expected
+
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
             (stbx, 0),
             (stbz, 0),
             (stbt, 0),

@@ -402,6 +402,18 @@ class STBox:
             return None
         return timestamptz_to_datetime(result)
 
+    def tmin_inc(self) -> bool:
+        """
+        Returns whether starting time of ``self`` is inclusive or not
+
+        Returns:
+            True if the starting time of ``self`` is inclusive and False otherwise
+
+        MEOS Functions:
+            stbox_tmin_inc
+        """
+        return stbox_tmin_inc(self._inner)
+
     def xmax(self) -> float:
         """
         Returns the maximum X coordinate of ``self``.
@@ -452,6 +464,18 @@ class STBox:
         if not result:
             return None
         return timestamptz_to_datetime(result)
+
+    def tmax_inc(self) -> bool:
+        """
+        Returns whether ending time of ``self`` is inclusive or not
+
+        Returns:
+            True if the ending time of ``self`` is inclusive and False otherwise
+
+        MEOS Functions:
+            stbox_tmax_inc
+        """
+        return stbox_tmax_inc(self._inner)
 
     # ------------------------- Spatial Reference System ----------------------
     def srid(self) -> int:

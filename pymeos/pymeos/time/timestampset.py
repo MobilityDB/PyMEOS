@@ -901,6 +901,7 @@ class TimestampSet:
             return None
         return TimestampSet(string=value)
 
+    # ------------------------- Utilities -------------------------------------
     def __copy__(self):
         """
         Return a copy of ``self``.

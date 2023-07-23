@@ -288,17 +288,18 @@ class TestTBoxAccessors(TestTBox):
     def test_xmin(self, tbox, expected):
         assert tbox.xmin() == expected
 
-    # @pytest.mark.parametrize(
-        # 'tbox, expected',
-        # [
-            # (tbx, True),
-            # (tbt, None),
-            # (tbxt, True)
-        # ],
-        # ids=['TBox X', 'TBox T', 'TBox XT']
-    # )
-    # def test_xmin_inc(self, tbox, expected):
-        # assert tbox.xmin_inc() == expected
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbx, True),
+            (tbt, None),
+            (tbxt, True)
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_xmin_inc(self, tbox, expected):
+        assert tbox.xmin_inc() == expected
+        assert tbox.xmax_inc() == expected
 
     @pytest.mark.parametrize(
         'tbox, expected',
@@ -312,18 +313,6 @@ class TestTBoxAccessors(TestTBox):
     def test_xmax(self, tbox, expected):
         assert tbox.xmax() == expected
 
-    # @pytest.mark.parametrize(
-        # 'tbox, expected',
-        # [
-            # (tbx, True),
-            # (tbt, None),
-            # (tbxt, True)
-        # ],
-        # ids=['TBox X', 'TBox T', 'TBox XT']
-    # )
-    # def test_xmax_inc(self, tbox, expected):
-        # assert tbox.xmax_inc() == expected
-
     @pytest.mark.parametrize(
         'tbox, expected',
         [
@@ -336,17 +325,18 @@ class TestTBoxAccessors(TestTBox):
     def test_tmin(self, tbox, expected):
         assert tbox.tmin() == expected
 
-    # @pytest.mark.parametrize(
-        # 'tbox, expected',
-        # [
-            # (tbx, None),
-            # (tbt, True),
-            # (tbxt, True)
-        # ],
-        # ids=['TBox X', 'TBox T', 'TBox XT']
-    # )
-    # def test_tmin_inc(self, tbox, expected):
-        # assert tbox.tmin_inc() == expected
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (tbx, None),
+            (tbt, True),
+            (tbxt, True)
+        ],
+        ids=['TBox X', 'TBox T', 'TBox XT']
+    )
+    def test_tmin_inc(self, tbox, expected):
+        assert tbox.tmin_inc() == expected
+        assert tbox.tmax_inc() == expected
 
     @pytest.mark.parametrize(
         'tbox, expected',
@@ -359,18 +349,6 @@ class TestTBoxAccessors(TestTBox):
     )
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
-
-    # @pytest.mark.parametrize(
-        # 'tbox, expected',
-        # [
-            # (tbx, None),
-            # (tbt, True),
-            # (tbxt, True)
-        # ],
-        # ids=['TBox X', 'TBox T', 'TBox XT']
-    # )
-    # def test_tmax_inc(self, tbox, expected):
-        # assert tbox.tmax_inc() == expected
 
     @pytest.mark.parametrize(
         'tbox, expected',
