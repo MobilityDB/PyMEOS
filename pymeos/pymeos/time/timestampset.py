@@ -48,7 +48,45 @@ class TimestampSet:
                      for ts in timestamp_list]
             self._inner = timestampset_make(times, len(times))
 
+    def __copy__(self):
+        """
+        Return a copy of ``self``.
+
+        Returns:
+            A new :class:`Period` instance
+
+        MEOS Functions:
+            set_copy
+        """
+        inner_copy = set_copy(self._inner)
+        return TimestampSet(_inner=inner_copy)
+
     # ------------------------- Input/Output ----------------------------------
+    def __str__(self):
+        """
+        Return the string representation of the content of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            set_out
+        """
+        return set_out(self._inner, 15)
+
+    def __repr__(self):
+        """
+        Return the string representation of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            set_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TimestampSet:
         """
@@ -75,8 +113,22 @@ class TimestampSet:
         """
         return set_as_hexwkb(self._inner, -1)[0]
 
+    # ------------------------- Conversions ----------------------------------
+    def to_periodset(self) -> PeriodSet:
+        """
+        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
+
+        Returns:
+            A new :class:`PeriodSet` instance
+
+        MEOS Functions:
+            set_to_spanset
+        """
+        from .periodset import PeriodSet
+        return PeriodSet(_inner=set_to_spanset(self._inner))
+
     # ------------------------- Accessors -------------------------------------
-    def timespan(self) -> timedelta:
+    def duration(self) -> timedelta:
         """
         Returns the duration of the time ignoring gaps, i.e. the duration from the
         first timestamp to the last one.
@@ -161,19 +213,17 @@ class TimestampSet:
         tss = timestampset_values(self._inner)
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_timestamps())]
 
-    # ------------------------- Conversions ----------------------------------
-    def to_periodset(self) -> PeriodSet:
+    def __hash__(self) -> int:
         """
-        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
+        Return the hash representation of ``self``.
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A new :class:`int` instance
 
         MEOS Functions:
-            set_to_spanset
+            set_hash
         """
-        from .periodset import PeriodSet
-        return PeriodSet(_inner=set_to_spanset(self._inner))
+        return set_hash(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: timedelta) -> TimestampSet:
@@ -901,53 +951,3 @@ class TimestampSet:
             return None
         return TimestampSet(string=value)
 
-    # ------------------------- Utilities -------------------------------------
-    def __copy__(self):
-        """
-        Return a copy of ``self``.
-
-        Returns:
-            A new :class:`Period` instance
-
-        MEOS Functions:
-            set_copy
-        """
-        inner_copy = set_copy(self._inner)
-        return TimestampSet(_inner=inner_copy)
-
-    def __str__(self):
-        """
-        Return the string representation of the content of ``self``.
-
-        Returns:
-            A new :class:`str` instance
-
-        MEOS Functions:
-            set_out
-        """
-        return set_out(self._inner, 15)
-
-    def __repr__(self):
-        """
-        Return the string representation of ``self``.
-
-        Returns:
-            A new :class:`str` instance
-
-        MEOS Functions:
-            set_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
-
-    def __hash__(self) -> int:
-        """
-        Return the hash representation of ``self``.
-
-        Returns:
-            A new :class:`int` instance
-
-        MEOS Functions:
-            set_hash
-        """
-        return set_hash(self._inner)

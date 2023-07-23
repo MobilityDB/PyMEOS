@@ -9,6 +9,7 @@ from tests.conftest import TestPyMEOS
 
 
 class TestPeriod(TestPyMEOS):
+    period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
 
     @staticmethod
     def assert_period_equality(period: Period,
@@ -80,15 +81,16 @@ class TestPeriodConstructors(TestPeriod):
         self.assert_period_equality(period, datetime(2019, 9, 8, tzinfo=timezone.utc),
                                     datetime(2019, 9, 10, tzinfo=timezone.utc), False, False)
 
+    def test_from_as_hexwkb_constructor(self):
+        assert self.period == Period.from_hexwkb(self.period.as_hexwkb())
+
     def test_copy_constructor(self):
-        period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
-        other = copy(period)
-        assert period == other
-        assert period is not other
+        other = copy(self.period)
+        assert self.period == other
+        assert self.period is not other
 
 
 class TestPeriodOutputs(TestPeriod):
-    period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
 
     def test_str(self):
         assert str(self.period) == '(2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00)'
@@ -99,6 +101,9 @@ class TestPeriodOutputs(TestPeriod):
     def test_hexwkb(self):
         assert self.period.as_hexwkb() == '012100000040021FFE3402000000B15A26350200'
 
+
+class TestPeriodConversions(TestPeriod):
+
     def test_to_periodset(self):
         periodset = self.period.to_periodset()
         assert isinstance(periodset, PeriodSet)
@@ -107,7 +112,6 @@ class TestPeriodOutputs(TestPeriod):
 
 
 class TestPeriodAccessors(TestPeriod):
-    period = Period('(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)')
     period2 = Period('[2019-09-08 02:03:00+0, 2019-09-10 02:03:00+0]')
 
     def test_lower(self):
@@ -138,13 +142,57 @@ class TestPeriodAccessors(TestPeriod):
         assert hash(self.period) == 1164402929
 
 
-class TestPeriodPositionFunctions(TestPeriod):
+class TestPeriodTransformationFunctions(TestPeriod):
+
+    @pytest.mark.parametrize(
+        'delta,result',
+        [(timedelta(days=4),
+          (datetime(2019, 9, 12, tzinfo=timezone.utc), datetime(2019, 9, 14, tzinfo=timezone.utc), False, False)),
+         (timedelta(days=-4),
+          (datetime(2019, 9, 4, tzinfo=timezone.utc), datetime(2019, 9, 6, tzinfo=timezone.utc), False, False)),
+         (timedelta(hours=2),
+          (datetime(2019, 9, 8, 2, tzinfo=timezone.utc), datetime(2019, 9, 10, 2, tzinfo=timezone.utc), False, False)),
+         (timedelta(hours=-2),
+          (datetime(2019, 9, 7, 22, tzinfo=timezone.utc), datetime(2019, 9, 9, 22, tzinfo=timezone.utc), False,
+           False)),
+         ],
+        ids=['positive days', 'negative days', 'positive hours', 'negative hours']
+    )
+    def test_shift(self, delta, result):
+        shifted = self.period.shift(delta)
+        self.assert_period_equality(shifted, *result)
+
+    @pytest.mark.parametrize(
+        'delta,result',
+        [(timedelta(days=4),
+          (datetime(2019, 9, 8, tzinfo=timezone.utc), datetime(2019, 9, 12, tzinfo=timezone.utc), False, False)),
+         (timedelta(hours=2),
+          (datetime(2019, 9, 8, tzinfo=timezone.utc), datetime(2019, 9, 8, 2, tzinfo=timezone.utc), False, False)),
+         ],
+        ids=['days', 'hours']
+    )
+    def test_tscale(self, delta, result):
+        scaled = self.period.tscale(delta)
+        self.assert_period_equality(scaled, *result)
+
+    def test_shift_tscale(self):
+        shifted_scaled = self.period.shift_tscale(timedelta(days=4), timedelta(hours=4))
+        self.assert_period_equality(shifted_scaled, datetime(2019, 9, 12, 0, tzinfo=timezone.utc),
+                                    datetime(2019, 9, 12, 4, tzinfo=timezone.utc), False, False)
+
+    def test_expand(self):
+        expanded = self.period.expand(Period('(2021-01-01 00:00:00+0, 2021-02-01 00:00:00+0)'))
+        self.assert_period_equality(expanded, datetime(2019, 9, 8, tzinfo=timezone.utc),
+                                    datetime(2021, 2, 1, tzinfo=timezone.utc), False, False)
+
+
+class TestPeriodTopologicalPositionFunctions(TestPeriod):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     timestamp = datetime(year=2020, month=1, day=1)
     timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
-    instance = TFloatInst('1.0@2020-01-01')
+    instant = TFloatInst('1.0@2020-01-01')
     discrete_sequence = TFloatSeq('{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}')
     stepwise_sequence = TFloatSeq('Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
     continuous_sequence = TFloatSeq('(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
@@ -155,9 +203,9 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_adjacent(self, other):
@@ -165,9 +213,9 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, instance, discrete_sequence, stepwise_sequence, continuous_sequence, sequence_set, tbox,
+        [period, periodset, instant, discrete_sequence, stepwise_sequence, continuous_sequence, sequence_set, tbox,
          stbox],
-        ids=['period', 'periodset', 'instance', 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
+        ids=['period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
              'sequence_set', 'tbox', 'stbox']
     )
     def test_is_contained_in(self, other):
@@ -175,9 +223,9 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_contains(self, other):
@@ -186,9 +234,9 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_overlaps(self, other):
@@ -196,29 +244,9 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_before(self, other):
-        self.period.is_before(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_over_or_before(self, other):
-        self.period.is_over_or_before(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_same(self, other):
@@ -226,19 +254,29 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
-    def test_is_over_or_after(self, other):
-        self.period.is_over_or_after(other)
+    def test_is_before(self, other):
+        self.period.is_before(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+    )
+    def test_is_over_or_before(self, other):
+        self.period.is_over_or_before(other)
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+         continuous_sequence, tbox, stbox],
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_after(self, other):
@@ -246,9 +284,19 @@ class TestPeriodPositionFunctions(TestPeriod):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+    )
+    def test_is_over_or_after(self, other):
+        self.period.is_over_or_after(other)
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+         continuous_sequence, tbox, stbox],
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_distance(self, other):
@@ -311,50 +359,4 @@ class TestPeriodComparisonFunctions(TestPeriod):
 
     def test_ge(self):
         _ = self.period >= self.other
-
-
-class TestPeriodManipulationFunctions(TestPeriod):
-    period = Period('(2020-01-01 00:00:00+0, 2020-02-01 00:00:00+0)')
-
-    def test_expand(self):
-        expanded = self.period.expand(Period('(2021-01-01 00:00:00+0, 2021-02-01 00:00:00+0)'))
-        self.assert_period_equality(expanded, datetime(2020, 1, 1, tzinfo=timezone.utc),
-                                    datetime(2021, 2, 1, tzinfo=timezone.utc), False, False)
-
-    @pytest.mark.parametrize(
-        'delta,result',
-        [(timedelta(days=4),
-          (datetime(2020, 1, 5, tzinfo=timezone.utc), datetime(2020, 2, 5, tzinfo=timezone.utc), False, False)),
-         (timedelta(days=-4),
-          (datetime(2019, 12, 28, tzinfo=timezone.utc), datetime(2020, 1, 28, tzinfo=timezone.utc), False, False)),
-         (timedelta(hours=2),
-          (datetime(2020, 1, 1, 2, tzinfo=timezone.utc), datetime(2020, 2, 1, 2, tzinfo=timezone.utc), False, False)),
-         (timedelta(hours=-2),
-          (datetime(2019, 12, 31, 22, tzinfo=timezone.utc), datetime(2020, 1, 31, 22, tzinfo=timezone.utc), False,
-           False)),
-         ],
-        ids=['positive days', 'negative days', 'positive hours', 'negative hours']
-    )
-    def test_shift(self, delta, result):
-        shifted = self.period.shift(delta)
-        self.assert_period_equality(shifted, *result)
-
-    @pytest.mark.parametrize(
-        'delta,result',
-        [(timedelta(days=4),
-          (datetime(2020, 1, 1, tzinfo=timezone.utc), datetime(2020, 1, 5, tzinfo=timezone.utc), False, False)),
-         (timedelta(hours=2),
-          (datetime(2020, 1, 1, tzinfo=timezone.utc), datetime(2020, 1, 1, 2, tzinfo=timezone.utc), False, False)),
-         ],
-        ids=['days', 'hours']
-    )
-    def test_tscale(self, delta, result):
-        scaled = self.period.tscale(delta)
-        self.assert_period_equality(scaled, *result)
-
-    def test_shift_tscale(self):
-        shifted_scaled = self.period.shift_tscale(timedelta(days=4), timedelta(hours=4))
-        self.assert_period_equality(shifted_scaled, datetime(2020, 1, 5, 0, tzinfo=timezone.utc),
-                                    datetime(2020, 1, 5, 4, tzinfo=timezone.utc), False, False)
-
 

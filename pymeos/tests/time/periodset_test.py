@@ -9,6 +9,7 @@ from tests.conftest import TestPyMEOS
 
 
 class TestPeriodSet(TestPyMEOS):
+    periodset = PeriodSet('{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-04]}')
 
     @staticmethod
     def assert_periodset_equality(periodset: PeriodSet, periods: List[Period]):
@@ -17,26 +18,25 @@ class TestPeriodSet(TestPyMEOS):
 
 
 class TestPeriodSetConstructors(TestPeriodSet):
-    periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
 
     def test_string_constructor(self):
         self.assert_periodset_equality(self.periodset, [
-            Period('[2019-01-01, 2019-01-02]'),
-            Period('[2019-01-03, 2019-01-04]')
+            Period('[2019-09-01, 2019-09-02]'),
+            Period('[2019-09-03, 2019-09-04]')
         ])
 
     def test_period_list_constructor(self):
         periodset = PeriodSet(period_list=[
-            Period('[2019-01-01, 2019-01-02]'),
-            Period('[2019-01-03, 2019-01-04]')
+            Period('[2019-09-01, 2019-09-02]'),
+            Period('[2019-09-03, 2019-09-04]')
         ])
         self.assert_periodset_equality(periodset, [
-            Period('[2019-01-01, 2019-01-02]'),
-            Period('[2019-01-03, 2019-01-04]')
+            Period('[2019-09-01, 2019-09-02]'),
+            Period('[2019-09-03, 2019-09-04]')
         ])
 
     def test_from_as_hexwkb_constructor(self):
-        assert self.periodset == self.periodset.from_hexwkb(self.periodset.as_hexwkb())
+        assert self.periodset == PeriodSet.from_hexwkb(self.periodset.as_hexwkb())
 
     def test_copy_constructor(self):
         copied = copy(self.periodset)
@@ -45,87 +45,129 @@ class TestPeriodSetConstructors(TestPeriodSet):
 
 
 class TestPeriodSetOutputs(TestPeriodSet):
-    periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
 
     def test_str(self):
-        assert str(self.periodset) == '{[2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00], ' \
-                                      '[2019-01-03 00:00:00+00, 2019-01-04 00:00:00+00]}'
+        assert str(self.periodset) == '{[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], ' \
+                                      '[2019-09-03 00:00:00+00, 2019-09-04 00:00:00+00]}'
 
     def test_repr(self):
-        assert repr(self.periodset) == 'PeriodSet({[2019-01-01 00:00:00+00, 2019-01-02 00:00:00+00], ' \
-                                       '[2019-01-03 00:00:00+00, 2019-01-04 00:00:00+00]})'
+        assert repr(self.periodset) == 'PeriodSet({[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], ' \
+                                       '[2019-09-03 00:00:00+00, 2019-09-04 00:00:00+00]})'
 
     def test_hexwkb(self):
-        assert self.periodset.as_hexwkb() == '01220002000000030080AEFA5821020000E085186D2102000300405D368121020000A0345495210200'
+        assert self.periodset.as_hexwkb() == '012200020000000300A01E4E713402000000F66B85340200030060CD899934020000C0A4A7AD340200'
+
+class TestPeriodSetConversions(TestPeriodSet):
 
     def test_to_period(self):
-        assert self.periodset.to_period() == Period('[2019-01-01, 2019-01-04]')
+        assert self.periodset.to_period() == Period('[2019-09-01, 2019-09-04]')
 
 
 class TestPeriodSetAccessors(TestPeriodSet):
-    periodset = PeriodSet('{[2019-01-01, 2019-01-02], [2019-01-03, 2019-01-04]}')
-    periodset2 = PeriodSet('{[2019-01-01, 2019-01-02), (2019-01-02, 2019-01-04]}')
+    periodset2 = PeriodSet('{[2019-09-01, 2019-09-02), (2019-09-02, 2019-09-04]}')
 
     def test_duration(self):
         assert self.periodset.duration() == timedelta(days=2)
-
-    def test_timespan(self):
-        assert self.periodset.timespan() == timedelta(days=3)
+        assert self.periodset.duration(True) == timedelta(days=3)
 
     def test_num_timestamps(self):
         assert self.periodset.num_timestamps() == 4
         assert self.periodset2.num_timestamps() == 3
 
     def test_start_timestamp(self):
-        assert self.periodset.start_timestamp() == datetime(2019, 1, 1, tzinfo=timezone.utc)
+        assert self.periodset.start_timestamp() == datetime(2019, 9, 1, tzinfo=timezone.utc)
 
     def test_end_timestamp(self):
-        assert self.periodset.end_timestamp() == datetime(2019, 1, 4, tzinfo=timezone.utc)
+        assert self.periodset.end_timestamp() == datetime(2019, 9, 4, tzinfo=timezone.utc)
 
     def test_timestamp_n(self):
-        assert self.periodset.timestamp_n(0) == datetime(2019, 1, 1, tzinfo=timezone.utc)
-        assert self.periodset.timestamp_n(1) == datetime(2019, 1, 2, tzinfo=timezone.utc)
-        assert self.periodset.timestamp_n(2) == datetime(2019, 1, 3, tzinfo=timezone.utc)
-        assert self.periodset.timestamp_n(3) == datetime(2019, 1, 4, tzinfo=timezone.utc)
+        assert self.periodset.timestamp_n(0) == datetime(2019, 9, 1, tzinfo=timezone.utc)
+        assert self.periodset.timestamp_n(1) == datetime(2019, 9, 2, tzinfo=timezone.utc)
+        assert self.periodset.timestamp_n(2) == datetime(2019, 9, 3, tzinfo=timezone.utc)
+        assert self.periodset.timestamp_n(3) == datetime(2019, 9, 4, tzinfo=timezone.utc)
 
     def test_timestamps(self):
         assert self.periodset.timestamps() == [
-            datetime(2019, 1, 1, tzinfo=timezone.utc),
-            datetime(2019, 1, 2, tzinfo=timezone.utc),
-            datetime(2019, 1, 3, tzinfo=timezone.utc),
-            datetime(2019, 1, 4, tzinfo=timezone.utc),
+            datetime(2019, 9, 1, tzinfo=timezone.utc),
+            datetime(2019, 9, 2, tzinfo=timezone.utc),
+            datetime(2019, 9, 3, tzinfo=timezone.utc),
+            datetime(2019, 9, 4, tzinfo=timezone.utc),
         ]
 
     def test_num_periods(self):
         assert self.periodset.num_periods() == 2
 
     def test_start_period(self):
-        assert self.periodset.start_period() == Period('[2019-01-01, 2019-01-02]')
+        assert self.periodset.start_period() == Period('[2019-09-01, 2019-09-02]')
 
     def test_end_period(self):
-        assert self.periodset.end_period() == Period('[2019-01-03, 2019-01-04]')
+        assert self.periodset.end_period() == Period('[2019-09-03, 2019-09-04]')
 
     def test_period_n(self):
-        assert self.periodset.period_n(0) == Period('[2019-01-01, 2019-01-02]')
-        assert self.periodset.period_n(1) == Period('[2019-01-03, 2019-01-04]')
+        assert self.periodset.period_n(0) == Period('[2019-09-01, 2019-09-02]')
+        assert self.periodset.period_n(1) == Period('[2019-09-03, 2019-09-04]')
 
     def test_periods(self):
         assert self.periodset.periods() == [
-            Period('[2019-01-01, 2019-01-02]'),
-            Period('[2019-01-03, 2019-01-04]')
+            Period('[2019-09-01, 2019-09-02]'),
+            Period('[2019-09-03, 2019-09-04]')
         ]
 
     def test_hash(self):
-        assert hash(self.periodset) == 942160317
+        assert hash(self.periodset) == 552347465
 
 
-class TestPeriodPositionFunctions(TestPeriodSet):
+class TestPeriodTransformationFunctions(TestPeriodSet):
+
+    @pytest.mark.parametrize(
+        'delta,result',
+        [(timedelta(days=4),
+          [Period('[2019-09-05 00:00:00+0, 2019-09-06 00:00:00+0]'),
+           Period('[2019-09-07 00:00:00+0, 2019-09-08 00:00:00+0]')]),
+         (timedelta(days=-4),
+          [Period('[2019-08-28 00:00:00+0, 2019-08-29 00:00:00+0]'),
+           Period('[2019-08-30 00:00:00+00, 2019-08-31 00:00:00+00]')]),
+         (timedelta(hours=2),
+          [Period('[2019-09-01 02:00:00+0, 2019-09-02 02:00:00+0]'),
+           Period('[2019-09-03 02:00:00+0, 2019-09-04 02:00:00+0]')]),
+         (timedelta(hours=-2),
+          [Period('[2019-08-31 22:00:00+0, 2019-09-01 22:00:00+0]'),
+           Period('[2019-09-02 22:00:00+0, 2019-09-03 22:00:00+0]')]),
+         ],
+        ids=['positive days', 'negative days', 'positive hours', 'negative hours']
+    )
+    def test_shift(self, delta, result):
+        shifted = self.periodset.shift(delta)
+        self.assert_periodset_equality(shifted, result)
+
+    @pytest.mark.parametrize(
+        'delta,result',
+        [(timedelta(days=3),
+          [Period('[2019-09-01 00:00:00+0, 2019-09-02 00:00:00+0]'),
+           Period('[2019-09-03 00:00:00+0, 2019-09-04 00:00:00+0]')]),
+         (timedelta(hours=6),
+          [Period('[2019-09-01 00:00:00+0, 2019-09-01 02:00:00+0]'),
+           Period('[2019-09-01 04:00:00+0, 2019-09-01 06:00:00+0]'), ]),
+         ],
+        ids=['days', 'hours']
+    )
+    def test_tscale(self, delta, result):
+        scaled = self.periodset.tscale(delta)
+        self.assert_periodset_equality(scaled, result)
+
+    def test_shift_tscale(self):
+        shifted_scaled = self.periodset.shift_tscale(timedelta(days=4), timedelta(hours=6))
+        self.assert_periodset_equality(shifted_scaled, [Period('[2019-09-05 00:00:00+0, 2019-09-05 02:00:00+0]'),
+                                                        Period('[2019-09-05 04:00:00+0, 2019-09-05 06:00:00+0]')])
+
+
+class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     timestamp = datetime(year=2020, month=1, day=1)
     timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
-    instance = TFloatInst('1.0@2020-01-01')
+    instant = TFloatInst('1.0@2020-01-01')
     discrete_sequence = TFloatSeq('{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}')
     stepwise_sequence = TFloatSeq('Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
     continuous_sequence = TFloatSeq('(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
@@ -136,9 +178,9 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_adjacent(self, other):
@@ -146,9 +188,9 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, instance, discrete_sequence, stepwise_sequence, continuous_sequence, sequence_set, tbox,
+        [period, periodset, instant, discrete_sequence, stepwise_sequence, continuous_sequence, sequence_set, tbox,
          stbox],
-        ids=['period', 'periodset', 'instance', 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
+        ids=['period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
              'sequence_set', 'tbox', 'stbox']
     )
     def test_is_contained_in(self, other):
@@ -156,9 +198,9 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_contains(self, other):
@@ -167,9 +209,9 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_overlaps(self, other):
@@ -177,29 +219,9 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_before(self, other):
-        self.periodset.is_before(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_over_or_before(self, other):
-        self.periodset.is_over_or_before(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_same(self, other):
@@ -207,19 +229,29 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
-    def test_is_over_or_after(self, other):
-        self.periodset.is_over_or_after(other)
+    def test_is_before(self, other):
+        self.periodset.is_before(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+    )
+    def test_is_over_or_before(self, other):
+        self.periodset.is_over_or_before(other)
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+         continuous_sequence, tbox, stbox],
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_after(self, other):
@@ -227,16 +259,26 @@ class TestPeriodPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instance, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instance', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+    )
+    def test_is_over_or_after(self, other):
+        self.periodset.is_over_or_after(other)
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+         continuous_sequence, tbox, stbox],
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_distance(self, other):
         self.periodset.distance(other)
 
 
-class TestPeriodSetFunctions(TestPeriodSet):
+class TestPeriodSetSetFunctions(TestPeriodSet):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
@@ -296,55 +338,4 @@ class TestPeriodComparisonFunctions(TestPeriodSet):
         _ = self.periodset >= self.other
 
 
-class TestPeriodManipulationFunctions(TestPeriodSet):
-    periodset = PeriodSet(
-        '{(2020-01-01 00:00:00+0, 2020-01-03 00:00:00+0), (2020-01-05 00:00:00+0, 2020-01-07 00:00:00+0)}')
 
-    @pytest.mark.parametrize(
-        'delta,result',
-        [(timedelta(days=4),
-          [Period('(2020-01-05 00:00:00+0, 2020-01-07 00:00:00+0)'),
-           Period('(2020-01-09 00:00:00+0, 2020-01-11 00:00:00+0)')]),
-         (timedelta(days=-4),
-          [Period('(2019-12-28 00:00:00+0, 2019-12-30 00:00:00+0)'),
-           Period('(2020-01-01 00:00:00+00, 2020-01-03 00:00:00+00)')]),
-         (timedelta(hours=2),
-          [Period('(2020-01-01 02:00:00+0, 2020-01-03 02:00:00+0)'),
-           Period('(2020-01-05 02:00:00+0, 2020-01-07 02:00:00+0)')]),
-         (timedelta(hours=-2),
-          [Period('(2019-12-31 22:00:00+0, 2020-01-02 22:00:00+0)'),
-           Period('(2020-01-04 22:00:00+0, 2020-01-06 22:00:00+0)')]),
-         ],
-        ids=['positive days', 'negative days', 'positive hours', 'negative hours']
-    )
-    def test_shift(self, delta, result):
-        shifted = self.periodset.shift(delta)
-        self.assert_periodset_equality(shifted, result)
-
-    @pytest.mark.parametrize(
-        'delta,result',
-        [(timedelta(days=3),
-          [Period('(2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0)'),
-           Period('(2020-01-03 00:00:00+0, 2020-01-04 00:00:00+0)')]),
-         (timedelta(hours=6),
-          [Period('(2020-01-01 00:00:00+0, 2020-01-01 02:00:00+0)'),
-           Period('(2020-01-01 04:00:00+0, 2020-01-01 06:00:00+0)'), ]),
-         ],
-        ids=['days', 'hours']
-    )
-    def test_tscale(self, delta, result):
-        scaled = self.periodset.tscale(delta)
-        self.assert_periodset_equality(scaled, result)
-
-    def test_shift_tscale(self):
-        shifted_scaled = self.periodset.shift_tscale(timedelta(days=4), timedelta(hours=6))
-        self.assert_periodset_equality(shifted_scaled, [Period('(2020-01-05 00:00:00+0, 2020-01-05 02:00:00+0)'),
-                                                        Period('(2020-01-05 04:00:00+0, 2020-01-05 06:00:00+0)')])
-
-
-class TestPeriodMiscFunctions(TestPeriodSet):
-    periodset = PeriodSet(
-        '{(2020-01-01 00:00:00+0, 2020-01-03 00:00:00+0), (2020-01-05 00:00:00+0, 2020-01-07 00:00:00+0)}')
-
-    def test_hash(self):
-        hash(self.periodset)

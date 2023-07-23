@@ -9,6 +9,8 @@ from tests.conftest import TestPyMEOS
 
 
 class TestTimestampSet(TestPyMEOS):
+    ts_set = TimestampSet('{2019-09-01 00:00:00+0, 2019-09-02 00:00:00+0, 2019-09-03 00:00:00+0}')
+
     @staticmethod
     def assert_timestampset_equality(ts_set: TimestampSet,
                                      timestamps: List[datetime]):
@@ -19,78 +21,82 @@ class TestTimestampSet(TestPyMEOS):
 class TestTimestampSetConstructors(TestTimestampSet):
 
     def test_string_constructor(self):
-        ts_set = TimestampSet('{2019-01-01 00:00:00, 2019-01-01 00:00:01}')
-        self.assert_timestampset_equality(ts_set, [datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                                   datetime(2019, 1, 1, 0, 0, 1, tzinfo=timezone.utc)])
+        self.assert_timestampset_equality(self.ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
 
     def test_list_constructor(self):
-        ts_set = TimestampSet(timestamp_list=[datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                              datetime(2019, 1, 1, 0, 0, 1, tzinfo=timezone.utc)])
-        self.assert_timestampset_equality(ts_set, [datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                                   datetime(2019, 1, 1, 0, 0, 1, tzinfo=timezone.utc)])
+        ts_set = TimestampSet(timestamp_list=[datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                              datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                              datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
+        self.assert_timestampset_equality(ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
 
     def test_hexwkb_constructor(self):
-        ts_set = TimestampSet.from_hexwkb('01200001020000000080AEFA5821020040C2BDFA58210200')
-        self.assert_timestampset_equality(ts_set, [datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                                   datetime(2019, 1, 1, 0, 0, 1, tzinfo=timezone.utc)])
+        ts_set = TimestampSet.from_hexwkb('012000010300000000A01E4E713402000000F66B853402000060CD8999340200')
+        self.assert_timestampset_equality(ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                                   datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
+    def test_from_as_hexwkb_constructor(self):
+        assert self.ts_set == TimestampSet.from_hexwkb(self.ts_set.as_hexwkb())
 
     def test_copy_constructor(self):
-        ts_set = TimestampSet('{2019-01-01 00:00:00, 2019-01-01 00:00:01}')
-        ts_set_copy = copy(ts_set)
-        assert ts_set == ts_set_copy
-        assert ts_set is not ts_set_copy
+        ts_set_copy = copy(self.ts_set)
+        assert self.ts_set == ts_set_copy
+        assert self.ts_set is not ts_set_copy
 
 
 class TestTimestampSetOutputs(TestTimestampSet):
-    ts_set = TimestampSet('{2019-01-01 00:00:00, 2019-01-01 00:00:01}')
 
     def test_str(self):
-        assert str(self.ts_set) == '{"2019-01-01 00:00:00+00", "2019-01-01 00:00:01+00"}'
+        assert str(self.ts_set) == '{"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"}'
 
     def test_repr(self):
-        assert repr(self.ts_set) == 'TimestampSet({"2019-01-01 00:00:00+00", "2019-01-01 00:00:01+00"})'
+        assert repr(self.ts_set) == 'TimestampSet({"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"})'
 
     def test_as_hexwkb(self):
-        assert self.ts_set.as_hexwkb() == '01200001020000000080AEFA5821020040C2BDFA58210200'
+        assert self.ts_set.as_hexwkb() == '012000010300000000A01E4E713402000000F66B853402000060CD8999340200'
 
     def test_to_periodset(self):
         assert self.ts_set.to_periodset() == PeriodSet(
-            '{[2019-01-01 00:00:00+00, 2019-01-01 00:00:00+00], [2019-01-01 00:00:01+00, 2019-01-01 00:00:01+00]}')
+            '{[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00], '
+             '[2019-09-02 00:00:00+00, 2019-09-02 00:00:00+00], '
+             '[2019-09-03 00:00:00+00, 2019-09-03 00:00:00+00]}')
 
 
 class TestTimestampSetAccessors(TestTimestampSet):
-    ts_set = TimestampSet('{2019-01-01 00:00:00, 2019-01-02 00:00:00, 2019-01-03 00:00:00}')
+
+    def test_duration(self):
+        assert self.ts_set.duration() == timedelta(days=2)
+
+    def test_period(self):
+        assert self.ts_set.period() == Period('[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]')
 
     def test_num_timestamps(self):
         assert self.ts_set.num_timestamps() == 3
 
-    def test_timestamps(self):
-        assert self.ts_set.timestamps() == [datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                            datetime(2019, 1, 2, 0, 0, 0, tzinfo=timezone.utc),
-                                            datetime(2019, 1, 3, 0, 0, 0, tzinfo=timezone.utc),
-                                            ]
-
     def test_start_timestamp(self):
-        assert self.ts_set.start_timestamp() == datetime(2019, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.start_timestamp() == datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_end_timestamp(self):
-        assert self.ts_set.end_timestamp() == datetime(2019, 1, 3, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.end_timestamp() == datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n(self):
-        assert self.ts_set.timestamp_n(1) == datetime(2019, 1, 2, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.timestamp_n(1) == datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n_out_of_range(self):
         with pytest.raises(IndexError):
             self.ts_set.timestamp_n(3)
 
-    def test_period(self):
-        assert self.ts_set.period() == Period('[2019-01-01 00:00:00+00, 2019-01-03 00:00:00+00]')
-
-    def test_timespan(self):
-        assert self.ts_set.timespan() == timedelta(days=2)
+    def test_timestamps(self):
+        assert self.ts_set.timestamps() == [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                            datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                            datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc),
+                                            ]
 
     def test_hash(self):
-        assert hash(self.ts_set) == 4286747193
+        assert hash(self.ts_set) == 527267058
 
 
 class TestTimestampSetPositionFunctions(TestTimestampSet):
@@ -157,6 +163,16 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
         ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
+    def test_is_same(self, other):
+        self.periodset.is_same(other)
+
+    @pytest.mark.parametrize(
+        'other',
+        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+         continuous_sequence, tbox, stbox],
+        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+    )
     def test_is_before(self, other):
         self.timestampset.is_before(other)
 
@@ -177,8 +193,8 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
         ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
-    def test_is_over_or_after(self, other):
-        self.timestampset.is_over_or_after(other)
+    def test_is_after(self, other):
+        self.timestampset.is_after(other)
 
     @pytest.mark.parametrize(
         'other',
@@ -187,8 +203,8 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
         ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
-    def test_is_after(self, other):
-        self.timestampset.is_after(other)
+    def test_is_over_or_after(self, other):
+        self.timestampset.is_over_or_after(other)
 
     @pytest.mark.parametrize(
         'other',

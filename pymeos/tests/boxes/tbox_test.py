@@ -60,13 +60,13 @@ class TestTBoxConstructors(TestTBox):
         assert isinstance(tb, type)
         assert str(tb) == expected
 
-    # def test_hexwkb_constructor(self):
-        # source = '010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040'
-        # tbox = TBox.from_hexwkb(source)
-        # self.assert_tbox_equality(tbox, 1, 2, 
-                                  # datetime(2019, 9, 1, tzinfo=timezone.utc),
-                                  # datetime(2019, 9, 2, tzinfo=timezone.utc),
-                                  # True, True, True, True)
+    def test_hexwkb_constructor(self):
+        source = '010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040'
+        tbox = TBox.from_hexwkb(source)
+        self.assert_tbox_equality(tbox, 1, 2, 
+                                  datetime(2019, 9, 1, tzinfo=timezone.utc),
+                                  datetime(2019, 9, 2, tzinfo=timezone.utc),
+                                  True, True, True, True)
 
     # @pytest.mark.parametrize(
         # 'time, expected',
