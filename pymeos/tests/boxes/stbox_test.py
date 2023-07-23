@@ -502,6 +502,21 @@ class TestSTBoxAccessors(TestSTBox):
         assert stbox.srid() == expected
 
     @pytest.mark.parametrize(
+        'stbox',
+        [stbx, stbz, stbt, stbxt, stbzt],
+        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+    )
+    def test_set_srid(self, stbox):
+        assert stbox.set_srid(5676).srid() == 5676
+
+class TestSTBoxTransformations(TestSTBox):
+    stbx = STBox('STBOX X((1,1),(2,2))')
+    stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
+    stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
+    stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
+    stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
         'stbox, expected',
         [
             (stbx, STBox('STBOX X((0,0),(3,3))')),
