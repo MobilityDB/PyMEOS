@@ -166,6 +166,12 @@ function_modifiers = {
     'spanset_from_wkb': from_wkb_modifier('spanset_from_wkb', 'SpanSet'),
     'tbox_from_wkb': from_wkb_modifier('tbox_from_wkb', 'TBOX'),
     'stbox_from_wkb': from_wkb_modifier('stbox_from_wkb', 'STBOX'),
+    'temporal_as_wkb': as_wkb_modifier,
+    'set_as_wkb': as_wkb_modifier,
+    'span_as_wkb': as_wkb_modifier,
+    'spanset_as_wkb': as_wkb_modifier,
+    'tbox_as_wkb': as_wkb_modifier,
+    'stbox_as_wkb': as_wkb_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)

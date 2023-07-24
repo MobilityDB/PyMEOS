@@ -604,12 +604,13 @@ def set_as_hexwkb(s: 'const Set *', variant: int) -> "Tuple[str, 'size_t *']":
     return result if result != _ffi.NULL else None, size_out[0]
 
 
-def set_as_wkb(s: 'const Set *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def set_as_wkb(s: 'const Set *', variant: int) -> bytes:
     s_converted = _ffi.cast('const Set *', s)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.set_as_wkb(s_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def set_from_hexwkb(hexwkb: str) -> 'Set *':
@@ -631,12 +632,13 @@ def set_out(s: 'const Set *', maxdd: int) -> str:
     return result if result != _ffi.NULL else None
 
 
-def span_as_wkb(s: 'const Span *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def span_as_wkb(s: 'const Span *', variant: int) -> bytes:
     s_converted = _ffi.cast('const Span *', s)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.span_as_wkb(s_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def span_as_hexwkb(s: 'const Span *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -667,12 +669,13 @@ def span_out(s: 'const Span *', maxdd: int) -> str:
     return result if result != _ffi.NULL else None
 
 
-def spanset_as_wkb(ss: 'const SpanSet *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def spanset_as_wkb(ss: 'const SpanSet *', variant: int) -> bytes:
     ss_converted = _ffi.cast('const SpanSet *', ss)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.spanset_as_wkb(ss_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def spanset_as_hexwkb(ss: 'const SpanSet *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -2551,12 +2554,13 @@ def stbox_from_hexwkb(hexwkb: str) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
-def tbox_as_wkb(box: 'const TBox *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def tbox_as_wkb(box: 'const TBox *', variant: int) -> bytes:
     box_converted = _ffi.cast('const TBox *', box)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.tbox_as_wkb(box_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def tbox_as_hexwkb(box: 'const TBox *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -2568,12 +2572,13 @@ def tbox_as_hexwkb(box: 'const TBox *', variant: int) -> "Tuple[str, 'size_t *']
     return result if result != _ffi.NULL else None, size[0]
 
 
-def stbox_as_wkb(box: 'const STBox *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def stbox_as_wkb(box: 'const STBox *', variant: int) -> bytes:
     box_converted = _ffi.cast('const STBox *', box)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.stbox_as_wkb(box_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def stbox_as_hexwkb(box: 'const STBox *', variant: int) -> "Tuple[str, 'size_t *']":
@@ -3473,12 +3478,13 @@ def temporal_as_mfjson(temp: 'const Temporal *', with_bbox: bool, flags: int, pr
     return result if result != _ffi.NULL else None
 
 
-def temporal_as_wkb(temp: 'const Temporal *', variant: int) -> "Tuple['uint8_t *', 'size_t *']":
+def temporal_as_wkb(temp: 'const Temporal *', variant: int) -> bytes:
     temp_converted = _ffi.cast('const Temporal *', temp)
     variant_converted = _ffi.cast('uint8_t', variant)
     size_out = _ffi.new('size_t *')
     result = _lib.temporal_as_wkb(temp_converted, variant_converted, size_out)
-    return result if result != _ffi.NULL else None, size_out[0]
+    result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None
+    return result_converted
 
 
 def temporal_from_hexwkb(hexwkb: str) -> 'Temporal *':
