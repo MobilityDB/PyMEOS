@@ -187,8 +187,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_as_hexwkb
         """
-        bytes_array, length = temporal_as_wkb(self._inner, 4)
-        return bytes(bytes_array[i] for i in range(length))
+        return temporal_as_wkb(self._inner, 4)
 
     def as_hexwkb(self) -> str:
         """

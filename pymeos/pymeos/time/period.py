@@ -136,7 +136,7 @@ class Period:
         MEOS Functions:
             span_as_wkb
         """
-        return span_as_wkb(self._inner, -1)[0]
+        return span_as_wkb(self._inner, -1)
 
     def as_hexwkb(self) -> str:
         """
