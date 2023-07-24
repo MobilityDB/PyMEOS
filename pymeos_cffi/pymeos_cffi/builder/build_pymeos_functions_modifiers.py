@@ -21,17 +21,10 @@ def text2cstring_modifier(_: str) -> str:
     return result"""
 
 
-def temporal_from_wkb_modifier(_: str) -> str:
-    return """def temporal_from_wkb(wkb: bytes) -> 'Temporal *':
+def from_wkb_modifier(function: str, return_type: str) -> Callable[[str], str]:
+    return lambda _: f"""def {function}(wkb: bytes) -> '{return_type} *':
     wkb_converted = _ffi.new('uint8_t []', wkb)
-    result = _lib.temporal_from_wkb(wkb_converted, len(wkb))
-    return result if result != _ffi.NULL else None"""
-
-
-def span_from_wkb_modifier(_: str) -> str:
-    return """def span_from_hexwkb(hexwkb: str) -> 'Span *':
-    hexwkb_converted = hexwkb.encode('utf-8')
-    result = _lib.span_from_hexwkb(hexwkb_converted)
+    result = _lib.{function}(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None"""
 
 

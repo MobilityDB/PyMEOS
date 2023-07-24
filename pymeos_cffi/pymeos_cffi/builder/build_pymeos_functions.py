@@ -160,8 +160,12 @@ function_modifiers = {
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
     'spanset_make': spanset_make_modifier,
-    'temporal_from_wkb': temporal_from_wkb_modifier,
-    'span_from_wkb': span_from_wkb_modifier,
+    'temporal_from_wkb': from_wkb_modifier('temporal_from_wkb', 'Temporal'),
+    'set_from_wkb': from_wkb_modifier('set_from_wkb', 'Set'),
+    'span_from_wkb': from_wkb_modifier('span_from_wkb', 'Span'),
+    'spanset_from_wkb': from_wkb_modifier('spanset_from_wkb', 'SpanSet'),
+    'tbox_from_wkb': from_wkb_modifier('tbox_from_wkb', 'TBOX'),
+    'stbox_from_wkb': from_wkb_modifier('stbox_from_wkb', 'STBOX'),
 }
 
 # List of result function parameters in tuples of (function, parameter)

@@ -618,10 +618,9 @@ def set_from_hexwkb(hexwkb: str) -> 'Set *':
     return result if result != _ffi.NULL else None
 
 
-def set_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'Set *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.set_from_wkb(wkb_converted, size_converted)
+def set_from_wkb(wkb: bytes) -> 'Set *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.set_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 
@@ -691,10 +690,9 @@ def spanset_from_hexwkb(hexwkb: str) -> 'SpanSet *':
     return result if result != _ffi.NULL else None
 
 
-def spanset_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'SpanSet *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.spanset_from_wkb(wkb_converted, size_converted)
+def spanset_from_wkb(wkb: bytes) -> 'SpanSet *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.spanset_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 
@@ -2529,10 +2527,9 @@ def tbox_out(box: 'const TBox *', maxdd: int) -> str:
     return result if result != _ffi.NULL else None
 
 
-def tbox_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'TBox *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.tbox_from_wkb(wkb_converted, size_converted)
+def tbox_from_wkb(wkb: bytes) -> 'TBOX *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.tbox_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 
@@ -2542,10 +2539,9 @@ def tbox_from_hexwkb(hexwkb: str) -> 'TBox *':
     return result if result != _ffi.NULL else None
 
 
-def stbox_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'STBox *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.stbox_from_wkb(wkb_converted, size_converted)
+def stbox_from_wkb(wkb: bytes) -> 'STBOX *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.stbox_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 
