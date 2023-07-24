@@ -150,16 +150,9 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
-    def test_from_as_hexwkb_constructor(self, temporal):
+    def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
-
-    # @pytest.mark.parametrize(
-        # 'temporal',
-        # [tpi, tpds, tps, tpss, tpi3d, tpds3d, tps3d, tpss3d],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             # 'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
-    # )
-    # def test_from_as_mfjson_constructor(self, temporal):
         # assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
@@ -1054,3 +1047,24 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         assert temporal.minus(restrictor) == expected
 
 
+class TestTGeogPointComparisonFunctions(TestTGeogPoint):
+    tp = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    other = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    def test_eq(self):
+        _ = self.tp == self.other
+
+    def test_ne(self):
+        _ = self.tp != self.other
+
+    def test_lt(self):
+        _ = self.tp < self.other
+
+    def test_le(self):
+        _ = self.tp <= self.other
+
+    def test_gt(self):
+        _ = self.tp > self.other
+
+    def test_ge(self):
+        _ = self.tp >= self.other

@@ -93,6 +93,23 @@ class Period:
                 f'({self})')
 
     @staticmethod
+    def from_wkb(wkb: bytes) -> Period:
+        """
+        Returns a `Period` from WKB bytes.
+
+        Args:
+            wkb: The WKB string.
+
+        Returns:
+            A new :class:`Period` instance
+
+        MEOS Functions:
+            span_from_wkb
+        """
+        result = span_from_wkb(wkb)
+        return Period(_inner=result)
+
+    @staticmethod
     def from_hexwkb(hexwkb: str) -> Period:
         """
         Returns a `Period` from its WKB representation in hex-encoded ASCII.
@@ -108,6 +125,18 @@ class Period:
         """
         result = span_from_hexwkb(hexwkb)
         return Period(_inner=result)
+
+    def as_wkb(self) -> bytes:
+        """
+        Returns the WKB representation of ``self``.
+
+        Returns:
+            A :class:`str` object with the WKB representation of ``self``.
+
+        MEOS Functions:
+            span_as_wkb
+        """
+        return span_as_wkb(self._inner, -1)[0]
 
     def as_hexwkb(self) -> str:
         """

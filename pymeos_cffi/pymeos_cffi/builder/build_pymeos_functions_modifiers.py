@@ -28,6 +28,13 @@ def temporal_from_wkb_modifier(_: str) -> str:
     return result if result != _ffi.NULL else None"""
 
 
+def span_from_wkb_modifier(_: str) -> str:
+    return """def span_from_hexwkb(hexwkb: str) -> 'Span *':
+    hexwkb_converted = hexwkb.encode('utf-8')
+    result = _lib.span_from_hexwkb(hexwkb_converted)
+    return result if result != _ffi.NULL else None"""
+
+
 def timestampset_make_modifier(function: str) -> str:
     return function \
         .replace('values: int', 'values: List[int]') \

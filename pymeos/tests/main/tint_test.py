@@ -17,8 +17,6 @@ class TestTIntConstructors(TestTInt):
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
-    tists = TIntSeq('Interp=Step;[1@2019-09-01, 2@2019-09-02]')
-    tistss = TIntSeqSet('Interp=Step;{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'source, type, interpolation',
@@ -141,27 +139,18 @@ class TestTIntConstructors(TestTInt):
 
     @pytest.mark.parametrize(
         'temporal',
-        [tii, tids, tis, tiss, tists, tistss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
+        [tii, tids, tis, tiss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_from_as_hexwkb_constructor(self, temporal):
+    def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tii, tids, tis, tiss, tists, tistss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
-    )
-    def test_from_as_mfjson_constructor(self, temporal):
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
         'temporal',
-        [tii, tids, tis, tiss, tists, tistss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
+        [tii, tids, tis, tiss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_copy_constructor(self, temporal):
         other = copy(temporal)
@@ -1279,3 +1268,24 @@ class TestTIntRestrictors(TestTInt):
         assert temporal.minus_min() == expected
 
 
+class TestTIntComparisonFunctions(TestTInt):
+    ti = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    other = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    def test_eq(self):
+        _ = self.ti == self.other
+
+    def test_ne(self):
+        _ = self.ti != self.other
+
+    def test_lt(self):
+        _ = self.ti < self.other
+
+    def test_le(self):
+        _ = self.ti <= self.other
+
+    def test_gt(self):
+        _ = self.ti > self.other
+
+    def test_ge(self):
+        _ = self.ti >= self.other

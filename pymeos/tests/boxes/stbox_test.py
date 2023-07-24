@@ -214,7 +214,8 @@ class TestSTBoxConstructors(TestSTBox):
         [stbx, stbz, stbt, stbxt, stbzt],
         ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
     )
-    def test_from_as_hexwkb_constructor(self, stbox):
+    def test_from_as_constructor(self, stbox):
+        # assert stbox == stbox.from_wkb(stbox.as_wkb())
         assert stbox == stbox.from_hexwkb(stbox.as_hexwkb())
 
     @pytest.mark.parametrize(

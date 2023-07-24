@@ -655,10 +655,9 @@ def span_from_hexwkb(hexwkb: str) -> 'Span *':
     return result if result != _ffi.NULL else None
 
 
-def span_from_wkb(wkb: 'const uint8_t *', size: 'size_t') -> 'Span *':
-    wkb_converted = _ffi.cast('const uint8_t *', wkb)
-    size_converted = _ffi.cast('size_t', size)
-    result = _lib.span_from_wkb(wkb_converted, size_converted)
+def span_from_wkb(wkb: bytes) -> 'Span *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.span_from_wkb(wkb_converted, len(wkb))
     return result if result != _ffi.NULL else None
 
 

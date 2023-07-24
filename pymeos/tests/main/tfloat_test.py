@@ -164,16 +164,9 @@ class TestTFloatConstructors(TestTFloat):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
-    def test_from_as_hexwkb_constructor(self, temporal):
+    def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tfi, tfds, tfs, tfss, tfsts, tfstss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet',
-             'Stepwise Sequence', 'Stepwise SequenceSet']
-    )
-    def test_from_as_mfjson_constructor(self, temporal):
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
@@ -1249,3 +1242,24 @@ class TestTFloatRestrictors(TestTFloat):
         assert temporal.minus_min() == expected
 
 
+class TestTFloatComparisonFunctions(TestTFloat):
+    tf = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    other = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+
+    def test_eq(self):
+        _ = self.tf == self.other
+
+    def test_ne(self):
+        _ = self.tf != self.other
+
+    def test_lt(self):
+        _ = self.tf < self.other
+
+    def test_le(self):
+        _ = self.tf <= self.other
+
+    def test_gt(self):
+        _ = self.tf > self.other
+
+    def test_ge(self):
+        _ = self.tf >= self.other

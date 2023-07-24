@@ -22,6 +22,18 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         super().__init__()
 
     # ------------------------- Input/Output ----------------------------------
+    def __str__(self) -> str:
+        """
+        Returns the string representation of `self`.
+
+        Returns:
+            A string with the string representation of `self`.
+
+        MEOS Functions:
+            ttext_out
+        """
+        return ttext_out(self._inner)
+
     @staticmethod
     def from_base_temporal(value: str, base: Temporal) -> TText:
         """
@@ -80,18 +92,6 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         elif isinstance(base, PeriodSet):
             return TTextSeqSet(_inner=ttextseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
-
-    def __str__(self) -> str:
-        """
-        Returns the string representation of `self`.
-
-        Returns:
-            A string with the string representation of `self`.
-
-        MEOS Functions:
-            ttext_out
-        """
-        return ttext_out(self._inner)
 
     def as_wkt(self) -> str:
         """

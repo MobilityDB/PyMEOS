@@ -21,6 +21,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
     _parse_function = tfloat_in
 
     # ------------------------- Input/Output ----------------------------------
+    def __str__(self, max_decimals=15):
+        """
+        Returns a string representation of `self`.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tfloat_out
+        """
+        return tfloat_out(self._inner, max_decimals)
+
     @staticmethod
     def from_base_temporal(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
         """
@@ -87,18 +99,6 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
         Args:
             max_decimals: The maximum number of decimals.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tfloat_out
-        """
-        return tfloat_out(self._inner, max_decimals)
-
-    def __str__(self, max_decimals=15):
-        """
-        Returns a string representation of `self`.
 
         Returns:
             A string representation of `self`.

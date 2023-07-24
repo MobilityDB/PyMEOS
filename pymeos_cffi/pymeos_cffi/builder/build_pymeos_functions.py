@@ -161,6 +161,7 @@ function_modifiers = {
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
     'spanset_make': spanset_make_modifier,
     'temporal_from_wkb': temporal_from_wkb_modifier,
+    'span_from_wkb': span_from_wkb_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)

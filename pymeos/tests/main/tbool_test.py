@@ -4,8 +4,8 @@ from datetime import datetime, timezone, timedelta
 import pytest
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
-    TIntInst, TIntSeq, TIntSeqSet, TInterpolation, TimestampSet, \
-    Period, PeriodSet
+    TIntInst, TIntSeq, TIntSeqSet, TInterpolation, \
+    TimestampSet, Period, PeriodSet
 from tests.conftest import TestPyMEOS
 
 
@@ -143,15 +143,10 @@ class TestTBoolConstructors(TestTBool):
         [tbi, tbds, tbs, tbss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_from_as_hexwkb_constructor(self, temporal):
+    def test_from_as_constructor(self, temporal):
+        # assert temporal == temporal.from_wkt(temporal.as_wkt())
+        assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tbi, tbds, tbs, tbss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_from_as_mfjson_constructor(self, temporal):
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
@@ -1155,3 +1150,24 @@ class TestTBoolRestrictors(TestTBool):
         assert temporal.minus_min() == expected
 
 
+class TestTBoolComparisonFunctions(TestTBool):
+    tb = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    other = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+
+    def test_eq(self):
+        _ = self.tb == self.other
+
+    def test_ne(self):
+        _ = self.tb != self.other
+
+    def test_lt(self):
+        _ = self.tb < self.other
+
+    def test_le(self):
+        _ = self.tb <= self.other
+
+    def test_gt(self):
+        _ = self.tb > self.other
+
+    def test_ge(self):
+        _ = self.tb >= self.other

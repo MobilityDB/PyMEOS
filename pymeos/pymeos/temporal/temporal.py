@@ -73,7 +73,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         Returns a temporal object from WKB bytes.
 
         Args:
-            wkb: The hex-encoded WKB string.
+            wkb: The WKB string.
 
         Returns:
             A temporal object from WKB bytes.

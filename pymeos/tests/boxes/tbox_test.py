@@ -157,7 +157,8 @@ class TestTBoxConstructors(TestTBox):
         [tbx, tbt, tbxt],
         ids=['TBox X', 'TBox T', 'TBox XT']
     )
-    def test_from_as_hexwkb_constructor(self, tbox):
+    def test_from_as_constructor(self, tbox):
+        # assert tbox == tbox.from_wkb(tbox.as_wkb())
         assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
     @pytest.mark.parametrize(

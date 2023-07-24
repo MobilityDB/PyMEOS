@@ -21,6 +21,15 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         super().__init__()
 
     # ------------------------- Input/Output ----------------------------------
+    def __str__(self):
+        """
+        Returns the string representation of `self`.
+
+        MEOS Function:
+            tbool_out
+        """
+        return tbool_out(self._inner)
+
     @staticmethod
     def from_base_temporal(value: bool, base: Temporal) -> TBool:
         """
@@ -79,15 +88,6 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         elif isinstance(base, PeriodSet):
             return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
-
-    def __str__(self):
-        """
-        Returns the string representation of `self`.
-
-        MEOS Function:
-            tbool_out
-        """
-        return tbool_out(self._inner)
 
     def as_wkt(self):
         """

@@ -34,11 +34,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         super().__init__()
 
     # ------------------------- Input/Output ----------------------------------
-    @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
-        result = super().from_hexwkb(hexwkb)
-        return result.set_srid(srid) if srid is not None else result
-
     def __str__(self):
         """
         Returns the string representation of the trajectory.
@@ -50,6 +45,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             tpoint_out
         """
         return tpoint_as_text(self._inner, 15)
+
+    @classmethod
+    def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
+        result = super().from_hexwkb(hexwkb)
+        return result.set_srid(srid) if srid is not None else result
 
     def as_wkt(self, precision: int = 15) -> str:
         """
@@ -440,126 +440,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
-    # ------------------------- Temporal Spatial Relationships ----------------
-    def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox], distance: float) -> TBool:
-        """
-        Returns a new temporal boolean indicating whether the trajectory is within `distance` of `other`.
-
-        Args:
-            other: An object to check the distance to.
-            distance: The distance to check in units of the spatial reference system.
-
-        Returns:
-            A new :TBool: indicating whether the trajectory is within `distance` of `other`.
-
-        MEOS Functions:
-            tdwithin_tpoint_geo, tdwithin_tpoint_tpoint
-        """
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdwithin_tpoint_geo(self._inner, gs, distance, False, False)
-        elif isinstance(other, STBox):
-            result = tdwithin_tpoint_geo(self._inner, stbox_to_geo(other._inner), distance, False, False)
-        elif isinstance(other, TPoint):
-            result = tdwithin_tpoint_tpoint(self._inner, other._inner, distance, False, False)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
-
-    def intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
-        """
-        Returns a new temporal boolean indicating whether the trajectory intersects `other`.
-
-        Args:
-            other: An object to check for intersection with.
-
-        Returns:
-            A new :TBool: indicating whether the trajectory intersects `other`.
-
-        MEOS Functions:
-            tintersects_tpoint_geo
-        """
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tintersects_tpoint_geo(self._inner, gs, False, False)
-        elif isinstance(other, STBox):
-            result = tintersects_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
-
-    def touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
-        """
-        Returns a new temporal boolean indicating whether the trajectory touches `other`.
-
-        Args:
-            other: An object to check for touching with.
-
-        Returns:
-            A new :TBool: indicating whether the trajectory touches `other`.
-
-        MEOS Functions:
-            ttouches_tpoint_geo
-        """
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = ttouches_tpoint_geo(self._inner, gs, False, False)
-        elif isinstance(other, STBox):
-            result = ttouches_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
-
-    def is_spatially_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
-        """
-        Returns a new temporal boolean indicating whether the trajectory is contained by `container`.
-
-        Args:
-            container: An object to check for containing `self`.
-
-        Returns:
-            A new :TBool: indicating whether the trajectory is contained by `container`.
-
-        MEOS Functions:
-            tcontains_geo_tpoint
-        """
-        from ..boxes import STBox
-        if isinstance(container, pg.Geometry) or isinstance(container, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(container, isinstance(self, TGeogPoint))
-            result = tcontains_geo_tpoint(gs, self._inner, False, False)
-        elif isinstance(container, STBox):
-            gs = stbox_to_geo(container._inner)
-            result = tcontains_geo_tpoint(gs, self._inner, False, False)
-        else:
-            raise TypeError(f'Operation not supported with type {container.__class__}')
-        return Temporal._factory(result)
-
-    def disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
-        """
-        Returns a new temporal boolean indicating whether the trajectory is disjoint from `other`.
-
-        Args:
-            other: An object to check for disjointness with.
-
-        Returns:
-            A new :TBool: indicating whether the trajectory is disjoint from `other`.
-
-        MEOS Functions:
-            tdisjoint_tpoint_geo
-        """
-        from ..boxes import STBox
-        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
-        elif isinstance(other, STBox):
-            result = tdisjoint_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
-
     # ------------------------- Ever Spatial Relationships --------------------
     def is_ever_contained(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
@@ -681,6 +561,126 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return result == 1
+
+    # ------------------------- Temporal Spatial Relationships ----------------
+    def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox], distance: float) -> TBool:
+        """
+        Returns a new temporal boolean indicating whether the trajectory is within `distance` of `other`.
+
+        Args:
+            other: An object to check the distance to.
+            distance: The distance to check in units of the spatial reference system.
+
+        Returns:
+            A new :TBool: indicating whether the trajectory is within `distance` of `other`.
+
+        MEOS Functions:
+            tdwithin_tpoint_geo, tdwithin_tpoint_tpoint
+        """
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tdwithin_tpoint_geo(self._inner, gs, distance, False, False)
+        elif isinstance(other, STBox):
+            result = tdwithin_tpoint_geo(self._inner, stbox_to_geo(other._inner), distance, False, False)
+        elif isinstance(other, TPoint):
+            result = tdwithin_tpoint_tpoint(self._inner, other._inner, distance, False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
+
+    def intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
+        """
+        Returns a new temporal boolean indicating whether the trajectory intersects `other`.
+
+        Args:
+            other: An object to check for intersection with.
+
+        Returns:
+            A new :TBool: indicating whether the trajectory intersects `other`.
+
+        MEOS Functions:
+            tintersects_tpoint_geo
+        """
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tintersects_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = tintersects_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
+
+    def touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
+        """
+        Returns a new temporal boolean indicating whether the trajectory touches `other`.
+
+        Args:
+            other: An object to check for touching with.
+
+        Returns:
+            A new :TBool: indicating whether the trajectory touches `other`.
+
+        MEOS Functions:
+            ttouches_tpoint_geo
+        """
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = ttouches_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = ttouches_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
+
+    def is_spatially_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
+        """
+        Returns a new temporal boolean indicating whether the trajectory is contained by `container`.
+
+        Args:
+            container: An object to check for containing `self`.
+
+        Returns:
+            A new :TBool: indicating whether the trajectory is contained by `container`.
+
+        MEOS Functions:
+            tcontains_geo_tpoint
+        """
+        from ..boxes import STBox
+        if isinstance(container, pg.Geometry) or isinstance(container, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(container, isinstance(self, TGeogPoint))
+            result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        elif isinstance(container, STBox):
+            gs = stbox_to_geo(container._inner)
+            result = tcontains_geo_tpoint(gs, self._inner, False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+        return Temporal._factory(result)
+
+    def disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
+        """
+        Returns a new temporal boolean indicating whether the trajectory is disjoint from `other`.
+
+        Args:
+            other: An object to check for disjointness with.
+
+        Returns:
+            A new :TBool: indicating whether the trajectory is disjoint from `other`.
+
+        MEOS Functions:
+            tdisjoint_tpoint_geo
+        """
+        from ..boxes import STBox
+        if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tdisjoint_tpoint_geo(self._inner, gs, False, False)
+        elif isinstance(other, STBox):
+            result = tdisjoint_tpoint_geo(self._inner, stbox_to_geo(other._inner), False, False)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
 
     # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> TFloat:

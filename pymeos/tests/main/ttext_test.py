@@ -135,28 +135,14 @@ class TestTTextConstructors(TestTText):
         assert str(tts2) == expected
         assert tts2.interpolation() == interpolation
 
-    # @pytest.mark.parametrize(
-        # 'temporal',
-        # [tti, ttds, tts, ttss],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_from_wkb_constructor(self, temporal):
-        # assert temporal == temporal.from_wkb(temporal.as_wkb())
-
     @pytest.mark.parametrize(
         'temporal',
         [tti, ttds, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_from_as_hexwkb_constructor(self, temporal):
+    def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tti, ttds, tts, ttss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_from_as_mfjson_constructor(self, temporal):
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
 
     @pytest.mark.parametrize(
@@ -1069,4 +1055,26 @@ class TestTTextRestrictors(TestTText):
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
 
+
+class TestTTextComparisonFunctions(TestTText):
+    tt = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    other = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+
+    def test_eq(self):
+        _ = self.tt == self.other
+
+    def test_ne(self):
+        _ = self.tt != self.other
+
+    def test_lt(self):
+        _ = self.tt < self.other
+
+    def test_le(self):
+        _ = self.tt <= self.other
+
+    def test_gt(self):
+        _ = self.tt > self.other
+
+    def test_ge(self):
+        _ = self.tt >= self.other
 

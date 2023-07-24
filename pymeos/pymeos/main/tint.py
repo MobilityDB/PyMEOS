@@ -21,6 +21,18 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
     _parse_function = tint_in
 
     # ------------------------- Input/Output ----------------------------------
+    def __str__(self):
+        """
+        Returns a string representation of `self`.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tint_out
+        """
+        return tint_out(self._inner)
+
     @staticmethod
     def from_base_temporal(value: int, base: Temporal) -> TInt:
         """
@@ -79,18 +91,6 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         elif isinstance(base, PeriodSet):
             return TIntSeqSet(_inner=tintseqset_from_base_periodset(value, base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
-
-    def __str__(self):
-        """
-        Returns a string representation of `self`.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tint_out
-        """
-        return tint_out(self._inner)
 
     def as_wkt(self):
         """
