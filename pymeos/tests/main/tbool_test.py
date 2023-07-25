@@ -702,6 +702,130 @@ class TestTBoolAccessors(TestTBool):
         assert hash(temporal) == expected
 
 
+class TestTBoolTransformations(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TBoolInst('True@2019-09-01'), tbi),
+            (TBoolSeq('{True@2019-09-01}'), tbi),
+            (TBoolSeq('[True@2019-09-01]'), tbi),
+            (TBoolSeqSet('{[True@2019-09-01]}'), tbi),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_instant(self, temporal, expected):
+        temp = temporal.to_instant()
+        assert isinstance(temp, TBoolInst)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TBoolInst('True@2019-09-01'), 
+                TBoolSeq('[True@2019-09-01]')),
+            (TBoolSeq('{True@2019-09-01, False@2019-09-02}'),
+                TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (TBoolSeq('[True@2019-09-01, False@2019-09-02]'),
+                TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+            (TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}'),
+                TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequence(self, temporal, expected):
+        temp = temporal.to_sequence()
+        assert isinstance(temp, TBoolSeq)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TBoolInst('True@2019-09-01'), 
+                TBoolSeqSet('{[True@2019-09-01]}')),
+            (TBoolSeq('{True@2019-09-01, False@2019-09-02}'),
+                TBoolSeqSet('{[True@2019-09-01], [False@2019-09-02]}')),
+            (TBoolSeq('[True@2019-09-01, False@2019-09-02]'),
+                TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
+            (TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}'),
+                TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequenceset(self, temporal, expected):
+        temp = temporal.to_sequenceset()
+        assert isinstance(temp, TBoolSeqSet)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'tbool, delta, expected',
+        [(tbi, timedelta(days=4), TBoolInst('True@2019-09-05')),
+         (tbi, timedelta(days=-4), TBoolInst('True@2019-08-28')),
+         (tbi, timedelta(hours=2), TBoolInst('True@2019-09-01 02:00:00')),
+         (tbi, timedelta(hours=-2), TBoolInst('True@2019-08-31 22:00:00')), 
+         (tbds, timedelta(days=4), TBoolSeq('{True@2019-09-05, False@2019-09-06}')),
+         (tbds, timedelta(days=-4), TBoolSeq('{True@2019-08-28, False@2019-08-29}')),
+         (tbds, timedelta(hours=2), TBoolSeq('{True@2019-09-01 02:00:00, False@2019-09-02 02:00:00}')),
+         (tbds, timedelta(hours=-2), TBoolSeq('{True@2019-08-31 22:00:00, False@2019-09-01 22:00:00}')),
+         (tbs, timedelta(days=4), TBoolSeq('[True@2019-09-05, False@2019-09-06]')),
+         (tbs, timedelta(days=-4), TBoolSeq('[True@2019-08-28, False@2019-08-29]')),
+         (tbs, timedelta(hours=2), TBoolSeq('[True@2019-09-01 02:00:00, False@2019-09-02 02:00:00]')),
+         (tbs, timedelta(hours=-2), TBoolSeq('[True@2019-08-31 22:00:00, False@2019-09-01 22:00:00]')),
+         (tbss, timedelta(days=4),
+             TBoolSeqSet('{[True@2019-09-05, False@2019-09-06],[True@2019-09-07, True@2019-09-09]}')),
+         (tbss, timedelta(days=-4),
+             TBoolSeqSet('{[True@2019-08-28, False@2019-08-29],[True@2019-08-30, True@2019-09-01]}')),
+         (tbss, timedelta(hours=2),
+             TBoolSeqSet('{[True@2019-09-01 02:00:00, False@2019-09-02 02:00:00],'
+                         '[True@2019-09-03 02:00:00, True@2019-09-05 02:00:00]}')),
+         (tbss, timedelta(hours=-2),
+             TBoolSeqSet('{[True@2019-08-31 22:00:00, False@2019-09-01 22:00:00],'
+             '[True@2019-09-02 22:00:00, True@2019-09-04 22:00:00]}')),
+         ],
+        ids=['Instant positive days', 'Instant negative days',
+             'Instant positive hours', 'Instant negative hours',
+             'Discrete Sequence positive days', 'Discrete Sequence negative days', 
+             'Discrete Sequence positive hours', 'Discrete Sequence negative hours',
+             'Sequence positive days', 'Sequence negative days', 
+             'Sequence positive hours', 'Sequence negative hours',
+             'Sequence Set positive days', 'Sequence Set negative days', 
+             'Sequence Set positive hours', 'Sequence Set negative hours']
+    )
+    def test_shift(self, tbool, delta, expected):
+        assert tbool.shift(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tbool, delta, expected',
+        [(tbi, timedelta(days=4), TBoolInst('True@2019-09-01')),
+         (tbi, timedelta(hours=2), TBoolInst('True@2019-09-01')),
+         (tbds, timedelta(days=4), TBoolSeq('{True@2019-09-01, False@2019-09-05}')),
+         (tbds, timedelta(hours=2), TBoolSeq('{True@2019-09-01 00:00:00, False@2019-09-01 02:00:00}')),
+         (tbs, timedelta(days=4), TBoolSeq('[True@2019-09-01, False@2019-09-05]')),
+         (tbs, timedelta(hours=2), TBoolSeq('[True@2019-09-01 00:00:00, False@2019-09-01 02:00:00]')),
+         (tbss, timedelta(days=4),
+             TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+         (tbss, timedelta(hours=2),
+             TBoolSeqSet('{[True@2019-09-01 00:00:00, False@2019-09-01 00:30:00],'
+                         '[True@2019-09-01 01:00:00, True@2019-09-01 02:00:00]}')),
+        ],
+        ids=['Instant positive days', 'Instant positive hours',
+             'Discrete Sequence positive days', 'Discrete Sequence positive hours',
+             'Sequence positive days', 'Sequence positive hours',
+             'Sequence Set positive days', 'Sequence Set positive hours']
+    )
+    def test_scale(self, tbool, delta, expected):
+        assert tbool.tscale(delta) == expected
+
+    def test_shift_tscale(self):
+        assert self.tbss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+             TBoolSeqSet('{[True@2019-09-05 00:00:00, False@2019-09-05 00:30:00],'
+             '[True@2019-09-05 01:00:00, True@2019-09-05 02:00:00]}')
+
+
 class TestTBoolEverAlwaysOperations(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')

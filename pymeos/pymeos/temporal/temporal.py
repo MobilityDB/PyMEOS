@@ -328,17 +328,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
-    def max_instant(self) -> TI:
-        """
-        Returns the instant in `self` with the maximum value.
-        If multiple instants have the maximum value, the first one is returned.
-
-        MEOS Functions:
-            temporal_max_instant
-        """
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
-
     def min_instant(self) -> TI:
         """
         Returns the instant in `self` with the minimum value.
@@ -349,6 +338,17 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(temporal_min_instant(self._inner))
+
+    def max_instant(self) -> TI:
+        """
+        Returns the instant in `self` with the maximum value.
+        If multiple instants have the maximum value, the first one is returned.
+
+        MEOS Functions:
+            temporal_max_instant
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
     def instant_n(self, n: int) -> TI:
         """

@@ -697,6 +697,130 @@ class TestTTextAccessors(TestTText):
         assert hash(temporal) == expected
 
 
+class TestTTextTransformations(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TTextInst('AAA@2019-09-01'), tti),
+            (TTextSeq('{AAA@2019-09-01}'), tti),
+            (TTextSeq('[AAA@2019-09-01]'), tti),
+            (TTextSeqSet('{[AAA@2019-09-01]}'), tti),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_instant(self, temporal, expected):
+        temp = temporal.to_instant()
+        assert isinstance(temp, TTextInst)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TTextInst('AAA@2019-09-01'), 
+                TTextSeq('[AAA@2019-09-01]')),
+            (TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}'),
+                TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+            (TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]'),
+                TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
+            (TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}'),
+                TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequence(self, temporal, expected):
+        temp = temporal.to_sequence()
+        assert isinstance(temp, TTextSeq)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TTextInst('AAA@2019-09-01'), 
+                TTextSeqSet('{[AAA@2019-09-01]}')),
+            (TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}'),
+                TTextSeqSet('{[AAA@2019-09-01], [BBB@2019-09-02]}')),
+            (TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]'),
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
+            (TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}'),
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequenceset(self, temporal, expected):
+        temp = temporal.to_sequenceset()
+        assert isinstance(temp, TTextSeqSet)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'ttext, delta, expected',
+        [(tti, timedelta(days=4), TTextInst('AAA@2019-09-05')),
+         (tti, timedelta(days=-4), TTextInst('AAA@2019-08-28')),
+         (tti, timedelta(hours=2), TTextInst('AAA@2019-09-01 02:00:00')),
+         (tti, timedelta(hours=-2), TTextInst('AAA@2019-08-31 22:00:00')), 
+         (ttds, timedelta(days=4), TTextSeq('{AAA@2019-09-05, BBB@2019-09-06}')),
+         (ttds, timedelta(days=-4), TTextSeq('{AAA@2019-08-28, BBB@2019-08-29}')),
+         (ttds, timedelta(hours=2), TTextSeq('{AAA@2019-09-01 02:00:00, BBB@2019-09-02 02:00:00}')),
+         (ttds, timedelta(hours=-2), TTextSeq('{AAA@2019-08-31 22:00:00, BBB@2019-09-01 22:00:00}')),
+         (tts, timedelta(days=4), TTextSeq('[AAA@2019-09-05, BBB@2019-09-06]')),
+         (tts, timedelta(days=-4), TTextSeq('[AAA@2019-08-28, BBB@2019-08-29]')),
+         (tts, timedelta(hours=2), TTextSeq('[AAA@2019-09-01 02:00:00, BBB@2019-09-02 02:00:00]')),
+         (tts, timedelta(hours=-2), TTextSeq('[AAA@2019-08-31 22:00:00, BBB@2019-09-01 22:00:00]')),
+         (ttss, timedelta(days=4),
+             TTextSeqSet('{[AAA@2019-09-05, BBB@2019-09-06],[AAA@2019-09-07, AAA@2019-09-09]}')),
+         (ttss, timedelta(days=-4),
+             TTextSeqSet('{[AAA@2019-08-28, BBB@2019-08-29],[AAA@2019-08-30, AAA@2019-09-01]}')),
+         (ttss, timedelta(hours=2),
+             TTextSeqSet('{[AAA@2019-09-01 02:00:00, BBB@2019-09-02 02:00:00],'
+                         '[AAA@2019-09-03 02:00:00, AAA@2019-09-05 02:00:00]}')),
+         (ttss, timedelta(hours=-2),
+             TTextSeqSet('{[AAA@2019-08-31 22:00:00, BBB@2019-09-01 22:00:00],'
+             '[AAA@2019-09-02 22:00:00, AAA@2019-09-04 22:00:00]}')),
+         ],
+        ids=['Instant positive days', 'Instant negative days',
+             'Instant positive hours', 'Instant negative hours',
+             'Discrete Sequence positive days', 'Discrete Sequence negative days', 
+             'Discrete Sequence positive hours', 'Discrete Sequence negative hours',
+             'Sequence positive days', 'Sequence negative days', 
+             'Sequence positive hours', 'Sequence negative hours',
+             'Sequence Set positive days', 'Sequence Set negative days', 
+             'Sequence Set positive hours', 'Sequence Set negative hours']
+    )
+    def test_shift(self, ttext, delta, expected):
+        assert ttext.shift(delta) == expected
+
+    @pytest.mark.parametrize(
+        'ttext, delta, expected',
+        [(tti, timedelta(days=4), TTextInst('AAA@2019-09-01')),
+         (tti, timedelta(hours=2), TTextInst('AAA@2019-09-01')),
+         (ttds, timedelta(days=4), TTextSeq('{AAA@2019-09-01, BBB@2019-09-05}')),
+         (ttds, timedelta(hours=2), TTextSeq('{AAA@2019-09-01 00:00:00, BBB@2019-09-01 02:00:00}')),
+         (tts, timedelta(days=4), TTextSeq('[AAA@2019-09-01, BBB@2019-09-05]')),
+         (tts, timedelta(hours=2), TTextSeq('[AAA@2019-09-01 00:00:00, BBB@2019-09-01 02:00:00]')),
+         (ttss, timedelta(days=4),
+             TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
+         (ttss, timedelta(hours=2),
+             TTextSeqSet('{[AAA@2019-09-01 00:00:00, BBB@2019-09-01 00:30:00],'
+                         '[AAA@2019-09-01 01:00:00, AAA@2019-09-01 02:00:00]}')),
+        ],
+        ids=['Instant positive days', 'Instant positive hours',
+             'Discrete Sequence positive days', 'Discrete Sequence positive hours',
+             'Sequence positive days', 'Sequence positive hours',
+             'Sequence Set positive days', 'Sequence Set positive hours']
+    )
+    def test_scale(self, ttext, delta, expected):
+        assert ttext.tscale(delta) == expected
+
+    def test_shift_tscale(self):
+        assert self.ttss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+             TTextSeqSet('{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],'
+             '[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}')
+
+
 class TestTTextEverAlwaysOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
     ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')

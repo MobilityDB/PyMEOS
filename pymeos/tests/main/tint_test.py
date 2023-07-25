@@ -716,6 +716,130 @@ class TestTIntAccessors(TestTInt):
         assert hash(temporal) == expected
 
 
+class TestTIntTransformations(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TIntInst('1@2019-09-01'), tii),
+            (TIntSeq('{1@2019-09-01}'), tii),
+            (TIntSeq('[1@2019-09-01]'), tii),
+            (TIntSeqSet('{[1@2019-09-01]}'), tii),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_instant(self, temporal, expected):
+        temp = temporal.to_instant()
+        assert isinstance(temp, TIntInst)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TIntInst('1@2019-09-01'), 
+                TIntSeq('[1@2019-09-01]')),
+            (TIntSeq('{1@2019-09-01, 2@2019-09-02}'),
+                TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (TIntSeq('[1@2019-09-01, 2@2019-09-02]'),
+                TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
+            (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}'),
+                TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequence(self, temporal, expected):
+        temp = temporal.to_sequence()
+        assert isinstance(temp, TIntSeq)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TIntInst('1@2019-09-01'), 
+                TIntSeqSet('{[1@2019-09-01]}')),
+            (TIntSeq('{1@2019-09-01, 2@2019-09-02}'),
+                TIntSeqSet('{[1@2019-09-01], [2@2019-09-02]}')),
+            (TIntSeq('[1@2019-09-01, 2@2019-09-02]'),
+                TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
+            (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}'),
+                TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequenceset(self, temporal, expected):
+        temp = temporal.to_sequenceset()
+        assert isinstance(temp, TIntSeqSet)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
+        [(tii, timedelta(days=4), TIntInst('1@2019-09-05')),
+         (tii, timedelta(days=-4), TIntInst('1@2019-08-28')),
+         (tii, timedelta(hours=2), TIntInst('1@2019-09-01 02:00:00')),
+         (tii, timedelta(hours=-2), TIntInst('1@2019-08-31 22:00:00')), 
+         (tids, timedelta(days=4), TIntSeq('{1@2019-09-05, 2@2019-09-06}')),
+         (tids, timedelta(days=-4), TIntSeq('{1@2019-08-28, 2@2019-08-29}')),
+         (tids, timedelta(hours=2), TIntSeq('{1@2019-09-01 02:00:00, 2@2019-09-02 02:00:00}')),
+         (tids, timedelta(hours=-2), TIntSeq('{1@2019-08-31 22:00:00, 2@2019-09-01 22:00:00}')),
+         (tis, timedelta(days=4), TIntSeq('[1@2019-09-05, 2@2019-09-06]')),
+         (tis, timedelta(days=-4), TIntSeq('[1@2019-08-28, 2@2019-08-29]')),
+         (tis, timedelta(hours=2), TIntSeq('[1@2019-09-01 02:00:00, 2@2019-09-02 02:00:00]')),
+         (tis, timedelta(hours=-2), TIntSeq('[1@2019-08-31 22:00:00, 2@2019-09-01 22:00:00]')),
+         (tiss, timedelta(days=4),
+             TIntSeqSet('{[1@2019-09-05, 2@2019-09-06],[1@2019-09-07, 1@2019-09-09]}')),
+         (tiss, timedelta(days=-4),
+             TIntSeqSet('{[1@2019-08-28, 2@2019-08-29],[1@2019-08-30, 1@2019-09-01]}')),
+         (tiss, timedelta(hours=2),
+             TIntSeqSet('{[1@2019-09-01 02:00:00, 2@2019-09-02 02:00:00],'
+                         '[1@2019-09-03 02:00:00, 1@2019-09-05 02:00:00]}')),
+         (tiss, timedelta(hours=-2),
+             TIntSeqSet('{[1@2019-08-31 22:00:00, 2@2019-09-01 22:00:00],'
+             '[1@2019-09-02 22:00:00, 1@2019-09-04 22:00:00]}')),
+         ],
+        ids=['Instant positive days', 'Instant negative days',
+             'Instant positive hours', 'Instant negative hours',
+             'Discrete Sequence positive days', 'Discrete Sequence negative days', 
+             'Discrete Sequence positive hours', 'Discrete Sequence negative hours',
+             'Sequence positive days', 'Sequence negative days', 
+             'Sequence positive hours', 'Sequence negative hours',
+             'Sequence Set positive days', 'Sequence Set negative days', 
+             'Sequence Set positive hours', 'Sequence Set negative hours']
+    )
+    def test_shift(self, tint, delta, expected):
+        assert tint.shift(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
+        [(tii, timedelta(days=4), TIntInst('1@2019-09-01')),
+         (tii, timedelta(hours=2), TIntInst('1@2019-09-01')),
+         (tids, timedelta(days=4), TIntSeq('{1@2019-09-01, 2@2019-09-05}')),
+         (tids, timedelta(hours=2), TIntSeq('{1@2019-09-01 00:00:00, 2@2019-09-01 02:00:00}')),
+         (tis, timedelta(days=4), TIntSeq('[1@2019-09-01, 2@2019-09-05]')),
+         (tis, timedelta(hours=2), TIntSeq('[1@2019-09-01 00:00:00, 2@2019-09-01 02:00:00]')),
+         (tiss, timedelta(days=4),
+             TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')),
+         (tiss, timedelta(hours=2),
+             TIntSeqSet('{[1@2019-09-01 00:00:00, 2@2019-09-01 00:30:00],'
+                         '[1@2019-09-01 01:00:00, 1@2019-09-01 02:00:00]}')),
+        ],
+        ids=['Instant positive days', 'Instant positive hours',
+             'Discrete Sequence positive days', 'Discrete Sequence positive hours',
+             'Sequence positive days', 'Sequence positive hours',
+             'Sequence Set positive days', 'Sequence Set positive hours']
+    )
+    def test_scale(self, tint, delta, expected):
+        assert tint.tscale(delta) == expected
+
+    def test_shift_tscale(self):
+        assert self.tiss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+             TIntSeqSet('{[1@2019-09-05 00:00:00, 2@2019-09-05 00:30:00],'
+             '[1@2019-09-05 01:00:00, 1@2019-09-05 02:00:00]}')
+
+
 class TestTIntEverAlwaysOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
@@ -1049,6 +1173,7 @@ class TestTIntArithmeticOperations(TestTInt):
     def test_temporal_div_float(self, temporal, expected):
         assert temporal.div(2.0) == expected
         assert (temporal / 2.0) == expected
+
 
 class TestTIntBooleanOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')

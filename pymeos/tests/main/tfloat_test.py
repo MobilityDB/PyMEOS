@@ -753,6 +753,130 @@ class TestTFloatAccessors(TestTFloat):
         assert hash(temporal) == expected
 
 
+class TestTFloatTransformations(TestTFloat):
+    tfi = TFloatInst('1.5@2019-09-01')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TFloatInst('1.5@2019-09-01'), tfi),
+            (TFloatSeq('{1.5@2019-09-01}'), tfi),
+            (TFloatSeq('[1.5@2019-09-01]'), tfi),
+            (TFloatSeqSet('{[1.5@2019-09-01]}'), tfi),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_instant(self, temporal, expected):
+        temp = temporal.to_instant()
+        assert isinstance(temp, TFloatInst)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TFloatInst('1.5@2019-09-01'), 
+                TFloatSeq('[1.5@2019-09-01]')),
+            (TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}'),
+                TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
+            (TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
+                TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
+            (TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}'),
+                TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequence(self, temporal, expected):
+        temp = temporal.to_sequence()
+        assert isinstance(temp, TFloatSeq)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TFloatInst('1.5@2019-09-01'), 
+                TFloatSeqSet('{[1.5@2019-09-01]}')),
+            (TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}'),
+                TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02]}')),
+            (TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}'),
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_sequenceset(self, temporal, expected):
+        temp = temporal.to_sequenceset()
+        assert isinstance(temp, TFloatSeqSet)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, expected',
+        [(tfi, timedelta(days=4), TFloatInst('1.5@2019-09-05')),
+         (tfi, timedelta(days=-4), TFloatInst('1.5@2019-08-28')),
+         (tfi, timedelta(hours=2), TFloatInst('1.5@2019-09-01 02:00:00')),
+         (tfi, timedelta(hours=-2), TFloatInst('1.5@2019-08-31 22:00:00')), 
+         (tfds, timedelta(days=4), TFloatSeq('{1.5@2019-09-05, 2.5@2019-09-06}')),
+         (tfds, timedelta(days=-4), TFloatSeq('{1.5@2019-08-28, 2.5@2019-08-29}')),
+         (tfds, timedelta(hours=2), TFloatSeq('{1.5@2019-09-01 02:00:00, 2.5@2019-09-02 02:00:00}')),
+         (tfds, timedelta(hours=-2), TFloatSeq('{1.5@2019-08-31 22:00:00, 2.5@2019-09-01 22:00:00}')),
+         (tfs, timedelta(days=4), TFloatSeq('[1.5@2019-09-05, 2.5@2019-09-06]')),
+         (tfs, timedelta(days=-4), TFloatSeq('[1.5@2019-08-28, 2.5@2019-08-29]')),
+         (tfs, timedelta(hours=2), TFloatSeq('[1.5@2019-09-01 02:00:00, 2.5@2019-09-02 02:00:00]')),
+         (tfs, timedelta(hours=-2), TFloatSeq('[1.5@2019-08-31 22:00:00, 2.5@2019-09-01 22:00:00]')),
+         (tfss, timedelta(days=4),
+             TFloatSeqSet('{[1.5@2019-09-05, 2.5@2019-09-06],[1.5@2019-09-07, 1.5@2019-09-09]}')),
+         (tfss, timedelta(days=-4),
+             TFloatSeqSet('{[1.5@2019-08-28, 2.5@2019-08-29],[1.5@2019-08-30, 1.5@2019-09-01]}')),
+         (tfss, timedelta(hours=2),
+             TFloatSeqSet('{[1.5@2019-09-01 02:00:00, 2.5@2019-09-02 02:00:00],'
+                         '[1.5@2019-09-03 02:00:00, 1.5@2019-09-05 02:00:00]}')),
+         (tfss, timedelta(hours=-2),
+             TFloatSeqSet('{[1.5@2019-08-31 22:00:00, 2.5@2019-09-01 22:00:00],'
+             '[1.5@2019-09-02 22:00:00, 1.5@2019-09-04 22:00:00]}')),
+         ],
+        ids=['Instant positive days', 'Instant negative days',
+             'Instant positive hours', 'Instant negative hours',
+             'Discrete Sequence positive days', 'Discrete Sequence negative days', 
+             'Discrete Sequence positive hours', 'Discrete Sequence negative hours',
+             'Sequence positive days', 'Sequence negative days', 
+             'Sequence positive hours', 'Sequence negative hours',
+             'Sequence Set positive days', 'Sequence Set negative days', 
+             'Sequence Set positive hours', 'Sequence Set negative hours']
+    )
+    def test_shift(self, tfloat, delta, expected):
+        assert tfloat.shift(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, expected',
+        [(tfi, timedelta(days=4), TFloatInst('1.5@2019-09-01')),
+         (tfi, timedelta(hours=2), TFloatInst('1.5@2019-09-01')),
+         (tfds, timedelta(days=4), TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-05}')),
+         (tfds, timedelta(hours=2), TFloatSeq('{1.5@2019-09-01 00:00:00, 2.5@2019-09-01 02:00:00}')),
+         (tfs, timedelta(days=4), TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-05]')),
+         (tfs, timedelta(hours=2), TFloatSeq('[1.5@2019-09-01 00:00:00, 2.5@2019-09-01 02:00:00]')),
+         (tfss, timedelta(days=4),
+             TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
+         (tfss, timedelta(hours=2),
+             TFloatSeqSet('{[1.5@2019-09-01 00:00:00, 2.5@2019-09-01 00:30:00],'
+                         '[1.5@2019-09-01 01:00:00, 1.5@2019-09-01 02:00:00]}')),
+        ],
+        ids=['Instant positive days', 'Instant positive hours',
+             'Discrete Sequence positive days', 'Discrete Sequence positive hours',
+             'Sequence positive days', 'Sequence positive hours',
+             'Sequence Set positive days', 'Sequence Set positive hours']
+    )
+    def test_scale(self, tfloat, delta, expected):
+        assert tfloat.tscale(delta) == expected
+
+    def test_shift_tscale(self):
+        assert self.tfss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+             TFloatSeqSet('{[1.5@2019-09-05 00:00:00, 2.5@2019-09-05 00:30:00],'
+             '[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}')
+
+
 class TestTFloatEverAlwaysOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
     tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
