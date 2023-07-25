@@ -908,40 +908,39 @@ class TestTTextRestrictors(TestTText):
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
-    instant = datetime(2019, 9, 1)
-    instant_set = TimestampSet('{2019-09-01, 2019-09-03}')
-    sequence = Period('[2019-09-01, 2019-09-02]')
-    sequence_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
+    timestamp = datetime(2019, 9, 1)
+    timestamp_set = TimestampSet('{2019-09-01, 2019-09-03}')
+    period = Period('[2019-09-01, 2019-09-02]')
+    period_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tti, instant, TTextInst('AAA@2019-09-01')),
-            (tti, instant_set, TTextInst('AAA@2019-09-01')),
-            (tti, sequence, TTextInst('AAA@2019-09-01')),
-            (tti, sequence_set, TTextInst('AAA@2019-09-01')),
+            (tti, timestamp, TTextInst('AAA@2019-09-01')),
+            (tti, timestamp_set, TTextInst('AAA@2019-09-01')),
+            (tti, period, TTextInst('AAA@2019-09-01')),
+            (tti, period_set, TTextInst('AAA@2019-09-01')),
             (tti, 'AAA', TTextInst('AAA@2019-09-01')),
             (tti, 'BBB', None),
 
-            (ttds, instant, TTextSeq('{AAA@2019-09-01}')),
-            (ttds, instant_set, TTextSeq('{AAA@2019-09-01}')),
-            (ttds, sequence, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
-            (ttds, sequence_set, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+            (ttds, timestamp, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, timestamp_set, TTextSeq('{AAA@2019-09-01}')),
+            (ttds, period, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+            (ttds, period_set, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
             (ttds, 'AAA', TTextSeq('{AAA@2019-09-01}')),
             (ttds, 'BBB', TTextSeq('{BBB@2019-09-02}')),
 
-            (tts, instant, TTextSeq('[AAA@2019-09-01]')),
-            (tts, instant_set, TTextSeq('{AAA@2019-09-01}')),
-            (tts, sequence, TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
-            (tts, sequence_set, TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
+            (tts, timestamp, TTextSeq('[AAA@2019-09-01]')),
+            (tts, timestamp_set, TTextSeq('{AAA@2019-09-01}')),
+            (tts, period, TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
+            (tts, period_set, TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
             (tts, 'AAA', TTextSeq('[AAA@2019-09-01, AAA@2019-09-02)')),
             (tts, 'BBB', TTextSeq('[BBB@2019-09-02]')),
 
-            (ttss, instant, TTextSeqSet('[AAA@2019-09-01]')),
-            (ttss, instant_set, TTextSeq('{AAA@2019-09-01, AAA@2019-09-03}')),
-            (ttss, sequence, TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
-            (
-                ttss, sequence_set,
+            (ttss, timestamp, TTextSeqSet('[AAA@2019-09-01]')),
+            (ttss, timestamp_set, TTextSeq('{AAA@2019-09-01, AAA@2019-09-03}')),
+            (ttss, period, TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
+            (ttss, period_set,
                 TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'AAA', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'BBB', TTextSeqSet('{[BBB@2019-09-02]}'))
@@ -987,34 +986,33 @@ class TestTTextRestrictors(TestTText):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tti, instant, None),
-            (tti, instant_set, None),
-            (tti, sequence, None),
-            (tti, sequence_set, None),
+            (tti, timestamp, None),
+            (tti, timestamp_set, None),
+            (tti, period, None),
+            (tti, period_set, None),
             (tti, 'AAA', None),
             (tti, 'BBB', TTextInst('AAA@2019-09-01')),
 
-            (ttds, instant, TTextSeq('{BBB@2019-09-02}')),
-            (ttds, instant_set, TTextSeq('{BBB@2019-09-02}')),
-            (ttds, sequence, None),
-            (ttds, sequence_set, None),
+            (ttds, timestamp, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, timestamp_set, TTextSeq('{BBB@2019-09-02}')),
+            (ttds, period, None),
+            (ttds, period_set, None),
             (ttds, 'AAA', TTextSeq('{BBB@2019-09-02}')),
             (ttds, 'BBB', TTextSeq('{AAA@2019-09-01}')),
 
-            (tts, instant, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
-            (tts, instant_set, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
-            (tts, sequence, None),
-            (tts, sequence_set, None),
+            (tts, timestamp, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
+            (tts, timestamp_set, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
+            (tts, period, None),
+            (tts, period_set, None),
             (tts, 'AAA', TTextSeqSet('{[BBB@2019-09-02]}')),
             (tts, 'BBB', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02)}')),
 
-            (
-                ttss, instant,
+            (ttss, timestamp,
                 TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
-            (ttss, instant_set,
+            (ttss, timestamp_set,
              TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],(AAA@2019-09-03, AAA@2019-09-05]}')),
-            (ttss, sequence, TTextSeqSet('{[AAA@2019-09-03, AAA@2019-09-05]}')),
-            (ttss, sequence_set, None),
+            (ttss, period, TTextSeqSet('{[AAA@2019-09-03, AAA@2019-09-05]}')),
+            (ttss, period_set, None),
             (ttss, 'AAA', TTextSeqSet('{[BBB@2019-09-02]}')),
             (ttss, 'BBB', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}'))
         ],
@@ -1033,6 +1031,19 @@ class TestTTextRestrictors(TestTText):
         'temporal, expected',
         [
             (tti, None),
+            (ttds, TTextSeq('{BBB@2019-09-02}')),
+            (tts, TTextSeq('{[BBB@2019-09-02]}')),
+            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_minus_min(self, temporal, expected):
+        assert temporal.minus_min() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, None),
             (ttds, TTextSeq('{AAA@2019-09-01}')),
             (tts, TTextSeq('{[AAA@2019-09-01, AAA@2019-09-02)}')),
             (ttss, TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}')),
@@ -1043,17 +1054,56 @@ class TestTTextRestrictors(TestTText):
         assert temporal.minus_max() == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, restrictor',
         [
-            (tti, None),
-            (ttds, TTextSeq('{BBB@2019-09-02}')),
-            (tts, TTextSeq('{[BBB@2019-09-02]}')),
-            (ttss, TTextSeqSet('{[BBB@2019-09-02]}')),
+            (tti, timestamp),
+            (tti, timestamp_set),
+            (tti, period),
+            (tti, period_set),
+            (tti, 'AAA'),
+            (tti, 'BBB'),
+
+            (ttds, timestamp),
+            (ttds, timestamp_set),
+            (ttds, period),
+            (ttds, period_set),
+            (ttds, 'AAA'),
+            (ttds, 'BBB'),
+
+            (tts, timestamp),
+            (tts, timestamp_set),
+            (tts, period),
+            (tts, period_set),
+            (tts, 'AAA'),
+            (tts, 'BBB'),
+
+            (ttss, timestamp),
+            (ttss, timestamp_set),
+            (ttss, period),
+            (ttss, period_set),
+            (ttss, 'AAA'),
+            (ttss, 'BBB'),
+
         ],
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-AAA',
+             'Instant-BBB', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-AAA',
+             'Discrete Sequence-BBB', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-AAA',
+             'SequenceSet-BBB']
+    )
+    def test_at_minus(self, temporal, restrictor):
+        assert TText.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tti, ttds, tts, ttss],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_minus_min(self, temporal, expected):
-        assert temporal.minus_min() == expected
+    def test_at_minus_min_max(self, temporal):
+        assert TText.merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TText.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTTextComparisonFunctions(TestTText):

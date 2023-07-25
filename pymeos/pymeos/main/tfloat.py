@@ -613,7 +613,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
         """
-        if isinstance(other, float) or isinstance(other, int):
+        if isinstance(other, int) or isinstance(other, float):
             result = tfloat_at_value(self._inner, float(other))
         elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
             # result = tfloat_at_values(self._inner, [float(x) for x in other])
@@ -624,7 +624,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def minus(self, other: Union[
-        float, List[float], intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> Temporal:
+        int, float, List[float], intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> Temporal:
         """
         Returns a new temporal float with the values of `self` restricted to the complement of the time or value
          `other`.
@@ -639,8 +639,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             tfloat_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
             temporal_minus_periodset
         """
-        if isinstance(other, float):
-            result = tfloat_minus_value(self._inner, other)
+        if isinstance(other, int) or isinstance(other, float):
+            result = tfloat_minus_value(self._inner, float(other))
         elif isinstance(other, list) and isinstance(other[0], float):
             result = reduce(tfloat_minus_value, other, self._inner)
         else:

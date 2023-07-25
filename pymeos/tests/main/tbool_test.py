@@ -922,12 +922,12 @@ class TestTBoolManipulationFunctions(TestTBool):
             (tbds, timedelta(days=1), TBoolSeq('{True@2019-09-02, False@2019-09-03}')),
             (tbs, timedelta(days=1), TBoolSeq('[True@2019-09-02, False@2019-09-03]')),
             (tbss, timedelta(days=1),
-             TBoolSeqSet('{[True@2019-09-02, False@2019-09-03],[True@2019-09-04, True@2019-09-06]}')),
+                TBoolSeqSet('{[True@2019-09-02, False@2019-09-03],[True@2019-09-04, True@2019-09-06]}')),
             (tbi, timedelta(days=-1), TBoolInst('True@2019-08-31')),
             (tbds, timedelta(days=-1), TBoolSeq('{True@2019-08-31, False@2019-09-01}')),
             (tbs, timedelta(days=-1), TBoolSeq('[True@2019-08-31, False@2019-09-01]')),
             (tbss, timedelta(days=-1),
-             TBoolSeqSet('{[True@2019-08-31, False@2019-09-01],[True@2019-09-02, True@2019-09-04]}')),
+                TBoolSeqSet('{[True@2019-08-31, False@2019-09-01],[True@2019-09-02, True@2019-09-04]}')),
         ],
         ids=['Instant positive', 'Discrete Sequence positive', 'Sequence positive', 'SequenceSet positive',
              'Instant negative', 'Discrete Sequence negative', 'Sequence negative', 'SequenceSet negative'],
@@ -956,12 +956,12 @@ class TestTBoolManipulationFunctions(TestTBool):
             (tbds, timedelta(days=1), timedelta(days=10), TBoolSeq('{True@2019-09-02, False@2019-09-12}')),
             (tbs, timedelta(days=1), timedelta(days=10), TBoolSeq('[True@2019-09-02, False@2019-09-12]')),
             (tbss, timedelta(days=1), timedelta(days=10),
-             TBoolSeqSet('{[True@2019-09-02, False@2019-09-04 12:00:00],[True@2019-09-07, True@2019-09-12]}')),
+                TBoolSeqSet('{[True@2019-09-02, False@2019-09-04 12:00:00],[True@2019-09-07, True@2019-09-12]}')),
             (tbi, timedelta(days=-1), timedelta(days=10), TBoolInst('True@2019-08-31')),
             (tbds, timedelta(days=-1), timedelta(days=10), TBoolSeq('{True@2019-08-31, False@2019-09-10}')),
             (tbs, timedelta(days=-1), timedelta(days=10), TBoolSeq('[True@2019-08-31, False@2019-09-10]')),
             (tbss, timedelta(days=-1), timedelta(days=10),
-             TBoolSeqSet('{[True@2019-08-31, False@2019-09-02 12:00:00],[True@2019-09-05, True@2019-09-010]}')),
+                TBoolSeqSet('{[True@2019-08-31, False@2019-09-02 12:00:00],[True@2019-09-05, True@2019-09-010]}')),
         ],
         ids=['Instant positive', 'Discrete Sequence positive', 'Sequence positive', 'SequenceSet positive',
              'Instant negative', 'Discrete Sequence negative', 'Sequence negative', 'SequenceSet negative'],
@@ -976,10 +976,10 @@ class TestTBoolRestrictors(TestTBool):
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
-    instant = datetime(2019, 9, 1)
-    instant_set = TimestampSet('{2019-09-01, 2019-09-03}')
-    sequence = Period('[2019-09-01, 2019-09-02]')
-    sequence_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
+    timestamp = datetime(2019, 9, 1)
+    timestamp_set = TimestampSet('{2019-09-01, 2019-09-03}')
+    period = Period('[2019-09-01, 2019-09-02]')
+    period_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1010,33 +1010,32 @@ class TestTBoolRestrictors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tbi, instant, TBoolInst('True@2019-09-01')),
-            (tbi, instant_set, TBoolInst('True@2019-09-01')),
-            (tbi, sequence, TBoolInst('True@2019-09-01')),
-            (tbi, sequence_set, TBoolInst('True@2019-09-01')),
+            (tbi, timestamp, TBoolInst('True@2019-09-01')),
+            (tbi, timestamp_set, TBoolInst('True@2019-09-01')),
+            (tbi, period, TBoolInst('True@2019-09-01')),
+            (tbi, period_set, TBoolInst('True@2019-09-01')),
             (tbi, True, TBoolInst('True@2019-09-01')),
             (tbi, False, None),
 
-            (tbds, instant, TBoolSeq('{True@2019-09-01}')),
-            (tbds, instant_set, TBoolSeq('{True@2019-09-01}')),
-            (tbds, sequence, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tbds, sequence_set, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tbds, timestamp, TBoolSeq('{True@2019-09-01}')),
+            (tbds, timestamp_set, TBoolSeq('{True@2019-09-01}')),
+            (tbds, period, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tbds, period_set, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tbds, True, TBoolSeq('{True@2019-09-01}')),
             (tbds, False, TBoolSeq('{False@2019-09-02}')),
 
-            (tbs, instant, TBoolSeq('[True@2019-09-01]')),
-            (tbs, instant_set, TBoolSeq('{True@2019-09-01}')),
-            (tbs, sequence, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
-            (tbs, sequence_set, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+            (tbs, timestamp, TBoolSeq('[True@2019-09-01]')),
+            (tbs, timestamp_set, TBoolSeq('{True@2019-09-01}')),
+            (tbs, period, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+            (tbs, period_set, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
             (tbs, True, TBoolSeq('[True@2019-09-01, True@2019-09-02)')),
             (tbs, False, TBoolSeq('[False@2019-09-02]')),
 
-            (tbss, instant, TBoolSeqSet('[True@2019-09-01]')),
-            (tbss, instant_set, TBoolSeq('{True@2019-09-01, True@2019-09-03}')),
-            (tbss, sequence, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
-            (
-                    tbss, sequence_set,
-                    TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+            (tbss, timestamp, TBoolSeqSet('[True@2019-09-01]')),
+            (tbss, timestamp_set, TBoolSeq('{True@2019-09-01, True@2019-09-03}')),
+            (tbss, period, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
+            (tbss, period_set,
+                 TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
             (tbss, True, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}')),
             (tbss, False, TBoolSeqSet('{[False@2019-09-02]}'))
 
@@ -1081,34 +1080,33 @@ class TestTBoolRestrictors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tbi, instant, None),
-            (tbi, instant_set, None),
-            (tbi, sequence, None),
-            (tbi, sequence_set, None),
+            (tbi, timestamp, None),
+            (tbi, timestamp_set, None),
+            (tbi, period, None),
+            (tbi, period_set, None),
             (tbi, True, None),
             (tbi, False, TBoolInst('True@2019-09-01')),
 
-            (tbds, instant, TBoolSeq('{False@2019-09-02}')),
-            (tbds, instant_set, TBoolSeq('{False@2019-09-02}')),
-            (tbds, sequence, None),
-            (tbds, sequence_set, None),
+            (tbds, timestamp, TBoolSeq('{False@2019-09-02}')),
+            (tbds, timestamp_set, TBoolSeq('{False@2019-09-02}')),
+            (tbds, period, None),
+            (tbds, period_set, None),
             (tbds, True, TBoolSeq('{False@2019-09-02}')),
             (tbds, False, TBoolSeq('{True@2019-09-01}')),
 
-            (tbs, instant, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
-            (tbs, instant_set, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
-            (tbs, sequence, None),
-            (tbs, sequence_set, None),
+            (tbs, timestamp, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
+            (tbs, timestamp_set, TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
+            (tbs, period, None),
+            (tbs, period_set, None),
             (tbs, True, TBoolSeqSet('{[False@2019-09-02]}')),
             (tbs, False, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02)}')),
 
-            (
-                    tbss, instant,
-                    TBoolSeqSet('{(True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
-            (tbss, instant_set,
-             TBoolSeqSet('{(True@2019-09-01, False@2019-09-02],(True@2019-09-03, True@2019-09-05]}')),
-            (tbss, sequence, TBoolSeqSet('{[True@2019-09-03, True@2019-09-05]}')),
-            (tbss, sequence_set, None),
+            (tbss, timestamp,
+                TBoolSeqSet('{(True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+            (tbss, timestamp_set,
+                TBoolSeqSet('{(True@2019-09-01, False@2019-09-02],(True@2019-09-03, True@2019-09-05]}')),
+            (tbss, period, TBoolSeqSet('{[True@2019-09-03, True@2019-09-05]}')),
+            (tbss, period_set, None),
             (tbss, True, TBoolSeqSet('{[False@2019-09-02]}')),
             (tbss, False, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}'))
         ],
@@ -1149,6 +1147,57 @@ class TestTBoolRestrictors(TestTBool):
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
 
+    @pytest.mark.parametrize(
+        'temporal, restrictor',
+        [
+            (tbi, timestamp),
+            (tbi, timestamp_set),
+            (tbi, period),
+            (tbi, period_set),
+            (tbi, True),
+            (tbi, False),
+
+            (tbds, timestamp),
+            (tbds, timestamp_set),
+            (tbds, period),
+            (tbds, period_set),
+            (tbds, True),
+            (tbds, False),
+
+            (tbs, timestamp),
+            (tbs, timestamp_set),
+            (tbs, period),
+            (tbs, period_set),
+            (tbs, True),
+            (tbs, False),
+
+            (tbss, timestamp),
+            (tbss, timestamp_set),
+            (tbss, period),
+            (tbss, period_set),
+            (tbss, True),
+            (tbss, False),
+
+        ],
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-True',
+             'Instant-False', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-True',
+             'Discrete Sequence-False', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-True', 'Sequence-False', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-True',
+             'SequenceSet-False']
+    )
+    def test_at_minus(self, temporal, restrictor):
+        assert TBool.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_minus_min_max(self, temporal):
+        assert TBool.merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TBool.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 class TestTBoolComparisonFunctions(TestTBool):
     tb = TBoolSeq('[True@2019-09-01, False@2019-09-02]')

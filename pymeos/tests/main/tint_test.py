@@ -1120,40 +1120,39 @@ class TestTIntRestrictors(TestTInt):
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
-    instant = datetime(2019, 9, 1)
-    instant_set = TimestampSet('{2019-09-01, 2019-09-03}')
-    sequence = Period('[2019-09-01, 2019-09-02]')
-    sequence_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
+    timestamp = datetime(2019, 9, 1)
+    timestamp_set = TimestampSet('{2019-09-01, 2019-09-03}')
+    period = Period('[2019-09-01, 2019-09-02]')
+    period_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tii, instant, TIntInst('1@2019-09-01')),
-            (tii, instant_set, TIntInst('1@2019-09-01')),
-            (tii, sequence, TIntInst('1@2019-09-01')),
-            (tii, sequence_set, TIntInst('1@2019-09-01')),
+            (tii, timestamp, TIntInst('1@2019-09-01')),
+            (tii, timestamp_set, TIntInst('1@2019-09-01')),
+            (tii, period, TIntInst('1@2019-09-01')),
+            (tii, period_set, TIntInst('1@2019-09-01')),
             (tii, 1, TIntInst('1@2019-09-01')),
             (tii, 2, None),
 
-            (tids, instant, TIntSeq('{1@2019-09-01}')),
-            (tids, instant_set, TIntSeq('{1@2019-09-01}')),
-            (tids, sequence, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
-            (tids, sequence_set, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tids, timestamp, TIntSeq('{1@2019-09-01}')),
+            (tids, timestamp_set, TIntSeq('{1@2019-09-01}')),
+            (tids, period, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tids, period_set, TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
             (tids, 1, TIntSeq('{1@2019-09-01}')),
             (tids, 2, TIntSeq('{2@2019-09-02}')),
 
-            (tis, instant, TIntSeq('[1@2019-09-01]')),
-            (tis, instant_set, TIntSeq('{1@2019-09-01}')),
-            (tis, sequence, TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
-            (tis, sequence_set, TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
+            (tis, timestamp, TIntSeq('[1@2019-09-01]')),
+            (tis, timestamp_set, TIntSeq('{1@2019-09-01}')),
+            (tis, period, TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
+            (tis, period_set, TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
             (tis, 1, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
             (tis, 2, TIntSeq('[2@2019-09-02]')),
 
-            (tiss, instant, TIntSeqSet('[1@2019-09-01]')),
-            (tiss, instant_set, TIntSeq('{1@2019-09-01, 1@2019-09-03}')),
-            (tiss, sequence, TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
-            (
-                tiss, sequence_set,
+            (tiss, timestamp, TIntSeqSet('[1@2019-09-01]')),
+            (tiss, timestamp_set, TIntSeq('{1@2019-09-01, 1@2019-09-03}')),
+            (tiss, period, TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
+            (tiss, period_set,
                 TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')),
             (tiss, 1, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
             (tiss, 2, TIntSeqSet('{[2@2019-09-02]}'))
@@ -1199,34 +1198,34 @@ class TestTIntRestrictors(TestTInt):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tii, instant, None),
-            (tii, instant_set, None),
-            (tii, sequence, None),
-            (tii, sequence_set, None),
+            (tii, timestamp, None),
+            (tii, timestamp_set, None),
+            (tii, period, None),
+            (tii, period_set, None),
             (tii, 1, None),
             (tii, 2, TIntInst('1@2019-09-01')),
 
-            (tids, instant, TIntSeq('{2@2019-09-02}')),
-            (tids, instant_set, TIntSeq('{2@2019-09-02}')),
-            (tids, sequence, None),
-            (tids, sequence_set, None),
+            (tids, timestamp, TIntSeq('{2@2019-09-02}')),
+            (tids, timestamp_set, TIntSeq('{2@2019-09-02}')),
+            (tids, period, None),
+            (tids, period_set, None),
             (tids, 1, TIntSeq('{2@2019-09-02}')),
             (tids, 2, TIntSeq('{1@2019-09-01}')),
 
-            (tis, instant, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
-            (tis, instant_set, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
-            (tis, sequence, None),
-            (tis, sequence_set, None),
+            (tis, timestamp, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
+            (tis, timestamp_set, TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
+            (tis, period, None),
+            (tis, period_set, None),
             (tis, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tis, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02)}')),
 
             (
-                tiss, instant,
+                tiss, timestamp,
                 TIntSeqSet('{(1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')),
-            (tiss, instant_set,
+            (tiss, timestamp_set,
              TIntSeqSet('{(1@2019-09-01, 2@2019-09-02],(1@2019-09-03, 1@2019-09-05]}')),
-            (tiss, sequence, TIntSeqSet('{[1@2019-09-03, 1@2019-09-05]}')),
-            (tiss, sequence_set, None),
+            (tiss, period, TIntSeqSet('{[1@2019-09-03, 1@2019-09-05]}')),
+            (tiss, period_set, None),
             (tiss, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tiss, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}'))
         ],
@@ -1266,6 +1265,58 @@ class TestTIntRestrictors(TestTInt):
     )
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, restrictor',
+        [
+            (tii, timestamp),
+            (tii, timestamp_set),
+            (tii, period),
+            (tii, period_set),
+            (tii, 1),
+            (tii, 2),
+
+            (tids, timestamp),
+            (tids, timestamp_set),
+            (tids, period),
+            (tids, period_set),
+            (tids, 1),
+            (tids, 2),
+
+            (tis, timestamp),
+            (tis, timestamp_set),
+            (tis, period),
+            (tis, period_set),
+            (tis, 1),
+            (tis, 2),
+
+            (tiss, timestamp),
+            (tiss, timestamp_set),
+            (tiss, period),
+            (tiss, period_set),
+            (tiss, 1),
+            (tiss, 2),
+
+        ],
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-1',
+             'Instant-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-1',
+             'Discrete Sequence-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-1',
+             'SequenceSet-2']
+    )
+    def test_at_minus(self, temporal, restrictor):
+        assert TInt.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tii, tids, tis, tiss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_minus_min_max(self, temporal):
+        assert TInt.merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TInt.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTIntComparisonFunctions(TestTInt):

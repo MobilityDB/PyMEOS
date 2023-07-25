@@ -1094,41 +1094,40 @@ class TestTFloatRestrictors(TestTFloat):
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
-    instant = datetime(2019, 9, 1)
-    instant_set = TimestampSet('{2019-09-01, 2019-09-03}')
-    sequence = Period('[2019-09-01, 2019-09-02]')
-    sequence_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
+    timestamp = datetime(2019, 9, 1)
+    timestamp_set = TimestampSet('{2019-09-01, 2019-09-03}')
+    period = Period('[2019-09-01, 2019-09-02]')
+    period_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tfi, instant, TFloatInst('1.5@2019-09-01')),
-            (tfi, instant_set, TFloatInst('1.5@2019-09-01')),
-            (tfi, sequence, TFloatInst('1.5@2019-09-01')),
-            (tfi, sequence_set, TFloatInst('1.5@2019-09-01')),
+            (tfi, timestamp, TFloatInst('1.5@2019-09-01')),
+            (tfi, timestamp_set, TFloatInst('1.5@2019-09-01')),
+            (tfi, period, TFloatInst('1.5@2019-09-01')),
+            (tfi, period_set, TFloatInst('1.5@2019-09-01')),
             (tfi, 1.5, TFloatInst('1.5@2019-09-01')),
             (tfi, 2.5, None),
 
-            (tfds, instant, TFloatSeq('{1.5@2019-09-01}')),
-            (tfds, instant_set, TFloatSeq('{1.5@2019-09-01}')),
-            (tfds, sequence, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
-            (tfds, sequence_set, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, timestamp, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, timestamp_set, TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, period, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
+            (tfds, period_set, TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
             (tfds, 1.5, TFloatSeq('{1.5@2019-09-01}')),
             (tfds, 2.5, TFloatSeq('{2.5@2019-09-02}')),
 
-            (tfs, instant, TFloatSeq('[1.5@2019-09-01]')),
-            (tfs, instant_set, TFloatSeq('{1.5@2019-09-01}')),
-            (tfs, sequence, TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
-            (tfs, sequence_set, TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
+            (tfs, timestamp, TFloatSeq('[1.5@2019-09-01]')),
+            (tfs, timestamp_set, TFloatSeq('{1.5@2019-09-01}')),
+            (tfs, period, TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
+            (tfs, period_set, TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
             (tfs, 1.5, TFloatSeq('[1.5@2019-09-01]')),
             (tfs, 2.5, TFloatSeq('[2.5@2019-09-02]')),
 
-            (tfss, instant, TFloatSeqSet('[1.5@2019-09-01]')),
-            (tfss, instant_set, TFloatSeq('{1.5@2019-09-01, 1.5@2019-09-03}')),
-            (tfss, sequence, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
-            (
-                    tfss, sequence_set,
-                    TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
+            (tfss, timestamp, TFloatSeqSet('[1.5@2019-09-01]')),
+            (tfss, timestamp_set, TFloatSeq('{1.5@2019-09-01, 1.5@2019-09-03}')),
+            (tfss, period, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfss, period_set,
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
             (tfss, 1.5, TFloatSeqSet('{[1.5@2019-09-01],[1.5@2019-09-03, 1.5@2019-09-05]}')),
             (tfss, 2.5, TFloatSeqSet('{[2.5@2019-09-02]}'))
 
@@ -1173,34 +1172,33 @@ class TestTFloatRestrictors(TestTFloat):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tfi, instant, None),
-            (tfi, instant_set, None),
-            (tfi, sequence, None),
-            (tfi, sequence_set, None),
+            (tfi, timestamp, None),
+            (tfi, timestamp_set, None),
+            (tfi, period, None),
+            (tfi, period_set, None),
             (tfi, 1.5, None),
             (tfi, 2.5, TFloatInst('1.5@2019-09-01')),
 
-            (tfds, instant, TFloatSeq('{2.5@2019-09-02}')),
-            (tfds, instant_set, TFloatSeq('{2.5@2019-09-02}')),
-            (tfds, sequence, None),
-            (tfds, sequence_set, None),
+            (tfds, timestamp, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, timestamp_set, TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, period, None),
+            (tfds, period_set, None),
             (tfds, 1.5, TFloatSeq('{2.5@2019-09-02}')),
             (tfds, 2.5, TFloatSeq('{1.5@2019-09-01}')),
 
-            (tfs, instant, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
-            (tfs, instant_set, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
-            (tfs, sequence, None),
-            (tfs, sequence_set, None),
+            (tfs, timestamp, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfs, timestamp_set, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfs, period, None),
+            (tfs, period_set, None),
             (tfs, 1.5, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfs, 2.5, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02)}')),
 
-            (
-                    tfss, instant,
-                    TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
-            (tfss, instant_set,
+            (tfss, timestamp,
+                TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
+            (tfss, timestamp_set,
              TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02],(1.5@2019-09-03, 1.5@2019-09-05]}')),
-            (tfss, sequence, TFloatSeqSet('{[1.5@2019-09-03, 1.5@2019-09-05]}')),
-            (tfss, sequence_set, None),
+            (tfss, period, TFloatSeqSet('{[1.5@2019-09-03, 1.5@2019-09-05]}')),
+            (tfss, period_set, None),
             (tfss, 1.5, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfss, 2.5, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}'))
         ],
@@ -1240,6 +1238,58 @@ class TestTFloatRestrictors(TestTFloat):
     )
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, restrictor',
+        [
+            (tfi, timestamp),
+            (tfi, timestamp_set),
+            (tfi, period),
+            (tfi, period_set),
+            (tfi, 1.5),
+            (tfi, 2.5),
+
+            (tfds, timestamp),
+            (tfds, timestamp_set),
+            (tfds, period),
+            (tfds, period_set),
+            (tfds, 1.5),
+            (tfds, 2.5),
+
+            (tfs, timestamp),
+            (tfs, timestamp_set),
+            (tfs, period),
+            (tfs, period_set),
+            (tfs, 1.5),
+            (tfs, 2.5),
+
+            (tfss, timestamp),
+            (tfss, timestamp_set),
+            (tfss, period),
+            (tfss, period_set),
+            (tfss, 1.5),
+            (tfss, 2.5),
+
+        ],
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-1',
+             'Instant-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-1',
+             'Discrete Sequence-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-1',
+             'SequenceSet-2']
+    )
+    def test_at_minus(self, temporal, restrictor):
+        assert TFloat.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tfi, tfds, tfs, tfss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_minus_min_max(self, temporal):
+        assert TFloat.merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TFloat.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTFloatComparisonFunctions(TestTFloat):

@@ -946,39 +946,39 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
-    instant = datetime(2019, 9, 1)
-    instant_set = TimestampSet('{2019-09-01, 2019-09-03}')
-    sequence = Period('[2019-09-01, 2019-09-02]')
-    sequence_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
+    timestamp = datetime(2019, 9, 1)
+    timestamp_set = TimestampSet('{2019-09-01, 2019-09-03}')
+    period = Period('[2019-09-01, 2019-09-02]')
+    period_set = PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tpi, instant, TGeogPointInst('Point(1 1)@2019-09-01')),
-            (tpi, instant_set, TGeogPointInst('Point(1 1)@2019-09-01')),
-            (tpi, sequence, TGeogPointInst('Point(1 1)@2019-09-01')),
-            (tpi, sequence_set, TGeogPointInst('Point(1 1)@2019-09-01')),
+            (tpi, timestamp, TGeogPointInst('Point(1 1)@2019-09-01')),
+            (tpi, timestamp_set, TGeogPointInst('Point(1 1)@2019-09-01')),
+            (tpi, period, TGeogPointInst('Point(1 1)@2019-09-01')),
+            (tpi, period_set, TGeogPointInst('Point(1 1)@2019-09-01')),
             (tpi, shapely.set_srid(shapely.Point(1,1), 4326), TGeogPointInst('Point(1 1)@2019-09-01')),
             (tpi, shapely.set_srid(shapely.Point(2,2), 4326), None),
 
-            (tpds, instant, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
-            (tpds, instant_set, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
-            (tpds, sequence, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
-            (tpds, sequence_set, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tpds, timestamp, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, timestamp_set, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, period, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tpds, period_set, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
             (tpds, shapely.set_srid(shapely.Point(1,1), 4326), TGeogPointSeq('{Point(1 1)@2019-09-01}')),
             (tpds, shapely.set_srid(shapely.Point(2,2), 4326), TGeogPointSeq('{Point(2 2)@2019-09-02}')),
 
-            (tps, instant, TGeogPointSeq('[Point(1 1)@2019-09-01]')),
-            (tps, instant_set, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
-            (tps, sequence, TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
-            (tps, sequence_set, TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
+            (tps, timestamp, TGeogPointSeq('[Point(1 1)@2019-09-01]')),
+            (tps, timestamp_set, TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+            (tps, period, TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
+            (tps, period_set, TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
             (tps, shapely.set_srid(shapely.Point(1,1), 4326), TGeogPointSeq('[Point(1 1)@2019-09-01]')),
             (tps, shapely.set_srid(shapely.Point(2,2), 4326), TGeogPointSeq('[Point(2 2)@2019-09-02]')),
 
-            (tpss, instant, TGeogPointSeqSet('[Point(1 1)@2019-09-01]')),
-            (tpss, instant_set, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}')),
-            (tpss, sequence, TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
-            (tpss, sequence_set, TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
+            (tpss, timestamp, TGeogPointSeqSet('[Point(1 1)@2019-09-01]')),
+            (tpss, timestamp_set, TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}')),
+            (tpss, period, TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
+            (tpss, period_set, TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
                 '[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}')),
             (tpss, shapely.set_srid(shapely.Point(1,1), 4326), 
                 TGeogPointSeqSet('{[Point(1 1)@2019-09-01],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
@@ -1000,36 +1000,35 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
-            (tpi, instant, None),
-            (tpi, instant_set, None),
-            (tpi, sequence, None),
-            (tpi, sequence_set, None),
+            (tpi, timestamp, None),
+            (tpi, timestamp_set, None),
+            (tpi, period, None),
+            (tpi, period_set, None),
             (tpi, shapely.set_srid(shapely.Point(1,1), 4326), None),
             (tpi, shapely.set_srid(shapely.Point(2,2), 4326), TGeogPointInst('Point(1 1)@2019-09-01')),
 
-            (tpds, instant, TGeogPointSeq('{Point(2 2)@2019-09-02}')),
-            (tpds, instant_set, TGeogPointSeq('{Point(2 2)@2019-09-02}')),
-            (tpds, sequence, None),
-            (tpds, sequence_set, None),
+            (tpds, timestamp, TGeogPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, timestamp_set, TGeogPointSeq('{Point(2 2)@2019-09-02}')),
+            (tpds, period, None),
+            (tpds, period_set, None),
             (tpds, shapely.set_srid(shapely.Point(1,1), 4326), TGeogPointSeq('{Point(2 2)@2019-09-02}')),
             (tpds, shapely.set_srid(shapely.Point(2,2), 4326), TGeogPointSeq('{Point(1 1)@2019-09-01}')),
 
-            (tps, instant, TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
-            (tps, instant_set, TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
-            (tps, sequence, None),
-            (tps, sequence_set, None),
+            (tps, timestamp, TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
+            (tps, timestamp_set, TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
+            (tps, period, None),
+            (tps, period_set, None),
             (tps, shapely.set_srid(shapely.Point(1,1), 4326), 
                 TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
             (tps, shapely.set_srid(shapely.Point(2,2), 4326), 
                 TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)}')),
 
-            (
-                tpss, instant,
+            (tpss, timestamp,
                 TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
-            (tpss, instant_set,
+            (tpss, timestamp_set,
              TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],(Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
-            (tpss, sequence, TGeogPointSeqSet('{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
-            (tpss, sequence_set, None),
+            (tpss, period, TGeogPointSeqSet('{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
+            (tpss, period_set, None),
             (tpss, shapely.set_srid(shapely.Point(1,1), 4326), 
                 TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
             (tpss, shapely.set_srid(shapely.Point(2,2), 4326),
