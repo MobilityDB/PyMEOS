@@ -986,12 +986,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
 
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-True',
-             'Instant-p-2-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Instant-Point(2,2)', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-True',
-             'Discrete Sequence-p-2-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-True', 'Sequence-p-2-2', 'SequenceSet-Timestamp',
+             'Discrete Sequence-Point(2,2)', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-True', 'Sequence-Point(2,2)', 'SequenceSet-Timestamp',
              'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-True',
-             'SequenceSet-p-2-2']
+             'SequenceSet-Point(2,2)']
     )
     def test_at(self, temporal, restrictor, expected):
         assert temporal.at(restrictor) == expected
@@ -1034,16 +1034,59 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             (tpss, shapely.set_srid(shapely.Point(2,2), 4326),
                 TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'))
         ],
-        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-p-1-1',
-             'Instant-p-2-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
-             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-p-1-1',
-             'Discrete Sequence-p-2-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-p-1-1', 'Sequence-p-2-2', 'SequenceSet-Timestamp',
-             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-p-1-1',
-             'SequenceSet-p-2-2']
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-Point(1,1)',
+             'Instant-Point(2,2)', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-Point(1,1)',
+             'Discrete Sequence-Point(2,2)', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-Point(1,1)', 'Sequence-Point(2,2)', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-Point(1,1)',
+             'SequenceSet-Point(2,2)']
     )
     def test_minus(self, temporal, restrictor, expected):
         assert temporal.minus(restrictor) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, restrictor',
+        [
+            (tpi, timestamp),
+            (tpi, timestamp_set),
+            (tpi, period),
+            (tpi, period_set),
+            (tpi, shapely.set_srid(shapely.Point(1,1), 4326)),
+            (tpi, shapely.set_srid(shapely.Point(2,2), 4326)),
+
+            (tpds, timestamp),
+            (tpds, timestamp_set),
+            (tpds, period),
+            (tpds, period_set),
+            (tpds, shapely.set_srid(shapely.Point(1,1), 4326)),
+            (tpds, shapely.set_srid(shapely.Point(2,2), 4326)),
+
+            (tps, timestamp),
+            (tps, timestamp_set),
+            (tps, period),
+            (tps, period_set),
+            (tps, shapely.set_srid(shapely.Point(1,1), 4326)),
+            (tps, shapely.set_srid(shapely.Point(2,2), 4326)),
+
+            (tpss, timestamp),
+            (tpss, timestamp_set),
+            (tpss, period),
+            (tpss, period_set),
+            (tpss, shapely.set_srid(shapely.Point(1,1), 4326)),
+            (tpss, shapely.set_srid(shapely.Point(2,2), 4326)),
+
+        ],
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-Point(1,1)',
+             'Instant-Point(2,2)', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+             'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-Point(1,1)',
+             'Discrete Sequence-Point(2,2)', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-Point(1,1)', 'Sequence-Point(2,2)', 'SequenceSet-Timestamp',
+             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-Point(1,1)',
+             'SequenceSet-Point(2,2)']
+    )
+    def test_at_minus(self, temporal, restrictor):
+        assert TGeogPoint.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
 
 
 class TestTGeogPointComparisonFunctions(TestTGeogPoint):

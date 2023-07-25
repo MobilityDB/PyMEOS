@@ -599,7 +599,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             result = tint_at_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):
             # result = tint_at_values(self._inner, other)
-            results = [tint_at_value(self._inner, value) for value in other]
+            results = [tint_at_value(self._inner, value) for value in other if other is not None]
             result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
@@ -625,7 +625,13 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         if isinstance(other, int):
             result = tint_minus_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):
-            result = reduce(ttext_minus_value, other, self._inner)
+            # result = reduce(tint_minus_value, other, self._inner)
+            # result = tint_minus_values(self._inner, other)
+            # results = [tint_minus_value(self._inner, value) for value in other if other is not None]
+            # result = temporal_merge_array(results, len(results))
+            result = tint_minus_value(self._inner, other)
+            for i in 1..len(other):
+              result = result.minus_value(other[i])
         else:
             return super().minus(other)
         return Temporal._factory(result)

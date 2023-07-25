@@ -617,7 +617,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             result = tfloat_at_value(self._inner, float(other))
         elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
             # result = tfloat_at_values(self._inner, [float(x) for x in other])
-            results = [tfloat_at_value(self._inner, float(value)) for value in other]
+            results = [tfloat_at_value(self._inner, float(value)) for value in other if other is not None]
             result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
