@@ -1,4 +1,5 @@
 from copy import copy
+from operator import not_
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -839,7 +840,7 @@ class TestTIntTransformations(TestTInt):
              TIntSeqSet('{[1@2019-09-05 00:00:00, 2@2019-09-05 00:30:00],'
              '[1@2019-09-05 01:00:00, 1@2019-09-05 02:00:00]}')
 
-
+    
 class TestTIntModifications(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
@@ -926,160 +927,124 @@ class TestTIntEverAlwaysOperations(TestTInt):
     tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, True),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
+            (tii, 1, True),
+            (tii, 2, False),
+            (tids, 1, False),
+            (tids, 2, False),
+            (tis, 1, False),
+            (tis, 2, False),
+            (tiss, 1, False),
+            (tiss, 2, False),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_always_equal_1(self, temporal, expected):
-        assert temporal.always_equal(1) == expected
+    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
+        assert temporal.always_equal(argument) == expected
+        assert temporal.never_not_equal(argument) == expected
+        assert temporal.ever_not_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, False),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
+            (tii, 1, True),
+            (tii, 2, False),
+            (tids, 1, True),
+            (tids, 2, True),
+            (tis, 1, True),
+            (tis, 2, True),
+            (tiss, 1, True),
+            (tiss, 2, True)
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_always_equal_2(self, temporal, expected):
-        assert temporal.always_equal(2) == expected
+    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
+        assert temporal.ever_equal(argument) == expected
+        assert temporal.always_not_equal(argument) == not_(expected)
+        assert temporal.never_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, True),
-            (tids, True),
-            (tis, True),
-            (tiss, True)
+            (tii, 1, False),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, False),
+            (tis, 1, False),
+            (tis, 2, False),
+            (tiss, 1, False),
+            (tiss, 2, False),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_ever_equal_1(self, temporal, expected):
-        assert temporal.ever_equal(1) == expected
+    def test_always_less_ever_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.always_less(argument) == expected
+        assert temporal.never_greater_or_equal(argument) == expected
+        assert temporal.ever_greater_or_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, False),
-            (tids, True),
-            (tis, True),
-            (tiss, True)
+            (tii, 1, False),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, True),
+            (tis, 1, False),
+            (tis, 2, True),
+            (tiss, 1, False),
+            (tiss, 2, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_ever_equal_2(self, temporal, expected):
-        assert temporal.ever_equal(2) == expected
+    def test_ever_less_always_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.ever_less(argument) == expected
+        assert temporal.always_greater_or_equal(argument) == not_(expected)
+        assert temporal.never_less(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, False),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
+            (tii, 1, True),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, True),
+            (tis, 1, False),
+            (tis, 2, True),
+            (tiss, 1, False),
+            (tiss, 2, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_never_equal_1(self, temporal, expected):
-        assert temporal.never_equal(1) == expected
+    def test_always_less_or_equal_ever_greater(self, temporal, argument, expected):
+        assert temporal.always_less_or_equal(argument) == expected
+        assert temporal.never_greater(argument) == expected
+        assert temporal.ever_greater(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tii, True),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
+            (tii, 1, True),
+            (tii, 2, True),
+            (tids, 1, True),
+            (tids, 2, True),
+            (tis, 1, True),
+            (tis, 2, True),
+            (tiss, 1, True),
+            (tiss, 2, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
     )
-    def test_never_equal_2(self, temporal, expected):
-        assert temporal.never_equal(2) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, False),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_less_1(self, temporal, expected):
-        assert temporal.always_less(1) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, True),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_less_2(self, temporal, expected):
-        assert temporal.always_less(2) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, False),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_less_1(self, temporal, expected):
-        assert temporal.ever_less(1) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, True),
-            (tids, True),
-            (tis, True),
-            (tiss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_less_2(self, temporal, expected):
-        assert temporal.ever_less(2) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, True),
-            (tids, True),
-            (tis, True),
-            (tiss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_less_1(self, temporal, expected):
-        assert temporal.never_less(1) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, False),
-            (tids, False),
-            (tis, False),
-            (tiss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_less_2(self, temporal, expected):
-        assert temporal.never_less(2) == expected
+    def test_ever_less_or_equal_always_greater(self, temporal, argument, expected):
+        assert temporal.ever_less_or_equal(argument) == expected
+        assert temporal.always_greater(argument) == not_(expected)
+        assert temporal.never_less_or_equal(argument) == not_(expected)
 
 
 class TestTIntArithmeticOperations(TestTInt):

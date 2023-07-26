@@ -1,4 +1,5 @@
 from copy import copy
+from operator import not_
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -888,90 +889,130 @@ class TestTGeogPointTransformations(TestTGeogPoint):
              '[Point(1 1)@2019-09-05 01:00:00, Point(1 1)@2019-09-05 02:00:00]}')
 
 
-class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
+class TestTGeogPointModifications(TestTGeogPoint):
     tpi = TGeogPointInst('Point(1 1)@2019-09-01')
     tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, sequence, expected',
         [
-            (tpi, True),
-            (tpds, False),
-            (tps, False),
-            (tpss, False)
+            (tpi, TGeogPointSeq('{Point(1 1)@2019-09-03}'), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}')),
+            (tpds, TGeogPointSeq('{Point(1 1)@2019-09-03}'), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}')),
+            (tps, TGeogPointSeq('[Point(1 1)@2019-09-03]'), TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]}')),
+            (tpss, TGeogPointSeq('[Point(1 1)@2019-09-06]'),
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_always_p_1_1(self, temporal, expected):
-        assert temporal.always_equal(shapely.set_srid(shapely.Point(1,1), 4326)) == expected
-
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, False),
-            (tpds, False),
-            (tps, False),
-            (tpss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_p_2_2(self, temporal, expected):
-        assert temporal.always_equal(shapely.set_srid(shapely.Point(2,2), 4326)) == expected
+    def test_insert(self, temporal, sequence, expected):
+        assert temporal.insert(sequence) == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, instant, expected',
         [
-            (tpi, True),
-            (tpds, True),
-            (tps, True),
-            (tpss, True)
+            (tpi, TGeogPointInst('Point(2 2)@2019-09-01'), TGeogPointInst('Point(2 2)@2019-09-01')),
+            (tpds, TGeogPointInst('Point(2 2)@2019-09-01'), TGeogPointSeq('{Point(2 2)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tps, TGeogPointInst('Point(2 2)@2019-09-01'), 
+                TGeogPointSeqSet('{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
+            (tpss, TGeogPointInst('Point(2 2)@2019-09-01'),
+                TGeogPointSeqSet('{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_ever_p_1_1(self, temporal, expected):
-        assert temporal.ever_equal(shapely.set_srid(shapely.Point(1,1), 4326)) == expected
+    def test_update(self, temporal, instant, expected):
+        assert temporal.update(instant) == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, time, expected',
         [
-            (tpi, False),
-            (tpds, True),
-            (tps, True),
-            (tpss, True)
+            (tpi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
+            (tpi, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tpi),
+            (tpds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), TGeogPointSeq('{Point(2 2)@2019-09-02}')),
+            (tps, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
+            (tpss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TGeogPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant intersection', 'Instant disjoint', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_ever_p_2_2(self, temporal, expected):
-        assert temporal.ever_equal(shapely.set_srid(shapely.Point(2,2), 4326)) == expected
+    def test_delete(self, temporal, time, expected):
+        assert temporal.delete(time) == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, instant, expected',
         [
-            (tpi, False),
-            (tpds, False),
-            (tps, False),
-            (tpss, False)
+            (tpi, TGeogPointInst('Point(1 1)@2019-09-02'), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}')),
+            (tpds, TGeogPointInst('Point(1 1)@2019-09-03'), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}')),
+            (tps, TGeogPointInst('Point(1 1)@2019-09-03'), TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]')),
+            (tpss, TGeogPointInst('Point(1 1)@2019-09-06'),
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-06]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_never_p_1_1(self, temporal, expected):
-        assert temporal.never_equal(shapely.set_srid(shapely.Point(1,1), 4326)) == expected
+    def test_append_instant(self, temporal, instant, expected):
+        assert temporal.append_instant(instant) == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, sequence, expected',
         [
-            (tpi, True),
-            (tpds, False),
-            (tps, False),
-            (tpss, False)
+            (tpds, TGeogPointSeq('{Point(1 1)@2019-09-03}'), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}')),
+            (tps, TGeogPointSeq('[Point(1 1)@2019-09-03]'), TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03]}')),
+            (tpss, TGeogPointSeq('[Point(1 1)@2019-09-06]'),
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}')),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_never_p_2_2(self, temporal, expected):
-        assert temporal.never_equal(shapely.set_srid(shapely.Point(2,2), 4326)) == expected
+    def test_append_sequence(self, temporal, sequence, expected):
+        assert temporal.append_sequence(sequence) == expected
+
+
+class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
+    tpi = TGeogPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, shapely.set_srid(shapely.Point(1,1), 4326), True),
+            (tpi, shapely.set_srid(shapely.Point(2,2), 4326), False),
+            (tpds, shapely.set_srid(shapely.Point(1,1), 4326), False),
+            (tpds, shapely.set_srid(shapely.Point(2,2), 4326), False),
+            (tps, shapely.set_srid(shapely.Point(1,1), 4326), False),
+            (tps, shapely.set_srid(shapely.Point(2,2), 4326), False),
+            (tpss, shapely.set_srid(shapely.Point(1,1), 4326), False),
+            (tpss, shapely.set_srid(shapely.Point(2,2), 4326), False),
+        ],
+        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
+             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
+    )
+    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
+        assert temporal.always_equal(argument) == expected
+        assert temporal.never_not_equal(argument) == expected
+        assert temporal.ever_not_equal(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, shapely.set_srid(shapely.Point(1,1), 4326), True),
+            (tpi, shapely.set_srid(shapely.Point(2,2), 4326), False),
+            (tpds, shapely.set_srid(shapely.Point(1,1), 4326), True),
+            (tpds, shapely.set_srid(shapely.Point(2,2), 4326), True),
+            (tps, shapely.set_srid(shapely.Point(1,1), 4326), True),
+            (tps, shapely.set_srid(shapely.Point(2,2), 4326), True),
+            (tpss, shapely.set_srid(shapely.Point(1,1), 4326), True),
+            (tpss, shapely.set_srid(shapely.Point(2,2), 4326), True)
+        ],
+        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
+             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
+    )
+    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
+        assert temporal.ever_equal(argument) == expected
+        assert temporal.always_not_equal(argument) == not_(expected)
+        assert temporal.never_equal(argument) == not_(expected)
 
 
 # class TestTGeogPointBooleanOperations(TestTGeogPoint):

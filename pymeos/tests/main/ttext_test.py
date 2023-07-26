@@ -821,6 +821,85 @@ class TestTTextTransformations(TestTText):
              '[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}')
 
 
+class TestTTextModifications(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tti, TTextSeq('{AAA@2019-09-03}'), TTextSeq('{AAA@2019-09-01, AAA@2019-09-03}')),
+            (ttds, TTextSeq('{AAA@2019-09-03}'), TTextSeq('{AAA@2019-09-01, BBB@2019-09-02, AAA@2019-09-03}')),
+            (tts, TTextSeq('[AAA@2019-09-03]'), TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02, AAA@2019-09-03]}')),
+            (ttss, TTextSeq('[AAA@2019-09-06]'),
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_insert(self, temporal, sequence, expected):
+        assert temporal.insert(sequence) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tti, TTextInst('BBB@2019-09-01'), TTextInst('BBB@2019-09-01')),
+            (ttds, TTextInst('BBB@2019-09-01'), TTextSeq('{BBB@2019-09-01, BBB@2019-09-02}')),
+            (tts, TTextInst('BBB@2019-09-01'), 
+                TTextSeqSet('{[BBB@2019-09-01], (AAA@2019-09-01, BBB@2019-09-02]}')),
+            (ttss, TTextInst('BBB@2019-09-01'),
+                TTextSeqSet('{[BBB@2019-09-01], (AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_update(self, temporal, instant, expected):
+        assert temporal.update(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, time, expected',
+        [
+            (tti, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
+            (tti, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tti),
+            (ttds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), TTextSeq('{BBB@2019-09-02}')),
+            (tts, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
+            (ttss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
+        ],
+        ids=['Instant intersection', 'Instant disjoint', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delete(self, temporal, time, expected):
+        assert temporal.delete(time) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tti, TTextInst('AAA@2019-09-02'), TTextSeq('{AAA@2019-09-01, AAA@2019-09-02}')),
+            (ttds, TTextInst('AAA@2019-09-03'), TTextSeq('{AAA@2019-09-01, BBB@2019-09-02, AAA@2019-09-03}')),
+            (tts, TTextInst('AAA@2019-09-03'), TTextSeq('[AAA@2019-09-01, BBB@2019-09-02, AAA@2019-09-03]')),
+            (ttss, TTextInst('AAA@2019-09-06'),
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_instant(self, temporal, instant, expected):
+        assert temporal.append_instant(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (ttds, TTextSeq('{AAA@2019-09-03}'), TTextSeq('{AAA@2019-09-01, BBB@2019-09-02, AAA@2019-09-03}')),
+            (tts, TTextSeq('[AAA@2019-09-03]'), TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03]}')),
+            (ttss, TTextSeq('[AAA@2019-09-06]'),
+                TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}')),
+        ],
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_sequence(self, temporal, sequence, expected):
+        assert temporal.append_sequence(sequence) == expected
+
+
 class TestTTextEverAlwaysOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
     ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')

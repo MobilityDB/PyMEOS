@@ -1,4 +1,5 @@
 from copy import copy
+from operator import not_
 from datetime import datetime, timezone, timedelta
 
 import pytest
@@ -958,87 +959,129 @@ class TestTFloatModifications(TestTFloat):
 
 class TestTFloatEverAlwaysOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
-    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
-    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
-    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+    tfds = TFloatSeq('{1.5@2019-09-01,2.5@2019-09-02}')
+    tfs = TFloatSeq('[1.5@2019-09-01,2.5@2019-09-02]')
+    tfss = TFloatSeqSet('{[1.5@2019-09-01,2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, True),
-            (tfds, False),
-            (tfs, False),
-            (tfss, False)
+            (tfi, 1.5, True),
+            (tfi, 2.5, False),
+            (tfds, 1.5, False),
+            (tfds, 2.5, False),
+            (tfs, 1.5, False),
+            (tfs, 2.5, False),
+            (tfss, 1.5, False),
+            (tfss, 2.5, False),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_always_1_5(self, temporal, expected):
-        assert temporal.always_equal(1.5) == expected
+    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
+        assert temporal.always_equal(argument) == expected
+        assert temporal.never_not_equal(argument) == expected
+        assert temporal.ever_not_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, False),
-            (tfds, False),
-            (tfs, False),
-            (tfss, False)
+            (tfi, 1.5, True),
+            (tfi, 2.5, False),
+            (tfds, 1.5, True),
+            (tfds, 2.5, True),
+            (tfs, 1.5, True),
+            (tfs, 2.5, True),
+            (tfss, 1.5, True),
+            (tfss, 2.5, True)
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_always_2_5(self, temporal, expected):
-        assert temporal.always_equal(2.5) == expected
+    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
+        assert temporal.ever_equal(argument) == expected
+        assert temporal.always_not_equal(argument) == not_(expected)
+        assert temporal.never_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, True),
-            (tfds, True),
-            (tfs, True),
-            (tfss, True)
+            (tfi, 1.5, False),
+            (tfi, 2.5, True),
+            (tfds, 1.5, False),
+            (tfds, 2.5, False),
+            (tfs, 1.5, False),
+            (tfs, 2.5, False),
+            (tfss, 1.5, False),
+            (tfss, 2.5, False),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_ever_1_5(self, temporal, expected):
-        assert temporal.ever_equal(1.5) == expected
+    def test_always_less_ever_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.always_less(argument) == expected
+        assert temporal.never_greater_or_equal(argument) == expected
+        assert temporal.ever_greater_or_equal(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, False),
-            (tfds, True),
-            (tfs, True),
-            (tfss, True)
+            (tfi, 1.5, False),
+            (tfi, 2.5, True),
+            (tfds, 1.5, False),
+            (tfds, 2.5, True),
+            (tfs, 1.5, False),
+            (tfs, 2.5, True),
+            (tfss, 1.5, False),
+            (tfss, 2.5, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_ever_2_5(self, temporal, expected):
-        assert temporal.ever_equal(2.5) == expected
+    def test_ever_less_always_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.ever_less(argument) == expected
+        assert temporal.always_greater_or_equal(argument) == not_(expected)
+        assert temporal.never_less(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, False),
-            (tfds, False),
-            (tfs, False),
-            (tfss, False)
+            (tfi, 1.5, True),
+            (tfi, 2.5, True),
+            (tfds, 1.5, False),
+            (tfds, 2.5, True),
+            (tfs, 1.5, False),
+            (tfs, 2.5, True),
+            (tfss, 1.5, False),
+            (tfss, 2.5, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_never_1_5(self, temporal, expected):
-        assert temporal.never_equal(1.5) == expected
+    def test_always_less_or_equal_ever_greater(self, temporal, argument, expected):
+        assert temporal.always_less_or_equal(argument) == expected
+        assert temporal.never_greater(argument) == expected
+        assert temporal.ever_greater(argument) == not_(expected)
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, True),
-            (tfds, False),
-            (tfs, False),
-            (tfss, False)
+            (tfi, 1.5, True),
+            (tfi, 2.5, True),
+            (tfds, 1.5, True),
+            (tfds, 2.5, True),
+            (tfs, 1.5, True),
+            (tfs, 2.5, True),
+            (tfss, 1.5, True),
+            (tfss, 2.5, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 1.5', 'Instant 2.5', 'Discrete Sequence 1.5', 'Discrete Sequence 2.5',
+             'Sequence 1.5', 'Sequence 2.5', 'SequenceSet 1.5', 'SequenceSet 2.5']
     )
-    def test_never_2_5(self, temporal, expected):
-        assert temporal.never_equal(2.5) == expected
+    def test_ever_less_or_equal_always_greater(self, temporal, argument, expected):
+        assert temporal.ever_less_or_equal(argument) == expected
+        assert temporal.always_greater(argument) == not_(expected)
+        assert temporal.never_less_or_equal(argument) == not_(expected)
 
 
 class TestTFloatArithmeticOperations(TestTFloat):
