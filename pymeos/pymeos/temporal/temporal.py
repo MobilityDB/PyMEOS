@@ -429,6 +429,16 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
     # ------------------------- Transformations -------------------------------
+    def set_interpolation(self: Self, interpolation: TInterpolation) -> Self:
+        """
+        Returns a new :class:`Temporal` object equal to `self` with the given interpolation.
+
+        MEOS Functions:
+            temporal_set_interpolation
+        """
+        new_temp = temporal_set_interp(self._inner, interpolation)
+        return Temporal._factory(new_temp)
+
     def shift(self, delta: timedelta) -> Period:
         """
         Returns a new :class:`Temporal` with the temporal dimension shifted by ``delta``.
@@ -516,7 +526,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return DataFrame(data).set_index(keys='time')
 
     # ------------------------- Modifications ---------------------------------
-    def append(self, instant: TInstant[TBase], max_dist: float, max_time: timedelta) -> TG:
+    def append_instant(self, instant: TInstant[TBase], max_dist: Optional[float] = 0.0,
+        max_time: Optional[timedelta] = None) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with `instant` appended.
 
@@ -528,8 +539,28 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_append_tinstant
         """
-        new_inner = temporal_append_tinstant(self._inner, instant._inner, max_dist, timedelta_to_interval(max_time),
-                                             self._expandable())
+        if max_time is None:
+            interv = None
+        else:
+            interv = timedelta_to_interval(max_time)
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, max_dist,
+             interv, self._expandable())
+        if new_inner == self._inner:
+            return self
+        return Temporal._factory(new_inner)
+
+    def append_sequence(self, sequence: TSequence[TBase]) -> TG:
+        """
+        Returns a new :class:`Temporal` object equal to `self` with `sequence` appended.
+
+        Args:
+            sequence: :class:`TSequence` to append
+
+        MEOS Functions:
+            temporal_append_tsequence
+        """
+        new_inner = temporal_append_tsequence(self._inner, sequence._inner,
+             self._expandable())
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
@@ -553,7 +584,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(new_temp)
 
-    def insert(self, other: TG, connect: bool = False) -> TG:
+    def insert(self, other: TG, connect: bool = True) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with `other` inserted.
 
@@ -569,7 +600,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             return self
         return Temporal._factory(new_inner)
 
-    def update(self, other: TG, connect: bool = False) -> TG:
+    def update(self, other: TG, connect: bool = True) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` updated with `other`.
 
@@ -585,7 +616,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             return self
         return Temporal._factory(new_inner)
 
-    def delete(self, other: Time, connect: bool = False) -> TG:
+    def delete(self, other: Time, connect: bool = True) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with elements at `other` removed.
 
@@ -609,16 +640,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
-
-    def set_interpolation(self: Self, interpolation: TInterpolation) -> Self:
-        """
-        Returns a new :class:`Temporal` object equal to `self` with the given interpolation.
-
-        MEOS Functions:
-            temporal_set_interpolation
-        """
-        new_temp = temporal_set_interp(self._inner, interpolation)
-        return Temporal._factory(new_temp)
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Time) -> TG:

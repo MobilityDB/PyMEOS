@@ -840,6 +840,85 @@ class TestTIntTransformations(TestTInt):
              '[1@2019-09-05 01:00:00, 1@2019-09-05 02:00:00]}')
 
 
+class TestTIntModifications(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tii, TIntSeq('{1@2019-09-03}'), TIntSeq('{1@2019-09-01, 1@2019-09-03}')),
+            (tids, TIntSeq('{1@2019-09-03}'), TIntSeq('{1@2019-09-01, 2@2019-09-02, 1@2019-09-03}')),
+            (tis, TIntSeq('[1@2019-09-03]'), TIntSeqSet('{[1@2019-09-01, 2@2019-09-02, 1@2019-09-03]}')),
+            (tiss, TIntSeq('[1@2019-09-06]'),
+                TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05],[1@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_insert(self, temporal, sequence, expected):
+        assert temporal.insert(sequence) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tii, TIntInst('2@2019-09-01'), TIntInst('2@2019-09-01')),
+            (tids, TIntInst('2@2019-09-01'), TIntSeq('{2@2019-09-01, 2@2019-09-02}')),
+            (tis, TIntInst('2@2019-09-01'), 
+                TIntSeqSet('{[2@2019-09-01], (1@2019-09-01, 2@2019-09-02]}')),
+            (tiss, TIntInst('2@2019-09-01'),
+                TIntSeqSet('{[2@2019-09-01], (1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_update(self, temporal, instant, expected):
+        assert temporal.update(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, time, expected',
+        [
+            (tii, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
+            (tii, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tii),
+            (tids, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), TIntSeq('{2@2019-09-02}')),
+            (tis, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TIntSeqSet('{(1@2019-09-01, 2@2019-09-02]}')),
+            (tiss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TIntSeqSet('{(1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')),
+        ],
+        ids=['Instant intersection', 'Instant disjoint', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delete(self, temporal, time, expected):
+        assert temporal.delete(time) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tii, TIntInst('1@2019-09-02'), TIntSeq('{1@2019-09-01, 1@2019-09-02}')),
+            (tids, TIntInst('1@2019-09-03'), TIntSeq('{1@2019-09-01, 2@2019-09-02, 1@2019-09-03}')),
+            (tis, TIntInst('1@2019-09-03'), TIntSeq('[1@2019-09-01, 2@2019-09-02, 1@2019-09-03]')),
+            (tiss, TIntInst('1@2019-09-06'),
+                TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_instant(self, temporal, instant, expected):
+        assert temporal.append_instant(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tids, TIntSeq('{1@2019-09-03}'), TIntSeq('{1@2019-09-01, 2@2019-09-02, 1@2019-09-03}')),
+            (tis, TIntSeq('[1@2019-09-03]'), TIntSeqSet('{[1@2019-09-01, 2@2019-09-02], [1@2019-09-03]}')),
+            (tiss, TIntSeq('[1@2019-09-06]'),
+                TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05],[1@2019-09-06]}')),
+        ],
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_sequence(self, temporal, sequence, expected):
+        assert temporal.append_sequence(sequence) == expected
+
+
 class TestTIntEverAlwaysOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')

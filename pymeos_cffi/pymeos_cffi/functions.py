@@ -314,21 +314,6 @@ def text2cstring(textptr: 'text *') -> str:
     return result
 
 
-def pg_timestamptz_to_char(dt: int, fmt: str) -> str:
-    dt_converted = _ffi.cast('TimestampTz', dt)
-    fmt_converted = cstring2text(fmt)
-    result = _lib.pg_timestamptz_to_char(dt_converted, fmt_converted)
-    result = text2cstring(result)
-    return result if result != _ffi.NULL else None
-
-
-def pg_to_timestamp(date_txt: str, fmt: str) -> 'Timestamp':
-    date_txt_converted = cstring2text(date_txt)
-    fmt_converted = cstring2text(fmt)
-    result = _lib.pg_to_timestamp(date_txt_converted, fmt_converted)
-    return result if result != _ffi.NULL else None
-
-
 def gserialized_as_ewkb(geom: 'const GSERIALIZED *', type: str) -> 'bytea *':
     geom_converted = _ffi.cast('const GSERIALIZED *', geom)
     type_converted = type.encode('utf-8')
@@ -4489,10 +4474,10 @@ def ttext_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 
     return None
 
 
-def temporal_append_tinstant(temp: 'Temporal *', inst: 'const TInstant *', maxdist: float, maxt: 'Interval *', expand: bool) -> 'Temporal *':
+def temporal_append_tinstant(temp: 'Temporal *', inst: 'const TInstant *', maxdist: float, maxt: "Optional['Interval *']", expand: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('Temporal *', temp)
     inst_converted = _ffi.cast('const TInstant *', inst)
-    maxt_converted = _ffi.cast('Interval *', maxt)
+    maxt_converted = _ffi.cast('Interval *', maxt) if maxt is not None else _ffi.NULL
     result = _lib.temporal_append_tinstant(temp_converted, inst_converted, maxdist, maxt_converted, expand)
     return result if result != _ffi.NULL else None
 

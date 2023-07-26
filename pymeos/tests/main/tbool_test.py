@@ -826,6 +826,85 @@ class TestTBoolTransformations(TestTBool):
              '[True@2019-09-05 01:00:00, True@2019-09-05 02:00:00]}')
 
 
+class TestTBoolModifications(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tbi, TBoolSeq('{True@2019-09-03}'), TBoolSeq('{True@2019-09-01, True@2019-09-03}')),
+            (tbds, TBoolSeq('{True@2019-09-03}'), TBoolSeq('{True@2019-09-01, False@2019-09-02, True@2019-09-03}')),
+            (tbs, TBoolSeq('[True@2019-09-03]'), TBoolSeqSet('{[True@2019-09-01, False@2019-09-02, True@2019-09-03]}')),
+            (tbss, TBoolSeq('[True@2019-09-06]'),
+                TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05],[True@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_insert(self, temporal, sequence, expected):
+        assert temporal.insert(sequence) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tbi, TBoolInst('False@2019-09-01'), TBoolInst('False@2019-09-01')),
+            (tbds, TBoolInst('False@2019-09-01'), TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tbs, TBoolInst('False@2019-09-01'), 
+                TBoolSeqSet('{[False@2019-09-01], (True@2019-09-01, False@2019-09-02]}')),
+            (tbss, TBoolInst('False@2019-09-01'),
+                TBoolSeqSet('{[False@2019-09-01], (True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_update(self, temporal, instant, expected):
+        assert temporal.update(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, time, expected',
+        [
+            (tbi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
+            (tbi, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tbi),
+            (tbds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), TBoolSeq('{False@2019-09-02}')),
+            (tbs, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TBoolSeqSet('{(True@2019-09-01, False@2019-09-02]}')),
+            (tbss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TBoolSeqSet('{(True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+        ],
+        ids=['Instant intersection', 'Instant disjoint', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delete(self, temporal, time, expected):
+        assert temporal.delete(time) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tbi, TBoolInst('True@2019-09-02'), TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tbds, TBoolInst('True@2019-09-03'), TBoolSeq('{True@2019-09-01, False@2019-09-02, True@2019-09-03}')),
+            (tbs, TBoolInst('True@2019-09-03'), TBoolSeq('[True@2019-09-01, False@2019-09-02, True@2019-09-03]')),
+            (tbss, TBoolInst('True@2019-09-06'),
+                TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_instant(self, temporal, instant, expected):
+        assert temporal.append_instant(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tbds, TBoolSeq('{True@2019-09-03}'), TBoolSeq('{True@2019-09-01, False@2019-09-02, True@2019-09-03}')),
+            (tbs, TBoolSeq('[True@2019-09-03]'), TBoolSeqSet('{[True@2019-09-01, False@2019-09-02], [True@2019-09-03]}')),
+            (tbss, TBoolSeq('[True@2019-09-06]'),
+                TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05],[True@2019-09-06]}')),
+        ],
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_sequence(self, temporal, sequence, expected):
+        assert temporal.append_sequence(sequence) == expected
+
+
 class TestTBoolEverAlwaysOperations(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')

@@ -877,6 +877,85 @@ class TestTFloatTransformations(TestTFloat):
              '[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}')
 
 
+class TestTFloatModifications(TestTFloat):
+    tfi = TFloatInst('1.5@2019-09-01')
+    tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
+    tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tfi, TFloatSeq('{1.5@2019-09-03}'), TFloatSeq('{1.5@2019-09-01, 1.5@2019-09-03}')),
+            (tfds, TFloatSeq('{1.5@2019-09-03}'), TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02, 1.5@2019-09-03}')),
+            (tfs, TFloatSeq('[1.5@2019-09-03]'), TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02, 1.5@2019-09-03]}')),
+            (tfss, TFloatSeq('[1.5@2019-09-06]'),
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_insert(self, temporal, sequence, expected):
+        assert temporal.insert(sequence) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tfi, TFloatInst('2.5@2019-09-01'), TFloatInst('2.5@2019-09-01')),
+            (tfds, TFloatInst('2.5@2019-09-01'), TFloatSeq('{2.5@2019-09-01, 2.5@2019-09-02}')),
+            (tfs, TFloatInst('2.5@2019-09-01'), 
+                TFloatSeqSet('{[2.5@2019-09-01], (1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfss, TFloatInst('2.5@2019-09-01'),
+                TFloatSeqSet('{[2.5@2019-09-01], (1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_update(self, temporal, instant, expected):
+        assert temporal.update(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, time, expected',
+        [
+            (tfi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
+            (tfi, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tfi),
+            (tfds, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), TFloatSeq('{2.5@2019-09-02}')),
+            (tfs, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfss, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')),
+        ],
+        ids=['Instant intersection', 'Instant disjoint', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delete(self, temporal, time, expected):
+        assert temporal.delete(time) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, instant, expected',
+        [
+            (tfi, TFloatInst('1.5@2019-09-02'), TFloatSeq('{1.5@2019-09-01, 1.5@2019-09-02}')),
+            (tfds, TFloatInst('1.5@2019-09-03'), TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02, 1.5@2019-09-03}')),
+            (tfs, TFloatInst('1.5@2019-09-03'), TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02, 1.5@2019-09-03]')),
+            (tfss, TFloatInst('1.5@2019-09-06'),
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-06]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_instant(self, temporal, instant, expected):
+        assert temporal.append_instant(instant) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, sequence, expected',
+        [
+            (tfds, TFloatSeq('{1.5@2019-09-03}'), TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02, 1.5@2019-09-03}')),
+            (tfs, TFloatSeq('[1.5@2019-09-03]'), TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02], [1.5@2019-09-03]}')),
+            (tfss, TFloatSeq('[1.5@2019-09-06]'),
+                TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}')),
+        ],
+        ids=['Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_append_sequence(self, temporal, sequence, expected):
+        assert temporal.append_sequence(sequence) == expected
+
+
 class TestTFloatEverAlwaysOperations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
     tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
