@@ -4723,6 +4723,12 @@ def sub_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal 
     return result if result != _ffi.NULL else None
 
 
+def tfloat_round(temp: 'const Temporal *', maxdd: int) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tfloat_round(temp_converted, maxdd)
+    return result if result != _ffi.NULL else None
+
+
 def tfloat_degrees(temp: 'const Temporal *', normalize: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tfloat_degrees(temp_converted, normalize)

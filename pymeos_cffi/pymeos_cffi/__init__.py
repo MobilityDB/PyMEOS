@@ -703,6 +703,7 @@ __all__ = [
     'sub_tfloat_float',
     'sub_tint_int',
     'sub_tnumber_tnumber',
+    'tfloat_round',
     'tfloat_degrees',
     'tfloat_derivative',
     'tfloat_radians',

@@ -7,7 +7,7 @@ from shapely import Point
 import shapely.geometry
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, TGeogPoint, \
-    TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet, TInterpolation, TimestampSet, Period, PeriodSet
+    TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet, STBox, TInterpolation, TimestampSet, Period, PeriodSet
 from tests.conftest import TestPyMEOS
 
 
@@ -763,6 +763,19 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     )
     def test_srid(self, temporal, expected):
         assert temporal.srid() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, STBox('GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])')),
+            (tpds, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tps, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tpss, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-05])')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bounding_box(self, temporal, expected):
+        assert temporal.bounding_box() == expected
 
 
 class TestTGeogPointTransformations(TestTGeogPoint):

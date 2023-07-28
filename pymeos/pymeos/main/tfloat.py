@@ -599,8 +599,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[int, float, List[float], List[int], intrange, floatrange, List[intrange], List[
-        floatrange], TBox, Time]) -> TFloat:
+    def at(self, other: Union[int, float, List[int], List[float], 
+        intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TFloat:
         """
         Returns a new temporal float with the values of `self` restricted to the time or value `other`.
 
@@ -735,6 +735,22 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_radians(self._inner))
+
+    def round(self, maxdd : int = 0) -> TFloat:
+        """
+        Returns `self` rounded to the given number of decimal digits.
+
+        Args:
+            maxdd: Maximum number of decimal digits.
+
+        Returns:
+            A new :class:`TFloat` instance.
+
+        MEOS Functions:
+            tfloat_round
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tfloat_round(self._inner, maxdd))
 
     # ------------------------- Split Operations ------------------------------
     def value_split(self, start: float, size: float) -> List[Temporal]:
