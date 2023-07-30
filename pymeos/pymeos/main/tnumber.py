@@ -394,6 +394,32 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.rdiv(other)
 
+    def abs(self) -> TNumber:
+        """
+        Returns the absolute value of `self`.
+
+        Returns:
+            A new :class:`TNumber` instance.
+
+        MEOS Functions:
+            tnumber_abs
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tnumber_abs(self._inner))
+
+    def delta_value(self) -> TNumber:
+        """
+        Returns the value difference between consecutive instants of `self`.
+
+        Returns:
+            A new :class:`TNumber` instance.
+
+        MEOS Functions:
+            tnumber_delta_value
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tnumber_delta_value(self._inner))
+
     # ------------------------- Distance Operations --------------------------
     def distance(self, other: Union[int, float, TNumber]) -> TFloat:
         """
