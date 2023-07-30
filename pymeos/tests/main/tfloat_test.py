@@ -1,6 +1,7 @@
 from copy import copy
 from operator import not_
 from datetime import datetime, timezone, timedelta
+from spans.types import intrange, floatrange
 
 import pytest
 
@@ -890,6 +891,32 @@ class TestTFloatTransformations(TestTFloat):
              TFloatSeqSet('{[1.5@2019-09-05 00:00:00, 2.5@2019-09-05 00:30:00],'
              '[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}')
 
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, TIntInst('1@2019-09-01')),
+            # (tfds, TIntSeq('{1@2019-09-01,2@2019-09-02}')),
+        ],
+        ids=['Instant'] #, 'Discrete Sequence']
+    )
+    def test_to_tint(self, temporal, expected):
+        temp = temporal.to_tint()
+        assert isinstance(temp, TInt)
+        assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, floatrange(1.5, 1.5, True, True)),
+            (tfds, floatrange(1.5, 2.5, True, True)),
+            (tfs, floatrange(1.5, 2.5, True, True)),
+            (tfss, floatrange(1.5, 2.5, True, True)),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_to_floatrange(self, temporal, expected):
+        assert temporal.to_floatrange() == expected
+
 
 class TestTFloatModifications(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
@@ -1203,42 +1230,36 @@ class TestTFloatArithmeticOperations(TestTFloat):
         assert temporal * argument == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, argument, expected',
         [
-            (tfi, TFloatInst('3@2019-09-01')),
-            (tfds, TFloatSeq('{3@2019-09-01, 5@2019-09-02}')),
-            (tfs, TFloatSeq('[3@2019-09-01, 5@2019-09-02]')),
-            (tfss, TFloatSeqSet('{[3@2019-09-01, 5@2019-09-02],[3@2019-09-03, 3@2019-09-05]}')),
+            (tfi, 0, TFloat.from_base_temporal(0, tfi)),
+            (tfds, 0, TFloat.from_base_temporal(0, tfds)),
+            (tfs, 0, TFloat.from_base_temporal(0, tfs)),
+            (tfss, 0, TFloat.from_base_temporal(0, tfss)),
+            
+            (tfi, 1, tfi),
+            (tfds, 1, tfds),
+            (tfs, 1, tfs),
+            (tfss, 1, tfss),
+            
+            (tfi, 2, TFloatInst('3@2019-09-01')),
+            (tfds, 2, TFloatSeq('{3@2019-09-01, 5@2019-09-02}')),
+            (tfs, 2, TFloatSeq('[3@2019-09-01, 5@2019-09-02]')),
+            (tfss, 2, TFloatSeqSet('{[3@2019-09-01, 5@2019-09-02],[3@2019-09-03, 3@2019-09-05]}')),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 0', 'Discrete Sequence 0', 'Sequence 0', 'SequenceSet 0',
+             'Instant 1', 'Discrete Sequence 1', 'Sequence 1', 'SequenceSet 1',
+             'Instant 2', 'Discrete Sequence 2', 'Sequence 2', 'SequenceSet 2']
     )
-    def test_temporal_mul_int_float(self, temporal, expected):
-        assert temporal.mul(0) == TFloat.from_base_temporal(0, temporal)
-        assert temporal.rmul(0) == TFloat.from_base_temporal(0, temporal)
-        assert (temporal * 0) == TFloat.from_base_temporal(0, temporal)
-        assert (0 * temporal) == TFloat.from_base_temporal(0, temporal)
-        assert temporal.mul(0.0) == TFloat.from_base_temporal(0, temporal)
-        assert temporal.rmul(0.0) == TFloat.from_base_temporal(0, temporal)
-        assert (temporal * 0.0) == TFloat.from_base_temporal(0, temporal)
-        assert (0.0 * temporal) == TFloat.from_base_temporal(0, temporal)
-
-        assert temporal.mul(1) == temporal
-        assert temporal.rmul(1) == temporal
-        assert (temporal * 1) == temporal
-        assert (1 * temporal) == temporal
-        assert temporal.mul(1.0) == temporal
-        assert temporal.rmul(1.0) == temporal
-        assert (temporal * 1.0) == temporal
-        assert (1.0 * temporal) == temporal
-
-        assert temporal.mul(2) == expected
-        assert temporal.rmul(2) == expected
-        assert (temporal * 2) == expected
-        assert (2 * temporal) == expected
-        assert temporal.mul(2.0) == expected
-        assert temporal.rmul(2.0) == expected
-        assert (temporal * 2.0) == expected
-        assert (2.0 * temporal) == expected
+    def test_temporal_mul_int_float(self, temporal, argument, expected):
+        assert temporal.mul(argument) == expected
+        assert temporal.rmul(argument) == expected
+        assert (temporal * argument) == expected
+        assert (argument * temporal) == expected
+        assert temporal.mul(float(argument)) == expected
+        assert temporal.rmul(float(argument)) == expected
+        assert (temporal * float(argument)) == expected
+        assert (float(argument) * temporal) == expected
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',
@@ -1631,6 +1652,40 @@ class TestTFloatRestrictors(TestTFloat):
     def test_at_minus_min_max(self, temporal):
         assert TFloat.merge(temporal.at_min(), temporal.minus_min()) == temporal
         assert TFloat.merge(temporal.at_max(), temporal.minus_max()) == temporal
+
+
+class TestTFloatSplitOperaations(TestTFloat):
+    tfi = TFloatInst('1@2019-09-01')
+    tfds = TFloatSeq('{1@2019-09-01, 2@2019-09-02}')
+    tfs = TFloatSeq('[1@2019-09-01, 2@2019-09-02]')
+    tfss = TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, [TFloatInst('1@2019-09-01')]),
+            (tfds, [TFloatSeq('{1@2019-09-01}'),TFloatSeq('{2@2019-09-02}')]),
+            (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02)'),TFloatSeq('[2@2019-09-02]')]),
+            (tfss, [TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02),[1@2019-09-03, 1@2019-09-05]}'),TFloatSeq('[2@2019-09-02]')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_value_split(self, temporal, expected):
+        assert temporal.value_split(2) == expected
+
+    # @pytest.mark.parametrize(
+        # 'temporal, expected',
+        # [
+            # (tfi, [TFloatInst('1@2019-09-01')]),
+            # (tfds, [TFloatSeq('{1@2019-09-01}'),TFloatSeq('{2@2019-09-02}')]),
+            # (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02)'),TFloatSeq('{2@2019-09-02}')]),
+            # (tfss, [TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02)}'),TFloatSeq('[2@2019-09-02]'),
+                # TFloatSeq('[1@2019-09-03, 1@2019-09-04)'),TFloatSeqSet('{[1@2019-09-04, 1@2019-09-05]}')]),
+        # ],
+        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    # )
+    # def test_time_split(self, temporal, expected):
+        # assert temporal.time_split(timedelta(days=2)) == expected
 
 
 class TestTFloatComparisonFunctions(TestTFloat):

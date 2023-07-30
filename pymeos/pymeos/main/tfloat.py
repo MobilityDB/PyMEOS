@@ -753,7 +753,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return _TemporalFactory.create_temporal(tfloat_round(self._inner, maxdd))
 
     # ------------------------- Split Operations ------------------------------
-    def value_split(self, start: float, size: float) -> List[Temporal]:
+    def value_split(self, size: float, start: Optional[float] = 0) -> List[Temporal]:
         """
         Splits `self` into fragments with respect to value buckets
 

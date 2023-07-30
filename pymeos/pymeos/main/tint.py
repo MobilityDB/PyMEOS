@@ -447,7 +447,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_always_lt
         """
-        return tint_always_lt(self._inner, value)
+        return  (self._inner, value)
 
     def never_greater(self, value: int) -> bool:
         """
@@ -684,7 +684,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return intspan_to_intrange(tnumber_to_span(self._inner))
 
     # ------------------------- Split Operations ------------------------------
-    def value_split(self, start: int, size: int) -> List[TInt]:
+    def value_split(self, size: int, start: Optional[int] = 0) -> List[TInt]:
         """
         Splits `self` into fragments with respect to value buckets
 

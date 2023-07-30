@@ -29,7 +29,7 @@ class TestTTextConstructors(TestTText):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_from_base_constructor(self, source, type, interpolation):
+    def test_from_base_temporal_constructor(self, source, type, interpolation):
         tt = TText.from_base_temporal('AAA', source)
         assert isinstance(tt, type)
         assert tt.interpolation() == interpolation
@@ -1019,6 +1019,19 @@ class TestTTextTextOperations(TestTText):
     def test_temporal_concat_text(self, temporal, expected):
         assert temporal.concatenate('BBB') == expected
         assert (temporal + 'BBB') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, TTextInst('BBBAAA@2019-09-01')),
+            (ttds, TTextSeq('{BBBAAA@2019-09-01, BBBBBB@2019-09-02}')),
+            (tts, TTextSeq('[BBBAAA@2019-09-01, BBBBBB@2019-09-02]')),
+            (ttss, TTextSeqSet('{[BBBAAA@2019-09-01, BBBBBB@2019-09-02],[BBBAAA@2019-09-03, BBBAAA@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_radd_text(self, temporal, expected):
+        assert ('BBB' + temporal) == expected   
 
     @pytest.mark.parametrize(
         'temporal, expected',
