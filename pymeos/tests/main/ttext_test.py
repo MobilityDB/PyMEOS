@@ -1055,7 +1055,7 @@ class TestTTextTextOperations(TestTText):
         assert temporal.upper() == temporal
 
 
-class TestTTextBooleanOperations(TestTText):
+class TestTTextTemporalComparisons(TestTText):
     tti = TTextInst('AAA@2019-09-01')
     ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
     tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')

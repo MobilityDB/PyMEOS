@@ -20,19 +20,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
     BaseClass = float
     _parse_function = tfloat_in
 
-    # ------------------------- Input/Output ----------------------------------
-    def __str__(self, max_decimals=15):
-        """
-        Returns a string representation of `self`.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tfloat_out
-        """
-        return tfloat_out(self._inner, max_decimals)
-
+    # ------------------------- Constructors ----------------------------------
     @staticmethod
     def from_base_temporal(value: float, base: Temporal, interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
         """
@@ -92,6 +80,19 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         elif isinstance(base, PeriodSet):
             return TFloatSeqSet(_inner=tfloatseqset_from_base_periodset(value, base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
+
+    # ------------------------- Output ----------------------------------------
+    def __str__(self, max_decimals=15):
+        """
+        Returns a string representation of `self`.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tfloat_out
+        """
+        return tfloat_out(self._inner, max_decimals)
 
     def to_str(self, max_decimals=15) -> str:
         """

@@ -1087,7 +1087,7 @@ class TestTIntEverAlwaysOperations(TestTInt):
         assert temporal.never_less_or_equal(argument) == not_(expected)
 
 
-class TestTIntArithmeticOperations(TestTInt):
+class TestTIntMathematicalOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
@@ -1124,7 +1124,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_add_int(self, temporal, argument, expected):
+    def test_temporal_add_int_float(self, temporal, argument, expected):
         assert temporal.add(argument) == expected
         # assert temporal.add(float(argument)) == expected.to_tfloat()
         assert temporal.radd(argument) == expected
@@ -1163,7 +1163,7 @@ class TestTIntArithmeticOperations(TestTInt):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_sub_int(self, temporal, argument, expected):
+    def test_temporal_sub_int_float(self, temporal, argument, expected):
         assert temporal.sub(argument) == expected
         # assert temporal.sub(float(argument)) == expected.to_tfloat()
         assert temporal.rsub(argument) == -1 * expected
@@ -1214,7 +1214,7 @@ class TestTIntArithmeticOperations(TestTInt):
              'Instant 1', 'Discrete Sequence 1', 'Sequence 1', 'SequenceSet 1',
              'Instant 2', 'Discrete Sequence 2', 'Sequence 2', 'SequenceSet 2']
     )
-    def test_temporal_mul_int(self, temporal, argument, expected):
+    def test_temporal_mul_int_float(self, temporal, argument, expected):
         assert temporal.mul(argument) == expected
         # assert temporal.mul(float(argument)) == expected.to_tfloat()
         assert temporal.rmul(argument) == expected
@@ -1268,12 +1268,34 @@ class TestTIntArithmeticOperations(TestTInt):
              'Instant 2', 'Discrete Sequence 2', 'Sequence 2', 'SequenceSet 2',
              'Instant 2.0', 'Discrete Sequence 2.0', 'Sequence 2.0', 'SequenceSet 2.0']
     )
-    def test_temporal_div_int(self, temporal, argument, expected):
+    def test_temporal_div_int_float (self, temporal, argument, expected):
         assert temporal.div(argument) == expected
         assert (temporal / argument) == expected
 
+    @pytest.mark.parametrize(
+        'temporal',
+        [tii, tids, tis, tiss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_abs(self, temporal):
+        assert temporal.abs() == temporal
+        assert (-1 * temporal).abs() == temporal
 
-class TestTIntBooleanOperations(TestTInt):
+    # @pytest.mark.parametrize(
+        # 'temporal, expected',
+        # [
+            # (tii, TIntInst('1@2019-09-01')),
+            # (tids, TIntSeq('{1@2019-09-01, 1@2019-09-02}')),
+            # (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02]')),
+            # (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}')),
+        # ],
+        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    # )
+    # def test_delta_value(self, temporal, expected):
+        # assert temporal.delta_value() == expected
+
+
+class TestTIntTemporalComparisons(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')

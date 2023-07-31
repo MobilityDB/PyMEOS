@@ -82,7 +82,7 @@ class TestPeriodConstructors(TestPeriod):
                                     datetime(2019, 9, 10, tzinfo=timezone.utc), False, False)
 
     def test_from_as_constructor(self):
-        # assert self.period == Period.from_wkb(self.period.as_wkb())
+        assert self.period == Period.from_wkb(self.period.as_wkb())
         assert self.period == Period.from_hexwkb(self.period.as_hexwkb())
 
     def test_copy_constructor(self):

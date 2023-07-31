@@ -34,6 +34,7 @@ class TimestampSet:
 
     __slots__ = ['_inner']
 
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *, timestamp_list: Optional[List[Union[str, datetime]]] = None,
                  _inner=None):
         super().__init__()
@@ -61,7 +62,37 @@ class TimestampSet:
         inner_copy = set_copy(self._inner)
         return TimestampSet(_inner=inner_copy)
 
-    # ------------------------- Input/Output ----------------------------------
+    @staticmethod
+    def from_wkb(wkb: bytes) -> TimestampSet:
+        """
+        Returns a `TimestampSet` from its WKB representation.
+        Args:
+            wkb: WKB representation
+
+        Returns:
+            A new :class:`TimestampSet` instance
+
+        MEOS Functions:
+            set_from_wkb
+        """
+        return TimestampSet(_inner=(set_from_wkb(wkb)))
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> TimestampSet:
+        """
+        Returns a `TimestampSet` from its WKB representation in hex-encoded ASCII.
+        Args:
+            hexwkb: WKB representation in hex-encoded ASCII
+
+        Returns:
+            A new :class:`TimestampSet` instance
+
+        MEOS Functions:
+            set_from_hexwkb
+        """
+        return TimestampSet(_inner=(set_from_hexwkb(hexwkb)))
+
+    # ------------------------- Output ----------------------------------------
     def __str__(self):
         """
         Return the string representation of the content of ``self``.
@@ -87,20 +118,16 @@ class TimestampSet:
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
-    @staticmethod
-    def from_hexwkb(hexwkb: str) -> TimestampSet:
+    def as_wkb(self) -> bytes:
         """
-        Returns a `TimestampSet` from its WKB representation in hex-encoded ASCII.
-        Args:
-            hexwkb: WKB representation in hex-encoded ASCII
-
+        Returns the WKB representation of ``self``.
         Returns:
-            A new :class:`TimestampSet` instance
+            A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            set_from_hexwkb
+            set_as_wkb
         """
-        return TimestampSet(_inner=(set_from_hexwkb(hexwkb)))
+        return set_as_wkb(self._inner, 4)
 
     def as_hexwkb(self) -> str:
         """
@@ -113,7 +140,7 @@ class TimestampSet:
         """
         return set_as_hexwkb(self._inner, -1)[0]
 
-    # ------------------------- Conversions ----------------------------------
+    # ------------------------- Conversions -----------------------------------
     def to_periodset(self) -> PeriodSet:
         """
         Returns a PeriodSet that contains a Period for each Timestamp in ``self``.

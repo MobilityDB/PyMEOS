@@ -34,6 +34,7 @@ class PeriodSet:
 
     __slots__ = ['_inner']
 
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *, period_list: Optional[List[Union[str, Period]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__()
@@ -60,7 +61,40 @@ class PeriodSet:
         inner_copy = spanset_copy(self._inner)
         return PeriodSet(_inner=inner_copy)
 
-    # ------------------------- Input/Output ----------------------------------
+    @staticmethod
+    def from_wkb(wkb: bytes) -> Period:
+        """
+        Returns a `PeriodSet` from its WKB representation.
+
+        Args:
+            wkb: The WKB string.
+
+        Returns:
+            A new :class:`PeriodSet` instance
+
+        MEOS Functions:
+            spanset_from_wkb
+        """
+        result = spanset_from_wkb(wkb)
+        return PeriodSet(_inner=result)
+
+    @staticmethod
+    def from_hexwkb(hexwkb: str) -> PeriodSet:
+        """
+        Returns a `PeriodSet` from its WKB representation in hex-encoded ASCII.
+        Args:
+            hexwkb: WKB representation in hex-encoded ASCII
+
+        Returns:
+            A new :class:`PeriodSet` instance
+
+        MEOS Functions:
+            spanset_from_hexwkb
+        """
+        result = spanset_from_hexwkb(hexwkb)
+        return PeriodSet(_inner=result)
+
+    # ------------------------- Output ----------------------------------------
     def __str__(self):
         """
         Return the string representation of the content of ``self``.
@@ -86,21 +120,17 @@ class PeriodSet:
         return (f'{self.__class__.__name__}'
                 f'({self})')
 
-    @staticmethod
-    def from_hexwkb(hexwkb: str) -> PeriodSet:
+    def as_wkb(self) -> bytes:
         """
-        Returns a `PeriodSet` from its WKB representation in hex-encoded ASCII.
-        Args:
-            hexwkb: WKB representation in hex-encoded ASCII
+        Returns the WKB representation of ``self``.
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            spanset_from_hexwkb
+            spanset_as_wkb
         """
-        result = spanset_from_hexwkb(hexwkb)
-        return PeriodSet(_inner=result)
+        return spanset_as_wkb(self._inner, 4)
 
     def as_hexwkb(self) -> str:
         """
@@ -113,7 +143,7 @@ class PeriodSet:
         """
         return spanset_as_hexwkb(self._inner, -1)[0]
 
-    # ------------------------- Conversions ----------------------------------
+    # ------------------------- Conversions -----------------------------------
     def to_period(self) -> Period:
         """
         Returns a period that encompasses ``self``.

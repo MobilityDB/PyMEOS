@@ -1158,7 +1158,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
         assert temporal.never_equal(argument) == not_(expected)
 
 
-class TestTGeomPointBooleanOperations(TestTGeomPoint):
+class TestTGeomPointTemporalComparisons(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
     tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')

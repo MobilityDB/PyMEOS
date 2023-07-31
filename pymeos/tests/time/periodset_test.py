@@ -35,8 +35,8 @@ class TestPeriodSetConstructors(TestPeriodSet):
             Period('[2019-09-03, 2019-09-04]')
         ])
 
-    def test_from_as_hexwkb_constructor(self):
-        # assert self.periodset == PeriodSet.from_wkb(self.periodset.as_wkb())
+    def test_from_as_constructor(self):
+        assert self.periodset == PeriodSet.from_wkb(self.periodset.as_wkb())
         assert self.periodset == PeriodSet.from_hexwkb(self.periodset.as_hexwkb())
 
     def test_copy_constructor(self):

@@ -45,12 +45,30 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     def _expandable(self) -> bool:
         return False
 
+    # ------------------------- Constructors ----------------------------------
     @classmethod
     def _factory(cls, inner):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(inner)
 
-    # ------------------------- Input/Output ----------------------------------
+    def __copy__(self) -> Self:
+        """
+        Returns a copy of the temporal object.
+        """
+        inner_copy = temporal_copy(self._inner)
+        return self.__class__._factory(inner_copy)
+
+    # ------------------------- Output ----------------------------------------
+    def __str__(self) -> str:
+        """
+        Returns the string representation of the `self`.
+        """
+        pass
+
+    def __repr__(self) -> str:
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
     @staticmethod
     @abstractmethod
     def from_base_time(value: TBase, base: Time) -> TG:
@@ -149,6 +167,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         result = temporal_merge_array([temp._inner for temp in temporals if temp is not None], len(temporals))
         return Temporal._factory(result)
 
+    # ------------------------- Output ----------------------------------------
     @abstractmethod
     def as_wkt(self) -> str:
         """
@@ -428,6 +447,18 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
+    def __hash__(self) -> int:
+        """
+        Returns the hash of the temporal object.
+
+        Returns:
+            The hash of the temporal object.
+
+        MEOS Functions:
+            temporal_hash
+        """
+        return temporal_hash(self._inner)
+
     # ------------------------- Transformations -------------------------------
     def set_interpolation(self: Self, interpolation: TInterpolation) -> Self:
         """
@@ -667,19 +698,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def at_max(self) -> TG:
-        """
-        Returns a new temporal object containing the times ``self`` is at its maximum value.
-
-        Returns:
-            A new temporal object of the same subtype as `self`.
-
-        MEOS Functions:
-            temporal_at_max
-        """
-        result = temporal_at_max(self._inner)
-        return Temporal._factory(result)
-
     def at_min(self) -> TG:
         """
         Returns a new temporal object containing the times ``self`` is at its minimum value.
@@ -691,6 +709,19 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_at_min
         """
         result = temporal_at_min(self._inner)
+        return Temporal._factory(result)
+
+    def at_max(self) -> TG:
+        """
+        Returns a new temporal object containing the times ``self`` is at its maximum value.
+
+        Returns:
+            A new temporal object of the same subtype as `self`.
+
+        MEOS Functions:
+            temporal_at_max
+        """
+        result = temporal_at_max(self._inner)
         return Temporal._factory(result)
 
     def minus(self, other: Time) -> TG:
@@ -718,19 +749,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def minus_max(self) -> TG:
-        """
-        Returns a new temporal object containing the times ``self`` is not at its maximum value.
-
-        Returns:
-            A new temporal object of the same subtype as `self`.
-
-        MEOS Functions:
-            temporal_minus_max
-        """
-        result = temporal_minus_max(self._inner)
-        return Temporal._factory(result)
-
     def minus_min(self) -> TG:
         """
         Returns a new temporal object containing the times ``self`` is not at its minimum value.
@@ -742,6 +760,19 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_minus_min
         """
         result = temporal_minus_min(self._inner)
+        return Temporal._factory(result)
+
+    def minus_max(self) -> TG:
+        """
+        Returns a new temporal object containing the times ``self`` is not at its maximum value.
+
+        Returns:
+            A new temporal object of the same subtype as `self`.
+
+        MEOS Functions:
+            temporal_minus_max
+        """
+        result = temporal_minus_max(self._inner)
         return Temporal._factory(result)
 
     # ------------------------- Topological Operations ------------------------
@@ -1073,6 +1104,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(new_inner)
 
+    # ------------------------- Temporal Comparisons --------------------------
     def __comparable(self, other: Temporal) -> bool:
         if not isinstance(other, Temporal):
             return False
@@ -1087,7 +1119,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}. '
                             f'{self.BaseClass} and {other.BaseClass} are not comparable.')
 
-    # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Temporal) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
@@ -1280,33 +1311,4 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_gt
         """
         return temporal_gt(self._inner, other._inner)
-
-    def __hash__(self) -> int:
-        """
-        Returns the hash of the temporal object.
-
-        Returns:
-            The hash of the temporal object.
-
-        MEOS Functions:
-            temporal_hash
-        """
-        return temporal_hash(self._inner)
-
-    def __str__(self) -> str:
-        """
-        Returns the string representation of the `self`.
-        """
-        pass
-
-    def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}'
-                f'({self})')
-
-    def __copy__(self) -> Self:
-        """
-        Returns a copy of the temporal object.
-        """
-        inner_copy = temporal_copy(self._inner)
-        return self.__class__._factory(inner_copy)
 

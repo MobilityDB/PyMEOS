@@ -38,8 +38,9 @@ class TestTimestampSetConstructors(TestTimestampSet):
         self.assert_timestampset_equality(ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
                                                    datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
                                                    datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
-    def test_from_as_hexwkb_constructor(self):
-        # assert self.ts_set == TimestampSet.from_wkb(self.ts_set.as_wkb())
+
+    def test_from_as_constructor(self):
+        assert self.ts_set == TimestampSet.from_wkb(self.ts_set.as_wkb())
         assert self.ts_set == TimestampSet.from_hexwkb(self.ts_set.as_hexwkb())
 
     def test_copy_constructor(self):
@@ -58,6 +59,9 @@ class TestTimestampSetOutputs(TestTimestampSet):
 
     def test_as_hexwkb(self):
         assert self.ts_set.as_hexwkb() == '012000010300000000A01E4E713402000000F66B853402000060CD8999340200'
+
+
+class TestTimestampConversions(TestTimestampSet):
 
     def test_to_periodset(self):
         assert self.ts_set.to_periodset() == PeriodSet(

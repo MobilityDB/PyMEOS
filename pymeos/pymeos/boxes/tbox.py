@@ -31,6 +31,15 @@ class TBox:
     """
     __slots__ = ['_inner']
 
+    def _inner_period(self):
+        from pymeos_cffi.functions import _ffi
+        return _ffi.addressof(self._inner.period)
+
+    def _inner_span(self):
+        from pymeos_cffi.functions import _ffi
+        return _ffi.addressof(self._inner.span)
+
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
                  xmin: Optional[Union[str, float]] = None,
                  xmax: Optional[Union[str, float]] = None,
@@ -57,15 +66,6 @@ class TBox:
                 period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
             self._inner = tbox_make(period, span)
 
-    def _inner_period(self):
-        from pymeos_cffi.functions import _ffi
-        return _ffi.addressof(self._inner.period)
-
-    def _inner_span(self):
-        from pymeos_cffi.functions import _ffi
-        return _ffi.addressof(self._inner.span)
-
-    # ------------------------- Input/Output ----------------------------------
     def __copy__(self) -> TBox:
         """
         Returns a copy of ``self``.
@@ -79,45 +79,22 @@ class TBox:
         inner_copy = tbox_copy(self._inner)
         return TBox(_inner=inner_copy)
 
-    def to_str(self, max_decimals=15) -> str:
+    @staticmethod
+    def from_wkb(wkb: bytes) -> TBox:
         """
-        Returns a string representation of `self` with a maximum number of decimals.
+        Returns a `TBox` from its WKB representation.
 
         Args:
-            max_decimals: The maximum number of decimals.
+            wkb: WKB representation
 
         Returns:
-            A string representation of `self`.
+            A new :class:`TBox` instance
 
         MEOS Functions:
-            tbox_out
+            tbox_from_wkb
         """
-        return tbox_out(self._inner, max_decimals)
-
-    def __str__(self, max_decimals: int = 15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
-    def __repr__(self, max_decimals=15):
-        """
-        Returns a string representation of ``self``.
-
-        Returns:
-            A :class:`str` instance.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        result = tbox_from_wkb(wkb)
+        return TBox(_inner=result)
 
     @staticmethod
     def from_hexwkb(hexwkb: str) -> TBox:
@@ -135,18 +112,6 @@ class TBox:
         """
         result = tbox_from_hexwkb(hexwkb)
         return TBox(_inner=result)
-
-    def as_hexwkb(self) -> str:
-        """
-        Returns the WKB representation of ``self`` in hex-encoded ASCII.
-
-        Returns:
-            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
-
-        MEOS Functions:
-            tbox_as_hexwkb
-        """
-        return tbox_as_hexwkb(self._inner, -1)[0]
 
     @staticmethod
     def from_value(value: Union[int, float, intrange, floatrange]) -> TBox:
@@ -255,6 +220,71 @@ class TBox:
             tnumber_to_tbox
         """
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
+
+    # ------------------------- Output ----------------------------------------
+    def to_str(self, max_decimals=15) -> str:
+        """
+        Returns a string representation of `self` with a maximum number of decimals.
+
+        Args:
+            max_decimals: The maximum number of decimals.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __str__(self, max_decimals: int = 15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return tbox_out(self._inner, max_decimals)
+
+    def __repr__(self, max_decimals=15):
+        """
+        Returns a string representation of ``self``.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            tbox_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
+    def as_wkb(self) -> str:
+        """
+        Returns the WKB representation of ``self``.
+
+        Returns:
+            A :class:`str` object with the WKB representation of ``self``.
+
+        MEOS Functions:
+            tbox_as_wkb
+        """
+        return tbox_as_wkb(self._inner, 4)
+
+    def as_hexwkb(self) -> str:
+        """
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Returns:
+            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+
+        MEOS Functions:
+            tbox_as_hexwkb
+        """
+        return tbox_as_hexwkb(self._inner, -1)[0]
 
     # ------------------------- Conversions ----------------------------------
     def to_floatrange(self) -> floatrange:

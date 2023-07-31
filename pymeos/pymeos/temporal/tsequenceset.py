@@ -21,6 +21,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     Base class for temporal sequence set types, i.e. temporal values that are defined by a set of temporal sequences.
     """
 
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, Any]]] = None,
                  normalize: bool = True, _inner=None):
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
@@ -49,6 +50,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return cls(sequence_list=sequence_list, normalize=normalize)
 
+    # ------------------------- Accessors -------------------------------------
     def num_sequences(self) -> int:
         """
         Returns the number of sequences in ``self``.
@@ -80,6 +82,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         ss, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
+    # ------------------------- Transformations -------------------------------
     def to_dataframe(self) -> DataFrame:
         """
         Returns a pandas DataFrame representation of ``self``.
@@ -92,6 +95,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         }
         return DataFrame(data).set_index(keys=['sequence', 'time'])
 
+    # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
         """
         Plot the temporal sequence set.

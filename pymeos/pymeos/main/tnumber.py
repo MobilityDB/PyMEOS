@@ -22,6 +22,7 @@ TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
 
 class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
+    # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> TBox:
         """
         Returns the bounding box of `self`.
@@ -103,7 +104,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
-    # ------------------------- Arithmetic Operations -------------------------
+    # ------------------------- Mathematical Operations -------------------------
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         """
         Returns a new temporal object with the values of `self` plus `other`.

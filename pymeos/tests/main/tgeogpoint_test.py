@@ -1028,7 +1028,7 @@ class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
         assert temporal.never_equal(argument) == not_(expected)
 
 
-# class TestTGeogPointBooleanOperations(TestTGeogPoint):
+# class TestTGeogPointTemporalComparisons(TestTGeogPoint):
     # tpi = TGeogPointInst('Point(1 1)@2019-09-01')
     # tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     # tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')

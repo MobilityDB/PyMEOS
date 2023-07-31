@@ -30,10 +30,16 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     Abstract class for temporal points.
     """
 
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, _inner) -> None:
         super().__init__()
 
-    # ------------------------- Input/Output ----------------------------------
+    @classmethod
+    def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
+        result = super().from_hexwkb(hexwkb)
+        return result.set_srid(srid) if srid is not None else result
+
+    # ------------------------- Output ----------------------------------------
     def __str__(self):
         """
         Returns the string representation of the trajectory.
@@ -45,11 +51,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             tpoint_out
         """
         return tpoint_as_text(self._inner, 15)
-
-    @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str, srid: Optional[int] = None) -> Self:
-        result = super().from_hexwkb(hexwkb)
-        return result.set_srid(srid) if srid is not None else result
 
     def as_wkt(self, precision: int = 15) -> str:
         """
@@ -982,7 +983,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     BaseClass = shp.Point
     _parse_function = tgeompoint_in
 
-    # ------------------------- Input/Output ----------------------------------
+    # ------------------------- Output ----------------------------------------
     @staticmethod
     def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
         """
@@ -1233,7 +1234,7 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     BaseClass = shp.Point
     _parse_function = tgeogpoint_in
 
-    # ------------------------- Input/Output ----------------------------------
+    # ------------------------- Output ----------------------------------------
     @staticmethod
     def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
         """

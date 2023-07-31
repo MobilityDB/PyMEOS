@@ -39,6 +39,29 @@ class STBox:
     """
     __slots__ = ['_inner']
 
+    def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
+                 allow_time_only: bool = False) -> STBox:
+        if allow_space_only and isinstance(other, get_args(Geometry)):
+            other_box = geo_to_stbox(geometry_to_gserialized(other, self.geodetic()))
+        elif isinstance(other, STBox):
+            other_box = other._inner
+        elif isinstance(other, TPoint):
+            other_box = tpoint_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, Temporal):
+            other_box = period_to_stbox(temporal_to_period(other._inner))
+        elif allow_time_only and isinstance(other, datetime):
+            other_box = timestamp_to_stbox(datetime_to_timestamptz(other))
+        elif allow_time_only and isinstance(other, TimestampSet):
+            other_box = timestampset_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, Period):
+            other_box = period_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, PeriodSet):
+            other_box = periodset_to_stbox(other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return other_box
+
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
                  xmin: Optional[Union[str, float]] = None, xmax: Optional[Union[str, float]] = None,
                  ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
@@ -68,29 +91,36 @@ class STBox:
             self._inner = stbox_make(hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
                                      float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0), period)
 
-    def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
-                 allow_time_only: bool = False) -> STBox:
-        if allow_space_only and isinstance(other, get_args(Geometry)):
-            other_box = geo_to_stbox(geometry_to_gserialized(other, self.geodetic()))
-        elif isinstance(other, STBox):
-            other_box = other._inner
-        elif isinstance(other, TPoint):
-            other_box = tpoint_to_stbox(other._inner)
-        elif allow_time_only and isinstance(other, Temporal):
-            other_box = period_to_stbox(temporal_to_period(other._inner))
-        elif allow_time_only and isinstance(other, datetime):
-            other_box = timestamp_to_stbox(datetime_to_timestamptz(other))
-        elif allow_time_only and isinstance(other, TimestampSet):
-            other_box = timestampset_to_stbox(other._inner)
-        elif allow_time_only and isinstance(other, Period):
-            other_box = period_to_stbox(other._inner)
-        elif allow_time_only and isinstance(other, PeriodSet):
-            other_box = periodset_to_stbox(other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return other_box
+    def __copy__(self) -> STBox:
+        """
+        Returns a copy of ``self``.
 
-    # ------------------------- Input/Output ----------------------------------
+        Returns:
+            A :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_copy
+        """
+        inner_copy = stbox_copy(self._inner)
+        return STBox(_inner=inner_copy)
+
+    @staticmethod
+    def from_wkb(wkb: bytes) -> STBox:
+        """
+        Returns a `STBox` from its WKB representation.
+
+        Args:
+            wkb: WKB representation
+
+        Returns:
+            A new :class:`STBox` instance
+
+        MEOS Functions:
+            stbox_from_wkb
+        """
+        result = stbox_from_wkb(wkb)
+        return STBox(_inner=result)
+
     @staticmethod
     def from_hexwkb(hexwkb: str) -> STBox:
         """
@@ -107,18 +137,6 @@ class STBox:
         """
         result = stbox_from_hexwkb(hexwkb)
         return STBox(_inner=result)
-
-    def as_hexwkb(self) -> str:
-        """
-        Returns the WKB representation of ``self`` in hex-encoded ASCII.
-
-        Returns:
-            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
-
-        MEOS Functions:
-            stbox_as_hexwkb
-        """
-        return stbox_as_hexwkb(self._inner, -1)[0]
 
     @staticmethod
     def from_geometry(geom: Geometry, geodetic: bool = False) -> STBox:
@@ -235,19 +253,7 @@ class STBox:
             raise TypeError(f'Operation not supported with type {value.__class__}')
         return STBox(_inner=result)
 
-    def __copy__(self) -> STBox:
-        """
-        Returns a copy of ``self``.
-
-        Returns:
-            A :class:`STBox` instance.
-
-        MEOS Functions:
-            stbox_copy
-        """
-        inner_copy = stbox_copy(self._inner)
-        return STBox(_inner=inner_copy)
-
+    # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):
         """
         Returns a string representation of ``self``.
@@ -272,6 +278,30 @@ class STBox:
         """
         return (f'{self.__class__.__name__}'
                 f'({self})')
+
+    def as_wkb(self) -> bytes:
+        """
+        Returns the WKB representation of ``self``.
+
+        Returns:
+            A :class:`str` object with the WKB representation of ``self``.
+
+        MEOS Functions:
+            stbox_as_wkb
+        """
+        return stbox_as_wkb(self._inner, 4)
+
+    def as_hexwkb(self) -> str:
+        """
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Returns:
+            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+
+        MEOS Functions:
+            stbox_as_hexwkb
+        """
+        return stbox_as_hexwkb(self._inner, -1)[0]
 
     # ------------------------- Conversions ----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

@@ -35,6 +35,7 @@ class Period:
 
     __slots__ = ['_inner']
 
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
                  lower: Optional[Union[str, datetime]] = None,
                  upper: Optional[Union[str, datetime]] = None,
@@ -66,36 +67,10 @@ class Period:
         inner_copy = span_copy(self._inner)
         return Period(_inner=inner_copy)
 
-    # ------------------------- Input/Output ----------------------------------
-    def __str__(self):
-        """
-        Return the string representation of the content of ``self``.
-
-        Returns:
-            A new :class:`str` instance
-
-        MEOS Functions:
-            period_out
-        """
-        return period_out(self._inner)
-
-    def __repr__(self):
-        """
-        Return the string representation of ``self``.
-
-        Returns:
-            A new :class:`str` instance
-
-        MEOS Functions:
-            period_out
-        """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
-
     @staticmethod
     def from_wkb(wkb: bytes) -> Period:
         """
-        Returns a `Period` from WKB bytes.
+        Returns a `Period` from its WKB representation.
 
         Args:
             wkb: The WKB string.
@@ -126,6 +101,32 @@ class Period:
         result = span_from_hexwkb(hexwkb)
         return Period(_inner=result)
 
+    # ------------------------- Output ----------------------------------------
+    def __str__(self):
+        """
+        Return the string representation of the content of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            period_out
+        """
+        return period_out(self._inner)
+
+    def __repr__(self):
+        """
+        Return the string representation of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            period_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
     def as_wkb(self) -> bytes:
         """
         Returns the WKB representation of ``self``.
@@ -136,7 +137,7 @@ class Period:
         MEOS Functions:
             span_as_wkb
         """
-        return span_as_wkb(self._inner, -1)
+        return span_as_wkb(self._inner, 4)
 
     def as_hexwkb(self) -> str:
         """
@@ -150,7 +151,7 @@ class Period:
         """
         return span_as_hexwkb(self._inner, -1)[0]
 
-    # ------------------------- Conversions ----------------------------------
+    # ------------------------- Conversions -----------------------------------
     def to_periodset(self) -> PeriodSet:
         """
         Returns a period set containing ``self``.

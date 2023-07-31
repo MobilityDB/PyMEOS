@@ -990,7 +990,7 @@ class TestTBoolEverAlwaysOperations(TestTBool):
         assert temporal.never_eq(False) == expected
 
 
-class TestTBoolBooleanOperations(TestTBool):
+class TestTBoolTemporalComparisons(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
