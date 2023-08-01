@@ -1126,13 +1126,13 @@ class TestTIntMathematicalOperations(TestTInt):
     )
     def test_temporal_add_int_float(self, temporal, argument, expected):
         assert temporal.add(argument) == expected
-        # assert temporal.add(float(argument)) == expected.to_tfloat()
+        assert temporal.add(float(argument)) == expected.to_tfloat()
         assert temporal.radd(argument) == expected
-        # assert temporal.radd(float(argument)) == expected.to_tfloat()
+        assert temporal.radd(float(argument)) == expected.to_tfloat()
         assert (temporal + argument) == expected
-        # assert (temporal + float(argument)) == expected.to_tfloat()
+        assert (temporal + float(argument)) == expected.to_tfloat()
         assert (argument + temporal) == expected
-        # assert (float(argument) + temporal) == expected.to_tfloat()
+        assert (float(argument) + temporal) == expected.to_tfloat()
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',
@@ -1165,13 +1165,13 @@ class TestTIntMathematicalOperations(TestTInt):
     )
     def test_temporal_sub_int_float(self, temporal, argument, expected):
         assert temporal.sub(argument) == expected
-        # assert temporal.sub(float(argument)) == expected.to_tfloat()
+        assert temporal.sub(float(argument)) == expected.to_tfloat()
         assert temporal.rsub(argument) == -1 * expected
-        # assert temporal.rsub(float(argument)) == (-1 * expected).to_tfloat()
+        assert temporal.rsub(float(argument)) == (-1 * expected).to_tfloat()
         assert (temporal - argument) == expected
-        # assert (temporal - float(argument)) == expected.to_tfloat()
+        assert (temporal - float(argument)) == expected.to_tfloat()
         assert (argument - temporal) == - 1 * expected
-        # assert (float(argument) - temporal) == (- 1 * expected).to_tfloat()
+        assert (float(argument) - temporal) == (- 1 * expected).to_tfloat()
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',
@@ -1216,13 +1216,13 @@ class TestTIntMathematicalOperations(TestTInt):
     )
     def test_temporal_mul_int_float(self, temporal, argument, expected):
         assert temporal.mul(argument) == expected
-        # assert temporal.mul(float(argument)) == expected.to_tfloat()
+        assert temporal.mul(float(argument)) == expected.to_tfloat()
         assert temporal.rmul(argument) == expected
-        # assert temporal.rmul(float(argument)) == expected.to_tfloat()
+        assert temporal.rmul(float(argument)) == expected.to_tfloat()
         assert (temporal * argument) == expected
-        # assert (temporal * float(argument)) == expected.to_tfloat()
+        assert (temporal * float(argument)) == expected.to_tfloat()
         assert (argument * temporal) == expected
-        # assert (float(argument) * temporal) == expected.to_tfloat()
+        assert (float(argument) * temporal) == expected.to_tfloat()
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',
@@ -1281,18 +1281,19 @@ class TestTIntMathematicalOperations(TestTInt):
         assert temporal.abs() == temporal
         assert (-1 * temporal).abs() == temporal
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             # (tii, TIntInst('1@2019-09-01')),
-            # (tids, TIntSeq('{1@2019-09-01, 1@2019-09-02}')),
-            # (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02]')),
-            # (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}')),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_delta_value(self, temporal, expected):
-        # assert temporal.delta_value() == expected
+            (tids, TIntSeq('{1@2019-09-01, 1@2019-09-02}')),
+            (tis, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
+            (tiss, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[0@2019-09-03, 0@2019-09-05)}')),
+        ],
+        ids=[# 'Instant',
+             'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delta_value(self, temporal, expected):
+        assert temporal.delta_value() == expected
 
 
 class TestTIntTemporalComparisons(TestTInt):

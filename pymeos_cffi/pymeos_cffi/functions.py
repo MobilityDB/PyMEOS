@@ -4632,27 +4632,27 @@ def tor_tbool_tbool(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'Te
     return result if result != _ffi.NULL else None
 
 
-def add_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def add_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_float_tfloat(d, tnumber_converted)
+    result = _lib.add_float_tnumber(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def add_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def add_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_int_tint(i, tnumber_converted)
+    result = _lib.add_int_tnumber(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def add_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def add_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_tfloat_float(tnumber_converted, d)
+    result = _lib.add_tnumber_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def add_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def add_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_tint_int(tnumber_converted, i)
+    result = _lib.add_tnumber_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4663,27 +4663,27 @@ def add_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal 
     return result if result != _ffi.NULL else None
 
 
-def div_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def div_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_float_tfloat(d, tnumber_converted)
+    result = _lib.div_float_tnumber(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def div_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def div_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_int_tint(i, tnumber_converted)
+    result = _lib.div_int_tnumber(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def div_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def div_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_tfloat_float(tnumber_converted, d)
+    result = _lib.div_tnumber_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def div_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def div_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_tint_int(tnumber_converted, i)
+    result = _lib.div_tnumber_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4699,27 +4699,27 @@ def float_degrees(value: float, normalize: bool) -> 'double':
     return result if result != _ffi.NULL else None
 
 
-def mult_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def mult_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_float_tfloat(d, tnumber_converted)
+    result = _lib.mult_float_tnumber(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def mult_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def mult_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_int_tint(i, tnumber_converted)
+    result = _lib.mult_int_tnumber(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def mult_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def mult_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_tfloat_float(tnumber_converted, d)
+    result = _lib.mult_tnumber_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def mult_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def mult_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_tint_int(tnumber_converted, i)
+    result = _lib.mult_tnumber_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4730,27 +4730,27 @@ def mult_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal
     return result if result != _ffi.NULL else None
 
 
-def sub_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def sub_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_float_tfloat(d, tnumber_converted)
+    result = _lib.sub_float_tnumber(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def sub_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def sub_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_int_tint(i, tnumber_converted)
+    result = _lib.sub_int_tnumber(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def sub_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def sub_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_tfloat_float(tnumber_converted, d)
+    result = _lib.sub_tnumber_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def sub_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def sub_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_tint_int(tnumber_converted, i)
+    result = _lib.sub_tnumber_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 

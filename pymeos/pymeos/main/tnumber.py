@@ -116,9 +116,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
         """
         if isinstance(other, int):
-            result = add_tint_int(self._inner, other)
+            result = add_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = add_tfloat_float(self._inner, other)
+            result = add_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = add_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -139,9 +139,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             add_int_tint, add_float_tfloat
         """
         if isinstance(other, int):
-            result = add_int_tint(other, self._inner)
+            result = add_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = add_float_tfloat(other, self._inner)
+            result = add_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -160,9 +160,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             sub_tint_int, sub_tfloat_float, sub_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = sub_tint_int(self._inner, other)
+            result = sub_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = sub_tfloat_float(self._inner, other)
+            result = sub_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = sub_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -183,9 +183,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             sub_int_tint, sub_float_tfloat
         """
         if isinstance(other, int):
-            result = sub_int_tint(other, self._inner)
+            result = sub_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = sub_float_tfloat(other, self._inner)
+            result = sub_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -204,9 +204,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             mult_tint_int, mult_tfloat_float, mult_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = mult_tint_int(self._inner, other)
+            result = mult_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = mult_tfloat_float(self._inner, other)
+            result = mult_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = mult_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -227,9 +227,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             mult_int_tint, mult_float_tfloat
         """
         if isinstance(other, int):
-            result = mult_int_tint(other, self._inner)
+            result = mult_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = mult_float_tfloat(other, self._inner)
+            result = mult_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -248,9 +248,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             div_tint_int, div_tfloat_float, div_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = div_tint_int(self._inner, other)
+            result = div_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = div_tfloat_float(self._inner, other)
+            result = div_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = div_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -271,9 +271,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             div_int_tint, div_float_tfloat
         """
         if isinstance(other, int):
-            result = div_int_tint(other, self._inner)
+            result = div_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = div_float_tfloat(other, self._inner)
+            result = div_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)

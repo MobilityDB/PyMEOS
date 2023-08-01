@@ -1310,18 +1310,19 @@ class TestTFloatMathematicalOperations(TestTFloat):
         assert temporal.abs() == temporal
         assert (-1 * temporal).abs() == temporal
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             # (tfi, TFloatInst('1@2019-09-01')),
-            # (tfds, TFloatSeq('{1@2019-09-01, 1@2019-09-02}')),
-            # (tfs, TFloatSeq('Interp=Step;[1@2019-09-01, 1@2019-09-02]')),
-            # (tfss, TFloatSeqSet('Interp=Step;{[1@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}')),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_delta_value(self, temporal, expected):
-        # assert temporal.delta_value() == expected
+            (tfds, TFloatSeq('{1@2019-09-01, 1@2019-09-02}')),
+            (tfs, TFloatSeq('Interp=Step;[1@2019-09-01, 1@2019-09-02)')),
+            (tfss, TFloatSeqSet('Interp=Step;{[1@2019-09-01, 1@2019-09-02),[0@2019-09-03, 0@2019-09-05)}')),
+        ],
+        ids=[# 'Instant',
+             'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_delta_value(self, temporal, expected):
+        assert temporal.delta_value() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

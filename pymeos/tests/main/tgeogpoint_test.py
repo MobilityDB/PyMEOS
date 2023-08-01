@@ -1028,94 +1028,56 @@ class TestTGeogPointEverAlwaysOperations(TestTGeogPoint):
         assert temporal.never_equal(argument) == not_(expected)
 
 
-# class TestTGeogPointTemporalComparisons(TestTGeogPoint):
-    # tpi = TGeogPointInst('Point(1 1)@2019-09-01')
-    # tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
-    # tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
-    # tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
-    # argument = TGeogPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
+class TestTGeogPointTemporalComparisons(TestTGeogPoint):
+    tpi = TGeogPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+    argument = TGeogPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('False@2019-09-01')),
-            # (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            # (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
-                 # '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
-            # (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
-                 # '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_equal_temporal(self, temporal, expected):
-        # assert temporal.temporal_equal(self.argument) == expected
+    # The results are different from the equivalent tests for TGeomPoint
+    # This is an issue that must be resolved in MEOS
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TBoolInst('False@2019-09-01')),
+            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tps, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02]}')),
+            (tpss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_equal(self.argument) == expected
+        assert temporal.temporal_not_equal(self.argument) == expected.temporal_not()
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('True@2019-09-01')),
-            # (tpds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            # (tps, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
-            # (tpss, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_equal_point(self, temporal, expected):
-        # assert temporal.temporal_equal(Point(1,1)) == expected
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, shapely.set_srid(shapely.Point(1,1), 4326), 
+                TBoolInst('True@2019-09-01')),
+            (tpds, shapely.set_srid(shapely.Point(1,1), 4326), 
+                TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tps, shapely.set_srid(shapely.Point(1,1), 4326), 
+                TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
+            (tpss, shapely.set_srid(shapely.Point(1,1), 4326), 
+                TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('False@2019-09-01')),
-            # (tpds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            # (tps, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            # (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_equal_point(self, temporal, expected):
-        # assert temporal.temporal_equal(Point(2,2)) == expected
-
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('True@2019-09-01')),
-            # (tpds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
-            # (tps, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
-                # '(True@2019-09-01 12:00:00+00, True@2019-09-02]}')),
-            # (tpss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-01 12:00:00+00],'
-                # '(True@2019-09-01 12:00:00+00, True@2019-09-02],[False@2019-09-03]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_not_equal_temporal(self, temporal, expected):
-        # assert temporal.temporal_not_equal(self.argument) == expected
-
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('False@2019-09-01')),
-            # (tpds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            # (tps, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            # (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_not_equal_point(self, temporal, expected):
-        # assert temporal.temporal_not_equal(Point(1,1)) == expected
-
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, TBoolInst('True@2019-09-01')),
-            # (tpds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            # (tps, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
-            # (tpss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_temporal_not_equal_point(self, temporal, expected):
-        # assert temporal.temporal_not_equal(Point(2,2)) == expected
+            (tpi, shapely.set_srid(shapely.Point(2,2), 4326),
+                TBoolInst('False@2019-09-01')),
+            (tpds, shapely.set_srid(shapely.Point(2,2), 4326),
+                TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tps, shapely.set_srid(shapely.Point(2,2), 4326),
+                TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
+            (tpss, shapely.set_srid(shapely.Point(2,2), 4326),
+                TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}')),
+        ],
+        ids=['Instant Point(1,1)', 'Discrete Sequence Point(1,1)', 'Sequence Point(1,1)', 'SequenceSet Point(1,1)',
+             'Instant Point(2,2)', 'Discrete Sequence Point(2,2)', 'Sequence Point(2,2)', 'SequenceSet Point(2,2)']
+    )
+    def test_temporal_equal_point(self, temporal, argument, expected):
+        assert temporal.temporal_equal(argument) == expected
+        assert temporal.temporal_not_equal(argument) == expected.temporal_not()
 
 
 class TestTGeogPointRestrictors(TestTGeogPoint):
