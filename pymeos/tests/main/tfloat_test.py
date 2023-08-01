@@ -772,7 +772,9 @@ class TestTFloatTransformations(TestTFloat):
     tfi = TFloatInst('1.5@2019-09-01')
     tfds = TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')
     tfs = TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')
+    tfsts = TFloatSeq('Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]')
     tfss = TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
+    tfstss = TFloatSeqSet('Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -895,9 +897,11 @@ class TestTFloatTransformations(TestTFloat):
         'temporal, expected',
         [
             (tfi, TIntInst('1@2019-09-01')),
-            # (tfds, TIntSeq('{1@2019-09-01,2@2019-09-02}')),
+            (tfds, TIntSeq('{1@2019-09-01,2@2019-09-02}')),
+            (tfsts, TIntSeq('[1@2019-09-01,2@2019-09-02]')),
+            (tfstss, TIntSeq('{[1@2019-09-01,2@2019-09-02],[1@2019-09-03,1@2019-09-05]}')),
         ],
-        ids=['Instant'] #, 'Discrete Sequence']
+        ids=['Instant', 'Discrete Sequence', 'Step Sequence', 'Step Sequence Set']
     )
     def test_to_tint(self, temporal, expected):
         temp = temporal.to_tint()
