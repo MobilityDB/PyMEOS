@@ -84,7 +84,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def as_geojson(self, option: int = 1, precision: int = 15, srs: Optional[str] = None) -> str:
         """
-        Returns the trajectory as a GeoJSON string.
+        Returns the trajectory of the temporal point as a GeoJSON string.
 
         Args:
             option: The option to use when serializing the trajectory.
@@ -92,7 +92,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             srs: The spatial reference system of the returned geometry.
 
         Returns:
-            A new GeoJSON string representing the trajectory.
+            A new GeoJSON string representing the trajectory of the temporal point.
 
         MEOS Functions:
             gserialized_as_geojson
@@ -1486,7 +1486,8 @@ class TGeomPointInst(TPointInst['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
     _cast_function = lambda x: None
 
     def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, pg.Point, shp.Point]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
+                 timestamp: Optional[Union[str, datetime]] = None,
+                 srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
             self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
@@ -1500,8 +1501,10 @@ class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
     _cast_function = lambda x: None
 
     def __init__(self, string: Optional[str] = None, *,
-                 point: Optional[Union[str, pg.Point, shp.Point, Tuple[float, float]]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, srid: Optional[int] = 0, _inner=None) -> None:
+                 point: Optional[Union[str, pg.Point, shp.Point,
+                 Tuple[float, float]]] = None,
+                 timestamp: Optional[Union[str, datetime]] = None,
+                 srid: Optional[int] = 4326, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
             p = f'POINT({point[0]} {point[1]})' if isinstance(point, tuple) else f'{point}'
@@ -1514,8 +1517,10 @@ class TGeomPointSeq(TPointSeq['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', '
     """
     ComponentClass = TGeomPointInst
 
-    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
+    def __init__(self, string: Optional[str] = None, *,
+                 instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
@@ -1532,7 +1537,8 @@ class TGeogPointSeq(TPointSeq['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', '
                  lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
+                         expandable=expandable, interpolation=interpolation,
+                         normalize=normalize, _inner=_inner)
 
 
 class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
@@ -1541,9 +1547,12 @@ class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst', 'TGeomPointS
     """
     ComponentClass = TGeomPointSeq
 
-    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
+                 expandable: Union[bool, int] = False, 
                  normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
+        super().__init__(string=string, sequence_list=sequence_list, 
+                         expandable=expandable, normalize=normalize, _inner=_inner)
 
 
 class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
@@ -1552,6 +1561,9 @@ class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst', 'TGeogPointS
     """
     ComponentClass = TGeogPointSeq
 
-    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
+                 expandable: Union[bool, int] = False, 
                  normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
+        super().__init__(string=string, sequence_list=sequence_list, 
+                         expandable=expandable, normalize=normalize, _inner=_inner)

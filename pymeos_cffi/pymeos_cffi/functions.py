@@ -314,6 +314,44 @@ def text2cstring(textptr: 'text *') -> str:
     return result
 
 
+def pg_timestamp_to_char(dt: int, fmt: str) -> str:
+    dt_converted = _ffi.cast('Timestamp', dt)
+    fmt_converted = cstring2text(fmt)
+    result = _lib.pg_timestamp_to_char(dt_converted, fmt_converted)
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
+def pg_timestamptz_to_char(dt: int, fmt: str) -> str:
+    dt_converted = _ffi.cast('TimestampTz', dt)
+    fmt_converted = cstring2text(fmt)
+    result = _lib.pg_timestamptz_to_char(dt_converted, fmt_converted)
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
+def pg_interval_to_char(it: 'Interval *', fmt: str) -> str:
+    it_converted = _ffi.cast('Interval *', it)
+    fmt_converted = cstring2text(fmt)
+    result = _lib.pg_interval_to_char(it_converted, fmt_converted)
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
+def pg_to_timestamp(date_txt: str, fmt: str) -> 'TimestampTz':
+    date_txt_converted = cstring2text(date_txt)
+    fmt_converted = cstring2text(fmt)
+    result = _lib.pg_to_timestamp(date_txt_converted, fmt_converted)
+    return result if result != _ffi.NULL else None
+
+
+def pg_to_date(date_txt: str, fmt: str) -> 'DateADT':
+    date_txt_converted = cstring2text(date_txt)
+    fmt_converted = cstring2text(fmt)
+    result = _lib.pg_to_date(date_txt_converted, fmt_converted)
+    return result if result != _ffi.NULL else None
+
+
 def gserialized_as_ewkb(geom: 'const GSERIALIZED *', type: str) -> 'bytea *':
     geom_converted = _ffi.cast('const GSERIALIZED *', geom)
     type_converted = type.encode('utf-8')

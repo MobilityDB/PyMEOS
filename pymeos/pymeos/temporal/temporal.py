@@ -575,7 +575,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         else:
             interv = timedelta_to_interval(max_time)
         new_inner = temporal_append_tinstant(self._inner, instant._inner, max_dist,
-             interv, self._expandable())
+            interv, self._expandable())
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
@@ -1222,36 +1222,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(result)
 
     # ------------------------- Comparisons -----------------------------------
-    def __lt__(self, other):
-        """
-        Returns whether `self` is less than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the less than relation.
-
-        MEOS Functions:
-            temporal_lt
-        """
-        return temporal_lt(self._inner, other._inner)
-
-    def __le__(self, other):
-        """
-        Returns whether `self` is less or equal than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the less or equal than relation.
-
-        MEOS Functions:
-            temporal_le
-        """
-        return temporal_le(self._inner, other._inner)
-
     def __eq__(self, other):
         """
         Returns whether `self` is equal to `other`.
@@ -1282,20 +1252,35 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return temporal_ne(self._inner, other._inner)
 
-    def __ge__(self, other):
+    def __lt__(self, other):
         """
-        Returns whether `self` is greater or equal than `other`.
+        Returns whether `self` is less than `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`bool` with the result of the greater or equal than relation.
+            A :class:`bool` with the result of the less than relation.
 
         MEOS Functions:
-            temporal_ge
+            temporal_lt
         """
-        return temporal_ge(self._inner, other._inner)
+        return temporal_lt(self._inner, other._inner)
+
+    def __le__(self, other):
+        """
+        Returns whether `self` is less or equal than `other`.
+
+        Args:
+            other: A temporal object to compare to `self`.
+
+        Returns:
+            A :class:`bool` with the result of the less or equal than relation.
+
+        MEOS Functions:
+            temporal_le
+        """
+        return temporal_le(self._inner, other._inner)
 
     def __gt__(self, other):
         """
@@ -1311,4 +1296,19 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_gt
         """
         return temporal_gt(self._inner, other._inner)
+
+    def __ge__(self, other):
+        """
+        Returns whether `self` is greater or equal than `other`.
+
+        Args:
+            other: A temporal object to compare to `self`.
+
+        Returns:
+            A :class:`bool` with the result of the greater or equal than relation.
+
+        MEOS Functions:
+            temporal_ge
+        """
+        return temporal_ge(self._inner, other._inner)
 
