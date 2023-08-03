@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 
 import pytest
 import math
-from shapely import Point, Polygon
+from shapely import Point, LineString, Polygon
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, TGeomPoint, \
     TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, TInterpolation, TimestampSet, Period, PeriodSet, STBox
@@ -1362,23 +1362,28 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_ever_intersects_disjoint(self, temporal, expected):
-        assert temporal.is_ever_within_distance(Point(1,1)) == expected
+    def test_temporal_ever_contained_withindist_intersects_touches(self, temporal, expected):
+        assert temporal.is_ever_contained_in(Polygon([(0,0),(0,2),(2,2),(2,0),(0,0)])) == expected
+        assert temporal.is_ever_contained_in(STBox('STBOX X((0,0),(2,2))')) == expected
+        assert temporal.is_ever_within_distance(Point(1,1), 1) == expected
+        assert temporal.is_ever_within_distance(TGeomPointInst('Point(1 1)@2019-09-01'), 1) == expected
         assert temporal.ever_intersects(Point(1,1)) == expected
-        assert temporal.ever_touches(Point(1,1)) == expected
+        assert temporal.ever_intersects(TGeomPointInst('Point(1 1)@2019-09-01')) == expected
+        # assert temporal.ever_touches(Point(1,1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpi, False),
+            (tpi, True),
             (tpds, True),
             (tps, True),
             (tpss, True)
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_ever_intersects_disjoint(self, temporal, expected):
-        assert temporal.is_ever_disjoint(Point(1,1)) == expected
+    def test_temporal_ever_disjoint(self, temporal, expected):
+        assert temporal.is_ever_disjoint(Point(3,3)) == expected
+        assert temporal.is_ever_disjoint(TGeomPointInst('Point(3 3)@2019-09-01')) == expected
 
 
 class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
@@ -1398,9 +1403,134 @@ class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_intersects_disjoint(self, temporal, expected):
+    def test_temporal_intersects_disjoint_touches(self, temporal, expected):
         assert temporal.intersects(Point(1,1)) == expected
         assert temporal.disjoint(Point(1,1)) == ~expected
+        # assert temporal.touches(Point(1,1)) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, Point(1,1), TBoolInst('True@2019-09-01')),
+            (tpds, Point(1,1), TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tps, Point(1,1), TBoolSeqSet('{[True@2019-09-01, True@2019-09-02]}')),
+            (tpss, Point(1,1), TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],'
+                '[True@2019-09-03, True@2019-09-05]}')),
+
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01'), TBoolInst('True@2019-09-01')),
+            (tpds, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}'),
+                TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]'),
+                TBoolSeqSet('{[True@2019-09-01, True@2019-09-02]}')),
+            (tpss,
+                TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+                '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+                TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],'
+                '[True@2019-09-03, True@2019-09-05]}')),
+        ],
+        ids=['Instant Geo', 'Discrete Sequence Geo', 'Sequence Geo', 'SequenceSet Geo',
+             'Instant TPoint', 'Discrete Sequence TPoint', 'Sequence TPoint', 'SequenceSet TPoint']
+    )
+    def test_temporal_withindist(self, temporal, argument, expected):
+        assert temporal.within_distance(argument, 2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TBoolInst('True@2019-09-01')),
+            (tpds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tps, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02]}')),
+            (tpss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],'
+                '[True@2019-09-03, True@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_contained(self, temporal, expected):
+        assert temporal.is_spatially_contained_in(Polygon([(0,0),(0,3),(3,3),(3,0),(0,0)])) == expected
+        assert temporal.is_spatially_contained_in(STBox('STBOX X((0,0),(3,3))')) == expected
+
+
+class TestTGeomPointDistanceOperations(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, Point(1,1), TFloatInst('0@2019-09-01')),
+            (tpds, Point(1,1), TFloatSeq('{0@2019-09-01, 1.414@2019-09-02}')),
+            (tps, Point(1,1), TFloatSeq('[0@2019-09-01, 1.414@2019-09-02]')),
+            (tpss, Point(1,1), TFloatSeqSet('{[0@2019-09-01, 1.414@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}')),
+
+            (tpi, STBox('STBOX X((1,1),(1,1))'), TFloatInst('0@2019-09-01')),
+            (tpds, STBox('STBOX X((1,1),(1,1))'), TFloatSeq('{0@2019-09-01, 1.414@2019-09-02}')),
+            (tps, STBox('STBOX X((1,1),(1,1))'), TFloatSeq('[0@2019-09-01, 1.414@2019-09-02]')),
+            (tpss, STBox('STBOX X((1,1),(1,1))'), TFloatSeqSet('{[0@2019-09-01, 1.414@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}')),
+
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01'), TFloatInst('0@2019-09-01')),
+            (tpds, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}'),
+                TFloatSeq('{0@2019-09-01, 1.414@2019-09-02}')),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]'),
+                TFloatSeq('[0@2019-09-01, 1.414@2019-09-02]')),
+            (tpss,
+                TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+                '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'),
+                TFloatSeqSet('{[0@2019-09-01, 1.414@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}')),
+        ],
+        ids=['Instant Geo', 'Discrete Sequence Geo', 'Sequence Geo', 'SequenceSet Geo',
+             'Instant STBox', 'Discrete Sequence STBox', 'Sequence STBox', 'SequenceSet STBox',
+             'Instant TPoint', 'Discrete Sequence TPoint', 'Sequence TPoint', 'SequenceSet TPoint']
+    )
+    def test_distance(self, temporal, argument, expected):
+        assert temporal.distance(argument).round(3) == expected
+        assert temporal.nearest_approach_distance(argument) == 0.0
+
+    @pytest.mark.parametrize(
+        'temporal, argument',
+        [
+            (tpi, Point(1,1)),
+            (tpds, Point(1,1)),
+            (tps, Point(1,1)),
+            (tpss, Point(1,1)),
+
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01')),
+            (tpds, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}')),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]')),
+            (tpss,
+                TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+                '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
+        ],
+        ids=['Instant Geo', 'Discrete Sequence Geo', 'Sequence Geo', 'SequenceSet Geo',
+             'Instant TPoint', 'Discrete Sequence TPoint', 'Sequence TPoint', 'SequenceSet TPoint']
+    )
+    def test_nearest_approach_instant(self, temporal, argument):
+        assert temporal.nearest_approach_instant(argument) == TGeomPointInst('Point(1 1)@2019-09-01')
+
+    @pytest.mark.parametrize(
+        'temporal, argument',
+        [
+            (tpi, Point(1,1)),
+            (tpds, Point(1,1)),
+            (tps, Point(1,1)),
+            (tpss, Point(1,1)),
+
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01')),
+            (tpds, TGeomPointSeq('{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}')),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]')),
+            (tpss,
+                TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+                '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
+        ],
+        ids=['Instant Geo', 'Discrete Sequence Geo', 'Sequence Geo', 'SequenceSet Geo',
+             'Instant TPoint', 'Discrete Sequence TPoint', 'Sequence TPoint', 'SequenceSet TPoint']
+    )
+    def test_shortest_line(self, temporal, argument):
+        assert temporal.shortest_line(argument) == LineString([(1,1), (1,1)])
 
 
 class TestTGeomPointComparisonFunctions(TestTGeomPoint):

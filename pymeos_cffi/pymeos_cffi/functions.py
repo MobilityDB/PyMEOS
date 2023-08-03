@@ -41,8 +41,8 @@ def interval_to_timedelta(interval: Any) -> timedelta:
 def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Optional[bool] = None) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
         text = geom.to_ewkb()
-        if geom.has_srid():
-            text = f'SRID={geom.srid};{text}'
+        # if geom.has_srid():
+            # text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
         text = wkb.dumps(geom, hex=True)
         if get_srid(geom) > 0:
