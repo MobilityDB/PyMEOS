@@ -623,6 +623,23 @@ class STBox:
         )
         return STBox(_inner=new_inner)
 
+    def round(self, maxdd : int = 0) -> STBox:
+        """
+        Returns `self` rounded to the given number of decimal digits.
+
+        Args:
+            maxdd: Maximum number of decimal digits.
+
+        Returns:
+            A new :class:`STBox` instance
+
+        MEOS Functions:
+            stbox_round
+        """
+        new_inner = stbox_copy(self._inner)
+        stbox_round(new_inner, maxdd)
+        return STBox(_inner=new_inner)
+
     # ------------------------- Set Operations --------------------------------
     def union(self, other: STBox, strict: bool = True) -> STBox:
         """

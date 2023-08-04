@@ -415,6 +415,19 @@ class TestTBoxTransformations(TestTBox):
         assert self.tbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
             TBox('TBOX T([2019-09-01,2019-09-02])')
 
+    @pytest.mark.parametrize(
+        'tbox, expected',
+        [
+            (TBox('TBOX X([1.123456789,2.123456789])'), 
+                TBox('TBOX X([1.12,2.12])')),
+            (TBox('TBOX XT([1.123456789,2.123456789],[2019-09-01, 2019-09-02])'), 
+                TBox('TBOX XT([1.12,2.12],[2019-09-01, 2019-09-03])')),
+        ],
+        ids=['TBox X', 'TBox XT']
+    )
+    def test_round(self, tbox, expected):
+        assert tbox.round(maxdd=2)
+
 
 class TestTBoxTopologicalFunctions(TestTBox):
     tbx = TBox('TBOX X([1,2])')
@@ -621,8 +634,8 @@ class TestTBoxDistanceFunctions(TestTBox):
             (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), 0),
             (tbxt, TBox('TBOX XT([3,4],[2019-09-01,2019-09-03])'), 1),
         ],
-        ids=['STBox X Intersection', 'STBox X Distance',
-             'STBox XT Intersection', 'STBox XT Distance']
+        ids=['TBox X Intersection', 'TBox X Distance',
+             'TBox XT Intersection', 'TBox XT Distance']
     )
     def test_nearest_approach_distance(self, tbox, argument, expected):
         assert tbox.nearest_approach_distance(argument) == expected

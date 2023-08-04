@@ -1330,10 +1330,34 @@ def timestampset_values(ts: 'const Set *') -> 'TimestampTz *':
     return result if result != _ffi.NULL else None
 
 
+def floatset_round(s: 'const Set *', maxdd: int) -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.floatset_round(s_converted, maxdd)
+    return result if result != _ffi.NULL else None
+
+
+def floatspan_round(s: 'const Span *', maxdd: int) -> 'Span *':
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.floatspan_round(s_converted, maxdd)
+    return result if result != _ffi.NULL else None
+
+
+def floatspanset_round(ss: 'const SpanSet *', maxdd: int) -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.floatspanset_round(ss_converted, maxdd)
+    return result if result != _ffi.NULL else None
+
+
 def floatspan_set_intspan(s1: 'const Span *', s2: 'Span *') -> None:
     s1_converted = _ffi.cast('const Span *', s1)
     s2_converted = _ffi.cast('Span *', s2)
     _lib.floatspan_set_intspan(s1_converted, s2_converted)
+
+
+def geoset_round(s: 'const Set *', maxdd: int) -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.geoset_round(s_converted, maxdd)
+    return result if result != _ffi.NULL else None
 
 
 def intspan_set_floatspan(s1: 'const Span *', s2: 'Span *') -> None:
@@ -3028,6 +3052,44 @@ def stbox_srid(box: 'const STBox *') -> 'int32':
     return result if result != _ffi.NULL else None
 
 
+def stbox_expand(box1: 'const STBox *', box2: 'STBox *') -> None:
+    box1_converted = _ffi.cast('const STBox *', box1)
+    box2_converted = _ffi.cast('STBox *', box2)
+    _lib.stbox_expand(box1_converted, box2_converted)
+
+
+def stbox_expand_space(box: 'const STBox *', d: float) -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.stbox_expand_space(box_converted, d)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_expand_time(box: 'const STBox *', interval: 'const Interval *') -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    interval_converted = _ffi.cast('const Interval *', interval)
+    result = _lib.stbox_expand_time(box_converted, interval_converted)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_get_space(box: 'const STBox *') -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.stbox_get_space(box_converted)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_round(box: 'const STBox *', maxdd: int) -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.stbox_round(box_converted, maxdd)
+    return result if result != _ffi.NULL else None
+
+
+def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.stbox_set_srid(box_converted, srid_converted)
+    return result if result != _ffi.NULL else None
+
+
 def tbox_expand(box1: 'const TBox *', box2: 'TBox *') -> None:
     box1_converted = _ffi.cast('const TBox *', box1)
     box2_converted = _ffi.cast('TBox *', box2)
@@ -3048,35 +3110,9 @@ def tbox_expand_time(box: 'const TBox *', interval: 'const Interval *') -> 'TBox
     return result if result != _ffi.NULL else None
 
 
-def stbox_expand(box1: 'const STBox *', box2: 'STBox *') -> None:
-    box1_converted = _ffi.cast('const STBox *', box1)
-    box2_converted = _ffi.cast('STBox *', box2)
-    _lib.stbox_expand(box1_converted, box2_converted)
-
-
-def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
-    box_converted = _ffi.cast('const STBox *', box)
-    srid_converted = _ffi.cast('int32', srid)
-    result = _lib.stbox_set_srid(box_converted, srid_converted)
-    return result if result != _ffi.NULL else None
-
-
-def stbox_get_space(box: 'const STBox *') -> 'STBox *':
-    box_converted = _ffi.cast('const STBox *', box)
-    result = _lib.stbox_get_space(box_converted)
-    return result if result != _ffi.NULL else None
-
-
-def stbox_expand_space(box: 'const STBox *', d: float) -> 'STBox *':
-    box_converted = _ffi.cast('const STBox *', box)
-    result = _lib.stbox_expand_space(box_converted, d)
-    return result if result != _ffi.NULL else None
-
-
-def stbox_expand_time(box: 'const STBox *', interval: 'const Interval *') -> 'STBox *':
-    box_converted = _ffi.cast('const STBox *', box)
-    interval_converted = _ffi.cast('const Interval *', interval)
-    result = _lib.stbox_expand_time(box_converted, interval_converted)
+def tbox_round(box: 'const TBox *', maxdd: int) -> 'TBox *':
+    box_converted = _ffi.cast('const TBox *', box)
+    result = _lib.tbox_round(box_converted, maxdd)
     return result if result != _ffi.NULL else None
 
 
@@ -5688,6 +5724,12 @@ def tgeompoint_tgeogpoint(temp: 'const Temporal *', oper: bool) -> 'Temporal *':
 def tpoint_expand_space(temp: 'const Temporal *', d: float) -> 'STBox *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_expand_space(temp_converted, d)
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_round(temp: 'const Temporal *', maxdd: int) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tpoint_round(temp_converted, maxdd)
     return result if result != _ffi.NULL else None
 
 

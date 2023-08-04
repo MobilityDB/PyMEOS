@@ -587,6 +587,24 @@ class TestSTBoxTransformations(TestSTBox):
         assert self.stbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
             STBox('STBOX T([2019-09-01,2019-09-02])')
 
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
+            (STBox('STBOX X((1.123456789,1.123456789),(2.123456789,2.123456789))'), 
+                STBox('STBOX X((1.12,1.12),(2.12,2.12))')),
+            (STBox('STBOX Z((1.123456789,1.123456789,1.123456789),(2.123456789,2.123456789,2.123456789))'), 
+                STBox('STBOX Z((1.12,1.12,1.12),(2.12,2.12,2.12))')),
+            (STBox('STBOX XT(((1.123456789,1.123456789),(2.123456789,2.123456789)),[2019-09-01, 2019-09-02])'), 
+                STBox('STBOX XT(((1.12,1.12),(2.12,2.12)),[2019-09-01, 2019-09-03])')),
+            (STBox('STBOX ZT(((1.123456789,1.123456789,1.123456789),(2.123456789,2.123456789,2.123456789)),'
+                '[2019-09-01, 2019-09-02])'), 
+                STBox('STBOX ZT(((1.12,1.12,1.12),(2.12,2.12,2.12)),[2019-09-01, 2019-09-02])')),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
+    )
+    def test_round(self, stbox, expected):
+        assert stbox.round(maxdd=2)
+
 
 class TestSTBoxTopologicalFunctions(TestSTBox):
     stbx = STBox('STBOX X((1,1),(2,2))')

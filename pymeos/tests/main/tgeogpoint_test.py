@@ -1035,15 +1035,15 @@ class TestTGeogPointTemporalComparisons(TestTGeogPoint):
     tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
     argument = TGeogPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
 
-    # The results are different from the equivalent tests for TGeomPoint
-    # This is an issue that must be resolved in MEOS
     @pytest.mark.parametrize(
         'temporal, expected',
         [
             (tpi, TBoolInst('False@2019-09-01')),
             (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tps, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02]}')),
-            (tpss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+            (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
+                '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
+            (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
+                '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}'))
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )

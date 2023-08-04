@@ -381,6 +381,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     # ------------------------- Transformations -------------------------------
+    def round(self) -> TPoint:
+        """
+        Converts the temporal geographic point to a temporal geometric point.
+
+        Returns:
+            A new :class:`TGeomPoint` object.
+
+        MEOS Functions:
+            tgeompoint_tgeogpoint
+        """
+        result = tgeompoint_tgeogpoint(self._inner, False)
+        return Temporal._factory(result)
+
     def make_simple(self) -> List[TPoint]:
         """
         Split the trajectory into a collection of simple trajectories.
@@ -394,6 +407,24 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         result, count = tpoint_make_simple(self._inner)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(result[i]) for i in range(count)]
+
+    def expand(self, other: Union[int, float]) -> STBox:
+        """
+        Expands ``self`` with `other`.
+        The result is equal to ``self`` but with the spatial dimensions
+        expanded by `other` in all directions.
+
+        Args:
+            other: The object to expand ``self`` with.
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            tpoint_expand_space
+        """
+        result = tpoint_expand_space(self._inner, float(other))
+        return STBox(_inner=result)
 
     # ------------------------- Restrictions ----------------------------------
     def at(self,

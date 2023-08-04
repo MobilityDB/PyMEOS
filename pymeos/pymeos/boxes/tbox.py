@@ -533,6 +533,23 @@ class TBox:
         )
         return TBox(_inner=new_inner)
 
+    def round(self, maxdd : int = 0) -> STBox:
+        """
+        Returns `self` rounded to the given number of decimal digits.
+
+        Args:
+            maxdd: Maximum number of decimal digits.
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            tbox_round
+        """
+        new_inner = tbox_copy(self._inner)
+        tbox_round(new_inner, maxdd)
+        return TBox(_inner=new_inner)
+
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         """
