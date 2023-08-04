@@ -326,9 +326,22 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A new :class:`TFloatSeqSet` indicating the temporal azimuth of the trajectory.
 
         MEOS Functions:
-            azimuth_tpoint
+            tpoint_azimuth
         """
         result = tpoint_azimuth(self._inner)
+        return Temporal._factory(result)
+
+    def angular_difference(self) -> TFloatSeqSet:
+        """
+        Returns the angular_difference of the trajectory.
+
+        Returns:
+            A new :class:`TFloatSeqSet` indicating the temporal angular_difference of the trajectory.
+
+        MEOS Functions:
+            tpoint_angular_difference
+        """
+        result = tpoint_angular_difference(self._inner)
         return Temporal._factory(result)
 
     def time_weighted_centroid(self, precision: int = 15) -> shp.Point:

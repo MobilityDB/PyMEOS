@@ -33,7 +33,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
             (TFloatSeq('{1.5@2019-09-01, 0.5@2019-09-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
             (TFloatSeq('[1.5@2019-09-01, 0.5@2019-09-02]'), TGeomPointSeq, TInterpolation.LINEAR),
             (TFloatSeqSet('{[1.5@2019-09-01, 0.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'),
-             TGeomPointSeqSet, TInterpolation.LINEAR)
+             TGeomPointSeqSet, TInterpolation.LINEAR),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -48,7 +48,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
             (datetime(2000, 1, 1), TGeomPointInst, TInterpolation.NONE),
             (TimestampSet('{2019-09-01, 2019-09-02}'), TGeomPointSeq, TInterpolation.DISCRETE),
             (Period('[2019-09-01, 2019-09-02]'), TGeomPointSeq, TInterpolation.LINEAR),
-            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TGeomPointSeqSet, TInterpolation.LINEAR)
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'), TGeomPointSeqSet, TInterpolation.LINEAR),
         ],
         ids=['Instant', 'Sequence', 'Discrete Sequence', 'SequenceSet']
     )
@@ -181,7 +181,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
             (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
             (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -195,7 +195,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (tpds, 'TGeomPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})'),
             (tps, 'TGeomPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])'),
             (tpss, 'TGeomPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})')
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -209,12 +209,13 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (tpds, '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}'),
             (tps, '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]'),
             (tpss, '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], '
-                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}')
+                   '[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_as_wkt(self, temporal, expected):
         assert temporal.as_wkt() == expected
+        assert temporal.as_ewkt() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -227,12 +228,26 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (tpss, '0128000F020000000200000003000000000000F03F000'
                 '000000000F03F00A01E4E7134020000000000000000400'
                 '0000000000000400000F66B853402000200000003000000'
-                '000000F03F000000000000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200')
+                '000000F03F000000000000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_as_hexwkb(self, temporal, expected):
         assert temporal.as_hexwkb() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, '{"type":"Point","bbox":[1.00,1.00,1.00,1.00],"coordinates":[1,1]}'),
+            (tpds, '{"type":"MultiPoint","bbox":[1.00,1.00,2.00,2.00],"coordinates":[[1,1],[2,2]]}'),
+            (tps, '{"type":"LineString","bbox":[1.00,1.00,2.00,2.00],"coordinates":[[1,1],[2,2]]}'),
+            (tpss, '{"type":"GeometryCollection","bbox":[1.00,1.00,2.00,2.00],'
+                '"geometries":[{"type":"Point","coordinates":[1,1]},{"type":"LineString","coordinates":[[1,1],[2,2]]}]}'),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_as_geojson(self, temporal, expected):
+        assert temporal.as_geojson(precision=2) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -395,7 +410,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                    '     }\n'
                    '   ],\n'
                    '   "interpolation": "Linear"\n'
-                   ' }')
+                   ' }'),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -420,7 +435,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, TInterpolation.NONE),
             (tpds, TInterpolation.DISCRETE),
             (tps, TInterpolation.LINEAR),
-            (tpss, TInterpolation.LINEAR)
+            (tpss, TInterpolation.LINEAR),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -430,15 +445,15 @@ class TestTGeomPointAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpi, {Point(1,1)}),
-            (tpds, {Point(1,1), Point(2,2)}),
-            (tps, {Point(1,1), Point(2,2)}),
-            (tpss, {Point(1,1), Point(2,2)})
+            (tpi, STBox('STBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])')),
+            (tpds, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tps, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tpss, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-05])')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_value_set(self, temporal, expected):
-        assert temporal.value_set() == expected
+    def test_bounding_box(self, temporal, expected):
+        assert temporal.bounding_box() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -446,7 +461,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, [Point(1,1)]),
             (tpds, [Point(1,1), Point(2,2)]),
             (tps, [Point(1,1), Point(2,2)]),
-            (tpss, [Point(1,1), Point(2,2)])
+            (tpss, [Point(1,1), Point(2,2)]),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -459,7 +474,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, Point(1,1)),
             (tpds, Point(1,1)),
             (tps, Point(1,1)),
-            (tpss, Point(1,1))
+            (tpss, Point(1,1)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -472,7 +487,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, Point(1,1)),
             (tpds, Point(2,2)),
             (tps, Point(2,2)),
-            (tpss, Point(1,1))
+            (tpss, Point(1,1)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -485,7 +500,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, {Point(1,1)}),
             (tpds, {Point(1,1), Point(2,2)}),
             (tps, {Point(1,1), Point(2,2)}),
-            (tpss, {Point(1,1), Point(2,2)})
+            (tpss, {Point(1,1), Point(2,2)}),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -498,7 +513,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, Point(1,1)),
             (tpds, Point(1,1)),
             (tps, Point(1,1)),
-            (tpss, Point(1,1))
+            (tpss, Point(1,1)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -511,7 +526,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, 0),
             (tpds, 0),
             (tps, math.sqrt(2)),
-            (tpss, math.sqrt(2))
+            (tpss, math.sqrt(2)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -525,7 +540,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpds, TFloatSeq('{0@2019-09-01, 0@2019-09-02}')),
             (tps, TFloatSeq('[0@2019-09-01, 1.4142135623730951@2019-09-02]')),
             (tpss, TFloatSeqSet('{[0@2019-09-01, 1.4142135623730951@2019-09-02],'
-                '[1.4142135623730951@2019-09-03, 1.4142135623730951@2019-09-05]}'))
+                '[1.4142135623730951@2019-09-03, 1.4142135623730951@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -539,7 +554,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpds, None),
             (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
             (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
-                '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24)
+                '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -553,7 +568,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpds, TFloatSeq('{1@2019-09-01, 2@2019-09-02}')),
             (tps, TFloatSeq('[1@2019-09-01, 2@2019-09-02]')),
             (tpss, TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],'
-                '[1@2019-09-03, 1@2019-09-05]}'))
+                '[1@2019-09-03, 1@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -568,7 +583,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpds3d, TFloatSeq('{1@2019-09-01, 2@2019-09-02}')),
             (tps3d, TFloatSeq('[1@2019-09-01, 2@2019-09-02]')),
             (tpss3d, TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],'
-                '[1@2019-09-03, 1@2019-09-05]}'))
+                '[1@2019-09-03, 1@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -583,9 +598,14 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, False),
             (tpds, False),
             (tps, False),
-            (tpss, False)
+            (tpss, False),
+            (tpi3d, True),
+            (tpds3d, True),
+            (tps3d, True),
+            (tpss3d, True),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+        ids=['Instant 2D', 'Discrete Sequence 2D', 'Sequence 2D', 'SequenceSet 2D',
+             'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
     def test_has_z(self, temporal, expected):
         assert temporal.has_z() == expected
@@ -596,12 +616,82 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi3d, True),
             (tpds3d, True),
             (tps3d, True),
-            (tpss3d, True)
+            (tpss3d, True),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_has_z(self, temporal, expected):
         assert temporal.has_z() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, []),
+            (tpds, []),
+            (tps, [STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')]),
+            (tpss, [STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])'),
+                STBox('STBOX XT(((1,1),(1,1)),[2019-09-03, 2019-09-05])')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bounding_stboxes(self, temporal, expected):
+        assert temporal.stboxes() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, True),
+            (tpds, True),
+            (tps, True),
+            (tpss, True),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_is_simple(self, temporal, expected):
+        assert temporal.is_simple() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeqSet('Interp=Step;{[45@2019-09-01,45@2019-09-02]}')),
+            (tpss, TFloatSeqSet('Interp=Step;{[45@2019-09-01,45@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_azimuth(self, temporal, expected):
+        res = temporal.azimuth()
+        result = res.to_degrees() if res is not None else None
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('{0@2019-09-01,0@2019-09-02}')),
+            (tpss, TFloatSeqSet('{0@2019-09-01,0@2019-09-02}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_angular_difference(self, temporal, expected):
+        res = temporal.angular_difference()
+        result = res.to_degrees() if res is not None else None
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TFloatInst('45@2019-09-01')),
+            (tpds, TFloatSeq('{45@2019-09-01,45@2019-09-02}')),
+            (tps, TFloatSeq('[45@2019-09-01,45@2019-09-02]')),
+            (tpss, TFloatSeqSet('{[45@2019-09-01,45@2019-09-02],[45@2019-09-03,45@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bearing(self, temporal, expected):
+        assert temporal.bearing(Point(3,3)).to_degrees() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -861,7 +951,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, 382694564),
             (tpds, 1664033448),
             (tps, 1664033448),
-            (tpss, 2878566103)
+            (tpss, 2878566103),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -874,7 +964,7 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, 0),
             (tpds, 0),
             (tps, 0),
-            (tpss, 0)
+            (tpss, 0),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -887,25 +977,12 @@ class TestTGeomPointAccessors(TestTGeomPoint):
             (tpi, 5676),
             (tpds, 5676),
             (tps, 5676),
-            (tpss, 5676)
+            (tpss, 5676),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_set_srid(self, temporal, expected):
         assert temporal.set_srid(5676).srid() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, STBox('STBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])')),
-            (tpds, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
-            (tps, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
-            (tpss, STBox('STBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-05])')),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_bounding_box(self, temporal, expected):
-        assert temporal.bounding_box() == expected
 
 
 class TestTGeomPointTransformations(TestTGeomPoint):
@@ -1147,7 +1224,7 @@ class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
             (tps, Point(1,1), True),
             (tps, Point(2,2), True),
             (tpss, Point(1,1), True),
-            (tpss, Point(2,2), True)
+            (tpss, Point(2,2), True),
         ],
         ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
              'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
@@ -1173,7 +1250,7 @@ class TestTGeomPointTemporalComparisons(TestTGeomPoint):
             (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
                  '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
-                 '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}'))
+                 '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1289,7 +1366,7 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             (tpss, period, TGeomPointSeqSet('{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
             (tpss, period_set, None),
             (tpss, Point(1,1), TGeomPointSeqSet('{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
-            (tpss, Point(2,2), TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}'))
+            (tpss, Point(2,2), TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-Point(1,1)',
              'Instant-Point(2,2)', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
@@ -1358,7 +1435,7 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
             (tpi, True),
             (tpds, True),
             (tps, True),
-            (tpss, True)
+            (tpss, True),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1377,7 +1454,7 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
             (tpi, True),
             (tpds, True),
             (tps, True),
-            (tpss, True)
+            (tpss, True),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1399,7 +1476,7 @@ class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
             (tpds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
             (tps, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],'
-                '[True@2019-09-03, True@2019-09-05]}'))
+                '[True@2019-09-03, True@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1441,7 +1518,7 @@ class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
             (tpds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
             (tps, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02]}')),
             (tpss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],'
-                '[True@2019-09-03, True@2019-09-05]}'))
+                '[True@2019-09-03, True@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
