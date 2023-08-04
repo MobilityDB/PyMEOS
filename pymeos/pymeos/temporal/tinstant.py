@@ -38,6 +38,15 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
                 else pg_timestamptz_in(timestamp, -1)
             self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 
+    def value(self) -> TBase:
+        """
+        Returns the value of the temporal instant.
+
+        Returns:
+            The value of the temporal instant.
+        """
+        return self.start_value()
+
     def timestamp(self) -> datetime:
         """
         Returns the timestamp of the temporal instant.
@@ -51,15 +60,6 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         ts, count = temporal_timestamps(self._inner)
         assert count == 1
         return timestamptz_to_datetime(ts[0])
-
-    def value(self) -> TBase:
-        """
-        Returns the value of the temporal instant.
-
-        Returns:
-            The value of the temporal instant.
-        """
-        return self.start_value()
 
     def start_instant(self: Self) -> Self:
         return self

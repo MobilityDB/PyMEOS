@@ -42,10 +42,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     # ------------------------- Output ----------------------------------------
     def __str__(self):
         """
-        Returns the string representation of the trajectory.
+        Returns the string representation of the temporal point.
 
         Returns:
-            A new :class:`str` representing the trajectory.
+            A new :class:`str` representing the temporal point.
 
         MEOS Functions:
             tpoint_out
@@ -54,13 +54,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def as_wkt(self, precision: int = 15) -> str:
         """
-        Returns the trajectory as a WKT string.
+        Returns the temporal point as a WKT string.
 
         Args:
             precision: The precision of the returned geometry.
 
         Returns:
-            A new :class:`str` representing the trajectory.
+            A new :class:`str` representing the temporal point.
 
         MEOS Functions:
             tpoint_out
@@ -69,13 +69,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def as_ewkt(self, precision: int = 15) -> str:
         """
-        Returns the trajectory as an EWKT string.
+        Returns the temporal point as an EWKT string.
 
         Args:
             precision: The precision of the returned geometry.
 
         Returns:
-            A new :class:`str` representing the trajectory.
+            A new :class:`str` representing the temporal point  .
 
         MEOS Functions:
             tpoint_as_ewkt
@@ -208,10 +208,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def speed(self) -> TFloat:
         """
-        Returns the speed of the trajectory.
+        Returns the speed of the temporal point.
 
         Returns:
-            A :class:`TFloat` with the speed of the trajectory.
+            A :class:`TFloat` with the speed of the temporal point.
 
         MEOS Functions:
             tpoint_speed
@@ -221,10 +221,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def x(self) -> TFloat:
         """
-        Returns the x coordinate of the trajectory.
+        Returns the x coordinate of the temporal point.
 
         Returns:
-            A :class:`TFloat` with the x coordinate of the trajectory.
+            A :class:`TFloat` with the x coordinate of the temporal point.
 
         MEOS Functions:
             tpoint_get_coord
@@ -234,10 +234,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def y(self) -> TFloat:
         """
-        Returns the y coordinate of the trajectory.
+        Returns the y coordinate of the temporal point.
 
         Returns:
-            A :class:`TFloat` with the y coordinate of the trajectory.
+            A :class:`TFloat` with the y coordinate of the temporal point.
 
         MEOS Functions:
             tpoint_get_coord
@@ -247,10 +247,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def z(self) -> TFloat:
         """
-        Returns the z coordinate of the trajectory.
+        Returns the z coordinate of the temporal point.
 
         Returns:
-            A :class:`TFloat` with the z coordinate of the trajectory.
+            A :class:`TFloat` with the z coordinate of the temporal point.
 
         MEOS Functions:
             tpoint_get_coord
@@ -260,10 +260,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def has_z(self) -> bool:
         """
-        Returns whether the trajectory has a z coordinate.
+        Returns whether the temporal point has a z coordinate.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory has a z coordinate.
+            A :class:`bool` indicating whether the temporal point has a z coordinate.
 
         MEOS Functions:
             tpoint_start_value
@@ -272,7 +272,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def stboxes(self) -> List[STBox]:
         """
-        Returns a collection of :class:`STBox`es representing the bounding boxes of the segments of the trajectory.
+        Returns a collection of :class:`STBox`es representing the bounding boxes of the segments of the temporal point.
 
         Returns:
             A :class:`list` of :class:`STBox`es.
@@ -286,10 +286,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def is_simple(self) -> bool:
         """
-        Returns whether the trajectory is simple. That is, whether it does not self-intersect.
+        Returns whether the temporal point is simple. That is, whether it does not self-intersect.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory is simple.
+            A :class:`bool` indicating whether the temporal point is simple.
 
         MEOS Functions:
             tpoint_is_simple
@@ -298,13 +298,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def bearing(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TFloat:
         """
-        Returns the temporal bearing between the trajectory and `other`.
+        Returns the temporal bearing between the temporal point and `other`.
 
         Args:
             other: An object to check the bearing to.
 
         Returns:
-            A new :class:`TFloat` indicating the temporal bearing between the trajectory and `other`.
+            A new :class:`TFloat` indicating the temporal bearing between the temporal point and `other`.
 
         MEOS Functions:
             bearing_tpoint_point, bearing_tpoint_tpoint
@@ -320,10 +320,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def azimuth(self) -> TFloatSeqSet:
         """
-        Returns the temporal azimuth of the trajectory.
+        Returns the temporal azimuth of the temporal point.
 
         Returns:
-            A new :class:`TFloatSeqSet` indicating the temporal azimuth of the trajectory.
+            A new :class:`TFloatSeqSet` indicating the temporal azimuth of the temporal point.
 
         MEOS Functions:
             tpoint_azimuth
@@ -333,10 +333,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def angular_difference(self) -> TFloatSeqSet:
         """
-        Returns the angular_difference of the trajectory.
+        Returns the angular_difference of the temporal point.
 
         Returns:
-            A new :class:`TFloatSeqSet` indicating the temporal angular_difference of the trajectory.
+            A new :class:`TFloatSeqSet` indicating the temporal angular_difference of the temporal point.
 
         MEOS Functions:
             tpoint_angular_difference
@@ -346,13 +346,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def time_weighted_centroid(self, precision: int = 15) -> shp.Point:
         """
-        Returns the time weighted centroid of the trajectory.
+        Returns the time weighted centroid of the temporal point.
 
         Args:
             precision: The precision of the returned geometry.
 
         Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the time weighted centroid of the trajectory.
+            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the time weighted centroid of the temporal point.
 
         MEOS Functions:
             tpoint_twcentroid
@@ -383,20 +383,20 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     # ------------------------- Transformations -------------------------------
     def round(self) -> TPoint:
         """
-        Converts the temporal geographic point to a temporal geometric point.
+        Round the coordinate values to a number of decimal places.
 
         Returns:
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tgeompoint_tgeogpoint
+            tpoint_round
         """
         result = tgeompoint_tgeogpoint(self._inner, False)
         return Temporal._factory(result)
 
     def make_simple(self) -> List[TPoint]:
         """
-        Split the trajectory into a collection of simple trajectories.
+        Split the temporal point into a collection of simple temporal points.
         
         Returns:
             A :class:`list` of :class:`TPoint`es.
@@ -488,13 +488,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     # ------------------------- Ever Spatial Relationships --------------------
     def is_ever_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
-        Returns whether the trajectory is ever contained by `container`.
+        Returns whether the temporal point is ever contained by `container`.
 
         Args:
             container: An object to check for containing `self`.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory is ever contained by `container`.
+            A :class:`bool` indicating whether the temporal point is ever contained by `container`.
 
         MEOS Functions:
             econtains_geo_tpoint
@@ -511,13 +511,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def is_ever_disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> bool:
         """
-        Returns whether the trajectory is ever disjoint from `other`.
+        Returns whether the temporal point is ever disjoint from `other`.
 
         Args:
             other: An object to check for disjointness with.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory is ever disjoint from `other`.
+            A :class:`bool` indicating whether the temporal point is ever disjoint from `other`.
 
         MEOS Functions:
             edisjoint_tpoint_geo, edisjoint_tpoint_tpoint
@@ -537,14 +537,14 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     def is_ever_within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox],
                                 distance: float) -> bool:
         """
-        Returns whether the trajectory is ever within `distance` of `other`.
+        Returns whether the temporal point is ever within `distance` of `other`.
 
         Args:
             other: An object to check the distance to.
             distance: The distance to check in units of the spatial reference system.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory is ever within `distance` of `other`.
+            A :class:`bool` indicating whether the temporal point is ever within `distance` of `other`.
 
         MEOS Functions:
             edwithin_tpoint_geo, edwithin_tpoint_tpoint
@@ -563,13 +563,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def ever_intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> bool:
         """
-        Returns whether the trajectory ever intersects `other`.
+        Returns whether the temporal point ever intersects `other`.
 
         Args:
             other: An object to check for intersection with.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory ever intersects `other`.
+            A :class:`bool` indicating whether the temporal point ever intersects `other`.
 
         MEOS Functions:
             eintersects_tpoint_geo, eintersects_tpoint_tpoint
@@ -588,13 +588,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def ever_touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
-        Returns whether the trajectory ever touches `other`.
+        Returns whether the temporal point ever touches `other`.
 
         Args:
             other: An object to check for touching with.
 
         Returns:
-            A :class:`bool` indicating whether the trajectory ever touches `other`.
+            A :class:`bool` indicating whether the temporal point ever touches `other`.
 
         MEOS Functions:
             etouches_tpoint_geo
@@ -612,13 +612,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     # ------------------------- Temporal Spatial Relationships ----------------
     def is_spatially_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
-        Returns a new temporal boolean indicating whether the trajectory is contained by `container`.
+        Returns a new temporal boolean indicating whether the temporal point is contained by `container`.
 
         Args:
             container: An object to check for containing `self`.
 
         Returns:
-            A new :TBool: indicating whether the trajectory is contained by `container`.
+            A new :TBool: indicating whether the temporal point is contained by `container`.
 
         MEOS Functions:
             tcontains_geo_tpoint
@@ -636,13 +636,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def disjoint(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
-        Returns a new temporal boolean indicating whether the trajectory intersects `other`.
+        Returns a new temporal boolean indicating whether the temporal point intersects `other`.
 
         Args:
             other: An object to check for intersection with.
 
         Returns:
-            A new :TBool: indicating whether the trajectory intersects `other`.
+            A new :TBool: indicating whether the temporal point intersects `other`.
 
         MEOS Functions:
             tintersects_tpoint_geo
@@ -659,14 +659,14 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def within_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox], distance: float) -> TBool:
         """
-        Returns a new temporal boolean indicating whether the trajectory is within `distance` of `other`.
+        Returns a new temporal boolean indicating whether the temporal point is within `distance` of `other`.
 
         Args:
             other: An object to check the distance to.
             distance: The distance to check in units of the spatial reference system.
 
         Returns:
-            A new :TBool: indicating whether the trajectory is within `distance` of `other`.
+            A new :TBool: indicating whether the temporal point is within `distance` of `other`.
 
         MEOS Functions:
             tdwithin_tpoint_geo, tdwithin_tpoint_tpoint
@@ -685,13 +685,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def intersects(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
-        Returns a new temporal boolean indicating whether the trajectory intersects `other`.
+        Returns a new temporal boolean indicating whether the temporal point intersects `other`.
 
         Args:
             other: An object to check for intersection with.
 
         Returns:
-            A new :TBool: indicating whether the trajectory intersects `other`.
+            A new :TBool: indicating whether the temporal point intersects `other`.
 
         MEOS Functions:
             tintersects_tpoint_geo
@@ -708,13 +708,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def touches(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> TBool:
         """
-        Returns a new temporal boolean indicating whether the trajectory touches `other`.
+        Returns a new temporal boolean indicating whether the temporal point touches `other`.
 
         Args:
             other: An object to check for touching with.
 
         Returns:
-            A new :TBool: indicating whether the trajectory touches `other`.
+            A new :TBool: indicating whether the temporal point touches `other`.
 
         MEOS Functions:
             ttouches_tpoint_geo
@@ -732,13 +732,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint, STBox]) -> TFloat:
         """
-        Returns the temporal distance between the trajectory and `other`.
+        Returns the temporal distance between the temporal point and `other`.
 
         Args:
             other: An object to check the distance to.
 
         Returns:
-            A new :class:`TFloat` indicating the temporal distance between the trajectory and `other`.
+            A new :class:`TFloat` indicating the temporal distance between the temporal point and `other`.
 
         MEOS Functions:
             distance_tpoint_geo, distance_tpoint_tpoint
@@ -757,13 +757,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def nearest_approach_distance(self, other: Union[pg.Geometry, shpb.BaseGeometry, STBox, TPoint]) -> float:
         """
-        Returns the nearest approach distance between the trajectory and `other`.
+        Returns the nearest approach distance between the temporal point and `other`.
 
         Args:
             other: An object to check the nearest approach distance to.
 
         Returns:
-            A :class:`float` indicating the nearest approach distance between the trajectory and `other`.
+            A :class:`float` indicating the nearest approach distance between the temporal point and `other`.
 
         MEOS Functions:
             nad_tpoint_geo, nad_tpoint_stbox, nad_tpoint_tpoint
@@ -781,13 +781,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def nearest_approach_instant(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> TI:
         """
-        Returns the nearest approach instant between the trajectory and `other`.
+        Returns the nearest approach instant between the temporal point and `other`.
 
         Args:
             other: An object to check the nearest approach instant to.
 
         Returns:
-            A new temporal instant indicating the nearest approach instant between the trajectory and `other`.
+            A new temporal instant indicating the nearest approach instant between the temporal point and `other`.
 
         MEOS Functions:
             nai_tpoint_geo, nai_tpoint_tpoint
@@ -803,13 +803,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
     def shortest_line(self, other: Union[pg.Geometry, shpb.BaseGeometry, TPoint]) -> shpb.BaseGeometry:
         """
-        Returns the shortest line between the trajectory and `other`.
+        Returns the shortest line between the temporal point and `other`.
 
         Args:
             other: An object to check the shortest line to.
 
         Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the shortest line between the trajectory
+            A new :class:`~shapely.geometry.base.BaseGeometry` indicating the shortest line between the temporal point
             and `other`.
 
         MEOS Functions:
@@ -829,7 +829,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
              origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
              start: Union[datetime, str, None] = None) -> List[List[List[List[TG]]]]:
         """
-        Split the trajectory into segments following the tiling of the bounding box.
+        Split the temporal point into segments following the tiling of the bounding box.
 
         Args:
             size: The size of the spatial tiles. If `self` has a spatial dimension and this
@@ -856,7 +856,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
                   origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
                   start: Union[datetime, str, None] = None) -> List[TG]:
         """
-        Split the trajectory into segments following the tiling of the bounding box.
+        Split the temporal point into segments following the tiling of the bounding box.
 
         Args:
             size: The size of the spatial tiles. If `self` has a spatial dimension and this
@@ -1082,7 +1082,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
-        Returns the trajectory as a Shapely geometry.
+        Returns the trajectory of the temporal point as a Shapely geometry.
 
         Args:
             precision: The precision of the returned geometry.
@@ -1097,7 +1097,7 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
 
     def to_dataframe(self) -> GeoDataFrame:
         """
-        Returns the trajectory as a GeoPandas DataFrame.
+        Returns the trajectory of the temporal point as a GeoPandas DataFrame.
 
         Returns:
             A new :class:`GeoDataFrame` representing the trajectory.
