@@ -11,7 +11,7 @@ from geopandas import GeoDataFrame
 from pymeos_cffi import *
 
 from .tbool import TBool
-from .tfloat import TFloatSeqSet, TFloat
+from .tfloat import TFloat, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..time import *
 
@@ -23,7 +23,7 @@ TI = TypeVar('TI', bound='TPointInst')
 TS = TypeVar('TS', bound='TPointSeq')
 TSS = TypeVar('TSS', bound='TPointSeqSet')
 Self = TypeVar('Self', bound='TPoint')
-
+        
 
 class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     """
@@ -381,7 +381,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     # ------------------------- Transformations -------------------------------
-    def round(self) -> TPoint:
+    def round(self, maxdd : int = 0) -> TPoint:
         """
         Round the coordinate values to a number of decimal places.
 
@@ -391,7 +391,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_round
         """
-        result = tgeompoint_tgeogpoint(self._inner, False)
+        result = tpoint_round(self._inner, maxdd)
         return Temporal._factory(result)
 
     def make_simple(self) -> List[TPoint]:
@@ -423,6 +423,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_expand_space
         """
+        from ..boxes import STBox
         result = tpoint_expand_space(self._inner, float(other))
         return STBox(_inner=result)
 
