@@ -1686,6 +1686,52 @@ class TestTFloatPositionFunctions(TestTFloat):
         assert argument.is_over_or_right(temporal) == expected
 
 
+class TestTFloatSimilarityFunctions(TestTFloat):
+    tfi = TFloatInst('1@2019-09-01')
+    tfds = TFloatSeq('{1@2019-09-01, 2@2019-09-02}')
+    tfs = TFloatSeq('[1@2019-09-01, 2@2019-09-02]')
+    tfss = TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02], [1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tfi, TFloatInst('3@2019-09-02'), 2.0),
+            (tfds, TFloatInst('3@2019-09-03'), 2.0),
+            (tfs, TFloatInst('3@2019-09-03'), 2.0),
+            (tfss, TFloatInst('3@2019-09-08'), 2.0),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_frechet_distance(self, temporal, argument, expected):
+        assert temporal.frechet_distance(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tfi, TFloatInst('3@2019-09-02'), 2.0),
+            (tfds, TFloatInst('3@2019-09-03'), 3.0),
+            (tfs, TFloatInst('3@2019-09-03'), 3.0),
+            (tfss, TFloatInst('3@2019-09-08'), 7.0),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_dyntimewarp_distance(self, temporal, argument, expected):
+        assert temporal.dyntimewarp_distance(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tfi, TFloatInst('3@2019-09-02'), 2.0),
+            (tfds, TFloatInst('3@2019-09-03'), 2.0),
+            (tfs, TFloatInst('3@2019-09-03'), 2.0),
+            (tfss, TFloatInst('3@2019-09-08'), 2.0),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_hausdorff_distance(self, temporal, argument, expected):
+        assert temporal.hausdorff_distance(argument) == expected
+
+
 class TestTFloatSplitOperations(TestTFloat):
     tfi = TFloatInst('1@2019-09-01')
     tfds = TFloatSeq('{1@2019-09-01, 2@2019-09-02}')
@@ -1705,19 +1751,37 @@ class TestTFloatSplitOperations(TestTFloat):
     def test_value_split(self, temporal, expected):
         assert temporal.value_split(2) == expected
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tfi, [TFloatInst('1@2019-09-01')]),
-            # (tfds, [TFloatSeq('{1@2019-09-01}'),TFloatSeq('{2@2019-09-02}')]),
-            # (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02)'),TFloatSeq('{2@2019-09-02}')]),
-            # (tfss, [TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02)}'),TFloatSeq('[2@2019-09-02]'),
-                # TFloatSeq('[1@2019-09-03, 1@2019-09-04)'),TFloatSeqSet('{[1@2019-09-04, 1@2019-09-05]}')]),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_time_split(self, temporal, expected):
-        # assert temporal.time_split(timedelta(days=2)) == expected
+    # The PyMEOS function uses as default origin the initial timestamp of the
+    # temporal value while in MEOS the default origin is Monday Janury 3, 2000
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, [TFloatInst('1@2019-09-01')]),
+            (tfds, [TFloatSeq('{1@2019-09-01, 2@2019-09-02}')]),
+            (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02]')]),
+            (tfss, [TFloatSeq('[1@2019-09-01,2@2019-09-02]'),
+                TFloatSeq('[1@2019-09-03, 1@2019-09-05]')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_time_split(self, temporal, expected):
+        assert temporal.time_split(timedelta(days=2)) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, [TFloatInst('1@2019-09-01')]),
+            (tfds, [TFloatSeq('{1@2019-09-01}'), 
+                TFloatSeq('{2@2019-09-02}')]),
+            (tfs, [TFloatSeq('[1@2019-09-01, 1.5@2019-09-01 12:00:00+00)'),
+                TFloatSeq('[1.5@2019-09-01 12:00:00+00, 2@2019-09-02]')]),
+            (tfss, [TFloatSeq('[1@2019-09-01,2@2019-09-02]'),
+                TFloatSeq('[1@2019-09-03, 1@2019-09-05]')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet'],
+    )
+    def test_time_split_n(self, temporal, expected):
+        assert temporal.time_split_n(2) == expected
 
 
 class TestTFloatComparisons(TestTFloat):

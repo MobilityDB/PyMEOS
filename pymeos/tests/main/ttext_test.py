@@ -1197,6 +1197,134 @@ class TestTTextRestrictors(TestTText):
         assert TText.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
+class TestTTextTopologicalFunctions(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-09-02'), False),
+            (tti, TTextSeq('(AAA@2019-09-01, BBB@2019-09-02]'), True),
+            (ttds, TTextInst('AAA@2019-09-03'), False),
+            (ttds, TTextSeq('(AAA@2019-09-02, BBB@2019-09-03]'), True),
+            (tts, TTextInst('AAA@2019-09-03'), False),
+            (tts, TTextSeq('(AAA@2019-09-02, BBB@2019-09-03]'), True),
+            (ttss, TTextInst('AAA@2019-09-08'), False),
+            (ttss, TTextSeq('(AAA@2019-09-05, BBB@2019-09-06]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_adjacent(self, temporal, argument, expected):
+        assert temporal.is_adjacent(argument) == expected
+        assert temporal.is_temporally_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-09-02'), False),
+            (tti, TTextSeq('[AAA@2019-09-01,BBB@2019-09-02]'), True),
+            (ttds, TTextInst('AAA@2019-09-02'), False),
+            (ttds, TTextSeq('[AAA@2019-09-01,BBB@2019-09-02]'), True),
+            (tts, TTextInst('AAA@2019-09-02'), False),
+            (tts, TTextSeq('[AAA@2019-09-01,BBB@2019-09-05]'), True),
+            (ttss, TTextInst('AAA@2019-09-02'), False),
+            (ttss, TTextSeq('[AAA@2019-09-01,BBB@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_contained_in_contains(self, temporal, argument, expected):
+        assert temporal.is_contained_in(argument) == expected
+        assert argument.contains(temporal) == expected
+        assert temporal.is_temporally_contained_in(argument) == expected
+        assert argument.temporally_contains(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-09-02'), False),
+            (tti, TTextSeq('[AAA@2019-09-01]'), True),
+            (ttds, TTextInst('CCC@2019-09-03'), False),
+            (ttds, TTextSeq('[AAA@2019-09-01,BBB@2019-09-02]'), True),
+            (tts, TTextInst('CCC@2019-09-03'), False),
+            (tts, TTextSeq('[AAA@2019-09-01,BBB@2019-09-02]'), True),
+            (ttss, TTextInst('CCC@2019-09-06'), False),
+            (ttss, TTextSeq('[AAA@2019-09-01,BBB@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_overlaps_is_same(self, temporal, argument, expected):
+        assert temporal.overlaps(argument) == expected
+        assert temporal.is_same(argument) == expected
+
+
+class TestTTextPositionFunctions(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-09-01'), False),
+            (tti, TTextInst('AAA@2019-10-01'), True),
+            (ttds, TTextInst('AAA@2019-09-01'), False),
+            (ttds, TTextInst('AAA@2019-10-01'), True),
+            (tts, TTextInst('AAA@2019-09-01'), False),
+            (tts, TTextInst('AAA@2019-10-01'), True),
+            (ttss, TTextInst('AAA@2019-09-01'), False),
+            (ttss, TTextInst('AAA@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_before_after(self, temporal, argument, expected):
+        assert temporal.is_before(argument) == expected
+        assert argument.is_after(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-08-01'), False),
+            (tti, TTextInst('AAA@2019-10-01'), True),
+            (ttds, TTextInst('AAA@2019-08-01'), False),
+            (ttds, TTextInst('AAA@2019-10-01'), True),
+            (tts, TTextInst('AAA@2019-08-01'), False),
+            (tts, TTextInst('AAA@2019-10-01'), True),
+            (ttss, TTextInst('AAA@2019-08-01'), False),
+            (ttss, TTextInst('AAA@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_before(self, temporal, argument, expected):
+        assert temporal.is_over_or_before(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tti, TTextInst('AAA@2019-10-01'), False),
+            (tti, TTextInst('AAA@2019-09-01'), True),
+            (ttds, TTextInst('AAA@2019-10-01'), False),
+            (ttds, TTextInst('AAA@2019-09-01'), True),
+            (tts, TTextInst('AAA@2019-10-01'), False),
+            (tts, TTextInst('AAA@2019-09-01'), True),
+            (ttss, TTextInst('AAA@2019-10-01'), False),
+            (ttss, TTextInst('AAA@2019-09-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_after(self, temporal, argument, expected):
+        assert temporal.is_over_or_after(argument) == expected
+
+
 class TestTTextComparisons(TestTText):
     tt = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     other = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')

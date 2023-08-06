@@ -221,6 +221,18 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return temporal_as_hexwkb(self._inner, 4)[0]
 
     # ------------------------- Accessors -------------------------------------
+    def bounding_box(self) -> TBox:
+        """
+        Returns the bounding box of `self`.
+
+        Returns:
+            The bounding box of `self`.
+
+        MEOS Functions:
+            temporal_to_period
+        """
+        return Period(_inner=temporal_to_period(self._inner))
+
     def interpolation(self) -> TInterpolation:
         """
         Returns the interpolation of `self`
@@ -1079,6 +1091,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_time_split
         """
+        if self.end_timestamp() == self.start_timestamp():
+            return [self]
         st = temporal_start_timestamp(self._inner)
         dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
         tiles, new_count = temporal_time_split(self._inner, dt, st)

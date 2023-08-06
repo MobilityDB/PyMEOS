@@ -3,7 +3,7 @@
  
 
 - [x] `extern void meos_initialize(const char *tz_str);`
-- [x] `extern void meos_finish(void);`
+- [x] `extern void meos_finalize(void);`
 
 ## Functions for input/output PostgreSQL time types
  
