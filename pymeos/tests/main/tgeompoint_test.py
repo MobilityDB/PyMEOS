@@ -23,6 +23,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
     tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
     tpi3d = TGeomPointInst('Point(1 1 1)@2019-09-01')
     tpds3d = TGeomPointSeq('{Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02}')
     tps3d = TGeomPointSeq('[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02]')
@@ -1422,6 +1423,32 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         assert temporal.at(restrictor) == expected
 
     @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
+            (tpds, TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
+            (tps, TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
+            (tpss, TGeomPointSeqSet('{[Point(1 1)@2019-09-01],[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_min(self, temporal, expected):
+        assert temporal.at_min() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
+            (tpds, TGeomPointSeqSet('{[Point(2 2)@2019-09-02]}')),
+            (tps, TGeomPointSeqSet('{[Point(2 2)@2019-09-02]}')),
+            (tpss, TGeomPointSeqSet('{[Point(2 2)@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_max(self, temporal, expected):
+        assert temporal.at_max() == expected
+
+    @pytest.mark.parametrize(
         'temporal, restrictor, expected',
         [
             (tpi, timestamp, None),
@@ -1466,6 +1493,39 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         assert temporal.minus(restrictor) == expected
 
     @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, TGeomPointSeqSet('{[Point(2 2)@2019-09-02]}')),
+            (tps, TGeomPointSeqSet('{(Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]}')),
+            (tpss, TGeomPointSeqSet('{(Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_minus_min(self, temporal, expected):
+        if expected is None:
+            assert temporal.minus_min() is None
+        else:
+            assert temporal.minus_min() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
+            (tps, TGeomPointSeqSet('{[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02)}')),
+            (tpss, TGeomPointSeqSet('{[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02),'
+                '[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_minus_max(self, temporal, expected):
+        if expected is None:
+            assert temporal.minus_max() is None
+        else:
+            assert temporal.minus_max() == expected
+
+    @pytest.mark.parametrize(
         'temporal, restrictor',
         [
             (tpi, timestamp),
@@ -1507,6 +1567,246 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
     )
     def test_at_minus(self, temporal, restrictor):
         assert TGeomPoint.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tpi, tpds, tps, tpss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_at_minus_min_max(self, temporal):
+        assert TGeomPoint.merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TGeomPoint.merge(temporal.at_max(), temporal.minus_max()) == temporal
+
+
+class TestTGeomPointTopologicalFunctions(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpi, TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-03'), False),
+            (tpds, TGeomPointSeq('{Point(1 1)@2019-09-01}'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-03'), False),
+            (tps, TGeomPointSeq('{Point(1 1)@2019-09-01}'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-08'), False),
+            (tpss, TGeomPointSeq('{Point(1 1)@2019-09-01}'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_adjacent(self, temporal, argument, expected):
+        assert temporal.is_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpi, TGeomPointSeq('(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-03'), False),
+            (tpds, TGeomPointSeq('(Point(1 1)@2019-09-02, Point(2 2)@2019-09-03]'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-03'), False),
+            (tps, TGeomPointSeq('(Point(1 1)@2019-09-02, Point(2 2)@2019-09-03]'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-08'), False),
+            (tpss, TGeomPointSeq('(Point(1 1)@2019-09-05, Point(2 2)@2019-09-06]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_adjacent(self, temporal, argument, expected):
+        assert temporal.is_temporally_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpi, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpds, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-05]'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpss, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_contained_in_contains(self, temporal, argument, expected):
+        assert temporal.is_contained_in(argument) == expected
+        assert argument.contains(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpi, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpds, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-05]'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpss, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_contained_in_contains(self, temporal, argument, expected):
+        assert temporal.is_temporally_contained_in(argument) == expected
+        assert argument.temporally_contains(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-02'), False),
+            (tpi, TGeomPointSeq('[Point(1 1)@2019-09-01]'), True),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-02'), False),
+            (tpds, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-02'), False),
+            (tps, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]'), True),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-02'), False),
+            (tpss, TGeomPointSeq('[Point(1 1)@2019-09-01,Point(2 2)@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_overlaps_is_same(self, temporal, argument, expected):
+        assert temporal.overlaps(argument) == expected
+        assert temporal.is_same(argument) == expected
+
+
+class TestTGeomPointPositionFunctions(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    tpi3d = TGeomPointInst('Point(1 1 1)@2019-09-01')
+    tpds3d = TGeomPointSeq('{Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02}')
+    tps3d = TGeomPointSeq('[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02]')
+    tpss3d = TGeomPointSeqSet('{[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02],'
+      '[Point(1 1 1)@2019-09-03, Point(1 1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01'), False),
+            (tpi, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-01'), False),
+            (tpds, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-01'), False),
+            (tps, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-01'), False),
+            (tpss, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_before_after(self, temporal, argument, expected):
+        assert temporal.is_before(argument) == expected
+        assert argument.is_after(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-08-01'), False),
+            (tpi, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-08-01'), False),
+            (tpds, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-08-01'), False),
+            (tps, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-08-01'), False),
+            (tpss, TGeomPointInst('Point(1 1)@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_before(self, temporal, argument, expected):
+        assert temporal.is_over_or_before(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(1 1)@2019-10-01'), False),
+            (tpi, TGeomPointInst('Point(1 1)@2019-09-01'), True),
+            (tpds, TGeomPointInst('Point(1 1)@2019-10-01'), False),
+            (tpds, TGeomPointInst('Point(1 1)@2019-09-01'), True),
+            (tps, TGeomPointInst('Point(1 1)@2019-10-01'), False),
+            (tps, TGeomPointInst('Point(1 1)@2019-09-01'), True),
+            (tpss, TGeomPointInst('Point(1 1)@2019-10-01'), False),
+            (tpss, TGeomPointInst('Point(1 1)@2019-09-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_after(self, temporal, argument, expected):
+        assert temporal.is_over_or_after(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tpi3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpds3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tpds3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tps3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tps3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpss3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tpss3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_left_rigth_below_above_front_behind(self, temporal, argument, expected):
+        assert temporal.is_left(argument) == expected
+        assert argument.is_right(temporal) == expected
+        assert temporal.is_below(argument) == expected
+        assert argument.is_above(temporal) == expected
+        assert temporal.is_front(argument) == expected
+        assert argument.is_behind(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi3d, TGeomPointInst('Point(0 0 0)@2019-09-01'), False),
+            (tpi3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpds3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tpds3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tps3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tps3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpss3d, TGeomPointInst('Point(1 1 1)@2019-09-01'), False),
+            (tpss3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_left_below_front(self, temporal, argument, expected):
+        assert temporal.is_over_or_left(argument) == expected
+        assert temporal.is_over_or_below(argument) == expected
+        assert temporal.is_over_or_front(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi3d, TGeomPointInst('Point(0 0 0)@2019-09-01'), False),
+            (tpi3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpds3d, TGeomPointInst('Point(0 0 0)@2019-09-01'), False),
+            (tpds3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tps3d, TGeomPointInst('Point(0 0 0)@2019-09-01'), False),
+            (tps3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+            (tpss3d, TGeomPointInst('Point(0 0 0)@2019-09-01'), False),
+            (tpss3d, TGeomPointInst('Point(3 3 3)@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_rigth_above_behind(self, temporal, argument, expected):
+        assert argument.is_over_or_right(temporal) == expected
+        assert argument.is_over_or_above(temporal) == expected
+        assert argument.is_over_or_behind(temporal) == expected
 
 
 class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):

@@ -453,12 +453,12 @@ class TestTBoxTopologicalFunctions(TestTBox):
     @pytest.mark.parametrize(
         'tbox, argument, expected',
         [
-            (tbx, TBox('TBOX X([1,3])'), True),
             (tbx, TBox('TBOX X([2,3])'), False),
-            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
+            (tbx, TBox('TBOX X([1,3])'), True),
             (tbt, TBox('TBOX T([2019-09-02,2019-09-03])'), False),
-            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
             (tbxt, TBox('TBOX XT([2,3],[2019-09-02,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
         ],
         ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
              'TBox XT False', 'TBox XT True']
@@ -470,12 +470,12 @@ class TestTBoxTopologicalFunctions(TestTBox):
     @pytest.mark.parametrize(
         'tbox, argument, expected',
         [
-            (tbx, TBox('TBOX X([1,3])'), True),
             (tbx, TBox('TBOX X([3,3])'), False),
-            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
+            (tbx, TBox('TBOX X([1,3])'), True),
             (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), False),
-            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-03])'), True),
             (tbxt, TBox('TBOX XT([3,3],[2019-09-02,2019-09-03])'), False),
+            (tbxt, TBox('TBOX XT([1,3],[2019-09-01,2019-09-03])'), True),
         ],
         ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
              'TBox XT False', 'TBox XT True']
@@ -486,12 +486,12 @@ class TestTBoxTopologicalFunctions(TestTBox):
     @pytest.mark.parametrize(
         'tbox, argument, expected',
         [
-            (tbx, TBox('TBOX X([1,2])'), True),
             (tbx, TBox('TBOX X([3,3])'), False),
-            (tbt, TBox('TBOX T([2019-09-01,2019-09-02])'), True),
+            (tbx, TBox('TBOX X([1,2])'), True),
             (tbt, TBox('TBOX T([2019-09-03,2019-09-03])'), False),
-            (tbxt, TBox('TBOX X([1,2])'), True),
+            (tbt, TBox('TBOX T([2019-09-01,2019-09-02])'), True),
             (tbxt, TBox('TBOX X([3,3])'), False),
+            (tbxt, TBox('TBOX X([1,2])'), True),
         ],
         ids=['TBox X False', 'TBox X True', 'TBox T False', 'TBox T True',
              'TBox XT False', 'TBox XT True']

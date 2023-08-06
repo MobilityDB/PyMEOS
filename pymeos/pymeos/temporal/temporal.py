@@ -791,7 +791,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         See Also:
             :meth:`Period.is_adjacent`
         """
-        return self.period().is_adjacent(other)
+        return self.bounding_box().is_adjacent(other)
 
     def is_temporally_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
@@ -822,7 +822,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         See Also:
             :meth:`Period.is_contained_in`
         """
-        return self.period().is_contained_in(container)
+        return self.bounding_box().is_contained_in(container)
 
     def is_temporally_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
         """
@@ -853,7 +853,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         See Also:
             :meth:`Period.contains`
         """
-        return self.period().contains(content)
+        return self.bounding_box().contains(content)
 
     def __contains__(self, item):
         """
@@ -899,7 +899,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         See Also:
             :meth:`Period.overlaps`
         """
-        return self.period().overlaps(other)
+        return self.bounding_box().overlaps(other)
 
     def temporally_overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
         """
@@ -930,24 +930,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         See Also:
             :meth:`Period.is_same`
         """
-        return self.period().is_same(other)
+        return self.bounding_box().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
-        """
-        Returns whether `self` is after `other`.
-
-        Args:
-            other: A time or temporal object to compare `self` to.
-
-        Returns:
-            True if `self` is after `other`, False otherwise.
-
-        See Also:
-            :meth:`Period.is_after`
-        """
-        return self.period().is_after(other)
-
     def is_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is before `other`.
@@ -963,21 +948,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.period().is_before(other)
 
-    def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
-        """
-        Returns whether `self` is after `other` allowing overlap. That is, `self` doesn't extend before `other`.
-
-        Args:
-            other: A time or temporal object to compare `self` to.
-
-        Returns:
-            True if `self` is after `other` allowing overlap, False otherwise.
-
-        See Also:
-            :meth:`Period.is_over_or_after`
-        """
-        return self.period().is_over_or_after(other)
-
     def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether `self` is before `other` allowing overlap. That is, `self` doesn't extend after `other`.
@@ -992,6 +962,36 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             :meth:`Period.is_over_or_before`
         """
         return self.period().is_over_or_before(other)
+
+    def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether `self` is after `other`.
+
+        Args:
+            other: A time or temporal object to compare `self` to.
+
+        Returns:
+            True if `self` is after `other`, False otherwise.
+
+        See Also:
+            :meth:`Period.is_after`
+        """
+        return self.period().is_after(other)
+
+    def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
+        """
+        Returns whether `self` is after `other` allowing overlap. That is, `self` doesn't extend before `other`.
+
+        Args:
+            other: A time or temporal object to compare `self` to.
+
+        Returns:
+            True if `self` is after `other` allowing overlap, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_after`
+        """
+        return self.period().is_over_or_after(other)
 
     # ------------------------- Similarity Operations -------------------------
     def frechet_distance(self, other: Temporal) -> float:

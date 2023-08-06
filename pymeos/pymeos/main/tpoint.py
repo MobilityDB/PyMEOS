@@ -486,6 +486,187 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
+    # ------------------------- Position Operations ---------------------------
+    def is_left(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is left to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if left, False otherwise.
+
+        See Also:
+            :meth:`Period.is_before`
+        """
+        return self.bounding_box().is_left(other)
+
+    def is_over_or_left(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or left to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or left, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_left(other)
+
+    def is_right(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is right to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if right, False otherwise.
+
+        See Also:
+            :meth:`Period.is_after`
+        """
+        return self.bounding_box().is_right(other)
+
+    def is_over_or_right(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or right to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or right, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_right(other)
+
+    def is_below(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is below to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if below, False otherwise.
+
+        See Also:
+            :meth:`Period.is_before`
+        """
+        return self.bounding_box().is_below(other)
+
+    def is_over_or_below(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or below to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or below, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_below(other)
+
+    def is_above(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is above to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if above, False otherwise.
+
+        See Also:
+            :meth:`Period.is_after`
+        """
+        return self.bounding_box().is_above(other)
+
+    def is_over_or_above(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or above to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or above, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_above(other)
+
+    def is_front(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is front to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if front, False otherwise.
+
+        See Also:
+            :meth:`Period.is_before`
+        """
+        return self.bounding_box().is_front(other)
+
+    def is_over_or_front(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or front to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or front, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_front(other)
+
+    def is_behind(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is behind to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if behind, False otherwise.
+
+        See Also:
+            :meth:`Period.is_after`
+        """
+        return self.bounding_box().is_behind(other)
+
+    def is_over_or_behind(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or behind to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or behind, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_behind(other)
+
     # ------------------------- Ever Spatial Relationships --------------------
     def is_ever_contained_in(self, container: Union[pg.Geometry, shpb.BaseGeometry, STBox]) -> bool:
         """
