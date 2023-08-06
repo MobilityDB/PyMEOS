@@ -900,91 +900,6 @@ class TestTTextModifications(TestTText):
         assert temporal.append_sequence(sequence) == expected
 
 
-class TestTTextEverAlwaysOperations(TestTText):
-    tti = TTextInst('AAA@2019-09-01')
-    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
-    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
-    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, True),
-            (ttds, False),
-            (tts, False),
-            (ttss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_AAA(self, temporal, expected):
-        assert temporal.always_equal('AAA') == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, False),
-            (ttds, False),
-            (tts, False),
-            (ttss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_BBB(self, temporal, expected):
-        assert temporal.always_equal('BBB') == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, True),
-            (ttds, True),
-            (tts, True),
-            (ttss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_AAA(self, temporal, expected):
-        assert temporal.ever_equal('AAA') == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, False),
-            (ttds, True),
-            (tts, True),
-            (ttss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_BBB(self, temporal, expected):
-        assert temporal.ever_equal('BBB') == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, False),
-            (ttds, False),
-            (tts, False),
-            (ttss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_AAA(self, temporal, expected):
-        assert temporal.never_equal('AAA') == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, True),
-            (ttds, False),
-            (tts, False),
-            (ttss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_BBB(self, temporal, expected):
-        assert temporal.never_equal('BBB') == expected
-
-
 class TestTTextTextOperations(TestTText):
     tti = TTextInst('AAA@2019-09-01')
     ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
@@ -1053,69 +968,6 @@ class TestTTextTextOperations(TestTText):
     )
     def test_temporal_upper(self, temporal):
         assert temporal.upper() == temporal
-
-
-class TestTTextTemporalComparisons(TestTText):
-    tti = TTextInst('AAA@2019-09-01')
-    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
-    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
-    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
-    argument = TTextSeq('[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, TBoolInst('False@2019-09-01')),
-            (ttds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tts, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
-            (ttss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_equal(self.argument) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, TBoolInst('True@2019-09-01')),
-            (ttds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tts, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
-            (ttss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_int(self, temporal, expected):
-        assert temporal.temporal_equal('AAA') == expected
-
-        assert temporal.temporal_equal('BBB') == ~expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, TBoolInst('True@2019-09-01')),
-            (ttds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
-            (tts, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
-            (ttss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_not_equal(self.argument) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, TBoolInst('False@2019-09-01')),
-            (ttds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            (tts, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            (ttss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_int(self, temporal, expected):
-        assert temporal.temporal_not_equal('AAA') == expected
-        assert temporal.temporal_not_equal('BBB') == ~expected
 
 
 class TestTTextRestrictors(TestTText):
@@ -1345,7 +1197,7 @@ class TestTTextRestrictors(TestTText):
         assert TText.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
-class TestTTextComparisonFunctions(TestTText):
+class TestTTextComparisons(TestTText):
     tt = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
     other = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
 
@@ -1366,4 +1218,153 @@ class TestTTextComparisonFunctions(TestTText):
 
     def test_ge(self):
         _ = self.tt >= self.other
+
+
+class TestTTextEverAlwaysComparisons(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, True),
+            (ttds, False),
+            (tts, False),
+            (ttss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_always_AAA(self, temporal, expected):
+        assert temporal.always_equal('AAA') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, False),
+            (ttds, False),
+            (tts, False),
+            (ttss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_always_BBB(self, temporal, expected):
+        assert temporal.always_equal('BBB') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, True),
+            (ttds, True),
+            (tts, True),
+            (ttss, True)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_ever_AAA(self, temporal, expected):
+        assert temporal.ever_equal('AAA') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, False),
+            (ttds, True),
+            (tts, True),
+            (ttss, True)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_ever_BBB(self, temporal, expected):
+        assert temporal.ever_equal('BBB') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, False),
+            (ttds, False),
+            (tts, False),
+            (ttss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_never_AAA(self, temporal, expected):
+        assert temporal.never_equal('AAA') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, True),
+            (ttds, False),
+            (tts, False),
+            (ttss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_never_BBB(self, temporal, expected):
+        assert temporal.never_equal('BBB') == expected
+
+
+class TestTTextTemporalComparisons(TestTText):
+    tti = TTextInst('AAA@2019-09-01')
+    ttds = TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')
+    tts = TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+    ttss = TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')
+    argument = TTextSeq('[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, TBoolInst('False@2019-09-01')),
+            (ttds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tts, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
+            (ttss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_equal(self.argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, TBoolInst('True@2019-09-01')),
+            (ttds, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tts, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+            (ttss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_int(self, temporal, expected):
+        assert temporal.temporal_equal('AAA') == expected
+
+        assert temporal.temporal_equal('BBB') == ~expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, TBoolInst('True@2019-09-01')),
+            (ttds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tts, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
+            (ttss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_not_equal(self.argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, TBoolInst('False@2019-09-01')),
+            (ttds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tts, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
+            (ttss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_int(self, temporal, expected):
+        assert temporal.temporal_not_equal('AAA') == expected
+        assert temporal.temporal_not_equal('BBB') == ~expected
+
 

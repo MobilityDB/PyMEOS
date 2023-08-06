@@ -1760,7 +1760,7 @@ class TestTGeomPointPositionFunctions(TestTGeomPoint):
         ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
              'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
     )
-    def test_is_left_rigth_below_above_front_behind(self, temporal, argument, expected):
+    def test_is_left_right_below_above_front_behind(self, temporal, argument, expected):
         assert temporal.is_left(argument) == expected
         assert argument.is_right(temporal) == expected
         assert temporal.is_below(argument) == expected
@@ -1803,101 +1803,10 @@ class TestTGeomPointPositionFunctions(TestTGeomPoint):
         ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
              'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
     )
-    def test_is_over_or_rigth_above_behind(self, temporal, argument, expected):
+    def test_is_over_or_right_above_behind(self, temporal, argument, expected):
         assert argument.is_over_or_right(temporal) == expected
         assert argument.is_over_or_above(temporal) == expected
         assert argument.is_over_or_behind(temporal) == expected
-
-
-class TestTGeomPointEverAlwaysOperations(TestTGeomPoint):
-    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
-    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
-    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tpi, Point(1,1), True),
-            (tpi, Point(2,2), False),
-            (tpds, Point(1,1), False),
-            (tpds, Point(2,2), False),
-            (tps, Point(1,1), False),
-            (tps, Point(2,2), False),
-            (tpss, Point(1,1), False),
-            (tpss, Point(2,2), False),
-        ],
-        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
-             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
-    )
-    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
-        assert temporal.always_equal(argument) == expected
-        assert temporal.never_not_equal(argument) == expected
-        assert temporal.ever_not_equal(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tpi, Point(1,1), True),
-            (tpi, Point(2,2), False),
-            (tpds, Point(1,1), True),
-            (tpds, Point(2,2), True),
-            (tps, Point(1,1), True),
-            (tps, Point(2,2), True),
-            (tpss, Point(1,1), True),
-            (tpss, Point(2,2), True),
-        ],
-        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
-             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
-    )
-    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
-        assert temporal.ever_equal(argument) == expected
-        assert temporal.always_not_equal(argument) == not_(expected)
-        assert temporal.never_equal(argument) == not_(expected)
-
-
-class TestTGeomPointTemporalComparisons(TestTGeomPoint):
-    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
-    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
-    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
-    argument = TGeomPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, TBoolInst('False@2019-09-01')),
-            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
-                 '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
-            (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
-                 '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}')),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_equal(self.argument) == expected
-        assert temporal.temporal_not_equal(self.argument) == expected.temporal_not()
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tpi, Point(1,1), TBoolInst('True@2019-09-01')),
-            (tpds, Point(1,1), TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tps, Point(1,1), TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
-            (tpss, Point(1,1), TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
-
-            (tpi, Point(2,2), TBoolInst('False@2019-09-01')),
-            (tpds, Point(2,2), TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            (tps, Point(2,2), TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            (tpss, Point(2,2), TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}')),
-        ],
-        ids=['Instant Point(1,1)', 'Discrete Sequence Point(1,1)', 'Sequence Point(1,1)', 'SequenceSet Point(1,1)',
-             'Instant Point(2,2)', 'Discrete Sequence Point(2,2)', 'Sequence Point(2,2)', 'SequenceSet Point(2,2)']
-    )
-    def test_temporal_equal_point(self, temporal, argument, expected):
-        assert temporal.temporal_equal(argument) == expected
-        assert temporal.temporal_not_equal(argument) == expected.temporal_not()
 
 
 class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
@@ -2087,7 +1996,7 @@ class TestTGeomPointDistanceOperations(TestTGeomPoint):
         assert temporal.shortest_line(argument) == LineString([(1,1), (1,1)])
 
 
-class TestTGeomPointComparisonFunctions(TestTGeomPoint):
+class TestTGeomPointComparisons(TestTGeomPoint):
     tp = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     other = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
@@ -2108,3 +2017,96 @@ class TestTGeomPointComparisonFunctions(TestTGeomPoint):
 
     def test_ge(self):
         _ = self.tp >= self.other
+
+
+class TestTGeomPointEverAlwaysComparisons(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, Point(1,1), True),
+            (tpi, Point(2,2), False),
+            (tpds, Point(1,1), False),
+            (tpds, Point(2,2), False),
+            (tps, Point(1,1), False),
+            (tps, Point(2,2), False),
+            (tpss, Point(1,1), False),
+            (tpss, Point(2,2), False),
+        ],
+        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
+             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
+    )
+    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
+        assert temporal.always_equal(argument) == expected
+        assert temporal.never_not_equal(argument) == expected
+        assert temporal.ever_not_equal(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, Point(1,1), True),
+            (tpi, Point(2,2), False),
+            (tpds, Point(1,1), True),
+            (tpds, Point(2,2), True),
+            (tps, Point(1,1), True),
+            (tps, Point(2,2), True),
+            (tpss, Point(1,1), True),
+            (tpss, Point(2,2), True),
+        ],
+        ids=['Instant Point(1,1)', 'Instant Point(2,2)', 'Discrete Sequence Point(1,1)', 'Discrete Sequence Point(2,2)',
+             'Sequence Point(1,1)', 'Sequence Point(2,2)', 'SequenceSet Point(1,1)', 'SequenceSet Point(2,2)']
+    )
+    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
+        assert temporal.ever_equal(argument) == expected
+        assert temporal.always_not_equal(argument) == not_(expected)
+        assert temporal.never_equal(argument) == not_(expected)
+
+
+class TestTGeomPointTemporalComparisons(TestTGeomPoint):
+    tpi = TGeomPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+    argument = TGeomPointSeq('[Point(2 2)@2019-09-01, Point(1 1)@2019-09-02, Point(1 1)@2019-09-03]')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TBoolInst('False@2019-09-01')),
+            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tps, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
+                 '(False@2019-09-01 12:00:00+00, False@2019-09-02]}')),
+            (tpss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-01 12:00:00+00],'
+                 '(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_equal(self.argument) == expected
+        assert temporal.temporal_not_equal(self.argument) == expected.temporal_not()
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, Point(1,1), TBoolInst('True@2019-09-01')),
+            (tpds, Point(1,1), TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tps, Point(1,1), TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}')),
+            (tpss, Point(1,1), TBoolSeqSet('{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')),
+
+            (tpi, Point(2,2), TBoolInst('False@2019-09-01')),
+            (tpds, Point(2,2), TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tps, Point(2,2), TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
+            (tpss, Point(2,2), TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}')),
+        ],
+        ids=['Instant Point(1,1)', 'Discrete Sequence Point(1,1)', 'Sequence Point(1,1)', 'SequenceSet Point(1,1)',
+             'Instant Point(2,2)', 'Discrete Sequence Point(2,2)', 'Sequence Point(2,2)', 'SequenceSet Point(2,2)']
+    )
+    def test_temporal_equal_point(self, temporal, argument, expected):
+        assert temporal.temporal_equal(argument) == expected
+        assert temporal.temporal_not_equal(argument) == expected.temporal_not()
+
+

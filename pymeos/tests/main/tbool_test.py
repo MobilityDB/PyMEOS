@@ -905,212 +905,6 @@ class TestTBoolModifications(TestTBool):
         assert temporal.append_sequence(sequence) == expected
 
 
-class TestTBoolEverAlwaysOperations(TestTBool):
-    tbi = TBoolInst('True@2019-09-01')
-    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
-    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
-    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, True),
-            (tbds, False),
-            (tbs, False),
-            (tbss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_true(self, temporal, expected):
-        assert temporal.always_eq(True) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, False),
-            (tbds, False),
-            (tbs, False),
-            (tbss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_always_false(self, temporal, expected):
-        assert temporal.always_eq(False) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, True),
-            (tbds, True),
-            (tbs, True),
-            (tbss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_true(self, temporal, expected):
-        assert temporal.ever_eq(True) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, False),
-            (tbds, True),
-            (tbs, True),
-            (tbss, True)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_ever_false(self, temporal, expected):
-        assert temporal.ever_eq(False) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, False),
-            (tbds, False),
-            (tbs, False),
-            (tbss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_true(self, temporal, expected):
-        assert temporal.never_eq(True) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, True),
-            (tbds, False),
-            (tbs, False),
-            (tbss, False)
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_never_false(self, temporal, expected):
-        assert temporal.never_eq(False) == expected
-
-
-class TestTBoolTemporalComparisons(TestTBool):
-    tbi = TBoolInst('True@2019-09-01')
-    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
-    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
-    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
-    compared = TBoolSeq('[False@2019-09-01, True@2019-09-02, True@2019-09-03]')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, TBoolInst('False@2019-09-01')),
-            (tbds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            (tbs, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            (tbss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not(self, temporal, expected):
-        assert temporal.temporal_not() == expected
-        assert -temporal == expected
-        assert ~temporal == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, TBoolInst('False@2019-09-01')),
-            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
-            (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_and_temporal(self, temporal, expected):
-        assert temporal.temporal_and(self.compared) == expected
-        assert temporal & self.compared == expected
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tbi, tbds, tbs, tbss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_and_bool(self, temporal):
-        assert temporal.temporal_and(True) == temporal
-        assert (temporal & True) == temporal
-
-        assert temporal.temporal_and(False) == TBool.from_base_temporal(False, temporal)
-        assert (temporal & False) == TBool.from_base_temporal(False, temporal)
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, TBoolInst('True@2019-09-01')),
-            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
-            (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
-            (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[True@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_or_temporal(self, temporal, expected):
-        assert temporal.temporal_or(self.compared) == expected
-        assert temporal | self.compared == expected
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tbi, tbds, tbs, tbss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_or_bool(self, temporal):
-        assert temporal.temporal_or(True) == TBool.from_base_temporal(True, temporal)
-        assert (temporal | True) == TBool.from_base_temporal(True, temporal)
-
-        assert temporal.temporal_or(False) == temporal
-        assert (temporal | False) == temporal
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, TBoolInst('False@2019-09-01')),
-            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
-            (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_equal(self.compared) == expected
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tbi, tbds, tbs, tbss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_bool(self, temporal):
-        assert temporal.temporal_equal(True) == temporal
-
-        assert temporal.temporal_equal(False) == ~temporal
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, TBoolInst('True@2019-09-01')),
-            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
-            (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
-            (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_not_equal(self.compared) == expected
-
-    @pytest.mark.parametrize(
-        'temporal',
-        [tbi, tbds, tbs, tbss],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_bool(self, temporal):
-        assert temporal.temporal_not_equal(True) == ~temporal
-
-        assert temporal.temporal_not_equal(False) == temporal
-
-
 class TestTBoolManipulationFunctions(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
@@ -1402,7 +1196,8 @@ class TestTBoolRestrictors(TestTBool):
         assert TBool.merge(temporal.at_min(), temporal.minus_min()) == temporal
         assert TBool.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
-class TestTBoolComparisonFunctions(TestTBool):
+
+class TestTBoolComparisons(TestTBool):
     tb = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
     other = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
 
@@ -1423,3 +1218,211 @@ class TestTBoolComparisonFunctions(TestTBool):
 
     def test_ge(self):
         _ = self.tb >= self.other
+
+
+class TestTBoolEverAlwaysComparisons(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, True),
+            (tbds, False),
+            (tbs, False),
+            (tbss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_always_true(self, temporal, expected):
+        assert temporal.always_eq(True) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, False),
+            (tbds, False),
+            (tbs, False),
+            (tbss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_always_false(self, temporal, expected):
+        assert temporal.always_eq(False) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, True),
+            (tbds, True),
+            (tbs, True),
+            (tbss, True)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_ever_true(self, temporal, expected):
+        assert temporal.ever_eq(True) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, False),
+            (tbds, True),
+            (tbs, True),
+            (tbss, True)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_ever_false(self, temporal, expected):
+        assert temporal.ever_eq(False) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, False),
+            (tbds, False),
+            (tbs, False),
+            (tbss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_never_true(self, temporal, expected):
+        assert temporal.never_eq(True) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, True),
+            (tbds, False),
+            (tbs, False),
+            (tbss, False)
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_never_false(self, temporal, expected):
+        assert temporal.never_eq(False) == expected
+
+
+class TestTBoolTemporalComparisons(TestTBool):
+    tbi = TBoolInst('True@2019-09-01')
+    tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
+    tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+    tbss = TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}')
+    compared = TBoolSeq('[False@2019-09-01, True@2019-09-02, True@2019-09-03]')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, TBoolInst('False@2019-09-01')),
+            (tbds, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tbs, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
+            (tbss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not(self, temporal, expected):
+        assert temporal.temporal_not() == expected
+        assert -temporal == expected
+        assert ~temporal == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, TBoolInst('False@2019-09-01')),
+            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
+            (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_and_temporal(self, temporal, expected):
+        assert temporal.temporal_and(self.compared) == expected
+        assert temporal & self.compared == expected
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_and_bool(self, temporal):
+        assert temporal.temporal_and(True) == temporal
+        assert (temporal & True) == temporal
+
+        assert temporal.temporal_and(False) == TBool.from_base_temporal(False, temporal)
+        assert (temporal & False) == TBool.from_base_temporal(False, temporal)
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, TBoolInst('True@2019-09-01')),
+            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
+            (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_or_temporal(self, temporal, expected):
+        assert temporal.temporal_or(self.compared) == expected
+        assert temporal | self.compared == expected
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_or_bool(self, temporal):
+        assert temporal.temporal_or(True) == TBool.from_base_temporal(True, temporal)
+        assert (temporal | True) == TBool.from_base_temporal(True, temporal)
+
+        assert temporal.temporal_or(False) == temporal
+        assert (temporal | False) == temporal
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, TBoolInst('False@2019-09-01')),
+            (tbds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tbs, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
+            (tbss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_equal(self.compared) == expected
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_bool(self, temporal):
+        assert temporal.temporal_equal(True) == temporal
+
+        assert temporal.temporal_equal(False) == ~temporal
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, TBoolInst('True@2019-09-01')),
+            (tbds, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tbs, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
+            (tbss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_not_equal(self.compared) == expected
+
+    @pytest.mark.parametrize(
+        'temporal',
+        [tbi, tbds, tbs, tbss],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_bool(self, temporal):
+        assert temporal.temporal_not_equal(True) == ~temporal
+
+        assert temporal.temporal_not_equal(False) == temporal
+
+

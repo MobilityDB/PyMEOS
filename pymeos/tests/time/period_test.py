@@ -339,7 +339,7 @@ class TestPeriodSetFunctions(TestPeriod):
         self.period - other
 
 
-class TestPeriodComparisonFunctions(TestPeriod):
+class TestPeriodComparisons(TestPeriod):
     period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
     other = Period('(2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0)')
 

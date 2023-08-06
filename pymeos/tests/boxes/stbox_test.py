@@ -510,6 +510,7 @@ class TestSTBoxAccessors(TestSTBox):
     def test_set_srid(self, stbox):
         assert stbox.set_srid(5676).srid() == 5676
 
+
 class TestSTBoxTransformations(TestSTBox):
     stbx = STBox('STBOX X((1,1),(2,2))')
     stbz = STBox('STBOX Z((1,1,1),(2,2,2))')
@@ -919,7 +920,7 @@ class TestSTBoxDistanceFunctions(TestSTBox):
         assert stbox.nearest_approach_distance(argument) == expected
 
 
-class TestSTBoxComparisonFunctions(TestSTBox):
+class TestSTBoxComparisons(TestSTBox):
     stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
     other = STBox('STBOX XT(((3,3),(4,4)),[2019-09-01,2019-09-02])')
 

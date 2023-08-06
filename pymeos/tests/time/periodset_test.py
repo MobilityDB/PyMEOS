@@ -314,7 +314,7 @@ class TestPeriodSetSetFunctions(TestPeriodSet):
         self.periodset - other
 
 
-class TestPeriodComparisonFunctions(TestPeriodSet):
+class TestPeriodComparisons(TestPeriodSet):
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     other = PeriodSet(

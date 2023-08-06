@@ -960,133 +960,6 @@ class TestTIntModifications(TestTInt):
         assert temporal.append_sequence(sequence) == expected
 
 
-class TestTIntEverAlwaysOperations(TestTInt):
-    tii = TIntInst('1@2019-09-01')
-    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
-    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
-    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, True),
-            (tii, 2, False),
-            (tids, 1, False),
-            (tids, 2, False),
-            (tis, 1, False),
-            (tis, 2, False),
-            (tiss, 1, False),
-            (tiss, 2, False),
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
-        assert temporal.always_equal(argument) == expected
-        assert temporal.never_not_equal(argument) == expected
-        assert temporal.ever_not_equal(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, True),
-            (tii, 2, False),
-            (tids, 1, True),
-            (tids, 2, True),
-            (tis, 1, True),
-            (tis, 2, True),
-            (tiss, 1, True),
-            (tiss, 2, True)
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
-        assert temporal.ever_equal(argument) == expected
-        assert temporal.always_not_equal(argument) == not_(expected)
-        assert temporal.never_equal(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, False),
-            (tii, 2, True),
-            (tids, 1, False),
-            (tids, 2, False),
-            (tis, 1, False),
-            (tis, 2, False),
-            (tiss, 1, False),
-            (tiss, 2, False),
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_always_less_ever_greater_or_equal(self, temporal, argument, expected):
-        assert temporal.always_less(argument) == expected
-        # assert temporal.never_greater_or_equal(argument) == expected
-        assert temporal.ever_greater_or_equal(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, False),
-            (tii, 2, True),
-            (tids, 1, False),
-            (tids, 2, True),
-            (tis, 1, False),
-            (tis, 2, True),
-            (tiss, 1, False),
-            (tiss, 2, True),
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_ever_less_always_greater_or_equal(self, temporal, argument, expected):
-        assert temporal.ever_less(argument) == expected
-        assert temporal.always_greater_or_equal(argument) == not_(expected)
-        assert temporal.never_less(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, True),
-            (tii, 2, True),
-            (tids, 1, False),
-            (tids, 2, True),
-            (tis, 1, False),
-            (tis, 2, True),
-            (tiss, 1, False),
-            (tiss, 2, True),
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_always_less_or_equal_ever_greater(self, temporal, argument, expected):
-        assert temporal.always_less_or_equal(argument) == expected
-        assert temporal.never_greater(argument) == expected
-        assert temporal.ever_greater(argument) == not_(expected)
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tii, 1, True),
-            (tii, 2, True),
-            (tids, 1, True),
-            (tids, 2, True),
-            (tis, 1, True),
-            (tis, 2, True),
-            (tiss, 1, True),
-            (tiss, 2, True),
-        ],
-        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
-             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
-    )
-    def test_ever_less_or_equal_always_greater(self, temporal, argument, expected):
-        assert temporal.ever_less_or_equal(argument) == expected
-        assert temporal.always_greater(argument) == not_(expected)
-        assert temporal.never_less_or_equal(argument) == not_(expected)
-
-
 class TestTIntMathematicalOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
@@ -1294,70 +1167,6 @@ class TestTIntMathematicalOperations(TestTInt):
     )
     def test_delta_value(self, temporal, expected):
         assert temporal.delta_value() == expected
-
-
-class TestTIntTemporalComparisons(TestTInt):
-    tii = TIntInst('1@2019-09-01')
-    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
-    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
-    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
-    argument = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, TBoolInst('False@2019-09-01')),
-            (tids, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
-            (tis, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
-            (tiss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_equal(self.argument) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, TBoolInst('True@2019-09-01')),
-            (tids, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (tis, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
-            (tiss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_equal_int(self, temporal, expected):
-        assert temporal.temporal_equal(1) == expected
-
-        assert temporal.temporal_equal(2) == ~expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, TBoolInst('True@2019-09-01')),
-            (tids, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
-            (tis, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
-            (tiss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_temporal(self, temporal, expected):
-        assert temporal.temporal_not_equal(self.argument) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tii, TBoolInst('False@2019-09-01')),
-            (tids, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
-            (tis, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
-            (tiss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_temporal_not_equal_int(self, temporal, expected):
-        assert temporal.temporal_not_equal(1) == expected
-
-        assert temporal.temporal_not_equal(2) == ~expected
 
 
 class TestTIntRestrictors(TestTInt):
@@ -1578,7 +1387,225 @@ class TestTIntRestrictors(TestTInt):
         assert TInt.merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
-class TestTIntSplitOperaations(TestTInt):
+class TestTIntTopologicalFunctions(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02], [1@2019-09-03, 1@2019-09-05]}')
+
+    # Problem in MEOS: the definition of TBox for tint should have an intspan !
+    # @pytest.mark.parametrize(
+        # 'temporal, argument, expected',
+        # [
+            # (tii, TIntInst('1@2019-09-02'), False),
+            # (tii, TIntSeq('(1@2019-09-01, 2@2019-09-02]'), True),
+            # (tids, TIntInst('1@2019-09-03'), False),
+            # (tids, TIntInst('2@2019-09-01'), True),
+            # (tis, TIntInst('1@2019-09-03'), False),
+            # (tis, TIntSeq('(2@2019-09-01, 3@2019-09-02]'), True),
+            # (tiss, TIntInst('1@2019-09-08'), False),
+            # (tiss, TIntSeq('(2@2019-09-01, 3@2019-09-02]'), True),
+        # ],
+        # ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             # 'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    # )
+    # def test_is_adjacent(self, temporal, argument, expected):
+        # assert temporal.is_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-02'), False),
+            (tii, TIntSeq('(1@2019-09-01, 2@2019-09-02]'), True),
+            (tids, TIntInst('1@2019-09-03'), False),
+            (tids, TIntSeq('(1@2019-09-02, 2@2019-09-03]'), True),
+            (tis, TIntInst('1@2019-09-03'), False),
+            (tis, TIntSeq('(1@2019-09-02, 2@2019-09-03]'), True),
+            (tiss, TIntInst('1@2019-09-08'), False),
+            (tiss, TIntSeq('(1@2019-09-05, 2@2019-09-06]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_adjacent(self, temporal, argument, expected):
+        assert temporal.is_temporally_adjacent(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-02'), False),
+            (tii, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tids, TIntInst('1@2019-09-02'), False),
+            (tids, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tis, TIntInst('1@2019-09-02'), False),
+            (tis, TIntSeq('[1@2019-09-01,2@2019-09-05]'), True),
+            (tiss, TIntInst('1@2019-09-02'), False),
+            (tiss, TIntSeq('[1@2019-09-01,2@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_contained_in_contains(self, temporal, argument, expected):
+        assert temporal.is_contained_in(argument) == expected
+        assert argument.contains(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-02'), False),
+            (tii, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tids, TIntInst('1@2019-09-02'), False),
+            (tids, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tis, TIntInst('1@2019-09-02'), False),
+            (tis, TIntSeq('[1@2019-09-01,2@2019-09-05]'), True),
+            (tiss, TIntInst('1@2019-09-02'), False),
+            (tiss, TIntSeq('[1@2019-09-01,2@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_temporally_contained_in_contains(self, temporal, argument, expected):
+        assert temporal.is_temporally_contained_in(argument) == expected
+        assert argument.temporally_contains(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-02'), False),
+            (tii, TIntSeq('[1@2019-09-01]'), True),
+            (tids, TIntInst('3@2019-09-02'), False),
+            (tids, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tis, TIntInst('3@2019-09-02'), False),
+            (tis, TIntSeq('[1@2019-09-01,2@2019-09-02]'), True),
+            (tiss, TIntInst('3@2019-09-02'), False),
+            (tiss, TIntSeq('[1@2019-09-01,2@2019-09-05]'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_overlaps_is_same(self, temporal, argument, expected):
+        assert temporal.overlaps(argument) == expected
+        assert temporal.is_same(argument) == expected
+
+
+class TestTIntPositionFunctions(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02], [1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-01'), False),
+            (tii, TIntInst('1@2019-10-01'), True),
+            (tids, TIntInst('1@2019-09-01'), False),
+            (tids, TIntInst('1@2019-10-01'), True),
+            (tis, TIntInst('1@2019-09-01'), False),
+            (tis, TIntInst('1@2019-10-01'), True),
+            (tiss, TIntInst('1@2019-09-01'), False),
+            (tiss, TIntInst('1@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_before_after(self, temporal, argument, expected):
+        assert temporal.is_before(argument) == expected
+        assert argument.is_after(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-08-01'), False),
+            (tii, TIntInst('1@2019-10-01'), True),
+            (tids, TIntInst('1@2019-08-01'), False),
+            (tids, TIntInst('1@2019-10-01'), True),
+            (tis, TIntInst('1@2019-08-01'), False),
+            (tis, TIntInst('1@2019-10-01'), True),
+            (tiss, TIntInst('1@2019-08-01'), False),
+            (tiss, TIntInst('1@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_before(self, temporal, argument, expected):
+        assert temporal.is_over_or_before(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-10-01'), False),
+            (tii, TIntInst('1@2019-09-01'), True),
+            (tids, TIntInst('1@2019-10-01'), False),
+            (tids, TIntInst('1@2019-09-01'), True),
+            (tis, TIntInst('1@2019-10-01'), False),
+            (tis, TIntInst('1@2019-09-01'), True),
+            (tiss, TIntInst('1@2019-10-01'), False),
+            (tiss, TIntInst('1@2019-09-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_after(self, temporal, argument, expected):
+        assert temporal.is_over_or_after(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('1@2019-09-01'), False),
+            (tii, TIntInst('3@2019-10-01'), True),
+            (tids, TIntInst('1@2019-09-01'), False),
+            (tids, TIntInst('3@2019-10-01'), True),
+            (tis, TIntInst('1@2019-09-01'), False),
+            (tis, TIntInst('3@2019-10-01'), True),
+            (tiss, TIntInst('1@2019-09-01'), False),
+            (tiss, TIntInst('3@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_left_right(self, temporal, argument, expected):
+        assert temporal.is_left(argument) == expected
+        assert argument.is_right(temporal) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('0@2019-09-01'), False),
+            (tii, TIntInst('3@2019-10-01'), True),
+            (tids, TIntInst('1@2019-09-01'), False),
+            (tids, TIntInst('3@2019-10-01'), True),
+            (tis, TIntInst('1@2019-09-01'), False),
+            (tis, TIntInst('3@2019-10-01'), True),
+            (tiss, TIntInst('1@2019-09-01'), False),
+            (tiss, TIntInst('3@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_left(self, temporal, argument, expected):
+        assert temporal.is_over_or_left(argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, TIntInst('0@2019-09-01'), False),
+            (tii, TIntInst('3@2019-10-01'), True),
+            (tids, TIntInst('0@2019-09-01'), False),
+            (tids, TIntInst('3@2019-10-01'), True),
+            (tis, TIntInst('0@2019-09-01'), False),
+            (tis, TIntInst('3@2019-10-01'), True),
+            (tiss, TIntInst('0@2019-09-01'), False),
+            (tiss, TIntInst('3@2019-10-01'), True),
+        ],
+        ids=['Instant False', 'Instant True', 'Discrete Sequence False', 'Discrete Sequence True',
+             'Sequence False', 'Sequence True', 'Sequence Set False', 'Sequence Set True']
+    )
+    def test_is_over_or_right(self, temporal, argument, expected):
+        assert argument.is_over_or_right(temporal) == expected
+
+
+class TestTIntSplitOperations(TestTInt):
     tii = TIntInst('1@2019-09-01')
     tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
     tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
@@ -1612,7 +1639,7 @@ class TestTIntSplitOperaations(TestTInt):
         # assert temporal.time_split(timedelta(days=2)) == expected
 
 
-class TestTIntComparisonFunctions(TestTInt):
+class TestTIntComparisons(TestTInt):
     ti = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
     other = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
 
@@ -1633,3 +1660,196 @@ class TestTIntComparisonFunctions(TestTInt):
 
     def test_ge(self):
         _ = self.ti >= self.other
+
+
+class TestTIntEverAlwaysComparisons(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, True),
+            (tii, 2, False),
+            (tids, 1, False),
+            (tids, 2, False),
+            (tis, 1, False),
+            (tis, 2, False),
+            (tiss, 1, False),
+            (tiss, 2, False),
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_always_equal_ever_not_equal(self, temporal, argument, expected):
+        assert temporal.always_equal(argument) == expected
+        assert temporal.never_not_equal(argument) == expected
+        assert temporal.ever_not_equal(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, True),
+            (tii, 2, False),
+            (tids, 1, True),
+            (tids, 2, True),
+            (tis, 1, True),
+            (tis, 2, True),
+            (tiss, 1, True),
+            (tiss, 2, True)
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_ever_equal_always_not_equal(self, temporal, argument, expected):
+        assert temporal.ever_equal(argument) == expected
+        assert temporal.always_not_equal(argument) == not_(expected)
+        assert temporal.never_equal(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, False),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, False),
+            (tis, 1, False),
+            (tis, 2, False),
+            (tiss, 1, False),
+            (tiss, 2, False),
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_always_less_ever_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.always_less(argument) == expected
+        # assert temporal.never_greater_or_equal(argument) == expected
+        assert temporal.ever_greater_or_equal(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, False),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, True),
+            (tis, 1, False),
+            (tis, 2, True),
+            (tiss, 1, False),
+            (tiss, 2, True),
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_ever_less_always_greater_or_equal(self, temporal, argument, expected):
+        assert temporal.ever_less(argument) == expected
+        assert temporal.always_greater_or_equal(argument) == not_(expected)
+        assert temporal.never_less(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, True),
+            (tii, 2, True),
+            (tids, 1, False),
+            (tids, 2, True),
+            (tis, 1, False),
+            (tis, 2, True),
+            (tiss, 1, False),
+            (tiss, 2, True),
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_always_less_or_equal_ever_greater(self, temporal, argument, expected):
+        assert temporal.always_less_or_equal(argument) == expected
+        assert temporal.never_greater(argument) == expected
+        assert temporal.ever_greater(argument) == not_(expected)
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tii, 1, True),
+            (tii, 2, True),
+            (tids, 1, True),
+            (tids, 2, True),
+            (tis, 1, True),
+            (tis, 2, True),
+            (tiss, 1, True),
+            (tiss, 2, True),
+        ],
+        ids=['Instant 1', 'Instant 2', 'Discrete Sequence 1', 'Discrete Sequence 2',
+             'Sequence 1', 'Sequence 2', 'SequenceSet 1', 'SequenceSet 2']
+    )
+    def test_ever_less_or_equal_always_greater(self, temporal, argument, expected):
+        assert temporal.ever_less_or_equal(argument) == expected
+        assert temporal.always_greater(argument) == not_(expected)
+        assert temporal.never_less_or_equal(argument) == not_(expected)
+
+
+class TestTIntTemporalComparisons(TestTInt):
+    tii = TIntInst('1@2019-09-01')
+    tids = TIntSeq('{1@2019-09-01, 2@2019-09-02}')
+    tis = TIntSeq('[1@2019-09-01, 2@2019-09-02]')
+    tiss = TIntSeqSet('{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}')
+    argument = TIntSeq('[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, TBoolInst('False@2019-09-01')),
+            (tids, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tis, TBoolSeq('[False@2019-09-01, False@2019-09-02]')),
+            (tiss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],[True@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_equal(self.argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, TBoolInst('True@2019-09-01')),
+            (tids, TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+            (tis, TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
+            (tiss, TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_equal_int(self, temporal, expected):
+        assert temporal.temporal_equal(1) == expected
+
+        assert temporal.temporal_equal(2) == ~expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, TBoolInst('True@2019-09-01')),
+            (tids, TBoolSeq('{True@2019-09-01, True@2019-09-02}')),
+            (tis, TBoolSeq('[True@2019-09-01, True@2019-09-02]')),
+            (tiss, TBoolSeqSet('{[True@2019-09-01, True@2019-09-02],[False@2019-09-03]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_temporal(self, temporal, expected):
+        assert temporal.temporal_not_equal(self.argument) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, TBoolInst('False@2019-09-01')),
+            (tids, TBoolSeq('{False@2019-09-01, True@2019-09-02}')),
+            (tis, TBoolSeq('[False@2019-09-01, True@2019-09-02]')),
+            (tiss, TBoolSeqSet('{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}'))
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_not_equal_int(self, temporal, expected):
+        assert temporal.temporal_not_equal(1) == expected
+
+        assert temporal.temporal_not_equal(2) == ~expected
+
+

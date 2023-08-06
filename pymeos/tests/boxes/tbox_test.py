@@ -641,7 +641,7 @@ class TestTBoxDistanceFunctions(TestTBox):
         assert tbox.nearest_approach_distance(argument) == expected
 
 
-class TestTBoxComparisonFunctions(TestTBox):
+class TestTBoxComparisons(TestTBox):
     tbxt = TBox('TBOX XT([1,2],[2019-09-01,2019-09-02])')
     other = TBox('TBOX XT([3,4],[2019-09-03,2019-09-04])')
 
