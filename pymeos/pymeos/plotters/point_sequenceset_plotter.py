@@ -31,7 +31,7 @@ class TemporalPointSequenceSetPlotter:
         seqs = sequence_set.sequences() if isinstance(sequence_set, TPointSeqSet) else sequence_set
         plots = [TemporalPointSequencePlotter.plot_xy(seqs[0], *args, **kwargs)]
         if 'color' not in kwargs:
-            kwargs['color'] = plots[0][0].get_color()
+            kwargs['color'] = plots[0][0][0].get_color()
         kwargs.pop('label', None)
         for seq in seqs[1:]:
             plots.append(TemporalPointSequencePlotter.plot_xy(seq, *args,  **kwargs))

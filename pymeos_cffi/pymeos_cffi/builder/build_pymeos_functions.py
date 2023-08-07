@@ -45,7 +45,7 @@ import _meos_cffi
 import postgis as pg
 import shapely.geometry as spg
 from dateutil.parser import parse
-from shapely import wkt, wkb
+from shapely import wkt, wkb, get_srid
 from shapely.geometry.base import BaseGeometry
 from spans.types import floatrange, intrange
 
@@ -78,14 +78,23 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
+def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Optional[bool] = None) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
         text = geom.to_ewkb()
+        # if geom.has_srid():
+            # text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
         text = wkb.dumps(geom, hex=True)
+        if get_srid(geom) > 0:
+            text = f'SRID={get_srid(geom)};{text}'
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    return gserialized_in(text, -1)
+    gs = gserialized_in(text, -1)
+    if geodetic is not None:
+        # GFlags is an 8-bit integer, where the 4th bit is the geodetic flag (0x80)
+        # If geodetic is True, then set the 4th bit to 1, otherwise set it to 0
+        gs.gflags = (gs.gflags | 0x08) if geodetic else (gs.gflags & 0xF7)
+    return gs
 
 
 def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
@@ -137,7 +146,7 @@ function_notes = {
 function_modifiers = {
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
-    'tstzset_make': tstzset_make_modifier,
+    'timestampset_make': timestampset_make_modifier,
     'tint_at_values': tint_at_values_modifier,
     'tint_minus_values': tint_minus_values_modifier,
     'tfloat_at_values': tfloat_at_values_modifier,
@@ -150,6 +159,19 @@ function_modifiers = {
     'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
     'tpointseq_make_coords': tpointseq_make_coords_modifier,
+    'spanset_make': spanset_make_modifier,
+    'temporal_from_wkb': from_wkb_modifier('temporal_from_wkb', 'Temporal'),
+    'set_from_wkb': from_wkb_modifier('set_from_wkb', 'Set'),
+    'span_from_wkb': from_wkb_modifier('span_from_wkb', 'Span'),
+    'spanset_from_wkb': from_wkb_modifier('spanset_from_wkb', 'SpanSet'),
+    'tbox_from_wkb': from_wkb_modifier('tbox_from_wkb', 'TBOX'),
+    'stbox_from_wkb': from_wkb_modifier('stbox_from_wkb', 'STBOX'),
+    'temporal_as_wkb': as_wkb_modifier,
+    'set_as_wkb': as_wkb_modifier,
+    'span_as_wkb': as_wkb_modifier,
+    'spanset_as_wkb': as_wkb_modifier,
+    'tbox_as_wkb': as_wkb_modifier,
+    'stbox_as_wkb': as_wkb_modifier,
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -181,21 +203,19 @@ output_parameters = {
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
-    ('period_shift_tscale', 'delta'),
-    ('period_shift_tscale', 'scale'),
     ('meos_initialize', 'tz_str'),
+    ('temporal_append_tinstant', 'maxt'),
     ('temporal_as_mfjson', 'srs'),
     ('gserialized_as_geojson', 'srs'),
+    ('period_shift_tscale', 'shift'),
     ('period_shift_tscale', 'duration'),
-    ('period_shift_tscale', 'start'),
-    ('period_shift_tscale', 'start'),
-    ('timestampset_shift_tscale', 'start'),
+    ('period_shift_tscale', 'delta'),
+    ('period_shift_tscale', 'scale'),
+    ('timestampset_shift_tscale', 'shift'),
     ('timestampset_shift_tscale', 'duration'),
-    ('timestampset_shift_tscale', 'start'),
-    ('periodset_shift_tscale', 'start'),
+    ('periodset_shift_tscale', 'shift'),
     ('periodset_shift_tscale', 'duration'),
-    ('periodset_shift_tscale', 'start'),
-    ('temporal_shift_tscale', 'start'),
+    ('temporal_shift_tscale', 'shift'),
     ('temporal_shift_tscale', 'duration'),
     ('temporal_shift_tscale', 'shift'),
     ('tbox_make', 'p'),
@@ -432,10 +452,11 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
 
         # If original C function returned bool, use it to return it when result is True, or raise exception when False
         if return_type.return_type == 'bool':
-            result_manipulation = (result_manipulation or '') + "    if result:\n" \
-                                                                f"        return {returning_object} if " \
-                                                                f"{returning_object} != _ffi.NULL else None\n" \
-                                                                "    raise Exception(f'C call went wrong: {result}')"
+
+            result_manipulation = (result_manipulation or '') + \
+                                  "    if result:\n" \
+                                  f"        return {returning_object} if {returning_object} != _ffi.NULL else None\n" \
+                                  "    return None"
         # Otherwise, just return it normally
         else:
             result_manipulation = (result_manipulation or '') + f'    return {returning_object} if {returning_object}' \

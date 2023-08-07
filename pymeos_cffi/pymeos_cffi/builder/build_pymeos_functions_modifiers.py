@@ -21,11 +21,38 @@ def text2cstring_modifier(_: str) -> str:
     return result"""
 
 
-def tstzset_make_modifier(function: str) -> str:
+def from_wkb_modifier(function: str, return_type: str) -> Callable[[str], str]:
+    return lambda _: f"""def {function}(wkb: bytes) -> '{return_type} *':
+    wkb_converted = _ffi.new('uint8_t []', wkb)
+    result = _lib.{function}(wkb_converted, len(wkb))
+    return result if result != _ffi.NULL else None"""
+
+
+def as_wkb_modifier(function: str) -> str:
     return function \
-        .replace('times: int', 'times: List[int]') \
-        .replace("times_converted = _ffi.cast('const TimestampTz *', times)",
-                 "times_converted = [_ffi.cast('const TimestampTz', x) for x in times]")
+        .replace('-> "Tuple[\'uint8_t *\', \'size_t *\']":', '-> bytes:') \
+        .replace('return result if result != _ffi.NULL else None, size_out[0]',
+                 'result_converted = bytes(result[i] for i in range(size_out[0])) if result != _ffi.NULL else None\n'
+                 '    return result_converted')
+
+
+def timestampset_make_modifier(function: str) -> str:
+    return function \
+        .replace('values: int', 'values: List[int]') \
+        .replace("values_converted = _ffi.cast('const TimestampTz *', values)",
+                 "values_converted = [_ffi.cast('const TimestampTz', x) for x in values]")
+
+
+def tbool_at_values_modifier(function: str) -> str:
+    return function \
+        .replace("values: 'bool *', count: int", 'values: List[bool]') \
+        .replace("_ffi.cast('bool *', values)",
+                 "_ffi.new('bool []', values)") \
+        .replace(', count', ', len(values_converted)')
+
+
+def tbool_minus_values_modifier(function: str) -> str:
+    return tbool_at_values_modifier(function)
 
 
 def tint_at_values_modifier(function: str) -> str:
@@ -52,16 +79,12 @@ def tfloat_minus_values_modifier(function: str) -> str:
     return tfloat_at_values_modifier(function)
 
 
-def tbool_at_values_modifier(function: str) -> str:
+def spanset_make_modifier(function: str) -> str:
     return function \
-        .replace("values: 'bool *', count: int", 'values: List[bool]') \
-        .replace("_ffi.cast('bool *', values)",
-                 "_ffi.new('bool []', values)") \
-        .replace(', count', ', len(values_converted)')
-
-
-def tbool_minus_values_modifier(function: str) -> str:
-    return tbool_at_values_modifier(function)
+        .replace("spans: 'Span *', count: int", "spans: 'List[Span *]'") \
+        .replace("_ffi.cast('Span *', spans)",
+                 "_ffi.new('Span []', spans)") \
+        .replace(', count', ', len(spans)')
 
 
 def gserialized_from_lwgeom_modifier(function: str) -> str:

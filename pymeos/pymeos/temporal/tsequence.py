@@ -21,6 +21,10 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
     Base class for temporal sequence types, i.e. temporal values that are defined over a continuous period of time.
     """
 
+    def _expandable(self) -> bool:
+        return self._expandable_sequence
+
+    # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, Any]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
@@ -43,9 +47,6 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
                                                  interpolation.value, normalize)
         self._expandable_sequence = bool(expandable) or self._inner.maxcount > self._inner.count
 
-    def _expandable(self) -> bool:
-        return self._expandable_sequence
-
     @classmethod
     def from_instants(cls: Type[Self], instant_list: Optional[List[Union[str, Any]]],
                       lower_inc: bool = True, upper_inc: bool = False,
@@ -66,6 +67,7 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return cls(instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc, interpolation=interpolation,
                    normalize=normalize)
 
+    # ------------------------- Accessors -------------------------------------
     def lower_inc(self) -> bool:
         """
         Returns whether the lower bound is inclusive.
@@ -84,6 +86,7 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return self._inner.period.upper_inc
 
+    # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
         """
         Plot the temporal sequence.

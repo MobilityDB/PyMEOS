@@ -19,7 +19,7 @@ class TInterpolation(IntEnum):
 
         Args:
             source: :class:`string` representing the interpolation
-            none: indicates whther to return `TIntepolation.NONE` when `source` represents an invalid interpolation
+            none: indicates whether to return `TIntepolation.NONE` when `source` represents an invalid interpolation
 
         Returns:
             A new :class:`TInterpolation` instance.
@@ -32,7 +32,7 @@ class TInterpolation(IntEnum):
             return TInterpolation.DISCRETE
         elif source.lower() == 'linear':
             return TInterpolation.LINEAR
-        elif source.lower() == 'stepwise':
+        elif source.lower() == 'stepwise' or source.lower() == 'step':
             return TInterpolation.STEPWISE
         elif source.lower() == 'none' or none:
             return TInterpolation.NONE

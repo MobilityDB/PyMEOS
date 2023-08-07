@@ -22,6 +22,7 @@ TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
 
 class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
+    # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> TBox:
         """
         Returns the bounding box of `self`.
@@ -35,6 +36,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         from ..boxes import TBox
         return TBox(_inner=tnumber_to_tbox(self._inner))
 
+    # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to the value or time `other`.
@@ -83,6 +85,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
             temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period, temporal_minus_periodset
         """
+        from ..boxes import TBox
         if isinstance(other, intrange):
             result = tnumber_minus_span(self._inner, intrange_to_intspan(other))
         elif isinstance(other, floatrange):
@@ -101,53 +104,68 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().minus(other)
         return Temporal._factory(result)
 
-    def distance(self, other: Union[int, float, TNumber]) -> TFloat:
+    # ------------------------- Position Operations ---------------------------
+    def is_left(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns the temporal distance between `self` and `other`.
+        Returns whether the bounding box of `self` is left to the bounding box of `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to compare to `self`.
+            other: A box or a temporal object to compare to `self`.
 
         Returns:
-            A :class:`TFloat` with the distance between `self` and `other`.
+            True if left, False otherwise.
 
-        MEOS Functions:
-            distance_tfloat_float, distance_tnumber_tnumber
+        See Also:
+            :meth:`Period.is_before`
         """
-        if isinstance(other, int):
-            result = distance_tfloat_float(self._inner, float(other))
-        elif isinstance(other, float):
-            result = distance_tfloat_float(self._inner, other)
-        elif isinstance(other, TNumber):
-            result = distance_tnumber_tnumber(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-        return Temporal._factory(result)
+        return self.bounding_box().is_left(other)
 
-    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+    def is_over_or_left(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns the nearest approach distance between `self` and `other`.
+        Returns whether the bounding box of `self` is over or left to the bounding box of `other`.
 
         Args:
-            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
+            other: A box or a temporal object to compare to `self`.
 
         Returns:
-            A :class:`float` with the nearest approach distance between `self` and `other`.
+            True if over or left, False otherwise.
 
-        MEOS Functions:
-            nad_tfloat_float, nad_tfloat_tfloat, nad_tnumber_tbox
+        See Also:
+            :meth:`Period.is_over_or_before`
         """
-        if isinstance(other, int):
-            return nad_tfloat_float(self._inner, float(other))
-        elif isinstance(other, float):
-            return nad_tfloat_float(self._inner, other)
-        elif isinstance(other, TNumber):
-            return nad_tfloat_tfloat(self._inner, other._inner)
-        elif isinstance(other, TBox):
-            return nad_tnumber_tbox(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return self.bounding_box().is_over_or_left(other)
 
+    def is_right(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is right to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if right, False otherwise.
+
+        See Also:
+            :meth:`Period.is_after`
+        """
+        return self.bounding_box().is_right(other)
+
+    def is_over_or_right(self, other: Union[Temporal, Box]) -> bool:
+        """
+        Returns whether the bounding box of `self` is over or right to the bounding box of `other`.
+
+        Args:
+            other: A box or a temporal object to compare to `self`.
+
+        Returns:
+            True if over or right, False otherwise.
+
+        See Also:
+            :meth:`Period.is_over_or_before`
+        """
+        return self.bounding_box().is_over_or_right(other)
+
+    # ------------------------- Mathematical Operations -------------------------
     def add(self, other: Union[int, float, TNumber]) -> TNumber:
         """
         Returns a new temporal object with the values of `self` plus `other`.
@@ -159,9 +177,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
         """
         if isinstance(other, int):
-            result = add_tint_int(self._inner, other)
+            result = add_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = add_tfloat_float(self._inner, other)
+            result = add_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = add_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -182,9 +200,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             add_int_tint, add_float_tfloat
         """
         if isinstance(other, int):
-            result = add_int_tint(other, self._inner)
+            result = add_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = add_float_tfloat(other, self._inner)
+            result = add_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -203,9 +221,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             sub_tint_int, sub_tfloat_float, sub_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = sub_tint_int(self._inner, other)
+            result = sub_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = sub_tfloat_float(self._inner, other)
+            result = sub_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = sub_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -226,9 +244,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             sub_int_tint, sub_float_tfloat
         """
         if isinstance(other, int):
-            result = sub_int_tint(other, self._inner)
+            result = sub_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = sub_float_tfloat(other, self._inner)
+            result = sub_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -247,9 +265,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             mult_tint_int, mult_tfloat_float, mult_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = mult_tint_int(self._inner, other)
+            result = mult_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = mult_tfloat_float(self._inner, other)
+            result = mult_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = mult_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -270,9 +288,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             mult_int_tint, mult_float_tfloat
         """
         if isinstance(other, int):
-            result = mult_int_tint(other, self._inner)
+            result = mult_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = mult_float_tfloat(other, self._inner)
+            result = mult_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -291,9 +309,9 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             div_tint_int, div_tfloat_float, div_tnumber_tnumber
         """
         if isinstance(other, int):
-            result = div_tint_int(self._inner, other)
+            result = div_tnumber_int(self._inner, other)
         elif isinstance(other, float):
-            result = div_tfloat_float(self._inner, other)
+            result = div_tnumber_float(self._inner, other)
         elif isinstance(other, TNumber):
             result = div_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -314,36 +332,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             div_int_tint, div_float_tfloat
         """
         if isinstance(other, int):
-            result = div_int_tint(other, self._inner)
+            result = div_int_tnumber(other, self._inner)
         elif isinstance(other, float):
-            result = div_float_tfloat(other, self._inner)
+            result = div_float_tnumber(other, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
-
-    def integral(self) -> float:
-        """
-        Returns the integral of `self`.
-
-        Returns:
-            The integral of `self`.
-
-        MEOS Function:
-            tnumber_integral
-        """
-        return tnumber_integral(self._inner)
-
-    def time_weighted_average(self) -> float:
-        """
-        Returns the time weighted average of `self`.
-
-        Returns:
-            The time weighted average of `self`.
-
-        MEOS Function:
-            tnumber_twavg
-        """
-        return tnumber_twavg(self._inner)
 
     def __add__(self, other):
         """
@@ -461,3 +455,103 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             div_int_tint, div_float_tfloat
         """
         return self.rdiv(other)
+
+    def abs(self) -> TNumber:
+        """
+        Returns the absolute value of `self`.
+
+        Returns:
+            A new :class:`TNumber` instance.
+
+        MEOS Functions:
+            tnumber_abs
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tnumber_abs(self._inner))
+
+    def delta_value(self) -> TNumber:
+        """
+        Returns the value difference between consecutive instants of `self`.
+
+        Returns:
+            A new :class:`TNumber` instance.
+
+        MEOS Functions:
+            tnumber_delta_value
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tnumber_delta_value(self._inner))
+
+    # ------------------------- Distance Operations --------------------------
+    def distance(self, other: Union[int, float, TNumber]) -> TFloat:
+        """
+        Returns the temporal distance between `self` and `other`.
+
+        Args:
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to compare to `self`.
+
+        Returns:
+            A :class:`TFloat` with the distance between `self` and `other`.
+
+        MEOS Functions:
+            distance_tfloat_float, distance_tnumber_tnumber
+        """
+        if isinstance(other, int):
+            result = distance_tfloat_float(self._inner, float(other))
+        elif isinstance(other, float):
+            result = distance_tfloat_float(self._inner, other)
+        elif isinstance(other, TNumber):
+            result = distance_tnumber_tnumber(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+        return Temporal._factory(result)
+
+    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+        """
+        Returns the nearest approach distance between `self` and `other`.
+
+        Args:
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
+
+        Returns:
+            A :class:`float` with the nearest approach distance between `self` and `other`.
+
+        MEOS Functions:
+            nad_tfloat_float, nad_tfloat_tfloat, nad_tnumber_tbox
+        """
+        if isinstance(other, int):
+            return nad_tfloat_float(self._inner, float(other))
+        elif isinstance(other, float):
+            return nad_tfloat_float(self._inner, other)
+        elif isinstance(other, TNumber):
+            return nad_tfloat_tfloat(self._inner, other._inner)
+        elif isinstance(other, TBox):
+            return nad_tnumber_tbox(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # ------------------------- Aggregate Operations --------------------------
+    def integral(self) -> float:
+        """
+        Returns the integral of `self`.
+
+        Returns:
+            The integral of `self`.
+
+        MEOS Function:
+            tnumber_integral
+        """
+        return tnumber_integral(self._inner)
+
+    def time_weighted_average(self) -> float:
+        """
+        Returns the time weighted average of `self`.
+
+        Returns:
+            The time weighted average of `self`.
+
+        MEOS Function:
+            tnumber_twavg
+        """
+        return tnumber_twavg(self._inner)
+

@@ -48,7 +48,8 @@ def main(header_path, so_path=None):
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        main(sys.argv[1])
+        get_defined_functions(sys.argv[2])
+        main(sys.argv[1], sys.argv[2])
     else:
         get_defined_functions('/usr/local/lib/libmeos.so')
         main('/usr/local/include/meos.h', '/usr/local/lib/libmeos.so')

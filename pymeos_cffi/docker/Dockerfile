@@ -1,16 +1,13 @@
-FROM pymeos/mobilitydb:latest
+FROM pymeos/meos:latest
 WORKDIR MobilityDB
 
 RUN git fetch
-RUN git checkout b7ebd168
+RUN git checkout develop
 
-
-RUN sed -i '730 c\  ' ./meos/include/meos.h
-RUN sed -i '21 c\  tpoint_tempspatialrels_meos.c' ./meos/src/point/CMakeLists.txt
 
 WORKDIR build
 
-RUN cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so
+RUN cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config
 RUN make -j
 RUN make install
 
