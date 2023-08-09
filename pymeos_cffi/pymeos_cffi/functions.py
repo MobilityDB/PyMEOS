@@ -1366,12 +1366,6 @@ def intspan_set_floatspan(s1: 'const Span *', s2: 'Span *') -> None:
     _lib.intspan_set_floatspan(s1_converted, s2_converted)
 
 
-def numspan_set_floatspan(s1: 'const Span *', s2: 'Span *') -> None:
-    s1_converted = _ffi.cast('const Span *', s1)
-    s2_converted = _ffi.cast('Span *', s2)
-    _lib.numspan_set_floatspan(s1_converted, s2_converted)
-
-
 def period_tprecision(s: 'const Span *', duration: 'const Interval *', torigin: int) -> 'Span *':
     s_converted = _ffi.cast('const Span *', s)
     duration_converted = _ffi.cast('const Interval *', duration)
@@ -1453,9 +1447,21 @@ def adjacent_floatspan_float(s: 'const Span *', d: float) -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def adjacent_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.adjacent_floatspanset_float(ss_converted, d)
+    return result if result != _ffi.NULL else None
+
+
 def adjacent_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.adjacent_intspan_int(s_converted, i)
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.adjacent_intspanset_int(ss_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -1545,6 +1551,12 @@ def contained_int_intspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def contained_int_intspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.contained_int_intspanset(i, ss_converted)
+    return result if result != _ffi.NULL else None
+
+
 def contained_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
     s1_converted = _ffi.cast('const Set *', s1)
     s2_converted = _ffi.cast('const Set *', s2)
@@ -1580,6 +1592,13 @@ def contained_spanset_spanset(ss1: 'const SpanSet *', ss2: 'const SpanSet *') ->
     return result if result != _ffi.NULL else None
 
 
+def contained_text_textset(txt: str, s: 'const Set *') -> 'bool':
+    txt_converted = cstring2text(txt)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.contained_text_textset(txt_converted, s_converted)
+    return result if result != _ffi.NULL else None
+
+
 def contained_timestamp_period(t: int, p: 'const Span *') -> 'bool':
     t_converted = _ffi.cast('TimestampTz', t)
     p_converted = _ffi.cast('const Span *', p)
@@ -1587,10 +1606,44 @@ def contained_timestamp_period(t: int, p: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def contained_timestamp_periodset(t: int, ss: 'const SpanSet *') -> 'bool':
+    t_converted = _ffi.cast('TimestampTz', t)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.contained_timestamp_periodset(t_converted, ss_converted)
+    return result if result != _ffi.NULL else None
+
+
 def contained_timestamp_timestampset(t: int, ts: 'const Set *') -> 'bool':
     t_converted = _ffi.cast('TimestampTz', t)
     ts_converted = _ffi.cast('const Set *', ts)
     result = _lib.contained_timestamp_timestampset(t_converted, ts_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_bigintset_bigint(s: 'const Set *', i: int) -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.contains_bigintset_bigint(s_converted, i_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_bigintspan_bigint(s: 'const Span *', i: int) -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.contains_bigintspan_bigint(s_converted, i_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_bigintspanset_bigint(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.contains_bigintspanset_bigint(ss_converted, i_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_floatset_float(s: 'const Set *', d: float) -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.contains_floatset_float(s_converted, d)
     return result if result != _ffi.NULL else None
 
 
@@ -1606,16 +1659,21 @@ def contains_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def contains_intset_int(s: 'const Set *', i: int) -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.contains_intset_int(s_converted, i)
+    return result if result != _ffi.NULL else None
+
+
 def contains_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.contains_intspan_int(s_converted, i)
     return result if result != _ffi.NULL else None
 
 
-def contains_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
-    s1_converted = _ffi.cast('const Set *', s1)
-    s2_converted = _ffi.cast('const Set *', s2)
-    result = _lib.contains_set_set(s1_converted, s2_converted)
+def contains_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.contains_intspanset_int(ss_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -1630,6 +1688,13 @@ def contains_periodset_timestamp(ps: 'const SpanSet *', t: int) -> 'bool':
     ps_converted = _ffi.cast('const SpanSet *', ps)
     t_converted = _ffi.cast('TimestampTz', t)
     result = _lib.contains_periodset_timestamp(ps_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.contains_set_set(s1_converted, s2_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -1661,10 +1726,17 @@ def contains_spanset_spanset(ss1: 'const SpanSet *', ss2: 'const SpanSet *') -> 
     return result if result != _ffi.NULL else None
 
 
-def contains_timestampset_timestamp(ts: 'const Set *', t: int) -> 'bool':
-    ts_converted = _ffi.cast('const Set *', ts)
+def contains_textset_text(s: 'const Set *', t: str) -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    t_converted = cstring2text(t)
+    result = _lib.contains_textset_text(s_converted, t_converted)
+    return result if result != _ffi.NULL else None
+
+
+def contains_timestampset_timestamp(s: 'const Set *', t: int) -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
     t_converted = _ffi.cast('TimestampTz', t)
-    result = _lib.contains_timestampset_timestamp(ts_converted, t_converted)
+    result = _lib.contains_timestampset_timestamp(s_converted, t_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -3354,10 +3426,10 @@ def overafter_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'bool
     return result if result != _ffi.NULL else None
 
 
-def union_tbox_tbox(box1: 'const TBox *', box2: 'const TBox *') -> 'TBox *':
+def union_tbox_tbox(box1: 'const TBox *', box2: 'const TBox *', strict: bool) -> 'TBox *':
     box1_converted = _ffi.cast('const TBox *', box1)
     box2_converted = _ffi.cast('const TBox *', box2)
-    result = _lib.union_tbox_tbox(box1_converted, box2_converted)
+    result = _lib.union_tbox_tbox(box1_converted, box2_converted, strict)
     return result if result != _ffi.NULL else None
 
 
@@ -4668,27 +4740,27 @@ def tor_tbool_tbool(temp1: 'const Temporal *', temp2: 'const Temporal *') -> 'Te
     return result if result != _ffi.NULL else None
 
 
-def add_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def add_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_float_tnumber(d, tnumber_converted)
+    result = _lib.add_float_tfloat(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def add_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def add_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_int_tnumber(i, tnumber_converted)
+    result = _lib.add_int_tint(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def add_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def add_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_tnumber_float(tnumber_converted, d)
+    result = _lib.add_tfloat_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def add_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def add_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.add_tnumber_int(tnumber_converted, i)
+    result = _lib.add_tint_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4699,27 +4771,27 @@ def add_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal 
     return result if result != _ffi.NULL else None
 
 
-def div_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def div_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_float_tnumber(d, tnumber_converted)
+    result = _lib.div_float_tfloat(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def div_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def div_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_int_tnumber(i, tnumber_converted)
+    result = _lib.div_int_tint(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def div_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def div_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_tnumber_float(tnumber_converted, d)
+    result = _lib.div_tfloat_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def div_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def div_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.div_tnumber_int(tnumber_converted, i)
+    result = _lib.div_tint_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4735,27 +4807,27 @@ def float_degrees(value: float, normalize: bool) -> 'double':
     return result if result != _ffi.NULL else None
 
 
-def mult_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def mult_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_float_tnumber(d, tnumber_converted)
+    result = _lib.mult_float_tfloat(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def mult_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def mult_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_int_tnumber(i, tnumber_converted)
+    result = _lib.mult_int_tint(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def mult_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def mult_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_tnumber_float(tnumber_converted, d)
+    result = _lib.mult_tfloat_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def mult_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def mult_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.mult_tnumber_int(tnumber_converted, i)
+    result = _lib.mult_tint_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 
@@ -4766,27 +4838,27 @@ def mult_tnumber_tnumber(tnumber1: 'const Temporal *', tnumber2: 'const Temporal
     return result if result != _ffi.NULL else None
 
 
-def sub_float_tnumber(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
+def sub_float_tfloat(d: float, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_float_tnumber(d, tnumber_converted)
+    result = _lib.sub_float_tfloat(d, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def sub_int_tnumber(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
+def sub_int_tint(i: int, tnumber: 'const Temporal *') -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_int_tnumber(i, tnumber_converted)
+    result = _lib.sub_int_tint(i, tnumber_converted)
     return result if result != _ffi.NULL else None
 
 
-def sub_tnumber_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
+def sub_tfloat_float(tnumber: 'const Temporal *', d: float) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_tnumber_float(tnumber_converted, d)
+    result = _lib.sub_tfloat_float(tnumber_converted, d)
     return result if result != _ffi.NULL else None
 
 
-def sub_tnumber_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
+def sub_tint_int(tnumber: 'const Temporal *', i: int) -> 'Temporal *':
     tnumber_converted = _ffi.cast('const Temporal *', tnumber)
-    result = _lib.sub_tnumber_int(tnumber_converted, i)
+    result = _lib.sub_tint_int(tnumber_converted, i)
     return result if result != _ffi.NULL else None
 
 

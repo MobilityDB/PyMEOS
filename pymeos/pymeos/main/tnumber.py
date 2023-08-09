@@ -11,6 +11,7 @@ from ..temporal import Temporal
 if TYPE_CHECKING:
     from ..boxes import TBox
     from ..time import Time
+    from .tint import TInt
     from .tfloat import TFloat
 
 TBase = TypeVar('TBase', int, float)
@@ -35,6 +36,30 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from ..boxes import TBox
         return TBox(_inner=tnumber_to_tbox(self._inner))
+
+    def integral(self) -> float:
+        """
+        Returns the integral of `self`.
+
+        Returns:
+            The integral of `self`.
+
+        MEOS Function:
+            tnumber_integral
+        """
+        return tnumber_integral(self._inner)
+
+    def time_weighted_average(self) -> float:
+        """
+        Returns the time weighted average of `self`.
+
+        Returns:
+            The time weighted average of `self`.
+
+        MEOS Function:
+            tnumber_twavg
+        """
+        return tnumber_twavg(self._inner)
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
@@ -176,10 +201,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns:
             A new temporal object of the same subtype as `self`.
         """
-        if isinstance(other, int):
-            result = add_tnumber_int(self._inner, other)
-        elif isinstance(other, float):
-            result = add_tnumber_float(self._inner, other)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = add_tint_int(self._inner, other)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = add_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
             result = add_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -199,10 +226,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             add_int_tint, add_float_tfloat
         """
-        if isinstance(other, int):
-            result = add_int_tnumber(other, self._inner)
-        elif isinstance(other, float):
-            result = add_float_tnumber(other, self._inner)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = add_int_tint(other, self._inner)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = add_float_tfloat(float(other), self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -220,10 +249,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             sub_tint_int, sub_tfloat_float, sub_tnumber_tnumber
         """
-        if isinstance(other, int):
-            result = sub_tnumber_int(self._inner, other)
-        elif isinstance(other, float):
-            result = sub_tnumber_float(self._inner, other)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = sub_tint_int(self._inner, other)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = sub_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
             result = sub_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -243,10 +274,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             sub_int_tint, sub_float_tfloat
         """
-        if isinstance(other, int):
-            result = sub_int_tnumber(other, self._inner)
-        elif isinstance(other, float):
-            result = sub_float_tnumber(other, self._inner)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = sub_int_tint(other, self._inner)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = sub_float_tfloat(float(other), self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -264,10 +297,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             mult_tint_int, mult_tfloat_float, mult_tnumber_tnumber
         """
-        if isinstance(other, int):
-            result = mult_tnumber_int(self._inner, other)
-        elif isinstance(other, float):
-            result = mult_tnumber_float(self._inner, other)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = mult_tint_int(self._inner, other)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = mult_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
             result = mult_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -287,10 +322,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             mult_int_tint, mult_float_tfloat
         """
-        if isinstance(other, int):
-            result = mult_int_tnumber(other, self._inner)
-        elif isinstance(other, float):
-            result = mult_float_tnumber(other, self._inner)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = mult_int_tint(other, self._inner)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = mult_float_tfloat(float(other), self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -308,10 +345,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             div_tint_int, div_tfloat_float, div_tnumber_tnumber
         """
-        if isinstance(other, int):
-            result = div_tnumber_int(self._inner, other)
-        elif isinstance(other, float):
-            result = div_tnumber_float(self._inner, other)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = div_tint_int(self._inner, other)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = div_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
             result = div_tnumber_tnumber(self._inner, other._inner)
         else:
@@ -331,10 +370,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             div_int_tint, div_float_tfloat
         """
-        if isinstance(other, int):
-            result = div_int_tnumber(other, self._inner)
-        elif isinstance(other, float):
-            result = div_float_tnumber(other, self._inner)
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = div_int_tint(other, self._inner)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = div_float_tfloat(float(other), self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
@@ -529,29 +570,4 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return nad_tnumber_tbox(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    # ------------------------- Aggregate Operations --------------------------
-    def integral(self) -> float:
-        """
-        Returns the integral of `self`.
-
-        Returns:
-            The integral of `self`.
-
-        MEOS Function:
-            tnumber_integral
-        """
-        return tnumber_integral(self._inner)
-
-    def time_weighted_average(self) -> float:
-        """
-        Returns the time weighted average of `self`.
-
-        Returns:
-            The time weighted average of `self`.
-
-        MEOS Function:
-            tnumber_twavg
-        """
-        return tnumber_twavg(self._inner)
 

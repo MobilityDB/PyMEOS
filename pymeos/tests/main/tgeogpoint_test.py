@@ -3,11 +3,15 @@ from operator import not_
 from datetime import datetime, timezone, timedelta
 
 import pytest
+import numpy as np
 from shapely import Point
 import shapely.geometry
 
-from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, TGeogPoint, \
-    TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet, STBox, TInterpolation, TimestampSet, Period, PeriodSet
+from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
+    TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
+    TGeomPoint, TGeomPointInst, TGeomPointSeq, TGeomPointSeqSet, \
+    TGeogPoint, TGeogPointInst, TGeogPointSeq, TGeogPointSeqSet, \
+    STBox, TInterpolation, TimestampSet, Period, PeriodSet
 from tests.conftest import TestPyMEOS
 
 
@@ -411,6 +415,19 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
+            (tpi, STBox('GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])')),
+            (tpds, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tps, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
+            (tpss, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-05])')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bounding_box(self, temporal, expected):
+        assert temporal.bounding_box() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             (tpi, TInterpolation.NONE),
             (tpds, TInterpolation.DISCRETE),
             (tps, TInterpolation.LINEAR),
@@ -594,19 +611,6 @@ class TestTGeogPointAccessors(TestTGeogPoint):
         'temporal, expected',
         [
             (tpi, tpi),
-            (tpds, TGeogPointInst('Point(2 2)@2019-09-02')),
-            (tps, TGeogPointInst('Point(2 2)@2019-09-02')),
-            (tpss, TGeogPointInst('Point(2 2)@2019-09-02')),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_max_instant(self, temporal, expected):
-        assert temporal.max_instant() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tpi, tpi),
             (tpds, tpi),
             (tps, tpi),
             (tpss, tpi),
@@ -615,6 +619,19 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     )
     def test_min_instant(self, temporal, expected):
         assert temporal.min_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, tpi),
+            (tpds, TGeogPointInst('Point(2 2)@2019-09-02')),
+            (tps, TGeogPointInst('Point(2 2)@2019-09-02')),
+            (tpss, TGeogPointInst('Point(2 2)@2019-09-02')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_max_instant(self, temporal, expected):
+        assert temporal.max_instant() == expected
 
     @pytest.mark.parametrize(
         'temporal, n, expected',
@@ -729,18 +746,6 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpds, True),
-            (tps, True),
-        ],
-        ids=['Discrete Sequence', 'Sequence']
-    )
-    def test_lower_upper_inc(self, temporal, expected):
-        assert temporal.lower_inc() == expected
-        assert temporal.upper_inc() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
             (tpi, 1181779687),
             (tpds, 1545137628),
             (tps, 1545137628),
@@ -750,6 +755,237 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     )
     def test_hash(self, temporal, expected):
         assert hash(temporal) == expected
+
+    def test_value_timestamp(self):
+        assert self.tpi.value() == Point(1,1)
+        assert self.tpi.timestamp() == datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpds, True),
+            (tps, True),
+        ],
+        ids=['Discrete Sequence', 'Sequence']
+    )
+    def test_lower_upper_inc(self, temporal, expected):
+        assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    def test_sequenceset_sequence_functions(self):
+        tpss1 =TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
+            '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05], [Point(3 3)@2019-09-06]}')
+        assert tpss1.num_sequences() == 3
+        assert tpss1.start_sequence() == TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+        assert tpss1.end_sequence() == TGeogPointSeq('[Point(3 3)@2019-09-06]')
+        assert tpss1.sequence_n(1) == TGeogPointSeq('[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]')
+        assert tpss1.sequences() == [TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+            TGeogPointSeq('[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]'), 
+            TGeogPointSeq('[Point(3 3)@2019-09-06]')]
+
+
+class TestTGeogPointTPointAccessors(TestTGeogPoint):
+    tpi = TGeogPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+    tpi3d = TGeogPointInst('Point(1 1 1)@2019-09-01')
+    tpds3d = TGeogPointSeq('{Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02}')
+    tps3d = TGeogPointSeq('[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02]')
+    tpss3d = TGeogPointSeqSet('{[Point(1 1 1)@2019-09-01, Point(2 2 2)@2019-09-02],'
+      '[Point(1 1 1)@2019-09-03, Point(1 1 1)@2019-09-05]}')
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, 0),
+            (tpds, 0),
+            (tps, 156876.1494),
+            (tpss, 156876.1494),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_length(self, temporal, expected):
+        assert round(temporal.length(),4) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TFloatInst('0@2019-09-01')),
+            (tpds, TFloatSeq('{0@2019-09-01, 0@2019-09-02}')),
+            (tps, TFloatSeq('[0@2019-09-01, 156876.1494@2019-09-02]')),
+            (tpss, TFloatSeqSet('{[0@2019-09-01, 156876.1494@2019-09-02],'
+                '[156876.1494@2019-09-03, 156876.1494@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_cumulative_length(self, temporal, expected):
+        assert temporal.cumulative_length().round(4) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('Interp=Step;[1.8157@2019-09-01, 1.8157@2019-09-02]')),
+            (tpss, TFloatSeqSet('Interp=Step;{[1.8157@2019-09-01, 1.8157@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_speed(self, temporal, expected):
+        if expected is None:
+            assert temporal.speed() is None
+        else:
+            assert temporal.speed().round(4) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TFloatInst('1@2019-09-01')),
+            (tpds, TFloatSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tps, TFloatSeq('[1@2019-09-01, 2@2019-09-02]')),
+            (tpss, TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],'
+                '[1@2019-09-03, 1@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_x_y(self, temporal, expected):
+        assert temporal.x() == expected
+        assert temporal.y() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi3d, TFloatInst('1@2019-09-01')),
+            (tpds3d, TFloatSeq('{1@2019-09-01, 2@2019-09-02}')),
+            (tps3d, TFloatSeq('[1@2019-09-01, 2@2019-09-02]')),
+            (tpss3d, TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02],'
+                '[1@2019-09-03, 1@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_x_y_z(self, temporal, expected):
+        assert temporal.x() == expected
+        assert temporal.y() == expected
+        assert temporal.z() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, False),
+            (tpds, False),
+            (tps, False),
+            (tpss, False),
+            (tpi3d, True),
+            (tpds3d, True),
+            (tps3d, True),
+            (tpss3d, True),
+        ],
+        ids=['Instant 2D', 'Discrete Sequence 2D', 'Sequence 2D', 'SequenceSet 2D',
+             'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
+    )
+    def test_has_z(self, temporal, expected):
+        assert temporal.has_z() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi3d, True),
+            (tpds3d, True),
+            (tps3d, True),
+            (tpss3d, True),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_has_z(self, temporal, expected):
+        assert temporal.has_z() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, []),
+            (tpds, []),
+            (tps, [STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')]),
+            (tpss, [STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])'),
+                STBox('GEODSTBOX XT(((1,1),(1,1)),[2019-09-03, 2019-09-05])')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_stboxes(self, temporal, expected):
+        assert temporal.stboxes() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, True),
+            (tpds, True),
+            (tps, True),
+            (tpss, True),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_is_simple(self, temporal, expected):
+        assert temporal.is_simple() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TFloatInst('0.7846@2019-09-01')),
+            (tpds, TFloatSeq('{0.7846@2019-09-01,0.7846@2019-09-02}')),
+            (tps, TFloatSeq('[0.7846@2019-09-01,0.7846@2019-09-02]')),
+            (tpss, TFloatSeqSet('{[0.7846@2019-09-01,0.7846@2019-09-02],'
+                '[0.7846@2019-09-03,0.7846@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bearing(self, temporal, expected):
+        assert temporal.bearing(shapely.set_srid(shapely.Point(3,3), 4326)).round(4) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, 45.1705),
+            (tps, 45.1705),
+            (tpss, None),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_direction(self, temporal, expected):
+        res = temporal.direction()
+        result = round(np.rad2deg(res), 4) if res is not None else None
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeqSet('Interp=Step;{[0.7884@2019-09-01,0.7884@2019-09-02]}')),
+            (tpss, TFloatSeqSet('Interp=Step;{[0.7884@2019-09-01,0.7884@2019-09-02]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_azimuth(self, temporal, expected):
+        res = temporal.azimuth()
+        result = res.round(4) if res is not None else None
+        assert result == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('{0@2019-09-01,0@2019-09-02}')),
+            (tpss, TFloatSeqSet('{0@2019-09-01,0@2019-09-02}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_angular_difference(self, temporal, expected):
+        res = temporal.angular_difference()
+        result = res.to_degrees() if res is not None else None
+        assert result == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -764,18 +1000,26 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     def test_srid(self, temporal, expected):
         assert temporal.srid() == expected
 
+
+class TestTGeogPointConversions(TestTGeogPoint):
+    tpi = TGeogPointInst('Point(1 1)@2019-09-01')
+    tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
+    tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tpi, STBox('GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])')),
-            (tpds, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
-            (tps, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])')),
-            (tpss, STBox('GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-05])')),
+            (tpi, TGeomPointInst('SRID=4326;Point(1 1)@2019-09-01')),
+            (tpds, TGeomPointSeq('SRID=4326;{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+            (tps, TGeomPointSeq('SRID=4326;[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
+            (tpss, TGeomPointSeqSet('SRID=4326;{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
+                '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_bounding_box(self, temporal, expected):
-        assert temporal.bounding_box() == expected
+    def test_to_geometric(self, temporal, expected):
+        assert temporal.to_geometric() == expected
 
 
 class TestTGeogPointTransformations(TestTGeogPoint):
@@ -783,6 +1027,15 @@ class TestTGeogPointTransformations(TestTGeogPoint):
     tpds = TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
     tps = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
+
+    tps_d = TGeogPointSeq('[Point(1 1)@2019-09-01]')
+    tpss_d = TGeogPointSeqSet('{[Point(1 1)@2019-09-01],[Point(2 2)@2019-09-03]}')
+    tps_s = TGeogPointSeq('[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]')
+    tpss_s = TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+        '[Point(2 2)@2019-09-03, Point(2 2)@2019-09-05]}')
+    tps_l = TGeogPointSeq('Interp=Step;[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
+    tpss_l = TGeogPointSeqSet('Interp=Step;{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
+        '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -836,6 +1089,44 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         temp = temporal.to_sequenceset()
         assert isinstance(temp, TGeogPointSeqSet)
         assert temp == expected
+
+    @pytest.mark.parametrize(
+        'temporal, interpolation, expected',
+        [
+            (tpi, TInterpolation.DISCRETE,
+                TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpds, TInterpolation.DISCRETE, tpds),
+            (tps_d, TInterpolation.DISCRETE,
+                TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+            (tpss_d, TInterpolation.DISCRETE,
+                TGeogPointSeq('{Point(1 1)@2019-09-01,Point(2 2)@2019-09-03}')),
+
+            (tpi, TInterpolation.STEPWISE, 
+                TGeogPointSeq('Interp=Step;[Point(1 1)@2019-09-01]')),
+            (tpds, TInterpolation.STEPWISE, 
+                TGeogPointSeqSet('Interp=Step;{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}')),
+            (tps_s, TInterpolation.STEPWISE,
+                TGeogPointSeq('Interp=Step;[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]')),
+            (tpss_s, TInterpolation.STEPWISE,
+                TGeogPointSeqSet('Interp=Step;{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],'
+                '[Point(2 2)@2019-09-03, Point(2 2)@2019-09-05]}')),
+
+            (tpi, TInterpolation.LINEAR, 
+                TGeogPointSeq('[Point(1 1)@2019-09-01]')),
+            (tpds, TInterpolation.LINEAR, 
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}')),
+            (tps_l, TInterpolation.LINEAR,
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02), [Point(2 2)@2019-09-02]}')),
+            (tpss_l, TInterpolation.LINEAR,
+                TGeogPointSeqSet('{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02),'
+                '[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')),
+        ],
+        ids=['Instant to discrete', 'Discrete Sequence to discrete', 'Sequence to discrete', 'SequenceSet to discrete',
+             'Instant to step', 'Discrete Sequence to step', 'Sequence to step', 'SequenceSet to step',
+             'Instant to linear', 'Discrete Sequence to linear', 'Sequence to linear', 'SequenceSet to linear']
+    )
+    def test_set_interpolation(self, temporal, interpolation, expected):
+        assert temporal.set_interpolation(interpolation) == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
@@ -900,6 +1191,67 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         assert self.tpss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
              TGeogPointSeqSet('{[Point(1 1)@2019-09-05 00:00:00, Point(2 2)@2019-09-05 00:30:00],'
              '[Point(1 1)@2019-09-05 01:00:00, Point(1 1)@2019-09-05 02:00:00]}')
+
+    @pytest.mark.parametrize(
+        'tpoint, delta, expected',
+        [(tpi, timedelta(days=4), TGeogPointInst('Point(1 1)@2019-09-01')),
+         (tpi, timedelta(hours=12), TGeogPointInst('Point(1 1)@2019-09-01')),
+         (tpds, timedelta(days=4), TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+         (tpds, timedelta(hours=12), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
+         (tps, timedelta(days=4), TGeogPointSeq('{Point(1 1)@2019-09-01}')),
+         (tps, timedelta(hours=12), TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02}')),
+         (tpss, timedelta(days=4),
+             TGeogPointSeq('{Point(1 1)@2019-09-01,Point(1 1)@2019-09-05}')),
+         (tpss, timedelta(hours=12),
+             TGeogPointSeq('{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00,'
+                'Point(2 2)@2019-09-02, Point(1 1)@2019-09-03, Point(1 1)@2019-09-03 12:00:00, '
+                'Point(1 1)@2019-09-04, Point(1 1)@2019-09-04 12:00:00, Point(1 1)@2019-09-05}')),
+         ],
+        ids=['Instant days', 'Instant hours',
+             'Discrete Sequence days', 'Discrete Sequence hours',
+             'Sequence days', 'Sequence hours',
+             'Sequence Set days', 'Sequence Set hours'
+             ]
+    )
+    def test_temporal_sample(self, tpoint, delta, expected):
+        assert tpoint.temporal_sample(delta).round(1) == expected
+
+    @pytest.mark.parametrize(
+        'tpoint, delta, expected',
+        [(tps, timedelta(days=4), None),
+         (tps, timedelta(hours=12), None),
+         (tpss, timedelta(days=4), None),
+         (tpss, timedelta(hours=12),
+             TGeogPointSeq('[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]')),
+         ],
+        ids=['Sequence days', 'Sequence hours',
+             'Sequence Set days', 'Sequence Set hours']
+    )
+    def test_stops(self, tpoint, delta, expected):
+        assert tpoint.stops(0.0, delta) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (TGeogPointInst('Point(1.123456789 1.123456789)@2019-09-01'), 
+                TGeogPointInst('Point(1.12 1.12)@2019-09-01')),
+            (TGeogPointSeq('{Point(1.123456789 1.123456789)@2019-09-01,'
+                'Point(2.123456789 2.123456789)@2019-09-02}'), 
+                TGeogPointSeq('{Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02}')),
+            (TGeogPointSeq('[Point(1.123456789 1.123456789)@2019-09-01,'
+                'Point(2.123456789 2.123456789)@2019-09-02]'), 
+                TGeogPointSeq('[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02]')),
+            (TGeogPointSeqSet('{[Point(1.123456789 1.123456789)@2019-09-01,'
+                'Point(2.123456789 2.123456789)@2019-09-02],' 
+                '[Point(1.123456789 1.123456789)@2019-09-03,'
+                'Point(1.123456789 1.123456789)@2019-09-05]}'), 
+                TGeogPointSeq('{[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02],'
+                '[Point(1.12 1.12)@2019-09-03,Point(1.12 1.12)@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_round(self, temporal, expected):
+        assert temporal.round(maxdd=2)
 
 
 class TestTGeogPointModifications(TestTGeogPoint):

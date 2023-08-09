@@ -94,21 +94,6 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         return tfloat_out(self._inner, max_decimals)
 
-    def to_str(self, max_decimals=15) -> str:
-        """
-        Returns a string representation of `self` with a maximum number of decimals.
-
-        Args:
-            max_decimals: The maximum number of decimals.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tfloat_out
-        """
-        return tfloat_out(self._inner, max_decimals)
-
     def as_wkt(self, precision: int = 15) -> str:
         """
         Returns a WKT representation of `self`.
@@ -123,6 +108,38 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             tfloat_out
         """
         return tfloat_out(self._inner, precision)
+
+    # ------------------------- Conversions ----------------------------------
+    def to_tint(self) -> TInt:
+        """
+        Returns a new temporal integer with the values of `self` floored.
+        This operation can only be performed when the interpolation is stepwise or discrete.
+
+        Returns:
+            A new temporal integer.
+
+        MEOS Functions:
+            tfloat_to_tint
+
+        Raises:
+            ValueError: If the interpolation is linear.
+        """
+        from ..factory import _TemporalFactory
+        if self.interpolation() == TInterpolation.LINEAR:
+            raise ValueError("Cannot convert a temporal float with linear interpolation to a temporal integer")
+        return _TemporalFactory.create_temporal(tfloat_to_tint(self._inner))
+
+    def to_floatrange(self) -> floatrange:
+        """
+        Returns value span of `self`.
+
+        Returns:
+            An :class:`floatrange` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
+        """
+        return floatspan_to_floatrange(tnumber_to_span(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def value_range(self) -> floatrange:
@@ -147,8 +164,9 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_spanset
         """
-        spanset = tnumber_values(self._inner)
-        spans, count = spanset_spans(spanset)
+        spanset = tnumber_valuespans(self._inner)
+        spans = spanset_spans(spanset)
+        count = spanset_num_spans(spanset)
         return [floatspan_to_floatrange(spans[i]) for i in range(count)]
 
     def start_value(self) -> float:
@@ -601,31 +619,37 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[int, float, List[int], List[float], 
-        intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TFloat:
+        floatrange, List[floatrange], TBox, Time]) -> TFloat:
         """
-        Returns a new temporal float with the values of `self` restricted to the time or value `other`.
+        Returns a new temporal float with the values of `self` restricted to the value or time `other`.
 
         Args:
-            other: Time or value to restrict to.
+            other: Value or time to restrict to.
 
         Returns:
             A new temporal float.
 
         MEOS Functions:
-            tfloat_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+            tfloat_at_value, tfloat_at_values, tfloat_at_span, tfloat_at_spanset,
+            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
+            temporal_at_periodset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_at_value(self._inner, float(other))
-        elif isinstance(other, list) and (isinstance(other[0], float) or isinstance(other[0], int)):
-            # result = tfloat_at_values(self._inner, [float(x) for x in other])
-            results = [tfloat_at_value(self._inner, float(value)) for value in other if other is not None]
+        elif isinstance(other, floatrange):
+            result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
+        elif isinstance(other, list) and (isinstance(other[0], int) or isinstance(other[0], float)):
+            results = [tfloat_at_value(self._inner, float(other)) for value in other if other is not None]
+            result = temporal_merge_array(results, len(results))
+        elif isinstance(other, list) and (isinstance(other[0], floatrange) or isinstance(other[0], intrange)):
+            results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
             result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[
-        int, float, List[float], intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> Temporal:
+    def minus(self, other: Union[int, float, List[int], List[float],
+        floatrange, List[floatrange], TBox, Time]) -> Temporal:
         """
         Returns a new temporal float with the values of `self` restricted to the complement of the time or value
          `other`.
@@ -637,11 +661,14 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             A new temporal float.
 
         MEOS Functions:
-            tfloat_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            tfloat_minus_value, tnumber_minus_span, 
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_minus_value(self._inner, float(other))
+        elif isinstance(other, floatrange):
+            result = tnumber_minus_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], float):
             result = reduce(tfloat_minus_value, other, self._inner)
         else:
@@ -676,38 +703,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_derivative(self._inner))
 
-    # ------------------------- Conversions ----------------------------------
-    def to_tint(self) -> TInt:
-        """
-        Returns a new temporal integer with the values of `self` floored.
-        This operation can only be performed when the interpolation is stepwise or discrete.
-
-        Returns:
-            A new temporal integer.
-
-        MEOS Functions:
-            tfloat_to_tint
-
-        Raises:
-            ValueError: If the interpolation is linear.
-        """
-        from ..factory import _TemporalFactory
-        if self.interpolation() == TInterpolation.LINEAR:
-            raise ValueError("Cannot convert a temporal float with linear interpolation to a temporal integer")
-        return _TemporalFactory.create_temporal(tfloat_to_tint(self._inner))
-
-    def to_floatrange(self) -> floatrange:
-        """
-        Returns value span of `self`.
-
-        Returns:
-            An :class:`floatrange` with the value span of `self`.
-
-        MEOS Functions:
-            tnumber_to_span
-        """
-        return floatspan_to_floatrange(tnumber_to_span(self._inner))
-
+    # ------------------------- Transformations ----------------------------------
     def to_degrees(self, normalize: bool = True) -> TFloat:
         """
         Returns a copy of `self` converted from radians to degrees.

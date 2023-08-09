@@ -328,6 +328,19 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
+            (tti, Period('[2019-09-01, 2019-09-01]')),
+            (ttds, Period('[2019-09-01, 2019-09-02]')),
+            (tts, Period('[2019-09-01, 2019-09-02]')),
+            (ttss, Period('[2019-09-01, 2019-09-05]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bounding_box(self, temporal, expected):
+        assert temporal.bounding_box() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             (tti, TInterpolation.NONE),
             (ttds, TInterpolation.DISCRETE),
             (tts, TInterpolation.STEPWISE),
@@ -416,18 +429,18 @@ class TestTTextAccessors(TestTText):
     def test_max_value(self, temporal, expected):
         assert temporal.max_value() == expected
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tti, 'AAA'),
-            # (ttds, 'AAA'),
-            # (tts, 'AAA'),
-            # (ttss, 'AAA')
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_value_at_timestamp(self, temporal, expected):
-        # assert temporal.value_at_timestamp(datetime(2019, 9, 1)) == expected
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, 'AAA'),
+            (ttds, 'AAA'),
+            (tts, 'AAA'),
+            (ttss, 'AAA')
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_value_at_timestamp(self, temporal, expected):
+        assert temporal.value_at_timestamp(datetime(2019, 9, 1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -537,19 +550,6 @@ class TestTTextAccessors(TestTText):
         'temporal, expected',
         [
             (tti, tti),
-            (ttds, TTextInst('BBB@2019-09-02')),
-            (tts, TTextInst('BBB@2019-09-02')),
-            (ttss, TTextInst('BBB@2019-09-02')),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_max_instant(self, temporal, expected):
-        assert temporal.max_instant() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tti, tti),
             (ttds, tti),
             (tts, tti),
             (ttss, tti),
@@ -558,6 +558,19 @@ class TestTTextAccessors(TestTText):
     )
     def test_min_instant(self, temporal, expected):
         assert temporal.min_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tti, tti),
+            (ttds, TTextInst('BBB@2019-09-02')),
+            (tts, TTextInst('BBB@2019-09-02')),
+            (ttss, TTextInst('BBB@2019-09-02')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_max_instant(self, temporal, expected):
+        assert temporal.max_instant() == expected
 
     @pytest.mark.parametrize(
         'temporal, n, expected',
@@ -674,18 +687,6 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (ttds, True),
-            (tts, True),
-        ],
-        ids=['Discrete Sequence', 'Sequence']
-    )
-    def test_lower_upper_inc(self, temporal, expected):
-        assert temporal.lower_inc() == expected
-        assert temporal.upper_inc() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
             (tti, 1893808825),
             (ttds, 1223816819),
             (tts, 1223816819),
@@ -695,6 +696,33 @@ class TestTTextAccessors(TestTText):
     )
     def test_hash(self, temporal, expected):
         assert hash(temporal) == expected
+
+    def test_value_timestamp(self):
+        assert self.tti.value() == 'AAA'
+        assert self.tti.timestamp() == datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (ttds, True),
+            (tts, True),
+        ],
+        ids=['Discrete Sequence', 'Sequence']
+    )
+    def test_lower_upper_inc(self, temporal, expected):
+        assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    def test_sequenceset_sequence_functions(self):
+        ttss1 =TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],'
+            '[AAA@2019-09-03, AAA@2019-09-05], [CCC@2019-09-06]}')
+        assert ttss1.num_sequences() == 3
+        assert ttss1.start_sequence() == TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')
+        assert ttss1.end_sequence() == TTextSeq('[CCC@2019-09-06]')
+        assert ttss1.sequence_n(1) == TTextSeq('[AAA@2019-09-03, AAA@2019-09-05]')
+        assert ttss1.sequences() == [TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]'),
+            TTextSeq('[AAA@2019-09-03, AAA@2019-09-05]'), 
+            TTextSeq('[CCC@2019-09-06]')]
 
 
 class TestTTextTransformations(TestTText):
@@ -819,6 +847,29 @@ class TestTTextTransformations(TestTText):
         assert self.ttss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
              TTextSeqSet('{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],'
              '[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}')
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
+        [(tti, timedelta(days=4), TTextInst('AAA@2019-09-01')),
+         (tti, timedelta(hours=12), TTextInst('AAA@2019-09-01')),
+         (ttds, timedelta(days=4), TTextSeq('{AAA@2019-09-01}')),
+         (ttds, timedelta(hours=12), TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
+         (tts, timedelta(days=4), TTextSeq('{AAA@2019-09-01}')),
+         (tts, timedelta(hours=12), TTextSeq('{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02}')),
+         (ttss, timedelta(days=4),
+             TTextSeq('{AAA@2019-09-01,AAA@2019-09-05}')),
+         (ttss, timedelta(hours=12),
+             TTextSeq('{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02,'
+                         'AAA@2019-09-03, AAA@2019-09-03 12:00:00, AAA@2019-09-04, '
+                         'AAA@2019-09-04 12:00:00, AAA@2019-09-05}')),
+         ],
+        ids=['Instant days', 'Instant hours',
+             'Discrete Sequence days', 'Discrete Sequence hours',
+             'Sequence days', 'Sequence hours',
+             'Sequence Set days', 'Sequence Set hours']
+    )
+    def test_temporal_sample(self, tint, delta, expected):
+        assert tint.temporal_sample(delta) == expected
 
 
 class TestTTextModifications(TestTText):

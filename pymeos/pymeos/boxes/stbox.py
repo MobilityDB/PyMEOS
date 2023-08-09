@@ -63,10 +63,14 @@ class STBox:
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, float]] = None, xmax: Optional[Union[str, float]] = None,
-                 ymin: Optional[Union[str, float]] = None, ymax: Optional[Union[str, float]] = None,
-                 zmin: Optional[Union[str, float]] = None, zmax: Optional[Union[str, float]] = None,
-                 tmin: Optional[Union[str, datetime]] = None, tmax: Optional[Union[str, datetime]] = None,
+                 xmin: Optional[Union[str, float]] = None, 
+                 xmax: Optional[Union[str, float]] = None,
+                 ymin: Optional[Union[str, float]] = None, 
+                 ymax: Optional[Union[str, float]] = None,
+                 zmin: Optional[Union[str, float]] = None, 
+                 zmax: Optional[Union[str, float]] = None,
+                 tmin: Optional[Union[str, datetime]] = None, 
+                 tmax: Optional[Union[str, datetime]] = None,
                  tmin_inc: bool = True, tmax_inc: bool = True,
                  geodetic: bool = False, srid: Optional[int] = None,
                  _inner=None):
@@ -226,15 +230,16 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox], expansion: float,
-                                    geodetic: Optional[bool] = False) -> STBox:
+    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox],
+        expansion: float, geodetic: Optional[bool] = False) -> STBox:
         """
         Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
 
         Args:
             value: A `Geometry`, `TPoint` or `STBox` instance.
             expansion: The amount to expand the bounding box.
-            geodetic: Whether to create a geodetic or geometric `STBox`. Only used when value is a `Geometry` instance.
+            geodetic: Whether to create a geodetic or geometric `STBox`. 
+            Only used when value is a `Geometry` instance.
 
         Returns:
             A new :class:`STBox` instance.
@@ -596,7 +601,8 @@ class STBox:
         """
         return self.shift_tscale(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> STBox:
+    def shift_tscale(self, shift: Optional[timedelta] = None,
+        duration: Optional[timedelta] = None) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `shift` and with duration `duration`.
 
@@ -641,16 +647,15 @@ class STBox:
         return STBox(_inner=new_inner)
 
     # ------------------------- Set Operations --------------------------------
-    def union(self, other: STBox, strict: bool = True) -> STBox:
+    def union(self, other: STBox, strict: Optional[bool] = True) -> STBox:
         """
-        Returns the smallest spatio-temporal box that contains both ``self`` and `other`.
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
 
         Args:
-            other: The other :class:`STBox` to union with ``self``.
-            strict: If ``True``, the union will fail if the boxes are not overlapping.
+            other: spatiotemporal box to merge with
 
         Returns:
-            A new :class:`STBox` instance.
+            A :class:`STBox` instance.
 
         MEOS Functions:
             union_stbox_stbox
@@ -659,32 +664,29 @@ class STBox:
 
     def __add__(self, other):
         """
-        Returns the non-strict union of ``self`` and `other`.
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
 
         Args:
-            other: The spatiotemporal object to union with ``self``.
+            other: spatiotemporal box to merge with
 
         Returns:
-            An :class:`STBox` with the union of ``self`` and ``other``.
+            A :class:`STBox` instance.
 
         MEOS Functions:
             union_stbox_stbox
-
-        See Also:
-            :meth:`STBox.union`
         """
-        return self.union(other, strict=False)
+        return self.union(other)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: STBox) -> Optional[STBox]:
         """
-        Returns the intersection of ``self`` and `other`.
+        Returns the intersection of `self` with `other`.
 
         Args:
-            other: The other :class:`STBox` to intersect with ``self``.
+            other: temporal object to merge with
 
         Returns:
-            A new :class:`STBox` instance or ``None`` if the intersection is empty.
+            A :class:`STBox` instance if the instersection is not empty, `None` otherwise.
 
         MEOS Functions:
             intersection_stbox_stbox
@@ -694,19 +696,16 @@ class STBox:
 
     def __mul__(self, other):
         """
-        Returns the intersection of ``self`` and `other`.
+        Returns the intersection of `self` with `other`.
 
         Args:
-            other: The spatiotemporal object to intersect with ``self``.
+            other: temporal object to merge with
 
         Returns:
-            An :class:`STBox` with the intersection of ``self`` and ``other``.
+            A :class:`STBox` instance if the instersection is not empty, `None` otherwise.
 
         MEOS Functions:
             intersection_stbox_stbox
-
-        See Also:
-            :meth:`STBox.intersection`
         """
         return self.intersection(other)
 

@@ -178,7 +178,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         pass
 
-    def as_mfjson(self, with_bbox: bool = True, flags: int = 3, precision: int = 6, srs: Optional[str] = None) -> str:
+    def as_mfjson(self, with_bbox: bool = True, flags: int = 3,
+        precision: int = 6, srs: Optional[str] = None) -> str:
         """
         Returns the temporal object as a MF-JSON string.
 
@@ -527,6 +528,58 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             timedelta_to_interval(duration) if duration else None
         )
         return Temporal._factory(scaled)
+
+    def temporal_sample(self, duration: Union[str, timedelta],
+        start: Optional[Union[str, datetime]] = None) -> TG:
+        """
+        Returns a new :class:`Temporal` downsampled with respect to ``duration``.
+
+        Args:
+            duration: A :class:`str` or :class:`timedelta` with the duration of the temporal tiles.
+            start: A :class:`str` or :class:`datetime` with the start time of the temporal tiles. If None, the start
+                time of `self` is used.
+
+        MEOS Functions:
+            temporal_tsample
+        """
+        if start is None:
+            st = temporal_start_timestamp(self._inner)
+        elif isinstance(start, datetime):
+            st = datetime_to_timestamptz(start)
+        else:
+            st = pg_timestamptz_in(start, -1)
+        if isinstance(duration, timedelta):
+            dt = timedelta_to_interval(duration)
+        else:
+            pg_interval_in(duration, -1)
+        result = temporal_tsample(self._inner, dt, st)
+        return Temporal._factory(result)
+
+    def temporal_precision(self, duration: Union[str, timedelta],
+        start: Optional[Union[str, datetime]] = None) -> TG:
+        """
+        Returns a new :class:`Temporal` with precision reduced to ``duration``.
+
+        Args:
+            duration: A :class:`str` or :class:`timedelta` with the duration of the temporal tiles.
+            start: A :class:`str` or :class:`datetime` with the start time of the temporal tiles. If None, the start
+                time of `self` is used.
+
+        MEOS Functions:
+            temporal_tprecision
+        """
+        if start is None:
+            st = temporal_start_timestamp(self._inner)
+        elif isinstance(start, datetime):
+            st = datetime_to_timestamptz(start)
+        else:
+            st = pg_timestamptz_in(start, -1)
+        if isinstance(duration, timedelta):
+            dt = timedelta_to_interval(duration)
+        else:
+            pg_interval_in(duration, -1)
+        result = temporal_tprecision(self._inner, dt, st)
+        return Temporal._factory(result)
 
     def to_instant(self) -> TI:
         """
@@ -1099,7 +1152,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
 
-    def stops(self, max_distance: float, min_duration: timedelta) -> TSS:
+    def stops(self, max_distance: Optional[float] = 0.0,
+        min_duration: Optional[timedelta] = timedelta()) -> TSS:
         """
         Return the subsequences where the objects stay within an area with a given maximum size for at least
         the specified duration.
