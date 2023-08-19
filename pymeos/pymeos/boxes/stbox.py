@@ -175,14 +175,13 @@ class STBox:
             timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox
         """
         if isinstance(time, datetime):
-            result = (datetime, datetime)
+            result = timestamp_to_stbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = (time.start_timestamp(), time.end_timestamp())
+            result = timestampset_to_stbox(time._inner)
         elif isinstance(time, Period):
-            result = (time.lower, time.upper, time.lower_inc, time.upper_inc)
+            result = period_to_stbox(time._inner)
         elif isinstance(time, PeriodSet):
-            result = (time.start_period().lower, time.end_period().upper,
-                time.start_period().lower_inc, time.end_period().upper_inc)
+            result = periodset_to_stbox(time._inner)
         else:
             raise TypeError(f'Operation not supported with type {time.__class__}')
         return STBox(_inner=result)
@@ -541,7 +540,7 @@ class STBox:
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
     # ------------------------- Transformations -------------------------------
-    def expand(self, other: Union[int, float, timedelta]) -> STBox:
+    def expand(self, other: Union[int, float, timedelta, STBox]) -> STBox:
         """
         Expands ``self`` with `other`.
         If `other` is a :class:`int` or a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
@@ -561,6 +560,9 @@ class STBox:
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = stbox_expand_time(self._inner, timedelta_to_interval(other))
+        elif isinstance(other, STBox):
+            result = stbox_copy(self._inner)
+            stbox_expand(other._inner, result)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return STBox(_inner=result)
