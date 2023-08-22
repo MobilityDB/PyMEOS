@@ -84,24 +84,24 @@ class TestTBoxConstructors(TestTBox):
         assert isinstance(tb, TBox)
         assert str(tb) == expected
 
-    # @pytest.mark.parametrize(
-        # 'time, expected',
-        # [
-            # (datetime(2019, 9, 1), 
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (TimestampSet('{2019-09-01, 2019-09-02}'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-        # ],
-        # ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
-    # )
-    # def test_from_time_constructor(self, time, expected):
-        # tb = TBox.from_time(time)
-        # assert isinstance(tb, TBox)
-        # assert str(tb) == expected
+    @pytest.mark.parametrize(
+        'time, expected',
+        [
+            (datetime(2019, 9, 1), 
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TimestampSet('{2019-09-01, 2019-09-02}'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (Period('[2019-09-01, 2019-09-02]'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+        ],
+        ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
+    )
+    def test_from_time_constructor(self, time, expected):
+        tb = TBox.from_time(time)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
 
     # @pytest.mark.parametrize(
         # 'value, time, expected',

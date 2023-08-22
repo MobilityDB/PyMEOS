@@ -240,7 +240,7 @@ class TBox:
         """
         return tbox_out(self._inner, max_decimals)
 
-    def __repr__(self, max_decimals=15):
+    def __repr__(self, max_decimals: int = 15):
         """
         Returns a string representation of ``self``.
 

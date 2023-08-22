@@ -82,7 +82,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self, max_decimals=15):
+    def __str__(self, max_decimals: int = 15):
         """
         Returns a string representation of `self`.
 
@@ -94,12 +94,12 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         return tfloat_out(self._inner, max_decimals)
 
-    def as_wkt(self, precision: int = 15) -> str:
+    def as_wkt(self, max_decimals: int = 15) -> str:
         """
         Returns a WKT representation of `self`.
 
         Args:
-            precision: The number of decimals to use.
+            max_decimals: The number of decimals to use.
 
         Returns:
             A WKT representation of `self`.
@@ -107,7 +107,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_out
         """
-        return tfloat_out(self._inner, precision)
+        return tfloat_out(self._inner, max_decimals)
 
     # ------------------------- Conversions ----------------------------------
     def to_tint(self) -> TInt:

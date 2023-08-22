@@ -55,24 +55,24 @@ class TestSTBoxConstructors(TestSTBox):
         assert isinstance(stb, STBox)
         assert str(stb) == expected
 
-    # @pytest.mark.parametrize(
-        # 'time, expected',
-        # [
-            # (datetime(2019, 9, 1),
-                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (TimestampSet('{2019-09-01, 2019-09-02}'),
-                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (Period('[2019-09-01, 2019-09-02]'),
-                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
-                # 'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-        # ],
-        # ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
-    # )
-    # def test_from_time_constructor(self, time, expected):
-        # stb = STBox.from_time(time)
-        # assert isinstance(stb, STBox)
-        # assert str(stb) == expected
+    @pytest.mark.parametrize(
+        'time, expected',
+        [
+            (datetime(2019, 9, 1),
+                'STBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TimestampSet('{2019-09-01, 2019-09-02}'),
+                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (Period('[2019-09-01, 2019-09-02]'),
+                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
+                'STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+        ],
+        ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
+    )
+    def test_from_time_constructor(self, time, expected):
+        stb = STBox.from_time(time)
+        assert isinstance(stb, STBox)
+        assert str(stb) == expected
 
     @pytest.mark.parametrize(
         'geometry, time, expected',

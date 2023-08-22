@@ -81,22 +81,22 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         assert tp.interpolation() == interpolation
         assert str(tp) == expected
 
-    # @pytest.mark.parametrize(
-        # 'source, type, expected',
-        # [
-            # ('[Point(1 1)@2019-09-01, Point(1.25 1.25)@2019-09-02, Point(1.5 1.5)@2019-09-03, Point(2 2)@2019-09-05]', TGeogPointSeq,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00]'),
-            # ('{[Point(1 1)@2019-09-01, Point(1.25 1.25)@2019-09-02, Point(1.5 1.5)@2019-09-03, Point(2 2)@2019-09-05],'
-             # '[Point(1 1)@2019-09-07, Point(1 1)@2019-09-08, Point(1 1)@2019-09-09]}', TGeogPointSeqSet,
-             # '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00], '
-             # '[POINT(1 1)@2019-09-07 00:00:00+00, POINT(1 1)@2019-09-09 00:00:00+00]}'),
-        # ],
-        # ids=['Sequence', 'SequenceSet']
-    # )
-    # def test_string_constructor_normalization(self, source, type, expected):
-        # tp = type(source, normalize=True)
-        # assert isinstance(tp, type)
-        # assert str(tp) == expected
+    @pytest.mark.parametrize(
+        'source, type, expected',
+        [
+            ('[Point(1 1)@2019-09-01, Point(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05]', TGeogPointSeq,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00]'),
+            ('{[Point(1 1)@2019-09-01, POINT(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05],'
+             '[Point(1 1)@2019-09-07, Point(1 1)@2019-09-08, Point(1 1)@2019-09-09]}', TGeogPointSeqSet,
+             '{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00], '
+             '[POINT(1 1)@2019-09-07 00:00:00+00, POINT(1 1)@2019-09-09 00:00:00+00]}'),
+        ],
+        ids=['Sequence', 'SequenceSet']
+    )
+    def test_string_constructor_normalization(self, source, type, expected):
+        tp = type(source, normalize=True)
+        assert isinstance(tp, type)
+        assert str(tp) == expected
 
     @pytest.mark.parametrize(
         'value, timestamp',
@@ -112,42 +112,43 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         tpi = TGeogPointInst(point=value, timestamp=timestamp)
         assert str(tpi) == 'POINT(1 1)@2019-09-01 00:00:00+00'
 
-    # @pytest.mark.parametrize(
-        # 'list, interpolation, normalize, expected',
-        # [
-            # (['Point(1 1)@2019-09-01', 'Point(2 2)@2019-09-03'], TInterpolation.DISCRETE, False,
-             # '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
-            # (['Point(1 1)@2019-09-01', 'Point(2 2)@2019-09-03'], TInterpolation.LINEAR, False,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
-            # ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.DISCRETE, False,
-             # '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
-            # ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, False,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
-            # (['Point(1 1)@2019-09-01', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.DISCRETE, False,
-             # '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
-            # (['Point(1 1)@2019-09-01', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, False,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+    @pytest.mark.parametrize(
+        'list, interpolation, normalize, expected',
+        [
+            (['Point(1 1)@2019-09-01', 'Point(2 2)@2019-09-03'], TInterpolation.DISCRETE, False,
+             '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
+            (['Point(1 1)@2019-09-01', 'Point(2 2)@2019-09-03'], TInterpolation.LINEAR, False,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+            ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.DISCRETE, False,
+             '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
+            ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, False,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+            (['Point(1 1)@2019-09-01', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.DISCRETE, False,
+             '{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}'),
+            (['Point(1 1)@2019-09-01', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, False,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
 
-            # (['Point(1 1)@2019-09-01', 'Point(1.5 1.5)@2019-09-02', 'Point(2 2)@2019-09-03'], TInterpolation.LINEAR, True,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
-            # ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(1.5 1.5)@2019-09-02'), TGeogPointInst('Point(2 2)@2019-09-03')],
-             # TInterpolation.LINEAR, True,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
-            # (['Point(1 1)@2019-09-01', 'Point(1.5 1.5)@2019-09-02', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, True,
-             # '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
-        # ],
-        # ids=['String Discrete', 'String Linear', 'TGeogPointInst Discrete', 'TGeogPointInst Linear', 'Mixed Discrete',
-             # 'Mixed Linear', 'String Linear Normalized', 'TGeogPointInst Linear Normalized',
-             # 'Mixed Linear Normalized']
-    # )
-    # def test_instant_list_sequence_constructor(self, list, interpolation, normalize, expected):
-        # tps = TGeogPointSeq(instant_list=list, interpolation=interpolation, normalize=normalize, upper_inc=True)
-        # assert str(tps) == expected
-        # assert tps.interpolation() == interpolation
+            (['Point(1 1)@2019-09-01', 'Point(1.499885736561676 1.500057091479197)@2019-09-02', 'Point(2 2)@2019-09-03'], TInterpolation.LINEAR, True,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+            ([TGeogPointInst('Point(1 1)@2019-09-01'), TGeogPointInst('Point(1.499885736561676 1.500057091479197)@2019-09-02'), TGeogPointInst('Point(2 2)@2019-09-03')],
+             TInterpolation.LINEAR, True,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+            (['Point(1 1)@2019-09-01', 'Point(1.499885736561676 1.500057091479197)@2019-09-02', TGeogPointInst('Point(2 2)@2019-09-03')], TInterpolation.LINEAR, True,
+             '[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]'),
+        ],
+        ids=['String Discrete', 'String Linear', 'TGeogPointInst Discrete', 'TGeogPointInst Linear',
+             'Mixed Discrete',
+             'Mixed Linear', 'String Linear Normalized', 'TGeogPointInst Linear Normalized',
+             'Mixed Linear Normalized']
+    )
+    def test_instant_list_sequence_constructor(self, list, interpolation, normalize, expected):
+        tps = TGeogPointSeq(instant_list=list, interpolation=interpolation, normalize=normalize, upper_inc=True)
+        assert str(tps) == expected
+        assert tps.interpolation() == interpolation
 
-        # tps2 = TGeogPointSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
-        # assert str(tps2) == expected
-        # assert tps2.interpolation() == interpolation
+        tps2 = TGeogPointSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
+        assert str(tps2) == expected
+        assert tps2.interpolation() == interpolation
 
     @pytest.mark.parametrize(
         'temporal',

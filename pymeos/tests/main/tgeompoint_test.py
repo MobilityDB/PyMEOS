@@ -844,19 +844,19 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
     def test_cumulative_length(self, temporal, expected):
         assert temporal.cumulative_length() == expected
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, None),
-            # (tpds, None),
-            # (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
-            # (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
-                # '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_speed(self, temporal, expected):
-        # assert temporal.speed() == expected
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
+            (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_speed(self, temporal, expected):
+        assert temporal.speed() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

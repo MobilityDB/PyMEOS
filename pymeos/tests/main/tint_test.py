@@ -1482,6 +1482,7 @@ class TestTIntRestrictors(TestTInt):
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
 
+    # TODO ADD the tests that are currently commented out in at and minus
     @pytest.mark.parametrize(
         'temporal, restrictor',
         [
