@@ -78,22 +78,40 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Optional[bool] = None) -> 'GSERIALIZED *':
+def geo_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: bool) -> 'GSERIALIZED *':
+    if geodetic:
+        return geography_to_gserialized(geom)
+    else:
+        return geometry_to_gserialized(geom)
+
+
+def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
+        text = geom.wkt
         # if geom.has_srid():
-            # text = f'SRID={geom.srid};{text}'
+        #     text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
+        text = wkt.dumps(geom)
         if get_srid(geom) > 0:
             text = f'SRID={get_srid(geom)};{text}'
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
     gs = pgis_geometry_in(text, -1)
-    if geodetic is not None:
-        # GFlags is an 8-bit integer, where the 4th bit is the geodetic flag (0x80)
-        # If geodetic is True, then set the 4th bit to 1, otherwise set it to 0
-        gs.gflags = (gs.gflags | 0x08) if geodetic else (gs.gflags & 0xF7)
+    return gs
+
+
+def geography_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
+    if isinstance(geom, pg.Geometry):
+        text = geom.wkt
+        # if geom.has_srid():
+        #     text = f'SRID={geom.srid};{text}'
+    elif isinstance(geom, BaseGeometry):
+        text = wkt.dumps(geom)
+        if get_srid(geom) > 0:
+            text = f'SRID={get_srid(geom)};{text}'
+    else:
+        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
+    gs = pgis_geography_in(text, -1)
     return gs
 
 
@@ -147,18 +165,7 @@ function_modifiers = {
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
-    'tint_at_values': tint_at_values_modifier,
-    'tint_minus_values': tint_minus_values_modifier,
-    'tfloat_at_values': tfloat_at_values_modifier,
-    'tfloat_minus_values': tfloat_minus_values_modifier,
-    'tbool_at_values': tbool_at_values_modifier,
-    'tbool_minus_values': tbool_minus_values_modifier,
-    'ttext_at_values': array_length_remover_modifier('values_converted'),
-    'ttext_minus_values': array_length_remover_modifier('values_converted'),
-    'tpoint_at_values': array_length_remover_modifier('values_converted'),
-    'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
-    'tpointseq_make_coords': tpointseq_make_coords_modifier,
     'spanset_make': spanset_make_modifier,
     'temporal_from_wkb': from_wkb_modifier('temporal_from_wkb', 'Temporal'),
     'set_from_wkb': from_wkb_modifier('set_from_wkb', 'Set'),
@@ -172,6 +179,11 @@ function_modifiers = {
     'spanset_as_wkb': as_wkb_modifier,
     'tbox_as_wkb': as_wkb_modifier,
     'stbox_as_wkb': as_wkb_modifier,
+    'intset_make': array_parameter_modifier('values', 'count'),
+    'bigintset_make': array_parameter_modifier('values', 'count'),
+    'floatset_make': array_parameter_modifier('values', 'count'),
+    'textset_make': array_parameter_modifier('values', 'count'),
+    'geoset_make': array_length_remover_modifier('values', 'count'),
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -221,7 +233,6 @@ nullable_parameters = {
     ('tbox_make', 'p'),
     ('tbox_make', 's'),
     ('stbox_make', 'p'),
-    ('tpointseq_make_coords', 'zcoords'),
     ('temporal_tcount_transfn', 'state'),
     ('temporal_extent_transfn', 'p'),
     ('tnumber_extent_transfn', 'box'),
@@ -243,13 +254,6 @@ nullable_parameters = {
     ('period_tcount_transfn', 'interval'),
     ('periodset_tcount_transfn', 'interval'),
     ('timestamp_extent_transfn', 'p'),
-    ('timestampset_extent_transfn', 'p'),
-    ('period_extent_transfn', 'p'),
-    ('periodset_extent_transfn', 'p'),
-    ('timestamp_tunion_transfn', 'state'),
-    ('timestampset_tunion_transfn', 'state'),
-    ('period_tunion_transfn', 'state'),
-    ('periodset_tunion_transfn', 'state'),
     ('timestamp_tcount_transfn', 'state'),
     ('timestampset_tcount_transfn', 'state'),
     ('period_tcount_transfn', 'state'),
@@ -281,6 +285,21 @@ def is_output_parameter(function: str, parameter: Parameter) -> bool:
     return (function, parameter.name) in output_parameters
 
 
+def check_modifiers(functions: List[str]) -> None:
+    for func in function_modifiers.keys():
+        if func not in functions:
+            print(f'Modifier defined for non-existent function {func}')
+    for func, param in result_parameters:
+        if func not in functions:
+            print(f'Result parameter defined for non-existent function {func} ({param})')
+    for func, param in output_parameters:
+        if func not in functions:
+            print(f'Output parameter defined for non-existent function {func} ({param})')
+    for func, param in nullable_parameters:
+        if func not in functions:
+            print(f'Nullable Parameter defined for non-existent function {func} ({param})')
+
+
 def main():
     with open('pymeos_cffi/builder/meos.h') as f:
         content = f.read()
@@ -310,14 +329,18 @@ def main():
             file.write(function_string)
             file.write('\n\n\n')
 
+    functions = []
     with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
         content = funcs.read()
-        f_names = re.finditer(r'def (\w+)\(', content)
+        matches = list(re.finditer(r'def (\w+)\(', content))
         init.write('from .functions import *\n\n')
         init.write('__all__ = [\n')
-        for fn in f_names:
+        for fn in matches:
+            functions.append(fn.group(1))
             init.write(f"    '{fn.group(1)}',\n")
         init.write(']\n')
+
+    check_modifiers(functions)
 
 
 def get_params(function: str, inner_params: str) -> List[Parameter]:

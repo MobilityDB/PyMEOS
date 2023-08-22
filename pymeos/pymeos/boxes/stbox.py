@@ -42,7 +42,7 @@ class STBox:
     def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
         if allow_space_only and isinstance(other, get_args(Geometry)):
-            other_box = geo_to_stbox(geometry_to_gserialized(other, self.geodetic()))
+            other_box = geo_to_stbox(geo_to_gserialized(other, self.geodetic()))
         elif isinstance(other, STBox):
             other_box = other._inner
         elif isinstance(other, TPoint):
@@ -157,7 +157,7 @@ class STBox:
         MEOS Functions:
             pgis_geometry_in, geo_to_stbox
         """
-        gs = geometry_to_gserialized(geom, geodetic)
+        gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
@@ -175,14 +175,13 @@ class STBox:
             timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox
         """
         if isinstance(time, datetime):
-            result = (datetime, datetime)
+            result = timestamp_to_stbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = (time.start_timestamp(), time.end_timestamp())
+            result = timestampset_to_stbox(time._inner)
         elif isinstance(time, Period):
-            result = (time.lower, time.upper, time.lower_inc, time.upper_inc)
+            result = period_to_stbox(time._inner)
         elif isinstance(time, PeriodSet):
-            result = (time.start_period().lower, time.end_period().upper,
-                time.start_period().lower_inc, time.end_period().upper_inc)
+            result = periodset_to_stbox(time._inner)
         else:
             raise TypeError(f'Operation not supported with type {time.__class__}')
         return STBox(_inner=result)
@@ -204,7 +203,7 @@ class STBox:
         MEOS Functions:
             geo_timestamp_to_stbox, geo_period_to_stbox
         """
-        gs = geometry_to_gserialized(geometry, geodetic)
+        gs = geo_to_gserialized(geometry, geodetic)
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
         elif isinstance(time, Period):
@@ -248,7 +247,7 @@ class STBox:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
         if isinstance(value, get_args(Geometry)):
-            gs = geometry_to_gserialized(value, geodetic)
+            gs = geo_to_gserialized(value, geodetic)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
             result = tpoint_expand_space(value._inner, expansion)
@@ -647,12 +646,13 @@ class STBox:
         return STBox(_inner=new_inner)
 
     # ------------------------- Set Operations --------------------------------
-    def union(self, other: STBox, strict: Optional[bool] = True) -> STBox:
+    def union(self, other: STBox, strict: Optional[bool] = False) -> STBox:
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns the union of `self` with `other`.
 
         Args:
             other: spatiotemporal box to merge with
+            strict: Whether to fail if the boxes do not intersect.
 
         Returns:
             A :class:`STBox` instance.
@@ -675,7 +675,7 @@ class STBox:
         MEOS Functions:
             union_stbox_stbox
         """
-        return self.union(other)
+        return self.union(other, False)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: STBox) -> Optional[STBox]:
@@ -1061,7 +1061,7 @@ class STBox:
             nad_stbox_geo, nad_stbox_stbox
         """
         if isinstance(other, get_args(Geometry)):
-            gs = geometry_to_gserialized(other, self.geodetic())
+            gs = geo_to_gserialized(other, self.geodetic())
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):
             return nad_stbox_stbox(self._inner, other._inner)
@@ -1165,7 +1165,8 @@ class STBox:
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
             else datetime_to_timestamptz(self.tmin()) if self.has_t() \
             else 0
-        gs = geometry_to_gserialized(origin) if origin is not None \
+        gs = geo_to_gserialized(origin, self.geodetic()) if origin is not None \
+            else pgis_geography_in('Point(0 0 0)', -1) if self.geodetic() \
             else pgis_geometry_in('Point(0 0 0)', -1)
         tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
         x_size = dimensions[0] or 1
