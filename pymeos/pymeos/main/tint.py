@@ -640,16 +640,14 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         if isinstance(other, int):
             result = tint_at_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):
-            # result = tint_at_values(self._inner, other)
-            results = [tint_at_value(self._inner, value) for value in other if other is not None]
-            result = temporal_merge_array(results, len(results))
+            result = temporal_at_values(self._inner, intset_make(other))
         else:
             return super().at(other)
         return Temporal._factory(result)
 
     def minus(self, other: Union[int, List[int],
-                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+            intrange, floatrange, List[intrange], List[floatrange], TBox,
+            datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         """
         Returns a new temporal int with the values of `self` restricted to the complement of the time or value
          `other`.
@@ -667,7 +665,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         if isinstance(other, int):
             result = tint_minus_value(self._inner, other)
         elif isinstance(other, list) and isinstance(other[0], int):
-            result = temporal_minus_values(self._inner, intset_make(other, len(other)))
+            result = temporal_minus_values(self._inner, intset_make(other))
         else:
             return super().minus(other)
         return Temporal._factory(result)

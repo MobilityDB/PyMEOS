@@ -639,11 +639,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         elif isinstance(other, floatrange):
             result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and (isinstance(other[0], int) or isinstance(other[0], float)):
-            results = [tfloat_at_value(self._inner, float(other)) for value in other if other is not None]
-            result = temporal_merge_array(results, len(results))
-        elif isinstance(other, list) and (isinstance(other[0], floatrange) or isinstance(other[0], intrange)):
-            results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
-            result = temporal_merge_array(results, len(results))
+            result = temporal_at_values(self._inner, floatset_make(other))
+        # elif isinstance(other, list) and (isinstance(other[0], floatrange) or isinstance(other[0], intrange)):
+            # results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
+            # result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
         return Temporal._factory(result)
@@ -670,7 +669,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         elif isinstance(other, floatrange):
             result = tnumber_minus_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], float):
-            result = reduce(tfloat_minus_value, other, self._inner)
+            result = temporal_minus_values(self._inner, floatset_make(other))
         else:
             return super().minus(other)
         return Temporal._factory(result)

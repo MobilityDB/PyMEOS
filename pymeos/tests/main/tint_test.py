@@ -1310,38 +1310,38 @@ class TestTIntRestrictors(TestTInt):
             (tii, 1, TIntInst('1@2019-09-01')),
             (tii, 2, None),
             (tii, intrange(1, 1, True, True), TIntInst('1@2019-09-01')),
-            # (tii, [1,2], TIntInst('1@2019-09-01')),
+            (tii, [1,2], tii),
             # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # TIntInst('1@2019-09-01')),
 
             (tids, 1, TIntSeq('{1@2019-09-01}')),
             (tids, 2, TIntSeq('{2@2019-09-02}')),
             (tids, intrange(1, 1, True, True), TIntSeq('{1@2019-09-01}')),
-            # (tids, [1,2], TIntSeq('{2@2019-09-02}')),
+            (tids, [1,2], tids),
             # (tids, [intrange(1, 1, True, True), tids),
 
             (tis, 1, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
             (tis, 2, TIntSeq('[2@2019-09-02]')),
             (tis, intrange(1, 1, True, True), TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
-            # (tis, [1,2], TIntSeq('[2@2019-09-02]')),
+            (tis, [1,2], tis),
             # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
 
             (tiss, 1, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
             (tiss, 2, TIntSeqSet('{[2@2019-09-02]}')),
             (tiss, intrange(1, 1, True, True), TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
-            # (tiss, [1,2], TIntSeqSet('{[2@2019-09-02]}'))
+            (tiss, [1,2], tiss)
             # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # tiss),
         ],
         ids=['Instant-1', 'Instant-2', 'Instant-Range',
-             # 'Instant-ValueList', 'Instant-RangeList', 
+             'Instant-ValueList', # 'Instant-RangeList', 
              'Discrete Sequence-1', 'Discrete Sequence-2', 'Discrete Sequence-Range', 
-             # 'Discrete Sequence-ValueList', 'Discrete Sequence-RangeList', 
+             'Discrete Sequence-ValueList', # 'Discrete Sequence-RangeList', 
              'Sequence-1', 'Sequence-2', 'Sequence-Range', 
-             # 'Sequence-ValueList', 'Sequence-RangeList', 
+             'Sequence-ValueList', # 'Sequence-RangeList', 
              'SequenceSet-1', 'SequenceSet-2', 'SequenceSet-Range', 
-             # 'SequenceSet-ValueList', 'SequenceSet-RangeList'
+             'SequenceSet-ValueList', # 'SequenceSet-RangeList'
              ]
     )
     def test_at_values(self, temporal, restrictor, expected):
@@ -1418,43 +1418,46 @@ class TestTIntRestrictors(TestTInt):
             (tii, 1, None),
             (tii, 2, TIntInst('1@2019-09-01')),
             (tii, intrange(1, 1, True, True), None),
-            # (tii, [1,2], None),
+            (tii, [1,2], None),
             # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # None),
 
             (tids, 1, TIntSeq('{2@2019-09-02}')),
             (tids, 2, TIntSeq('{1@2019-09-01}')),
             (tids, intrange(1, 1, True, True), TIntSeq('{2@2019-09-02}')),
-            # (tids, [1,2], tids),
+            (tids, [1,2], None),
             # (tids, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # None),
 
             (tis, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tis, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02)}')),
             (tis, intrange(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
-            # (tis, [1,2], tis),
+            (tis, [1,2], None),
             # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # None),
 
             (tiss, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tiss, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
             (tis, intrange(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
-            # (tiss, [1,2], tiss)
+            (tiss, [1,2], None)
             # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
                 # None),
         ],
         ids=['Instant-1', 'Instant-2', 'Instant-Range', 
-             # 'Instant-ValueList', 'Instant-RangeList', 
+             'Instant-ValueList', # 'Instant-RangeList', 
              'Discrete Sequence-1', 'Discrete Sequence-2', 'Discrete Sequence-Range', 
-             # 'Discrete Sequence-ValueList', 'Discrete Sequence-RangeList', 
+             'Discrete Sequence-ValueList', # 'Discrete Sequence-RangeList', 
              'Sequence-1', 'Sequence-2', 'Sequence-Range', 
-             # 'Sequence-ValueList', 'Sequence-RangeList', 
+             'Sequence-ValueList', # 'Sequence-RangeList', 
              'SequenceSet-1', 'SequenceSet-2', 'SequenceSet-Range', 
-             # 'SequenceSet-ValueList', 'SequenceSet-RangeList', 
+             'SequenceSet-ValueList', # 'SequenceSet-RangeList', 
              ]
     )
     def test_minus_values(self, temporal, restrictor, expected):
-        assert temporal.minus(restrictor) == expected
+        if expected is None:
+            assert temporal.minus(restrictor) is None
+        else:
+            assert temporal.minus(restrictor) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

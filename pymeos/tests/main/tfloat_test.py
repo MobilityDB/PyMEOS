@@ -1435,21 +1435,21 @@ class TestTFloatRestrictors(TestTFloat):
             (tfi, 1.5, TFloatInst('1.5@2019-09-01')),
             (tfi, 2.5, None),
             (tfi, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
-            # (tfi, [1.5,2.5], TFloatInst('1.5@2019-09-01')),
+            (tfi, [1.5,2.5], tfi),
             # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfds, 1.5, TFloatSeq('{1.5@2019-09-01}')),
             (tfds, 2.5, TFloatSeq('{2.5@2019-09-02}')),
             (tfds, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
-            # (tfds, [1.5,2.5], TFloatSeq('{1.5@2019-09-01}')),
+            (tfds, [1.5,2.5], tfds),
             # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfs, 1.5, TFloatSeq('[1.5@2019-09-01]')),
             (tfs, 2.5, TFloatSeq('[2.5@2019-09-02]')),
             (tfs, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
-            # (tfs, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02)}')),
+            (tfs, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02]}')),
             # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
                 # TFloatInst('1.5@2019-09-01')),
 
@@ -1457,18 +1457,18 @@ class TestTFloatRestrictors(TestTFloat):
             (tfss, 2.5, TFloatSeqSet('{[2.5@2019-09-02]}')),
             (tfss, floatrange(1.5, 1.5, True, True),
                 TFloatSeqSet('{[1.5@2019-09-01],[1.5@2019-09-03, 1.5@2019-09-05]}')),
-            # (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}'))
+            (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'))
             # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
                 # TFloatInst('1.5@2019-09-01')),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
-             # 'Instant-ValueList', 'Instant-RangeList',
+             'Instant-ValueList', # 'Instant-RangeList',
              'Discrete Sequence-1.5', 'Discrete Sequence-2.5', 'Discrete Sequence-Range', 
-             # 'Discrete Sequence-ValueList', 'Discrete Sequence-RangeList' 
+             'Discrete Sequence-ValueList', # 'Discrete Sequence-RangeList' 
              'Sequence-1.5', 'Sequence-2.5', 'Sequence-Range', 
-             # 'Sequence-ValueList', 'Sequence-RangeList', 
+             'Sequence-ValueList', # 'Sequence-RangeList', 
              'SequenceSet-1.5', 'SequenceSet-2.5', 'Sequence Set-Range', 
-             # 'SequenceSet-ValueList', 'SequenceSet-RangeList'
+             'SequenceSet-ValueList', # 'SequenceSet-RangeList'
              ]
     )
     def test_at_values(self, temporal, restrictor, expected):
