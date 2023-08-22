@@ -87,11 +87,11 @@ def geo_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: bool) -
 
 def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
+        text = geom.wkt
         # if geom.has_srid():
         #     text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
+        text = wkt.dumps(geom)
         if get_srid(geom) > 0:
             text = f'SRID={get_srid(geom)};{text}'
     else:
@@ -102,11 +102,11 @@ def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALI
 
 def geography_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
+        text = geom.wkt
         # if geom.has_srid():
         #     text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
+        text = wkt.dumps(geom)
         if get_srid(geom) > 0:
             text = f'SRID={get_srid(geom)};{text}'
     else:

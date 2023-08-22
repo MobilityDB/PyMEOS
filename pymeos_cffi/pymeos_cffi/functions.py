@@ -47,11 +47,11 @@ def geo_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: bool) -
 
 def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
+        text = geom.wkt
         # if geom.has_srid():
         #     text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
+        text = wkt.dumps(geom)
         if get_srid(geom) > 0:
             text = f'SRID={get_srid(geom)};{text}'
     else:
@@ -62,11 +62,11 @@ def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALI
 
 def geography_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
     if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
+        text = geom.wkt
         # if geom.has_srid():
         #     text = f'SRID={geom.srid};{text}'
     elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
+        text = wkt.dumps(geom)
         if get_srid(geom) > 0:
             text = f'SRID={get_srid(geom)};{text}'
     else:
@@ -773,9 +773,9 @@ def timestampset_out(set: 'const Set *') -> str:
     return result if result != _ffi.NULL else None
 
 
-def bigintset_make(values: 'const int64 *', count: int) -> 'Set *':
-    values_converted = _ffi.cast('const int64 *', values)
-    result = _lib.bigintset_make(values_converted, count)
+def bigintset_make(values: 'List[const int64]') -> 'Set *':
+    values_converted = _ffi.new('const int64 []', values)
+    result = _lib.bigintset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
 
@@ -786,9 +786,9 @@ def bigintspan_make(lower: int, upper: int, lower_inc: bool, upper_inc: bool) ->
     return result if result != _ffi.NULL else None
 
 
-def floatset_make(values: 'const double *', count: int) -> 'Set *':
-    values_converted = _ffi.cast('const double *', values)
-    result = _lib.floatset_make(values_converted, count)
+def floatset_make(values: 'List[const double]') -> 'Set *':
+    values_converted = _ffi.new('const double []', values)
+    result = _lib.floatset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
 
@@ -797,15 +797,15 @@ def floatspan_make(lower: float, upper: float, lower_inc: bool, upper_inc: bool)
     return result if result != _ffi.NULL else None
 
 
-def geoset_make(values: 'const GSERIALIZED **', count: int) -> 'Set *':
+def geoset_make(values: 'const GSERIALIZED **') -> 'Set *':
     values_converted = [_ffi.cast('const GSERIALIZED *', x) for x in values]
-    result = _lib.geoset_make(values_converted, count)
+    result = _lib.geoset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
 
-def intset_make(values: 'const int *', count: int) -> 'Set *':
-    values_converted = _ffi.cast('const int *', values)
-    result = _lib.intset_make(values_converted, count)
+def intset_make(values: 'List[const int]') -> 'Set *':
+    values_converted = _ffi.new('const int []', values)
+    result = _lib.intset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
 
@@ -857,9 +857,9 @@ def spanset_make_free(spans: 'Span *', count: int, normalize: bool) -> 'SpanSet 
     return result if result != _ffi.NULL else None
 
 
-def textset_make(values: 'const text **', count: int) -> 'Set *':
+def textset_make(values: 'List[const text]') -> 'Set *':
     values_converted = [_ffi.cast('const text *', x) for x in values]
-    result = _lib.textset_make(values_converted, count)
+    result = _lib.textset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
 
