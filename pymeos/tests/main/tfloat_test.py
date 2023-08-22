@@ -1973,15 +1973,16 @@ class TestTFloatSplitOperations(TestTFloat):
             (tfi, [TFloatInst('1@2019-09-01')]),
             (tfds, [TFloatSeq('{1@2019-09-01}'),TFloatSeq('{2@2019-09-02}')]),
             (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02)'),TFloatSeq('[2@2019-09-02]')]),
-            (tfss, [TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02),[1@2019-09-03, 1@2019-09-05]}'),TFloatSeq('[2@2019-09-02]')]),
+            (tfss, [TFloatSeqSet('{[1@2019-09-01, 2@2019-09-02),[1@2019-09-03, 1@2019-09-05]}'),
+                TFloatSeqSet('{[2@2019-09-02]}')]),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_value_split(self, temporal, expected):
         assert temporal.value_split(2) == expected
 
-    # The PyMEOS function uses as default origin the initial timestamp of the
-    # temporal value while in MEOS the default origin is Monday Janury 3, 2000
+    ## The PyMEOS function uses as default origin the initial timestamp of the
+    ## temporal value while in MEOS the default origin is Monday Janury 3, 2000
     @pytest.mark.parametrize(
         'temporal, expected',
         [

@@ -315,26 +315,26 @@ class Period:
         )
         return Period(_inner=modified)
 
-    def expand(self, other: Period) -> Period:
-        """
-        Returns a new period that includes both ``self`` and ``other``
+    # def expand(self, other: Period) -> Period:
+        # """
+        # Returns a new period that includes both ``self`` and ``other``
 
-        Examples:
-            >>> Period('[2000-01-01, 2000-01-04)').expand(Period('[2000-01-05, 2000-01-10]'))
-            >>> 'Period([2000-01-01 00:00:00+01, 2000-01-10 00:00:00+01])'
+        # Examples:
+            # >>> Period('[2000-01-01, 2000-01-04)').expand(Period('[2000-01-05, 2000-01-10]'))
+            # >>> 'Period([2000-01-01 00:00:00+01, 2000-01-10 00:00:00+01])'
 
-        Args:
-            other: :class:`Period` instance to expand the period
+        # Args:
+            # other: :class:`Period` instance to expand the period
 
-        Returns:
-            A new :class:`Period` instance
+        # Returns:
+            # A new :class:`Period` instance
 
-        MEOS Functions:
-            span_expand
-        """
-        copy = span_copy(self._inner)
-        span_expand(other._inner, copy)
-        return Period(_inner=copy)
+        # MEOS Functions:
+            # span_expand
+        # """
+        # copy = span_copy(self._inner)
+        # span_expand(other._inner, copy)
+        # return Period(_inner=copy)
 
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[Time, Box, Temporal]) -> bool:

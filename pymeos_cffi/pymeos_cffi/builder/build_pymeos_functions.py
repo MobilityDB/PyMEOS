@@ -89,7 +89,7 @@ def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Op
             text = f'SRID={get_srid(geom)};{text}'
     else:
         raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    gs = gserialized_in(text, -1)
+    gs = pgis_geometry_in(text, -1)
     if geodetic is not None:
         # GFlags is an 8-bit integer, where the 4th bit is the geodetic flag (0x80)
         # If geodetic is True, then set the 4th bit to 1, otherwise set it to 0

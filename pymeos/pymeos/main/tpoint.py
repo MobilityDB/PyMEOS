@@ -1411,11 +1411,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tgeompoint_point, teq_temporal_temporal
+            teq_tpoint_point, teq_temporal_temporal
         """
         if isinstance(other, pg.Point) or isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = teq_tgeompoint_point(self._inner, gs)
+            result = teq_tpoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
@@ -1431,11 +1431,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tgeompoint_point, tne_temporal_temporal
+            tne_tpoint_point, tne_temporal_temporal
         """
         if isinstance(other, pg.Point) or isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tne_tgeompoint_point(self._inner, gs)
+            result = tne_tpoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
@@ -1662,11 +1662,11 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tgeogpoint_point, teq_temporal_temporal
+            teq_tpoint_point, teq_temporal_temporal
         """
         if isinstance(other, pg.Point) or isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = teq_tgeogpoint_point(self._inner, gs)
+            result = teq_tpoint_point(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
@@ -1682,11 +1682,11 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tgeogpoint_point, tne_temporal_temporal
+            tne_tpoint_point, tne_temporal_temporal
         """
         if isinstance(other, pg.Point) or isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tne_tgeogpoint_point(self._inner, gs)
+            result = tne_tpoint_point(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
         return Temporal._factory(result)

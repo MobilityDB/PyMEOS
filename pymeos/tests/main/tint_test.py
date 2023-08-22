@@ -1817,8 +1817,8 @@ class TestTIntSplitOperations(TestTInt):
     def test_value_split(self, temporal, expected):
         assert temporal.value_split(2) == expected
 
-    # The PyMEOS function uses as default origin the initial timestamp of the
-    # temporal value while in MEOS the default origin is Monday Janury 3, 2000
+    ## The PyMEOS function uses as default origin the initial timestamp of the
+    ## temporal value while in MEOS the default origin is Monday Janury 3, 2000
     @pytest.mark.parametrize(
         'temporal, expected',
         [
