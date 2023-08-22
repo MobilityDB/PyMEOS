@@ -48,10 +48,10 @@ class TBox:
                  xmax: Optional[Union[str, int, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
-                 xmin_inc: Optional[bool] = True,
-                 xmax_inc: Optional[bool] = False,
-                 tmin_inc: Optional[bool] = True,
-                 tmax_inc: Optional[bool] = False,
+                 xmin_inc: bool = True,
+                 xmax_inc: bool = False,
+                 tmin_inc: bool = True,
+                 tmax_inc: bool = False,
                  _inner=None):
         assert (_inner is not None) or (string is not None) != (
                 (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
@@ -162,14 +162,13 @@ class TBox:
             timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox
         """
         if isinstance(time, datetime):
-            result = (datetime, datetime)
+            result = timestamp_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TimestampSet):
-            result = (time.start_timestamp(), time.end_timestamp())
+            result = timestampset_to_tbox(time._inner)
         elif isinstance(time, Period):
-            result = (time.lower, time.upper, time.lower_inc, time.upper_inc)
+            result = period_to_tbox(time._inner)
         elif isinstance(time, PeriodSet):
-            result = (time.start_period().lower, time.end_period().upper,
-                time.start_period().lower_inc, time.end_period().upper_inc)
+            result = periodset_to_tbox(time._inner)
         else:
             raise TypeError(f'Operation not supported with type {time.__class__}')
         return TBox(_inner=result)
@@ -194,19 +193,19 @@ class TBox:
         if isinstance(value, int) and isinstance(time, datetime):
             result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
         elif isinstance(value, int) and isinstance(time, Period):
-            result = int_period_to_tbox(value, time)
+            result = int_period_to_tbox(value, time._inner)
         elif isinstance(value, float) and isinstance(time, datetime):
             result = float_timestamp_to_tbox(value, datetime_to_timestamptz(time))
         elif isinstance(value, float) and isinstance(time, Period):
-            result = float_period_to_tbox(value, time)
+            result = float_period_to_tbox(value, time._inner)
         elif isinstance(value, intrange) and isinstance(time, datetime):
             result = span_timestamp_to_tbox(intrange_to_intspan(value), datetime_to_timestamptz(time))
         elif isinstance(value, intrange) and isinstance(time, Period):
-            result = span_period_to_tbox(intrange_to_intspan(value), time)
+            result = span_period_to_tbox(intrange_to_intspan(value), time._inner)
         elif isinstance(value, floatrange) and isinstance(time, datetime):
             result = span_timestamp_to_tbox(floatrange_to_floatspan(value), datetime_to_timestamptz(time))
         elif isinstance(value, floatrange) and isinstance(time, Period):
-            result = span_period_to_tbox(floatrange_to_floatspan(value), time)
+            result = span_period_to_tbox(floatrange_to_floatspan(value), time._inner)
         else:
             raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
         return TBox(_inner=result)
