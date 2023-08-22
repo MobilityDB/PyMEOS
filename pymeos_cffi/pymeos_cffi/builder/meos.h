@@ -735,7 +735,7 @@ typedef struct
  * Initialization of the MEOS library
  *****************************************************************************/
 
-extern void meos_initialize(const char *tz_str);
+extern void meos_initialize(const char *tz_str, void (*handler_p)(int, char*));
 extern void meos_finalize(void);
 
 /*****************************************************************************
@@ -1869,3 +1869,6 @@ bool tpoint_to_geo_meas(const Temporal *tpoint, const Temporal *measure, bool se
 
 
 //#endif
+
+
+extern "Python" void py_error_handler(int, char*);

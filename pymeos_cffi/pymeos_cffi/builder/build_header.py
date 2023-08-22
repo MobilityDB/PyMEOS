@@ -42,6 +42,8 @@ def main(header_path, so_path=None):
         if so_path:
             content = remove_undefined_functions(content, so_path)
 
+        content += '\n\nextern "Python" void py_error_handler(int, char*);'
+
     with open('pymeos_cffi/builder/meos.h', 'w') as f:
         f.write(content)
 

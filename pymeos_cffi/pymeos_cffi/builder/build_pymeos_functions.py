@@ -52,6 +52,22 @@ from spans.types import floatrange, intrange
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
 
+_error = None
+
+
+def _check_error() -> None:
+    global _error
+    if _error is not None:
+        error_copy = _error
+        _error = None
+        raise Exception(error_copy)
+
+
+@_ffi.def_extern()
+def py_error_handler(error_code, error_msg):
+    global _error
+    _error = _ffi.string(error_msg).decode('utf-8')
+
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
     return _ffi.new(f'{type} *', object)
@@ -137,8 +153,20 @@ def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
 # ----------------------End of manually-defined functions----------------------
 # -----------------------------------------------------------------------------
 
+def meos_initialize(tz_str: "Optional[str]") -> None:
+    tz_str_converted = tz_str.encode('utf-8') if tz_str is not None else _ffi.NULL
+    _lib.meos_initialize(tz_str_converted, _lib.py_error_handler)
+
+
 
 """
+
+# List of functions defined in functions.py that shouldn't be exported
+
+hidden_functions = [
+    '_check_error',
+    'py_error_handler'
+]
 
 function_notes = {
 }
@@ -303,6 +331,8 @@ def main():
             named = match.groupdict()
             function = named['function']
             inner_return_type = named['returnType']
+            if function == 'py_error_handler':
+                continue
             return_type = get_return_type(inner_return_type)
             inner_params = named['params']
             params = get_params(function, inner_params)
@@ -316,7 +346,10 @@ def main():
         init.write('from .functions import *\n\n')
         init.write('__all__ = [\n')
         for fn in f_names:
-            init.write(f"    '{fn.group(1)}',\n")
+            function_name = fn.group(1)
+            if function_name in hidden_functions:
+                continue
+            init.write(f"    '{function_name}',\n")
         init.write(']\n')
 
 
@@ -500,6 +533,9 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     else:
         function_string = f'{base}' \
                           f'    result = _lib.{function_name}({inner_params})'
+
+    # Add error handling
+    function_string += f'\n    _check_error()'
 
     # Add whatever manipulation the result needs (maybe empty)
     if result_manipulation is not None:
