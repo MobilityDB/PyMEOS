@@ -610,10 +610,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         """
         if isinstance(other, str):
             result = ttext_at_value(self._inner, other)
-        elif isinstance(other, list):
-            # result = ttext_at_values(self._inner, other)
-            results = [ttext_at_value(self._inner, value) for value in other]
-            result = temporal_merge_array(results, len(results))
+        elif isinstance(other, list) and isinstance(other[0], str):
+            result = temporal_at_values(self._inner, textset_make(other))
         else:
             return super().at(other)
         return Temporal._factory(result)
@@ -635,8 +633,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         """
         if isinstance(other, str):
             result = ttext_minus_value(self._inner, other)
-        elif isinstance(other, list):
-            result = reduce(ttext_minus_value, other, self._inner)
+        elif isinstance(other, list) and isinstance(other[0], str):
+            result = temporal_minus_values(self._inner, textset_make(other))
         else:
             return super().minus(other)
         return Temporal._factory(result)

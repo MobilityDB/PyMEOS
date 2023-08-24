@@ -857,7 +857,6 @@ extern Span *span_copy(const Span *s);
 extern SpanSet *spanset_copy(const SpanSet *ps);
 extern SpanSet *spanset_make(Span *spans, int count, bool normalize);
 extern SpanSet *spanset_make_exp(Span *spans, int count, int maxcount, bool normalize, bool ordered);
-extern SpanSet *spanset_make_free(Span *spans, int count, bool normalize);
 extern Set *textset_make(const text **values, int count);
 extern Set *timestampset_make(const TimestampTz *values, int count);
 

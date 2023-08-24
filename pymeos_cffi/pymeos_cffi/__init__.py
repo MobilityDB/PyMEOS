@@ -131,7 +131,6 @@ __all__ = [
     'spanset_copy',
     'spanset_make',
     'spanset_make_exp',
-    'spanset_make_free',
     'textset_make',
     'timestampset_make',
     'bigint_to_bigintset',

@@ -863,12 +863,6 @@ def spanset_make_exp(spans: 'Span *', count: int, maxcount: int, normalize: bool
     return result if result != _ffi.NULL else None
 
 
-def spanset_make_free(spans: 'Span *', count: int, normalize: bool) -> 'SpanSet *':
-    spans_converted = _ffi.cast('Span *', spans)
-    result = _lib.spanset_make_free(spans_converted, count, normalize)
-    return result if result != _ffi.NULL else None
-
-
 def textset_make(values: 'List[const text]') -> 'Set *':
     values_converted = [_ffi.cast('const text *', x) for x in values]
     result = _lib.textset_make(values_converted, len(values))
