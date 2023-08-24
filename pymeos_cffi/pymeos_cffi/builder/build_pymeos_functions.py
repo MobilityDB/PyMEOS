@@ -182,7 +182,7 @@ function_modifiers = {
     'intset_make': array_parameter_modifier('values', 'count'),
     'bigintset_make': array_parameter_modifier('values', 'count'),
     'floatset_make': array_parameter_modifier('values', 'count'),
-    'textset_make': array_parameter_modifier('values', 'count'),
+    'textset_make': textset_make_modifier,
     'geoset_make': array_length_remover_modifier('values', 'count'),
 }
 

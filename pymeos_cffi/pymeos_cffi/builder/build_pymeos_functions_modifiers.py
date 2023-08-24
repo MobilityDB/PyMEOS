@@ -26,6 +26,11 @@ def array_parameter_modifier(list_name: str, length_param_name: Optional[str] = 
     return custom_array_modifier
 
 
+def textset_make_modifier(function: str) -> str:
+    function = array_parameter_modifier('values', 'count')(function)
+    return function.replace("_ffi.cast('const text *', x)", "cstring2text(x)").replace("'List[const text]'", 'List[str]')
+
+
 def cstring2text_modifier(_: str) -> str:
     return """def cstring2text(cstring: str) -> 'text *':
     cstring_converted = cstring.encode('utf-8')

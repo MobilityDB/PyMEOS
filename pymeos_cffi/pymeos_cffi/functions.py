@@ -370,18 +370,6 @@ def pg_to_date(date_txt: str, fmt: str) -> 'DateADT':
     return result if result != _ffi.NULL else None
 
 
-def geography_from_hexewkb(wkt: str) -> 'GSERIALIZED *':
-    wkt_converted = wkt.encode('utf-8')
-    result = _lib.geography_from_hexewkb(wkt_converted)
-    return result if result != _ffi.NULL else None
-
-
-def geometry_from_hexewkb(wkt: str) -> 'GSERIALIZED *':
-    wkt_converted = wkt.encode('utf-8')
-    result = _lib.geometry_from_hexewkb(wkt_converted)
-    return result if result != _ffi.NULL else None
-
-
 def gserialized_as_ewkb(geom: 'const GSERIALIZED *', type: str) -> 'bytea *':
     geom_converted = _ffi.cast('const GSERIALIZED *', geom)
     type_converted = type.encode('utf-8')
@@ -863,8 +851,14 @@ def spanset_make_exp(spans: 'Span *', count: int, maxcount: int, normalize: bool
     return result if result != _ffi.NULL else None
 
 
-def textset_make(values: 'List[const text]') -> 'Set *':
-    values_converted = [_ffi.cast('const text *', x) for x in values]
+def spanset_make_free(spans: 'Span *', count: int, normalize: bool) -> 'SpanSet *':
+    spans_converted = _ffi.cast('Span *', spans)
+    result = _lib.spanset_make_free(spans_converted, count, normalize)
+    return result if result != _ffi.NULL else None
+
+
+def textset_make(values: List[str]) -> 'Set *':
+    values_converted = [cstring2text(x) for x in values]
     result = _lib.textset_make(values_converted, len(values))
     return result if result != _ffi.NULL else None
 
@@ -5642,16 +5636,30 @@ def teq_float_tfloat(d: float, temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def teq_geo_tpoint(geo: 'const GSERIALIZED *', tpoint: 'const Temporal *') -> 'Temporal *':
+    geo_converted = _ffi.cast('const GSERIALIZED *', geo)
+    tpoint_converted = _ffi.cast('const Temporal *', tpoint)
+    result = _lib.teq_geo_tpoint(geo_converted, tpoint_converted)
+    return result if result != _ffi.NULL else None
+
+
 def teq_int_tint(i: int, temp: 'const Temporal *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.teq_int_tint(i, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def teq_point_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
+def teq_point_tgeogpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.teq_point_tpoint(gs_converted, temp_converted)
+    result = _lib.teq_point_tgeogpoint(gs_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def teq_point_tgeompoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.teq_point_tgeompoint(gs_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5681,16 +5689,30 @@ def teq_tfloat_float(temp: 'const Temporal *', d: float) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def teq_tpoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
+def teq_tgeogpoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    result = _lib.teq_tpoint_point(temp_converted, gs_converted)
+    result = _lib.teq_tgeogpoint_point(temp_converted, gs_converted)
+    return result if result != _ffi.NULL else None
+
+
+def teq_tgeompoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    result = _lib.teq_tgeompoint_point(temp_converted, gs_converted)
     return result if result != _ffi.NULL else None
 
 
 def teq_tint_int(temp: 'const Temporal *', i: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.teq_tint_int(temp_converted, i)
+    return result if result != _ffi.NULL else None
+
+
+def teq_tpoint_geo(tpoint: 'const Temporal *', geo: 'const GSERIALIZED *') -> 'Temporal *':
+    tpoint_converted = _ffi.cast('const Temporal *', tpoint)
+    geo_converted = _ffi.cast('const GSERIALIZED *', geo)
+    result = _lib.teq_tpoint_geo(tpoint_converted, geo_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5893,16 +5915,30 @@ def tne_float_tfloat(d: float, temp: 'const Temporal *') -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def tne_geo_tpoint(geo: 'const GSERIALIZED *', tpoint: 'const Temporal *') -> 'Temporal *':
+    geo_converted = _ffi.cast('const GSERIALIZED *', geo)
+    tpoint_converted = _ffi.cast('const Temporal *', tpoint)
+    result = _lib.tne_geo_tpoint(geo_converted, tpoint_converted)
+    return result if result != _ffi.NULL else None
+
+
 def tne_int_tint(i: int, temp: 'const Temporal *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tne_int_tint(i, temp_converted)
     return result if result != _ffi.NULL else None
 
 
-def tne_point_tpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
+def tne_point_tgeogpoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
     temp_converted = _ffi.cast('const Temporal *', temp)
-    result = _lib.tne_point_tpoint(gs_converted, temp_converted)
+    result = _lib.tne_point_tgeogpoint(gs_converted, temp_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tne_point_tgeompoint(gs: 'const GSERIALIZED *', temp: 'const Temporal *') -> 'Temporal *':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tne_point_tgeompoint(gs_converted, temp_converted)
     return result if result != _ffi.NULL else None
 
 
@@ -5932,16 +5968,30 @@ def tne_tfloat_float(temp: 'const Temporal *', d: float) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
-def tne_tpoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
+def tne_tgeogpoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     gs_converted = _ffi.cast('const GSERIALIZED *', gs)
-    result = _lib.tne_tpoint_point(temp_converted, gs_converted)
+    result = _lib.tne_tgeogpoint_point(temp_converted, gs_converted)
+    return result if result != _ffi.NULL else None
+
+
+def tne_tgeompoint_point(temp: 'const Temporal *', gs: 'const GSERIALIZED *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    result = _lib.tne_tgeompoint_point(temp_converted, gs_converted)
     return result if result != _ffi.NULL else None
 
 
 def tne_tint_int(temp: 'const Temporal *', i: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tne_tint_int(temp_converted, i)
+    return result if result != _ffi.NULL else None
+
+
+def tne_tpoint_geo(tpoint: 'const Temporal *', geo: 'const GSERIALIZED *') -> 'Temporal *':
+    tpoint_converted = _ffi.cast('const Temporal *', tpoint)
+    geo_converted = _ffi.cast('const GSERIALIZED *', geo)
+    result = _lib.tne_tpoint_geo(tpoint_converted, geo_converted)
     return result if result != _ffi.NULL else None
 
 

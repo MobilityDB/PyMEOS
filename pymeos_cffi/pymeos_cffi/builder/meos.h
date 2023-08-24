@@ -482,6 +482,8 @@ extern LWPOINT *lwpoint_make(int32_t srid, int hasz, int hasm, const POINT4D *p)
 extern LWGEOM *lwgeom_from_gserialized(const GSERIALIZED *g);
 extern GSERIALIZED *gserialized_from_lwgeom(LWGEOM *geom, size_t *size);
 
+
+
 extern int32_t lwgeom_get_srid(const LWGEOM *geom);
 
 extern double lwpoint_get_x(const LWPOINT *point);
@@ -771,8 +773,6 @@ extern DateADT pg_to_date(text *date_txt, text *fmt);
  * Functions for input/output and manipulation of PostGIS types
  *****************************************************************************/
 
-extern GSERIALIZED *geography_from_hexewkb(const char *wkt);
-extern GSERIALIZED *geometry_from_hexewkb(const char *wkt);
 extern bytea *gserialized_as_ewkb(const GSERIALIZED *geom, char *type);
 extern char *gserialized_as_ewkt(const GSERIALIZED *geom, int precision);
 extern char *gserialized_as_geojson(const GSERIALIZED *geom, int option, int precision, char *srs);
@@ -780,6 +780,7 @@ extern char *gserialized_as_hexewkb(const GSERIALIZED *geom, const char *type);
 extern char *gserialized_as_text(const GSERIALIZED *geom, int precision);
 extern GSERIALIZED *gserialized_from_ewkb(const bytea *bytea_wkb, int32 srid);
 extern GSERIALIZED *gserialized_from_geojson(const char *geojson);
+
 extern GSERIALIZED *geometry_from_text(char *wkt, int srid);
 extern GSERIALIZED *geography_from_text(char *wkt, int srid);
 extern GSERIALIZED *pgis_geography_in(char *input, int32 geom_typmod);
@@ -857,6 +858,7 @@ extern Span *span_copy(const Span *s);
 extern SpanSet *spanset_copy(const SpanSet *ps);
 extern SpanSet *spanset_make(Span *spans, int count, bool normalize);
 extern SpanSet *spanset_make_exp(Span *spans, int count, int maxcount, bool normalize, bool ordered);
+extern SpanSet *spanset_make_free(Span *spans, int count, bool normalize);
 extern Set *textset_make(const text **values, int count);
 extern Set *timestampset_make(const TimestampTz *values, int count);
 
@@ -1726,14 +1728,18 @@ extern bool temporal_lt(const Temporal *temp1, const Temporal *temp2);
 extern bool temporal_ne(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *teq_float_tfloat(double d, const Temporal *temp);
+extern Temporal *teq_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
 extern Temporal *teq_int_tint(int i, const Temporal *temp);
-extern Temporal *teq_point_tpoint(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *teq_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *teq_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);
 extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *teq_tfloat_float(const Temporal *temp, double d);
-extern Temporal *teq_tpoint_point(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *teq_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *teq_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);
 extern Temporal *teq_tint_int(const Temporal *temp, int i);
+extern Temporal *teq_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tge_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tge_int_tint(int i, const Temporal *temp);
@@ -1765,14 +1771,18 @@ extern Temporal *tlt_tint_int(const Temporal *temp, int i);
 extern Temporal *tlt_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tne_bool_tbool(bool b, const Temporal *temp);
 extern Temporal *tne_float_tfloat(double d, const Temporal *temp);
+extern Temporal *tne_geo_tpoint(const GSERIALIZED *geo, const Temporal *tpoint);
 extern Temporal *tne_int_tint(int i, const Temporal *temp);
-extern Temporal *tne_point_tpoint(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tne_point_tgeogpoint(const GSERIALIZED *gs, const Temporal *temp);
+extern Temporal *tne_point_tgeompoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *tne_tbool_bool(const Temporal *temp, bool b);
 extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tne_tfloat_float(const Temporal *temp, double d);
-extern Temporal *tne_tpoint_point(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tne_tgeogpoint_point(const Temporal *temp, const GSERIALIZED *gs);
+extern Temporal *tne_tgeompoint_point(const Temporal *temp, const GSERIALIZED *gs);
 extern Temporal *tne_tint_int(const Temporal *temp, int i);
+extern Temporal *tne_tpoint_geo(const Temporal *tpoint, const GSERIALIZED *geo);
 extern Temporal *tne_ttext_text(const Temporal *temp, const text *txt);
 
 /*****************************************************************************
