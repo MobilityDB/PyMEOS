@@ -15,11 +15,14 @@ class TBox:
 
     ``TBox`` objects can be created with a single argument of type string as in MobilityDB.
 
-        >>> TBox('TBox XT([0, 10),[2020-06-01, 2020-06-05])')
+        >>> TBox('TBOXINT XT([0, 10),[2020-06-01, 2020-06-05])')
+        >>> TBox('TBOXFLOAT XT([0, 10),[2020-06-01, 2020-06-05])')
+        >>> TBox('TBOX T([2020-06-01, 2020-06-05])')
 
-    Another possibility is to provide the ``xmin``/``xmax`` (of type str or float) and ``tmin``/``tmax`` (of type str or
-    datetime) named parameters, and optionally indicate whether the bounds are inclusive or exclusive (by default,
-    lower bounds are inclusive and upper bounds are exclusive):
+    Another possibility is to provide the ``xmin``/``xmax`` (of type str or
+    int/float) and ``tmin``/``tmax`` (of type str or datetime) named parameters, 
+    and optionally indicate whether the bounds are inclusive or exclusive (by 
+    default, lower bounds are inclusive and upper bounds are exclusive):
 
         >>> TBox(xmin=0, xmax=10, tmin='2020-06-01', tmax='2020-06-0')
         >>> TBox(xmin=0, xmax=10, tmin='2020-06-01', tmax='2020-06-0', xmax_inc=True, tmax_inc=True)
@@ -41,8 +44,8 @@ class TBox:
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, float]] = None,
-                 xmax: Optional[Union[str, float]] = None,
+                 xmin: Optional[Union[str, int, float]] = None,
+                 xmax: Optional[Union[str, int, float]] = None,
                  tmin: Optional[Union[str, datetime]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
                  xmin_inc: Optional[bool] = True,
@@ -61,10 +64,13 @@ class TBox:
             span = None
             period = None
             if xmin is not None and xmax is not None:
-                span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
+                if isinstance(xmin, int) and isinstance(xmax, int):
+                    span = intspan_make(xmin, xmax, xmin_inc, xmax_inc)
+                else:
+                    span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
             if tmin is not None and tmax is not None:
                 period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
-            self._inner = tbox_make(period, span)
+            self._inner = tbox_make(span, period)
 
     def __copy__(self) -> TBox:
         """
@@ -222,21 +228,6 @@ class TBox:
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
     # ------------------------- Output ----------------------------------------
-    def to_str(self, max_decimals=15) -> str:
-        """
-        Returns a string representation of `self` with a maximum number of decimals.
-
-        Args:
-            max_decimals: The maximum number of decimals.
-
-        Returns:
-            A string representation of `self`.
-
-        MEOS Functions:
-            tbox_out
-        """
-        return tbox_out(self._inner, max_decimals)
-
     def __str__(self, max_decimals: int = 15):
         """
         Returns a string representation of ``self``.
@@ -501,14 +492,15 @@ class TBox:
         """
         return self.shift_tscale(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> TBox:
+    def shift_tscale(self, shift: Optional[timedelta] = None,
+        duration: Optional[timedelta] = None) -> TBox:
         """
         Returns a new TBox with the temporal span shifted by `shift` and duration `duration`.
 
         Examples:
-            >>> tbox = TBox('TBox XT([0, 10),[2020-06-01, 2020-06-05])')
+            >>> tbox = TBox('TBoxInt XT([0, 10),[2020-06-01, 2020-06-05])')
             >>> tbox.shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
-            >>> 'TBOX XT([0, 10),[2020-06-03 00:00:00+02, 2020-06-07 00:00:00+02])'
+            >>> 'TBOXINT XT([0, 10),[2020-06-03 00:00:00+02, 2020-06-07 00:00:00+02])'
 
         Args:
             shift: :class:`datetime.timedelta` instance to shift the start of the temporal span
@@ -550,6 +542,69 @@ class TBox:
         tbox_round(new_inner, maxdd)
         return TBox(_inner=new_inner)
 
+    # ------------------------- Set Operations --------------------------------
+    def union(self, other: TBox, strict: Optional[bool] = True) -> TBox:
+        """
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            union_tbox_tbox
+        """
+        return TBox(_inner=union_tbox_tbox(self._inner, other._inner, strict))
+
+    def __add__(self, other):
+        """
+        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance.
+
+        MEOS Functions:
+            union_tbox_tbox
+        """
+        return self.union(other)
+
+    # TODO: Check returning None for empty intersection is the desired behaviour
+    def intersection(self, other: TBox) -> Optional[TBox]:
+        """
+        Returns the intersection of `self` with `other`.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+
+        MEOS Functions:
+            intersection_tbox_tbox
+        """
+        result = intersection_tbox_tbox(self._inner, other._inner)
+        return TBox(_inner=result) if result else None
+
+    def __mul__(self, other):
+        """
+        Returns the intersection of `self` with `other`.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+
+        MEOS Functions:
+            intersection_tbox_tbox
+        """
+        return self.intersection(other)
+
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         """
@@ -557,11 +612,11 @@ class TBox:
         and only one of them contains it.
 
         Examples:
-            >>> TBox('TBox XT([0, 1], [2012-01-01, 2012-01-02))').is_adjacent(TBox('TBox XT([0, 1], [2012-01-02, 2012-01-03])'))
+            >>> TBox('TBoxInt XT([0, 1], [2012-01-01, 2012-01-02))').is_adjacent(TBox('TBoxInt XT([0, 1], [2012-01-02, 2012-01-03])'))
             >>> True
-            >>> TBox('TBox XT([0, 1], [2012-01-01, 2012-01-02])').is_adjacent(TBox('TBox XT([0, 1], [2012-01-02, 2012-01-03])'))
+            >>> TBox('TBoxInt XT([0, 1], [2012-01-01, 2012-01-02])').is_adjacent(TBox('TBoxInt XT([0, 1], [2012-01-02, 2012-01-03])'))
             >>> False  # Both contain bound
-            >>> TBox('TBox XT([0, 1), [2012-01-01, 2012-01-02))').is_adjacent(TBox('TBox XT([1, 2], [2012-01-02, 2012-01-03])')
+            >>> TBox('TBoxInt XT([0, 1), [2012-01-01, 2012-01-02))').is_adjacent(TBox('TBoxInt XT([1, 2], [2012-01-02, 2012-01-03])')
             >>> False  # Adjacent in both bounds
 
         Args:
@@ -594,11 +649,11 @@ class TBox:
         Returns whether ``self`` is contained in ``container``.
 
         Examples:
-            >>> TBox('TBox XT([1, 2], [2012-01-02, 2012-01-03])').is_contained_in(TBox('TBox XT([1, 4], [2012-01-01, 2012-01-04])'))
+            >>> TBox('TBoxInt XT([1, 2], [2012-01-02, 2012-01-03])').is_contained_in(TBox('TBoxInt XT([1, 4], [2012-01-01, 2012-01-04])'))
             >>> True
-            >>> TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02))').is_contained_in(TBox('TBox XT([1, 4], [2012-01-01, 2012-01-02])'))
+            >>> TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02))').is_contained_in(TBox('TBoxFloat XT([1, 4], [2012-01-01, 2012-01-02])'))
             >>> True
-            >>> TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02])').is_contained_in(TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02))'))
+            >>> TBox('TBoxFloat XT([1, 2], [2012-01-01, 2012-01-02])').is_contained_in(TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02))'))
             >>> False
 
         Args:
@@ -622,11 +677,11 @@ class TBox:
         Returns whether ``self`` temporally contains ``content``.
 
         Examples:
-            >>> TBox('TBox XT([1, 4], [2012-01-01, 2012-01-04]').contains(TBox('TBox XT([2, 3], [2012-01-02, 2012-01-03]'))
+            >>> TBox('TBoxInt XT([1, 4], [2012-01-01, 2012-01-04]').contains(TBox('TBoxInt XT([2, 3], [2012-01-02, 2012-01-03]'))
             >>> True
-            >>> TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]').contains(TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)'))
+            >>> TBox('TBoxFloat XT([1, 2], [2012-01-01, 2012-01-02]').contains(TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02)'))
             >>> True
-            >>> TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)').contains(TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]'))
+            >>> TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02)').contains(TBox('TBoxFloat XT([1, 2], [2012-01-01, 2012-01-02]'))
             >>> False
 
         Args:
@@ -650,11 +705,11 @@ class TBox:
         Returns whether ``self`` temporally contains ``item``.
 
         Examples:
-            >>> TBox('TBox XT([2, 3], [2012-01-02, 2012-01-03]') in TBox('TBox XT([1, 4], [2012-01-01, 2012-01-04]')
+            >>> TBox('TBoxInt XT([2, 3], [2012-01-02, 2012-01-03]') in TBox('TBoxInt XT([1, 4], [2012-01-01, 2012-01-04]')
             >>> True
-            >>> TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)') in TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]')
+            >>> TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02)') in TBox('TBoxFloat XT([1, 2], [2012-01-01, 2012-01-02]')
             >>> True
-            >>> TBox('TBox XT([1, 2], [2012-01-01, 2012-01-02]') in TBox('TBox XT((1, 2), (2012-01-01, 2012-01-02)')
+            >>> TBox('TBoxFloat XT([1, 2], [2012-01-01, 2012-01-02]') in TBox('TBoxFloat XT((1, 2), (2012-01-01, 2012-01-02)')
             >>> False
 
         Args:
@@ -688,7 +743,6 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    # ------------------------- Position Operations ---------------------------
     def is_same(self, other: Union[TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is the same as ``other``.
@@ -710,6 +764,7 @@ class TBox:
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
+    # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is strictly to the left of ``other``.
@@ -873,69 +928,6 @@ class TBox:
             return overafter_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    # ------------------------- Set Operations --------------------------------
-    def union(self, other: TBox) -> TBox:
-        """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            union_tbox_tbox
-        """
-        return TBox(_inner=union_tbox_tbox(self._inner, other._inner))
-
-    def __add__(self, other):
-        """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance.
-
-        MEOS Functions:
-            union_tbox_tbox
-        """
-        return self.union(other)
-
-    # TODO: Check returning None for empty intersection is the desired behaviour
-    def intersection(self, other: TBox) -> Optional[TBox]:
-        """
-        Returns the intersection of `self` with `other`.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
-
-        MEOS Functions:
-            intersection_tbox_tbox
-        """
-        result = intersection_tbox_tbox(self._inner, other._inner)
-        return TBox(_inner=result) if result else None
-
-    def __mul__(self, other):
-        """
-        Returns the intersection of `self` with `other`.
-
-        Args:
-            other: temporal object to merge with
-
-        Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
-
-        MEOS Functions:
-            intersection_tbox_tbox
-        """
-        return self.intersection(other)
 
     # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(self, other: Union[TBox, TNumber]) -> float:

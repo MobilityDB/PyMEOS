@@ -333,6 +333,19 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
+            (tbi, Period('[2019-09-01, 2019-09-01]')),
+            (tbds, Period('[2019-09-01, 2019-09-02]')),
+            (tbs, Period('[2019-09-01, 2019-09-02]')),
+            (tbss, Period('[2019-09-01, 2019-09-05]')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_bounding_box(self, temporal, expected):
+        assert temporal.bounding_box() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
             (tbi, TInterpolation.NONE),
             (tbds, TInterpolation.DISCRETE),
             (tbs, TInterpolation.STEPWISE),
@@ -542,19 +555,6 @@ class TestTBoolAccessors(TestTBool):
         'temporal, expected',
         [
             (tbi, tbi),
-            (tbds, tbi),
-            (tbs, tbi),
-            (tbss, tbi),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_max_instant(self, temporal, expected):
-        assert temporal.max_instant() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tbi, tbi),
             (tbds, TBoolInst('False@2019-09-02')),
             (tbs, TBoolInst('False@2019-09-02')),
             (tbss, TBoolInst('False@2019-09-02')),
@@ -563,6 +563,19 @@ class TestTBoolAccessors(TestTBool):
     )
     def test_min_instant(self, temporal, expected):
         assert temporal.min_instant() == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbi, tbi),
+            (tbds, tbi),
+            (tbs, tbi),
+            (tbss, tbi),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_max_instant(self, temporal, expected):
+        assert temporal.max_instant() == expected
 
     @pytest.mark.parametrize(
         'temporal, n, expected',
@@ -679,18 +692,6 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tbds, True),
-            (tbs, True),
-        ],
-        ids=['Discrete Sequence', 'Sequence']
-    )
-    def test_lower_upper_inc(self, temporal, expected):
-        assert temporal.lower_inc() == expected
-        assert temporal.upper_inc() == expected
-
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
             (tbi, 440045287),
             (tbds, 2385901957),
             (tbs, 2385901957),
@@ -700,6 +701,33 @@ class TestTBoolAccessors(TestTBool):
     )
     def test_hash(self, temporal, expected):
         assert hash(temporal) == expected
+
+    def test_value_timestamp(self):
+        assert self.tbi.value() == True
+        assert self.tbi.timestamp() == datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tbds, True),
+            (tbs, True),
+        ],
+        ids=['Discrete Sequence', 'Sequence']
+    )
+    def test_lower_upper_inc(self, temporal, expected):
+        assert temporal.lower_inc() == expected
+        assert temporal.upper_inc() == expected
+
+    def test_sequenceset_sequence_functions(self):
+        tbss1 =TBoolSeqSet('{[True@2019-09-01, False@2019-09-02],'
+            '[True@2019-09-03, True@2019-09-05], [True@2019-09-06]}')
+        assert tbss1.num_sequences() == 3
+        assert tbss1.start_sequence() == TBoolSeq('[True@2019-09-01, False@2019-09-02]')
+        assert tbss1.end_sequence() == TBoolSeq('[True@2019-09-06]')
+        assert tbss1.sequence_n(1) == TBoolSeq('[True@2019-09-03, True@2019-09-05]')
+        assert tbss1.sequences() == [TBoolSeq('[True@2019-09-01, False@2019-09-02]'),
+            TBoolSeq('[True@2019-09-03, True@2019-09-05]'), 
+            TBoolSeq('[True@2019-09-06]')]
 
 
 class TestTBoolTransformations(TestTBool):
@@ -824,6 +852,29 @@ class TestTBoolTransformations(TestTBool):
         assert self.tbss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
              TBoolSeqSet('{[True@2019-09-05 00:00:00, False@2019-09-05 00:30:00],'
              '[True@2019-09-05 01:00:00, True@2019-09-05 02:00:00]}')
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
+        [(tbi, timedelta(days=4), TBoolInst('True@2019-09-01')),
+         (tbi, timedelta(hours=12), TBoolInst('True@2019-09-01')),
+         (tbds, timedelta(days=4), TBoolSeq('{True@2019-09-01}')),
+         (tbds, timedelta(hours=12), TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
+         (tbs, timedelta(days=4), TBoolSeq('{True@2019-09-01}')),
+         (tbs, timedelta(hours=12), TBoolSeq('{True@2019-09-01, True@2019-09-01 12:00:00, False@2019-09-02}')),
+         (tbss, timedelta(days=4),
+             TBoolSeq('{True@2019-09-01,True@2019-09-05}')),
+         (tbss, timedelta(hours=12),
+             TBoolSeq('{True@2019-09-01, True@2019-09-01 12:00:00, False@2019-09-02,'
+                         'True@2019-09-03, True@2019-09-03 12:00:00, True@2019-09-04, '
+                         'True@2019-09-04 12:00:00, True@2019-09-05}')),
+         ],
+        ids=['Instant days', 'Instant hours',
+             'Discrete Sequence days', 'Discrete Sequence hours',
+             'Sequence days', 'Sequence hours',
+             'Sequence Set days', 'Sequence Set hours']
+    )
+    def test_temporal_sample(self, tint, delta, expected):
+        assert tint.temporal_sample(delta) == expected
 
 
 class TestTBoolModifications(TestTBool):

@@ -7,6 +7,16 @@ def array_length_remover_modifier(list_name: str, length_param_name: str = 'coun
         .replace(f', {length_param_name}', f', len({list_name})')
 
 
+def meos_initialize_modifier(_: str) -> str:
+    return """def meos_initialize(tz_str: "Optional[str]") -> None:
+    tz_str_converted = tz_str.encode('utf-8') if tz_str is not None else _ffi.NULL
+    _lib.meos_initialize(tz_str_converted, _lib.py_error_handler)"""
+
+
+def remove_error_check_modifier(function: str) -> str:
+    return function.replace('    _check_error()\n', '')
+
+
 def cstring2text_modifier(_: str) -> str:
     return """def cstring2text(cstring: str) -> 'text *':
     cstring_converted = cstring.encode('utf-8')

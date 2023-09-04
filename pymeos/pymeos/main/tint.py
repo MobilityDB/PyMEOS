@@ -105,6 +105,32 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         """
         return tint_out(self._inner)
 
+    # ------------------------- Conversions ----------------------------------
+    def to_tfloat(self) -> TFloat:
+        """
+        Returns a new temporal float with the values of `self`.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tint_to_tfloat
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
+
+    def to_intrange(self) -> intrange:
+        """
+        Returns value span of `self`.
+
+        Returns:
+            An :class:`intrange` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
+        """
+        return intspan_to_intrange(tnumber_to_span(self._inner))
+
     # ------------------------- Accessors -------------------------------------
     def value_range(self) -> intrange:
         """
@@ -117,6 +143,21 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             tnumber_to_span
         """
         return self.to_intrange()
+
+    def value_ranges(self) -> List[intrange]:
+        """
+        Returns the value spans of `self` taking into account gaps.
+
+        Returns:
+            A list of :class:`intrange` with the value spans of `self`.
+
+        MEOS Functions:
+            tint_spanset
+        """
+        spanset = tnumber_valuespans(self._inner)
+        spans = spanset_spans(spanset)
+        count = spanset_num_spans(spanset)
+        return [intspan_to_intrange(spans[i]) for i in range(count)]
 
     def start_value(self) -> int:
         """
@@ -448,7 +489,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_always_lt
         """
-        return  (self._inner, value)
+        return tint_always_lt(self._inner, value)
 
     def never_greater(self, value: int) -> bool:
         """
@@ -657,32 +698,6 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             return nad_tint_tint(self._inner, other._inner)
         else:
             return super().nearest_approach_distance(other)
-
-    # ------------------------- Conversions ----------------------------------
-    def to_tfloat(self) -> TFloat:
-        """
-        Returns a new temporal float with the values of `self`.
-
-        Returns:
-            A new temporal float.
-
-        MEOS Functions:
-            tint_to_tfloat
-        """
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
-
-    def to_intrange(self) -> intrange:
-        """
-        Returns value span of `self`.
-
-        Returns:
-            An :class:`intrange` with the value span of `self`.
-
-        MEOS Functions:
-            tnumber_to_span
-        """
-        return intspan_to_intrange(tnumber_to_span(self._inner))
 
     # ------------------------- Split Operations ------------------------------
     def value_split(self, size: int, start: Optional[int] = 0) -> List[TInt]:

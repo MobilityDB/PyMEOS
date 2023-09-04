@@ -318,6 +318,18 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
+    def direction(self) -> float:
+        """
+        Returns the azimuth of the temporal point between the start and end locations.
+
+        Returns:
+            A new :class:`TFloatSeqSet` indicating the direction of the temporal point.
+
+        MEOS Functions:
+            tpoint_direction
+        """
+        return tpoint_direction(self._inner)
+
     def azimuth(self) -> TFloatSeqSet:
         """
         Returns the temporal azimuth of the temporal point.

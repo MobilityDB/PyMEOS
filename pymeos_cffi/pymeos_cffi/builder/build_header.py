@@ -42,14 +42,15 @@ def main(header_path, so_path=None):
         if so_path:
             content = remove_undefined_functions(content, so_path)
 
+        # Add error handler
+        content += '\n\nextern "Python" void py_error_handler(int, int, char*);'
+
     with open('pymeos_cffi/builder/meos.h', 'w') as f:
         f.write(content)
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        get_defined_functions(sys.argv[2])
         main(sys.argv[1], sys.argv[2])
     else:
-        get_defined_functions('/usr/local/lib/libmeos.so')
         main('/usr/local/include/meos.h', '/usr/local/lib/libmeos.so')
