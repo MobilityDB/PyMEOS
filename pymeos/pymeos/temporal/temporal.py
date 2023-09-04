@@ -11,8 +11,9 @@ from ..time import *
 
 if TYPE_CHECKING:
     from .tinstant import TInstant
+    from .tsequence import TSequence
     from ..main import TBool
-    from ..boxes import Box
+    from ..boxes import Box, TBox
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
 TI = TypeVar('TI', bound='TInstant[Any]')
