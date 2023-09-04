@@ -9,7 +9,7 @@ from spans import intrange, floatrange
 from ..temporal import Temporal
 
 if TYPE_CHECKING:
-    from ..boxes import TBox
+    from ..boxes import Box, TBox
     from ..time import Time
     from .tint import TInt
     from .tfloat import TFloat
