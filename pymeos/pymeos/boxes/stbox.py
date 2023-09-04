@@ -63,13 +63,13 @@ class STBox:
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, float]] = None, 
+                 xmin: Optional[Union[str, float]] = None,
                  xmax: Optional[Union[str, float]] = None,
-                 ymin: Optional[Union[str, float]] = None, 
+                 ymin: Optional[Union[str, float]] = None,
                  ymax: Optional[Union[str, float]] = None,
-                 zmin: Optional[Union[str, float]] = None, 
+                 zmin: Optional[Union[str, float]] = None,
                  zmax: Optional[Union[str, float]] = None,
-                 tmin: Optional[Union[str, datetime]] = None, 
+                 tmin: Optional[Union[str, datetime]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
                  tmin_inc: bool = True, tmax_inc: bool = True,
                  geodetic: bool = False, srid: Optional[int] = None,
@@ -237,7 +237,7 @@ class STBox:
         Args:
             value: A `Geometry`, `TPoint` or `STBox` instance.
             expansion: The amount to expand the bounding box.
-            geodetic: Whether to create a geodetic or geometric `STBox`. 
+            geodetic: Whether to create a geodetic or geometric `STBox`.
             Only used when value is a `Geometry` instance.
 
         Returns:
@@ -540,7 +540,7 @@ class STBox:
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
     # ------------------------- Transformations -------------------------------
-    def expand(self, other: Union[int, float, timedelta]) -> STBox:
+    def expand(self, other: Union[int, float, timedelta, STBox]) -> STBox:
         """
         Expands ``self`` with `other`.
         If `other` is a :class:`int` or a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
@@ -560,6 +560,9 @@ class STBox:
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = stbox_expand_time(self._inner, timedelta_to_interval(other))
+        elif isinstance(other, STBox):
+            result = stbox_copy(self._inner)
+            stbox_expand(other._inner, result)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return STBox(_inner=result)

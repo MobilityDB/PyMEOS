@@ -38,130 +38,26 @@ class ReturnType:
         self.conversion = conversion
 
 
-BASE = """from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional, List, Union
+# List of functions defined in functions.py that shouldn't be exported
 
-import _meos_cffi
-import postgis as pg
-import shapely.geometry as spg
-from dateutil.parser import parse
-from shapely import wkt, wkb, get_srid
-from shapely.geometry.base import BaseGeometry
-from spans.types import floatrange, intrange
+hidden_functions = [
+    '_check_error',
+]
 
-_ffi = _meos_cffi.ffi
-_lib = _meos_cffi.lib
-
-
-def create_pointer(object: 'Any', type: str) -> 'Any *':
-    return _ffi.new(f'{type} *', object)
-    
-
-def get_address(value: 'Any') -> 'Any *':
-    return _ffi.addressof(value)
-
-
-def datetime_to_timestamptz(dt: datetime) -> int:
-    return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)
-
-
-def timestamptz_to_datetime(ts: int) -> datetime:
-    return parse(pg_timestamptz_out(ts))
-
-
-def timedelta_to_interval(td: timedelta) -> Any:
-    return _ffi.new('Interval *', {'time': td.microseconds + td.seconds * 1000000, 'day': td.days, 'month': 0})
-
-
-def interval_to_timedelta(interval: Any) -> timedelta:
-    # TODO fix for months/years
-    return timedelta(days=interval.day, microseconds=interval.time)
-
-
-def geo_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: bool) -> 'GSERIALIZED *':
-    if geodetic:
-        return geography_to_gserialized(geom)
-    else:
-        return geometry_to_gserialized(geom)
-
-
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
-    if isinstance(geom, pg.Geometry):
-        text = geom.wkt
-        # if geom.has_srid():
-        #     text = f'SRID={geom.srid};{text}'
-    elif isinstance(geom, BaseGeometry):
-        text = wkt.dumps(geom)
-        if get_srid(geom) > 0:
-            text = f'SRID={get_srid(geom)};{text}'
-    else:
-        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    gs = pgis_geometry_in(text, -1)
-    return gs
-
-
-def geography_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
-    if isinstance(geom, pg.Geometry):
-        text = geom.wkt
-        # if geom.has_srid():
-        #     text = f'SRID={geom.srid};{text}'
-    elif isinstance(geom, BaseGeometry):
-        text = wkt.dumps(geom)
-        if get_srid(geom) > 0:
-            text = f'SRID={get_srid(geom)};{text}'
-    else:
-        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    gs = pgis_geography_in(text, -1)
-    return gs
-
-
-def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
-    return wkt.loads(gserialized_as_text(geom, precision))
-
-
-def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
-    return wkt.loads(gserialized_as_text(geom, precision))
-
-
-def intrange_to_intspan(irange: intrange) -> 'Span *':
-    return intspan_make(irange.lower, irange.upper, irange.lower_inc, irange.upper_inc)
-
-
-def intspan_to_intrange(ispan: 'Span *') -> intrange:
-    return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
-
-
-def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
-    return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
-
-
-def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
-    return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
-
-
-def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':
-    return _ffi.cast('TInstant *', temporal)
-
-
-def as_tsequence(temporal: 'Temporal *') -> 'TSequence *':
-    return _ffi.cast('TSequence *', temporal)
-
-
-def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
-    return _ffi.cast('TSequenceSet *', temporal)
-
-
-# -----------------------------------------------------------------------------
-# ----------------------End of manually-defined functions----------------------
-# -----------------------------------------------------------------------------
-
-
-"""
+# List of MEOS functions that should not defined in functions.py
+skipped_functions = [
+    'py_error_handler',
+    'meos_initialize_timezone',
+    'meos_initialize_error_handler',
+    'meos_finalize_timezone',
+]
 
 function_notes = {
 }
 
 function_modifiers = {
+    'meos_initialize': meos_initialize_modifier,
+    'meos_finalize': remove_error_check_modifier,
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
     'timestampset_make': timestampset_make_modifier,
@@ -316,12 +212,17 @@ def main():
               r'\((?P<params>[\w\s,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
+    with open('pymeos_cffi/builder/templates/functions.py') as f:
+        base = f.read()
+
     with open('pymeos_cffi/functions.py', 'w+') as file:
-        file.write(BASE)
+        file.write(base)
         for match in matches:
             named = match.groupdict()
             function = named['function']
             inner_return_type = named['returnType']
+            if function in skipped_functions:
+                continue
             return_type = get_return_type(inner_return_type)
             inner_params = named['params']
             params = get_params(function, inner_params)
@@ -334,10 +235,39 @@ def main():
         content = funcs.read()
         matches = list(re.finditer(r'def (\w+)\(', content))
         init.write('from .functions import *\n\n')
-        init.write('__all__ = [\n')
+        init.write('from .errors import *\n\n')
+        init.write('__all__ = [\n'
+                   "    # Exceptions \n"
+                   "    'MeosException',\n"
+                   "    'MeosInternalError',\n"
+                   "    'MeosArgumentError',\n"
+                   "    'MeosIoError',\n"
+                   "    'MeosInternalTypeError',\n"
+                   "    'MeosValueOutOfRangeError',\n"
+                   "    'MeosDivisionByZeroError',\n"
+                   "    'MeosMemoryAllocError',\n"
+                   "    'MeosAggregationError',\n"
+                   "    'MeosDirectoryError',\n"
+                   "    'MeosFileError',\n"
+                   "    'MeosInvalidArgError',\n"
+                   "    'MeosInvalidArgTypeError',\n"
+                   "    'MeosInvalidArgValueError',\n"
+                   "    'MeosMfJsonInputError',\n"
+                   "    'MeosMfJsonOutputError',\n"
+                   "    'MeosTextInputError',\n"
+                   "    'MeosTextOutputError',\n"
+                   "    'MeosWkbInputError',\n"
+                   "    'MeosWkbOutputError',\n"
+                   "    'MeosGeoJsonInputError',\n"
+                   "    'MeosGeoJsonOutputError',\n"
+                   "    # Functions\n"
+                   )
         for fn in matches:
-            functions.append(fn.group(1))
-            init.write(f"    '{fn.group(1)}',\n")
+            function_name = fn.group(1)
+            if function_name in hidden_functions:
+                continue
+            init.write(f"    '{function_name}',\n")
+            functions.append(function_name)
         init.write(']\n')
 
     check_modifiers(functions)
@@ -523,6 +453,9 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
     else:
         function_string = f'{base}' \
                           f'    result = _lib.{function_name}({inner_params})'
+
+    # Add error handling
+    function_string += f'\n    _check_error()'
 
     # Add whatever manipulation the result needs (maybe empty)
     if result_manipulation is not None:
