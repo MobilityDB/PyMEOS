@@ -1074,7 +1074,7 @@ class TestTFloatTransformations(TestTFloat):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_stops(self, tfloat, delta, expected):
-        assert tfloat.stops(0.0, delta) == expected
+        assert tfloat.stops(0.1, delta) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

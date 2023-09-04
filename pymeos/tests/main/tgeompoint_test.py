@@ -1285,7 +1285,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_stops(self, tpoint, delta, expected):
-        assert tpoint.stops(0.0, delta) == expected
+        assert tpoint.stops(0.1, delta) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
