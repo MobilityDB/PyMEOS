@@ -429,11 +429,10 @@ class TBox:
         return tbox_tmax_inc(self._inner)
 
     # ------------------------- Transformation --------------------------------
-    def expand(self, other: Union[TBox, int, float, timedelta]) -> TBox:
+    def expand(self, other: Union[int, float, timedelta]) -> TBox:
         """
         Returns the result of expanding ``self`` with the ``other``. Depending on the type of ``other``, the expansion
-        will be of the numeric dimension (:class:`float`), temporal (:class:`~datetime.timedelta`) or both
-        (:class:`TBox`).
+        will be of the numeric dimension (:class:`float`) or temporal (:class:`~datetime.timedelta`).
 
         Args:
             other: object used to expand ``self``
@@ -442,12 +441,9 @@ class TBox:
             A new :class:`TBox` instance.
 
         MEOS Functions:
-            tbox_copy, tbox_expand, tbox_expand_value, tbox_expand_time
+            tbox_expand_value, tbox_expand_time
         """
-        if isinstance(other, TBox):
-            result = tbox_copy(self._inner)
-            tbox_expand(other._inner, result)
-        elif isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, int) or isinstance(other, float):
             result = tbox_expand_value(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = tbox_expand_time(self._inner, timedelta_to_interval(other))
@@ -524,7 +520,7 @@ class TBox:
         )
         return TBox(_inner=new_inner)
 
-    def round(self, maxdd : int = 0) -> STBox:
+    def round(self, maxdd : int = 0) -> TBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
@@ -544,10 +540,11 @@ class TBox:
     # ------------------------- Set Operations --------------------------------
     def union(self, other: TBox, strict: Optional[bool] = True) -> TBox:
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns the union of `self` with `other`.
 
         Args:
             other: temporal object to merge with
+            strict: Whether to fail if the boxes do not intersect.
 
         Returns:
             A :class:`TBox` instance.
@@ -570,7 +567,7 @@ class TBox:
         MEOS Functions:
             union_tbox_tbox
         """
-        return self.union(other)
+        return self.union(other, False)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: TBox) -> Optional[TBox]:
