@@ -540,7 +540,7 @@ class STBox:
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
     # ------------------------- Transformations -------------------------------
-    def expand(self, other: Union[int, float, timedelta, STBox]) -> STBox:
+    def expand(self, other: Union[int, float, timedelta]) -> STBox:
         """
         Expands ``self`` with `other`.
         If `other` is a :class:`int` or a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
@@ -560,9 +560,6 @@ class STBox:
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
             result = stbox_expand_time(self._inner, timedelta_to_interval(other))
-        elif isinstance(other, STBox):
-            result = stbox_copy(self._inner)
-            stbox_expand(other._inner, result)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return STBox(_inner=result)
