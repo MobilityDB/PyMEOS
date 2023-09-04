@@ -31,7 +31,7 @@ class MeosException(Exception):
     """Base class for all MEOS errors."""
 
     def __init__(self, code: int, message: str):
-        super().__init__(message)
+        super().__init__(f'{message}\nThe MEOS error code ({code}) has not been recognized.')
         self.code = code
 
 
@@ -179,3 +179,5 @@ def raise_meos_exception(level: int, code: int, message: str):
         raise MeosGeoJsonInputError(code, message)
     elif code == MEOSCode.MEOS_ERR_GEOJSON_OUTPUT:
         raise MeosGeoJsonOutputError(code, message)
+    else:
+        raise MeosException(code, message)
