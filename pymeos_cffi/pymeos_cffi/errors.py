@@ -31,7 +31,8 @@ class MeosException(Exception):
     """Base class for all MEOS errors."""
 
     def __init__(self, code: int, message: str):
-        super().__init__(f'{message}\nThe MEOS error code ({code}) has not been recognized.')
+        super().__init__(f'{message}\nThe MEOS error code ({code}) has not been recognized. '
+                         f'Please, report this to the MEOS developers.')
         self.code = code
 
 
