@@ -752,40 +752,43 @@ class TestTBoolTransformations(TestTBool):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TBoolInst('True@2019-09-01'), 
+            (TBoolInst('True@2019-09-01'), TInterpolation.STEPWISE,
                 TBoolSeq('[True@2019-09-01]')),
-            (TBoolSeq('{True@2019-09-01, False@2019-09-02}'),
+            (TBoolSeq('{True@2019-09-01, False@2019-09-02}'), TInterpolation.DISCRETE,
                 TBoolSeq('{True@2019-09-01, False@2019-09-02}')),
-            (TBoolSeq('[True@2019-09-01, False@2019-09-02]'),
+            (TBoolSeq('[True@2019-09-01, False@2019-09-02]'), TInterpolation.STEPWISE,
                 TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
-            (TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}'),
+            (TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}'), TInterpolation.STEPWISE,
                 TBoolSeq('[True@2019-09-01, False@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TBoolSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TBoolInst('True@2019-09-01'), 
+            (TBoolInst('True@2019-09-01'), TInterpolation.STEPWISE,
                 TBoolSeqSet('{[True@2019-09-01]}')),
             (TBoolSeq('{True@2019-09-01, False@2019-09-02}'),
+                TInterpolation.STEPWISE,
                 TBoolSeqSet('{[True@2019-09-01], [False@2019-09-02]}')),
             (TBoolSeq('[True@2019-09-01, False@2019-09-02]'),
+                TInterpolation.STEPWISE,
                 TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
             (TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}'),
+                TInterpolation.STEPWISE,
                 TBoolSeqSet('{[True@2019-09-01, False@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TBoolSeqSet)
         assert temp == expected
 

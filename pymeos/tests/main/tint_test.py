@@ -847,40 +847,46 @@ class TestTIntTransformations(TestTInt):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TIntInst('1@2019-09-01'), 
+            (TIntInst('1@2019-09-01'), TInterpolation.STEPWISE,
                 TIntSeq('[1@2019-09-01]')),
             (TIntSeq('{1@2019-09-01, 2@2019-09-02}'),
+                TInterpolation.DISCRETE,
                 TIntSeq('{1@2019-09-01, 2@2019-09-02}')),
             (TIntSeq('[1@2019-09-01, 2@2019-09-02]'),
+                TInterpolation.STEPWISE,
                 TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
             (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}'),
+                TInterpolation.STEPWISE,
                 TIntSeq('[1@2019-09-01, 2@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TIntSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TIntInst('1@2019-09-01'), 
+            (TIntInst('1@2019-09-01'), TInterpolation.STEPWISE,
                 TIntSeqSet('{[1@2019-09-01]}')),
             (TIntSeq('{1@2019-09-01, 2@2019-09-02}'),
+                TInterpolation.STEPWISE,
                 TIntSeqSet('{[1@2019-09-01], [2@2019-09-02]}')),
             (TIntSeq('[1@2019-09-01, 2@2019-09-02]'),
+                TInterpolation.STEPWISE,
                 TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
             (TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}'),
+                TInterpolation.STEPWISE,
                 TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TIntSeqSet)
         assert temp == expected
 

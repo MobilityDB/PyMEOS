@@ -487,25 +487,23 @@ class TestSTBoxAccessors(TestSTBox):
         [
             (stbx, 0),
             (stbz, 0),
-            (stbt, 0),
             (stbxt, 0),
             (stbzt, 0),
             (gstbx, 4326),
             (gstbz, 4326),
-            (gstbt, 4326),
             (gstbxt, 4326),
             (gstbzt, 4326)
         ],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT',
-             'Geodetic STBox X', 'Geodetic STBox Z', 'Geodetic STBox T', 'Geodetic STBox XT', 'Geodetic STBox ZT']
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT',
+             'Geodetic STBox X', 'Geodetic STBox Z', 'Geodetic STBox XT', 'Geodetic STBox ZT']
     )
     def test_srid(self, stbox, expected):
         assert stbox.srid() == expected
 
     @pytest.mark.parametrize(
         'stbox',
-        [stbx, stbz, stbt, stbxt, stbzt],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+        [stbx, stbz, stbxt, stbzt],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
     )
     def test_set_srid(self, stbox):
         assert stbox.set_srid(5676).srid() == 5676

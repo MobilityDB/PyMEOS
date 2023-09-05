@@ -592,24 +592,24 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         inst = temporal_to_tinstant(self._inner)
         return Temporal._factory(inst)
 
-    def to_sequence(self) -> TS:
+    def to_sequence(self, interpolation: TInterpolation) -> TS:
         """
         Converts `self` into a :class:`TSequence`.
 
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner)
+        seq = temporal_to_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
-    def to_sequenceset(self) -> TSS:
+    def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
         """
         Returns `self` as a :class:`TSequenceSet`.
 
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner)
+        ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> DataFrame:

@@ -876,40 +876,46 @@ class TestTFloatTransformations(TestTFloat):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TFloatInst('1.5@2019-09-01'), 
+            (TFloatInst('1.5@2019-09-01'), TInterpolation.LINEAR,
                 TFloatSeq('[1.5@2019-09-01]')),
             (TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}'),
+                TInterpolation.DISCRETE,
                 TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
             (TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
             (TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TFloatSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TFloatInst('1.5@2019-09-01'), 
+            (TFloatInst('1.5@2019-09-01'), TInterpolation.LINEAR,
                 TFloatSeqSet('{[1.5@2019-09-01]}')),
             (TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}'),
+                TInterpolation.LINEAR,
                 TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02]}')),
             (TFloatSeq('[1.5@2019-09-01, 2.5@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
             (TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TFloatSeqSet)
         assert temp == expected
 

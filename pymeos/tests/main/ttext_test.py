@@ -747,40 +747,46 @@ class TestTTextTransformations(TestTText):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TTextInst('AAA@2019-09-01'), 
+            (TTextInst('AAA@2019-09-01'), TInterpolation.STEPWISE,
                 TTextSeq('[AAA@2019-09-01]')),
             (TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}'),
+                TInterpolation.DISCRETE,
                 TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
             (TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]'),
+                TInterpolation.STEPWISE,
                 TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
             (TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}'),
+                TInterpolation.STEPWISE,
                 TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TTextSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TTextInst('AAA@2019-09-01'), 
+            (TTextInst('AAA@2019-09-01'), TInterpolation.STEPWISE,
                 TTextSeqSet('{[AAA@2019-09-01]}')),
             (TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}'),
+                TInterpolation.STEPWISE,
                 TTextSeqSet('{[AAA@2019-09-01], [BBB@2019-09-02]}')),
             (TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]'),
+                TInterpolation.STEPWISE,
                 TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
             (TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}'),
+                TInterpolation.STEPWISE,
                 TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TTextSeqSet)
         assert temp == expected
 

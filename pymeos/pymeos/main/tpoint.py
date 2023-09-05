@@ -227,9 +227,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A :class:`TFloat` with the x coordinate of the temporal point.
 
         MEOS Functions:
-            tpoint_get_coord
+            tpoint_get_x
         """
-        result = tpoint_get_coord(self._inner, 0)
+        result = tpoint_get_x(self._inner)
         return Temporal._factory(result)
 
     def y(self) -> TFloat:
@@ -240,9 +240,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A :class:`TFloat` with the y coordinate of the temporal point.
 
         MEOS Functions:
-            tpoint_get_coord
+            tpoint_get_y
         """
-        result = tpoint_get_coord(self._inner, 1)
+        result = tpoint_get_y(self._inner)
         return Temporal._factory(result)
 
     def z(self) -> TFloat:
@@ -253,9 +253,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A :class:`TFloat` with the z coordinate of the temporal point.
 
         MEOS Functions:
-            tpoint_get_coord
+            tpoint_get_z
         """
-        result = tpoint_get_coord(self._inner, 2)
+        result = tpoint_get_z(self._inner)
         return Temporal._factory(result)
 
     def has_z(self) -> bool:
@@ -935,14 +935,14 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A new :class:`TFloat` indicating the temporal distance between the temporal point and `other`.
 
         MEOS Functions:
-            distance_tpoint_geo, distance_tpoint_tpoint
+            distance_tpoint_point, distance_tpoint_tpoint
         """
         from ..boxes import STBox
         if isinstance(other, pg.Geometry) or isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = distance_tpoint_geo(self._inner, gs)
+            result = distance_tpoint_point(self._inner, gs)
         elif isinstance(other, STBox):
-            result = distance_tpoint_geo(self._inner, stbox_to_geo(other._inner))
+            result = distance_tpoint_point(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TPoint):
             result = distance_tpoint_tpoint(self._inner, other._inner)
         else:
@@ -1268,9 +1268,9 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             A new :class:`TGeogPoint` object.
 
         MEOS Functions:
-            tgeompoint_tgeogpoint
+            tgeompoint_to_tgeogpoint
         """
-        result = tgeompoint_tgeogpoint(self._inner, True)
+        result = tgeompoint_to_tgeogpoint(self._inner)
         return Temporal._factory(result)
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
@@ -1546,9 +1546,9 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tgeompoint_tgeogpoint
+            tgeogpoint_to_tgeompoint
         """
-        result = tgeompoint_tgeogpoint(self._inner, False)
+        result = tgeogpoint_to_tgeompoint(self._inner)
         return Temporal._factory(result)
 
     # ------------------------- Ever and Always Comparisons -------------------

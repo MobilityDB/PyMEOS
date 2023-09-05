@@ -1110,40 +1110,46 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+            (TGeomPointInst('Point(1 1)@2019-09-01'), TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01]')),
             (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                TInterpolation.DISCRETE,
                 TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
             (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
             (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TGeomPointSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+            (TGeomPointInst('Point(1 1)@2019-09-01'), TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
             (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}')),
             (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
             (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TGeomPointSeqSet)
         assert temp == expected
 

@@ -101,9 +101,9 @@ class TimestampSet:
             A new :class:`str` instance
 
         MEOS Functions:
-            set_out
+            timestampset_out
         """
-        return set_out(self._inner, 15)
+        return timestampset_out(self._inner)
 
     def __repr__(self):
         """
