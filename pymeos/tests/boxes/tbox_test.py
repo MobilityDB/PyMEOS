@@ -377,46 +377,37 @@ class TestTBoxTransformations(TestTBox):
         assert isinstance(tb, TBox)
         assert tb == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
     @pytest.mark.parametrize(
         'tbox, delta, expected',
         [(tbt, timedelta(days=4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-05,2019-09-06])')),
          (tbt, timedelta(days=-4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-08-28,2019-08-29])')),
          (tbt, timedelta(hours=2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01 02:00:00,2019-09-02 02:00:00])')),
          (tbt, timedelta(hours=-2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-08-31 22:00:00,2019-09-01 22:00:00])')),
          ],
         ids=['positive days', 'negative days', 'positive hours', 'negative hours']
     )
     def test_shift(self, tbox, delta, expected):
         assert tbox.shift(delta) == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
     @pytest.mark.parametrize(
         'tbox, delta, expected',
         [(tbt, timedelta(days=4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01,2019-09-05])')),
         (tbt, timedelta(hours=2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01,2019-09-01 02:00:00])')),
          ],
         ids=['positive days', 'positive hours']
     )
     def test_tscale(self, tbox, delta, expected):
         assert tbox.tscale(delta) == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
     def test_shift_tscale(self):
         assert self.tbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
-            TBox('TBOX T([2019-09-01,2019-09-02])')
+            TBox('TBOX T([2019-09-05,2019-09-05 04:00:00])')
 
     @pytest.mark.parametrize(
         'tbox, expected',

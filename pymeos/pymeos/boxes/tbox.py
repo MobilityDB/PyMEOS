@@ -511,14 +511,12 @@ class TBox:
             :meth:`Period.shift_tscale`
         """
         assert shift is not None or duration is not None, 'shift and duration deltas must not be both None'
-        new_inner = tbox_copy(self._inner)
-        new_period = get_address(new_inner.period)
-        period_shift_tscale(
-            new_period,
+        result = tbox_shift_tscale(
+            self._inner,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
+            timedelta_to_interval(duration) if duration else None
         )
-        return TBox(_inner=new_inner)
+        return TBox(_inner=result)
 
     def round(self, maxdd : int = 0) -> TBox:
         """

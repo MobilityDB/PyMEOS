@@ -4108,6 +4108,15 @@ def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def stbox_shift_tscale(box: 'const STBox *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
+    result = _lib.stbox_shift_tscale(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tbox_expand_value(box: 'const TBox *', d: 'const double') -> 'TBox *':
     box_converted = _ffi.cast('const TBox *', box)
     d_converted = _ffi.cast('const double', d)
@@ -4127,6 +4136,15 @@ def tbox_expand_time(box: 'const TBox *', interval: 'const Interval *') -> 'TBox
 def tbox_round(box: 'const TBox *', maxdd: int) -> 'TBox *':
     box_converted = _ffi.cast('const TBox *', box)
     result = _lib.tbox_round(box_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbox_shift_tscale(box: 'const TBox *', shift: "Optional['const Interval *']", duration: "Optional['const Interval *']") -> 'TBox *':
+    box_converted = _ffi.cast('const TBox *', box)
+    shift_converted = _ffi.cast('const Interval *', shift) if shift is not None else _ffi.NULL
+    duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
+    result = _lib.tbox_shift_tscale(box_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

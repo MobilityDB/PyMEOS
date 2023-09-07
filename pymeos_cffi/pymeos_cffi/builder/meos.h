@@ -1335,9 +1335,11 @@ extern STBox *stbox_expand_time(const STBox *box, const Interval *interval);
 extern STBox *stbox_get_space(const STBox *box);
 extern STBox *stbox_round(const STBox *box, int maxdd);
 extern STBox *stbox_set_srid(const STBox *box, int32 srid);
+extern STBox *stbox_shift_tscale(const STBox *box, const Interval *shift, const Interval *duration);
 extern TBox *tbox_expand_value(const TBox *box, const double d);
 extern TBox *tbox_expand_time(const TBox *box, const Interval *interval);
 extern TBox *tbox_round(const TBox *box, int maxdd);
+extern TBox *tbox_shift_tscale(const TBox *box, const Interval *shift, const Interval *duration);
 
 
 

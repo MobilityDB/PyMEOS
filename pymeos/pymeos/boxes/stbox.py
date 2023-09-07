@@ -232,7 +232,8 @@ class STBox:
     def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox],
         expansion: float, geodetic: Optional[bool] = False) -> STBox:
         """
-        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
+        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance,
+        expanding its bounding box by the given amount.
 
         Args:
             value: A `Geometry`, `TPoint` or `STBox` instance.
@@ -540,6 +541,19 @@ class STBox:
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
     # ------------------------- Transformations -------------------------------
+    def get_space(self) -> STBox:
+        """
+        Get the spatial dimension of ``self``, removing the temporal dimension if any
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_get_space
+        """
+        result = stbox_get_space(self._inner)
+        return STBox(_inner=result)
+
     def expand(self, other: Union[int, float, timedelta]) -> STBox:
         """
         Expands ``self`` with `other`.
@@ -575,10 +589,10 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            periodshift_tscale
+            stbox_shift_tscale
 
         See Also:
-            :meth:`Period.shift`
+            :meth:`STBox.shift`
         """
         return self.shift_tscale(shift=delta)
 
@@ -596,7 +610,7 @@ class STBox:
             period_shift_tscale
 
         See Also:
-            :meth:`Period.tscale`
+            :meth:`STBox.tscale`
         """
         return self.shift_tscale(duration=duration)
 
@@ -613,22 +627,20 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            stbox_shift_tscale
 
         See Also:
             :meth:`Period.shift_tscale`
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        new_inner = stbox_copy(self._inner)
-        new_period = get_address(new_inner.period)
-        period_shift_tscale(
-            new_period,
+        result = stbox_shift_tscale(
+            self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None
         )
-        return STBox(_inner=new_inner)
+        return STBox(_inner=result)
 
-    def round(self, maxdd : int = 0) -> STBox:
+    def round(self, maxdd : Optional[int] = 0) -> STBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
