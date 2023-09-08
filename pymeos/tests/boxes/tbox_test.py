@@ -160,6 +160,7 @@ class TestTBoxConstructors(TestTBox):
         ids=['TBoxFloat X', 'TBox T', 'TBoxFloat XT']
     )
     def test_from_as_constructor(self, tbox):
+        assert tbox == TBox(str(tbox))
         assert tbox == tbox.from_wkb(tbox.as_wkb())
         assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 

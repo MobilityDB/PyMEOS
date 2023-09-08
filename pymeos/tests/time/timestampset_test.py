@@ -40,6 +40,7 @@ class TestTimestampSetConstructors(TestTimestampSet):
                                                    datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
 
     def test_from_as_constructor(self):
+        assert self.ts_set == TimestampSet(str(self.ts_set))
         assert self.ts_set == TimestampSet.from_wkb(self.ts_set.as_wkb())
         assert self.ts_set == TimestampSet.from_hexwkb(self.ts_set.as_hexwkb())
 

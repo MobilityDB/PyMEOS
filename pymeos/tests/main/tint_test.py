@@ -147,6 +147,7 @@ class TestTIntConstructors(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -1491,7 +1492,6 @@ class TestTIntRestrictors(TestTInt):
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
 
-    # TODO ADD the tests that are currently commented out in at and minus
     @pytest.mark.parametrize(
         'temporal, restrictor',
         [
@@ -1501,6 +1501,9 @@ class TestTIntRestrictors(TestTInt):
             (tii, period_set),
             (tii, 1),
             (tii, 2),
+            (tii, intrange(1, 1, True, True)),
+            (tii, [1,2]),
+            # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tids, timestamp),
             (tids, timestamp_set),
@@ -1508,6 +1511,9 @@ class TestTIntRestrictors(TestTInt):
             (tids, period_set),
             (tids, 1),
             (tids, 2),
+            (tids, intrange(1, 1, True, True)),
+            (tids, [1,2]),
+            # (tds, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tis, timestamp),
             (tis, timestamp_set),
@@ -1515,6 +1521,9 @@ class TestTIntRestrictors(TestTInt):
             (tis, period_set),
             (tis, 1),
             (tis, 2),
+            (tis, intrange(1, 1, True, True)),
+            (tis, [1,2]),
+            # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tiss, timestamp),
             (tiss, timestamp_set),
@@ -1522,15 +1531,25 @@ class TestTIntRestrictors(TestTInt):
             (tiss, period_set),
             (tiss, 1),
             (tiss, 2),
-
+            (tiss, intrange(1, 1, True, True)),
+            (tiss, [1,2]),
+            # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
         ],
-        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-1',
-             'Instant-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 
+             'Instant-PeriodSet', 'Instant-1', 'Instant-2', 
+             'Instant-Range', 'Instant-[1,2]', # 'Instant-RangeSet', 
+             'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-1',
-             'Discrete Sequence-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2', 'SequenceSet-Timestamp',
-             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-1',
-             'SequenceSet-2']
+             'Discrete Sequence-2', 'Discrete Sequence-Range', 
+             'Discrete Sequence-[1,2]',  # 'Discrete Sequence-RangeSet',
+             'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2',
+             'Sequence-Range', 'Sequence-[1,2]',  # 'Sequence-RangeSet',
+             'SequenceSet-Timestamp', 'SequenceSet-TimestampSet', 
+             'SequenceSet-Period', 'SequenceSet-PeriodSet',
+             'SequenceSet-1', 'SequenceSet-2', 
+             'SequenceSet-Range', 'SequenceSet-[1,2]', # 'SequenceSet-RangeSet',
+            ]
     )
     def test_at_minus(self, temporal, restrictor):
         assert TInt.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal

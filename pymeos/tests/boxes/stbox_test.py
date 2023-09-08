@@ -215,6 +215,7 @@ class TestSTBoxConstructors(TestSTBox):
         ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
     )
     def test_from_as_constructor(self, stbox):
+        assert stbox == STBox(str(stbox))
         assert stbox == stbox.from_wkb(stbox.as_wkb())
         assert stbox == stbox.from_hexwkb(stbox.as_hexwkb())
 

@@ -82,6 +82,7 @@ class TestPeriodConstructors(TestPeriod):
                                     datetime(2019, 9, 10, tzinfo=timezone.utc), False, False)
 
     def test_from_as_constructor(self):
+        assert self.period == Period(str(self.period))
         assert self.period == Period.from_wkb(self.period.as_wkb())
         assert self.period == Period.from_hexwkb(self.period.as_hexwkb())
 
@@ -180,11 +181,6 @@ class TestPeriodTransformationFunctions(TestPeriod):
         shifted_scaled = self.period.shift_tscale(timedelta(days=4), timedelta(hours=4))
         self.assert_period_equality(shifted_scaled, datetime(2019, 9, 12, 0, tzinfo=timezone.utc),
                                     datetime(2019, 9, 12, 4, tzinfo=timezone.utc), False, False)
-
-    # def test_expand(self):
-        # expanded = self.period.expand(Period('(2021-01-01 00:00:00+0, 2021-02-01 00:00:00+0)'))
-        # self.assert_period_equality(expanded, datetime(2019, 9, 8, tzinfo=timezone.utc),
-                                    # datetime(2021, 2, 1, tzinfo=timezone.utc), False, False)
 
 
 class TestPeriodTopologicalPositionFunctions(TestPeriod):

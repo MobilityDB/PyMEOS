@@ -161,6 +161,7 @@ class TestTGeogPointConstructors(TestTGeogPoint):
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())

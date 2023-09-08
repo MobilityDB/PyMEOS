@@ -157,6 +157,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -844,19 +845,19 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
     def test_cumulative_length(self, temporal, expected):
         assert temporal.cumulative_length() == expected
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, None),
-            # (tpds, None),
-            # (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
-            # (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
-                # '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_speed(self, temporal, expected):
-        # assert temporal.speed() == expected
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
+            (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_speed(self, temporal, expected):
+        assert temporal.speed() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1011,9 +1012,9 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
             (tpi, Point(1,1)),
             (tpds, Point(1.5,1.5)),
             (tps, Point(1.5,1.5)),
-            # (tpss, Point(1.167,1.167)),
+            (tpss, Point(1.166666666666667,1.166666666666667)),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence'] #, 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_weighted_centroid(self, temporal, expected):
         assert temporal.time_weighted_centroid() == expected
@@ -1927,14 +1928,27 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_ever_contained_withindist_intersects_touches(self, temporal, expected):
+    def test_temporal_ever_contained_withindist_intersects(self, temporal, expected):
         assert temporal.is_ever_contained_in(Polygon([(0,0),(0,2),(2,2),(2,0),(0,0)])) == expected
         assert temporal.is_ever_contained_in(STBox('STBOX X((0,0),(2,2))')) == expected
         assert temporal.is_ever_within_distance(Point(1,1), 1) == expected
         assert temporal.is_ever_within_distance(TGeomPointInst('Point(1 1)@2019-09-01'), 1) == expected
         assert temporal.ever_intersects(Point(1,1)) == expected
         assert temporal.ever_intersects(TGeomPointInst('Point(1 1)@2019-09-01')) == expected
-        # assert temporal.ever_touches(Point(1,1)) == expected
+
+    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, False),
+            (tpds, False),
+            (tps, False),
+            (tpss, False),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_ever_touches(self, temporal, expected):
+        assert temporal.ever_touches(Point(1,1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1968,10 +1982,24 @@ class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_intersects_disjoint_touches(self, temporal, expected):
+    def test_temporal_intersects_disjoint(self, temporal, expected):
         assert temporal.intersects(Point(1,1)) == expected
         assert temporal.disjoint(Point(1,1)) == ~expected
-        # assert temporal.touches(Point(1,1)) == expected
+
+    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TBoolInst('False@2019-09-01')),
+            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tps, TBoolSeqSet('[False@2019-09-01, False@2019-09-02]')),
+            (tpss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],'
+                '[False@2019-09-03, False@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_touches(self, temporal, expected):
+        assert temporal.touches(Point(1,1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',

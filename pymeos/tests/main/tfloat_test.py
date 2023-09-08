@@ -151,6 +151,7 @@ class TestTFloatConstructors(TestTFloat):
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -1659,36 +1660,36 @@ class TestTFloatRestrictors(TestTFloat):
             (tfi, 1.5),
             (tfi, 2.5),
             (tfi, floatrange(1.5, 1.5, True, True)),
-            # (tfi, [1.5,2.5]),
+            (tfi, [1.5,2.5]),
             # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfds, 1.5),
             (tfds, 2.5),
             (tfds, floatrange(1.5, 1.5, True, True)),
-            # (tfds, [1.5,2.5]),
+            (tfds, [1.5,2.5]),
             # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfs, 1.5),
             (tfs, 2.5),
             (tfs, floatrange(1.5, 1.5, True, True)),
-            # (tfs, [1.5,2.5]),
+            (tfs, [1.5,2.5]),
             # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfss, 1.5),
             (tfss, 2.5),
             (tfss, floatrange(1.5, 1.5, True, True)),
-            # (tfss, [1.5,2.5]),
+            (tfss, [1.5,2.5]),
             # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
-             # 'Instant-ValueList', 'Instant-RangeList', 
+             'Instant-ValueList', # 'Instant-RangeList', 
              'Discrete Sequence-1.5', 'Discrete Sequence-2.5', 
              'Discrete Sequence-Range', 
-             # 'Discrete Sequence-ValueList', 'Discrete Sequence-RangeList',
+             'Discrete Sequence-ValueList', # 'Discrete Sequence-RangeList',
              'Sequence-1.5', 'Sequence-2.5', 'Sequence-Range', 
-             # 'Sequence-ValueList', 'Sequence-RangeList', 
+             'Sequence-ValueList', # 'Sequence-RangeList', 
              'SequenceSet-1.5', 'SequenceSet-2.5', 'SequenceSet-Range',
-             # 'SequenceSet-ValueList', 'SequenceSet-RangeList', 
+             'SequenceSet-ValueList', # 'SequenceSet-RangeList', 
              ]
     )
     def test_at_minus_values(self, temporal, restrictor):

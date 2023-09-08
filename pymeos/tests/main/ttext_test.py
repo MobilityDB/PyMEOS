@@ -141,6 +141,7 @@ class TestTTextConstructors(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
