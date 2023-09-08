@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Generic, TypeVar, Type, Callable, Any, TYPE_CHECKING
-from typing import Optional, Union, overload, get_args
+from typing import Optional, Union
 
 from pymeos_cffi import *
 
@@ -56,7 +56,7 @@ class Span(Generic[T], ABC):
             span_copy
         """
         inner_copy = span_copy(self._inner)
-        return self._class__(_inner=inner_copy)
+        return self.__class__(_inner=inner_copy)
 
     @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
@@ -174,7 +174,7 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             period_upper
         """
-        return timestamptz_to_datetime(period_upper(self._inner))
+        return period_upper(self._inner)
 
     def lower_inc(self) -> bool:
         """
@@ -240,6 +240,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             adjacent_span_span, adjacent_span_spanset,
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return adjacent_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -262,6 +264,7 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             contained_span_span, contained_span_spanset, contained_period_temporal
         """
+        from .spanset import SpanSet
         if isinstance(container, Span):
             return contained_span_span(self._inner, container._inner)
         elif isinstance(container, SpanSet):
@@ -283,6 +286,8 @@ class Span(Generic[T], ABC):
             contains_span_span, contains_span_spanset, contains_period_timestamp,
             contains_period_timestampset, contains_period_temporal
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(content, Set):
             return contains_span_span(self._inner, set_span(content._inner))
         elif isinstance(content, Span):
@@ -321,6 +326,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             overlaps_span_span, overlaps_span_spanset
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return overlaps_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -343,6 +350,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             same_period_temporal
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return span_eq(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -366,6 +375,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             left_span_span, left_span_spanset
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return left_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -389,6 +400,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             overleft_span_span, overleft_span_spanset
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return overleft_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -411,6 +424,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             right_span_span, right_span_spanset
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return right_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -435,6 +450,8 @@ class Span(Generic[T], ABC):
             overright_span_span, overright_span_spanset, overafter_period_timestamp,
             overafter_period_timestampset, overafter_period_temporal
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return overright_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
@@ -458,6 +475,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             distance_span_span, distance_spanset_span, distance_period_timestamp
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return timedelta(seconds=distance_span_span(self._inner, set_span(other._inner)))
         elif isinstance(other, Span):
@@ -468,6 +487,7 @@ class Span(Generic[T], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     # ------------------------- Set Operations --------------------------------
+    @abstractmethod
     def intersection(self, other):
         """
         Returns the temporal intersection of ``self`` and ``other``.
@@ -481,15 +501,14 @@ class Span(Generic[T], ABC):
         MEOS Functions:
         intersection_span_span, intersection_spanset_span, intersection_period_timestamp
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
-            result = intersection_spanset_span(set_to_spanset(other._inner), self._inner)
-            return result if result is not None else None
+            return intersection_spanset_span(set_to_spanset(other._inner), self._inner)
         elif isinstance(other, Span):
-            result = intersection_span_span(self._inner, other._inner)
-            return result if result is not None else None
+            return intersection_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
-            result = intersection_spanset_span(other._inner, self._inner)
-            return result if result is not None else None
+            return intersection_spanset_span(other._inner, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -522,15 +541,14 @@ class Span(Generic[T], ABC):
         MEOS Functions:
         minus_period_timestamp, minus_span_spanset, minus_span_span
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
-            result = minus_span_spanset(self._inner, set_to_spanset(other._inner))
-            return result if result is not None else None
+            return minus_span_spanset(self._inner, set_to_spanset(other._inner))
         elif isinstance(other, Span):
-            result = minus_span_span(self._inner, other._inner)
-            return result if result is not None else None
+            return minus_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
-            result = minus_span_spanset(self._inner, other._inner)
-            return result if result is not None else None
+            return minus_span_spanset(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -549,6 +567,7 @@ class Span(Generic[T], ABC):
         """
         return self.minus(other)
 
+    @abstractmethod
     def union(self, other):
         """
         Returns the temporal union of ``self`` and ``other``.
@@ -562,6 +581,8 @@ class Span(Generic[T], ABC):
         MEOS Functions:
         union_period_timestamp, union_spanset_span, union_span_span
         """
+        from .set import Set
+        from .spanset import SpanSet
         if isinstance(other, Set):
             return union_spanset_span(set_to_spanset(other._inner), self._inner)
         elif isinstance(other, Span):
