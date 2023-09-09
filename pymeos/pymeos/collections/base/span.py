@@ -72,8 +72,7 @@ class Span(Generic[T], ABC):
         MEOS Functions:
             span_from_wkb
         """
-        result = span_from_wkb(wkb)
-        return cls(_inner=result)
+        return cls(_inner=(span_from_wkb(wkb)))
 
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
@@ -362,7 +361,7 @@ class Span(Generic[T], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     # ------------------------- Position Operations ---------------------------
-    def is_before(self, other) -> bool:
+    def is_left(self, other) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
@@ -386,7 +385,7 @@ class Span(Generic[T], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_over_or_before(self, other) -> bool:
+    def is_over_or_left(self, other) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
@@ -411,31 +410,7 @@ class Span(Generic[T], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_after(self, other) -> bool:
-        """
-        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
-
-        Args:
-            other: temporal object to compare with
-
-        Returns:
-            True if after, False otherwise
-
-        MEOS Functions:
-            right_span_span, right_span_spanset
-        """
-        from .set import Set
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return right_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
-            return right_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return right_span_spanset(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
-
-    def is_over_or_after(self, other) -> bool:
+    def is_over_or_right(self, other) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
@@ -461,28 +436,52 @@ class Span(Generic[T], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    # ------------------------- Distance Operations ---------------------------
-    def distance(self, other) -> timedelta:
+    def is_right(self, other) -> bool:
         """
-        Returns the temporal distance between ``self`` and ``other``.
+        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
 
         Args:
             other: temporal object to compare with
 
         Returns:
-            A :class:`datetime.timedelta` instance
+            True if after, False otherwise
 
         MEOS Functions:
-            distance_span_span, distance_spanset_span, distance_period_timestamp
+            right_span_span, right_span_spanset
         """
         from .set import Set
         from .spanset import SpanSet
         if isinstance(other, Set):
-            return timedelta(seconds=distance_span_span(self._inner, set_span(other._inner)))
+            return right_span_span(self._inner, set_span(other._inner))
         elif isinstance(other, Span):
-            return timedelta(seconds=distance_span_span(self._inner, other._inner))
+            return right_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
-            return timedelta(seconds=distance_spanset_span(other._inner, self._inner))
+            return right_span_spanset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # ------------------------- Distance Operations ---------------------------
+    def distance(self, other) -> float:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other:  object to compare with
+
+        Returns:
+            A :class:`flat` instance
+
+        MEOS Functions:
+            distance_span_span, distance_spanset_span
+        """
+        from .set import Set
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return distance_span_span(self._inner, set_span(other._inner))
+        elif isinstance(other, Span):
+            return distance_span_span(self._inner, other._inner)
+        elif isinstance(other, SpanSet):
+            return distance_spanset_span(other._inner, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

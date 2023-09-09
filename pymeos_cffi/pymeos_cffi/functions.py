@@ -969,9 +969,9 @@ def textset_make(values: List[str]) -> 'Set *':
     return result if result != _ffi.NULL else None
 
 
-def timestampset_make(values: List[int], count: int) -> 'Set *':
+def timestampset_make(values: List[int]) -> 'Set *':
     values_converted = [_ffi.cast('const TimestampTz', x) for x in values]
-    result = _lib.timestampset_make(values_converted, count)
+    result = _lib.timestampset_make(values_converted, len(values))
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -4108,6 +4108,15 @@ def stbox_set_srid(box: 'const STBox *', srid: int) -> 'STBox *':
     return result if result != _ffi.NULL else None
 
 
+def stbox_shift_tscale(box: 'const STBox *', shift: 'const Interval *', duration: 'const Interval *') -> 'STBox *':
+    box_converted = _ffi.cast('const STBox *', box)
+    shift_converted = _ffi.cast('const Interval *', shift)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    result = _lib.stbox_shift_tscale(box_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tbox_expand_value(box: 'const TBox *', d: 'const double') -> 'TBox *':
     box_converted = _ffi.cast('const TBox *', box)
     d_converted = _ffi.cast('const double', d)
@@ -4127,6 +4136,15 @@ def tbox_expand_time(box: 'const TBox *', interval: 'const Interval *') -> 'TBox
 def tbox_round(box: 'const TBox *', maxdd: int) -> 'TBox *':
     box_converted = _ffi.cast('const TBox *', box)
     result = _lib.tbox_round(box_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbox_shift_tscale(box: 'const TBox *', shift: 'const Interval *', duration: 'const Interval *') -> 'TBox *':
+    box_converted = _ffi.cast('const TBox *', box)
+    shift_converted = _ffi.cast('const Interval *', shift)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    result = _lib.tbox_shift_tscale(box_converted, shift_converted, duration_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

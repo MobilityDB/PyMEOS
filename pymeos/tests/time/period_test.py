@@ -261,7 +261,7 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_before(self, other):
-        self.period.is_before(other)
+        self.period.is_left(other)
 
     @pytest.mark.parametrize(
         'other',
@@ -271,7 +271,7 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_over_or_before(self, other):
-        self.period.is_over_or_before(other)
+        self.period.is_over_or_left(other)
 
     @pytest.mark.parametrize(
         'other',
@@ -281,7 +281,7 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_after(self, other):
-        self.period.is_after(other)
+        self.period.is_right(other)
 
     @pytest.mark.parametrize(
         'other',
@@ -291,7 +291,7 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_over_or_after(self, other):
-        self.period.is_over_or_after(other)
+        self.period.is_over_or_right(other)
 
     @pytest.mark.parametrize(
         'other',

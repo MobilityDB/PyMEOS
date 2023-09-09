@@ -355,16 +355,16 @@ class Period(Span[datetime]):
             super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_before(self, other: Union[Time, Box, Temporal]) -> bool:
+    def is_left(self, other: Union[Time, Box, Temporal]) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
         Examples:
-            >>> Period('[2012-01-01, 2012-01-02)').is_before(Period('[2012-01-02, 2012-01-03]'))
+            >>> Period('[2012-01-01, 2012-01-02)').is_left(Period('[2012-01-02, 2012-01-03]'))
             >>> True
-            >>> Period('[2012-01-01, 2012-01-02)').is_before(Period('(2012-01-02, 2012-01-03]'))
+            >>> Period('[2012-01-01, 2012-01-02)').is_left(Period('(2012-01-02, 2012-01-03]'))
             >>> True
-            >>> Period('[2012-01-01, 2012-01-02]').is_before(Period('[2012-01-02, 2012-01-03]'))
+            >>> Period('[2012-01-01, 2012-01-02]').is_left(Period('[2012-01-02, 2012-01-03]'))
             >>> False
 
         Args:
@@ -382,23 +382,23 @@ class Period(Span[datetime]):
         if isinstance(other, datetime):
             return overafter_timestamp_period(datetime_to_timestamptz(other), self._inner)
         elif isinstance(other, Temporal):
-            return self.is_before(other.period())
+            return self.is_left(other.period())
         elif isinstance(other, get_args(Box)):
-            return self.is_before(other.to_period())
+            return self.is_left(other.to_period())
         else:
-            super().is_before(other)
+            super().is_left(other)
 
-    def is_over_or_before(self, other: Union[Time, Box, Temporal]) -> bool:
+    def is_over_or_left(self, other: Union[Time, Box, Temporal]) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
 
         Examples:
-            >>> Period('[2012-01-01, 2012-01-02)').is_over_or_before(Period('[2012-01-02, 2012-01-03]'))
+            >>> Period('[2012-01-01, 2012-01-02)').is_over_or_left(Period('[2012-01-02, 2012-01-03]'))
             >>> True
-            >>> Period('[2012-01-01, 2012-01-02]').is_over_or_before(Period('[2012-01-02, 2012-01-03]'))
+            >>> Period('[2012-01-01, 2012-01-02]').is_over_or_left(Period('[2012-01-02, 2012-01-03]'))
             >>> True
-            >>> Period('[2012-01-03, 2012-01-05]').is_over_or_before(Period('[2012-01-01, 2012-01-04]'))
+            >>> Period('[2012-01-03, 2012-01-05]').is_over_or_left(Period('[2012-01-01, 2012-01-04]'))
             >>> False
 
         Args:
@@ -416,22 +416,22 @@ class Period(Span[datetime]):
         if isinstance(other, datetime):
             return overbefore_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, Temporal):
-            return self.is_over_or_before(other.period())
+            return self.is_over_or_left(other.period())
         elif isinstance(other, get_args(Box)):
-            return self.is_over_or_before(other.to_period())
+            return self.is_over_or_left(other.to_period())
         else:
-            super().is_over_or_before(other)
+            super().is_over_or_left(other)
 
-    def is_after(self, other: Union[Time, Box, Temporal]) -> bool:
+    def is_right(self, other: Union[Time, Box, Temporal]) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
 
         Examples:
-            >>> Period('[2012-01-02, 2012-01-03]').is_after(Period('[2012-01-01, 2012-01-02)'))
+            >>> Period('[2012-01-02, 2012-01-03]').is_right(Period('[2012-01-01, 2012-01-02)'))
             >>> True
-            >>> Period('(2012-01-02, 2012-01-03]').is_after(Period('[2012-01-01, 2012-01-02)'))
+            >>> Period('(2012-01-02, 2012-01-03]').is_right(Period('[2012-01-01, 2012-01-02)'))
             >>> True
-            >>> Period('[2012-01-02, 2012-01-03]').is_after(Period('[2012-01-01, 2012-01-02]'))
+            >>> Period('[2012-01-02, 2012-01-03]').is_right(Period('[2012-01-01, 2012-01-02]'))
             >>> False
 
         Args:
@@ -449,23 +449,23 @@ class Period(Span[datetime]):
         if isinstance(other, datetime):
             return overbefore_timestamp_period(datetime_to_timestamptz(other), self._inner)
         elif isinstance(other, Temporal):
-            return self.is_after(other.period())
+            return self.is_right(other.period())
         elif isinstance(other, get_args(Box)):
-            return self.is_after(other.to_period())
+            return self.is_right(other.to_period())
         else:
-            super().is_after(other)
+            super().is_right(other)
 
-    def is_over_or_after(self, other: Union[Time, Box, Temporal]) -> bool:
+    def is_over_or_right(self, other: Union[Time, Box, Temporal]) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
 
         Examples:
-            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_after(Period('[2012-01-01, 2012-01-02)'))
+            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_right(Period('[2012-01-01, 2012-01-02)'))
             >>> True
-            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_after(Period('[2012-01-01, 2012-01-02]'))
+            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_right(Period('[2012-01-01, 2012-01-02]'))
             >>> True
-            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_after(Period('[2012-01-01, 2012-01-03]'))
+            >>> Period('[2012-01-02, 2012-01-03]').is_over_or_right(Period('[2012-01-01, 2012-01-03]'))
             >>> False
 
         Args:
@@ -483,11 +483,11 @@ class Period(Span[datetime]):
         if isinstance(other, datetime):
             return overafter_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, Temporal):
-            return self.is_over_or_after(other.period())
+            return self.is_over_or_right(other.period())
         elif isinstance(other, get_args(Box)):
-            return self.is_over_or_after(other.to_period())
+            return self.is_over_or_right(other.to_period())
         else:
-            super().is_over_or_after(other)
+            super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[Time, Box, Temporal]) -> timedelta:
@@ -512,7 +512,7 @@ class Period(Span[datetime]):
         elif isinstance(other, get_args(Box)):
             return self.distance(other.to_period())
         else:
-            super().distance(other)
+            return timedelta(seconds=super().distance(other))
 
     # ------------------------- Set Operations --------------------------------
     @overload

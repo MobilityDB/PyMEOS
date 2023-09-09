@@ -2,13 +2,17 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import Generic, TypeVar, Type, Callable, Any
-from typing import Optional, Union, overload, get_args
+from typing import Generic, TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
+from typing import Optional, Union, overload, get_args, List
 
 from pymeos_cffi import *
 
+if TYPE_CHECKING:
+    from .spanset import SpanSet
+    from .span import Span
+
 T = TypeVar('T')
-Self = TypeVar('Self', bound='Span[Any]')
+Self = TypeVar('Self', bound='Set[Any]')
 
 
 class Set(Generic[T], ABC):
@@ -17,3 +21,681 @@ class Set(Generic[T], ABC):
     """
 
     __slots__ = ['_inner']
+
+    _parse_function: Callable[[str], 'CData'] = None
+    _parse_value_function: Callable[[Union[str, T]], Any] = None
+    _make_function: Callable[[Iterable[Any]], 'CData'] = None
+
+    # ------------------------- Constructors ----------------------------------
+    def __init__(self, string: Optional[str] = None, *, timestamp_list: Optional[List[Union[str, datetime]]] = None,
+                 _inner=None):
+        super().__init__()
+        assert (_inner is not None) or ((string is not None) != (timestamp_list is not None)), \
+            "Either string must be not None or timestamp_list must be not"
+        if _inner is not None:
+            self._inner = _inner
+        elif string is not None:
+            self._inner = timestampset_in(string)
+        else:
+            times = [self.__class__._parse_value_function(ts) for ts in timestamp_list]
+            self._inner = self.__class__._make_function(times)
+
+    def __copy__(self: Self) -> Self:
+        """
+        Return a copy of ``self``.
+
+        Returns:
+            A new :class:`Period` instance
+
+        MEOS Functions:
+            set_copy
+        """
+        inner_copy = set_copy(self._inner)
+        return self.__class__(_inner=inner_copy)
+
+    @classmethod
+    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+        """
+        Returns a `TimestampSet` from its WKB representation.
+        Args:
+            wkb: WKB representation
+
+        Returns:
+            A new :class:`TimestampSet` instance
+
+        MEOS Functions:
+            set_from_wkb
+        """
+        return cls(_inner=set_from_wkb(wkb))
+
+    @classmethod
+    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
+        """
+        Returns a `TimestampSet` from its WKB representation in hex-encoded ASCII.
+        Args:
+            hexwkb: WKB representation in hex-encoded ASCII
+
+        Returns:
+            A new :class:`TimestampSet` instance
+
+        MEOS Functions:
+            set_from_hexwkb
+        """
+        return cls(_inner=(set_from_hexwkb(hexwkb)))
+
+    # ------------------------- Output ----------------------------------------
+    @abstractmethod
+    def __str__(self):
+        """
+        Return the string representation of the content of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            timestampset_out
+        """
+        raise NotImplementedError()
+
+    def __repr__(self):
+        """
+        Return the string representation of ``self``.
+
+        Returns:
+            A new :class:`str` instance
+
+        MEOS Functions:
+            set_out
+        """
+        return (f'{self.__class__.__name__}'
+                f'({self})')
+
+    def as_wkb(self) -> bytes:
+        """
+        Returns the WKB representation of ``self``.
+        Returns:
+            A :class:`str` object with the WKB representation of ``self``.
+
+        MEOS Functions:
+            set_as_wkb
+        """
+        return set_as_wkb(self._inner, 4)
+
+    def as_hexwkb(self) -> str:
+        """
+        Returns the WKB representation of ``self`` in hex-encoded ASCII.
+        Returns:
+            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+
+        MEOS Functions:
+            set_as_hexwkb
+        """
+        return set_as_hexwkb(self._inner, -1)[0]
+
+    # ------------------------- Conversions -----------------------------------
+    @abstractmethod
+    def to_spanset(self) -> SpanSet:
+        """
+        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
+
+        Returns:
+            A new :class:`PeriodSet` instance
+
+        MEOS Functions:
+            set_to_spanset
+        """
+        return set_to_spanset(self._inner)
+
+    @abstractmethod
+    def to_span(self) -> Span:
+        """
+        Returns a period that encompasses ``self``.
+
+        Returns:
+            A new :class:`Period` instance
+
+        MEOS Functions:
+            set_span
+        """
+        return set_span(self._inner)
+
+    # ------------------------- Accessors -------------------------------------
+
+    def num_elements(self) -> int:
+        """
+        Returns the number of timestamps in ``self``.
+        Returns:
+            An :class:`int`
+
+        MEOS Functions:
+            set_num_values
+        """
+        return set_num_values(self._inner)
+
+    @abstractmethod
+    def start_element(self) -> T:
+        """
+        Returns the first timestamp in ``self``.
+        Returns:
+            A :class:`datetime` instance
+
+        MEOS Functions:
+            timestampset_start_timestamp
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def end_element(self) -> T:
+        """
+        Returns the last timestamp in ``self``.
+        Returns:
+            A :class:`datetime` instance
+
+        MEOS Functions:
+            timestampset_end_timestamp
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def element_n(self, n: int) -> T:
+        """
+        Returns the n-th timestamp in ``self``.
+        Returns:
+            A :class:`datetime` instance
+
+        MEOS Functions:
+            timestampset_timestamp_n
+        """
+        raise NotImplementedError()
+
+    @abstractmethod
+    def elements(self) -> List[T]:
+        """
+        Returns the list of distinct timestamps in ``self``.
+        Returns:
+            A :class:`list[datetime]` instance
+
+        MEOS Functions:
+            timestampset_timestamps
+        """
+        raise NotImplementedError()
+
+    def __hash__(self) -> int:
+        """
+        Return the hash representation of ``self``.
+
+        Returns:
+            A new :class:`int` instance
+
+        MEOS Functions:
+            set_hash
+        """
+        return set_hash(self._inner)
+
+    # ------------------------- Topological Operations ------------------------
+    def is_adjacent(self, other) -> bool:
+        """
+        Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
+        contains it.
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if adjacent, False otherwise
+
+        MEOS Functions:
+        adjacent_span_span, adjacent_spanset_span
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Span):
+            return adjacent_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return adjacent_spanset_spanset(other._inner, set_to_spanset(self._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_contained_in(self, container) -> bool:
+        """
+        Returns whether ``self`` is contained in ``container``.
+
+        Args:
+            container: temporal object to compare with
+
+        Returns:
+            True if contained, False otherwise
+
+        MEOS Functions:
+        contained_span_span, contained_span_spanset, contained_set_set, contained_spanset_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(container, Span):
+            return contained_span_span(set_span(self._inner), container._inner)
+        elif isinstance(container, SpanSet):
+            return contained_span_spanset(set_span(self._inner), container._inner)
+        elif isinstance(container, Set):
+            return contained_set_set(self._inner, container._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {container.__class__}')
+
+    def contains(self, content) -> bool:
+        """
+        Returns whether ``self`` contains ``content``.
+
+        Args:
+            content: temporal object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_set_set
+        """
+        if isinstance(content, Set):
+            return contains_set_set(self._inner, content._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {content.__class__}')
+
+    def __contains__(self, item):
+        """
+        Returns whether ``self`` contains ``content``.
+
+        Args:
+            item: temporal object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_set_set
+        """
+        return self.contains(item)
+
+    def overlaps(self, other) -> bool:
+        """
+        Returns whether ``self`` overlaps ``other``. That is, both share at least an instant
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overlaps, False otherwise
+
+        MEOS Functions:
+        overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return overlaps_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return overlaps_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return overlaps_spanset_spanset(set_to_spanset(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_same(self, other) -> bool:
+        """
+        Returns whether the bounding span of `self` is the same as the bounding span of `other`.
+
+        Args:
+            other: An object to compare to `self`.
+
+        Returns:
+            True if same, False otherwise.
+
+        See Also:
+            :meth:`Span.is_same`
+        """
+        return self.to_span().is_same(other)
+
+    # ------------------------- Position Operations ---------------------------
+    def is_left(self, other) -> bool:
+        """
+        Returns whether ``self`` is strictly to the left of ``other``. That is, ``self`` ends before ``other`` starts.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if before, False otherwise
+
+        MEOS Functions:
+            left_span_span, left_span_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return left_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return left_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return left_span_spanset(set_span(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_left(self, other) -> bool:
+        """
+        Returns whether ``self`` is to the left of ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
+        at the same time).
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if before, False otherwise
+
+        MEOS Functions:
+            overbefore_period_timestamp, overleft_span_span, overleft_span_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return overleft_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return overleft_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return overleft_span_spanset(set_span(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_over_or_right(self, other) -> bool:
+        """
+        Returns whether ``self`` is to the right of ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
+        (or at the same time).
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if overlapping or after, False otherwise
+
+        MEOS Functions:
+        overafter_period_timestamp, overright_span_span, overright_span_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return overright_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return overright_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return overright_span_spanset(set_span(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def is_right(self, other) -> bool:
+        """
+        Returns whether ``self`` is strictly to the right of ``other``. That is, the first timestamp in ``self``
+        is after ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if after, False otherwise
+
+        MEOS Functions:
+        overbefore_timestamp_timestampset, right_set_set, right_span_span, right_span_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return right_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return right_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return right_span_spanset(set_span(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # ------------------------- Distance Operations ---------------------------
+    def distance(self, other) -> float:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            A :class:`datetime.float` instance
+
+        MEOS Functions:
+            distance_set_set, distance_span_span, distance_spanset_span
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return distance_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return distance_span_span(set_span(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return distance_spanset_span(other._inner, set_span(self._inner))
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    # ------------------------- Set Operations --------------------------------
+    @abstractmethod
+    def intersection(self, other):
+        """
+        Returns the temporal intersection of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to intersect with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return intersection_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return intersection_spanset_span(set_to_spanset(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return intersection_spanset_spanset(set_to_spanset(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __mul__(self, other):
+        """
+        Returns the temporal intersection of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to intersect with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
+        """
+        return self.intersection(other)
+
+    @abstractmethod
+    def minus(self, other):
+        """
+        Returns the temporal difference of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to diff with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return minus_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return minus_spanset_span(set_to_spanset(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return minus_spanset_spanset(set_to_spanset(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __sub__(self, other):
+        """
+        Returns the temporal difference of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to diff with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
+        """
+        return self.minus(other)
+
+    @abstractmethod
+    def union(self, other):
+        """
+        Returns the temporal union of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+            union_timestampset_timestamp, union_set_set, union_spanset_span, union_spanset_spanset
+        """
+        from .span import Span
+        from .spanset import SpanSet
+        if isinstance(other, Set):
+            return union_set_set(self._inner, other._inner)
+        elif isinstance(other, Span):
+            return union_spanset_span(set_to_spanset(self._inner), other._inner)
+        elif isinstance(other, SpanSet):
+            return union_spanset_spanset(set_to_spanset(self._inner), other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __add__(self, other):
+        """
+        Returns the temporal union of ``self`` and ``other``.
+
+        Args:
+            other: temporal object to merge with
+
+        Returns:
+            A :class:`Time` instance. The actual class depends on ``other``.
+
+        MEOS Functions:
+            union_timestampset_timestamp, union_set_set, union_spanset_span, union_spanset_spanset
+        """
+        return self.union(other)
+
+    # ------------------------- Comparisons -----------------------------------
+    def __eq__(self, other):
+        """
+        Returns whether ``self`` and ``other`` are equal.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if equal, False otherwise
+
+        MEOS Functions:
+            set_eq
+        """
+        if isinstance(other, self.__class__):
+            return set_eq(self._inner, other._inner)
+        return False
+
+    def __ne__(self, other):
+        """
+        Returns whether ``self`` and ``other`` are not equal.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if not equal, False otherwise
+
+        MEOS Functions:
+            set_ne
+        """
+        if isinstance(other, self.__class__):
+            return set_ne(self._inner, other._inner)
+        return True
+
+    def __lt__(self, other):
+        """
+        Return whether ``self`` is less than ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if less than, False otherwise
+
+        MEOS Functions:
+            set_lt
+        """
+        if isinstance(other, self.__class__):
+            return set_lt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __le__(self, other):
+        """
+        Return whether ``self`` is less than or equal to ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if less than or equal, False otherwise
+
+        MEOS Functions:
+            set_le
+        """
+        if isinstance(other, self.__class__):
+            return set_le(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __gt__(self, other):
+        """
+        Return whether ``self`` is greater than ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if greater than, False otherwise
+
+        MEOS Functions:
+            set_gt
+        """
+        if isinstance(other, self.__class__):
+            return set_gt(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
+
+    def __ge__(self, other):
+        """
+        Return whether ``self`` is greater than or equal to ``other``.
+
+        Args:
+            other: temporal object to compare with
+
+        Returns:
+            True if greater than or equal, False otherwise
+
+        MEOS Functions:
+            set_ge
+        """
+        if isinstance(other, self.__class__):
+            return set_ge(self._inner, other._inner)
+        raise TypeError(f'Operation not supported with type {other.__class__}')
