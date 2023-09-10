@@ -4,7 +4,7 @@ from typing import Union
 from pymeos_cffi import *
 
 from .aggregator import BaseAggregator
-from ..time import TimestampSet, Period, PeriodSet
+from ..collections import TimestampSet, Period, PeriodSet
 
 
 class TimeInstantaneousUnionAggregator(BaseAggregator[Union[datetime, TimestampSet], TimestampSet]):

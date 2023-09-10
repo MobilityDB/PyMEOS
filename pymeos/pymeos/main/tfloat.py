@@ -9,7 +9,7 @@ from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox

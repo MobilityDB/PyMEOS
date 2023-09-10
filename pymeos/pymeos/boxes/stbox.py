@@ -8,7 +8,7 @@ from pymeos_cffi import *
 
 from ..main import TPoint
 from ..temporal import Temporal
-from ..time import *
+from ..collections import *
 
 Geometry = Union[pg.Geometry, shp.BaseGeometry]
 

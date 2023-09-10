@@ -13,7 +13,7 @@ from pymeos_cffi import *
 from .tbool import TBool
 from .tfloat import TFloat, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box

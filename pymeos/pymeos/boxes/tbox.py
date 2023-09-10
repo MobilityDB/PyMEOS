@@ -6,7 +6,7 @@ from pymeos_cffi import *
 from spans import intrange, floatrange
 
 from ..main import TNumber
-from ..time import *
+from ..collections import *
 
 
 class TBox:

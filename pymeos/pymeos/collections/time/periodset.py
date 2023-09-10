@@ -102,7 +102,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return interval_to_timedelta(periodset_duration(self._inner, ignore_gaps))
 
-    def num_timestamps(self) -> int:
+    def num_elements(self) -> int:
         """
         Returns the number of timestamps in ``self``.
         Returns:
@@ -112,6 +112,17 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             periodset_num_timestamps
         """
         return periodset_num_timestamps(self._inner)
+
+    def num_timestamps(self) -> int:
+        """
+        Returns the number of timestamps in ``self``.
+        Returns:
+            An :class:`int`
+
+        MEOS Functions:
+            periodset_num_timestamps
+        """
+        return self.num_elements()
 
     def start_element(self) -> datetime:
         """
@@ -166,6 +177,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         MEOS Functions:
             periodset_timestamp_n
         """
+        super().element_n(n)
         return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n + 1))
 
     def timestamp_n(self, n: int) -> datetime:

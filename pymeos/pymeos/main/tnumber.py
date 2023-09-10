@@ -10,7 +10,7 @@ from ..temporal import Temporal
 
 if TYPE_CHECKING:
     from ..boxes import Box, TBox
-    from ..time import Time
+    from ..collections import Time
     from .tint import TInt
     from .tfloat import TFloat
 

@@ -505,7 +505,7 @@ class Span(Collection[T], ABC):
         from .set import Set
         from .spanset import SpanSet
         if isinstance(other, Set):
-            return self.intersection(set_to_spanset(other._inner))
+            return intersection_spanset_span(set_to_spanset(other._inner), self._inner)
         elif isinstance(other, Span):
             return intersection_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):

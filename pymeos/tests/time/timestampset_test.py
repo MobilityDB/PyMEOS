@@ -14,8 +14,8 @@ class TestTimestampSet(TestPyMEOS):
     @staticmethod
     def assert_timestampset_equality(ts_set: TimestampSet,
                                      timestamps: List[datetime]):
-        assert ts_set.num_timestamps() == len(timestamps)
-        assert ts_set.timestamps() == timestamps
+        assert ts_set.num_elements() == len(timestamps)
+        assert ts_set.elements() == timestamps
 
 
 class TestTimestampSetConstructors(TestTimestampSet):
@@ -76,26 +76,26 @@ class TestTimestampSetAccessors(TestTimestampSet):
         assert self.ts_set.duration() == timedelta(days=2)
 
     def test_period(self):
-        assert self.ts_set.period() == Period('[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]')
+        assert self.ts_set.to_period() == Period('[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]')
 
     def test_num_timestamps(self):
-        assert self.ts_set.num_timestamps() == 3
+        assert self.ts_set.num_elements() == 3
 
     def test_start_timestamp(self):
-        assert self.ts_set.start_timestamp() == datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.start_element() == datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_end_timestamp(self):
-        assert self.ts_set.end_timestamp() == datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.end_element() == datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n(self):
-        assert self.ts_set.timestamp_n(1) == datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc)
+        assert self.ts_set.element_n(1) == datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n_out_of_range(self):
         with pytest.raises(IndexError):
-            self.ts_set.timestamp_n(3)
+            self.ts_set.element_n(3)
 
     def test_timestamps(self):
-        assert self.ts_set.timestamps() == [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+        assert self.ts_set.elements() == [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
                                             datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
                                             datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc),
                                             ]

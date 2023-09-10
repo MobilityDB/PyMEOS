@@ -2,7 +2,7 @@ from datetime import datetime
 
 from matplotlib import pyplot as plt
 
-from ..time import TimestampSet, Period, PeriodSet
+from ..collections import TimestampSet, Period, PeriodSet
 
 
 class TimePlotter:

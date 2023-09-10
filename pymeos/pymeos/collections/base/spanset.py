@@ -159,10 +159,15 @@ class SpanSet(Collection[T], ABC):
 
     @abstractmethod
     def element_n(self, n: int) -> T:
-        raise NotImplementedError()
+        if n < 0 or n >= self.num_elements():
+            raise IndexError(f'Index {n} out of bounds')
 
     @abstractmethod
     def elements(self) -> List[T]:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def num_elements(self) -> int:
         raise NotImplementedError()
 
     def num_spans(self) -> int:
@@ -481,7 +486,7 @@ class SpanSet(Collection[T], ABC):
         from .set import Set
         from .span import Span
         if isinstance(other, Set):
-            return self.distance(other.to_spanset())
+            return distance_spanset_spanset(self._inner, set_to_spanset(other._inner))
         elif isinstance(other, Span):
             return distance_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):

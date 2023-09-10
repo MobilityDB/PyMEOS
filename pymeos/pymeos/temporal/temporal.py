@@ -7,7 +7,7 @@ from pandas import DataFrame
 from pymeos_cffi import *
 
 from .interpolation import TInterpolation
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from .tinstant import TInstant

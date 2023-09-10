@@ -7,7 +7,7 @@ from .aggregator import BaseAggregator
 from ..boxes import Box
 from ..main import TIntSeq, TIntSeqSet
 from ..temporal import Temporal, TInterpolation
-from ..time import Time, TimestampSet, Period, PeriodSet
+from ..collections import Time, TimestampSet, Period, PeriodSet
 
 
 class TemporalInstantCountAggregator(BaseAggregator[

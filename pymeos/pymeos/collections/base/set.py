@@ -208,7 +208,8 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             timestampset_timestamp_n
         """
-        raise NotImplementedError()
+        if n < 0 or n >= self.num_elements():
+            raise IndexError(f'Index {n} out of bounds')
 
     @abstractmethod
     def elements(self) -> List[T]:

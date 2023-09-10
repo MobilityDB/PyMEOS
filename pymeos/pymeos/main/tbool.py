@@ -7,7 +7,7 @@ from typing import Optional, Union, List, Set, overload
 from pymeos_cffi import *
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import *
+from ..collections import *
 
 
 class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC):

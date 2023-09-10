@@ -92,6 +92,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         MEOS Functions:
             set_span
         """
+        from .period import Period
         return Period(_inner=super().to_span())
 
     def to_period(self) -> Period:
@@ -151,6 +152,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         MEOS Functions:
             timestampset_timestamp_n
         """
+        super().element_n(n)
         return timestamptz_to_datetime(timestampset_timestamp_n(self._inner, n + 1))
 
     def elements(self) -> List[datetime]:
@@ -290,7 +292,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         elif isinstance(container, Box):
             return self.is_contained_in(container.to_period())
         else:
-            super().is_contained_in(container)
+            return super().is_contained_in(container)
 
     def contains(self, content: Union[datetime, TimestampSet, Temporal]) -> bool:
         """
@@ -455,7 +457,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.to_period().is_over_or_left(other.to_period())
         else:
-            super().is_over_or_left(other)
+            return super().is_over_or_left(other)
 
     def is_over_or_right(self, other: Union[Time, Temporal, Box]) -> bool:
         """
@@ -488,7 +490,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.to_period().is_over_or_right(other)
         else:
-            super().is_over_or_right(other)
+            return super().is_over_or_right(other)
 
     def is_right(self, other: Union[Time, Temporal, Box]) -> bool:
         """
@@ -593,7 +595,7 @@ class TimestampSet(Set[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.intersection(other.to_period())
         else:
-            super().intersection(other)
+            return super().intersection(other)
 
     @overload
     def minus(self, other: Union[datetime, TimestampSet]) -> Optional[TimestampSet]:

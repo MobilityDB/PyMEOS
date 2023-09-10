@@ -262,7 +262,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(container, Box):
             return self.is_contained_in(container.to_period())
         else:
-            super().is_contained_in(container)
+            return super().is_contained_in(container)
 
     def contains(self, content: Union[Time, Box, Temporal]) -> bool:
         """
@@ -295,7 +295,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(content, get_args(Box)):
             return self.contains(content.to_period())
         else:
-            super().contains(content)
+            return super().contains(content)
 
     def overlaps(self, other: Union[Time, Box, Temporal]) -> bool:
         """
@@ -328,7 +328,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.overlaps(other.to_period())
         else:
-            super().overlaps(other)
+            return super().overlaps(other)
 
     def is_same(self, other: Union[Time, Box, Temporal]) -> bool:
         """
@@ -352,7 +352,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, datetime):
             return span_eq(self._inner, timestamp_to_period(datetime_to_timestamptz(other)))
         else:
-            super().is_same(other)
+            return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Time, Box, Temporal]) -> bool:
@@ -386,7 +386,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.is_left(other.to_period())
         else:
-            super().is_left(other)
+            return super().is_left(other)
 
     def is_over_or_left(self, other: Union[Time, Box, Temporal]) -> bool:
         """
@@ -420,7 +420,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.is_over_or_left(other.to_period())
         else:
-            super().is_over_or_left(other)
+            return super().is_over_or_left(other)
 
     def is_right(self, other: Union[Time, Box, Temporal]) -> bool:
         """
@@ -453,7 +453,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.is_right(other.to_period())
         else:
-            super().is_right(other)
+            return super().is_right(other)
 
     def is_over_or_right(self, other: Union[Time, Box, Temporal]) -> bool:
         """
@@ -487,7 +487,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, get_args(Box)):
             return self.is_over_or_right(other.to_period())
         else:
-            super().is_over_or_right(other)
+            return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
     def distance(self, other: Union[Time, Box, Temporal]) -> timedelta:
