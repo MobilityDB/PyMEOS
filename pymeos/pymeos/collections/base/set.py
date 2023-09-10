@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Generic, TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
-from typing import Optional, Union, overload, get_args, List
+from datetime import datetime
+from typing import Optional, Union, List
+from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
 
 from pymeos_cffi import *
+
+from .collection import Collection
 
 if TYPE_CHECKING:
     from .spanset import SpanSet
@@ -15,7 +17,7 @@ T = TypeVar('T')
 Self = TypeVar('Self', bound='Set[Any]')
 
 
-class Set(Generic[T], ABC):
+class Set(Collection[T], ABC):
     """
     Base class for all set classes.
     """

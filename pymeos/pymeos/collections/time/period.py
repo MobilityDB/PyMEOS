@@ -6,8 +6,8 @@ from typing import Optional, Union, overload, TYPE_CHECKING, get_args
 from dateutil.parser import parse
 from pymeos_cffi import *
 
+from .time_collection import TimeCollection
 from ..base.span import Span
-from ..base.spanset import SpanSet
 
 if TYPE_CHECKING:
     from ...temporal import Temporal
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .timestampset import TimestampSet
 
 
-class Period(Span[datetime]):
+class Period(Span[datetime], TimeCollection):
     """
     Class for representing sets of contiguous timestamps between a lower and
     an upper bound. The bounds may be inclusive or not.
@@ -505,10 +505,10 @@ class Period(Span[datetime]):
         """
         from ...temporal import Temporal
         from ...boxes import Box
-        if isinstance(other, Temporal):
-            return self.distance(other.period())
-        elif isinstance(other, datetime):
+        if isinstance(other, datetime):
             return timedelta(seconds=distance_period_timestamp(self._inner, datetime_to_timestamptz(other)))
+        elif isinstance(other, Temporal):
+            return self.distance(other.period())
         elif isinstance(other, get_args(Box)):
             return self.distance(other.to_period())
         else:

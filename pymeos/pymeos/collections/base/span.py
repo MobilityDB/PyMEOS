@@ -7,6 +7,8 @@ from typing import Optional, Union
 
 from pymeos_cffi import *
 
+from .collection import Collection
+
 if TYPE_CHECKING:
     from .set import Set
     from .spanset import SpanSet
@@ -15,7 +17,7 @@ T = TypeVar('T')
 Self = TypeVar('Self', bound='Span[Any]')
 
 
-class Span(Generic[T], ABC):
+class Span(Collection[T], ABC):
     """
     Base class for all span classes.
     """
@@ -503,7 +505,7 @@ class Span(Generic[T], ABC):
         from .set import Set
         from .spanset import SpanSet
         if isinstance(other, Set):
-            return intersection_spanset_span(set_to_spanset(other._inner), self._inner)
+            return self.intersection(set_to_spanset(other._inner))
         elif isinstance(other, Span):
             return intersection_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
