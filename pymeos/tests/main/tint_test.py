@@ -917,6 +917,63 @@ class TestTIntTransformations(TestTInt):
 
     @pytest.mark.parametrize(
         'tint, delta, expected',
+        [(tii, 2, TIntInst('3@2019-09-01')),
+         (tii, -2, TIntInst('-1@2019-09-01')),
+         (tids, 2, TIntSeq('{3@2019-09-01, 4@2019-09-02}')),
+         (tids, -2, TIntSeq('{-1@2019-09-01, 0@2019-09-02}')),
+         (tis, 2, TIntSeq('[3@2019-09-01, 4@2019-09-02]')),
+         (tis, -2, TIntSeq('[-1@2019-09-01, 0@2019-09-02]')),
+         (tiss, 2, TIntSeqSet('{[3@2019-09-01, 4@2019-09-02],'
+            '[3@2019-09-03, 3@2019-09-05]}')),
+         (tiss, -2, TIntSeqSet('{[-1@2019-09-01, 0@2019-09-02],'
+            '[-1@2019-09-03, -1@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_value(self, tint, delta, expected):
+        assert tint.shift_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tint, width, expected',
+        [(tii, 3, TIntInst('1@2019-09-01')),
+         (tids, 3, TIntSeq('{1@2019-09-01, 4@2019-09-02}')),
+         (tis, 3, TIntSeq('[1@2019-09-01, 4@2019-09-02]')),
+         (tiss, 3, TIntSeqSet('{[1@2019-09-01, 4@2019-09-02],'
+            '[1@2019-09-03, 1@2019-09-05]}')),
+         ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set',]
+    )
+    def test_scale_value(self, tint, width, expected):
+        assert tint.scale_value(width) == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, width, expected',
+        [(tii, 2, 3, TIntInst('3@2019-09-01')),
+         (tii, -2, 3, TIntInst('-1@2019-09-01')),
+         (tids, 2, 3, TIntSeq('{3@2019-09-01, 6@2019-09-02}')),
+         (tids, -2, 3, TIntSeq('{-1@2019-09-01, 2@2019-09-02}')),
+         (tis, 2, 3, TIntSeq('[3@2019-09-01, 6@2019-09-02]')),
+         (tis, -2, 3, TIntSeq('[-1@2019-09-01, 2@2019-09-02]')),
+         (tiss, 2, 3, TIntSeqSet('{[3@2019-09-01, 6@2019-09-02],'
+            '[3@2019-09-03, 3@2019-09-05]}')),
+         (tiss, -2, 3, TIntSeqSet('{[-1@2019-09-01, 2@2019-09-02],'
+            '[-1@2019-09-03, -1@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_scale_value(self, tint, delta, width, expected):
+        assert tint.shift_scale_value(delta, width) == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
         [(tii, timedelta(days=4), TIntInst('1@2019-09-05')),
          (tii, timedelta(days=-4), TIntInst('1@2019-08-28')),
          (tii, timedelta(hours=2), TIntInst('1@2019-09-01 02:00:00')),

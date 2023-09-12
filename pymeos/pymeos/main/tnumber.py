@@ -61,6 +61,77 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return tnumber_twavg(self._inner)
 
+    # ------------------------- Transformations -------------------------------
+    def shift_value(self, delta: Union[int, float]) -> Self:
+        """
+        Returns a new :class:`TNumber` with the value dimension shifted by
+        ``delta``.
+
+        Args:
+            delta: value to shift
+
+        MEOS Functions:
+            tint_shift_value, tfloat_shift_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt):
+            shifted = tint_shift_value(self._inner, int(delta))
+        elif isinstance(self, TFloat):
+            shifted = tfloat_shift_value(self._inner, float(delta))
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(shifted)
+
+    def scale_value(self, width: Union[int, float]) -> Self:
+        """
+        Returns a new :class:`TNumber` scaled so the value dimension has
+        width ``width``.
+
+        Args:
+            width: value representing the width of the new temporal number
+
+        MEOS Functions:
+            tint_scale_value, tfloat_scale_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt):
+            scaled = tint_scale_value(self._inner, int(width))
+        elif isinstance(self, TFloat):
+            scaled = tfloat_scale_value(self._inner, float(width))
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(scaled)
+
+    def shift_scale_value(self, shift: Union[int, float] = None,
+        width: Union[int, float] = None) -> Self:
+        """
+        Returns a new :class:`TNumber` with the value dimension shifted by
+        ``shift`` and scaled so the value dimension has width ``width``.
+
+        Args:
+            shift: value to shift
+            width: value representing the width of the new temporal number
+
+        MEOS Functions:
+            tint_shift_scale_value, tfloat_shift_scale_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        assert shift is not None or width is not None, \
+            'shift and width must not be both None'
+
+        if isinstance(self, TInt):
+            scaled = tint_shift_scale_value(self._inner, 
+                int(shift) if shift else None, int(width) if width else None)
+        elif isinstance(self, TFloat):
+            scaled = tfloat_shift_scale_value(self._inner, 
+                float(shift) if shift else None, float(width) if width else None)
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(scaled)
+
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[intrange, floatrange, List[intrange],
             List[floatrange], TBox, Time]) -> TG:

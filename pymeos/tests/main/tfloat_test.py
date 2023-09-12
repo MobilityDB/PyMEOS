@@ -960,6 +960,63 @@ class TestTFloatTransformations(TestTFloat):
 
     @pytest.mark.parametrize(
         'tfloat, delta, expected',
+        [(tfi, 2, TFloatInst('3.5@2019-09-01')),
+         (tfi, -2, TFloatInst('-0.5@2019-09-01')),
+         (tfds, 2, TFloatSeq('{3.5@2019-09-01, 4.5@2019-09-02}')),
+         (tfds, -2, TFloatSeq('{-0.5@2019-09-01, 0.5@2019-09-02}')),
+         (tfs, 2, TFloatSeq('[3.5@2019-09-01, 4.5@2019-09-02]')),
+         (tfs, -2, TFloatSeq('[-0.5@2019-09-01, 0.5@2019-09-02]')),
+         (tfss, 2, TFloatSeqSet('{[3.5@2019-09-01, 4.5@2019-09-02],'
+            '[3.5@2019-09-03, 3.5@2019-09-05]}')),
+         (tfss, -2, TFloatSeqSet('{[-0.5@2019-09-01, 0.5@2019-09-02],'
+            '[-0.5@2019-09-03, -0.5@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_value(self, tfloat, delta, expected):
+        assert tfloat.shift_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, width, expected',
+        [(tfi, 4, TFloatInst('1.5@2019-09-01')),
+         (tfds, 4, TFloatSeq('{1.5@2019-09-01, 5.5@2019-09-02}')),
+         (tfs, 4, TFloatSeq('[1.5@2019-09-01, 5.5@2019-09-02]')),
+         (tfss, 4, TFloatSeqSet('{[1.5@2019-09-01, 5.5@2019-09-02],'
+            '[1.5@2019-09-03, 1.5@2019-09-05]}')),
+         ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set',]
+    )
+    def test_scale_value(self, tfloat, width, expected):
+        assert tfloat.scale_value(width) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, width, expected',
+        [(tfi, 2, 3, TFloatInst('3.5@2019-09-01')),
+         (tfi, -2, 3, TFloatInst('-0.5@2019-09-01')),
+         (tfds, 2, 3, TFloatSeq('{3.5@2019-09-01, 6.5@2019-09-02}')),
+         (tfds, -2, 3, TFloatSeq('{-0.5@2019-09-01, 2.5@2019-09-02}')),
+         (tfs, 2, 3, TFloatSeq('[3.5@2019-09-01, 6.5@2019-09-02]')),
+         (tfs, -2, 3, TFloatSeq('[-0.5@2019-09-01, 2.5@2019-09-02]')),
+         (tfss, 2, 3, TFloatSeqSet('{[3.5@2019-09-01, 6.5@2019-09-02],'
+            '[3.5@2019-09-03, 3.5@2019-09-05]}')),
+         (tfss, -2, 3, TFloatSeqSet('{[-0.5@2019-09-01, 2.5@2019-09-02],'
+            '[-0.5@2019-09-03, -0.5@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_scale_value(self, tfloat, delta, width, expected):
+        assert tfloat.shift_scale_value(delta, width) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, expected',
         [(tfi, timedelta(days=4), TFloatInst('1.5@2019-09-05')),
          (tfi, timedelta(days=-4), TFloatInst('1.5@2019-08-28')),
          (tfi, timedelta(hours=2), TFloatInst('1.5@2019-09-01 02:00:00')),

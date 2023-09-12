@@ -495,7 +495,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         new_temp = temporal_set_interp(self._inner, interpolation)
         return Temporal._factory(new_temp)
 
-    def shift_time(self, delta: timedelta) -> Period:
+    def shift_time(self, delta: timedelta) -> Self:
         """
         Returns a new :class:`Temporal` with the temporal dimension shifted by
         ``delta``.
@@ -509,7 +509,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         shifted = temporal_shift_time(self._inner, timedelta_to_interval(delta))
         return Temporal._factory(shifted)
 
-    def scale_time(self, duration: timedelta) -> Period:
+    def scale_time(self, duration: timedelta) -> Self:
         """
         Returns a new :class:`Temporal` scaled so the temporal dimension has
         duration ``duration``.

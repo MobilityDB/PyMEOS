@@ -380,6 +380,20 @@ class TestTBoxTransformations(TestTBox):
 
     @pytest.mark.parametrize(
         'tbox, delta, expected',
+        [(tbfx, 2.0, TBox('TBOXFLOAT X([3,4])')),
+         (tbfx, -2.0, TBox('TBOXFLOAT X([-1,0])')),
+         (tbfxt, 2.0, TBox('TBOXFLOAT XT([3,4],[2019-09-01, 2019-09-02])')),
+         (tbfxt, -2.0, TBox('TBOXFLOAT XT([-1,0],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T positive', 'TBox T negative', 
+             'TBoxFloat XT positive', 'TBoxFloat XT negative'
+             ]
+    )
+    def test_shift_value(self, tbox, delta, expected):
+        assert tbox.shift_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
         [(tbt, timedelta(days=4),
           TBox('TBOX T([2019-09-05,2019-09-06])')),
          (tbt, timedelta(days=-4),
@@ -396,6 +410,16 @@ class TestTBoxTransformations(TestTBox):
 
     @pytest.mark.parametrize(
         'tbox, delta, expected',
+        [(tbfx, 4.0, TBox('TBOXFLOAT X([1,5])')),
+         (tbfxt, 4.0, TBox('TBOXFLOAT XT([1,5],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T', 'TBoxFloat XT']
+    )
+    def test_scale_value(self, tbox, delta, expected):
+        assert tbox.scale_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
         [(tbt, timedelta(days=4),
           TBox('TBOX T([2019-09-01,2019-09-05])')),
         (tbt, timedelta(hours=2),
@@ -405,6 +429,20 @@ class TestTBoxTransformations(TestTBox):
     )
     def test_scale_time(self, tbox, delta, expected):
         assert tbox.scale_time(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tbox, delta, width, expected',
+        [(tbfx, 2.0, 4.0, TBox('TBOXFLOAT X([3,7])')),
+         (tbfx, -2.0, 4.0, TBox('TBOXFLOAT X([-1,3])')),
+         (tbfxt, 2.0, 4.0, TBox('TBOXFLOAT XT([3,7],[2019-09-01, 2019-09-02])')),
+         (tbfxt, -2.0, 4.0, TBox('TBOXFLOAT XT([-1,3],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T positive', 'TBox T negative', 
+             'TBoxFloat XT positive', 'TBoxFloat XT negative'
+             ]
+    )
+    def test_shift_scale_value(self, tbox, delta, width, expected):
+        assert tbox.shift_scale_value(delta, width) == expected
 
     def test_shift_scale_time(self):
         assert self.tbt.shift_scale_time(timedelta(days=4), timedelta(hours=4)) == \

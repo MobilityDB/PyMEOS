@@ -467,6 +467,24 @@ class TBox:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return TBox(_inner=result)
 
+    def shift_value(self, delta: Union[int, float]) -> TBox:
+        """
+        Returns a new `TBox` with the value dimension shifted by `delta`.
+
+        Args:
+            delta: value to shift
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            span_shift_scale
+
+        See Also:
+            :meth:`Span.shift`
+        """
+        return self.shift_scale_value(shift=delta)
+
     def shift_time(self, delta: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension shifted by `delta`.
@@ -485,6 +503,24 @@ class TBox:
         """
         return self.shift_scale_time(shift=delta)
 
+    def scale_value(self, width: Union[int, float]) -> TBox:
+        """
+        Returns a new `TBox` with the value dimension having width `width`.
+
+        Args:
+            width: value of the new width
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            span_shift_scale
+
+        See Also:
+            :meth:`Span.scale`
+        """
+        return self.shift_scale_value(width=width)
+
     def scale_time(self, duration: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension having duration `duration`.
@@ -502,6 +538,48 @@ class TBox:
             :meth:`Period.scale`
         """
         return self.shift_scale_time(duration=duration)
+
+    def shift_scale_value(self, shift: Optional[Union[int, float]] = None,
+        width: Optional[Union[int, float]] = None) -> TBox:
+        """
+        Returns a new TBox with the value span shifted by `shift` and
+        width `width`.
+
+        Examples:
+            >>> tbox = TBox('TBoxInt XT([0, 5),[2020-06-01, 2020-06-02])')
+            >>> tbox.shift_scale_value(shift=2, width=4)
+            >>> 'TBOXINT XT([2, 7),[2020-06-01 00:00:00+02, 2020-06-02 00:00:00+02])'
+
+        Args:
+            shift: :value to shift the start of the value span
+            width: value representing the width of the value span
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            span_shift_scale
+
+        See Also:
+            :meth:`Span.shift_scale`
+        """
+        assert shift is not None or width is not None, \
+            'shift and width deltas must not be both None'
+        hasshift = shift is not None
+        haswidth = width is not None
+        if (shift is None or isinstance(shift, int)) and \
+           (width is None or isinstance(width, int)) :
+            result = tbox_shift_scale_int(self._inner,
+                shift if shift else 0, width if width else 0,
+                hasshift, haswidth)
+        elif (shift is None or isinstance(shift, float)) and \
+             (width is None or isinstance(width, float)) :
+            result = tbox_shift_scale_float(self._inner,
+                shift if shift else 0.0, width if width else 0.0,
+                hasshift, haswidth)
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return TBox(_inner=result)
 
     def shift_scale_time(self, shift: Optional[timedelta] = None,
         duration: Optional[timedelta] = None) -> TBox:
