@@ -173,12 +173,12 @@ class TestPeriodTransformationFunctions(TestPeriod):
          ],
         ids=['days', 'hours']
     )
-    def test_tscale(self, delta, result):
-        scaled = self.period.tscale(delta)
+    def test_scale(self, delta, result):
+        scaled = self.period.scale(delta)
         self.assert_period_equality(scaled, *result)
 
-    def test_shift_tscale(self):
-        shifted_scaled = self.period.shift_tscale(timedelta(days=4), timedelta(hours=4))
+    def test_shift_scale(self):
+        shifted_scaled = self.period.shift_scale(timedelta(days=4), timedelta(hours=4))
         self.assert_period_equality(shifted_scaled, datetime(2019, 9, 12, 0, tzinfo=timezone.utc),
                                     datetime(2019, 9, 12, 4, tzinfo=timezone.utc), False, False)
 

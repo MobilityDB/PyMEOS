@@ -467,7 +467,7 @@ class TBox:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return TBox(_inner=result)
 
-    def shift(self, delta: timedelta) -> TBox:
+    def shift_time(self, delta: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension shifted by `delta`.
 
@@ -478,14 +478,14 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
             :meth:`Period.shift`
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale_time(shift=delta)
 
-    def tscale(self, duration: timedelta) -> TBox:
+    def scale_time(self, duration: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension having duration `duration`.
 
@@ -496,14 +496,14 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
-            :meth:`Period.tscale`
+            :meth:`Period.scale`
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale_time(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None,
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
         duration: Optional[timedelta] = None) -> TBox:
         """
         Returns a new TBox with the temporal span shifted by `shift` and
@@ -511,7 +511,7 @@ class TBox:
 
         Examples:
             >>> tbox = TBox('TBoxInt XT([0, 10),[2020-06-01, 2020-06-05])')
-            >>> tbox.shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> tbox.shift_scale_time(shift=timedelta(days=2), duration=timedelta(days=4))
             >>> 'TBOXINT XT([0, 10),[2020-06-03 00:00:00+02, 2020-06-07 00:00:00+02])'
 
         Args:
@@ -524,14 +524,14 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
-            :meth:`Period.shift_tscale`
+            :meth:`Period.shift_scale`
         """
         assert shift is not None or duration is not None, \
             'shift and duration deltas must not be both None'
-        result = tbox_shift_tscale(
+        result = tbox_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None

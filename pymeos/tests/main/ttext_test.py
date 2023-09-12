@@ -825,8 +825,8 @@ class TestTTextTransformations(TestTText):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, ttext, delta, expected):
-        assert ttext.shift(delta) == expected
+    def test_shift_time(self, ttext, delta, expected):
+        assert ttext.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'ttext, delta, expected',
@@ -847,11 +847,11 @@ class TestTTextTransformations(TestTText):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, ttext, delta, expected):
-        assert ttext.tscale(delta) == expected
+    def test_scale_time(self, ttext, delta, expected):
+        assert ttext.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.ttss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale(self):
+        assert self.ttss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TTextSeqSet('{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],'
              '[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}')
 

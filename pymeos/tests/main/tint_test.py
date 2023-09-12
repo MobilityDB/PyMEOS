@@ -949,8 +949,8 @@ class TestTIntTransformations(TestTInt):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, tint, delta, expected):
-        assert tint.shift(delta) == expected
+    def test_shift_time(self, tint, delta, expected):
+        assert tint.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tint, delta, expected',
@@ -971,11 +971,11 @@ class TestTIntTransformations(TestTInt):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, tint, delta, expected):
-        assert tint.tscale(delta) == expected
+    def test_scale_time(self, tint, delta, expected):
+        assert tint.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tiss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tiss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TIntSeqSet('{[1@2019-09-05 00:00:00, 2@2019-09-05 00:30:00],'
              '[1@2019-09-05 01:00:00, 1@2019-09-05 02:00:00]}')
 

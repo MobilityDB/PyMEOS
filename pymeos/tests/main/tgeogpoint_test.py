@@ -1174,8 +1174,8 @@ class TestTGeogPointTransformations(TestTGeogPoint):
              'Sequence Set posi(tpve days', 'Sequence Set nega(tpve days', 
              'Sequence Set posi(tpve hours', 'Sequence Set nega(tpve hours']
     )
-    def test_shift(self, tpoint, delta, expected):
-        assert tpoint.shift(delta) == expected
+    def test_shift_time(self, tpoint, delta, expected):
+        assert tpoint.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
@@ -1196,11 +1196,11 @@ class TestTGeogPointTransformations(TestTGeogPoint):
              'Sequence posi(tpve days', 'Sequence posi(tpve hours',
              'Sequence Set posi(tpve days', 'Sequence Set posi(tpve hours']
     )
-    def test_scale(self, tpoint, delta, expected):
-        assert tpoint.tscale(delta) == expected
+    def test_scale_time(self, tpoint, delta, expected):
+        assert tpoint.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tpss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tpss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TGeogPointSeqSet('{[Point(1 1)@2019-09-05 00:00:00, Point(2 2)@2019-09-05 00:30:00],'
              '[Point(1 1)@2019-09-05 01:00:00, Point(1 1)@2019-09-05 02:00:00]}')
 

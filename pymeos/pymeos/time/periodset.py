@@ -338,16 +338,16 @@ class PeriodSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_tscale
+            periodset_shift_scale
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale(shift=delta)
 
-    def tscale(self, duration: timedelta) -> PeriodSet:
+    def scale(self, duration: timedelta) -> PeriodSet:
         """
         Returns a new periodset that starts as ``self`` but has duration ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').tscale(timedelta(days=2))
+            >>> Period('[2000-01-01, 2000-01-10]').scale(timedelta(days=2))
             >>> 'Period([2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01])'
 
         Args:
@@ -358,18 +358,18 @@ class PeriodSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_tscale
+            periodset_shift_scale
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, 
+    def shift_scale(self, shift: Optional[timedelta] = None, 
         duration: Optional[timedelta] = None) -> PeriodSet:
         """
         Returns a new periodset that starts at ``self`` shifted by ``shift``
         and has duration ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> Period('[2000-01-01, 2000-01-10]').shift_scale(shift=timedelta(days=2), duration=timedelta(days=4))
             >>> 'Period([2000-01-03 00:00:00+01, 2000-01-07 00:00:00+01])'
 
         Args:
@@ -381,11 +381,11 @@ class PeriodSet:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_tscale
+            periodset_shift_scale
         """
         assert shift is not None or duration is not None, \
             'shift and scale deltas must not be both None'
-        ps = periodset_shift_tscale(
+        ps = periodset_shift_scale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None

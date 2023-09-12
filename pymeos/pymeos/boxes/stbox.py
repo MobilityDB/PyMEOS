@@ -595,7 +595,7 @@ class STBox:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return STBox(_inner=result)
 
-    def shift(self, delta: timedelta) -> STBox:
+    def shift_time(self, delta: timedelta) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `delta`.
 
@@ -606,14 +606,14 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_tscale
+            stbox_shift_scale_time
 
         See Also:
             :meth:`STBox.shift`
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale_time(shift=delta)
 
-    def tscale(self, duration: timedelta) -> STBox:
+    def scale_time(self, duration: timedelta) -> STBox:
         """
         Returns a new `STBox` with the time dimension having duration 
         `duration`.
@@ -625,14 +625,14 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
-            :meth:`STBox.tscale`
+            :meth:`STBox.scale`
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale_time(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None,
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
         duration: Optional[timedelta] = None) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `shift` and
@@ -646,14 +646,14 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_tscale
+            stbox_shift_scale_time
 
         See Also:
-            :meth:`Period.shift_tscale`
+            :meth:`Period.shift_scale`
         """
         assert shift is not None or duration is not None, \
             'shift and scale deltas must not be both None'
-        result = stbox_shift_tscale(
+        result = stbox_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None

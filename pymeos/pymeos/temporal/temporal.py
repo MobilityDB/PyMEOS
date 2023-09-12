@@ -495,7 +495,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         new_temp = temporal_set_interp(self._inner, interpolation)
         return Temporal._factory(new_temp)
 
-    def shift(self, delta: timedelta) -> Period:
+    def shift_time(self, delta: timedelta) -> Period:
         """
         Returns a new :class:`Temporal` with the temporal dimension shifted by
         ``delta``.
@@ -504,12 +504,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             delta: :class:`datetime.timedelta` instance to shift
 
         MEOS Functions:
-            temporal_shift
+            temporal_shift_time
         """
-        shifted = temporal_shift(self._inner, timedelta_to_interval(delta))
+        shifted = temporal_shift_time(self._inner, timedelta_to_interval(delta))
         return Temporal._factory(shifted)
 
-    def tscale(self, duration: timedelta) -> Period:
+    def scale_time(self, duration: timedelta) -> Period:
         """
         Returns a new :class:`Temporal` scaled so the temporal dimension has
         duration ``duration``.
@@ -519,12 +519,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration of the new temporal
 
         MEOS Functions:
-            temporal_tscale
+            temporal_scale_time
         """
-        scaled = temporal_tscale(self._inner, timedelta_to_interval(duration))
+        scaled = temporal_scale_time(self._inner, timedelta_to_interval(duration))
         return Temporal._factory(scaled)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None,
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
         duration: Optional[timedelta] = None) -> Self:
         """
         Returns a new :class:`Temporal` with the time dimension shifted by
@@ -537,11 +537,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration of the new temporal
 
         MEOS Functions:
-            temporal_shift_tscale
+            temporal_shift_scale_time
         """
         assert shift is not None or duration is not None, \
             'shift and duration must not be both None'
-        scaled = temporal_shift_tscale(
+        scaled = temporal_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None

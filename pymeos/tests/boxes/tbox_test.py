@@ -391,8 +391,8 @@ class TestTBoxTransformations(TestTBox):
          ],
         ids=['positive days', 'negative days', 'positive hours', 'negative hours']
     )
-    def test_shift(self, tbox, delta, expected):
-        assert tbox.shift(delta) == expected
+    def test_shift_time(self, tbox, delta, expected):
+        assert tbox.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tbox, delta, expected',
@@ -403,11 +403,11 @@ class TestTBoxTransformations(TestTBox):
          ],
         ids=['positive days', 'positive hours']
     )
-    def test_tscale(self, tbox, delta, expected):
-        assert tbox.tscale(delta) == expected
+    def test_scale_time(self, tbox, delta, expected):
+        assert tbox.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
+    def test_shift_scale_time(self):
+        assert self.tbt.shift_scale_time(timedelta(days=4), timedelta(hours=4)) == \
             TBox('TBOX T([2019-09-05,2019-09-05 04:00:00])')
 
     @pytest.mark.parametrize(
