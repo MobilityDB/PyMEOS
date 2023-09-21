@@ -183,16 +183,16 @@ class TimestampSet(Set[datetime], TimeCollection):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            timestampset_shift_tscale
+            timestampset_shift_scale
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale(shift=delta)
 
-    def tscale(self, duration: timedelta) -> TimestampSet:
+    def scale(self, duration: timedelta) -> TimestampSet:
         """
         Returns a new TimestampSet that with the scaled so that the span of ``self`` is ``duration``.
 
         Examples:
-            >>> TimestampSet('{2000-01-01, 2000-01-10}').tscale(timedelta(days=2))
+            >>> TimestampSet('{2000-01-01, 2000-01-10}').scale(timedelta(days=2))
             >>> 'TimestampSet({2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01})'
 
         Args:
@@ -202,16 +202,16 @@ class TimestampSet(Set[datetime], TimeCollection):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            timestampset_shift_tscale
+            timestampset_shift_scale
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> TimestampSet:
+    def shift_scale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> TimestampSet:
         """
         Returns a new TimestampSet that is the result of shifting and scaling ``self``.
 
         Examples:
-            >>> TimestampSet('{2000-01-01, 2000-01-10}').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> TimestampSet('{2000-01-01, 2000-01-10}').shift_scale(shift=timedelta(days=2), duration=timedelta(days=4))
             >>> 'TimestampSet({2000-01-03 00:00:00+01, 2000-01-07 00:00:00+01})'
 
         Args:
@@ -222,10 +222,10 @@ class TimestampSet(Set[datetime], TimeCollection):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            timestampset_shift_tscale
+            timestampset_shift_scale
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        tss = timestampset_shift_tscale(
+        tss = timestampset_shift_scale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None

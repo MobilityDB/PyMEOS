@@ -150,16 +150,16 @@ class Period(Span[datetime], TimeCollection):
             A new :class:`Period` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale(shift=delta)
 
-    def tscale(self, duration: timedelta) -> Period:
+    def scale(self, duration: timedelta) -> Period:
         """
         Returns a new period that starts as ``self`` but has duration ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').tscale(timedelta(days=2))
+            >>> Period('[2000-01-01, 2000-01-10]').scale(timedelta(days=2))
             >>> 'Period([2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01])'
 
         Args:
@@ -169,16 +169,16 @@ class Period(Span[datetime], TimeCollection):
             A new :class:`Period` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Period:
+    def shift_scale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Period:
         """
         Returns a new period that starts at ``self`` shifted by ``shift`` and has duration ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> Period('[2000-01-01, 2000-01-10]').shift_scale(shift=timedelta(days=2), duration=timedelta(days=4))
             >>> 'Period([2000-01-03 00:00:00+01, 2000-01-07 00:00:00+01])'
 
         Args:
@@ -189,10 +189,10 @@ class Period(Span[datetime], TimeCollection):
             A new :class:`Period` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
         """
         assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        modified = period_shift_tscale(
+        modified = period_shift_scale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
