@@ -1238,8 +1238,7 @@ class STBox:
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided,
-                the start time will be the starting time of the `STBox`
-                time dimension.
+                the start time used by default is Monday, January 3, 2000.
 
         Returns:
             A 4D matrix (XxYxZxT) of `STBox` instances.
@@ -1254,7 +1253,7 @@ class STBox:
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
+            else pg_timestamptz_in('2000-01-03', -1) if self.has_t() \
             else 0
         gs = geo_to_gserialized(origin, self.geodetic()) if origin is not None \
             else pgis_geography_in('Point(0 0 0)', -1) if self.geodetic() \
@@ -1289,8 +1288,7 @@ class STBox:
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided, the
-                start time will be the starting time of the `STBox` time
-                dimension.
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
             A flat list of `STBox` instances.

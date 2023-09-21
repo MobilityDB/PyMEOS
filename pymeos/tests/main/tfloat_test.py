@@ -1100,7 +1100,7 @@ class TestTFloatTransformations(TestTFloat):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_temporal_sample(self, tfloat, delta, expected):
-        assert tfloat.temporal_sample(delta) == expected
+        assert tfloat.temporal_sample(delta, '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'tfloat, delta, expected',
@@ -2043,8 +2043,6 @@ class TestTFloatSplitOperations(TestTFloat):
     def test_value_split(self, temporal, expected):
         assert temporal.value_split(2) == expected
 
-    ## The PyMEOS function uses as default origin the initial timestamp of the
-    ## temporal value while in MEOS the default origin is Monday Janury 3, 2000
     @pytest.mark.parametrize(
         'temporal, expected',
         [
@@ -2057,7 +2055,7 @@ class TestTFloatSplitOperations(TestTFloat):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_split(self, temporal, expected):
-        assert temporal.time_split(timedelta(days=2)) == expected
+        assert temporal.time_split(timedelta(days=2), '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -2074,6 +2072,22 @@ class TestTFloatSplitOperations(TestTFloat):
     )
     def test_time_split_n(self, temporal, expected):
         assert temporal.time_split_n(2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tfi, [TFloatInst('1@2019-09-01')]),
+            (tfds, [TFloatSeq('{1@2019-09-01}'), TFloatSeq('{2@2019-09-02}')]),
+            (tfs, [TFloatSeq('[1@2019-09-01, 2@2019-09-02)'),
+                TFloatSeq('[2@2019-09-02]')]),
+            (tfss, [TFloatSeq('{[1@2019-09-01, 2@2019-09-02)}'),
+                TFloatSeq('{[1@2019-09-03, 1@2019-09-05]}'),
+                TFloatSeq('{[2@2019-09-02]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_value_time_split(self, temporal, expected):
+        assert temporal.value_time_split(2.0, timedelta(days=2), 0.0, '2019-09-01') == expected
 
 
 class TestTFloatComparisons(TestTFloat):

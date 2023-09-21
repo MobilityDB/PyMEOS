@@ -805,7 +805,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             maxdd))
 
     # ------------------------- Split Operations ------------------------------
-    def value_split(self, size: float, start: Optional[float] = 0) -> \
+    def value_split(self, size: float, start: Optional[float] = 0.0) -> \
         List[Temporal]:
         """
         Splits `self` into fragments with respect to value buckets
@@ -825,17 +825,21 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return [_TemporalFactory.create_temporal(tiles[i]) for i in \
             range(new_count)]
 
-    def time_value_split(self, value_start: float, value_size: float,
-                         time_start: Union[str, datetime],
-                         duration: Union[str, timedelta]) -> List[Temporal]:
+    def value_time_split(self, value_size: float, 
+                         duration: Union[str, timedelta],
+                         value_start: Optional[float] = 0.0,
+                         time_start: Optional[Union[str, datetime]] = None) -> \
+                         List[Temporal]:
         """
         Splits `self` into fragments with respect to value and period buckets.
 
         Args:
-            value_start: Start value of the first value bucket.
             value_size: Size of the value buckets.
-            time_start: Start time of the first period bucket.
             duration: Duration of the period buckets.
+            value_start: Start value of the first value bucket. If None, the
+                start value used by default is 0
+            time_start: Start time of the first period bucket. If None, the
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
             A list of temporal floats.
@@ -843,9 +847,12 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_value_time_split
         """
-        st = datetime_to_timestamptz(time_start) \
-            if isinstance(time_start, datetime) \
-            else pg_timestamptz_in(time_start, -1)
+        if time_start is None:
+            st = pg_timestamptz_in('2000-01-03', -1)
+        else:
+            st = datetime_to_timestamptz(time_start) \
+                if isinstance(time_start, datetime) \
+                else pg_timestamptz_in(time_start, -1)
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)

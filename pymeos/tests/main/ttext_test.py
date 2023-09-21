@@ -876,7 +876,7 @@ class TestTTextTransformations(TestTText):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_temporal_sample(self, tint, delta, expected):
-        assert tint.temporal_sample(delta) == expected
+        assert tint.temporal_sample(delta, '2019-09-01') == expected
 
 
 class TestTTextModifications(TestTText):

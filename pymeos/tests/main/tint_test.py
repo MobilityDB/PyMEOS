@@ -1057,7 +1057,7 @@ class TestTIntTransformations(TestTInt):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_temporal_sample(self, tint, delta, expected):
-        assert tint.temporal_sample(delta) == expected
+        assert tint.temporal_sample(delta, '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1917,7 +1917,23 @@ class TestTIntSplitOperations(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_split(self, temporal, expected):
-        assert temporal.time_split(timedelta(days=2)) == expected
+        assert temporal.time_split(timedelta(days=2), '2019-09-01') == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tii, [TIntInst('1@2019-09-01')]),
+            (tids, [TIntSeq('{1@2019-09-01}'), TIntSeq('{2@2019-09-02}')]),
+            (tis, [TIntSeq('[1@2019-09-01, 1@2019-09-02)'),
+                TIntSeq('[2@2019-09-02]')]),
+            (tiss, [TIntSeq('{[1@2019-09-01, 1@2019-09-02)}'),
+                TIntSeq('{[1@2019-09-03, 1@2019-09-05]}'),
+                TIntSeq('{[2@2019-09-02]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_value_time_split(self, temporal, expected):
+        assert temporal.value_time_split(2, timedelta(days=2), 0, '2019-09-01') == expected
 
 
 class TestTIntComparisons(TestTInt):

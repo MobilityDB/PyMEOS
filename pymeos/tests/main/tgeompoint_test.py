@@ -1278,7 +1278,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              ]
     )
     def test_temporal_sample(self, tpoint, delta, expected):
-        assert tpoint.temporal_sample(delta) == expected
+        assert tpoint.temporal_sample(delta, '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
@@ -2146,7 +2146,7 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_split(self, temporal, expected):
-        assert temporal.time_split(timedelta(days=2)) == expected
+        assert temporal.time_split(timedelta(days=2), '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

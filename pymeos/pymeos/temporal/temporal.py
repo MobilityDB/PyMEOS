@@ -557,13 +557,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration: A :class:`str` or :class:`timedelta` with the duration of
                 the temporal tiles.
             start: A :class:`str` or :class:`datetime` with the start time of
-                the temporal tiles. If None, the start time of `self` is used.
-
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
         MEOS Functions:
             temporal_tsample
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
@@ -584,8 +584,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration: A :class:`str` or :class:`timedelta` with the duration
                 of the temporal tiles.
             start: A :class:`str` or :class:`datetime` with the start time of
-                the temporal tiles. If None, the start time Monday, January 3,
-                2000 is used.
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
 
         MEOS Functions:
             temporal_tprecision
@@ -1177,7 +1177,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration: A :class:`str` or :class:`timedelta` with the duration
                 of the temporal tiles.
             start: A :class:`str` or :class:`datetime` with the start time of
-                the temporal tiles. If None, the start time of `self` is used.
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
 
         Returns:
             A list of temporal objects of the same subtype as `self`.
@@ -1186,7 +1187,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_time_split
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         else:
             st = datetime_to_timestamptz(start) \
                 if isinstance(start, datetime) \
@@ -1217,7 +1218,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if self.end_timestamp() == self.start_timestamp():
             return [self]
         st = temporal_start_timestamp(self._inner)
-        dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
+        dt = timedelta_to_interval((self.end_timestamp() -
+            self.start_timestamp()) / n)
         tiles, new_count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(tiles[i]) \

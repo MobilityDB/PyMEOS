@@ -1023,16 +1023,20 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
              origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
              start: Union[datetime, str, None] = None) -> List[List[List[List[TG]]]]:
         """
-        Split the temporal point into segments following the tiling of the bounding box.
+        Split the temporal point into segments following the tiling of the
+        bounding box.
 
         Args:
-            size: The size of the spatial tiles. If `self` has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If `self` has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
+            size: The size of the spatial tiles. If `self` has a spatial
+                dimension and this argument is not provided, the tiling will be
+                only temporal.
+            duration: The duration of the temporal tiles. If `self` has a time 
+                dimension and this argument is not provided, the tiling will be
+                only spatial.
+            origin: The origin of the spatial tiling. If not provided, the 
+                origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided, 
+                the start time used by default is Monday, January 3, 2000.
 
         Returns:
             A 4D matrix (XxYxZxT) of :class:`TPoint` objects.
@@ -1050,16 +1054,20 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
                   origin: Optional[Union[shpb.BaseGeometry, pg.Geometry]] = None,
                   start: Union[datetime, str, None] = None) -> List[TG]:
         """
-        Split the temporal point into segments following the tiling of the bounding box.
+        Split the temporal point into segments following the tiling of the
+        bounding box.
 
         Args:
-            size: The size of the spatial tiles. If `self` has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If `self` has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
+            size: The size of the spatial tiles. If `self` has a spatial
+                dimension and this argument is not provided, the tiling will be
+                only temporal.
+            duration: The duration of the temporal tiles. If `self` has a time
+                dimension and this argument is not provided, the tiling will be
+                only spatial.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided, the
+                the start time used by default is Monday, January 3, 2000.
 
         Returns:
             A :class:`list` of :class:`TPoint` objects.

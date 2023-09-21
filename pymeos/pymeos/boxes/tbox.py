@@ -1069,7 +1069,8 @@ class TBox:
             size: size of the numeric dimension of the tiles
             duration: size of the temporal dimenstion of the tiles
             origin: origin of the numeric dimension of the tiles
-            start: origin of the temporal dimension of the tiles
+            start: origin of the temporal dimension of the tiles. If None, the
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
             A 2d array of :class:`TBox` instances.
@@ -1081,7 +1082,7 @@ class TBox:
             else pg_interval_in(duration, -1)
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else tbox_tmin(self._inner)
+            else pg_timestamptz_in('2000-01-03', -1)
         tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
         return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] 
             for r in range(rows)]
@@ -1096,7 +1097,8 @@ class TBox:
             size: size of the numeric dimension of the tiles
             duration: size of the temporal dimenstion of the tiles
             origin: origin of the numeric dimension of the tiles
-            start: origin of the temporal dimension of the tiles
+            start: origin of the temporal dimension of the tiles. If None, the
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
             An array of :class:`TBox` instances.

@@ -1226,7 +1226,7 @@ class TestTGeogPointTransformations(TestTGeogPoint):
              ]
     )
     def test_temporal_sample(self, tpoint, delta, expected):
-        assert tpoint.temporal_sample(delta).round(1) == expected
+        assert tpoint.temporal_sample(delta, '2019-09-01').round(1) == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
