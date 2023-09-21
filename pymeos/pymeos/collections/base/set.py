@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Optional, Union, List
 from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
 
@@ -29,18 +28,18 @@ class Set(Collection[T], ABC):
     _make_function: Callable[[Iterable[Any]], 'CData'] = None
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *, timestamp_list: Optional[List[Union[str, datetime]]] = None,
+    def __init__(self, string: Optional[str] = None, *, elements: Optional[List[Union[str, T]]] = None,
                  _inner=None):
         super().__init__()
-        assert (_inner is not None) or ((string is not None) != (timestamp_list is not None)), \
-            "Either string must be not None or timestamp_list must be not"
+        assert (_inner is not None) or ((string is not None) != (elements is not None)), \
+            "Either string must be not None or elements must be not"
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
-            self._inner = timestampset_in(string)
+            self._inner = self.__class__._parse_function(string)
         else:
-            times = [self.__class__._parse_value_function(ts) for ts in timestamp_list]
-            self._inner = self.__class__._make_function(times)
+            parsed_elements = [self.__class__._parse_value_function(ts) for ts in elements]
+            self._inner = self.__class__._make_function(parsed_elements)
 
     def __copy__(self: Self) -> Self:
         """
@@ -58,12 +57,12 @@ class Set(Collection[T], ABC):
     @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
         """
-        Returns a `TimestampSet` from its WKB representation.
+        Returns a `Set` from its WKB representation.
         Args:
             wkb: WKB representation
 
         Returns:
-            A new :class:`TimestampSet` instance
+            A new :class:`Set` instance
 
         MEOS Functions:
             set_from_wkb
@@ -73,12 +72,12 @@ class Set(Collection[T], ABC):
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
         """
-        Returns a `TimestampSet` from its WKB representation in hex-encoded ASCII.
+        Returns a `Set` from its WKB representation in hex-encoded ASCII.
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
         Returns:
-            A new :class:`TimestampSet` instance
+            A new :class:`Set` instance
 
         MEOS Functions:
             set_from_hexwkb
@@ -93,9 +92,6 @@ class Set(Collection[T], ABC):
 
         Returns:
             A new :class:`str` instance
-
-        MEOS Functions:
-            timestampset_out
         """
         raise NotImplementedError()
 
@@ -138,7 +134,7 @@ class Set(Collection[T], ABC):
     @abstractmethod
     def to_spanset(self) -> SpanSet:
         """
-        Returns a PeriodSet that contains a Period for each Timestamp in ``self``.
+        Returns a SpanSet that contains a Span for each element in ``self``.
 
         Returns:
             A new :class:`PeriodSet` instance
@@ -165,7 +161,7 @@ class Set(Collection[T], ABC):
 
     def num_elements(self) -> int:
         """
-        Returns the number of timestamps in ``self``.
+        Returns the number of elements in ``self``.
         Returns:
             An :class:`int`
 
@@ -177,36 +173,27 @@ class Set(Collection[T], ABC):
     @abstractmethod
     def start_element(self) -> T:
         """
-        Returns the first timestamp in ``self``.
+        Returns the first element in ``self``.
         Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            timestampset_start_timestamp
+            A :class:`T` instance
         """
         raise NotImplementedError()
 
     @abstractmethod
     def end_element(self) -> T:
         """
-        Returns the last timestamp in ``self``.
+        Returns the last element in ``self``.
         Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            timestampset_end_timestamp
+            A :class:`T` instance
         """
         raise NotImplementedError()
 
     @abstractmethod
     def element_n(self, n: int) -> T:
         """
-        Returns the n-th timestamp in ``self``.
+        Returns the n-th element in ``self``.
         Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            timestampset_timestamp_n
+            A :class:`T` instance
         """
         if n < 0 or n >= self.num_elements():
             raise IndexError(f'Index {n} out of bounds')
@@ -214,12 +201,9 @@ class Set(Collection[T], ABC):
     @abstractmethod
     def elements(self) -> List[T]:
         """
-        Returns the list of distinct timestamps in ``self``.
+        Returns the list of distinct elements in ``self``.
         Returns:
-            A :class:`list[datetime]` instance
-
-        MEOS Functions:
-            timestampset_timestamps
+            A :class:`list[T]` instance
         """
         raise NotImplementedError()
 
@@ -382,7 +366,7 @@ class Set(Collection[T], ABC):
     def is_over_or_left(self, other) -> bool:
         """
         Returns whether ``self`` is to the left of ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
-        at the same time).
+        at the same value).
 
         Args:
             other: temporal object to compare with
@@ -391,7 +375,7 @@ class Set(Collection[T], ABC):
             True if before, False otherwise
 
         MEOS Functions:
-            overbefore_period_timestamp, overleft_span_span, overleft_span_spanset
+            overleft_span_span, overleft_span_spanset
         """
         from .span import Span
         from .spanset import SpanSet
@@ -406,17 +390,17 @@ class Set(Collection[T], ABC):
 
     def is_over_or_right(self, other) -> bool:
         """
-        Returns whether ``self`` is to the right of ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
-        (or at the same time).
+        Returns whether ``self`` is to the right of ``other`` allowing overlap. That is, ``self`` starts after ``other``
+        starts (or at the same value).
 
         Args:
             other: temporal object to compare with
 
         Returns:
-            True if overlapping or after, False otherwise
+            True if overlapping or to the right, False otherwise
 
         MEOS Functions:
-        overafter_period_timestamp, overright_span_span, overright_span_spanset
+        overright_span_span, overright_span_spanset
         """
         from .span import Span
         from .spanset import SpanSet
@@ -431,17 +415,17 @@ class Set(Collection[T], ABC):
 
     def is_right(self, other) -> bool:
         """
-        Returns whether ``self`` is strictly to the right of ``other``. That is, the first timestamp in ``self``
-        is after ``other``.
+        Returns whether ``self`` is strictly to the right of ``other``. That is, the first element in ``self``
+        is to the right ``other``.
 
         Args:
             other: temporal object to compare with
 
         Returns:
-            True if after, False otherwise
+            True if right, False otherwise
 
         MEOS Functions:
-        overbefore_timestamp_timestampset, right_set_set, right_span_span, right_span_spanset
+        right_set_set, right_span_span, right_span_spanset
         """
         from .span import Span
         from .spanset import SpanSet
@@ -463,7 +447,7 @@ class Set(Collection[T], ABC):
             other: object to compare with
 
         Returns:
-            A :class:`datetime.float` instance
+            A :class:`float` instance
 
         MEOS Functions:
             distance_set_set, distance_span_span, distance_spanset_span
@@ -489,7 +473,7 @@ class Set(Collection[T], ABC):
             other: temporal object to intersect with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
         intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
@@ -513,7 +497,7 @@ class Set(Collection[T], ABC):
             other: temporal object to intersect with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
         intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
@@ -529,10 +513,10 @@ class Set(Collection[T], ABC):
             other: temporal object to diff with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
+            minus_set_set, minus_spanset_span, minus_spanset_spanset
         """
         from .span import Span
         from .spanset import SpanSet
@@ -553,10 +537,10 @@ class Set(Collection[T], ABC):
             other: temporal object to diff with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            minus_timestampset_timestamp, minus_set_set, minus_spanset_span, minus_spanset_spanset
+            minus_set_set, minus_spanset_span, minus_spanset_spanset
         """
         return self.minus(other)
 
@@ -569,10 +553,10 @@ class Set(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            union_timestampset_timestamp, union_set_set, union_spanset_span, union_spanset_spanset
+            union_set_set, union_spanset_span, union_spanset_spanset
         """
         from .span import Span
         from .spanset import SpanSet
@@ -593,10 +577,10 @@ class Set(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            union_timestampset_timestamp, union_set_set, union_spanset_span, union_spanset_spanset
+            union_set_set, union_spanset_span, union_spanset_spanset
         """
         return self.union(other)
 

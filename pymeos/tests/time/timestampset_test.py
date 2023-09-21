@@ -26,9 +26,9 @@ class TestTimestampSetConstructors(TestTimestampSet):
                                                         datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
 
     def test_list_constructor(self):
-        ts_set = TimestampSet(timestamp_list=[datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                              datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
-                                              datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
+        ts_set = TimestampSet(elements=[datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                                        datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                        datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
         self.assert_timestampset_equality(ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
                                                    datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
                                                    datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])

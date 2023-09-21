@@ -30,8 +30,8 @@ class TimestampSet(Set[datetime], TimeCollection):
     which can be instances of ``str`` or ``datetime``. The composing timestamps
     must be given in increasing order.
 
-        >>> TimestampSet(timestamp_list=['2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', '2019-09-11 00:00:00+01'])
-        >>> TimestampSet(timestamp_list=[parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), parse('2019-09-11 00:00:00+01')])
+        >>> TimestampSet(elements=['2019-09-08 00:00:00+01', '2019-09-10 00:00:00+01', '2019-09-11 00:00:00+01'])
+        >>> TimestampSet(elements=[parse('2019-09-08 00:00:00+01'), parse('2019-09-10 00:00:00+01'), parse('2019-09-11 00:00:00+01')])
 
     """
 
