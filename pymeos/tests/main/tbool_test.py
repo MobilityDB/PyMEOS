@@ -144,7 +144,7 @@ class TestTBoolConstructors(TestTBool):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
-        # assert temporal == temporal.from_wkt(temporal.as_wkt())
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -826,8 +826,8 @@ class TestTBoolTransformations(TestTBool):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, tbool, delta, expected):
-        assert tbool.shift(delta) == expected
+    def test_shift_time(self, tbool, delta, expected):
+        assert tbool.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tbool, delta, expected',
@@ -848,11 +848,11 @@ class TestTBoolTransformations(TestTBool):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, tbool, delta, expected):
-        assert tbool.tscale(delta) == expected
+    def test_scale_time(self, tbool, delta, expected):
+        assert tbool.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tbss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tbss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TBoolSeqSet('{[True@2019-09-05 00:00:00, False@2019-09-05 00:30:00],'
              '[True@2019-09-05 01:00:00, True@2019-09-05 02:00:00]}')
 
@@ -983,8 +983,8 @@ class TestTBoolManipulationFunctions(TestTBool):
         ids=['Instant positive', 'Discrete Sequence positive', 'Sequence positive', 'SequenceSet positive',
              'Instant negative', 'Discrete Sequence negative', 'Sequence negative', 'SequenceSet negative'],
     )
-    def test_shift(self, temporal, shift, expected):
-        assert temporal.shift(shift) == expected
+    def test_shift_time(self, temporal, shift, expected):
+        assert temporal.shift_time(shift) == expected
 
     @pytest.mark.parametrize(
         'temporal, scale, expected',
@@ -997,8 +997,8 @@ class TestTBoolManipulationFunctions(TestTBool):
         ],
         ids=['Instant positive', 'Discrete Sequence positive', 'Sequence positive', 'SequenceSet positive'],
     )
-    def test_tscale(self, temporal, scale, expected):
-        assert temporal.tscale(scale) == expected
+    def test_scale_time(self, temporal, scale, expected):
+        assert temporal.scale_time(scale) == expected
 
     @pytest.mark.parametrize(
         'temporal, shift, scale, expected',
@@ -1017,8 +1017,8 @@ class TestTBoolManipulationFunctions(TestTBool):
         ids=['Instant positive', 'Discrete Sequence positive', 'Sequence positive', 'SequenceSet positive',
              'Instant negative', 'Discrete Sequence negative', 'Sequence negative', 'SequenceSet negative'],
     )
-    def test_shift_tscale(self, temporal, shift, scale, expected):
-        assert temporal.shift_tscale(shift, scale) == expected
+    def test_shift_scale_time(self, temporal, shift, scale, expected):
+        assert temporal.shift_scale_time(shift, scale) == expected
 
 
 class TestTBoolRestrictors(TestTBool):

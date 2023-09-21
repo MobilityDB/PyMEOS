@@ -5,7 +5,8 @@ from enum import IntEnum
 
 class TInterpolation(IntEnum):
     """
-    Enum for representing the different types of interpolation present in PyMEOS.
+    Enum for representing the different types of interpolation present in
+    PyMEOS.
     """
     NONE = 0
     DISCRETE = 1
@@ -19,13 +20,15 @@ class TInterpolation(IntEnum):
 
         Args:
             source: :class:`string` representing the interpolation
-            none: indicates whether to return `TIntepolation.NONE` when `source` represents an invalid interpolation
+            none: indicates whether to return `TIntepolation.NONE` when
+            `source` represents an invalid interpolation
 
         Returns:
             A new :class:`TInterpolation` instance.
 
         Raises:
-            ValueError: when `source` doesn't represent any valid interpolation and `none` is False
+            ValueError: when `source` doesn't represent any valid interpolation
+            and `none` is False
 
         """
         if source.lower() == 'discrete':

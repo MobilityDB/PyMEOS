@@ -147,6 +147,7 @@ class TestTIntConstructors(TestTInt):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -916,6 +917,63 @@ class TestTIntTransformations(TestTInt):
 
     @pytest.mark.parametrize(
         'tint, delta, expected',
+        [(tii, 2, TIntInst('3@2019-09-01')),
+         (tii, -2, TIntInst('-1@2019-09-01')),
+         (tids, 2, TIntSeq('{3@2019-09-01, 4@2019-09-02}')),
+         (tids, -2, TIntSeq('{-1@2019-09-01, 0@2019-09-02}')),
+         (tis, 2, TIntSeq('[3@2019-09-01, 4@2019-09-02]')),
+         (tis, -2, TIntSeq('[-1@2019-09-01, 0@2019-09-02]')),
+         (tiss, 2, TIntSeqSet('{[3@2019-09-01, 4@2019-09-02],'
+            '[3@2019-09-03, 3@2019-09-05]}')),
+         (tiss, -2, TIntSeqSet('{[-1@2019-09-01, 0@2019-09-02],'
+            '[-1@2019-09-03, -1@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_value(self, tint, delta, expected):
+        assert tint.shift_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tint, width, expected',
+        [(tii, 3, TIntInst('1@2019-09-01')),
+         (tids, 3, TIntSeq('{1@2019-09-01, 4@2019-09-02}')),
+         (tis, 3, TIntSeq('[1@2019-09-01, 4@2019-09-02]')),
+         (tiss, 3, TIntSeqSet('{[1@2019-09-01, 4@2019-09-02],'
+            '[1@2019-09-03, 1@2019-09-05]}')),
+         ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set',]
+    )
+    def test_scale_value(self, tint, width, expected):
+        assert tint.scale_value(width) == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, width, expected',
+        [(tii, 2, 3, TIntInst('3@2019-09-01')),
+         (tii, -2, 3, TIntInst('-1@2019-09-01')),
+         (tids, 2, 3, TIntSeq('{3@2019-09-01, 6@2019-09-02}')),
+         (tids, -2, 3, TIntSeq('{-1@2019-09-01, 2@2019-09-02}')),
+         (tis, 2, 3, TIntSeq('[3@2019-09-01, 6@2019-09-02]')),
+         (tis, -2, 3, TIntSeq('[-1@2019-09-01, 2@2019-09-02]')),
+         (tiss, 2, 3, TIntSeqSet('{[3@2019-09-01, 6@2019-09-02],'
+            '[3@2019-09-03, 3@2019-09-05]}')),
+         (tiss, -2, 3, TIntSeqSet('{[-1@2019-09-01, 2@2019-09-02],'
+            '[-1@2019-09-03, -1@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_scale_value(self, tint, delta, width, expected):
+        assert tint.shift_scale_value(delta, width) == expected
+
+    @pytest.mark.parametrize(
+        'tint, delta, expected',
         [(tii, timedelta(days=4), TIntInst('1@2019-09-05')),
          (tii, timedelta(days=-4), TIntInst('1@2019-08-28')),
          (tii, timedelta(hours=2), TIntInst('1@2019-09-01 02:00:00')),
@@ -948,8 +1006,8 @@ class TestTIntTransformations(TestTInt):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, tint, delta, expected):
-        assert tint.shift(delta) == expected
+    def test_shift_time(self, tint, delta, expected):
+        assert tint.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tint, delta, expected',
@@ -970,11 +1028,11 @@ class TestTIntTransformations(TestTInt):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, tint, delta, expected):
-        assert tint.tscale(delta) == expected
+    def test_scale_time(self, tint, delta, expected):
+        assert tint.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tiss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tiss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TIntSeqSet('{[1@2019-09-05 00:00:00, 2@2019-09-05 00:30:00],'
              '[1@2019-09-05 01:00:00, 1@2019-09-05 02:00:00]}')
 
@@ -1491,7 +1549,6 @@ class TestTIntRestrictors(TestTInt):
     def test_minus_min(self, temporal, expected):
         assert temporal.minus_min() == expected
 
-    # TODO ADD the tests that are currently commented out in at and minus
     @pytest.mark.parametrize(
         'temporal, restrictor',
         [
@@ -1501,6 +1558,9 @@ class TestTIntRestrictors(TestTInt):
             (tii, period_set),
             (tii, 1),
             (tii, 2),
+            (tii, intrange(1, 1, True, True)),
+            (tii, [1,2]),
+            # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tids, timestamp),
             (tids, timestamp_set),
@@ -1508,6 +1568,9 @@ class TestTIntRestrictors(TestTInt):
             (tids, period_set),
             (tids, 1),
             (tids, 2),
+            (tids, intrange(1, 1, True, True)),
+            (tids, [1,2]),
+            # (tds, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tis, timestamp),
             (tis, timestamp_set),
@@ -1515,6 +1578,9 @@ class TestTIntRestrictors(TestTInt):
             (tis, period_set),
             (tis, 1),
             (tis, 2),
+            (tis, intrange(1, 1, True, True)),
+            (tis, [1,2]),
+            # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
 
             (tiss, timestamp),
             (tiss, timestamp_set),
@@ -1522,15 +1588,25 @@ class TestTIntRestrictors(TestTInt):
             (tiss, period_set),
             (tiss, 1),
             (tiss, 2),
-
+            (tiss, intrange(1, 1, True, True)),
+            (tiss, [1,2]),
+            # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
         ],
-        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 'Instant-PeriodSet', 'Instant-1',
-             'Instant-2', 'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
+        ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 
+             'Instant-PeriodSet', 'Instant-1', 'Instant-2', 
+             'Instant-Range', 'Instant-[1,2]', # 'Instant-RangeSet', 
+             'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 'Discrete Sequence-1',
-             'Discrete Sequence-2', 'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2', 'SequenceSet-Timestamp',
-             'SequenceSet-TimestampSet', 'SequenceSet-Period', 'SequenceSet-PeriodSet', 'SequenceSet-1',
-             'SequenceSet-2']
+             'Discrete Sequence-2', 'Discrete Sequence-Range', 
+             'Discrete Sequence-[1,2]',  # 'Discrete Sequence-RangeSet',
+             'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
+             'Sequence-PeriodSet', 'Sequence-1', 'Sequence-2',
+             'Sequence-Range', 'Sequence-[1,2]',  # 'Sequence-RangeSet',
+             'SequenceSet-Timestamp', 'SequenceSet-TimestampSet', 
+             'SequenceSet-Period', 'SequenceSet-PeriodSet',
+             'SequenceSet-1', 'SequenceSet-2', 
+             'SequenceSet-Range', 'SequenceSet-[1,2]', # 'SequenceSet-RangeSet',
+            ]
     )
     def test_at_minus(self, temporal, restrictor):
         assert TInt.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal

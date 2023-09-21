@@ -61,10 +61,83 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return tnumber_twavg(self._inner)
 
-    # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
+    # ------------------------- Transformations -------------------------------
+    def shift_value(self, delta: Union[int, float]) -> Self:
         """
-        Returns a new temporal object with the values of `self` restricted to the value or time `other`.
+        Returns a new :class:`TNumber` with the value dimension shifted by
+        ``delta``.
+
+        Args:
+            delta: value to shift
+
+        MEOS Functions:
+            tint_shift_value, tfloat_shift_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt):
+            shifted = tint_shift_value(self._inner, int(delta))
+        elif isinstance(self, TFloat):
+            shifted = tfloat_shift_value(self._inner, float(delta))
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(shifted)
+
+    def scale_value(self, width: Union[int, float]) -> Self:
+        """
+        Returns a new :class:`TNumber` scaled so the value dimension has
+        width ``width``.
+
+        Args:
+            width: value representing the width of the new temporal number
+
+        MEOS Functions:
+            tint_scale_value, tfloat_scale_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        if isinstance(self, TInt):
+            scaled = tint_scale_value(self._inner, int(width))
+        elif isinstance(self, TFloat):
+            scaled = tfloat_scale_value(self._inner, float(width))
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(scaled)
+
+    def shift_scale_value(self, shift: Union[int, float] = None,
+        width: Union[int, float] = None) -> Self:
+        """
+        Returns a new :class:`TNumber` with the value dimension shifted by
+        ``shift`` and scaled so the value dimension has width ``width``.
+
+        Args:
+            shift: value to shift
+            width: value representing the width of the new temporal number
+
+        MEOS Functions:
+            tint_shift_scale_value, tfloat_shift_scale_value
+        """
+        from .tint import TInt
+        from .tfloat import TFloat
+        assert shift is not None or width is not None, \
+            'shift and width must not be both None'
+
+        if isinstance(self, TInt):
+            scaled = tint_shift_scale_value(self._inner, 
+                int(shift) if shift else None, int(width) if width else None)
+        elif isinstance(self, TFloat):
+            scaled = tfloat_shift_scale_value(self._inner, 
+                float(shift) if shift else None, float(width) if width else None)
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return Temporal._factory(scaled)
+
+    # ------------------------- Restrictions ----------------------------------
+    def at(self, other: Union[intrange, floatrange, List[intrange],
+            List[floatrange], TBox, Time]) -> TG:
+        """
+        Returns a new temporal object with the values of `self` restricted to
+        the value or time `other`.
 
         Args:
             other: A time or value object to restrict the values of `self` to.
@@ -74,7 +147,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
         MEOS Functions:
             tnumber_at_span, tnumber_at_spanset, tnumber_at_tbox,
-            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+            temporal_at_timestamp, temporal_at_timestampset,
+            temporal_at_period, temporal_at_periodset
         """
         from ..boxes import TBox
         if isinstance(other, intrange):
@@ -95,26 +169,31 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[intrange, floatrange, List[intrange], List[floatrange], TBox, Time]) -> TG:
+    def minus(self, other: Union[intrange, floatrange, List[intrange],
+            List[floatrange], TBox, Time]) -> TG:
         """
-        Returns a new temporal object with the values of `self` restricted to the complement of the value or time
-         `other`.
+        Returns a new temporal object with the values of `self` restricted to
+        the complement of the value or time `other`.
 
         Args:
-            other: A time or value object to restrict the values of `self` to the complement of.
+            other: A time or value object to restrict the values of `self` to
+            the complement of.
 
         Returns:
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
             tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
-            temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
         """
         from ..boxes import TBox
         if isinstance(other, intrange):
-            result = tnumber_minus_span(self._inner, intrange_to_intspan(other))
+            result = tnumber_minus_span(self._inner,
+                intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            result = tnumber_minus_span(self._inner, floatrange_to_floatspan(other))
+            result = tnumber_minus_span(self._inner,
+                floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], intrange):
             spans = [intrange_to_intspan(ir) for ir in other]
             spanset = spanset_make(spans, len(spans), True)
@@ -132,7 +211,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns whether the bounding box of `self` is left to the bounding box of `other`.
+        Returns whether the bounding box of `self` is left to the bounding box
+        of `other`.
 
         Args:
             other: A box or a temporal object to compare to `self`.
@@ -147,7 +227,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def is_over_or_left(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns whether the bounding box of `self` is over or left to the bounding box of `other`.
+        Returns whether the bounding box of `self` is over or left to the
+        bounding box of `other`.
 
         Args:
             other: A box or a temporal object to compare to `self`.
@@ -162,7 +243,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def is_right(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns whether the bounding box of `self` is right to the bounding box of `other`.
+        Returns whether the bounding box of `self` is right to the bounding
+        box of `other`.
 
         Args:
             other: A box or a temporal object to compare to `self`.
@@ -177,7 +259,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def is_over_or_right(self, other: Union[Temporal, Box]) -> bool:
         """
-        Returns whether the bounding box of `self` is over or right to the bounding box of `other`.
+        Returns whether the bounding box of `self` is over or right to the
+        bounding box of `other`.
 
         Args:
             other: A box or a temporal object to compare to `self`.
@@ -196,7 +279,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns a new temporal object with the values of `self` plus `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to add to `self`.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to add
+            to `self`.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -241,7 +325,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns a new temporal object with the values of `self` minus `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to subtract from `self`.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to
+            subtract from `self`.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -286,10 +371,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def mul(self, other: Union[int, float, TNumber]) -> TNumber:
         """
-        Returns a new temporal object with the values of `self` multiplied by `other`.
+        Returns a new temporal object with the values of `self` multiplied by
+        `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to multiply `self` by.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to
+            multiply `self` by.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -311,7 +398,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def rmul(self, other: Union[int, float]) -> TNumber:
         """
-        Returns a new temporal object with the values of `self` multiplied by `other`.
+        Returns a new temporal object with the values of `self` multiplied by
+        `other`.
 
         Args:
             other: A :class:`int` or :class:`float` to multiply by `self`.
@@ -334,10 +422,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def div(self, other: Union[int, float, TNumber]) -> TNumber:
         """
-        Returns a new temporal object with the values of `self` divided by `other`.
+        Returns a new temporal object with the values of `self` divided by
+        `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to divide `self` by.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to divide
+            `self` by.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -359,7 +449,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def rdiv(self, other: Union[int, float]) -> TNumber:
         """
-        Returns a new temporal object with the values of `other` divided by `self`.
+        Returns a new temporal object with the values of `other` divided by
+        `self`.
 
         Args:
             other: A :class:`int` or :class:`float` to divide by `self`.
@@ -385,7 +476,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns a new temporal object with the values of `self` plus `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to add to `self`.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to add to
+            `self`.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -412,7 +504,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns a new temporal object with the values of `self` minus `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to subtract from `self`.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to
+            subtract from `self`.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -439,10 +532,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def __mul__(self, other):
         """
-        Returns a new temporal object with the values of `self` multiplied by `other`.
+        Returns a new temporal object with the values of `self` multiplied by
+        `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to multiply `self` by.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to
+            multiply `self` by.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -454,7 +549,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def __rmul__(self, other):
         """
-        Returns a new temporal object with the values of `self` multiplied by `other`.
+        Returns a new temporal object with the values of `self` multiplied
+        by `other`.
 
         Args:
             other: A :class:`int` or :class:`float` to multiply by `self`.
@@ -469,10 +565,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def __truediv__(self, other):
         """
-        Returns a new temporal object with the values of `self` divided by `other`.
+        Returns a new temporal object with the values of `self` divided by
+        `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to divide `self` by.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to divide
+            `self` by.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -484,7 +582,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def __rtruediv__(self, other):
         """
-        Returns a new temporal object with the values of `other` divided by `self`.
+        Returns a new temporal object with the values of `other` divided by
+        `self`.
 
         Args:
             other: A :class:`int` or :class:`float` to divide by `self`.
@@ -529,7 +628,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         Returns the temporal distance between `self` and `other`.
 
         Args:
-            other: A :class:`int`, :class:`float` or :class:`TNumber` to compare to `self`.
+            other: A :class:`int`, :class:`float` or :class:`TNumber` to
+            compare to `self`.
 
         Returns:
             A :class:`TFloat` with the distance between `self` and `other`.
@@ -547,15 +647,18 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(result)
 
-    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+    def nearest_approach_distance(self, other: Union[int, float,
+            TNumber, TBox]) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
         Args:
-            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or
+            :class:`TBox` to compare to `self`.
 
         Returns:
-            A :class:`float` with the nearest approach distance between `self` and `other`.
+            A :class:`float` with the nearest approach distance between `self`
+            and `other`.
 
         MEOS Functions:
             nad_tfloat_float, nad_tfloat_tfloat, nad_tnumber_tbox

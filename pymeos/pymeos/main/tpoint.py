@@ -1160,13 +1160,16 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
             precision: The precision of the returned geometry.
 
         Returns:
-            A new :class:`GeoDataFrame` representing the temporal point sequence set.
+            A new :class:`GeoDataFrame` representing the temporal point
+            sequence set.
         """
         sequences = self.sequences()
         data = {
-            'sequence': [i + 1 for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],
+            'sequence': [i + 1 for i, seq in enumerate(sequences) for _ in 
+                range(seq.num_instants())],
             'time': [t for seq in sequences for t in seq.timestamps()],
-            'geometry': [v for seq in sequences for v in seq.values(precision=precision)]
+            'geometry': [v for seq in sequences for v in 
+                seq.values(precision=precision)]
         }
         return GeoDataFrame(data, crs=self.srid()).set_index(keys=['sequence', 'time'])
 
@@ -1188,7 +1191,8 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
         return TemporalPointSequenceSetPlotter.plot_xy(self, *args, **kwargs)
 
 
-class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet'], ABC):
+class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
+    'TGeomPointSeqSet'], ABC):
     """
     Abstract class for temporal geometric points.
     """
@@ -1197,9 +1201,11 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
 
     # ------------------------- Output ----------------------------------------
     @staticmethod
-    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeomPoint:
+    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: Temporal) -> TGeomPoint:
         """
-        Creates a temporal geometric point from a base geometry and the time frame of another temporal object.
+        Creates a temporal geometric point from a base geometry and the time
+        frame of another temporal object.
 
         Args:
             value: The base geometry.
@@ -1217,17 +1223,20 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: datetime) -> TGeomPointInst:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: datetime) -> TGeomPointInst:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Union[TimestampSet, Period]) -> TGeomPointSeq:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: Union[TimestampSet, Period]) -> TGeomPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: PeriodSet) -> TGeomPointSeqSet:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: PeriodSet) -> TGeomPointSeqSet:
         ...
 
     @staticmethod
@@ -1250,13 +1259,17 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         """
         gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):
-            return TGeomPointInst(_inner=tpointinst_make(gs, datetime_to_timestamptz(base)))
+            return TGeomPointInst(_inner=tpointinst_make(gs,
+                datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TGeomPointSeq(_inner=tpointseq_from_base_timestampset(gs, base._inner))
+            return TGeomPointSeq(_inner=tpointseq_from_base_timestampset(gs,
+                base._inner))
         elif isinstance(base, Period):
-            return TGeomPointSeq(_inner=tpointseq_from_base_period(gs, base._inner, interpolation))
+            return TGeomPointSeq(_inner=tpointseq_from_base_period(gs,
+                base._inner, interpolation))
         elif isinstance(base, PeriodSet):
-            return TGeomPointSeqSet(_inner=tpointseqset_from_base_periodset(gs, base._inner, interpolation))
+            return TGeomPointSeqSet(_inner=tpointseqset_from_base_periodset(gs,
+                base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Conversions ----------------------------------
@@ -1281,12 +1294,14 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             precision: The precision of the returned geometry.
 
         Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` representing the trajectory.
+            A new :class:`~shapely.geometry.base.BaseGeometry` representing the
+            trajectory.
 
         MEOS Functions:
             gserialized_to_shapely_geometry
         """
-        return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner), precision)
+        return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner),
+            precision)
 
     def to_dataframe(self) -> GeoDataFrame:
         """
@@ -1419,7 +1434,8 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[pg.Point, shp.Point, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[pg.Point, shp.Point, Temporal]) \
+        -> Temporal:
         """
         Returns the temporal inequality relation between `self` and `other`.
 
@@ -1443,7 +1459,8 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`TGeogPoint` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`TGeogPoint` from a database cursor. Used when
+        automatically loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:
@@ -1466,7 +1483,8 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomP
         raise Exception("ERROR: Could not parse temporal point value")
 
 
-class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet'], ABC):
+class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
+    'TGeogPointSeqSet'], ABC):
     """
     Abstract class for representing temporal geographic points.
     """
@@ -1475,9 +1493,11 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
 
     # ------------------------- Output ----------------------------------------
     @staticmethod
-    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry], base: Temporal) -> TGeogPoint:
+    def from_base_temporal(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: Temporal) -> TGeogPoint:
         """
-        Creates a temporal geographic point from a base geometry and the time frame of another temporal object.
+        Creates a temporal geographic point from a base geometry and the time
+        frame of another temporal object.
 
         Args:
             value: The base geometry.
@@ -1495,17 +1515,20 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: datetime) -> TGeogPointInst:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: datetime) -> TGeogPointInst:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: Union[TimestampSet, Period]) -> TGeogPointSeq:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: Union[TimestampSet, Period]) -> TGeogPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry], base: PeriodSet) -> TGeogPointSeqSet:
+    def from_base_time(value: Union[pg.Geometry, shpb.BaseGeometry],
+        base: PeriodSet) -> TGeogPointSeqSet:
         ...
 
     @staticmethod
@@ -1528,13 +1551,17 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         """
         gs = geography_to_gserialized(value)
         if isinstance(base, datetime):
-            return TGeogPointInst(_inner=tpointinst_make(gs, datetime_to_timestamptz(base)))
+            return TGeogPointInst(_inner=tpointinst_make(gs,
+                datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TGeogPointSeq(_inner=tpointseq_from_base_timestampset(gs, base._inner))
+            return TGeogPointSeq(_inner=tpointseq_from_base_timestampset(gs,
+                base._inner))
         elif isinstance(base, Period):
-            return TGeogPointSeq(_inner=tpointseq_from_base_period(gs, base._inner, interpolation))
+            return TGeogPointSeq(_inner=tpointseq_from_base_period(gs,
+                base._inner, interpolation))
         elif isinstance(base, PeriodSet):
-            return TGeogPointSeqSet(_inner=tpointseqset_from_base_periodset(gs, base._inner, interpolation))
+            return TGeogPointSeqSet(_inner=tpointseqset_from_base_periodset(gs,
+                base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Conversions ----------------------------------
@@ -1693,7 +1720,8 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`TGeogPoint` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`TGeogPoint` from a database cursor. Used when
+        automatically loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:
@@ -1716,22 +1744,26 @@ class TGeogPoint(TPoint['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogP
         raise Exception("ERROR: Could not parse temporal point value")
 
 
-class TGeomPointInst(TPointInst['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
+class TGeomPointInst(TPointInst['TGeomPoint', 'TGeomPointInst',
+    'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
     """
     Class for representing temporal geometric points at a single instant.
     """
     _make_function = lambda *args: None
     _cast_function = lambda x: None
 
-    def __init__(self, string: Optional[str] = None, *, point: Optional[Union[str, pg.Point, shp.Point]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 point: Optional[Union[str, pg.Point, shp.Point]] = None,
                  timestamp: Optional[Union[str, datetime]] = None,
                  srid: Optional[int] = 0, _inner=None) -> None:
-        super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
+        super().__init__(string=string, value=point, timestamp=timestamp,
+            _inner=_inner)
         if self._inner is None:
             self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
 
 
-class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
+class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst',
+    'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
     """
     Class for representing temporal geographic points at a single instant.
     """
@@ -1743,13 +1775,16 @@ class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
                  Tuple[float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None,
                  srid: Optional[int] = 4326, _inner=None) -> None:
-        super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
+        super().__init__(string=string, value=point, timestamp=timestamp,
+            _inner=_inner)
         if self._inner is None:
-            p = f'POINT({point[0]} {point[1]})' if isinstance(point, tuple) else f'{point}'
+            p = f'POINT({point[0]} {point[1]})' if isinstance(point, tuple) \
+                else f'{point}'
             self._inner = tgeogpoint_in(f"SRID={srid};{p}@{timestamp}")
 
 
-class TGeomPointSeq(TPointSeq['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
+class TGeomPointSeq(TPointSeq['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
+    'TGeomPointSeqSet'], TGeomPoint):
     """
     Class for representing temporal geometric points over a period of time.
     """
@@ -1761,27 +1796,36 @@ class TGeomPointSeq(TPointSeq['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', '
                  expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR,
                  normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
+        super().__init__(string=string, instant_list=instant_list,
+            lower_inc=lower_inc, upper_inc=upper_inc,
+            expandable=expandable, interpolation=interpolation,
+            normalize=normalize, _inner=_inner)
 
 
-class TGeogPointSeq(TPointSeq['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
+class TGeogPointSeq(TPointSeq['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
+    'TGeogPointSeqSet'], TGeogPoint):
     """
     Class for representing temporal geographic points over a period of time.
     """
     ComponentClass = TGeogPointInst
 
-    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
-                 interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
+    def __init__(self, string: Optional[str] = None, *, 
+        instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
+        lower_inc: bool = True, upper_inc: bool = False,
+        expandable: Union[bool, int] = False,
+        interpolation: TInterpolation = TInterpolation.LINEAR,
+        normalize: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list,
+                         lower_inc=lower_inc, upper_inc=upper_inc,
                          expandable=expandable, interpolation=interpolation,
                          normalize=normalize, _inner=_inner)
 
 
-class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
+class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst',
+    'TGeomPointSeq', 'TGeomPointSeqSet'], TGeomPoint):
     """
-    Class for representing temporal geometric points over a period of time with gaps.
+    Class for representing temporal geometric points over a period of time
+    with gaps.
     """
     ComponentClass = TGeomPointSeq
 
@@ -1793,9 +1837,11 @@ class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst', 'TGeomPointS
                          expandable=expandable, normalize=normalize, _inner=_inner)
 
 
-class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
+class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst',
+    'TGeogPointSeq', 'TGeogPointSeqSet'], TGeogPoint):
     """
-    Class for representing temporal geographic points over a period of time with gaps.
+    Class for representing temporal geographic points over a period of time
+    with gaps.
     """
     ComponentClass = TGeogPointSeq
 
@@ -1804,4 +1850,5 @@ class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst', 'TGeogPointS
                  expandable: Union[bool, int] = False, 
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list, 
-                         expandable=expandable, normalize=normalize, _inner=_inner)
+                         expandable=expandable, normalize=normalize, 
+                         _inner=_inner)

@@ -151,6 +151,7 @@ class TestTFloatConstructors(TestTFloat):
              'Stepwise Sequence', 'Stepwise SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -959,6 +960,63 @@ class TestTFloatTransformations(TestTFloat):
 
     @pytest.mark.parametrize(
         'tfloat, delta, expected',
+        [(tfi, 2, TFloatInst('3.5@2019-09-01')),
+         (tfi, -2, TFloatInst('-0.5@2019-09-01')),
+         (tfds, 2, TFloatSeq('{3.5@2019-09-01, 4.5@2019-09-02}')),
+         (tfds, -2, TFloatSeq('{-0.5@2019-09-01, 0.5@2019-09-02}')),
+         (tfs, 2, TFloatSeq('[3.5@2019-09-01, 4.5@2019-09-02]')),
+         (tfs, -2, TFloatSeq('[-0.5@2019-09-01, 0.5@2019-09-02]')),
+         (tfss, 2, TFloatSeqSet('{[3.5@2019-09-01, 4.5@2019-09-02],'
+            '[3.5@2019-09-03, 3.5@2019-09-05]}')),
+         (tfss, -2, TFloatSeqSet('{[-0.5@2019-09-01, 0.5@2019-09-02],'
+            '[-0.5@2019-09-03, -0.5@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_value(self, tfloat, delta, expected):
+        assert tfloat.shift_value(delta) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, width, expected',
+        [(tfi, 4, TFloatInst('1.5@2019-09-01')),
+         (tfds, 4, TFloatSeq('{1.5@2019-09-01, 5.5@2019-09-02}')),
+         (tfs, 4, TFloatSeq('[1.5@2019-09-01, 5.5@2019-09-02]')),
+         (tfss, 4, TFloatSeqSet('{[1.5@2019-09-01, 5.5@2019-09-02],'
+            '[1.5@2019-09-03, 1.5@2019-09-05]}')),
+         ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set',]
+    )
+    def test_scale_value(self, tfloat, width, expected):
+        assert tfloat.scale_value(width) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, width, expected',
+        [(tfi, 2, 3, TFloatInst('3.5@2019-09-01')),
+         (tfi, -2, 3, TFloatInst('-0.5@2019-09-01')),
+         (tfds, 2, 3, TFloatSeq('{3.5@2019-09-01, 6.5@2019-09-02}')),
+         (tfds, -2, 3, TFloatSeq('{-0.5@2019-09-01, 2.5@2019-09-02}')),
+         (tfs, 2, 3, TFloatSeq('[3.5@2019-09-01, 6.5@2019-09-02]')),
+         (tfs, -2, 3, TFloatSeq('[-0.5@2019-09-01, 2.5@2019-09-02]')),
+         (tfss, 2, 3, TFloatSeqSet('{[3.5@2019-09-01, 6.5@2019-09-02],'
+            '[3.5@2019-09-03, 3.5@2019-09-05]}')),
+         (tfss, -2, 3, TFloatSeqSet('{[-0.5@2019-09-01, 2.5@2019-09-02],'
+            '[-0.5@2019-09-03, -0.5@2019-09-05]}')),
+         ],
+        ids=['Instant positive', 'Instant negative',
+             'Discrete Sequence positive', 'Discrete Sequence negative', 
+             'Sequence positive', 'Sequence negative', 
+             'Sequence Set positive', 'Sequence Set negative',
+            ]
+    )
+    def test_shift_scale_value(self, tfloat, delta, width, expected):
+        assert tfloat.shift_scale_value(delta, width) == expected
+
+    @pytest.mark.parametrize(
+        'tfloat, delta, expected',
         [(tfi, timedelta(days=4), TFloatInst('1.5@2019-09-05')),
          (tfi, timedelta(days=-4), TFloatInst('1.5@2019-08-28')),
          (tfi, timedelta(hours=2), TFloatInst('1.5@2019-09-01 02:00:00')),
@@ -991,8 +1049,8 @@ class TestTFloatTransformations(TestTFloat):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, tfloat, delta, expected):
-        assert tfloat.shift(delta) == expected
+    def test_shift_time(self, tfloat, delta, expected):
+        assert tfloat.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tfloat, delta, expected',
@@ -1013,11 +1071,11 @@ class TestTFloatTransformations(TestTFloat):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, tfloat, delta, expected):
-        assert tfloat.tscale(delta) == expected
+    def test_scale_time(self, tfloat, delta, expected):
+        assert tfloat.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tfss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tfss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TFloatSeqSet('{[1.5@2019-09-05 00:00:00, 2.5@2019-09-05 00:30:00],'
              '[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}')
 
@@ -1659,36 +1717,36 @@ class TestTFloatRestrictors(TestTFloat):
             (tfi, 1.5),
             (tfi, 2.5),
             (tfi, floatrange(1.5, 1.5, True, True)),
-            # (tfi, [1.5,2.5]),
+            (tfi, [1.5,2.5]),
             # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfds, 1.5),
             (tfds, 2.5),
             (tfds, floatrange(1.5, 1.5, True, True)),
-            # (tfds, [1.5,2.5]),
+            (tfds, [1.5,2.5]),
             # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfs, 1.5),
             (tfs, 2.5),
             (tfs, floatrange(1.5, 1.5, True, True)),
-            # (tfs, [1.5,2.5]),
+            (tfs, [1.5,2.5]),
             # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
 
             (tfss, 1.5),
             (tfss, 2.5),
             (tfss, floatrange(1.5, 1.5, True, True)),
-            # (tfss, [1.5,2.5]),
+            (tfss, [1.5,2.5]),
             # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
-             # 'Instant-ValueList', 'Instant-RangeList', 
+             'Instant-ValueList', # 'Instant-RangeList', 
              'Discrete Sequence-1.5', 'Discrete Sequence-2.5', 
              'Discrete Sequence-Range', 
-             # 'Discrete Sequence-ValueList', 'Discrete Sequence-RangeList',
+             'Discrete Sequence-ValueList', # 'Discrete Sequence-RangeList',
              'Sequence-1.5', 'Sequence-2.5', 'Sequence-Range', 
-             # 'Sequence-ValueList', 'Sequence-RangeList', 
+             'Sequence-ValueList', # 'Sequence-RangeList', 
              'SequenceSet-1.5', 'SequenceSet-2.5', 'SequenceSet-Range',
-             # 'SequenceSet-ValueList', 'SequenceSet-RangeList', 
+             'SequenceSet-ValueList', # 'SequenceSet-RangeList', 
              ]
     )
     def test_at_minus_values(self, temporal, restrictor):

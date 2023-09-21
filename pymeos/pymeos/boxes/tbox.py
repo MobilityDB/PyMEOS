@@ -11,9 +11,11 @@ from ..collections import *
 
 class TBox:
     """
-    Class for representing numeric temporal boxes. Both numeric and temporal bounds may be inclusive or not.
+    Class for representing numeric temporal boxes. Both numeric and temporal
+    bounds may be inclusive or not.
 
-    ``TBox`` objects can be created with a single argument of type string as in MobilityDB.
+    ``TBox`` objects can be created with a single argument of type string as in
+    MobilityDB.
 
         >>> TBox('TBOXINT XT([0, 10),[2020-06-01, 2020-06-05])')
         >>> TBox('TBOXFLOAT XT([0, 10),[2020-06-01, 2020-06-05])')
@@ -28,9 +30,10 @@ class TBox:
         >>> TBox(xmin=0, xmax=10, tmin='2020-06-01', tmax='2020-06-0', xmax_inc=True, tmax_inc=True)
         >>> TBox(xmin='0', xmax='10', tmin=parse('2020-06-01'), tmax=parse('2020-06-0'))
 
-    Note that you can create a TBox with only the numerical or the temporal dimension. In these cases, it will be
-    equivalent to a :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or to a
-    :class:`~spans.floatrange` (if it only has the numeric dimension).
+    Note that you can create a TBox with only the numerical or the temporal
+    dimension. In these cases, it will be equivalent to a 
+    :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or
+    to a :class:`~spans.floatrange` (if it only has the numeric dimension).
     """
     __slots__ = ['_inner']
 
@@ -54,7 +57,8 @@ class TBox:
                  tmax_inc: bool = False,
                  _inner=None):
         assert (_inner is not None) or (string is not None) != (
-                (xmin is not None and xmax is not None) or (tmin is not None and tmax is not None)), \
+                (xmin is not None and xmax is not None) or 
+                (tmin is not None and tmax is not None)), \
             "Either string must be not None or at least a bound pair (xmin/max or tmin/max) must be not None"
         if _inner is not None:
             self._inner = _inner
@@ -67,9 +71,11 @@ class TBox:
                 if isinstance(xmin, int) and isinstance(xmax, int):
                     span = intspan_make(xmin, xmax, xmin_inc, xmax_inc)
                 else:
-                    span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
+                    span = floatspan_make(float(xmin), float(xmax), xmin_inc,
+                        xmax_inc)
             if tmin is not None and tmax is not None:
-                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc,
+                    upper_inc=tmax_inc)._inner
             self._inner = tbox_make(span, period)
 
     def __copy__(self) -> TBox:
@@ -122,8 +128,8 @@ class TBox:
     @staticmethod
     def from_value(value: Union[int, float, intrange, floatrange]) -> TBox:
         """
-        Returns a `TBox` from a numeric value or range. The created `TBox` will only have a numerical
-        dimension.
+        Returns a `TBox` from a numeric value or range. The created `TBox` will
+        only have a numerical dimension.
 
         Args:
             value: value to be canverted into a TBox
@@ -149,8 +155,8 @@ class TBox:
     @staticmethod
     def from_time(time: Time) -> TBox:
         """
-        Returns a `TBox` from a :class:`~pymeos.time.time.Time` object. The created `TBox`
-        will only have a temporal dimension.
+        Returns a `TBox` from a :class:`~pymeos.time.time.Time` object. The
+        created `TBox` will only have a temporal dimension.
 
         Args:
             time: value to be canverted into a TBox
@@ -159,7 +165,8 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            timestamp_to_tbox, timestampset_to_tbox, period_to_tbox, periodset_to_tbox
+            timestamp_to_tbox, timestampset_to_tbox, period_to_tbox,
+            periodset_to_tbox
         """
         if isinstance(time, datetime):
             result = timestamp_to_tbox(datetime_to_timestamptz(time))
@@ -187,23 +194,28 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-        int_timestamp_to_tbox, int_period_to_tbox, float_timestamp_to_tbox, float_period_to_tbox,
-        span_timestamp_to_tbox, span_period_to_tbox
+            int_timestamp_to_tbox, int_period_to_tbox, 
+            float_timestamp_to_tbox, float_period_to_tbox,
+            span_timestamp_to_tbox, span_period_to_tbox
         """
         if isinstance(value, int) and isinstance(time, datetime):
-            result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+            result = int_timestamp_to_tbox(value,   
+                datetime_to_timestamptz(time))
         elif isinstance(value, int) and isinstance(time, Period):
             result = int_period_to_tbox(value, time._inner)
         elif isinstance(value, float) and isinstance(time, datetime):
-            result = float_timestamp_to_tbox(value, datetime_to_timestamptz(time))
+            result = float_timestamp_to_tbox(value, 
+                datetime_to_timestamptz(time))
         elif isinstance(value, float) and isinstance(time, Period):
             result = float_period_to_tbox(value, time._inner)
         elif isinstance(value, intrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(intrange_to_intspan(value), datetime_to_timestamptz(time))
+            result = span_timestamp_to_tbox(intrange_to_intspan(value),
+                datetime_to_timestamptz(time))
         elif isinstance(value, intrange) and isinstance(time, Period):
             result = span_period_to_tbox(intrange_to_intspan(value), time._inner)
         elif isinstance(value, floatrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(floatrange_to_floatspan(value), datetime_to_timestamptz(time))
+            result = span_timestamp_to_tbox(floatrange_to_floatspan(value),
+                datetime_to_timestamptz(time))
         elif isinstance(value, floatrange) and isinstance(time, Period):
             result = span_period_to_tbox(floatrange_to_floatspan(value), time._inner)
         else:
@@ -269,7 +281,8 @@ class TBox:
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
 
         Returns:
-            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+            A :class:`str` object with the WKB representation of ``self`` in
+            hex-encoded ASCII.
 
         MEOS Functions:
             tbox_as_hexwkb
@@ -379,7 +392,8 @@ class TBox:
         Returns the temporal lower bound of ``self``.
 
         Returns:
-            The temporal lower bound of the `TBox` as a :class:`~datetime.datetime`
+            The temporal lower bound of the `TBox` as a 
+            :class:`~datetime.datetime`
 
         MEOS Functions:
             tbox_tmin
@@ -406,7 +420,8 @@ class TBox:
         Returns the temporal upper bound of ``self``.
 
         Returns:
-            The temporal upper bound of the `TBox` as a :class:`~datetime.datetime`
+            The temporal upper bound of the `TBox` as a 
+            :class:`~datetime.datetime`
 
         MEOS Functions:
             tbox_tmax
@@ -431,8 +446,9 @@ class TBox:
     # ------------------------- Transformation --------------------------------
     def expand(self, other: Union[int, float, timedelta]) -> TBox:
         """
-        Returns the result of expanding ``self`` with the ``other``. Depending on the type of ``other``, the expansion
-        will be of the numeric dimension (:class:`float`) or temporal (:class:`~datetime.timedelta`).
+        Returns the result of expanding ``self`` with the ``other``. Depending
+        on the type of ``other``, the expansion will be of the numeric
+        dimension (:class:`float`) or temporal (:class:`~datetime.timedelta`).
 
         Args:
             other: object used to expand ``self``
@@ -451,7 +467,25 @@ class TBox:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return TBox(_inner=result)
 
-    def shift(self, delta: timedelta) -> TBox:
+    def shift_value(self, delta: Union[int, float]) -> TBox:
+        """
+        Returns a new `TBox` with the value dimension shifted by `delta`.
+
+        Args:
+            delta: value to shift
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            span_shift_scale
+
+        See Also:
+            :meth:`Span.shift`
+        """
+        return self.shift_scale_value(shift=delta)
+
+    def shift_time(self, delta: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension shifted by `delta`.
 
@@ -462,14 +496,32 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
             :meth:`Period.shift`
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale_time(shift=delta)
 
-    def tscale(self, duration: timedelta) -> TBox:
+    def scale_value(self, width: Union[int, float]) -> TBox:
+        """
+        Returns a new `TBox` with the value dimension having width `width`.
+
+        Args:
+            width: value of the new width
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            span_shift_scale
+
+        See Also:
+            :meth:`Span.scale`
+        """
+        return self.shift_scale_value(width=width)
+
+    def scale_time(self, duration: timedelta) -> TBox:
         """
         Returns a new `TBox` with the time dimension having duration `duration`.
 
@@ -480,45 +532,89 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
-            :meth:`Period.tscale`
+            :meth:`Period.scale`
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale_time(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None,
-        duration: Optional[timedelta] = None) -> TBox:
+    def shift_scale_value(self, shift: Optional[Union[int, float]] = None,
+        width: Optional[Union[int, float]] = None) -> TBox:
         """
-        Returns a new TBox with the temporal span shifted by `shift` and duration `duration`.
+        Returns a new TBox with the value span shifted by `shift` and
+        width `width`.
 
         Examples:
-            >>> tbox = TBox('TBoxInt XT([0, 10),[2020-06-01, 2020-06-05])')
-            >>> tbox.shift_tscale(shift=timedelta(days=2), duration=timedelta(days=4))
-            >>> 'TBOXINT XT([0, 10),[2020-06-03 00:00:00+02, 2020-06-07 00:00:00+02])'
+            >>> tbox = TBox('TBoxInt XT([0, 5),[2020-06-01, 2020-06-02])')
+            >>> tbox.shift_scale_value(shift=2, width=4)
+            >>> 'TBOXINT XT([2, 7),[2020-06-01 00:00:00+02, 2020-06-02 00:00:00+02])'
 
         Args:
-            shift: :class:`datetime.timedelta` instance to shift the start of the temporal span
-            duration: :class:`datetime.timedelta` instance representing the duration of the temporal span
+            shift: :value to shift the start of the value span
+            width: value representing the width of the value span
 
         Returns:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            span_shift_scale
 
         See Also:
-            :meth:`Period.shift_tscale`
+            :meth:`Span.shift_scale`
         """
-        assert shift is not None or duration is not None, 'shift and duration deltas must not be both None'
-        new_inner = tbox_copy(self._inner)
-        new_period = get_address(new_inner.period)
-        period_shift_tscale(
-            new_period,
+        assert shift is not None or width is not None, \
+            'shift and width deltas must not be both None'
+        hasshift = shift is not None
+        haswidth = width is not None
+        if (shift is None or isinstance(shift, int)) and \
+           (width is None or isinstance(width, int)) :
+            result = tbox_shift_scale_int(self._inner,
+                shift if shift else 0, width if width else 0,
+                hasshift, haswidth)
+        elif (shift is None or isinstance(shift, float)) and \
+             (width is None or isinstance(width, float)) :
+            result = tbox_shift_scale_float(self._inner,
+                shift if shift else 0.0, width if width else 0.0,
+                hasshift, haswidth)
+        else:
+            raise TypeError(f'Operation not supported with type {self.__class__}')
+        return TBox(_inner=result)
+
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
+        duration: Optional[timedelta] = None) -> TBox:
+        """
+        Returns a new TBox with the temporal span shifted by `shift` and
+        duration `duration`.
+
+        Examples:
+            >>> tbox = TBox('TBoxInt XT([0, 10),[2020-06-01, 2020-06-05])')
+            >>> tbox.shift_scale_time(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> 'TBOXINT XT([0, 10),[2020-06-03 00:00:00+02, 2020-06-07 00:00:00+02])'
+
+        Args:
+            shift: :class:`datetime.timedelta` instance to shift the start of
+                the temporal span
+            duration: :class:`datetime.timedelta` instance representing the
+                duration of the temporal span
+
+        Returns:
+            A new :class:`TBox` instance
+
+        MEOS Functions:
+            period_shift_scale
+
+        See Also:
+            :meth:`Period.shift_scale`
+        """
+        assert shift is not None or duration is not None, \
+            'shift and duration deltas must not be both None'
+        result = tbox_shift_scale_time(
+            self._inner,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
+            timedelta_to_interval(duration) if duration else None
         )
-        return TBox(_inner=new_inner)
+        return TBox(_inner=result)
 
     def round(self, maxdd : int = 0) -> TBox:
         """
@@ -556,7 +652,8 @@ class TBox:
 
     def __add__(self, other):
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns the union of `self` with `other`. Fails if the union is not
+        contiguous.
 
         Args:
             other: temporal object to merge with
@@ -578,7 +675,8 @@ class TBox:
             other: temporal object to merge with
 
         Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+            A :class:`TBox` instance if the instersection is not empty, `None`
+            otherwise.
 
         MEOS Functions:
             intersection_tbox_tbox
@@ -594,7 +692,8 @@ class TBox:
             other: temporal object to merge with
 
         Returns:
-            A :class:`TBox` instance if the instersection is not empty, `None` otherwise.
+            A :class:`TBox` instance if the instersection is not empty, `None`
+            otherwise.
 
         MEOS Functions:
             intersection_tbox_tbox
@@ -602,10 +701,11 @@ class TBox:
         return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+    def is_adjacent(self, 
+        other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` is adjacent to ``other``. That is, they share only the temporal or numerical bound
-        and only one of them contains it.
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        only the temporal or numerical bound and only one of them contains it.
 
         Examples:
             >>> TBox('TBoxInt XT([0, 1], [2012-01-01, 2012-01-02))').is_adjacent(TBox('TBoxInt XT([0, 1], [2012-01-02, 2012-01-03])'))
@@ -625,14 +725,18 @@ class TBox:
             adjacent_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(other, int):
-            return adjacent_span_span(self._inner_span(), float_to_floaspan(float(other)))
+            return adjacent_span_span(self._inner_span(), 
+                float_to_floaspan(float(other)))
         elif isinstance(other, float):
-            return adjacent_span_span(self._inner_span(), float_to_floaspan(other))
+            return adjacent_span_span(self._inner_span(), 
+                float_to_floaspan(other))
         elif isinstance(other, intrange):
             from pymeos_cffi.functions import _ffi
-            return adjacent_span_span(_ffi.addressof(self._inner, 'span'), intrange_to_intspan(other))
+            return adjacent_span_span(_ffi.addressof(self._inner, 'span'),
+                intrange_to_intspan(other))
         elif isinstance(other, floatrange):
-            return adjacent_span_span(self._inner.span, floatrange_to_floatspan(other))
+            return adjacent_span_span(self._inner.span,
+                floatrange_to_floatspan(other))
         elif isinstance(other, TBox):
             return adjacent_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
@@ -664,7 +768,8 @@ class TBox:
         if isinstance(container, TBox):
             return contained_tbox_tbox(self._inner, container._inner)
         elif isinstance(container, TNumber):
-            return contained_tbox_tbox(self._inner, tnumber_to_tbox(container._inner))
+            return contained_tbox_tbox(self._inner,
+                tnumber_to_tbox(container._inner))
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
@@ -692,7 +797,8 @@ class TBox:
         if isinstance(content, TBox):
             return contains_tbox_tbox(self._inner, content._inner)
         elif isinstance(content, TNumber):
-            return contains_tbox_tbox(self._inner, tnumber_to_tbox(content._inner))
+            return contains_tbox_tbox(self._inner, 
+                tnumber_to_tbox(content._inner))
         else:
             raise TypeError(f'Operation not supported with type {content.__class__}')
 
@@ -721,7 +827,8 @@ class TBox:
 
     def overlaps(self, other: Union[TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` overlaps ``other``. That is, both share at least an instant or a value.
+        Returns whether ``self`` overlaps ``other``. That is, both share at
+        least an instant or a value.
 
         Args:
             other: temporal object to compare with
@@ -735,7 +842,8 @@ class TBox:
         if isinstance(other, TBox):
             return overlaps_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overlaps_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
+            return overlaps_tbox_tbox(self._inner,
+                tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -783,8 +891,8 @@ class TBox:
 
     def is_over_or_left(self, other: Union[TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` is to the left of ``other`` allowing overlap. That is, ``self`` does not extend to the
-        right of ``other``.
+        Returns whether ``self`` is to the left of ``other`` allowing overlap.
+        That is, ``self`` does not extend to the right of ``other``.
 
         Args:
             other: temporal object to compare with
@@ -824,8 +932,8 @@ class TBox:
 
     def is_over_or_right(self, other: Union[TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` is to the right of ``other`` allowing overlap. That is, ``self`` does not extend to the
-        left of ``other``.
+        Returns whether ``self`` is to the right of ``other`` allowing overlap.
+        That is, ``self`` does not extend to the left of ``other``.
 
         Args:
             other: temporal object to compare with
@@ -839,7 +947,8 @@ class TBox:
         if isinstance(other, TBox):
             return overright_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overright_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
+            return overright_tbox_tbox(self._inner,
+                tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -865,8 +974,8 @@ class TBox:
 
     def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` does not extend after
-        ``other``.
+        Returns whether ``self`` is before ``other`` allowing overlap. That is,
+        ``self`` does not extend after ``other``.
 
         Args:
             other: temporal object to compare with
@@ -880,7 +989,8 @@ class TBox:
         if isinstance(other, TBox):
             return overbefore_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overbefore_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
+            return overbefore_tbox_tbox(self._inner,
+                tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -906,8 +1016,8 @@ class TBox:
 
     def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
         """
-        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` does not extend before
-        ``other``.
+        Returns whether ``self`` is after ``other`` allowing overlap. That is,
+        ``self`` does not extend before``other``.
 
         Args:
             other: temporal object to compare with
@@ -921,7 +1031,8 @@ class TBox:
         if isinstance(other, TBox):
             return overafter_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overafter_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
+            return overafter_tbox_tbox(self._inner,
+                tnumber_to_tbox(other._inner))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -934,7 +1045,8 @@ class TBox:
             other: temporal object to compare with
 
         Returns:
-            A :class:`float` with the distance between the nearest points of ``self`` and ``other``.
+            A :class:`float` with the distance between the nearest points of
+            ``self`` and ``other``.
 
         MEOS Functions:
             nad_tbox_tbox
@@ -948,7 +1060,8 @@ class TBox:
 
     # ------------------------- Splitting --------------------------------------
     def tile(self, size: float, duration: Union[timedelta, str],
-             origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[List[TBox]]:
+             origin: float = 0.0, start: Union[datetime, str, None] = None) -> \
+             List[List[TBox]]:
         """
         Returns 2d matrix of TBoxes resulting of tiling ``self``.
 
@@ -964,15 +1077,18 @@ class TBox:
         MEOS Functions:
             tbox_tile_list
         """
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1)
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
             else tbox_tmin(self._inner)
         tiles, rows, columns = tbox_tile_list(self._inner, size, dt, origin, st)
-        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] for r in range(rows)]
+        return [[TBox(_inner=tiles + (c * rows + r)) for c in range(columns)] 
+            for r in range(rows)]
 
     def tile_flat(self, size: float, duration: Union[timedelta, str],
-                  origin: float = 0.0, start: Union[datetime, str, None] = None) -> List[TBox]:
+                  origin: float = 0.0, 
+                  start: Union[datetime, str, None] = None)  -> List[TBox]:
         """
         Returns an array of TBoxes resulting of tiling ``self``.
 
@@ -1028,7 +1144,8 @@ class TBox:
 
     def __lt__(self, other):
         """
-        Returns whether ``self`` is less than ``other``. The time dimension is compared first, then the space dimension.
+        Returns whether ``self`` is less than ``other``. The time
+        dimension is compared first, then the space dimension.
 
         Args:
             other: temporal object to compare with
@@ -1045,8 +1162,8 @@ class TBox:
 
     def __le__(self, other):
         """
-        Returns whether ``self`` is less than or equal to ``other``. The time dimension is compared first, then the
-        space dimension.
+        Returns whether ``self`` is less than or equal to ``other``. The time
+        dimension is compared first, then the space dimension.
 
         Args:
             other: temporal object to compare with
@@ -1063,8 +1180,8 @@ class TBox:
 
     def __gt__(self, other):
         """
-        Returns whether ``self`` is greater than ``other``. The time dimension is compared first, then the space
-        dimension.
+        Returns whether ``self`` is greater than ``other``. The time dimension
+        is compared first, then the space dimension.
 
         Args:
             other: temporal object to compare with
@@ -1081,8 +1198,8 @@ class TBox:
 
     def __ge__(self, other):
         """
-        Returns whether ``self`` is greater than or equal to ``other``. The time dimension is compared first, then the
-        space dimension.
+        Returns whether ``self`` is greater than or equal to ``other``. The
+        time dimension is compared first, then the space dimension.
 
         Args:
             other: temporal object to compare with
@@ -1112,7 +1229,8 @@ class TBox:
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`TBox` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`TBox` from a database cursor. Used when automatically
+        loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:

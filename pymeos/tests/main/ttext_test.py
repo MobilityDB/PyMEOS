@@ -141,6 +141,7 @@ class TestTTextConstructors(TestTText):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -824,8 +825,8 @@ class TestTTextTransformations(TestTText):
              'Sequence Set positive days', 'Sequence Set negative days', 
              'Sequence Set positive hours', 'Sequence Set negative hours']
     )
-    def test_shift(self, ttext, delta, expected):
-        assert ttext.shift(delta) == expected
+    def test_shift_time(self, ttext, delta, expected):
+        assert ttext.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'ttext, delta, expected',
@@ -846,11 +847,11 @@ class TestTTextTransformations(TestTText):
              'Sequence positive days', 'Sequence positive hours',
              'Sequence Set positive days', 'Sequence Set positive hours']
     )
-    def test_scale(self, ttext, delta, expected):
-        assert ttext.tscale(delta) == expected
+    def test_scale_time(self, ttext, delta, expected):
+        assert ttext.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.ttss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale(self):
+        assert self.ttss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TTextSeqSet('{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],'
              '[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}')
 
@@ -1047,7 +1048,7 @@ class TestTTextRestrictors(TestTText):
             (tti, period_set, TTextInst('AAA@2019-09-01')),
             (tti, 'AAA', TTextInst('AAA@2019-09-01')),
             (tti, 'BBB', None),
-            # (tti, ['AAA', 'BBB'], tti),
+            (tti, ['AAA', 'BBB'], tti),
 
             (ttds, timestamp, TTextSeq('{AAA@2019-09-01}')),
             (ttds, timestamp_set, TTextSeq('{AAA@2019-09-01}')),
@@ -1055,7 +1056,7 @@ class TestTTextRestrictors(TestTText):
             (ttds, period_set, TTextSeq('{AAA@2019-09-01, BBB@2019-09-02}')),
             (ttds, 'AAA', TTextSeq('{AAA@2019-09-01}')),
             (ttds, 'BBB', TTextSeq('{BBB@2019-09-02}')),
-            # (ttds, ['AAA', 'BBB'], ttds),
+            (ttds, ['AAA', 'BBB'], ttds),
 
             (tts, timestamp, TTextSeq('[AAA@2019-09-01]')),
             (tts, timestamp_set, TTextSeq('{AAA@2019-09-01}')),
@@ -1063,7 +1064,7 @@ class TestTTextRestrictors(TestTText):
             (tts, period_set, TTextSeq('[AAA@2019-09-01, BBB@2019-09-02]')),
             (tts, 'AAA', TTextSeq('[AAA@2019-09-01, AAA@2019-09-02)')),
             (tts, 'BBB', TTextSeq('[BBB@2019-09-02]')),
-            # (tts, ['AAA', 'BBB'], tts),
+            (tts, ['AAA', 'BBB'], tts),
 
             (ttss, timestamp, TTextSeqSet('[AAA@2019-09-01]')),
             (ttss, timestamp_set, TTextSeq('{AAA@2019-09-01, AAA@2019-09-03}')),
@@ -1072,21 +1073,21 @@ class TestTTextRestrictors(TestTText):
                 TTextSeqSet('{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'AAA', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
             (ttss, 'BBB', TTextSeqSet('{[BBB@2019-09-02]}')),
-            # (ttss, ['AAA', 'BBB'], ttss)
+            (ttss, ['AAA', 'BBB'], ttss)
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period',
              'Instant-PeriodSet', 'Instant-AAA', 'Instant-BBB', 
-             # 'Instant-[AAA,BBB]',
+             'Instant-[AAA,BBB]',
              'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 
              'Discrete Sequence-AAA', 'Discrete Sequence-BBB', 
-             # 'Discrete Sequence-[AAA,BBB]',
+             'Discrete Sequence-[AAA,BBB]',
              'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
              'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB',
-             # 'Sequence-[AAA,BBB]', 
+             'Sequence-[AAA,BBB]', 
              'SequenceSet-Timestamp', 'SequenceSet-TimestampSet', 'SequenceSet-Period', 
              'SequenceSet-PeriodSet', 'SequenceSet-AAA', 'SequenceSet-BBB',
-             # 'SequenceSet-[AAA,BBB]'
+             'SequenceSet-[AAA,BBB]'
              ]
     )
     def test_at(self, temporal, restrictor, expected):
@@ -1128,7 +1129,7 @@ class TestTTextRestrictors(TestTText):
             (tti, period_set, None),
             (tti, 'AAA', None),
             (tti, 'BBB', TTextInst('AAA@2019-09-01')),
-            # (tti, ['AAA', 'BBB'], None),
+            (tti, ['AAA', 'BBB'], None),
 
             (ttds, timestamp, TTextSeq('{BBB@2019-09-02}')),
             (ttds, timestamp_set, TTextSeq('{BBB@2019-09-02}')),
@@ -1136,7 +1137,7 @@ class TestTTextRestrictors(TestTText):
             (ttds, period_set, None),
             (ttds, 'AAA', TTextSeq('{BBB@2019-09-02}')),
             (ttds, 'BBB', TTextSeq('{AAA@2019-09-01}')),
-            # (ttds, ['AAA', 'BBB'], TTextSeq('{BBB@2019-09-02}')),
+            (ttds, ['AAA', 'BBB'], None),
 
             (tts, timestamp, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
             (tts, timestamp_set, TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02]}')),
@@ -1144,7 +1145,7 @@ class TestTTextRestrictors(TestTText):
             (tts, period_set, None),
             (tts, 'AAA', TTextSeqSet('{[BBB@2019-09-02]}')),
             (tts, 'BBB', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02)}')),
-            # (tts, ['AAA', 'BBB'], TTextSeq('[BBB@2019-09-02]')),
+            (tts, ['AAA', 'BBB'], None),
 
             (ttss, timestamp,
                 TTextSeqSet('{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}')),
@@ -1154,22 +1155,27 @@ class TestTTextRestrictors(TestTText):
             (ttss, period_set, None),
             (ttss, 'AAA', TTextSeqSet('{[BBB@2019-09-02]}')),
             (ttss, 'BBB', TTextSeqSet('{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}')),
-            # (ttss, ['AAA', 'BBB'], TTextSeqSet('{[BBB@2019-09-02]}')),
+            (ttss, ['AAA', 'BBB'], None),
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period',
-             'Instant-PeriodSet', 'Instant-AAA', 'Instant-BBB', # 'Instant-[AAA,BBB]',
+             'Instant-PeriodSet', 'Instant-AAA', 'Instant-BBB', 'Instant-[AAA,BBB]',
              'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 
-             'Discrete Sequence-AAA', 'Discrete Sequence-BBB', # 'Discrete Sequence-[AAA,BBB]',
+             'Discrete Sequence-AAA', 'Discrete Sequence-BBB', 
+             'Discrete Sequence-[AAA,BBB]',
              'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB', # 'Sequence-[AAA,BBB]', 
+             'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB', 
+             'Sequence-[AAA,BBB]', 
              'SequenceSet-Timestamp', 'SequenceSet-TimestampSet', 'SequenceSet-Period', 
              'SequenceSet-PeriodSet', 'SequenceSet-AAA', 'SequenceSet-BBB',
-             # 'SequenceSet-[AAA,BBB]'
+             'SequenceSet-[AAA,BBB]'
              ]
     )
     def test_minus(self, temporal, restrictor, expected):
-        assert temporal.minus(restrictor) == expected
+        if expected is None:
+            assert temporal.minus(restrictor) is None
+        else:
+            assert temporal.minus(restrictor) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1206,7 +1212,7 @@ class TestTTextRestrictors(TestTText):
             (tti, period_set),
             (tti, 'AAA'),
             (tti, 'BBB'),
-            # (tti, ['AAA','BBB']),
+            (tti, ['AAA','BBB']),
 
             (ttds, timestamp),
             (ttds, timestamp_set),
@@ -1214,7 +1220,7 @@ class TestTTextRestrictors(TestTText):
             (ttds, period_set),
             (ttds, 'AAA'),
             (ttds, 'BBB'),
-            # (ttds, ['AAA','BBB']),
+            (ttds, ['AAA','BBB']),
 
             (tts, timestamp),
             (tts, timestamp_set),
@@ -1222,7 +1228,7 @@ class TestTTextRestrictors(TestTText):
             (tts, period_set),
             (tts, 'AAA'),
             (tts, 'BBB'),
-            # (tts, ['AAA','BBB']),
+            (tts, ['AAA','BBB']),
 
             (ttss, timestamp),
             (ttss, timestamp_set),
@@ -1230,18 +1236,18 @@ class TestTTextRestrictors(TestTText):
             (ttss, period_set),
             (ttss, 'AAA'),
             (ttss, 'BBB'),
-            # (ttss, ['AAA','BBB']),
+            (ttss, ['AAA','BBB']),
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period',
-             'Instant-PeriodSet', 'Instant-AAA', 'Instant-BBB', # 'Instant-[AAA,BBB]', 
+             'Instant-PeriodSet', 'Instant-AAA', 'Instant-BBB', 'Instant-[AAA,BBB]', 
              'Discrete Sequence-Timestamp', 'Discrete Sequence-TimestampSet',
              'Discrete Sequence-Period', 'Discrete Sequence-PeriodSet', 
-             'Discrete Sequence-AAA', 'Discrete Sequence-BBB', # 'Discrete Sequence-[AAA,BBB]',
+             'Discrete Sequence-AAA', 'Discrete Sequence-BBB', 'Discrete Sequence-[AAA,BBB]',
              'Sequence-Timestamp', 'Sequence-TimestampSet', 'Sequence-Period',
-             'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB', # 'Sequence-[AAA,BBB]', 
+             'Sequence-PeriodSet', 'Sequence-AAA', 'Sequence-BBB', 'Sequence-[AAA,BBB]', 
              'SequenceSet-Timestamp', 'SequenceSet-TimestampSet', 'SequenceSet-Period', 
              'SequenceSet-PeriodSet', 'SequenceSet-AAA', 'SequenceSet-BBB',
-             # 'SequenceSet-[AAA,BBB]'
+             'SequenceSet-[AAA,BBB]'
              ]
     )
     def test_at_minus(self, temporal, restrictor):
