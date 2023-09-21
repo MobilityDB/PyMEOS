@@ -7,7 +7,7 @@ from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
 from pymeos_cffi import *
 
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from .tbool import TBool

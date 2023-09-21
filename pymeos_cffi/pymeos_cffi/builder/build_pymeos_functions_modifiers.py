@@ -73,8 +73,10 @@ def as_wkb_modifier(function: str) -> str:
 def timestampset_make_modifier(function: str) -> str:
     return function \
         .replace('values: int', 'values: List[int]') \
+        .replace(', count: int', '') \
         .replace("values_converted = _ffi.cast('const TimestampTz *', values)",
-                 "values_converted = [_ffi.cast('const TimestampTz', x) for x in values]")
+                 "values_converted = [_ffi.cast('const TimestampTz', x) for x in values]") \
+        .replace('count', 'len(values)')
 
 
 def spanset_make_modifier(function: str) -> str:

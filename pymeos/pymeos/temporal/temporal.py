@@ -7,13 +7,13 @@ from pandas import DataFrame
 from pymeos_cffi import *
 
 from .interpolation import TInterpolation
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from .tinstant import TInstant
     from .tsequence import TSequence
     from ..main import TBool
-    from ..boxes import Box, TBox
+    from ..boxes import Box
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
 TI = TypeVar('TI', bound='TInstant[Any]')
@@ -229,7 +229,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return temporal_as_hexwkb(self._inner, 4)[0]
 
     # ------------------------- Accessors -------------------------------------
-    def bounding_box(self) -> TBox:
+    def bounding_box(self) -> Union[Period, Box]:
         """
         Returns the bounding box of `self`.
 
@@ -571,7 +571,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            pg_interval_in(duration, -1)
+            dt = pg_interval_in(duration, -1)
         result = temporal_tsample(self._inner, dt, st)
         return Temporal._factory(result)
 
@@ -599,7 +599,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            pg_interval_in(duration, -1)
+            dt = pg_interval_in(duration, -1)
         result = temporal_tprecision(self._inner, dt, st)
         return Temporal._factory(result)
 

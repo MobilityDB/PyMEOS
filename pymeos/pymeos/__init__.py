@@ -3,7 +3,7 @@ from .boxes import *
 from .main import *
 from .meos_init import *
 from .temporal import *
-from .time import *
+from .collections import Period, PeriodSet, TimestampSet, Time
 
 __version__ = '1.1.3a1'
 __all__ = [

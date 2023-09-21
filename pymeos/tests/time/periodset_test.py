@@ -59,6 +59,7 @@ class TestPeriodSetOutputs(TestPeriodSet):
     def test_hexwkb(self):
         assert self.periodset.as_hexwkb() == '012200020000000300A01E4E713402000000F66B85340200030060CD899934020000C0A4A7AD340200'
 
+
 class TestPeriodSetConversions(TestPeriodSet):
 
     def test_to_period(self):
@@ -338,6 +339,3 @@ class TestPeriodComparisons(TestPeriodSet):
 
     def test_ge(self):
         _ = self.periodset >= self.other
-
-
-

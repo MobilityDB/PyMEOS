@@ -969,9 +969,9 @@ def textset_make(values: List[str]) -> 'Set *':
     return result if result != _ffi.NULL else None
 
 
-def timestampset_make(values: List[int], count: int) -> 'Set *':
+def timestampset_make(values: List[int]) -> 'Set *':
     values_converted = [_ffi.cast('const TimestampTz', x) for x in values]
-    result = _lib.timestampset_make(values_converted, count)
+    result = _lib.timestampset_make(values_converted, len(values))
     _check_error()
     return result if result != _ffi.NULL else None
 

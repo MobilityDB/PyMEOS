@@ -13,7 +13,7 @@ from pymeos_cffi import *
 from .tbool import TBool
 from .tfloat import TFloat, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
@@ -1096,38 +1096,38 @@ class TPointSeq(TSequence[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS
     Abstract class for temporal point sequences.
     """
 
-    @staticmethod
-    def from_arrays(t: List[Union[datetime, str]], x: List[float], y: List[float], z: Optional[List[float]] = None,
-                    srid: int = 0, geodetic: bool = False, lower_inc: bool = True, upper_inc: bool = False,
-                    interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True) -> TPointSeq:
-        """
-        Creates a temporal point sequence from arrays of timestamps and coordinates.
-
-        Args:
-            t: The array of timestamps.
-            x: The array of x coordinates.
-            y: The array of y coordinates.
-            z: The array of z coordinates.
-            srid: The spatial reference system identifier.
-            geodetic: Whether the coordinates are geodetic.
-            lower_inc: Whether the lower bound is inclusive.
-            upper_inc: Whether the upper bound is inclusive.
-            interpolation: The interpolation method.
-            normalize: Whether to normalize the timestamps.
-
-        Returns:
-            A new :class:`TPointSeq` object.
-
-        MEOS Functions:
-            tpointseq_make_coords
-        """
-        from ..factory import _TemporalFactory
-        assert len(t) == len(x) == len(y)
-        times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else pg_timestamptz_in(ti, -1) for ti in t]
-        return _TemporalFactory.create_temporal(
-            tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, interpolation,
-                                  normalize)
-        )
+    # @staticmethod
+    # def from_arrays(t: List[Union[datetime, str]], x: List[float], y: List[float], z: Optional[List[float]] = None,
+    #                 srid: int = 0, geodetic: bool = False, lower_inc: bool = True, upper_inc: bool = False,
+    #                 interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True) -> TPointSeq:
+    #     """
+    #     Creates a temporal point sequence from arrays of timestamps and coordinates.
+    #
+    #     Args:
+    #         t: The array of timestamps.
+    #         x: The array of x coordinates.
+    #         y: The array of y coordinates.
+    #         z: The array of z coordinates.
+    #         srid: The spatial reference system identifier.
+    #         geodetic: Whether the coordinates are geodetic.
+    #         lower_inc: Whether the lower bound is inclusive.
+    #         upper_inc: Whether the upper bound is inclusive.
+    #         interpolation: The interpolation method.
+    #         normalize: Whether to normalize the timestamps.
+    #
+    #     Returns:
+    #         A new :class:`TPointSeq` object.
+    #
+    #     MEOS Functions:
+    #         tpointseq_make_coords
+    #     """
+    #     from ..factory import _TemporalFactory
+    #     assert len(t) == len(x) == len(y)
+    #     times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else pg_timestamptz_in(ti, -1) for ti in t]
+    #     return _TemporalFactory.create_temporal(
+    #         tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, interpolation,
+    #                               normalize)
+    #     )
 
     def plot(self, *args, **kwargs):
         """
