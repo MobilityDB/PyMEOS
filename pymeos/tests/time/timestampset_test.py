@@ -22,8 +22,8 @@ class TestTimestampSetConstructors(TestTimestampSet):
 
     def test_string_constructor(self):
         self.assert_timestampset_equality(self.ts_set, [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                                   datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
-                                                   datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
+                                                        datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                                        datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)])
 
     def test_list_constructor(self):
         ts_set = TimestampSet(timestamp_list=[datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
@@ -56,7 +56,8 @@ class TestTimestampSetOutputs(TestTimestampSet):
         assert str(self.ts_set) == '{"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"}'
 
     def test_repr(self):
-        assert repr(self.ts_set) == 'TimestampSet({"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"})'
+        assert repr(
+            self.ts_set) == 'TimestampSet({"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"})'
 
     def test_as_hexwkb(self):
         assert self.ts_set.as_hexwkb() == '012000010300000000A01E4E713402000000F66B853402000060CD8999340200'
@@ -67,8 +68,8 @@ class TestTimestampConversions(TestTimestampSet):
     def test_to_periodset(self):
         assert self.ts_set.to_periodset() == PeriodSet(
             '{[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00], '
-             '[2019-09-02 00:00:00+00, 2019-09-02 00:00:00+00], '
-             '[2019-09-03 00:00:00+00, 2019-09-03 00:00:00+00]}')
+            '[2019-09-02 00:00:00+00, 2019-09-02 00:00:00+00], '
+            '[2019-09-03 00:00:00+00, 2019-09-03 00:00:00+00]}')
 
 
 class TestTimestampSetAccessors(TestTimestampSet):
@@ -97,9 +98,9 @@ class TestTimestampSetAccessors(TestTimestampSet):
 
     def test_timestamps(self):
         assert self.ts_set.elements() == [datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
-                                            datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
-                                            datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc),
-                                            ]
+                                          datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                                          datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc),
+                                          ]
 
     def test_hash(self):
         assert hash(self.ts_set) == 527267058
@@ -132,9 +133,11 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
 
     @pytest.mark.parametrize(
         'other',
-        [timestampset, period, periodset, instant, discrete_sequence, stepwise_sequence, continuous_sequence, sequence_set, tbox,
+        [timestampset, period, periodset, instant, discrete_sequence, stepwise_sequence, continuous_sequence,
+         sequence_set, tbox,
          stbox],
-        ids=['timestampset', 'period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
+        ids=['timestampset', 'period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+             'continuous_sequence',
              'sequence_set', 'tbox', 'stbox']
     )
     def test_is_contained_in(self, other):
