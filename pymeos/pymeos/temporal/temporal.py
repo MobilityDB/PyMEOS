@@ -584,13 +584,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             duration: A :class:`str` or :class:`timedelta` with the duration
                 of the temporal tiles.
             start: A :class:`str` or :class:`datetime` with the start time of
-                the temporal tiles. If None, the start time of `self` is used.
+                the temporal tiles. If None, the start time Monday, January 3,
+                2000 is used.
 
         MEOS Functions:
             temporal_tprecision
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:

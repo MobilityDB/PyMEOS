@@ -1102,29 +1102,27 @@ class TestTFloatTransformations(TestTFloat):
     def test_temporal_sample(self, tfloat, delta, expected):
         assert tfloat.temporal_sample(delta) == expected
 
-    # This function should be corrected in MEOS
-    # @pytest.mark.parametrize(
-        # 'tfloat, delta, expected',
-        # [(tfi, timedelta(days=4), TFloatInst('1.5@2019-09-01')),
-         # (tfi, timedelta(hours=12), TFloatInst('1.5@2019-09-01')),
-         # (tfds, timedelta(days=4), TFloatSeq('{2@2019-09-01}')),
-         # (tfds, timedelta(hours=12), TFloatSeq('{1.5@2019-09-01, 2.5@2019-09-02}')),
-         # (tfs, timedelta(days=4), TFloatSeq('{2@2019-09-01}')),
-         # (tfs, timedelta(hours=12), TFloatSeq('{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02}')),
-         # (tfss, timedelta(days=4),
-             # TFloatSeq('{1.5@2019-09-01,1.5@2019-09-05}')),
-         # (tfss, timedelta(hours=12),
-             # TFloatSeq('{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02,'
-                         # '1.5@2019-09-03, 1.5@2019-09-03 12:00:00, 1.5@2019-09-04, '
-                         # '1.5@2019-09-04 12:00:00, 1.5@2019-09-05}')),
-         # ],
-        # ids=['Instant days', 'Instant hours',
-             # 'Discrete Sequence days', 'Discrete Sequence hours',
-             # 'Sequence days', 'Sequence hours',
-             # 'Sequence Set days', 'Sequence Set hours']
-    # )
-    # def test_temporal_precision(self, tfloat, delta, expected):
-        # assert tfloat.temporal_precision(delta) == expected
+    @pytest.mark.parametrize(
+        'tfloat, delta, expected',
+        [(tfi, timedelta(days=4), TFloatInst('1.5@2019-08-31')),
+         (tfi, timedelta(hours=12), TFloatInst('1.5@2019-09-01')),
+         (tfds, timedelta(days=4), TFloatSeq('{2@2019-08-31}')),
+         (tfds, timedelta(hours=12), TFloatSeq('{1.5@2019-09-01, 2@2019-09-01 12:00:00+00, 2@2019-09-02}')),
+         (tfs, timedelta(days=4), TFloatSeq('{[2@2019-08-31]}')),
+         (tfs, timedelta(hours=12), TFloatSeq('{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00+00, 2.5@2019-09-02]}')),
+         (tfss, timedelta(days=4),
+             TFloatSeq('{[1.75@2019-08-31, 1.5@2019-09-04]}')),
+         (tfss, timedelta(hours=12),
+             TFloatSeq('{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00, 2.5@2019-09-02],'
+                         '[1.5@2019-09-03, 1.5@2019-09-05]}')),
+         ],
+        ids=['Instant days', 'Instant hours',
+             'Discrete Sequence days', 'Discrete Sequence hours',
+             'Sequence days', 'Sequence hours',
+             'Sequence Set days', 'Sequence Set hours']
+    )
+    def test_temporal_precision(self, tfloat, delta, expected):
+        assert tfloat.temporal_precision(delta) == expected
 
     @pytest.mark.parametrize(
         'tfloat, delta, expected',
