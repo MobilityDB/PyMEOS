@@ -2132,8 +2132,6 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
-    # The PyMEOS function uses as default origin the initial timestamp of the
-    # temporal value while in MEOS the default origin is Monday Janury 3, 2000
     @pytest.mark.parametrize(
         'temporal, expected',
         [
@@ -2163,6 +2161,41 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
     )
     def test_time_split_n(self, temporal, expected):
         assert temporal.time_split_n(2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, [TGeomPointInst('Point(1 1)@2019-09-01')]),
+            (tpds, [TGeomPointSeq('{Point(1 1)@2019-09-01}'),
+                TGeomPointSeq('{Point(2 2)@2019-09-02}')]),
+            (tps, [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)'),
+                TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
+            (tpss, [TGeomPointSeqSet('{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02),'
+                '[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}'),
+                TGeomPointSeqSet('{[POINT(2 2)@2019-09-02]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_space_split(self, temporal, expected):
+        assert temporal.space_split(1.0) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, [TGeomPointInst('Point(1 1)@2019-09-01')]),
+            (tpds, [TGeomPointSeq('{Point(1 1)@2019-09-01}'),
+                TGeomPointSeq('{Point(2 2)@2019-09-02}')]),
+            (tps, [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)'),
+                TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
+            (tpss, [TGeomPointSeqSet('{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02),'
+                '[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}'),
+                TGeomPointSeqSet('{[POINT(2 2)@2019-09-02]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_space_time_split(self, temporal, expected):
+        assert temporal.space_time_split(1.0, timedelta(days=2),
+            time_start='2019-09-01') == expected
 
 
 class TestTGeomPointComparisons(TestTGeomPoint):

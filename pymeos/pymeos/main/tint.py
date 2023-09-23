@@ -746,8 +746,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_value_split
         """
-        tiles, new_count = tint_value_split(self._inner, size, start)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        fragments, values, count = tint_value_split(self._inner, size, start)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     def value_time_split(self, value_size: int,
                          duration: Union[str, timedelta],
@@ -780,9 +780,9 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        tiles, new_count = tint_value_time_split(self._inner, value_size,
-            value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        fragments, values, times, count = tint_value_time_split(self._inner,
+            value_size, dt, value_start, st)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod

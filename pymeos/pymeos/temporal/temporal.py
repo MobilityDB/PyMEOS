@@ -1195,10 +1195,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        tiles, new_count = temporal_time_split(self._inner, dt, st)
+        fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) \
-            for i in range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) \
+            for i in range(count)]
 
     def time_split_n(self, n: int) -> List[TG]:
         """
@@ -1219,11 +1219,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             return [self]
         st = temporal_start_timestamp(self._inner)
         dt = timedelta_to_interval((self.end_timestamp() -
-            self.start_timestamp()) / n)
-        tiles, new_count = temporal_time_split(self._inner, dt, st)
+                self.start_timestamp()) / n)
+        fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) \
-            for i in range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) \
+            for i in range(count)]
 
     def stops(self, max_distance: Optional[float] = 0.0,
         min_duration: Optional[timedelta] = timedelta()) -> TSS:

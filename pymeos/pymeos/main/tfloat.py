@@ -820,10 +820,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_value_split
         """
-        tiles, new_count = tfloat_value_split(self._inner, size, start)
+        fragments, values, count = tfloat_value_split(self._inner, size, start)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) for i in \
-            range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) for i in \
+            range(count)]
 
     def value_time_split(self, value_size: float, 
                          duration: Union[str, timedelta],
@@ -856,9 +856,9 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        tiles, new_count = tfloat_value_time_split(self._inner, value_size,
-            value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        fragments, values, times, count = tfloat_value_time_split(self._inner, value_size,
+            dt, value_start, st)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod

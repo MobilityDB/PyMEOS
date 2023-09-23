@@ -91,17 +91,27 @@ result_parameters = {
     ('tpoint_value_at_timestamp', 'value'),
 }
 
-# List of output function parameters in tuples of (function, parameter). All parameters named result are assumed
-# to be output parameters, and it's not necessary to list them here.
+# List of output function parameters in tuples of (function, parameter).
+# All parameters named result are assumed to be output parameters, and it is
+# not necessary to list them here.
 output_parameters = {
-    ('temporal_time_split', 'buckets'),
-    ('temporal_time_split', 'newcount'),
-    ('tint_value_split', 'buckets'),
-    ('tint_value_split', 'newcount'),
-    ('tfloat_value_split', 'buckets'),
-    ('tfloat_value_split', 'newcount'),
-    ('tint_value_time_split', 'newcount'),
-    ('tfloat_value_time_split', 'newcount'),
+    ('temporal_time_split', 'time_buckets'),
+    ('temporal_time_split', 'count'),
+    ('tint_value_split', 'value_buckets'),
+    ('tint_value_split', 'count'),
+    ('tfloat_value_split', 'value_buckets'),
+    ('tfloat_value_split', 'count'),
+    ('tint_value_time_split', 'value_buckets'),
+    ('tint_value_time_split', 'time_buckets'),
+    ('tint_value_time_split', 'count'),
+    ('tfloat_value_time_split', 'value_buckets'),
+    ('tfloat_value_time_split', 'time_buckets'),
+    ('tfloat_value_time_split', 'count'),
+    ('tpoint_space_split', 'space_buckets'),
+    ('tpoint_space_split', 'count'),
+    ('tpoint_space_time_split', 'space_buckets'),
+    ('tpoint_space_time_split', 'time_buckets'),
+    ('tpoint_space_time_split', 'count'),
     ('tbox_as_hexwkb', 'size'),
     ('stbox_as_hexwkb', 'size'),
     ('tbox_tile_list', 'rows'),

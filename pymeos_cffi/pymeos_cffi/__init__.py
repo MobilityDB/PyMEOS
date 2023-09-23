@@ -1011,4 +1011,6 @@ __all__ = [
     'timestamptz_bucket',
     'tint_value_split',
     'tint_value_time_split',
+    'tpoint_space_split',
+    'tpoint_space_time_split',
 ]
