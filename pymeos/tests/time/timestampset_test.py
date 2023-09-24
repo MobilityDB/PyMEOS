@@ -82,6 +82,7 @@ class TestTimestampSetAccessors(TestTimestampSet):
 
     def test_num_timestamps(self):
         assert self.ts_set.num_elements() == 3
+        assert len(self.ts_set) == 3
 
     def test_start_timestamp(self):
         assert self.ts_set.start_element() == datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
