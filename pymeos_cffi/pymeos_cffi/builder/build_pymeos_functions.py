@@ -297,11 +297,10 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     param_type = ' '.join(split[:-1])
 
     # Check if parameter is pointer and fix type and name accordingly
-    if split[-1].startswith('**'):
-        param_type += ' **'
-    elif split[-1].startswith('*'):
-        param_type += ' *'
     param_name = split[-1].lstrip('*')
+    pointer_level = len(split[-1]) - len(param_name)
+    if pointer_level > 0:
+        param_type += ' ' + '*' * pointer_level
 
     # Check if the parameter name is a reserved word and change it if necessary
     reserved_words = {

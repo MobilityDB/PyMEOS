@@ -1934,8 +1934,9 @@ extern Span *floatspan_bucket_list(const Span *bounds, double size, double origi
 extern int int_bucket(int value, int size, int origin);
 extern Span *intspan_bucket_list(const Span *bounds, int size, int origin, int *count);
 extern Span *period_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *count);
-extern STBox *stbox_tile_list(const STBox *bounds, double xsize, double ysize, double zsize, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int **cellcount);
-extern TBox *tbox_tile_list(const TBox *bounds, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *rows, int *columns);
+extern STBox *stbox_tile_list(const STBox *bounds, double xsize, double ysize, double zsize, const Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, int *count);
+extern TBox *tintbox_tile_list(const TBox *box, int xsize, const Interval *duration, int xorigin, TimestampTz torigin, int *count);
+extern TBox *tfloatbox_tile_list(const TBox *box, double xsize, const Interval *duration, double xorigin, TimestampTz torigin, int *count);
 extern Temporal **temporal_time_split(Temporal *temp, Interval *duration, TimestampTz torigin, TimestampTz **time_buckets, int *count);
 extern Temporal **tfloat_value_split(Temporal *temp, double size, double origin, double **value_buckets, int *count);
 extern Temporal **tfloat_value_time_split(Temporal *temp, double size, Interval *duration, double vorigin, TimestampTz torigin, double **value_buckets, TimestampTz **time_buckets, int *count);
