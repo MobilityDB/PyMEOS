@@ -1106,7 +1106,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             else pgis_geography_in('Point(0 0 0)', -1) \
             if isinstance(self, TGeogPoint) \
             else pgis_geometry_in('Point(0 0 0)', -1)
-        fragments, values, times, count = tpoint_space_split(self._inner,
+        fragments, values, count = tpoint_space_split(self._inner,
             xsize, ysz, zsz, gs, bitmatrix)
         from ..factory import _TemporalFactory
         return [_TemporalFactory.create_temporal(fragments[i]) for i in \

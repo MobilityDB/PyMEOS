@@ -7575,27 +7575,35 @@ def period_bucket_list(bounds: 'const Span *', duration: 'const Interval *', ori
     return result if result != _ffi.NULL else None, count[0]
 
 
-def stbox_tile_list(bounds: 'const STBox *', xsize: float, ysize: float, zsize: float, duration: "Optional['const Interval *']", sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBox *', 'int *']":
+def stbox_tile_list(bounds: 'const STBox *', xsize: float, ysize: float, zsize: float, duration: "Optional['const Interval *']", sorigin: 'GSERIALIZED *', torigin: int) -> "Tuple['STBox *', 'int']":
     bounds_converted = _ffi.cast('const STBox *', bounds)
     duration_converted = _ffi.cast('const Interval *', duration) if duration is not None else _ffi.NULL
     sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
     torigin_converted = _ffi.cast('TimestampTz', torigin)
-    cellcount = _ffi.new('int **')
-    result = _lib.stbox_tile_list(bounds_converted, xsize, ysize, zsize, duration_converted, sorigin_converted, torigin_converted, cellcount)
+    count = _ffi.new('int *')
+    result = _lib.stbox_tile_list(bounds_converted, xsize, ysize, zsize, duration_converted, sorigin_converted, torigin_converted, count)
     _check_error()
-    return result if result != _ffi.NULL else None, cellcount[0]
+    return result if result != _ffi.NULL else None, count[0]
 
 
-def tbox_tile_list(bounds: 'const TBox *', xsize: float, duration: 'const Interval *', xorigin: 'Optional[float]', torigin: "Optional[int]") -> "Tuple['TBox *', 'int', 'int']":
-    bounds_converted = _ffi.cast('const TBox *', bounds)
+def tintbox_tile_list(box: 'const TBox *', xsize: int, duration: 'const Interval *', xorigin: int, torigin: int) -> "Tuple['TBox *', 'int']":
+    box_converted = _ffi.cast('const TBox *', box)
     duration_converted = _ffi.cast('const Interval *', duration)
-    xorigin_converted = xorigin if xorigin is not None else _ffi.NULL
-    torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
-    rows = _ffi.new('int *')
-    columns = _ffi.new('int *')
-    result = _lib.tbox_tile_list(bounds_converted, xsize, duration_converted, xorigin_converted, torigin_converted, rows, columns)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    count = _ffi.new('int *')
+    result = _lib.tintbox_tile_list(box_converted, xsize, duration_converted, xorigin, torigin_converted, count)
     _check_error()
-    return result if result != _ffi.NULL else None, rows[0], columns[0]
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tfloatbox_tile_list(box: 'const TBox *', xsize: float, duration: 'const Interval *', xorigin: float, torigin: int) -> "Tuple['TBox *', 'int']":
+    box_converted = _ffi.cast('const TBox *', box)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    count = _ffi.new('int *')
+    result = _lib.tfloatbox_tile_list(box_converted, xsize, duration_converted, xorigin, torigin_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
 
 
 def temporal_time_split(temp: 'Temporal *', duration: 'Interval *', torigin: int) -> "Tuple['Temporal **', 'TimestampTz *', 'int']":
@@ -7660,20 +7668,20 @@ def tint_value_time_split(temp: 'Temporal *', size: int, duration: 'Interval *',
     return result if result != _ffi.NULL else None, value_buckets[0], time_buckets[0], count[0]
 
 
-def tpoint_space_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', zsize: 'float', sorigin: 'GSERIALIZED *', bitmatrix: bool) -> "Tuple['Temporal **', 'GSERIALIZED **', 'int']":
+def tpoint_space_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', zsize: 'float', sorigin: 'GSERIALIZED *', bitmatrix: bool) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'int']":
     temp_converted = _ffi.cast('Temporal *', temp)
     xsize_converted = _ffi.cast('float', xsize)
     ysize_converted = _ffi.cast('float', ysize)
     zsize_converted = _ffi.cast('float', zsize)
     sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
-    space_buckets = _ffi.new('GSERIALIZED **')
+    space_buckets = _ffi.new('GSERIALIZED ***')
     count = _ffi.new('int *')
     result = _lib.tpoint_space_split(temp_converted, xsize_converted, ysize_converted, zsize_converted, sorigin_converted, bitmatrix, space_buckets, count)
     _check_error()
     return result if result != _ffi.NULL else None, space_buckets[0], count[0]
 
 
-def tpoint_space_time_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', zsize: 'float', duration: 'Interval *', sorigin: 'GSERIALIZED *', torigin: int, bitmatrix: bool) -> "Tuple['Temporal **', 'GSERIALIZED **', 'TimestampTz *', 'int']":
+def tpoint_space_time_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', zsize: 'float', duration: 'Interval *', sorigin: 'GSERIALIZED *', torigin: int, bitmatrix: bool) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'TimestampTz *', 'int']":
     temp_converted = _ffi.cast('Temporal *', temp)
     xsize_converted = _ffi.cast('float', xsize)
     ysize_converted = _ffi.cast('float', ysize)
@@ -7681,7 +7689,7 @@ def tpoint_space_time_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', 
     duration_converted = _ffi.cast('Interval *', duration)
     sorigin_converted = _ffi.cast('GSERIALIZED *', sorigin)
     torigin_converted = _ffi.cast('TimestampTz', torigin)
-    space_buckets = _ffi.new('GSERIALIZED **')
+    space_buckets = _ffi.new('GSERIALIZED ***')
     time_buckets = _ffi.new('TimestampTz **')
     count = _ffi.new('int *')
     result = _lib.tpoint_space_time_split(temp_converted, xsize_converted, ysize_converted, zsize_converted, duration_converted, sorigin_converted, torigin_converted, bitmatrix, space_buckets, time_buckets, count)
