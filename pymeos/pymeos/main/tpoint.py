@@ -1156,7 +1156,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return [Temporal._factory(fragments[i]) for i in range(count)]
 
 
-
 class TPointInst(TInstant[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC):
     """
     Abstract class for temporal point instants.
