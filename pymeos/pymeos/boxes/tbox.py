@@ -37,6 +37,8 @@ class TBox:
     """
     __slots__ = ['_inner']
 
+    _mobilitydb_name = 'tbox'
+
     def _inner_period(self):
         from pymeos_cffi.functions import _ffi
         return _ffi.addressof(self._inner.period)

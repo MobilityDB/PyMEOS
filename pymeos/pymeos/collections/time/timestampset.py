@@ -37,6 +37,8 @@ class TimestampSet(Set[datetime], TimeCollection):
 
     __slots__ = ['_inner']
 
+    _mobilitydb_name = 'tstzset'
+
     _parse_function = timestampset_in
     _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     _make_function = timestampset_make
