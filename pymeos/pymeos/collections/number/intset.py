@@ -4,8 +4,7 @@ from typing import Optional, overload, Union
 
 from pymeos_cffi import *
 
-from .. import Span, SpanSet
-from ..base import Set
+from .. import Set, Span, SpanSet
 
 
 class IntSet(Set[int]):
