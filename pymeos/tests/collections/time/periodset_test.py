@@ -120,7 +120,7 @@ class TestPeriodSetAccessors(TestPeriodSet):
         assert hash(self.periodset) == 552347465
 
 
-class TestPeriodSetTransformationFunctions(TestPeriodSet):
+class TestPeriodSetTransformations(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'delta,result',

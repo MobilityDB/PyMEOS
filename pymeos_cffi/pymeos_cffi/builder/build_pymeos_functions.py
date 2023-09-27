@@ -114,8 +114,8 @@ output_parameters = {
     ('tpoint_space_time_split', 'count'),
     ('tbox_as_hexwkb', 'size'),
     ('stbox_as_hexwkb', 'size'),
-    ('tbox_tile_list', 'rows'),
-    ('tbox_tile_list', 'columns'),
+    ('tintbox_tile_list', 'count'),
+    ('tfloatbox_tile_list', 'count'),
     ('stbox_tile_list', 'cellcount'),
 }
 
@@ -166,8 +166,10 @@ nullable_parameters = {
     ('period_tcount_transfn', 'state'),
     ('periodset_tcount_transfn', 'state'),
     ('stbox_tile_list', 'duration'),
-    ('tbox_tile_list', 'xorigin'),
-    ('tbox_tile_list', 'torigin'),
+    ('tintbox_tile_list', 'xorigin'),
+    ('tintbox_tile_list', 'torigin'),
+    ('tfloatbox_tile_list', 'xorigin'),
+    ('tfloatbox_tile_list', 'torigin'),
 }
 
 

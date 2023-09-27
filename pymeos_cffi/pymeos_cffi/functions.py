@@ -7586,22 +7586,24 @@ def stbox_tile_list(bounds: 'const STBox *', xsize: float, ysize: float, zsize: 
     return result if result != _ffi.NULL else None, count[0]
 
 
-def tintbox_tile_list(box: 'const TBox *', xsize: int, duration: 'const Interval *', xorigin: int, torigin: int) -> "Tuple['TBox *', 'int']":
+def tintbox_tile_list(box: 'const TBox *', xsize: int, duration: 'const Interval *', xorigin: 'Optional[int]', torigin: "Optional[int]") -> "Tuple['TBox *', 'int']":
     box_converted = _ffi.cast('const TBox *', box)
     duration_converted = _ffi.cast('const Interval *', duration)
-    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    xorigin_converted = xorigin if xorigin is not None else _ffi.NULL
+    torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
     count = _ffi.new('int *')
-    result = _lib.tintbox_tile_list(box_converted, xsize, duration_converted, xorigin, torigin_converted, count)
+    result = _lib.tintbox_tile_list(box_converted, xsize, duration_converted, xorigin_converted, torigin_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
 
-def tfloatbox_tile_list(box: 'const TBox *', xsize: float, duration: 'const Interval *', xorigin: float, torigin: int) -> "Tuple['TBox *', 'int']":
+def tfloatbox_tile_list(box: 'const TBox *', xsize: float, duration: 'const Interval *', xorigin: 'Optional[float]', torigin: "Optional[int]") -> "Tuple['TBox *', 'int']":
     box_converted = _ffi.cast('const TBox *', box)
     duration_converted = _ffi.cast('const Interval *', duration)
-    torigin_converted = _ffi.cast('TimestampTz', torigin)
+    xorigin_converted = xorigin if xorigin is not None else _ffi.NULL
+    torigin_converted = _ffi.cast('TimestampTz', torigin) if torigin is not None else _ffi.NULL
     count = _ffi.new('int *')
-    result = _lib.tfloatbox_tile_list(box_converted, xsize, duration_converted, xorigin, torigin_converted, count)
+    result = _lib.tfloatbox_tile_list(box_converted, xsize, duration_converted, xorigin_converted, torigin_converted, count)
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
 
