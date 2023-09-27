@@ -3,7 +3,7 @@ from .boxes import *
 from .main import *
 from .meos_init import *
 from .temporal import *
-from .collections import Period, PeriodSet, TimestampSet, Time
+from .collections import Period, PeriodSet, TimestampSet, Time, TextSet
 
 __version__ = '1.1.3a1'
 __all__ = [
@@ -21,8 +21,9 @@ __all__ = [
     'TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet',
     # temporal
     'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
-    # time
+    # Collections
     'Time', 'Period', 'TimestampSet', 'PeriodSet',
+    'TextSet',
     # extras
     'TInterpolation',
     # aggregators

@@ -98,7 +98,7 @@ class Period(Span[datetime], TimeCollection):
             period_lower
         """
 
-        return timestamptz_to_datetime(super().lower())
+        return timestamptz_to_datetime(period_lower(self._inner))
 
     def upper(self) -> datetime:
         """
@@ -110,7 +110,7 @@ class Period(Span[datetime], TimeCollection):
         MEOS Functions:
             period_upper
         """
-        return timestamptz_to_datetime(super().upper())
+        return timestamptz_to_datetime(period_upper(self._inner))
 
     def duration(self) -> timedelta:
         """
@@ -548,16 +548,15 @@ class Period(Span[datetime], TimeCollection):
             result = intersection_period_timestamp(self._inner, datetime_to_timestamptz(other))
             return timestamptz_to_datetime(result) if result is not None else None
         elif isinstance(other, TimestampSet):
-            result = super().intersection(other)
-            return TimestampSet(_inner=result) if result is not None else None
+            return self.intersection(other.to_periodset())
         elif isinstance(other, Period):
-            result = super().intersection(other)
+            result = intersection_span_span(self._inner, other._inner)
             return Period(_inner=result) if result is not None else None
         elif isinstance(other, PeriodSet):
-            result = super().intersection(other)
+            result = intersection_spanset_span(other._inner, self._inner)
             return PeriodSet(_inner=result) if result is not None else None
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            super().intersection(other)
 
     def minus(self, other: Time) -> PeriodSet:
         """
@@ -570,20 +569,20 @@ class Period(Span[datetime], TimeCollection):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-        minus_period_timestamp, minus_span_spanset, minus_span_span
+            minus_period_timestamp, minus_span_spanset, minus_span_span
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
         if isinstance(other, datetime):
             result = minus_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
-            result = super().minus(other)
+            return self.minus(other.to_periodset())
         elif isinstance(other, Period):
-            result = super().minus(other)
+            result = minus_span_span(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
-            result = super().minus(other)
+            result = minus_span_spanset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            super().minus(other)
         return PeriodSet(_inner=result) if result is not None else None
 
     def union(self, other: Time) -> PeriodSet:
@@ -617,14 +616,3 @@ class Period(Span[datetime], TimeCollection):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
         return TimePlotter.plot_period(self, *args, **kwargs)
-
-    # ------------------------- Database Operations ---------------------------
-    @staticmethod
-    def read_from_cursor(value, _=None):
-        """
-        Reads a :class:`Period` from a database cursor. Used when automatically loading objects from the database.
-        Users should use the class constructor instead.
-        """
-        if not value:
-            return None
-        return Period(string=value)

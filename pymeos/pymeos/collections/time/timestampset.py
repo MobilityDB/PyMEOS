@@ -581,17 +581,15 @@ class TimestampSet(Set[datetime], TimeCollection):
         from .period import Period
         from .periodset import PeriodSet
         if isinstance(other, datetime):
-            result = intersection_set_set(self._inner, timestamp_to_tstzset(datetime_to_timestamptz(other)))
+            result = intersection_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
             return timestamptz_to_datetime(result) if result is not None else None
         elif isinstance(other, TimestampSet):
-            result = super().intersection(other)
+            result = intersection_set_set(self._inner, other._inner)
             return TimestampSet(_inner=result) if result is not None else None
         elif isinstance(other, Period):
-            result = super().intersection(other)
-            return PeriodSet(_inner=result) if result is not None else None
+            return self.to_periodset().intersection(other)
         elif isinstance(other, PeriodSet):
-            result = super().intersection(other)
-            return PeriodSet(_inner=result) if result is not None else None
+            return self.to_periodset().intersection(other)
         elif isinstance(other, Temporal):
             return self.intersection(other.time())
         elif isinstance(other, get_args(Box)):
@@ -626,20 +624,18 @@ class TimestampSet(Set[datetime], TimeCollection):
             result = minus_timestampset_timestamp(self._inner, datetime_to_timestamptz(other))
             return TimestampSet(_inner=result) if result is not None else None
         elif isinstance(other, TimestampSet):
-            result = super().minus(other)
+            result = minus_set_set(self._inner, other._inner)
             return TimestampSet(_inner=result) if result is not None else None
         elif isinstance(other, Period):
-            result = super().minus(other)
-            return PeriodSet(_inner=result) if result is not None else None
+            return self.to_periodset().minus(other)
         elif isinstance(other, PeriodSet):
-            result = super().minus(other)
-            return PeriodSet(_inner=result) if result is not None else None
+            return self.to_periodset().minus(other)
         elif isinstance(other, Temporal):
             return self.minus(other.time())
         elif isinstance(other, get_args(Box)):
             return self.minus(other.to_period())
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            return super().minus(other)
 
     @overload
     def union(self, other: Union[datetime, TimestampSet]) -> TimestampSet:
@@ -667,17 +663,17 @@ class TimestampSet(Set[datetime], TimeCollection):
         if isinstance(other, datetime):
             return TimestampSet(_inner=union_timestampset_timestamp(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TimestampSet):
-            return TimestampSet(_inner=super().union(other))
+            return TimestampSet(_inner=union_set_set(self._inner, other._inner))
         elif isinstance(other, Period):
-            return PeriodSet(_inner=super().union(other))
+            return self.to_periodset().union(other)
         elif isinstance(other, PeriodSet):
-            return PeriodSet(_inner=super().union(other))
+            return self.to_periodset().union(other)
         elif isinstance(other, Temporal):
             return self.union(other.time())
         elif isinstance(other, get_args(Box)):
             return self.union(other.to_period())
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            return super().union(other)
 
     # ------------------------- Comparisons -----------------------------------
 

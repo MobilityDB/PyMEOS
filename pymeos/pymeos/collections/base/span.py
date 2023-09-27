@@ -153,29 +153,19 @@ class Span(Collection[T], ABC):
         return span_to_spanset(self._inner)
 
     # ------------------------- Accessors -------------------------------------
+    @abstractmethod
     def lower(self) -> T:
         """
         Returns the lower bound of a period
-
-        Returns:
-            The lower bound of the period as a :class:`datetime.datetime`
-
-        MEOS Functions:
-            period_lower
         """
-        return period_lower(self._inner)
+        return NotImplementedError()
 
+    @abstractmethod
     def upper(self) -> T:
         """
         Returns the upper bound of a period
-
-        Returns:
-            The upper bound of the period as a :class:`datetime.datetime`
-
-        MEOS Functions:
-            period_upper
         """
-        return period_upper(self._inner)
+        return NotImplementedError()
 
     def lower_inc(self) -> bool:
         """
@@ -502,16 +492,7 @@ class Span(Collection[T], ABC):
         MEOS Functions:
         intersection_span_span, intersection_spanset_span, intersection_period_timestamp
         """
-        from .set import Set
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return intersection_spanset_span(set_to_spanset(other._inner), self._inner)
-        elif isinstance(other, Span):
-            return intersection_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return intersection_spanset_span(other._inner, self._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __mul__(self, other):
         """
@@ -531,40 +512,25 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def minus(self, other):
         """
-        Returns the temporal difference of ``self`` and ``other``.
+        Returns the difference of ``self`` and ``other``.
 
         Args:
-            other: temporal object to diff with
+            other: object to diff with
 
         Returns:
-            A :class:`PeriodSet` instance.
-
-        MEOS Functions:
-        minus_period_timestamp, minus_span_spanset, minus_span_span
+            A :class:`SpanSet` instance.
         """
-        from .set import Set
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return minus_span_spanset(self._inner, set_to_spanset(other._inner))
-        elif isinstance(other, Span):
-            return minus_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return minus_span_spanset(self._inner, other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __sub__(self, other):
         """
-        Returns the temporal difference of ``self`` and ``other``.
+        Returns the difference of ``self`` and ``other``.
 
         Args:
-            other: temporal object to diff with
+            other: object to diff with
 
         Returns:
-            A :class:`PeriodSet` instance.
-
-        MEOS Functions:
-        minus_period_timestamp, minus_span_spanset, minus_span_span
+            A :class:`SpanSet` instance.
         """
         return self.minus(other)
 

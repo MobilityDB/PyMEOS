@@ -292,17 +292,18 @@ class TBox:
         return tbox_as_hexwkb(self._inner, -1)[0]
 
     # ------------------------- Conversions ----------------------------------
-    def to_floatrange(self) -> floatrange:
+    def to_span(self) -> Span:
         """
         Returns the numeric span of ``self``.
 
         Returns:
-            A new :class:`~spans.floatrange` instance
+            A new :class:`FloatSpan` instance
 
         MEOS Functions:
             tbox_to_floatspan
         """
-        return floatspan_to_floatrange(tbox_to_floatspan(self._inner))
+        from ..collections import FloatSpan
+        return FloatSpan(_inner=tbox_to_floatspan(self._inner))
 
     def to_period(self) -> Period:
         """

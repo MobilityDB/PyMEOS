@@ -76,15 +76,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         """
         if isinstance(base, datetime):
             return TIntInst(_inner=tintinst_make(value,
-                datetime_to_timestamptz(base)))
+                                                 datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
             return TIntSeq(_inner=tintseq_from_base_timestampset(value,
-                base._inner))
+                                                                 base._inner))
         elif isinstance(base, Period):
             return TIntSeq(_inner=tintseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
             return TIntSeqSet(_inner=tintseqset_from_base_periodset(value,
-                base._inner))
+                                                                    base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Output ----------------------------------------
@@ -241,7 +241,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             tint_value_at_timestamp
         """
         return tint_value_at_timestamp(self._inner,
-            datetime_to_timestamptz(timestamp), True)
+                                       datetime_to_timestamptz(timestamp), True)
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_less(self, value: int) -> bool:
@@ -658,8 +658,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[int, List[int],
-            intrange, floatrange, List[intrange], List[floatrange], TBox,
-            datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    intrange, floatrange, List[intrange], List[floatrange], TBox,
+    datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         """
         Returns a new temporal int with th  e values of `self` restricted to
         the time or value `other`.
@@ -683,8 +683,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return Temporal._factory(result)
 
     def minus(self, other: Union[int, List[int],
-            intrange, floatrange, List[intrange], List[floatrange], TBox,
-            datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    intrange, floatrange, List[intrange], List[floatrange], TBox,
+    datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
         """
         Returns a new temporal int with the values of `self` restricted to the
         complement of the time or value `other`.
@@ -710,7 +710,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     # ------------------------- Distance --------------------------------------
     def nearest_approach_distance(self,
-        other: Union[int, float, TNumber, TBox]) -> float:
+                                  other: Union[int, float, TNumber, TBox]) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
@@ -776,7 +776,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
         tiles, new_count = tint_value_time_split(self._inner, value_size,
-            value_start, dt, st)
+                                                 value_start, dt, st)
         return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
     # ------------------------- Database Operations ---------------------------
@@ -812,7 +812,7 @@ class TIntInst(TInstant[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt)
                  value: Optional[Union[str, int]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp,
-            _inner=_inner)
+                         _inner=_inner)
 
 
 class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
@@ -828,19 +828,19 @@ class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt)
                  interpolation: TInterpolation = TInterpolation.STEPWISE,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list,
-            lower_inc=lower_inc, upper_inc=upper_inc, expandable=expandable,
-            interpolation=interpolation, normalize=normalize, _inner=_inner)
+                         lower_inc=lower_inc, upper_inc=upper_inc, expandable=expandable,
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
 class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'],
-    TInt):
+                 TInt):
     """
     Class for representing temporal integers over a period of time with gaps.
     """
     ComponentClass = TIntSeq
 
     def __init__(self, string: Optional[str] = None, *,
-            sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
-            normalize: bool = True, _inner=None):
+                 sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+                 normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list,
-            normalize=normalize, _inner=_inner)
+                         normalize=normalize, _inner=_inner)
