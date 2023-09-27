@@ -23,7 +23,7 @@ TI = TypeVar('TI', bound='TPointInst')
 TS = TypeVar('TS', bound='TPointSeq')
 TSS = TypeVar('TSS', bound='TPointSeqSet')
 Self = TypeVar('Self', bound='TPoint')
-        
+
 
 class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
     """

@@ -144,7 +144,7 @@ class TestPeriodAccessors(TestPeriod):
         assert hash(self.period) == 1164402929
 
 
-class TestPeriodTransformationFunctions(TestPeriod):
+class TestPeriodTransformations(TestPeriod):
 
     @pytest.mark.parametrize(
         'delta,result',

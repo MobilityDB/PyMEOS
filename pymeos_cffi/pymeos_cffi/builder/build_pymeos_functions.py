@@ -413,7 +413,7 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         if result_param.is_interoperable():
             returning_object += '[0]'
 
-        # If original C function returned bool, use it to return it when result is True, or raise exception when False
+        # If original C function returned bool, use it to return it when result is True, or return None otherwise.
         if return_type.return_type == 'bool':
 
             result_manipulation = (result_manipulation or '') + \

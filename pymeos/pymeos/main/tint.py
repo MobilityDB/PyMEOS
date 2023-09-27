@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 
 class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
+    _mobilitydb_name = 'tint'
+
     BaseClass = int
     _parse_function = tint_in
 

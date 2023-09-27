@@ -17,6 +17,8 @@ if TYPE_CHECKING:
 
 
 class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet'], ABC):
+    _mobilitydb_name = 'tfloat'
+
     BaseClass = float
     _parse_function = tfloat_in
 

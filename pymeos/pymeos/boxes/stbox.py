@@ -40,6 +40,8 @@ class STBox:
     """
     __slots__ = ['_inner']
 
+    _mobilitydb_name = 'stbox'
+
     def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], 
                  allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:

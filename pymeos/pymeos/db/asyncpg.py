@@ -39,4 +39,4 @@ class MobilityDB:
         """
         classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
         for cl in classes:
-            await connection.set_type_codec(cl.__name__.lower(), encoder=str, decoder=cl.read_from_cursor)
+            await connection.set_type_codec(cl._mobilitydb_name, encoder=str, decoder=cl.read_from_cursor)

@@ -730,7 +730,7 @@ class TestTBoolAccessors(TestTBool):
             TBoolSeq('[True@2019-09-06]')]
 
 
-class TestTBoolTransformations(TestTBool):
+class TestTBoolTransformationSet(TestTBool):
     tbi = TBoolInst('True@2019-09-01')
     tbds = TBoolSeq('{True@2019-09-01, False@2019-09-02}')
     tbs = TBoolSeq('[True@2019-09-01, False@2019-09-02]')

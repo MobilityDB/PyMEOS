@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC):
+    _mobilitydb_name = 'ttext'
+
     BaseClass = str
 
     _parse_function = ttext_in

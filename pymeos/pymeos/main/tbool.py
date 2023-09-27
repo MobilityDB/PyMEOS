@@ -14,6 +14,9 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
     """
     Base class for temporal boolean.
     """
+
+    _mobilitydb_name = 'tbool'
+
     BaseClass = bool
     _parse_function = tbool_in
 

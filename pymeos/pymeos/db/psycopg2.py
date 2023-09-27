@@ -47,6 +47,6 @@ class MobilityDB:
         # Add MobilityDB types to PostgreSQL adapter and specify the reader function for each type.
         classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
         for cl in classes:
-            cursor.execute(f'SELECT NULL::{cl.__name__}')
+            cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
             oid = cursor.description[0][1]
-            extensions.register_type(extensions.new_type((oid,), cl.__name__, cl.read_from_cursor))
+            extensions.register_type(extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor))

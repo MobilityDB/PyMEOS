@@ -170,6 +170,17 @@ class Set(Collection[T], ABC):
         """
         return set_num_values(self._inner)
 
+    def __len__(self):
+        """
+        Returns the number of elements in ``self``.
+        Returns:
+            An :class:`int`
+
+        MEOS Functions:
+            set_num_values
+        """
+        return self.num_elements()
+
     @abstractmethod
     def start_element(self) -> T:
         """

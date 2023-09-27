@@ -38,6 +38,8 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
     __slots__ = ['_inner']
 
+    _mobilitydb_name = 'tstzspanset'
+
     _parse_function = periodset_in
     _parse_value_function = lambda period: period_in(period)[0] if isinstance(period, str) else period._inner[0]
 
