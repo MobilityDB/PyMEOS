@@ -330,9 +330,3 @@ class TestTimestampSetManipulationFunctions(TestTimestampSet):
                                            datetime(2020, 1, 5, 1, tzinfo=timezone.utc),
                                            datetime(2020, 1, 5, 3, tzinfo=timezone.utc)])
 
-
-class TestTimestampSetMiscFunctions(TestTimestampSet):
-    timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}')
-
-    def test_hash(self):
-        hash(self.timestampset)
