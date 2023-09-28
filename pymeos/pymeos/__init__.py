@@ -3,7 +3,7 @@ from .boxes import *
 from .main import *
 from .meos_init import *
 from .temporal import *
-from .collections import Period, PeriodSet, TimestampSet, Time, TextSet
+from .collections import *
 
 __version__ = '1.1.3a1'
 __all__ = [
@@ -24,6 +24,8 @@ __all__ = [
     # Collections
     'Time', 'Period', 'TimestampSet', 'PeriodSet',
     'TextSet',
+    'IntSet', 'IntSpan', 'IntSpanSet',
+    'FloatSet', 'FloatSpan', 'FloatSpanSet'
     # extras
     'TInterpolation',
     # aggregators

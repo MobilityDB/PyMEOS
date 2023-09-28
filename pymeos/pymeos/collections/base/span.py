@@ -32,8 +32,8 @@ class Span(Collection[T], ABC):
     def __init__(self, string: Optional[str] = None, *,
                  lower: Optional[Union[str, T]] = None,
                  upper: Optional[Union[str, T]] = None,
-                 lower_inc: bool = True,
-                 upper_inc: bool = False,
+                 lower_inc: Optional[bool] = True,
+                 upper_inc: Optional[bool] = False,
                  _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (lower is not None and upper is not None)), \

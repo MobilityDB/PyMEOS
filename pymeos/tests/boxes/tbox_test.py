@@ -1,10 +1,10 @@
 from copy import copy
 from datetime import datetime, timezone, timedelta
-from spans.types import intrange, floatrange
 
 import pytest
 
 from pymeos import TBox, TInterpolation, TimestampSet, Period, PeriodSet, \
+    IntSpan, FloatSpan, \
     TInt, TIntInst, TIntSeq, TIntSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 
 from tests.conftest import TestPyMEOS
@@ -74,10 +74,10 @@ class TestTBoxConstructors(TestTBox):
         [
             (1, 'TBOXINT X([1, 2))'),
             (1.5, 'TBOXFLOAT X([1.5, 1.5])'),
-            (intrange(1, 2, True, True), 'TBOXINT X([1, 3))'),
-            (floatrange(1.5, 2.5, True, True), 'TBOXFLOAT X([1.5, 2.5])'),
+            (IntSpan(1, 2, True, True), 'TBOXINT X([1, 3))'),
+            (FloatSpan(1.5, 2.5, True, True), 'TBOXFLOAT X([1.5, 2.5])'),
         ],
-        ids=['int', 'float', 'intrange', 'floatrange']
+        ids=['int', 'float', 'IntSpan', 'FloatSpan']
     )
     def test_from_value_constructor(self, value, expected):
         tb = TBox.from_value(value)
@@ -110,21 +110,21 @@ class TestTBoxConstructors(TestTBox):
                 'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
             (1.5, datetime(2019, 9, 1),
                 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            (intrange(1, 2, True, True), datetime(2019, 9, 1),
+            (IntSpan(1, 2, True, True), datetime(2019, 9, 1),
                 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            (floatrange(1.5, 2.5, True, True), datetime(2019, 9, 1),
+            (FloatSpan(1.5, 2.5, True, True), datetime(2019, 9, 1),
                 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
             (1, Period('[2019-09-01, 2019-09-02]'),
                 'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
             (1.5, Period('[2019-09-01, 2019-09-02]'),
                 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (intrange(1, 2, True, True), Period('[2019-09-01, 2019-09-02]'),
+            (IntSpan(1, 2, True, True), Period('[2019-09-01, 2019-09-02]'),
                 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (floatrange(1.5, 2.5, True, True), Period('[2019-09-01, 2019-09-02]'),
+            (FloatSpan(1.5, 2.5, True, True), Period('[2019-09-01, 2019-09-02]'),
                 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
         ],
-        ids=['int-Timestamp', 'float-Timestamp', 'intrange-Timestamp', 'floatrange-Timestamp',
-             'int-Period', 'float-Period', 'intrange-Period', 'floatrange-Period',]
+        ids=['int-Timestamp', 'float-Timestamp', 'IntSpan-Timestamp', 'FloatSpan-Timestamp',
+             'int-Period', 'float-Period', 'IntSpan-Period', 'FloatSpan-Period',]
     )
     def test_from_value_time_constructor(self, value, time, expected):
         tb = TBox.from_value_time(value, time)
@@ -219,14 +219,14 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         'tbox, expected',
         [
-            (tbfx, floatrange(1.0, 2.0, True, True)),
-            (tbfxt, floatrange(1.0, 2.0, True, True)),
+            (tbfx, FloatSpan(1.0, 2.0, True, True)),
+            (tbfxt, FloatSpan(1.0, 2.0, True, True)),
         ],
         ids=['TBoxFloat X', 'TBoxFloat XT']
     )
-    def test_to_floatrange(self, tbox, expected):
-        tb = tbox.to_floatrange()
-        assert isinstance(tb, floatrange)
+    def test_to_floatspan(self, tbox, expected):
+        tb = tbox.to_floatspan()
+        assert isinstance(tb, floatspan)
         assert tb == expected
 
     @pytest.mark.parametrize(

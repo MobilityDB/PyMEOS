@@ -28,7 +28,8 @@ class Set(Collection[T], ABC):
     _make_function: Callable[[Iterable[Any]], 'CData'] = None
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *, elements: Optional[List[Union[str, T]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 elements: Optional[List[Union[str, T]]] = None,
                  _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != (elements is not None)), \

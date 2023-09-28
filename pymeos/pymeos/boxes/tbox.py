@@ -292,7 +292,7 @@ class TBox:
         return tbox_as_hexwkb(self._inner, -1)[0]
 
     # ------------------------- Conversions ----------------------------------
-    def to_span(self) -> Span:
+    def to_floatspan(self) -> Span:
         """
         Returns the numeric span of ``self``.
 

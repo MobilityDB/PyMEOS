@@ -1732,16 +1732,16 @@ def periodset_tprecision(ss: 'const SpanSet *', duration: 'const Interval *', to
     return result if result != _ffi.NULL else None
 
 
-def textset_lowercase(s: 'const Set *') -> 'Set *':
+def textset_lower(s: 'const Set *') -> 'Set *':
     s_converted = _ffi.cast('const Set *', s)
-    result = _lib.textset_lowercase(s_converted)
+    result = _lib.textset_lower(s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def textset_uppercase(s: 'const Set *') -> 'Set *':
+def textset_upper(s: 'const Set *') -> 'Set *':
     s_converted = _ffi.cast('const Set *', s)
-    result = _lib.textset_uppercase(s_converted)
+    result = _lib.textset_upper(s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -6727,6 +6727,13 @@ def tfloat_round(temp: 'const Temporal *', maxdd: int) -> 'Temporal *':
     return result if result != _ffi.NULL else None
 
 
+def tfloatarr_round(temp: 'const Temporal **', count: int, maxdd: int) -> 'Temporal **':
+    temp_converted = [_ffi.cast('const Temporal *', x) for x in temp]
+    result = _lib.tfloatarr_round(temp_converted, count, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tfloat_degrees(temp: 'const Temporal *', normalize: bool) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tfloat_degrees(temp_converted, normalize)
@@ -7157,6 +7164,13 @@ def tpoint_make_simple(temp: 'const Temporal *') -> "Tuple['Temporal **', 'int']
 def tpoint_round(temp: 'const Temporal *', maxdd: int) -> 'Temporal *':
     temp_converted = _ffi.cast('const Temporal *', temp)
     result = _lib.tpoint_round(temp_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointarr_round(temp: 'const Temporal **', count: int, maxdd: int) -> 'Temporal **':
+    temp_converted = [_ffi.cast('const Temporal *', x) for x in temp]
+    result = _lib.tpointarr_round(temp_converted, count, maxdd)
     _check_error()
     return result if result != _ffi.NULL else None
 

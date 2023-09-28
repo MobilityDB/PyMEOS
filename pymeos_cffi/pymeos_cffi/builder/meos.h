@@ -980,8 +980,8 @@ extern Span *period_shift_scale(const Span *p, const Interval *shift, const Inte
 extern Span *period_tprecision(const Span *s, const Interval *duration, TimestampTz torigin);
 extern SpanSet *periodset_shift_scale(const SpanSet *ss, const Interval *shift, const Interval *duration);
 extern SpanSet *periodset_tprecision(const SpanSet *ss, const Interval *duration, TimestampTz torigin);
-extern Set *textset_lowercase(const Set *s);
-extern Set *textset_uppercase(const Set *s);
+extern Set *textset_lower(const Set *s);
+extern Set *textset_upper(const Set *s);
 extern TimestampTz timestamp_tprecision(TimestampTz t, const Interval *duration, TimestampTz torigin);
 extern Set *timestampset_shift_scale(const Set *ts, const Interval *shift, const Interval *duration);
 
@@ -1767,6 +1767,7 @@ extern Temporal *sub_tfloat_float(const Temporal *tnumber, double d);
 extern Temporal *sub_tint_int(const Temporal *tnumber, int i);
 extern Temporal *sub_tnumber_tnumber(const Temporal *tnumber1, const Temporal *tnumber2);
 extern Temporal *tfloat_round(const Temporal *temp, int maxdd);
+extern Temporal **tfloatarr_round(const Temporal **temp, int count, int maxdd);
 extern Temporal *tfloat_degrees(const Temporal *temp, bool normalize);
 extern Temporal *tfloat_derivative(const Temporal *temp);
 extern Temporal *tfloat_radians(const Temporal *temp);
@@ -1845,6 +1846,7 @@ bool tpoint_AsMVTGeom(const Temporal *temp, const STBox *bounds, int32_t extent,
 extern STBox *tpoint_expand_space(const Temporal *temp, double d);
 extern Temporal **tpoint_make_simple(const Temporal *temp, int *count);
 extern Temporal *tpoint_round(const Temporal *temp, int maxdd);
+extern Temporal **tpointarr_round(const Temporal **temp, int count, int maxdd);
 extern Temporal *tpoint_set_srid(const Temporal *temp, int32 srid);
 bool tpoint_to_geo_meas(const Temporal *tpoint, const Temporal *measure, bool segmentize, GSERIALIZED **result);
 

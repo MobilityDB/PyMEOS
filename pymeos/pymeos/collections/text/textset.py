@@ -140,9 +140,9 @@ class TextSet(Set[str]):
             A :class:`str` instance
 
         MEOS Functions:
-            textset_lowercase
+            textset_lower
         """
-        return textset_lowercase(self._inner)
+        return textset_lower(self._inner)
 
     def uppercase(self):
         """
@@ -152,9 +152,9 @@ class TextSet(Set[str]):
             A :class:`str` instance
 
         MEOS Functions:
-            textset_uppercase
+            textset_upper
         """
-        return textset_uppercase(self._inner)
+        return textset_upper(self._inner)
 
     # ------------------------- Set Operations --------------------------------
 
