@@ -1,14 +1,13 @@
 from copy import copy
 from operator import not_
 from datetime import datetime, timezone, timedelta
-from spans.types import intrange, floatrange
 
 import pytest
 
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
     TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
     TInt, TIntInst, TIntSeq, TIntSeqSet, \
-    TInterpolation, TBox, TimestampSet, Period, PeriodSet
+    TInterpolation, TBox, TimestampSet, Period, PeriodSet, IntSpan, FloatSpan
 
 from tests.conftest import TestPyMEOS
 
@@ -441,10 +440,10 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tfi, floatrange(1.5, 1.5, True, True)),
-            (tfds, floatrange(1.5, 2.5, True, True)),
-            (tfs, floatrange(1.5, 2.5, True, True)),
-            (tfss, floatrange(1.5, 2.5, True, True)),
+            (tfi, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)),
+            (tfds, FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)),
+            (tfs, FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)),
+            (tfss, FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -454,10 +453,11 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tfi, [floatrange(1.5, 1.5, True, True)]),
-            (tfds, [floatrange(1.5, 1.5, True, True),floatrange(2.5, 2.5, True, True)]),
-            (tfs, [floatrange(1.5, 2.5, True, True)]),
-            (tfss, [floatrange(1.5, 2.5, True, True)]),
+            (tfi, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)]),
+            (tfds, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                    FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
+            (tfs, [FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)]),
+            (tfss, [FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)]),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1496,31 +1496,39 @@ class TestTFloatRestrictors(TestTFloat):
         [
             (tfi, 1.5, TFloatInst('1.5@2019-09-01')),
             (tfi, 2.5, None),
-            (tfi, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
+            (tfi, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatInst('1.5@2019-09-01')),
             (tfi, [1.5,2.5], tfi),
-            # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfi, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfds, 1.5, TFloatSeq('{1.5@2019-09-01}')),
             (tfds, 2.5, TFloatSeq('{2.5@2019-09-02}')),
-            (tfds, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
+            (tfds, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatInst('1.5@2019-09-01')),
             (tfds, [1.5,2.5], tfds),
-            # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfds, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfs, 1.5, TFloatSeq('[1.5@2019-09-01]')),
             (tfs, 2.5, TFloatSeq('[2.5@2019-09-02]')),
-            (tfs, floatrange(1.5, 1.5, True, True), TFloatInst('1.5@2019-09-01')),
+            (tfs, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatInst('1.5@2019-09-01')),
             (tfs, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02]}')),
-            # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfs, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfss, 1.5, TFloatSeqSet('{[1.5@2019-09-01],[1.5@2019-09-03, 1.5@2019-09-05]}')),
             (tfss, 2.5, TFloatSeqSet('{[2.5@2019-09-02]}')),
-            (tfss, floatrange(1.5, 1.5, True, True),
+            (tfss, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
                 TFloatSeqSet('{[1.5@2019-09-01],[1.5@2019-09-03, 1.5@2019-09-05]}')),
-            (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}'))
-            # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01], [2.5@2019-09-02],'
+                '[1.5@2019-09-03, 1.5@2019-09-05]}'))
+            # (tfss, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
@@ -1604,30 +1612,38 @@ class TestTFloatRestrictors(TestTFloat):
         [
             (tfi, 1.5, None),
             (tfi, 2.5, TFloatInst('1.5@2019-09-01')),
-            (tfi, floatrange(1.5, 1.5, True, True), None),
+            (tfi, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True), None),
             # (tfi, [1.5,2.5], TFloatInst('1.5@2019-09-01')),
-            # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfi, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfds, 1.5, TFloatSeq('{2.5@2019-09-02}')),
             (tfds, 2.5, TFloatSeq('{1.5@2019-09-01}')),
-            (tfds, floatrange(1.5, 1.5, True, True), TFloatSeq('{2.5@2019-09-02}')),
+            (tfds, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatSeq('{2.5@2019-09-02}')),
             # (tfds, [1.5,2.5], TFloatSeq('{1.5@2019-09-01}')),
-            # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfds, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),  
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfs, 1.5, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfs, 2.5, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02)}')),
-            (tfs, floatrange(1.5, 1.5, True, True), TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
+            (tfs, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             # (tfs, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02)}')),
-            # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            # (tfs, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
 
             (tfss, 1.5, TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
             (tfss, 2.5, TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}')),
-            (tfs, floatrange(1.5, 1.5, True, True), TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
-            # (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}'))
-            # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)],
+            (tfs, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
+                TFloatSeqSet('{(1.5@2019-09-01, 2.5@2019-09-02]}')),
+            # (tfss, [1.5,2.5], TFloatSeqSet('{[1.5@2019-09-01, 2.5@2019-09-02),'
+                # '[1.5@2019-09-03, 1.5@2019-09-05]}'))
+            # (tfss, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),  
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)],
                 # TFloatInst('1.5@2019-09-01')),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
@@ -1714,27 +1730,31 @@ class TestTFloatRestrictors(TestTFloat):
         [
             (tfi, 1.5),
             (tfi, 2.5),
-            (tfi, floatrange(1.5, 1.5, True, True)),
+            (tfi, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)),
             (tfi, [1.5,2.5]),
-            # (tfi, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
+            # (tfi, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True), 
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
 
             (tfds, 1.5),
             (tfds, 2.5),
-            (tfds, floatrange(1.5, 1.5, True, True)),
+            (tfds, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)),
             (tfds, [1.5,2.5]),
-            # (tfds, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
+            # (tfds, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True), 
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
 
             (tfs, 1.5),
             (tfs, 2.5),
-            (tfs, floatrange(1.5, 1.5, True, True)),
+            (tfs, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)),
             (tfs, [1.5,2.5]),
-            # (tfs, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
+            # (tfs, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True), 
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
 
             (tfss, 1.5),
             (tfss, 2.5),
-            (tfss, floatrange(1.5, 1.5, True, True)),
+            (tfss, FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)),
             (tfss, [1.5,2.5]),
-            # (tfss, [floatrange(1.5, 1.5, True, True), floatrange(2.5, 2.5, True, True)]),
+            # (tfss, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True), 
+                # FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
         ],
         ids=['Instant-1.5', 'Instant-2.5', 'Instant-Range', 
              'Instant-ValueList', # 'Instant-RangeList', 

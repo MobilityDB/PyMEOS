@@ -74,8 +74,10 @@ class TestTBoxConstructors(TestTBox):
         [
             (1, 'TBOXINT X([1, 2))'),
             (1.5, 'TBOXFLOAT X([1.5, 1.5])'),
-            (IntSpan(1, 2, True, True), 'TBOXINT X([1, 3))'),
-            (FloatSpan(1.5, 2.5, True, True), 'TBOXFLOAT X([1.5, 2.5])'),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True),
+                'TBOXINT X([1, 3))'),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True),
+                'TBOXFLOAT X([1.5, 2.5])'),
         ],
         ids=['int', 'float', 'IntSpan', 'FloatSpan']
     )
@@ -110,17 +112,17 @@ class TestTBoxConstructors(TestTBox):
                 'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
             (1.5, datetime(2019, 9, 1),
                 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            (IntSpan(1, 2, True, True), datetime(2019, 9, 1),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True), datetime(2019, 9, 1),
                 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            (FloatSpan(1.5, 2.5, True, True), datetime(2019, 9, 1),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True), datetime(2019, 9, 1),
                 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
             (1, Period('[2019-09-01, 2019-09-02]'),
                 'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
             (1.5, Period('[2019-09-01, 2019-09-02]'),
                 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (IntSpan(1, 2, True, True), Period('[2019-09-01, 2019-09-02]'),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True), Period('[2019-09-01, 2019-09-02]'),
                 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            (FloatSpan(1.5, 2.5, True, True), Period('[2019-09-01, 2019-09-02]'),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True), Period('[2019-09-01, 2019-09-02]'),
                 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
         ],
         ids=['int-Timestamp', 'float-Timestamp', 'IntSpan-Timestamp', 'FloatSpan-Timestamp',
@@ -219,8 +221,8 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         'tbox, expected',
         [
-            (tbfx, FloatSpan(1.0, 2.0, True, True)),
-            (tbfxt, FloatSpan(1.0, 2.0, True, True)),
+            (tbfx, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
+            (tbfxt, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
         ],
         ids=['TBoxFloat X', 'TBoxFloat XT']
     )

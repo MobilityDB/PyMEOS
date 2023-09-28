@@ -126,32 +126,32 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
 
-    def to_intrange(self) -> intrange:
+    def to_intspan(self) -> IntSpan:
         """
         Returns value span of `self`.
 
         Returns:
-            An :class:`intrange` with the value span of `self`.
+            An :class:`IntSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
-        return intspan_to_intrange(tnumber_to_span(self._inner))
+        return IntSpan(_inner=tnumber_to_span(self._inner))
 
     # ------------------------- Accessors -------------------------------------
-    def value_range(self) -> intrange:
+    def value_span(self) -> IntSpan:
         """
         Returns the value span of `self`.
 
         Returns:
-            An :class:`intrange` with the value span of `self`.
+            An :class:`IntSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
-        return self.to_intrange()
+        return self.to_intspan()
 
-    def value_ranges(self) -> List[intrange]:
+    def value_spans(self) -> IntSpanSet:
         """
         Returns the value spans of `self` taking into account gaps.
 
@@ -161,10 +161,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_spanset
         """
-        spanset = tnumber_valuespans(self._inner)
-        spans = spanset_spans(spanset)
-        count = spanset_num_spans(spanset)
-        return [intspan_to_intrange(spans[i]) for i in range(count)]
+        return IntSpanSet(_inner=tnumber_valuespans(self._inner))
 
     def start_value(self) -> int:
         """

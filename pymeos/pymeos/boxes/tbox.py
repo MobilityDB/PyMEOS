@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import Optional, Union, List
 
 from pymeos_cffi import *
-from spans import intrange, floatrange
 
 from ..main import TNumber
 from ..collections import *
@@ -33,7 +32,7 @@ class TBox:
     Note that you can create a TBox with only the numerical or the temporal
     dimension. In these cases, it will be equivalent to a 
     :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or
-    to a :class:`~spans.floatrange` (if it only has the numeric dimension).
+    to a :class:`FloatSpan` (if it only has the numeric dimension).
     """
     __slots__ = ['_inner']
 
@@ -128,9 +127,9 @@ class TBox:
         return TBox(_inner=result)
 
     @staticmethod
-    def from_value(value: Union[int, float, intrange, floatrange]) -> TBox:
+    def from_value(value: Union[int, float, IntSpan, FloatSpan]) -> TBox:
         """
-        Returns a `TBox` from a numeric value or range. The created `TBox` will
+        Returns a `TBox` from a numeric value or span. The created `TBox` will
         only have a numerical dimension.
 
         Args:
@@ -146,10 +145,10 @@ class TBox:
             result = int_to_tbox(value)
         elif isinstance(value, float):
             result = float_to_tbox(value)
-        elif isinstance(value, intrange):
-            result = numspan_to_tbox(intrange_to_intspan(value))
-        elif isinstance(value, floatrange):
-            result = numspan_to_tbox(floatrange_to_floatspan(value))
+        elif isinstance(value, IntSpan):
+            result = numspan_to_tbox(value)
+        elif isinstance(value, FloatSpan):
+            result = numspan_to_tbox(value)
         else:
             raise TypeError(f'Operation not supported with type {value.__class__}')
         return TBox(_inner=result)

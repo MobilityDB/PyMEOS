@@ -8,7 +8,7 @@ import pytest
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
     TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
     TInt, TIntInst, TIntSeq, TIntSeqSet, \
-    TInterpolation, TBox, TimestampSet, Period, PeriodSet
+    TInterpolation, TBox, TimestampSet, Period, PeriodSet, IntSpan, FloatSpan
 from tests.conftest import TestPyMEOS
 
 
@@ -426,10 +426,10 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tii, intrange(1, 1, True, True)),
-            (tids, intrange(1, 2, True, True)),
-            (tis, intrange(1, 2, True, True)),
-            (tiss, intrange(1, 2, True, True)),
+            (tii, IntSpan(1, 1, True, True)),
+            (tids, IntSpan(1, 2, True, True)),
+            (tis, IntSpan(1, 2, True, True)),
+            (tiss, IntSpan(1, 2, True, True)),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -439,10 +439,10 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         'temporal, expected',
         [
-            (tii, [intrange(1, 1, True, True)]),
-            (tids, [intrange(1, 2, True, True)]),
-            (tis, [intrange(1, 2, True, True)]),
-            (tiss, [intrange(1, 2, True, True)]),
+            (tii, [IntSpan(1, 1, True, True)]),
+            (tids, [IntSpan(1, 2, True, True)]),
+            (tis, [IntSpan(1, 2, True, True)]),
+            (tiss, [IntSpan(1, 2, True, True)]),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
@@ -1373,29 +1373,29 @@ class TestTIntRestrictors(TestTInt):
         [
             (tii, 1, TIntInst('1@2019-09-01')),
             (tii, 2, None),
-            (tii, intrange(1, 1, True, True), TIntInst('1@2019-09-01')),
+            (tii, IntSpan(1, 1, True, True), TIntInst('1@2019-09-01')),
             (tii, [1,2], tii),
-            # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tii, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # TIntInst('1@2019-09-01')),
 
             (tids, 1, TIntSeq('{1@2019-09-01}')),
             (tids, 2, TIntSeq('{2@2019-09-02}')),
-            (tids, intrange(1, 1, True, True), TIntSeq('{1@2019-09-01}')),
+            (tids, IntSpan(1, 1, True, True), TIntSeq('{1@2019-09-01}')),
             (tids, [1,2], tids),
-            # (tids, [intrange(1, 1, True, True), tids),
+            # (tids, [IntSpan(1, 1, True, True), tids),
 
             (tis, 1, TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
             (tis, 2, TIntSeq('[2@2019-09-02]')),
-            (tis, intrange(1, 1, True, True), TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
+            (tis, IntSpan(1, 1, True, True), TIntSeq('[1@2019-09-01, 1@2019-09-02)')),
             (tis, [1,2], tis),
-            # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tis, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # TIntSeqSet('{[1@2019-09-01, 2@2019-09-02]}')),
 
             (tiss, 1, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
             (tiss, 2, TIntSeqSet('{[2@2019-09-02]}')),
-            (tiss, intrange(1, 1, True, True), TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
+            (tiss, IntSpan(1, 1, True, True), TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
             (tiss, [1,2], tiss)
-            # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tiss, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # tiss),
         ],
         ids=['Instant-1', 'Instant-2', 'Instant-Range',
@@ -1481,30 +1481,30 @@ class TestTIntRestrictors(TestTInt):
         [
             (tii, 1, None),
             (tii, 2, TIntInst('1@2019-09-01')),
-            (tii, intrange(1, 1, True, True), None),
+            (tii, IntSpan(1, 1, True, True), None),
             (tii, [1,2], None),
-            # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tii, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # None),
 
             (tids, 1, TIntSeq('{2@2019-09-02}')),
             (tids, 2, TIntSeq('{1@2019-09-01}')),
-            (tids, intrange(1, 1, True, True), TIntSeq('{2@2019-09-02}')),
+            (tids, IntSpan(1, 1, True, True), TIntSeq('{2@2019-09-02}')),
             (tids, [1,2], None),
-            # (tids, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tids, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # None),
 
             (tis, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tis, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02)}')),
-            (tis, intrange(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
+            (tis, IntSpan(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
             (tis, [1,2], None),
-            # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tis, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # None),
 
             (tiss, 1, TIntSeqSet('{[2@2019-09-02]}')),
             (tiss, 2, TIntSeqSet('{[1@2019-09-01, 1@2019-09-02),[1@2019-09-03, 1@2019-09-05]}')),
-            (tis, intrange(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
+            (tis, IntSpan(1, 1, True, True), TIntSeqSet('{[2@2019-09-02]}')),
             (tiss, [1,2], None)
-            # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)],
+            # (tiss, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)],
                 # None),
         ],
         ids=['Instant-1', 'Instant-2', 'Instant-Range', 
@@ -1558,9 +1558,9 @@ class TestTIntRestrictors(TestTInt):
             (tii, period_set),
             (tii, 1),
             (tii, 2),
-            (tii, intrange(1, 1, True, True)),
+            (tii, IntSpan(1, 1, True, True)),
             (tii, [1,2]),
-            # (tii, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
+            # (tii, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)]),
 
             (tids, timestamp),
             (tids, timestamp_set),
@@ -1568,9 +1568,9 @@ class TestTIntRestrictors(TestTInt):
             (tids, period_set),
             (tids, 1),
             (tids, 2),
-            (tids, intrange(1, 1, True, True)),
+            (tids, IntSpan(1, 1, True, True)),
             (tids, [1,2]),
-            # (tds, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
+            # (tds, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)]),
 
             (tis, timestamp),
             (tis, timestamp_set),
@@ -1578,9 +1578,9 @@ class TestTIntRestrictors(TestTInt):
             (tis, period_set),
             (tis, 1),
             (tis, 2),
-            (tis, intrange(1, 1, True, True)),
+            (tis, IntSpan(1, 1, True, True)),
             (tis, [1,2]),
-            # (tis, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
+            # (tis, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)]),
 
             (tiss, timestamp),
             (tiss, timestamp_set),
@@ -1588,9 +1588,9 @@ class TestTIntRestrictors(TestTInt):
             (tiss, period_set),
             (tiss, 1),
             (tiss, 2),
-            (tiss, intrange(1, 1, True, True)),
+            (tiss, IntSpan(1, 1, True, True)),
             (tiss, [1,2]),
-            # (tiss, [intrange(1, 1, True, True), intrange(2, 2, True, True)]),
+            # (tiss, [IntSpan(1, 1, True, True), IntSpan(2, 2, True, True)]),
         ],
         ids=['Instant-Timestamp', 'Instant-TimestampSet', 'Instant-Period', 
              'Instant-PeriodSet', 'Instant-1', 'Instant-2', 
