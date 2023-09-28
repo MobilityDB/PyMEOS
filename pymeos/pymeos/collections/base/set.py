@@ -232,27 +232,25 @@ class Set(Collection[T], ABC):
         return set_hash(self._inner)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other) -> bool:
-        """
-        Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
-        contains it.
-        Args:
-            other: object to compare with
+    # def is_adjacent(self, other) -> bool:
+        # """
+        # Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
+        # contains it.
+        # Args:
+            # other: object to compare with
 
-        Returns:
-            True if adjacent, False otherwise
+        # Returns:
+            # True if adjacent, False otherwise
 
-        MEOS Functions:
-        adjacent_span_span, adjacent_spanset_span
-        """
-        from .span import Span
-        from .spanset import SpanSet
-        if isinstance(other, Span):
-            return adjacent_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return adjacent_spanset_spanset(other._inner, set_to_spanset(self._inner))
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        # MEOS Functions:
+        # adjacent_span_span, adjacent_spanset_span
+        # """
+        # if isinstance(other, Span):
+            # return adjacent_span_span(set_span(self._inner), other._inner)
+        # elif isinstance(other, SpanSet):
+            # return adjacent_spanset_spanset(other._inner, set_to_spanset(self._inner))
+        # else:
+            # raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_contained_in(self, container) -> bool:
         """
@@ -267,13 +265,7 @@ class Set(Collection[T], ABC):
         MEOS Functions:
         contained_span_span, contained_span_spanset, contained_set_set, contained_spanset_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
-        if isinstance(container, Span):
-            return contained_span_span(set_span(self._inner), container._inner)
-        elif isinstance(container, SpanSet):
-            return contained_span_spanset(set_span(self._inner), container._inner)
-        elif isinstance(container, Set):
+        if isinstance(container, Set):
             return contained_set_set(self._inner, container._inner)
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
@@ -325,31 +317,25 @@ class Set(Collection[T], ABC):
         MEOS Functions:
         overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
         if isinstance(other, Set):
             return overlaps_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return overlaps_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return overlaps_spanset_spanset(set_to_spanset(self._inner), other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    def is_same(self, other) -> bool:
-        """
-        Returns whether the bounding span of `self` is the same as the bounding span of `other`.
+    # def is_same(self, other) -> bool:
+        # """
+        # Returns whether the bounding span of `self` is the same as the bounding span of `other`.
 
-        Args:
-            other: An object to compare to `self`.
+        # Args:
+            # other: An object to compare to `self`.
 
-        Returns:
-            True if same, False otherwise.
+        # Returns:
+            # True if same, False otherwise.
 
-        See Also:
-            :meth:`Span.is_same`
-        """
-        return self.to_span().is_same(other)
+        # See Also:
+            # :meth:`Span.is_same`
+        # """
+        # return self.to_span().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other) -> bool:

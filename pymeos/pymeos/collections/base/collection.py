@@ -17,9 +17,9 @@ Self = TypeVar('Self', bound='Set[Any]')
 
 class Collection(Generic[T], ABC):
     # ------------------------- Topological Operations ------------------------
-    @abstractmethod
-    def is_adjacent(self, other) -> bool:
-        raise NotImplementedError()
+    # @abstractmethod
+    # def is_adjacent(self, other) -> bool:
+        # raise NotImplementedError()
 
     @abstractmethod
     def is_contained_in(self, container) -> bool:
@@ -37,9 +37,9 @@ class Collection(Generic[T], ABC):
     def overlaps(self, other) -> bool:
         raise NotImplementedError()
 
-    @abstractmethod
-    def is_same(self, other) -> bool:
-        raise NotImplementedError()
+    # @abstractmethod
+    # def is_same(self, other) -> bool:
+        # raise NotImplementedError()
 
     # ------------------------- Position Operations ---------------------------
     @abstractmethod
