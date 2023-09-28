@@ -146,9 +146,9 @@ class TBox:
         elif isinstance(value, float):
             result = float_to_tbox(value)
         elif isinstance(value, IntSpan):
-            result = numspan_to_tbox(value)
+            result = numspan_to_tbox(value._inner)
         elif isinstance(value, FloatSpan):
-            result = numspan_to_tbox(value)
+            result = numspan_to_tbox(value._inner)
         else:
             raise TypeError(f'Operation not supported with type {value.__class__}')
         return TBox(_inner=result)
@@ -182,7 +182,7 @@ class TBox:
         return TBox(_inner=result)
 
     @staticmethod
-    def from_value_time(value: Union[int, float, intrange, floatrange],
+    def from_value_time(value: Union[int, float, IntSpan, FloatSpan],
                         time: Union[datetime, Period]) -> TBox:
         """
         Returns a `TBox` from a numerical and a temporal object.
@@ -209,16 +209,16 @@ class TBox:
                 datetime_to_timestamptz(time))
         elif isinstance(value, float) and isinstance(time, Period):
             result = float_period_to_tbox(value, time._inner)
-        elif isinstance(value, intrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(intrange_to_intspan(value),
+        elif isinstance(value, IntSpan) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(value._inner,
                 datetime_to_timestamptz(time))
-        elif isinstance(value, intrange) and isinstance(time, Period):
-            result = span_period_to_tbox(intrange_to_intspan(value), time._inner)
-        elif isinstance(value, floatrange) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(floatrange_to_floatspan(value),
+        elif isinstance(value, IntSpan) and isinstance(time, Period):
+            result = span_period_to_tbox(value._inner, time._inner)
+        elif isinstance(value, FloatSpan) and isinstance(time, datetime):
+            result = span_timestamp_to_tbox(value._inner,
                 datetime_to_timestamptz(time))
-        elif isinstance(value, floatrange) and isinstance(time, Period):
-            result = span_period_to_tbox(floatrange_to_floatspan(value), time._inner)
+        elif isinstance(value, FloatSpan) and isinstance(time, Period):
+            result = span_period_to_tbox(value._inner, time._inner)
         else:
             raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
         return TBox(_inner=result)
@@ -704,7 +704,7 @@ class TBox:
 
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, 
-        other: Union[int, float, intrange, floatrange, TBox, TNumber]) -> bool:
+        other: Union[int, float, IntSpan, FloatSpan, TBox, TNumber]) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
         only the temporal or numerical bound and only one of them contains it.
@@ -732,13 +732,12 @@ class TBox:
         elif isinstance(other, float):
             return adjacent_span_span(self._inner_span(), 
                 float_to_floaspan(other))
-        elif isinstance(other, intrange):
+        elif isinstance(other, IntSpan):
             from pymeos_cffi.functions import _ffi
             return adjacent_span_span(_ffi.addressof(self._inner, 'span'),
-                intrange_to_intspan(other))
-        elif isinstance(other, floatrange):
-            return adjacent_span_span(self._inner.span,
-                floatrange_to_floatspan(other))
+                other._inner)
+        elif isinstance(other, FloatSpan):
+            return adjacent_span_span(self._inner.span, other._inner)
         elif isinstance(other, TBox):
             return adjacent_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):

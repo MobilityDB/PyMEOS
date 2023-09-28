@@ -228,7 +228,7 @@ class TestTBoxOutputs(TestTBox):
     )
     def test_to_floatspan(self, tbox, expected):
         tb = tbox.to_floatspan()
-        assert isinstance(tb, floatspan)
+        assert isinstance(tb, FloatSpan)
         assert tb == expected
 
     @pytest.mark.parametrize(

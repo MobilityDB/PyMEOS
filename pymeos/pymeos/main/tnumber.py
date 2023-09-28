@@ -10,7 +10,7 @@ from ..temporal import Temporal
 
 if TYPE_CHECKING:
     from ..boxes import Box, TBox
-    from ..collections import Time
+    from ..collections import Time, IntSpan, IntSpanSet, FloatSpan, FloatSpanSet
     from .tint import TInt
     from .tfloat import TFloat
 
@@ -133,8 +133,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(scaled)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[intrange, floatrange, List[intrange],
-            List[floatrange], TBox, Time]) -> TG:
+    def at(self, other: Union[IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
+        TBox, Time]) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the value or time `other`.
@@ -151,26 +151,23 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             temporal_at_period, temporal_at_periodset
         """
         from ..boxes import TBox
-        if isinstance(other, intrange):
-            result = tnumber_at_span(self._inner, intrange_to_intspan(other))
-        elif isinstance(other, floatrange):
-            result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
-        elif isinstance(other, list) and isinstance(other[0], intrange):
-            spans = [intrange_to_intspan(ir) for ir in other]
-            spanset = spanset_make(spans, len(spans), True)
-            result = tnumber_at_spanset(self._inner, spanset)
-        elif isinstance(other, list) and isinstance(other[0], floatrange):
-            spans = [floatrange_to_floatspan(fr) for fr in other]
-            spanset = spanset_make(spans, len(spans), True)
-            result = tnumber_at_spanset(self._inner, spanset)
+        from ..collections import IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        if isinstance(other, IntSpan):
+            result = tnumber_at_span(self._inner, other._inner)
+        elif isinstance(other, FloatSpan):
+            result = tnumber_at_span(self._inner, other._inner)
+        elif isinstance(other, IntSpanSet):
+            result = tnumber_at_spanset(self._inner, other._inner)
+        elif isinstance(other, FloatSpanSet):
+            result = tnumber_at_spanset(self._inner, other._inner)
         elif isinstance(other, TBox):
             result = tnumber_at_tbox(self._inner, other._inner)
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[intrange, floatrange, List[intrange],
-            List[floatrange], TBox, Time]) -> TG:
+    def minus(self, other: Union[IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
+        TBox, Time]) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the complement of the value or time `other`.
@@ -188,20 +185,15 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             temporal_minus_period, temporal_minus_periodset
         """
         from ..boxes import TBox
-        if isinstance(other, intrange):
-            result = tnumber_minus_span(self._inner,
-                intrange_to_intspan(other))
-        elif isinstance(other, floatrange):
-            result = tnumber_minus_span(self._inner,
-                floatrange_to_floatspan(other))
-        elif isinstance(other, list) and isinstance(other[0], intrange):
-            spans = [intrange_to_intspan(ir) for ir in other]
-            spanset = spanset_make(spans, len(spans), True)
-            result = tnumber_minus_spanset(self._inner, spanset)
-        elif isinstance(other, list) and isinstance(other[0], floatrange):
-            spans = [floatrange_to_floatspan(fr) for fr in other]
-            spanset = spanset_make(spans, len(spans), True)
-            result = tnumber_minus_spanset(self._inner, spanset)
+        from ..collections import IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        if isinstance(other, IntSpan):
+            result = tnumber_minus_span(self._inner, other._inner)
+        elif isinstance(other, FloatSpan):
+            result = tnumber_minus_span(self._inner, other._inner)
+        elif isinstance(other, IntSpanSet):
+            result = tnumber_minus_spanset(self._inner, other._inner)
+        elif isinstance(other, FloatSpanSet):
+            result = tnumber_minus_spanset(self._inner, other._inner)
         elif isinstance(other, TBox):
             result = tnumber_minus_tbox(self._inner, other._inner)
         else:

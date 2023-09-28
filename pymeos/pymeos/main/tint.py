@@ -5,7 +5,6 @@ from functools import reduce
 from typing import Optional, Union, List, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
-from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
@@ -156,7 +155,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         Returns the value spans of `self` taking into account gaps.
 
         Returns:
-            A list of :class:`intrange` with the value spans of `self`.
+            An :class:`IntSpanSet` with the value spans of `self`.
 
         MEOS Functions:
             tint_spanset
@@ -779,9 +778,9 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        tiles, new_count = tint_value_time_split(self._inner, value_size,
-                                                 value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt,
+                                                 value_start, st)
+        return [Temporal._factory(tiles[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod

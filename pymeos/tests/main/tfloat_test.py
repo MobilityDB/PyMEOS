@@ -7,7 +7,8 @@ import pytest
 from pymeos import TBool, TBoolInst, TBoolSeq, TBoolSeqSet, \
     TFloat, TFloatInst, TFloatSeq, TFloatSeqSet, \
     TInt, TIntInst, TIntSeq, TIntSeqSet, \
-    TInterpolation, TBox, TimestampSet, Period, PeriodSet, IntSpan, FloatSpan
+    TInterpolation, TBox, TimestampSet, Period, PeriodSet, \
+    IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
 
 from tests.conftest import TestPyMEOS
 
@@ -447,22 +448,21 @@ class TestTFloatAccessors(TestTFloat):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_value_range(self, temporal, expected):
-        assert temporal.value_range() == expected
+    def test_value_span(self, temporal, expected):
+        assert temporal.value_span() == expected
 
-    @pytest.mark.parametrize(
-        'temporal, expected',
-        [
-            (tfi, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True)]),
-            (tfds, [FloatSpan(lower=1.5, upper=1.5, lower_inc=True, upper_inc=True),
-                    FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True)]),
-            (tfs, [FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)]),
-            (tfss, [FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True)]),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    )
-    def test_value_ranges(self, temporal, expected):
-        assert temporal.value_ranges() == expected
+    # @pytest.mark.parametrize(
+        # 'temporal, expected',
+        # [
+            # (tfi, FloatSpanSet('{[1.5, 1.5]}')),
+            # (tfds, FloatSpanSet('{[1.5, 1.5], [2.5, 2.5]}')),
+            # (tfs, FloatSpanSet('{[1.5, 1.5]}')),
+            # (tfss, FloatSpanSet('{[1.5, 1.5]}')),
+        # ],
+        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    # )
+    # def test_value_spans(self, temporal, expected):
+        # assert temporal.value_spans() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',

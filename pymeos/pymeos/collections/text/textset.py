@@ -142,7 +142,7 @@ class TextSet(Set[str]):
         MEOS Functions:
             textset_lower
         """
-        return textset_lower(self._inner)
+        return self.__class__(_inner=textset_lower(self._inner))
 
     def uppercase(self):
         """
@@ -154,7 +154,7 @@ class TextSet(Set[str]):
         MEOS Functions:
             textset_upper
         """
-        return textset_upper(self._inner)
+        return self.__class__(_inner=textset_upper(self._inner))
 
     # ------------------------- Set Operations --------------------------------
 
@@ -180,7 +180,8 @@ class TextSet(Set[str]):
             intersection_textset_text, intersection_set_set
         """
         if isinstance(other, str):
-            return text2cstring(intersection_textset_text(self._inner, other)[0])
+            result = intersection_textset_text(self._inner, other)
+            return text2cstring(result[0]) if result is not None else None
         elif isinstance(other, TextSet):
             result = intersection_set_set(self._inner, other._inner)
             return TextSet(_inner=result) if result is not None else None

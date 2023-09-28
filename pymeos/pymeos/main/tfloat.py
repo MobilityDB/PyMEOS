@@ -143,32 +143,32 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
                              "interpolation to a temporal integer")
         return _TemporalFactory.create_temporal(tfloat_to_tint(self._inner))
 
-    def to_floatrange(self) -> floatrange:
+    def to_floatrange(self) -> FloatSpan:
         """
         Returns value span of `self`.
 
         Returns:
-            An :class:`floatrange` with the value span of `self`.
+            An :class:`FloatSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
-        return floatspan_to_floatrange(tnumber_to_span(self._inner))
+        return FloatSpan(_inner=tnumber_to_span(self._inner))
 
     # ------------------------- Accessors -------------------------------------
-    def value_range(self) -> floatrange:
+    def value_span(self) -> FloatSpan:
         """
         Returns the value span of `self`.
 
         Returns:
-            An :class:`floatrange` with the value span of `self`.
+            An :class:`FloatSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
         return self.to_floatrange()
 
-    def value_ranges(self) -> List[floatrange]:
+    def value_spans(self) -> FloatSpanSet:
         """
         Returns the value spans of `self` taking into account gaps.
 
@@ -822,10 +822,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_value_split
         """
-        fragments, values, count = tfloat_value_split(self._inner, size, start)
+        fragments, _, count = tfloat_value_split(self._inner, size, start)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) for i in \
-                range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) for i in \
+                range(count)]
 
     def value_time_split(self, value_size: float, 
                          duration: Union[str, timedelta],
@@ -858,9 +858,9 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        tiles, new_count = tfloat_value_time_split(self._inner, value_size,
-                                                   value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        fragments, _, _, count = tfloat_value_time_split(self._inner,
+            value_size, dt, value_start, st)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod
