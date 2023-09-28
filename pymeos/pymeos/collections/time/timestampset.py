@@ -699,14 +699,3 @@ class TimestampSet(Set[datetime], TimeCollection):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
         return TimePlotter.plot_timestampset(self, *args, **kwargs)
-
-    # ------------------------- Database Operations ---------------------------
-    @staticmethod
-    def read_from_cursor(value, _=None):
-        """
-        Reads a :class:`TimestampSet` from a database cursor. Used when automatically loading objects from the database.
-        Users should use the class constructor instead.
-        """
-        if not value:
-            return None
-        return TimestampSet(string=value)

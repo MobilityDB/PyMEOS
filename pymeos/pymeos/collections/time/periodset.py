@@ -859,14 +859,3 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
         return TimePlotter.plot_periodset(self, *args, **kwargs)
-
-    # ------------------------- Database Operations ---------------------------
-    @staticmethod
-    def read_from_cursor(value, _=None):
-        """
-        Reads a :class:`PeriodSet` from a database cursor. Used when automatically loading objects from the database.
-        Users should use the class constructor instead.
-        """
-        if not value:
-            return None
-        return PeriodSet(string=value)
