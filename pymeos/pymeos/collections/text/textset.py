@@ -108,6 +108,32 @@ class TextSet(Set[str]):
         elems = textset_values(self._inner)
         return [elems[i] for i in range(self.num_elements())]
 
+
+    # ------------------------- Transformations --------------------------------
+    def lowercase(self):
+        """
+        Returns a new textset that is the result of appling uppercase to ``self``
+
+        Returns:
+            A :class:`str` instance
+
+        MEOS Functions:
+            textset_lowercase
+        """
+        return textset_lowercase(self._inner)
+
+    def uppercase(self):
+        """
+        Returns a new textset that is the result of appling uppercase to ``self``
+
+        Returns:
+            A :class:`str` instance
+
+        MEOS Functions:
+            textset_uppercase
+        """
+        return textset_uppercase(self._inner)
+
     # ------------------------- Set Operations --------------------------------
 
     @overload

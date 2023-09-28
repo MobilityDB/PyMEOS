@@ -259,6 +259,8 @@ __all__ = [
     'period_tprecision',
     'periodset_shift_scale',
     'periodset_tprecision',
+    'textset_lowercase',
+    'textset_uppercase',
     'timestamp_tprecision',
     'timestampset_shift_scale',
     'intersection_bigintset_bigint',

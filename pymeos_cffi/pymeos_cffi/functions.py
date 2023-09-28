@@ -1732,6 +1732,20 @@ def periodset_tprecision(ss: 'const SpanSet *', duration: 'const Interval *', to
     return result if result != _ffi.NULL else None
 
 
+def textset_lowercase(s: 'const Set *') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.textset_lowercase(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def textset_uppercase(s: 'const Set *') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.textset_uppercase(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def timestamp_tprecision(t: int, duration: 'const Interval *', torigin: int) -> 'TimestampTz':
     t_converted = _ffi.cast('TimestampTz', t)
     duration_converted = _ffi.cast('const Interval *', duration)

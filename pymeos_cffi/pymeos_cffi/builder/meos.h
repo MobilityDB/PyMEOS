@@ -980,6 +980,8 @@ extern Span *period_shift_scale(const Span *p, const Interval *shift, const Inte
 extern Span *period_tprecision(const Span *s, const Interval *duration, TimestampTz torigin);
 extern SpanSet *periodset_shift_scale(const SpanSet *ss, const Interval *shift, const Interval *duration);
 extern SpanSet *periodset_tprecision(const SpanSet *ss, const Interval *duration, TimestampTz torigin);
+extern Set *textset_lowercase(const Set *s);
+extern Set *textset_uppercase(const Set *s);
 extern TimestampTz timestamp_tprecision(TimestampTz t, const Interval *duration, TimestampTz torigin);
 extern Set *timestampset_shift_scale(const Set *ts, const Interval *shift, const Interval *duration);
 
