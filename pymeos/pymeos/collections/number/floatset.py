@@ -1,61 +1,88 @@
 from __future__ import annotations
 
-from typing import Optional, overload, Union
+from typing import List, Union, overload, Optional
 
-from pymeos_cffi import *
+from pymeos_cffi import floatset_in, floatset_make, floatset_out, set_to_spanset, floatset_start_value, floatset_end_value, \
+    floatset_value_n, floatset_values, contains_floatset_float, intersection_floatset_float, intersection_set_set, minus_floatset_float, \
+    minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, minus_float_floatset, distance_floatset_float
 
-from .. import Set, Span, SpanSet
+from .. import Span, SpanSet
+from ..base import Set
+from .floatspan import FloatSpan
+from .floatspanset import FloatSpanSet
 
 
 class FloatSet(Set[float]):
     """
     Class for representing a set of text values.
 
-    ``FloatSet`` objects can be created with a single argument of type float as
+    ``TextSet`` objects can be created with a single argument of type string as
     in MobilityDB.
 
-        >>> FloatSet(string='{1.5, 2.5, 3.5, 4.5}')
+        >>> FloatSet(string='{1, 3, 56}')
 
-    Another possibility is to create a ``FloatSet`` object from a list of floats.
+    Another possibility is to create a ``TextSet`` object from a list of
+    strings or floats.
 
-        >>> FloatSet(elements=[1.5, 2.5, 3.5, 4.5])
+        >>> FloatSet(elements=[1, '2', 3, '56'])
 
 
     """
 
     __slots__ = ['_inner']
 
+    _mobilitydb_name = 'floatset'
+
     _parse_function = floatset_in
-    _parse_value_function = lambda x: x
+    _parse_value_function = float
     _make_function = floatset_make
 
     # ------------------------- Constructors ----------------------------------
 
     # ------------------------- Output ----------------------------------------
 
-    def __str__(self):
+    def __str__(self, max_decimals: int = 15):
         """
         Return the string representation of the content of ``self``.
 
         Returns:
-            A new :class:`float` instance
+            A new :class:`str` instance
 
         MEOS Functions:
             floatset_out
         """
-        return floatset_out(self._inner)
+        return floatset_out(self._inner, max_decimals)
 
     # ------------------------- Conversions -----------------------------------
 
-    def to_spanset(self) -> SpanSet:
-        raise NotImplementedError()
+    def to_spanset(self) -> FloatSpanSet:
+        """
+        Returns a SpanSet that contains a Span for each element in ``self``.
 
-    def to_span(self) -> Span:
-        raise NotImplementedError()
+        Returns:
+            A new :class:`FloatSpanSet` instance
+
+        MEOS Functions:
+            set_to_spanset
+        """
+
+        return FloatSpanSet(_inner=super().to_spanset())
+
+    def to_span(self) -> FloatSpan:
+        """
+        Returns a span that encompasses ``self``.
+
+        Returns:
+            A new :class:`FloatSpan` instance
+
+        MEOS Functions:
+            set_span
+        """
+        return FloatSpan(_inner=super().to_span())
 
     # ------------------------- Accessors -------------------------------------
 
-    def start_element(self):
+    def start_element(self) -> float:
         """
         Returns the first element in ``self``.
 
@@ -67,7 +94,7 @@ class FloatSet(Set[float]):
         """
         return floatset_start_value(self._inner)
 
-    def end_element(self):
+    def end_element(self) -> float:
         """
         Returns the last element in ``self``.
 
@@ -79,7 +106,7 @@ class FloatSet(Set[float]):
         """
         return floatset_end_value(self._inner)
 
-    def element_n(self, n: float):
+    def element_n(self, n: int) -> float:
         """
         Returns the ``n``-th element in ``self``.
 
@@ -93,9 +120,9 @@ class FloatSet(Set[float]):
             floatset_value_n
         """
         super().element_n(n)
-        return floatset_value_n(self._inner, n)
+        return floatset_value_n(self._inner, n + 1)
 
-    def elements(self):
+    def elements(self) -> List[float]:
         """
         Returns the elements in ``self``.
 
@@ -103,10 +130,81 @@ class FloatSet(Set[float]):
             A list of :class:`float` instances
 
         MEOS Functions:
-            floatset_values
+            floattset_values
         """
         elems = floatset_values(self._inner)
         return [elems[i] for i in range(self.num_elements())]
+
+    # ------------------------- Transformations ------------------------------------
+
+    def shift(self, delta: float) -> FloatSet:
+        """
+        Returns a new ``FloatSet`` instance with all elements shifted by ``delta``.
+
+        Args:
+            delta: The value to shift by.
+
+        Returns:
+            A new :class:`FloatSet` instance
+
+        MEOS Functions:
+            floatset_shift_scale
+        """
+        return self.shift_scale(delta, None)
+
+    def scale(self, new_width: float) -> FloatSet:
+        """
+        Returns a new ``FloatSet`` instance with all elements scaled to so that the encompassing
+        span has width ``new_width``.
+
+        Args:
+            new_width: The new width.
+
+        Returns:
+            A new :class:`FloatSet` instance
+
+        MEOS Functions:
+            floatset_shift_scale
+        """
+        return self.shift_scale(None, new_width)
+
+    def shift_scale(self, delta: Optional[float], new_width: Optional[float]) -> FloatSet:
+        """
+        Returns a new ``FloatSet`` instance with all elements shifted by ``delta`` and scaled to so that the
+         encompassing span has width ``new_width``.
+
+        Args:
+            delta: The value to shift by.
+            new_width: The new width.
+
+        Returns:
+            A new :class:`FloatSet` instance
+
+        MEOS Functions:
+            floatset_shift_scale
+        """
+        return FloatSet(
+            _inner=floatset_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None))
+
+    # ------------------------- Topological Operations --------------------------------
+
+    def contains(self, content: Union[FloatSet, float]) -> bool:
+        """
+        Returns whether ``self`` contains ``content``.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_set_set, contains_floatset_float
+        """
+        if isinstance(content, float):
+            return contains_floatset_float(self._inner, content)
+        else:
+            return super().contains(content)
 
     # ------------------------- Set Operations --------------------------------
 
@@ -126,17 +224,16 @@ class FloatSet(Set[float]):
             other: A :class:`FloatSet` or :class:`float` instance
 
         Returns:
-            An object of the same type as ``other`` or ``None`` if the
-            intersection is empty.
+            An object of the same type as ``other`` or ``None`` if the intersection is empty.
 
         MEOS Functions:
-            intersection_floatset_text, intersection_set_set
+            intersection_set_set, intersection_floatset_float
         """
         if isinstance(other, float):
-            return intersection_floatset_text(self._inner, other)
+            return intersection_floatset_float(self._inner, other)
         elif isinstance(other, FloatSet):
-            result = super().intersection(other)
-            return FloatSet(elements=result) if result is not None else None
+            result = intersection_set_set(self._inner, other._inner)
+            return FloatSet(_inner=result) if result is not None else None
         else:
             return super().intersection(other)
 
@@ -148,19 +245,37 @@ class FloatSet(Set[float]):
             other: A :class:`FloatSet` or :class:`float` instance
 
         Returns:
-            A :class:`FloatSet` instance.
+            A :class:`FloatSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_floatset_text, minus_set_set
+            minus_set_set, minus_floatset_float
         """
         if isinstance(other, float):
-            result = minus_floatset_text(self._inner, other)
-            return FloatSet(elements=result) if result is not None else None
+            result = minus_floatset_float(self._inner, other)
+            return FloatSet(_inner=result) if result is not None else None
         elif isinstance(other, FloatSet):
-            result = super().minus(other)
-            return FloatSet(elements=result) if result is not None else None
+            result = minus_set_set(self._inner, other._inner)
+            return FloatSet(_inner=result) if result is not None else None
         else:
             return super().minus(other)
+
+    def subtract_from(self, other: float) -> Optional[float]:
+        """
+        Returns the difference of ``other`` and ``self``.
+
+        Args:
+            other: A :class:`float` instance
+
+        Returns:
+            A :class:`float` instance or ``None`` if the difference is empty.
+
+        MEOS Functions:
+            minus_float_floatset
+
+        See Also:
+            :meth:`minus`
+        """
+        return minus_float_floatset(other, self._inner)
 
     def union(self, other: Union[FloatSet, float]) -> FloatSet:
         """
@@ -173,13 +288,21 @@ class FloatSet(Set[float]):
             A :class:`FloatSet` instance.
 
         MEOS Functions:
-            union_floatset_text, union_set_set
+            union_set_set, union_floatset_float
         """
         if isinstance(other, float):
-            result = union_floatset_text(self._inner, other)
-            return FloatSet(elements=result) if result is not None else None
+            result = union_floatset_float(self._inner, other)
+            return FloatSet(_inner=result) if result is not None else None
         elif isinstance(other, FloatSet):
-            result = super().union(other)
-            return FloatSet(elements=result) if result is not None else None
+            result = union_set_set(self._inner, other._inner)
+            return FloatSet(_inner=result) if result is not None else None
         else:
             return super().union(other)
+
+    # ------------------------- Distance Operations ---------------------------
+
+    def distance(self, other: Union[float, FloatSet, FloatSpan, FloatSpanSet]) -> float:
+        if isinstance(other, float):
+            return distance_floatset_float(self._inner, other)
+        else:
+            return super().distance(other)

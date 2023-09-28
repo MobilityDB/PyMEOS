@@ -4,7 +4,7 @@ from typing import Optional, overload, Union
 
 from pymeos_cffi import *
 
-from .. import Set, Span, SpanSet
+from ..base import Set
 
 
 class TextSet(Set[str]):
@@ -24,6 +24,8 @@ class TextSet(Set[str]):
     """
 
     __slots__ = ['_inner']
+
+    _mobilitydb_name = 'textset'
 
     _parse_function = textset_in
     _parse_value_function = lambda x: x
@@ -47,10 +49,10 @@ class TextSet(Set[str]):
 
     # ------------------------- Conversions -----------------------------------
 
-    def to_spanset(self) -> SpanSet:
+    def to_spanset(self):
         raise NotImplementedError()
 
-    def to_span(self) -> Span:
+    def to_span(self):
         raise NotImplementedError()
 
     # ------------------------- Accessors -------------------------------------
@@ -93,7 +95,7 @@ class TextSet(Set[str]):
             textset_value_n
         """
         super().element_n(n)
-        return textset_value_n(self._inner, n)
+        return text2cstring(textset_value_n(self._inner, n + 1)[0])
 
     def elements(self):
         """
@@ -106,7 +108,27 @@ class TextSet(Set[str]):
             textset_values
         """
         elems = textset_values(self._inner)
-        return [elems[i] for i in range(self.num_elements())]
+        return [text2cstring(elems[i]) for i in range(self.num_elements())]
+
+    # ------------------------- Topological Operations --------------------------------
+
+    def contains(self, content: Union[TextSet, str]) -> bool:
+        """
+        Returns whether ``self`` contains ``content``.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_set_set, contains_textset_text
+        """
+        if isinstance(content, str):
+            return contains_textset_text(self._inner, content)
+        else:
+            return super().contains(content)
 
 
     # ------------------------- Transformations --------------------------------
@@ -158,10 +180,10 @@ class TextSet(Set[str]):
             intersection_textset_text, intersection_set_set
         """
         if isinstance(other, str):
-            return intersection_textset_text(self._inner, other)
+            return text2cstring(intersection_textset_text(self._inner, other)[0])
         elif isinstance(other, TextSet):
-            result = super().intersection(other)
-            return TextSet(elements=result) if result is not None else None
+            result = intersection_set_set(self._inner, other._inner)
+            return TextSet(_inner=result) if result is not None else None
         else:
             return super().intersection(other)
 
@@ -173,19 +195,38 @@ class TextSet(Set[str]):
             other: A :class:`TextSet` or :class:`str` instance
 
         Returns:
-            A :class:`TextSet` instance.
+            A :class:`TextSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
             minus_textset_text, minus_set_set
         """
         if isinstance(other, str):
             result = minus_textset_text(self._inner, other)
-            return TextSet(elements=result) if result is not None else None
+            return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
-            result = super().minus(other)
-            return TextSet(elements=result) if result is not None else None
+            result = minus_set_set(self._inner, other._inner)
+            return TextSet(_inner=result) if result is not None else None
         else:
             return super().minus(other)
+
+    def subtract_from(self, other: str) -> Optional[str]:
+        """
+        Returns the difference of ``other`` and ``self``.
+
+        Args:
+            other: A :class:`str` instance
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            minus_geo_geoset
+
+        See Also:
+            :meth:`minus`
+        """
+        result = minus_text_textset(other, self._inner)
+        return text2cstring(result[0]) if result is not None else None
 
     def union(self, other: Union[TextSet, str]) -> TextSet:
         """
@@ -202,9 +243,9 @@ class TextSet(Set[str]):
         """
         if isinstance(other, str):
             result = union_textset_text(self._inner, other)
-            return TextSet(elements=result) if result is not None else None
+            return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
-            result = super().union(other)
-            return TextSet(elements=result) if result is not None else None
+            result = union_set_set(self._inner, other._inner)
+            return TextSet(_inner=result) if result is not None else None
         else:
             return super().union(other)

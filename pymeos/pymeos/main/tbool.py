@@ -51,7 +51,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
     @staticmethod
     @overload
     def from_base_time(value: bool, base: Union[TimestampSet, Period]) -> \
-        TBoolSeq:
+            TBoolSeq:
         ...
 
     @staticmethod
@@ -77,16 +77,16 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         if isinstance(base, datetime):
             return TBoolInst(_inner=tboolinst_make(value,
-                datetime_to_timestamptz(base)))
+                                                   datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
             return TBoolSeq(_inner=tboolseq_from_base_timestampset(value,
-                base._inner))
+                                                                   base._inner))
         elif isinstance(base, Period):
             return TBoolSeq(_inner=tboolseq_from_base_period(value,
-                base._inner))
+                                                             base._inner))
         elif isinstance(base, PeriodSet):
             return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value,
-                base._inner))
+                                                                      base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Output ----------------------------------------
@@ -151,7 +151,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             tbool_value_at_timestamp
         """
         return tbool_value_at_timestamp(self._inner,
-            datetime_to_timestamptz(timestamp), True)
+                                        datetime_to_timestamptz(timestamp), True)
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_eq(self, value: bool) -> bool:
@@ -302,7 +302,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return self.__class__(_inner=tand_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
             return self.__class__(_inner=tand_tbool_tbool(self._inner,
-                other._inner))
+                                                          other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __and__(self, other):
@@ -337,7 +337,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return self.__class__(_inner=tor_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
             return self.__class__(_inner=tor_tbool_tbool(self._inner,
-                other._inner))
+                                                         other._inner))
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __or__(self, other):
@@ -439,7 +439,6 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         raise Exception("ERROR: Could not parse temporal boolean value")
 
 
-
 class TBoolInst(TInstant[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], TBool):
     """
     Class for representing temporal boolean values at a single instant.
@@ -451,11 +450,11 @@ class TBoolInst(TInstant[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'],
                  value: Optional[Union[str, bool]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp,
-            _inner=_inner)
+                         _inner=_inner)
 
 
 class TBoolSeq(TSequence[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-        'TBoolSeqSet'], TBool):
+'TBoolSeqSet'], TBool):
     """
     Class for representing temporal boolean values over a period of time.
     """
@@ -468,13 +467,13 @@ class TBoolSeq(TSequence[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
                  interpolation: TInterpolation = TInterpolation.STEPWISE,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list,
-            lower_inc=lower_inc, upper_inc=upper_inc,
-            expandable=expandable, interpolation=interpolation,
-            normalize=normalize, _inner=_inner)
+                         lower_inc=lower_inc, upper_inc=upper_inc,
+                         expandable=expandable, interpolation=interpolation,
+                         normalize=normalize, _inner=_inner)
 
 
 class TBoolSeqSet(TSequenceSet[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-        'TBoolSeqSet'], TBool):
+'TBoolSeqSet'], TBool):
     """
     Class for representing temporal boolean values over a period of time with gaps.
     """
@@ -484,4 +483,4 @@ class TBoolSeqSet(TSequenceSet[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
                  sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list,
-            normalize=normalize, _inner=_inner)
+                         normalize=normalize, _inner=_inner)

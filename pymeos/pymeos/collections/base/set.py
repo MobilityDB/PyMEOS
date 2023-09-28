@@ -46,7 +46,7 @@ class Set(Collection[T], ABC):
         Return a copy of ``self``.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`Span` instance
 
         MEOS Functions:
             set_copy
@@ -137,7 +137,7 @@ class Set(Collection[T], ABC):
         Returns a SpanSet that contains a Span for each element in ``self``.
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A new :class:`SpanSet` instance
 
         MEOS Functions:
             set_to_spanset
@@ -147,10 +147,10 @@ class Set(Collection[T], ABC):
     @abstractmethod
     def to_span(self) -> Span:
         """
-        Returns a period that encompasses ``self``.
+        Returns a span that encompasses ``self``.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`Span` instance
 
         MEOS Functions:
             set_span
@@ -236,7 +236,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
         contains it.
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if adjacent, False otherwise
@@ -258,7 +258,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` is contained in ``container``.
 
         Args:
-            container: temporal object to compare with
+            container: object to compare with
 
         Returns:
             True if contained, False otherwise
@@ -277,12 +277,13 @@ class Set(Collection[T], ABC):
         else:
             raise TypeError(f'Operation not supported with type {container.__class__}')
 
+    @abstractmethod
     def contains(self, content) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
         Args:
-            content: temporal object to compare with
+            content: object to compare with
 
         Returns:
             True if contains, False otherwise
@@ -300,7 +301,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` contains ``content``.
 
         Args:
-            item: temporal object to compare with
+            item: object to compare with
 
         Returns:
             True if contains, False otherwise
@@ -315,7 +316,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` overlaps ``other``. That is, both share at least an instant
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if overlaps, False otherwise
@@ -380,7 +381,7 @@ class Set(Collection[T], ABC):
         at the same value).
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if before, False otherwise
@@ -405,7 +406,7 @@ class Set(Collection[T], ABC):
         starts (or at the same value).
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if overlapping or to the right, False otherwise
@@ -430,7 +431,7 @@ class Set(Collection[T], ABC):
         is to the right ``other``.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if right, False otherwise
@@ -478,10 +479,10 @@ class Set(Collection[T], ABC):
     @abstractmethod
     def intersection(self, other):
         """
-        Returns the temporal intersection of ``self`` and ``other``.
+        Returns the intersection of ``self`` and ``other``.
 
         Args:
-            other: temporal object to intersect with
+            other: object to intersect with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
@@ -489,109 +490,95 @@ class Set(Collection[T], ABC):
         MEOS Functions:
         intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return intersection_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return intersection_spanset_span(set_to_spanset(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return intersection_spanset_spanset(set_to_spanset(self._inner), other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __mul__(self, other):
         """
-        Returns the temporal intersection of ``self`` and ``other``.
+        Returns the intersection of ``self`` and ``other``.
 
         Args:
-            other: temporal object to intersect with
+            other: object to intersect with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
         """
         return self.intersection(other)
 
     @abstractmethod
     def minus(self, other):
         """
-        Returns the temporal difference of ``self`` and ``other``.
+        Returns the difference of ``self`` and ``other``.
 
         Args:
-            other: temporal object to diff with
+            other: object to diff with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-            minus_set_set, minus_spanset_span, minus_spanset_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return minus_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return minus_spanset_span(set_to_spanset(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return minus_spanset_spanset(set_to_spanset(self._inner), other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __sub__(self, other):
         """
-        Returns the temporal difference of ``self`` and ``other``.
+        Returns the difference of ``self`` and ``other``.
 
         Args:
-            other: temporal object to diff with
+            other: object to diff with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-            minus_set_set, minus_spanset_span, minus_spanset_spanset
         """
         return self.minus(other)
 
     @abstractmethod
-    def union(self, other):
+    def subtract_from(self, other):
         """
-        Returns the temporal union of ``self`` and ``other``.
+        Returns the difference of ``other`` and ``self``.
 
         Args:
-            other: temporal object to merge with
+            other: object to subtract ``self`` from
+
+        Returns:
+            A :class:`Collection` instance or an element instance. The actual class depends on ``other``.
+
+        See Also:
+            :meth:`minus`
+        """
+        raise NotImplementedError()
+
+    def __rsub__(self, other):
+        """
+        Returns the difference of ``other`` and ``self``.
+
+        Args:
+            other: object to subtract ``self`` from
+
+        Returns:
+            A :class:`Collection` instance or an element instance. The actual class depends on ``other``.
+        """
+        return self.subtract_from(other)
+
+    @abstractmethod
+    def union(self, other):
+        """
+        Returns the union of ``self`` and ``other``.
+
+        Args:
+            other: object to merge with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-            union_set_set, union_spanset_span, union_spanset_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
-        if isinstance(other, Set):
-            return union_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return union_spanset_span(set_to_spanset(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return union_spanset_spanset(set_to_spanset(self._inner), other._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __add__(self, other):
         """
-        Returns the temporal union of ``self`` and ``other``.
+        Returns the union of ``self`` and ``other``.
 
         Args:
-            other: temporal object to merge with
+            other: object to merge with
 
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
-
-        MEOS Functions:
-            union_set_set, union_spanset_span, union_spanset_spanset
         """
         return self.union(other)
 
@@ -601,7 +588,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` and ``other`` are equal.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if equal, False otherwise
@@ -618,7 +605,7 @@ class Set(Collection[T], ABC):
         Returns whether ``self`` and ``other`` are not equal.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if not equal, False otherwise
@@ -635,7 +622,7 @@ class Set(Collection[T], ABC):
         Return whether ``self`` is less than ``other``.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if less than, False otherwise
@@ -652,7 +639,7 @@ class Set(Collection[T], ABC):
         Return whether ``self`` is less than or equal to ``other``.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if less than or equal, False otherwise
@@ -669,7 +656,7 @@ class Set(Collection[T], ABC):
         Return whether ``self`` is greater than ``other``.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if greater than, False otherwise
@@ -686,7 +673,7 @@ class Set(Collection[T], ABC):
         Return whether ``self`` is greater than or equal to ``other``.
 
         Args:
-            other: temporal object to compare with
+            other: object to compare with
 
         Returns:
             True if greater than or equal, False otherwise

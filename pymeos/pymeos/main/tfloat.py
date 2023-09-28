@@ -25,7 +25,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
     # ------------------------- Constructors ----------------------------------
     @staticmethod
     def from_base_temporal(value: float, base: Temporal,
-        interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
+                           interpolation: TInterpolation = TInterpolation.LINEAR) -> TFloat:
         """
         Returns a new temporal float with the value `value` and the temporal
         frame of `base`.
@@ -52,7 +52,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
     @staticmethod
     @overload
     def from_base_time(value: float, base: Union[TimestampSet, Period]) -> \
-        TFloatSeq:
+            TFloatSeq:
         ...
 
     @staticmethod
@@ -62,7 +62,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
     @staticmethod
     def from_base_time(value: float, base: Time,
-        interpolation: TInterpolation = None) -> TFloat:
+                       interpolation: TInterpolation = None) -> TFloat:
         """
         Returns a new temporal float with the value `value` and the temporal
         frame of `base`.
@@ -81,16 +81,16 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         if isinstance(base, datetime):
             return TFloatInst(_inner=tfloatinst_make(value,
-                datetime_to_timestamptz(base)))
+                                                     datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
             return TFloatSeq(_inner=tfloatseq_from_base_timestampset(value,
-                base._inner))
+                                                                     base._inner))
         elif isinstance(base, Period):
             return TFloatSeq(_inner=tfloatseq_from_base_period(value,
-                base._inner, interpolation))
+                                                               base._inner, interpolation))
         elif isinstance(base, PeriodSet):
             return TFloatSeqSet(_inner=tfloatseqset_from_base_periodset(value,
-                base._inner, interpolation))
+                                                                        base._inner, interpolation))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Output ----------------------------------------
@@ -140,7 +140,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         from ..factory import _TemporalFactory
         if self.interpolation() == TInterpolation.LINEAR:
             raise ValueError("Cannot convert a temporal float with linear " \
-                "interpolation to a temporal integer")
+                             "interpolation to a temporal integer")
         return _TemporalFactory.create_temporal(tfloat_to_tint(self._inner))
 
     def to_floatrange(self) -> floatrange:
@@ -603,7 +603,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_less_or_equal(self, other: Union[int, float, Temporal]) -> \
-        Temporal:
+            Temporal:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -625,7 +625,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     def temporal_greater_or_equal(self, other: Union[int, float, Temporal]) \
-        -> Temporal:
+            -> Temporal:
         """
         Returns the temporal greater or equal relation between `self` and `other`.
 
@@ -668,8 +668,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[int, float, List[int], List[float], 
-        floatrange, List[floatrange], TBox, Time]) -> TFloat:
+    def at(self, other: Union[int, float, List[int], List[float],
+    floatrange, List[floatrange], TBox, Time]) -> TFloat:
         """
         Returns a new temporal float with the values of `self` restricted to
         the value or time `other`.
@@ -690,17 +690,17 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         elif isinstance(other, floatrange):
             result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
         elif isinstance(other, list) and (isinstance(other[0], int) or \
-            isinstance(other[0], float)):
+                                          isinstance(other[0], float)):
             result = temporal_at_values(self._inner, floatset_make(other))
         # elif isinstance(other, list) and (isinstance(other[0], floatrange) or isinstance(other[0], intrange)):
-            # results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
-            # result = temporal_merge_array(results, len(results))
+        # results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
+        # result = temporal_merge_array(results, len(results))
         else:
             return super().at(other)
         return Temporal._factory(result)
 
     def minus(self, other: Union[int, float, List[int], List[float],
-        floatrange, List[floatrange], TBox, Time]) -> Temporal:
+    floatrange, List[floatrange], TBox, Time]) -> Temporal:
         """
         Returns a new temporal float with the values of `self` restricted to
         the complement of the time or value `other`.
@@ -720,10 +720,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             result = tfloat_minus_value(self._inner, float(other))
         elif isinstance(other, floatrange):
             result = tnumber_minus_span(self._inner,
-                floatrange_to_floatspan(other))
+                                        floatrange_to_floatspan(other))
         elif isinstance(other, list) and isinstance(other[0], float):
             result = temporal_minus_values(self._inner,
-                floatset_make(other))
+                                           floatset_make(other))
         else:
             return super().minus(other)
         return Temporal._factory(result)
@@ -742,7 +742,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             tfloat_value_at_timestamp
         """
         return tfloat_value_at_timestamp(self._inner,
-            datetime_to_timestamptz(timestamp), True)
+                                         datetime_to_timestamptz(timestamp), True)
 
     def derivative(self) -> TFloat:
         """
@@ -774,7 +774,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_degrees(self._inner,
-            normalize))
+                                                               normalize))
 
     def to_radians(self) -> TFloat:
         """
@@ -789,7 +789,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_radians(self._inner))
 
-    def round(self, maxdd : int = 0) -> TFloat:
+    def round(self, maxdd: int = 0) -> TFloat:
         """
         Returns `self` rounded to the given number of decimal digits.
 
@@ -804,11 +804,11 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_round(self._inner,
-            maxdd))
+                                                             maxdd))
 
     # ------------------------- Split Operations ------------------------------
-    def value_split(self, size: float, start: Optional[float] = 0.0) -> \
-        List[Temporal]:
+    def value_split(self, size: float, start: Optional[float] = 0) -> \
+            List[Temporal]:
         """
         Splits `self` into fragments with respect to value buckets
 
@@ -824,8 +824,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         fragments, values, count = tfloat_value_split(self._inner, size, start)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(fragments[i]) for i in \
-            range(count)]
+        return [_TemporalFactory.create_temporal(tiles[i]) for i in \
+                range(new_count)]
 
     def value_time_split(self, value_size: float, 
                          duration: Union[str, timedelta],
@@ -858,9 +858,9 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         dt = timedelta_to_interval(duration) \
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
-        fragments, values, times, count = tfloat_value_time_split(self._inner, value_size,
-            dt, value_start, st)
-        return [Temporal._factory(fragments[i]) for i in range(count)]
+        tiles, new_count = tfloat_value_time_split(self._inner, value_size,
+                                                   value_start, dt, st)
+        return [Temporal._factory(tiles[i]) for i in range(new_count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod
@@ -891,7 +891,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
 
 
 class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
-    'TFloatSeqSet'], TFloat):
+'TFloatSeqSet'], TFloat):
     """
     Class for representing temporal floats at a single instant.
     """
@@ -902,11 +902,11 @@ class TFloatInst(TInstant[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
                  value: Optional[Union[str, float]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
         super().__init__(string=string, value=value, timestamp=timestamp,
-            _inner=_inner)
+                         _inner=_inner)
 
 
 class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
-    'TFloatSeqSet'], TFloat):
+'TFloatSeqSet'], TFloat):
     """
     Class for representing temporal floats over a period of time.
     """
@@ -925,7 +925,7 @@ class TFloatSeq(TSequence[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
 
 
 class TFloatSeqSet(TSequenceSet[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
-    'TFloatSeqSet'], TFloat):
+'TFloatSeqSet'], TFloat):
     """
     Class for representing temporal floats over a period of time with gaps.
     """
@@ -935,4 +935,4 @@ class TFloatSeqSet(TSequenceSet[float, 'TFloat', 'TFloatInst', 'TFloatSeq',
                  sequence_list: Optional[List[Union[str, TFloatSeq]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list,
-            normalize=normalize, _inner=_inner)
+                         normalize=normalize, _inner=_inner)

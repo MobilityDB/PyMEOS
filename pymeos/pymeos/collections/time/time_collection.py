@@ -1,10 +1,7 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 from datetime import datetime
-from typing import TypeVar
 
 from ..base.collection import Collection
-
-Self = TypeVar('Self', bound='Set[Any]')
 
 
 class TimeCollection(Collection[datetime], ABC):

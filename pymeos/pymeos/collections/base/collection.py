@@ -57,3 +57,17 @@ class Collection(Generic[T], ABC):
     @abstractmethod
     def is_right(self, other) -> bool:
         raise NotImplementedError()
+
+    # ------------------------- Database Operations ---------------------------
+
+    # ------------------------- Database Operations ---------------------------
+    @classmethod
+    def read_from_cursor(cls, value, _=None):
+        """
+        Reads a :class:`STBox` from a database cursor. Used when automatically
+        loading objects from the database.
+        Users should use the class constructor instead.
+        """
+        if not value:
+            return None
+        return cls(string=value)
