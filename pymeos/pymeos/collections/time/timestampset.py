@@ -637,6 +637,24 @@ class TimestampSet(Set[datetime], TimeCollection):
         else:
             return super().minus(other)
 
+    def subtract_from(self, other: datetime) -> Optional[datetime]:
+        """
+        Returns the difference of ``other`` and ``self``.
+
+        Args:
+            other: A :class:`datetime` instance
+
+        Returns:
+            A :class:`datetime` instance or ``None`` if the difference is empty.
+
+        MEOS Functions:
+            minus_timestamp_timestampset
+
+        See Also:
+            :meth:`minus`
+        """
+        return timestamptz_to_datetime(minus_timestamp_timestampset(datetime_to_timestamptz(other), self._inner))
+
     @overload
     def union(self, other: Union[datetime, TimestampSet]) -> TimestampSet:
         ...
