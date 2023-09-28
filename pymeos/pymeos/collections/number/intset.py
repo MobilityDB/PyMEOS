@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional
 
-from pymeos_cffi import intset_in, intset_make, intset_out, set_to_spanset, intset_start_value, intset_end_value, \
+from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, intset_end_value, \
     intset_value_n, intset_values, contains_intset_int, intersection_intset_int, intersection_set_set, minus_intset_int, \
     minus_set_set, union_set_set, union_intset_int, intset_shift_scale, minus_int_intset, distance_intset_int
 
-from .. import Span, SpanSet
-from ..base import Set
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
+from ..base import Set
 
 
 class IntSet(Set[int]):

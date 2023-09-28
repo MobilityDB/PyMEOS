@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional, TYPE_CHECKING
+from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import floatset_in, floatset_make, floatset_out, set_to_spanset, floatset_start_value, floatset_end_value, \
-    floatset_value_n, floatset_values, contains_floatset_float, intersection_floatset_float, intersection_set_set, minus_floatset_float, \
-    minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, minus_float_floatset, distance_floatset_float, \
-    floatspan_in, floatspan_lower, floatspan_upper, numspan_shift_scale, contains_floatspan_float, adjacent_floatspan_float, \
-    adjacent_span_span, float_to_floatspan, overlaps_span_span, span_eq, left_floatspan_float, overleft_floatspan_float, \
-    right_floatspan_float, overright_floatspan_float, intersection_span_span, intersection_spanset_spanset, \
-    intersection_spanset_span, minus_floatspan_float, minus_span_span, minus_spanset_span, union_floatspan_float, \
+from pymeos_cffi import intersection_floatset_float, distance_floatset_float, \
+    floatspan_in, floatspan_lower, floatspan_upper, numspan_shift_scale, contains_floatspan_float, \
+    adjacent_floatspan_float, \
+    float_to_floatspan, overlaps_span_span, span_eq, left_floatspan_float, overleft_floatspan_float, \
+    right_floatspan_float, overright_floatspan_float, intersection_span_span, intersection_spanset_span, \
+    minus_floatspan_float, minus_span_span, minus_spanset_span, union_floatspan_float, \
     union_span_span, union_spanset_span, floatspan_out
 
-from .. import Span, SpanSet
-from ..base import Set
+from .. import Span
 
 if TYPE_CHECKING:
     from ...boxes import TBox

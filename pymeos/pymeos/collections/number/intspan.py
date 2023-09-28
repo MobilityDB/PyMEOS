@@ -1,18 +1,15 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional, TYPE_CHECKING
+from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intset_in, intset_make, intset_out, set_to_spanset, intset_start_value, intset_end_value, \
-    intset_value_n, intset_values, contains_intset_int, intersection_intset_int, intersection_set_set, minus_intset_int, \
-    minus_set_set, union_set_set, union_intset_int, intset_shift_scale, minus_int_intset, distance_intset_int, \
+from pymeos_cffi import intersection_intset_int, distance_intset_int, \
     intspan_in, intspan_lower, intspan_upper, numspan_shift_scale, contains_intspan_int, adjacent_intspan_int, \
-    adjacent_span_span, int_to_intspan, overlaps_span_span, span_eq, left_intspan_int, overleft_intspan_int, \
-    right_intspan_int, overright_intspan_int, intersection_span_span, intersection_spanset_spanset, \
-    intersection_spanset_span, minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
+    int_to_intspan, overlaps_span_span, span_eq, left_intspan_int, overleft_intspan_int, \
+    right_intspan_int, overright_intspan_int, intersection_span_span, intersection_spanset_span, minus_intspan_int, \
+    minus_span_span, minus_spanset_span, union_intspan_int, \
     union_span_span, union_spanset_span, intspan_out
 
-from .. import Span, SpanSet
-from ..base import Set
+from .. import Span
 
 if TYPE_CHECKING:
     from ...boxes import TBox
