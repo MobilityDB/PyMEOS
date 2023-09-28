@@ -8,7 +8,7 @@ from pymeos_cffi import intersection_floatset_float, distance_floatset_float, \
     float_to_floatspan, overlaps_span_span, span_eq, left_floatspan_float, overleft_floatspan_float, \
     right_floatspan_float, overright_floatspan_float, intersection_span_span, intersection_spanset_span, \
     minus_floatspan_float, minus_span_span, minus_spanset_span, union_floatspan_float, \
-    union_span_span, union_spanset_span, floatspan_out
+    union_span_span, union_spanset_span, floatspan_out, floatspan_make
 
 from .. import Span
 
@@ -43,7 +43,7 @@ class FloatSpan(Span[float]):
 
     _parse_function = floatspan_in
     _parse_value_function = float
-    _make_function = floatspan_in
+    _make_function = floatspan_make
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15) -> str:

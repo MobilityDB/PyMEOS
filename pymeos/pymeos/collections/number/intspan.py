@@ -7,7 +7,7 @@ from pymeos_cffi import intersection_intset_int, distance_intset_int, \
     int_to_intspan, overlaps_span_span, span_eq, left_intspan_int, overleft_intspan_int, \
     right_intspan_int, overright_intspan_int, intersection_span_span, intersection_spanset_span, minus_intspan_int, \
     minus_span_span, minus_spanset_span, union_intspan_int, \
-    union_span_span, union_spanset_span, intspan_out
+    union_span_span, union_spanset_span, intspan_out, intspan_make
 
 from .. import Span
 
@@ -42,7 +42,7 @@ class IntSpan(Span[int]):
 
     _parse_function = intspan_in
     _parse_value_function = int
-    _make_function = intspan_in
+    _make_function = intspan_make
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
