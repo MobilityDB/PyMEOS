@@ -5,6 +5,7 @@ from typing import List, Union, overload, Optional
 from pymeos_cffi import floatset_in, floatset_make, floatset_out, floatset_start_value, \
     floatset_end_value, \
     floatset_value_n, floatset_values, contains_floatset_float, intersection_floatset_float, intersection_set_set, \
+    left_floatset_float, overleft_floatset_float, right_floatset_float, overright_floatset_float, \
     minus_floatset_float, \
     minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, minus_float_floatset, \
     distance_floatset_float
@@ -227,7 +228,64 @@ class FloatSet(Set[float]):
         if isinstance(content, float):
             return left_floatset_float(self._inner, content)
         else:
-            return super().contains(content)
+            return super().is_left(content)
+
+    def is_over_or_left(self, content: Union[FloatSet, float]) -> bool:
+        """
+        Returns whether ``self`` is to the left of ``other`` allowing overlap.
+        That is, ``self`` ends before ``other`` ends (or at the same value).
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            overleft_set_set, overleft_floatset_float
+        """
+        if isinstance(content, float):
+            return overleft_floatset_float(self._inner, content)
+        else:
+            return super().is_over_or_left(content)
+
+    def is_right(self, content: Union[FloatSet, float]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the left of ``other``. That is,
+        ``self`` starts before ``other`` ends.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if is rigth, False otherwise
+
+        MEOS Functions:
+            right_set_set, right_floatset_float
+        """
+        if isinstance(content, float):
+            return right_floatset_float(self._inner, content)
+        else:
+            return super().is_right(content)
+
+    def is_over_or_right(self, content: Union[FloatSet, float]) -> bool:
+        """
+        Returns whether ``self`` is to the right of ``other`` allowing overlap.
+        That is, ``self`` ends after ``other`` ends (or at the same value).
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            overright_set_set, overright_floatset_float
+        """
+        if isinstance(content, float):
+            return overright_floatset_float(self._inner, content)
+        else:
+            return super().is_over_or_right(content)
 
     # ------------------------- Set Operations --------------------------------
 

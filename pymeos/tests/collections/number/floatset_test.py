@@ -3,8 +3,7 @@ from typing import List
 
 import pytest
 
-from pymeos import FloatSet, FloatSpan, FloatSpanSet, TFloatInst, TFloatSeq, TFloatSeqSet, \
-    TBox, STBox
+from pymeos import FloatSet, FloatSpan, FloatSpanSet
 from tests.conftest import TestPyMEOS
 
 
@@ -130,8 +129,8 @@ class TestFloatSetPositionFunctions(TestFloatSet):
     @pytest.mark.parametrize(
         'arg, result',
         [
-         (value, False),
-         (other, False),
+         (value, True),
+         (other, True),
         ],
         ids=['value', 'other']
     )
@@ -141,8 +140,8 @@ class TestFloatSetPositionFunctions(TestFloatSet):
     @pytest.mark.parametrize(
         'arg, result',
         [
-         (value, False),
-         (other, False),
+         (value, True),
+         (other, True),
         ],
         ids=['value', 'other']
     )
@@ -171,18 +170,16 @@ class TestFloatSetPositionFunctions(TestFloatSet):
     def test_is_over_or_right(self, arg, result):
         assert self.floatset.is_over_or_right(arg) == result
 
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset,
-         # value, floatset, instant, discrete_sequence,
-         # stepwise_sequence, sequence_set,  continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-            # 'value', 'floatset', 'instant',
-            # 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
-            # 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_distance(self, other):
-        # self.floatset.distance(other)
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, 2.0),
+         (other, 2.0),
+        ],
+        ids=['value', 'other']
+    )
+    def test_distance(self, arg, result):
+        assert self.floatset.distance(arg) == result
 
 
 class TestFloatSetSetFunctions(TestFloatSet):

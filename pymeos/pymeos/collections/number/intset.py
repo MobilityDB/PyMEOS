@@ -4,6 +4,7 @@ from typing import List, Union, overload, Optional
 
 from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, intset_end_value, \
     intset_value_n, intset_values, contains_intset_int, intersection_intset_int, intersection_set_set, minus_intset_int, \
+    left_intset_int, overleft_intset_int, right_intset_int, overright_intset_int, \
     minus_set_set, union_set_set, union_intset_int, intset_shift_scale, minus_int_intset, distance_intset_int
 
 from .intspan import IntSpan

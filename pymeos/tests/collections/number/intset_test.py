@@ -3,8 +3,7 @@ from typing import List
 
 import pytest
 
-from pymeos import IntSet, IntSpan, IntSpanSet, TIntInst, TIntSeq, TIntSeqSet, \
-    TBox, STBox
+from pymeos import IntSet, IntSpan, IntSpanSet
 from tests.conftest import TestPyMEOS
 
 
@@ -164,7 +163,7 @@ class TestIntSetPositionFunctions(TestIntSet):
     @pytest.mark.parametrize(
         'arg, result',
         [
-         (value, True),
+         (value, False),
          (other, False),
         ],
         ids=['value', 'other']
@@ -172,18 +171,16 @@ class TestIntSetPositionFunctions(TestIntSet):
     def test_is_over_or_right(self, arg, result):
         assert self.intset.is_over_or_right(arg) == result
 
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset,
-         # value, intset, instant, discrete_sequence,
-         # stepwise_sequence, sequence_set,  continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-            # 'value', 'intset', 'instant',
-            # 'discrete_sequence', 'stepwise_sequence', 'continuous_sequence',
-            # 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_distance(self, other):
-        # self.intset.distance(other)
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, 2),
+         (other, 2),
+        ],
+        ids=['value', 'other']
+    )
+    def test_distance(self, arg, result):
+        assert self.intset.distance(arg) == result
 
 
 class TestIntSetSetFunctions(TestIntSet):
