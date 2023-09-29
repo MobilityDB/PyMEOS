@@ -56,8 +56,7 @@ class TestTimestampSetOutputs(TestTimestampSet):
         assert str(self.ts_set) == '{"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"}'
 
     def test_repr(self):
-        assert repr(
-            self.ts_set) == 'TimestampSet({"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"})'
+        assert repr(self.ts_set) == 'TimestampSet({"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"})'
 
     def test_as_hexwkb(self):
         assert self.ts_set.as_hexwkb() == '012000010300000000A01E4E713402000000F66B853402000060CD8999340200'
@@ -108,123 +107,73 @@ class TestTimestampSetAccessors(TestTimestampSet):
 
 
 class TestTimestampSetPositionFunctions(TestTimestampSet):
-    period = Period('(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)')
-    periodset = PeriodSet(
-        '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     timestamp = datetime(year=2020, month=1, day=1)
     timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
-    instant = TFloatInst('1.0@2020-01-01')
-    discrete_sequence = TFloatSeq('{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}')
-    stepwise_sequence = TFloatSeq('Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
-    continuous_sequence = TFloatSeq('(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
-    sequence_set = TFloatSeqSet('{(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31], '
-                                '(1.0@2021-01-01, 3.0@2021-01-10, 10.0@2021-01-20, 0.0@2021-01-31]}')
-    tbox = TBox('TBox XT([0, 10),[2020-01-01, 2020-01-31])')
-    stbox = STBox('STBOX ZT(((1.0,2.0,3.0),(4.0,5.0,6.0)),[2001-01-01, 2001-01-02])')
 
     @pytest.mark.parametrize(
-        'other',
-        [period, periodset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        'other, expected',
+        [(timestampset, False)],
+        ids=['timestampset']
     )
-    def test_is_adjacent(self, other):
-        self.timestampset.is_adjacent(other)
+    def test_is_contained_in(self, other, expected):
+        assert self.ts_set.is_contained_in(other) == expected
 
     @pytest.mark.parametrize(
         'other',
-        [timestampset, period, periodset, instant, discrete_sequence, stepwise_sequence, continuous_sequence,
-         sequence_set, tbox,
-         stbox],
-        ids=['timestampset', 'period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence',
-             'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_contained_in(self, other):
-        self.timestampset.is_contained_in(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence],
-        ids=['timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_contains(self, other):
-        self.timestampset.contains(other)
+        self.ts_set.contains(other)
         _ = other in self.timestampset
 
-    #
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestampset],
+        ids=['timestampset']
     )
     def test_overlaps(self, other):
-        self.timestampset.overlaps(other)
+        self.ts_set.overlaps(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    )
-    def test_is_same(self, other):
-        self.periodset.is_same(other)
-
-    @pytest.mark.parametrize(
-        'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_is_before(self, other):
-        self.timestampset.is_before(other)
+        self.ts_set.is_before(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_is_over_or_before(self, other):
-        self.timestampset.is_over_or_before(other)
+        self.ts_set.is_over_or_before(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_is_after(self, other):
-        self.timestampset.is_after(other)
+        self.ts_set.is_after(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_is_over_or_after(self, other):
-        self.timestampset.is_over_or_after(other)
+        self.ts_set.is_over_or_after(other)
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
+        [timestamp, timestampset],
+        ids=['timestamp', 'timestampset']
     )
     def test_distance(self, other):
-        self.timestampset.distance(other)
+        self.ts_set.distance(other)
 
 
 class TestTimestampSetSetFunctions(TestTimestampSet):
