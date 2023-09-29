@@ -208,6 +208,27 @@ class FloatSet(Set[float]):
         else:
             return super().contains(content)
 
+    # ------------------------- Position Operations --------------------------------
+
+    def is_left(self, content: Union[FloatSet, float]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the left of ``other``. That is,
+        ``self`` ends before ``other`` starts.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            left_set_set, left_floatset_float
+        """
+        if isinstance(content, float):
+            return left_floatset_float(self._inner, content)
+        else:
+            return super().contains(content)
+
     # ------------------------- Set Operations --------------------------------
 
     @overload

@@ -200,10 +200,88 @@ class IntSet(Set[int]):
         MEOS Functions:
             contains_set_set, contains_intset_int
         """
-        if isinstance(content, int):
+        if isinstance(content, int):    
             return contains_intset_int(self._inner, content)
         else:
             return super().contains(content)
+
+    # ------------------------- Position Operations --------------------------------
+
+    def is_left(self, content: Union[IntSet, int]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the left of ``other``. That is,
+        ``self`` ends before ``other`` starts.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if left, False otherwise
+
+        MEOS Functions:
+            left_set_set, left_intset_int
+        """
+        if isinstance(content, int):    
+            return left_intset_int(self._inner, content)
+        else:
+            return super().is_left(content)
+
+    def is_over_or_left(self, content: Union[IntSet, int]) -> bool:
+        """
+        Returns whether ``self`` is to the left of ``other`` allowing overlap.
+        That is, ``self`` ends before ``other`` ends (or at the same value).
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if is over or left, False otherwise
+
+        MEOS Functions:
+            overleft_set_set, overleft_intset_int
+        """
+        if isinstance(content, int):    
+            return overleft_intset_int(self._inner, content)
+        else:
+            return super().is_over_or_left(content)
+
+    def is_right(self, content: Union[IntSet, int]) -> bool:
+        """
+        Returns whether ``self`` is strictly to the right of ``other``. That is,
+        ``self`` ends after ``other`` starts.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if right, False otherwise
+
+        MEOS Functions:
+            right_set_set, right_intset_int
+        """
+        if isinstance(content, int):    
+            return right_intset_int(self._inner, content)
+        else:
+            return super().is_right(content)
+
+    def is_over_or_right(self, content: Union[IntSet, int]) -> bool:
+        """
+        Returns whether ``self`` is to the right of ``other`` allowing overlap.
+        That is, ``self`` starts before ``other`` ends (or at the same value).
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if is over or right, False otherwise
+
+        MEOS Functions:
+            overright_set_set, overright_intset_int
+        """
+        if isinstance(content, int):    
+            return overright_intset_int(self._inner, content)
+        else:
+            return super().is_over_or_right(content)
 
     # ------------------------- Set Operations --------------------------------
 

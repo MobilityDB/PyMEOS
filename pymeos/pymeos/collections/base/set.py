@@ -232,25 +232,6 @@ class Set(Collection[T], ABC):
         return set_hash(self._inner)
 
     # ------------------------- Topological Operations ------------------------
-    # def is_adjacent(self, other) -> bool:
-        # """
-        # Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
-        # contains it.
-        # Args:
-            # other: object to compare with
-
-        # Returns:
-            # True if adjacent, False otherwise
-
-        # MEOS Functions:
-        # adjacent_span_span, adjacent_spanset_span
-        # """
-        # if isinstance(other, Span):
-            # return adjacent_span_span(set_span(self._inner), other._inner)
-        # elif isinstance(other, SpanSet):
-            # return adjacent_spanset_spanset(other._inner, set_to_spanset(self._inner))
-        # else:
-            # raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_contained_in(self, container) -> bool:
         """
@@ -322,25 +303,11 @@ class Set(Collection[T], ABC):
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
-    # def is_same(self, other) -> bool:
-        # """
-        # Returns whether the bounding span of `self` is the same as the bounding span of `other`.
-
-        # Args:
-            # other: An object to compare to `self`.
-
-        # Returns:
-            # True if same, False otherwise.
-
-        # See Also:
-            # :meth:`Span.is_same`
-        # """
-        # return self.to_span().is_same(other)
-
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other) -> bool:
         """
-        Returns whether ``self`` is strictly to the left of ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly to the left of ``other``. That is,
+        ``self`` ends before ``other`` starts.
 
         Args:
             other: object to compare with
@@ -351,21 +318,15 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             left_span_span, left_span_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
         if isinstance(other, Set):
             return left_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return left_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return left_span_spanset(set_span(self._inner), other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def is_over_or_left(self, other) -> bool:
         """
-        Returns whether ``self`` is to the left of ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
-        at the same value).
+        Returns whether ``self`` is to the left of ``other`` allowing overlap.
+        That is, ``self`` ends before ``other`` ends (or at the same value).
 
         Args:
             other: object to compare with
@@ -376,14 +337,8 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             overleft_span_span, overleft_span_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
         if isinstance(other, Set):
             return overleft_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return overleft_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return overleft_span_spanset(set_span(self._inner), other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -401,14 +356,8 @@ class Set(Collection[T], ABC):
         MEOS Functions:
         overright_span_span, overright_span_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
         if isinstance(other, Set):
             return overright_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return overright_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return overright_span_spanset(set_span(self._inner), other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -426,14 +375,8 @@ class Set(Collection[T], ABC):
         MEOS Functions:
         right_set_set, right_span_span, right_span_spanset
         """
-        from .span import Span
-        from .spanset import SpanSet
         if isinstance(other, Set):
             return right_set_set(self._inner, other._inner)
-        elif isinstance(other, Span):
-            return right_span_span(set_span(self._inner), other._inner)
-        elif isinstance(other, SpanSet):
-            return right_span_spanset(set_span(self._inner), other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

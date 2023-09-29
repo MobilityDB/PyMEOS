@@ -124,107 +124,53 @@ class TestIntSetTopologicalFunctions(TestIntSet):
     def test_overlaps(self, arg, result):
         assert self.intset.overlaps(arg) == result
 
-# class TestIntSetPositionFunctions(TestIntSet):
-    # value = 5
-    # other = IntSet('{5, 10}')
+class TestIntSetPositionFunctions(TestIntSet):
+    value = 5
+    other = IntSet('{5, 10}')
 
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intset, intspan, # intspanset, 
-         # instant, discrete_sequence, stepwise_sequence, continuous_sequence,
-         # sequence_set, tbox,
-         # stbox],
-        # ids=['intset', 'intspan', # 'intspanset',
-             # 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_contained_in(self, other):
-        # self.intset.is_contained_in(other)
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, True),
+         (other, True),
+        ],
+        ids=['value', 'other']
+    )
+    def test_is_left(self, arg, result):
+        assert self.intset.is_left(arg) == result
 
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence],
-        # ids=['value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set']
-    # )
-    # def test_contains(self, other):
-        # self.intset.contains(other)
-        # _ = other in self.intset
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, True),
+         (other, True),
+        ],
+        ids=['value', 'other']
+    )
+    def test_is_over_or_left(self, arg, result):
+        assert self.intset.is_over_or_left(arg) == result
 
-    
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_overlaps(self, other):
-        # self.intset.overlaps(other)
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, False),
+         (other, False),
+        ],
+        ids=['value', 'other']
+    )
+    def test_is_right(self, arg, result):
+        assert self.intset.is_right(arg) == result
 
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_same(self, other):
-        # self.intset.is_same(other)
-
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_before(self, other):
-        # self.intset.is_before(other)
-
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_over_or_before(self, other):
-        # self.intset.is_over_or_before(other)
-
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence, stepwise_sequence, sequence_set,
-         # continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant', 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_after(self, other):
-        # self.intset.is_after(other)
-
-    # @pytest.mark.parametrize(
-        # 'other',
-        # [intspan, # intspanset, 
-         # value, intset, instant, discrete_sequence,
-         # stepwise_sequence, sequence_set, continuous_sequence, tbox, stbox],
-        # ids=['intspan', # 'intspanset', 
-             # 'value', 'intset', 'instant',
-             # 'discrete_sequence', 'stepwise_sequence',
-             # 'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
-    # )
-    # def test_is_over_or_after(self, other):
-        # self.intset.is_over_or_after(other)
+    @pytest.mark.parametrize(
+        'arg, result',
+        [
+         (value, True),
+         (other, False),
+        ],
+        ids=['value', 'other']
+    )
+    def test_is_over_or_right(self, arg, result):
+        assert self.intset.is_over_or_right(arg) == result
 
     # @pytest.mark.parametrize(
         # 'other',
