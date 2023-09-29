@@ -12,8 +12,6 @@ from pymeos_cffi import intersection_intset_int, distance_intset_int, \
 from .. import Span
 
 if TYPE_CHECKING:
-    from ...boxes import TBox
-    from .intset import IntSet
     from .intspanset import IntSpanSet
 
 
@@ -141,9 +139,10 @@ class IntSpan(Span[int]):
         """
         return self.shift_scale(None, new_width)
 
-    def shift_scale(self, delta: Optional[int], new_width: Optional[int]) -> IntSpan:
+    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSpan:
         """
-        Return a new ``IntSpan`` with the lower and upper bounds shifted by ``delta`` and scaled so that the width is ``new_width``.
+        Return a new ``IntSpan`` with the lower and upper bounds shifted by
+        ``delta`` and scaled so that the width is ``width``.
 
         Args:
             delta: The value to shift by
@@ -155,11 +154,15 @@ class IntSpan(Span[int]):
         MEOS Functions:
             intspan_shift_scale
         """
-        return IntSpan(numspan_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None))
+        d = delta if delta is not None else 0
+        w = width if width is not None else 0
+        modified = numspan_shift_scale(self._inner, d, w, delta is not None, 
+            width is not None)
+        return IntSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
 
-    def is_adjacent(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_adjacent(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
         contains it.
@@ -175,30 +178,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return adjacent_intspan_int(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_adjacent(other.to_span())
         else:
             return super().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[TBox, IntSpan, IntSpanSet]) -> bool:
-        """
-        Returns whether ``self`` is contained in ``container``.
-
-        Args:
-            container: object to compare with
-
-        Returns:
-            True if contained, False otherwise
-
-        MEOS Functions:
-            contained_span_span, contained_span_spanset, contained_intset_int
-        """
-        if isinstance(container, TBox):
-            return self.is_contained_in(container.to_span())
-        else:
-            return super().is_contained_in(container)
-
-    def contains(self, content: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def contains(self, content: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -213,12 +196,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(content, int):
             return contains_intspan_int(self._inner, content)
-        elif isinstance(content, TBox):
-            return self.contains(content.to_span())
         else:
             return super().contains(content)
 
-    def overlaps(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def overlaps(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` overlaps ``other``. That is, both share at least an instant
 
@@ -234,12 +215,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return overlaps_span_span(self._inner, int_to_intspan(other))
-        elif isinstance(other, TBox):
-            return self.overlaps(other.to_span())
         else:
             return super().overlaps(other)
 
-    def is_same(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_same(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` and the bounding period of ``other`` is the same.
 
@@ -254,13 +233,11 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return span_eq(self._inner, int_to_intspan(other))
-        elif isinstance(other, TBox):
-            return self.is_same(other.to_span())
         else:
             return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
 
@@ -275,12 +252,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return left_intspan_int(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_left(other.to_span())
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
         at the same time).
@@ -296,12 +271,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return overleft_intspan_int(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_over_or_left(other.to_span())
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
 
@@ -316,12 +289,10 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return right_intspan_int(other, self._inner)
-        elif isinstance(other, TBox):
-            return self.is_right(other.to_span())
         else:
             return super().is_right(other)
 
-    def is_over_or_right(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
         (or at the same time).
@@ -336,14 +307,12 @@ class IntSpan(Span[int]):
             overright_span_span, overright_span_spanset, overright_intspan_int
         """
         if isinstance(other, int):
-            return overright_intspan_int(other, self._inner)
-        elif isinstance(other, TBox):
-            return self.is_over_or_right(other.to_span())
+            return overright_intspan_int(self._inner, other)
         else:
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, TBox, IntSet, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSpan, IntSpanSet]) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -358,8 +327,6 @@ class IntSpan(Span[int]):
         """
         if isinstance(other, int):
             return distance_intset_int(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.distance(other.to_span())
         else:
             return super().distance(other)
 
@@ -373,7 +340,7 @@ class IntSpan(Span[int]):
         ...
 
     @overload
-    def intersection(self, other: Union[IntSet, IntSpanSet]) -> Optional[IntSpanSet]:
+    def intersection(self, other: Union[IntSpan, IntSpanSet]) -> Optional[IntSpanSet]:
         ...
 
     def intersection(self, other):
@@ -389,12 +356,9 @@ class IntSpan(Span[int]):
         MEOS Functions:
             intersection_span_span, intersection_spanset_span, intersection_intset_int
         """
-        from .intset import IntSet
         from .intspanset import IntSpanSet
         if isinstance(other, int):
             return intersection_intset_int(self._inner, other)
-        elif isinstance(other, IntSet):
-            return self.intersection(other.to_span())
         elif isinstance(other, IntSpan):
             result = intersection_span_span(self._inner, other._inner)
             return IntSpan(_inner=result) if result is not None else None
@@ -404,7 +368,7 @@ class IntSpan(Span[int]):
         else:
             super().intersection(other)
 
-    def minus(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def minus(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -417,12 +381,9 @@ class IntSpan(Span[int]):
         MEOS Functions:
             minus_span_span, minus_spanset_span, minus_intset_int
         """
-        from .intset import IntSet
         from .intspanset import IntSpanSet
         if isinstance(other, int):
             result = minus_intspan_int(self._inner, other)
-        elif isinstance(other, IntSet):
-            return self.minus(other.to_spanset())
         elif isinstance(other, IntSpan):
             result = minus_span_span(self._inner, other._inner)
         elif isinstance(other, IntSpanSet):
@@ -431,7 +392,7 @@ class IntSpan(Span[int]):
             super().minus(other)
         return IntSpanSet(_inner=result) if result is not None else None
 
-    def union(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def union(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 
@@ -444,12 +405,9 @@ class IntSpan(Span[int]):
         MEOS Functions:
             union_spanset_span, union_span_span, union_intset_int
         """
-        from .intset import IntSet
         from .intspanset import IntSpanSet
         if isinstance(other, int):
             result = union_intspan_int(self._inner, other)
-        elif isinstance(other, IntSet):
-            return self.union(other.to_spanset())
         elif isinstance(other, IntSpan):
             result = union_span_span(self._inner, other._inner)
         elif isinstance(other, IntSpanSet):

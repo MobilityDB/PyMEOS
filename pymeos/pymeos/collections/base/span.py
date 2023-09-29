@@ -417,11 +417,8 @@ class Span(Collection[T], ABC):
             overright_span_span, overright_span_spanset, overafter_period_timestamp,
             overafter_period_timestampset, overafter_period_temporal
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return overright_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overright_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overright_span_spanset(self._inner, other._inner)
