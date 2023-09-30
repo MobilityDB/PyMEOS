@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional
 
-from pymeos_cffi import floatset_in, floatset_make, floatset_out, floatset_start_value, \
-    floatset_end_value, \
-    floatset_value_n, floatset_values, contains_floatset_float, intersection_floatset_float, intersection_set_set, \
-    left_floatset_float, overleft_floatset_float, right_floatset_float, overright_floatset_float, \
-    minus_floatset_float, \
-    minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, minus_float_floatset, \
-    distance_floatset_float
+from pymeos_cffi import floatset_in, floatset_make, floatset_out, \
+    floatset_start_value,  floatset_end_value, floatset_value_n, \
+    floatset_values, contains_floatset_float, intersection_floatset_float, \
+    intersection_set_set, left_floatset_float, overleft_floatset_float, \
+    right_floatset_float, overright_floatset_float, minus_floatset_float, \
+    minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, \
+    minus_float_floatset, distance_floatset_float
 
 from .floatspan import FloatSpan
 from .floatspanset import FloatSpanSet

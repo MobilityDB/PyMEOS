@@ -10,7 +10,6 @@ from pymeos_cffi import *
 from .collection import Collection
 
 if TYPE_CHECKING:
-    from .set import Set
     from .spanset import SpanSet
 
 T = TypeVar('T')
@@ -45,7 +44,8 @@ class Span(Collection[T], ABC):
         else:
             lower_converted = self.__class__._parse_value_function(lower)
             upper_converted = self.__class__._parse_value_function(upper)
-            self._inner = self.__class__._make_function(lower_converted, upper_converted, lower_inc, upper_inc)
+            self._inner = self.__class__._make_function(lower_converted,
+                upper_converted, lower_inc, upper_inc)
 
     def __copy__(self: Self) -> Self:
         """
@@ -131,7 +131,8 @@ class Span(Collection[T], ABC):
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
 
         Returns:
-            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+            A :class:`str` object with the WKB representation of ``self`` in
+            hex-encoded ASCII.
 
         MEOS Functions:
             span_as_hexwkb
@@ -172,7 +173,8 @@ class Span(Collection[T], ABC):
         Returns whether the lower bound of the period is inclusive or not
 
         Returns:
-            True if the lower bound of the period is inclusive and False otherwise
+            True if the lower bound of the period is inclusive and False
+            otherwise
 
         MEOS Functions:
             span_lower_inc
@@ -184,7 +186,8 @@ class Span(Collection[T], ABC):
         Returns whether the upper bound of the period is inclusive or not
 
         Returns:
-            True if the upper bound of the period is inclusive and False otherwise
+            True if the upper bound of the period is inclusive and False 
+            otherwise
 
         MEOS Functions:
             span_upper_inc
@@ -219,8 +222,8 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def is_adjacent(self: Self, other) -> bool:
         """
-        Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
-        contains it.
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        a bound but only one of them contains it.
 
         Args:
             other: object to compare with
@@ -231,11 +234,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             adjacent_span_span, adjacent_span_spanset,
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return adjacent_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return adjacent_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return adjacent_spanset_span(other._inner, self._inner)
@@ -277,11 +277,8 @@ class Span(Collection[T], ABC):
             contains_span_span, contains_span_spanset, contains_period_timestamp,
             contains_period_timestampset, contains_period_temporal
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(content, Set):
-            return contains_span_span(self._inner, set_span(content._inner))
-        elif isinstance(content, Span):
+        if isinstance(content, Span):
             return contains_span_span(self._inner, content._inner)
         elif isinstance(content, SpanSet):
             return contains_span_spanset(self._inner, content._inner)
@@ -306,7 +303,8 @@ class Span(Collection[T], ABC):
 
     def overlaps(self, other) -> bool:
         """
-        Returns whether ``self`` overlaps ``other``. That is, both share at least an element.
+        Returns whether ``self`` overlaps ``other``. That is, both share at
+        least an element.
 
         Args:
             other: temporal object to compare with
@@ -317,11 +315,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             overlaps_span_span, overlaps_span_spanset
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return overlaps_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overlaps_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overlaps_spanset_span(other._inner, self._inner)
@@ -330,7 +325,8 @@ class Span(Collection[T], ABC):
 
     def is_same(self, other) -> bool:
         """
-        Returns whether ``self`` and the bounding period of ``other`` is the same.
+        Returns whether ``self`` and the bounding period of ``other`` is the
+        same.
 
         Args:
             other: temporal object to compare with
@@ -341,11 +337,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             same_period_temporal
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return span_eq(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return span_eq(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return span_eq(self._inner, spanset_span(other._inner))
@@ -355,7 +348,8 @@ class Span(Collection[T], ABC):
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other) -> bool:
         """
-        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly before ``other``. That is,
+        ``self`` ends before ``other`` starts.
 
         Args:
             other: temporal object to compare with
@@ -366,11 +360,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             left_span_span, left_span_spanset
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return left_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return left_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return left_span_spanset(self._inner, other._inner)
@@ -379,8 +370,8 @@ class Span(Collection[T], ABC):
 
     def is_over_or_left(self, other) -> bool:
         """
-        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
-        at the same time).
+        Returns whether ``self`` is before ``other`` allowing overlap. That is,
+        ``self`` ends before ``other`` ends (or at the same time).
 
         Args:
             other: temporal object to compare with
@@ -391,11 +382,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             overleft_span_span, overleft_span_spanset
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return overleft_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overleft_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overleft_span_spanset(self._inner, other._inner)
@@ -404,8 +392,8 @@ class Span(Collection[T], ABC):
 
     def is_over_or_right(self, other) -> bool:
         """
-        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
-        (or at the same time).
+        Returns whether ``self`` is after ``other`` allowing overlap. That is,
+        ``self`` starts after ``other`` starts (or at the same time).
 
         Args:
             other: temporal object to compare with
@@ -427,7 +415,8 @@ class Span(Collection[T], ABC):
 
     def is_right(self, other) -> bool:
         """
-        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
+        Returns whether ``self`` is strictly after ``other``. That is, ``self``
+        starts after ``other`` ends.
 
         Args:
             other: temporal object to compare with
@@ -438,11 +427,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             right_span_span, right_span_spanset
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return right_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return right_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return right_span_spanset(self._inner, other._inner)
@@ -463,11 +449,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             distance_span_span, distance_spanset_span
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return distance_span_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return distance_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return distance_spanset_span(other._inner, self._inner)
@@ -487,7 +470,8 @@ class Span(Collection[T], ABC):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-        intersection_span_span, intersection_spanset_span, intersection_period_timestamp
+            intersection_span_span, intersection_spanset_span,
+            intersection_period_timestamp
         """
         raise TypeError(f'Operation not supported with type {other.__class__}')
 
@@ -502,7 +486,8 @@ class Span(Collection[T], ABC):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-        intersection_span_span, intersection_spanset_span, intersection_period_timestamp
+            intersection_span_span, intersection_spanset_span,
+            intersection_period_timestamp
         """
         return self.intersection(other)
 
@@ -545,11 +530,8 @@ class Span(Collection[T], ABC):
         MEOS Functions:
         union_period_timestamp, union_spanset_span, union_span_span
         """
-        from .set import Set
         from .spanset import SpanSet
-        if isinstance(other, Set):
-            return union_spanset_span(set_to_spanset(other._inner), self._inner)
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return union_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return union_spanset_span(other._inner, self._inner)

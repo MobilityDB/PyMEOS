@@ -32,7 +32,7 @@ class TestIntSpanConstructors(TestIntSpan):
         'source, params',
         [
             ('(7, 10)', (8, 10, True, False)),
-            ('[7, 10]', (7, 11, True, True)),
+            ('[7, 10]', (7, 11, True, False)),
         ]
     )
     def test_string_constructor(self, source, params):
@@ -67,12 +67,12 @@ class TestIntSpanConstructors(TestIntSpan):
     )
     def test_constructor_bound_inclusivity(self, lower, upper):
         intspan = IntSpan(lower='7', upper='10', lower_inc=lower, upper_inc=upper)
-        self.assert_intspan_equality(intspan, lower_inc=lower, upper_inc=upper)
+        self.assert_intspan_equality(intspan, lower_inc=True, upper_inc=False)
 
     def test_hexwkb_constructor(self):
         source = '010D0001070000000A000000'
         intspan = IntSpan.from_hexwkb(source)
-        self.assert_intspan_equality(intspan, 7, 10, False, False)
+        self.assert_intspan_equality(intspan, 7, 10, True, False)
 
     def test_from_as_constructor(self):
         assert self.intspan == IntSpan(str(self.intspan))
@@ -88,10 +88,10 @@ class TestIntSpanConstructors(TestIntSpan):
 class TestIntSpanOutputs(TestIntSpan):
 
     def test_str(self):
-        assert str(self.intspan) == '(7, 10)'
+        assert str(self.intspan) == '[7, 10)'
 
     def test_repr(self):
-        assert repr(self.intspan) == 'IntSpan((7, 10))'
+        assert repr(self.intspan) == 'IntSpan([7, 10))'
 
     def test_hexwkb(self):
         assert self.intspan.as_hexwkb() == '010D0001070000000A000000'
@@ -118,16 +118,16 @@ class TestIntSpanAccessors(TestIntSpan):
         assert self.intspan2.upper() == 12
 
     def test_lower_inc(self):
-        assert not self.intspan.lower_inc()
+        assert self.intspan.lower_inc()
         assert self.intspan2.lower_inc()
 
     def test_upper_inc(self):
         assert not self.intspan.upper_inc()
-        assert self.intspan2.upper_inc()
+        assert not self.intspan2.upper_inc()
 
     def test_width(self):
-        assert self.intspan.width() == 2
-        assert self.intspan2.width() == 3
+        assert self.intspan.width() == 3
+        assert self.intspan2.width() == 4
 
     def test_hash(self):
         assert hash(self.intspan) == 1519224342
@@ -137,8 +137,8 @@ class TestIntSpanTransformations(TestIntSpan):
 
     @pytest.mark.parametrize(
         'delta,result',
-        [(4, (11, 15, True, False)),
-         (-4, (3, 7, True, False)),
+        [(4, (11, 14, True, False)),
+         (-4, (3, 6, True, False)),
          ],
         ids=['positive delta', 'negative delta']
     )
@@ -148,7 +148,7 @@ class TestIntSpanTransformations(TestIntSpan):
 
     @pytest.mark.parametrize(
         'delta,result',
-        [(4, (7, 11, True, False)),
+        [(4, (7, 12, True, False)),
          ],
         ids=['positive']
     )
@@ -158,7 +158,7 @@ class TestIntSpanTransformations(TestIntSpan):
 
     def test_shift_scale(self):
         shifted_scaled = self.intspan.shift_scale(4, 2)
-        self.assert_intspan_equality(shifted_scaled, 11, 13, False, False)
+        self.assert_intspan_equality(shifted_scaled, 11, 14, True, False)
 
 
 class TestIntSpanTopologicalPositionFunctions(TestIntSpan):

@@ -3,11 +3,14 @@ from __future__ import annotations
 from typing import Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import intersection_intset_int, distance_intset_int, \
-    intspan_in, intspan_lower, intspan_upper, numspan_shift_scale, contains_intspan_int, adjacent_intspan_int, \
-    int_to_intspan, overlaps_span_span, span_eq, left_intspan_int, overleft_intspan_int, \
-    right_intspan_int, overright_intspan_int, intersection_span_span, intersection_spanset_span, minus_intspan_int, \
-    minus_span_span, minus_spanset_span, union_intspan_int, \
-    union_span_span, union_spanset_span, intspan_out, intspan_make
+    intspan_in, intspan_lower, intspan_upper, numspan_shift_scale, \
+    contains_intspan_int, adjacent_intspan_int, span_width, \
+    int_to_intspan, overlaps_span_span, span_eq, left_intspan_int,\
+    overleft_intspan_int, right_intspan_int, overright_intspan_int, \
+    intersection_intspan_int, intersection_span_span, intersection_spanset_span, \
+    minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
+    union_span_span, union_spanset_span, intspan_out, intspan_make, \
+    distance_intspan_int
 
 from .. import Span
 
@@ -106,7 +109,7 @@ class IntSpan(Span[int]):
         MEOS Functions:
             span_width
         """
-        return self.width()
+        return span_width(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: int) -> IntSpan:
@@ -288,7 +291,7 @@ class IntSpan(Span[int]):
             right_span_span, right_span_spanset, right_intspan_int
         """
         if isinstance(other, int):
-            return right_intspan_int(other, self._inner)
+            return right_intspan_int(self._inner, other)
         else:
             return super().is_right(other)
 
@@ -326,7 +329,7 @@ class IntSpan(Span[int]):
             distance_span_span, distance_span_spanset, distance_intset_int,
         """
         if isinstance(other, int):
-            return distance_intset_int(self._inner, other)
+            return distance_intspan_int(self._inner, other)
         else:
             return super().distance(other)
 
@@ -358,7 +361,7 @@ class IntSpan(Span[int]):
         """
         from .intspanset import IntSpanSet
         if isinstance(other, int):
-            return intersection_intset_int(self._inner, other)
+            return intersection_intspan_int(self._inner, other)
         elif isinstance(other, IntSpan):
             result = intersection_span_span(self._inner, other._inner)
             return IntSpan(_inner=result) if result is not None else None

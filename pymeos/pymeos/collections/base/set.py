@@ -244,7 +244,8 @@ class Set(Collection[T], ABC):
             True if contained, False otherwise
 
         MEOS Functions:
-        contained_span_span, contained_span_spanset, contained_set_set, contained_spanset_spanset
+            contained_span_span, contained_span_spanset, contained_set_set,
+            contained_spanset_spanset
         """
         if isinstance(container, Set):
             return contained_set_set(self._inner, container._inner)
@@ -296,7 +297,7 @@ class Set(Collection[T], ABC):
             True if overlaps, False otherwise
 
         MEOS Functions:
-        overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
+            overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
         """
         if isinstance(other, Set):
             return overlaps_set_set(self._inner, other._inner)
@@ -354,7 +355,7 @@ class Set(Collection[T], ABC):
             True if overlapping or to the right, False otherwise
 
         MEOS Functions:
-        overright_span_span, overright_span_spanset
+            overright_span_span, overright_span_spanset
         """
         if isinstance(other, Set):
             return overright_set_set(self._inner, other._inner)
@@ -373,7 +374,7 @@ class Set(Collection[T], ABC):
             True if right, False otherwise
 
         MEOS Functions:
-        right_set_set, right_span_span, right_span_spanset
+            right_set_set, right_span_span, right_span_spanset
         """
         if isinstance(other, Set):
             return right_set_set(self._inner, other._inner)
@@ -418,7 +419,8 @@ class Set(Collection[T], ABC):
             A :class:`Collection` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-        intersection_set_set, intersection_spanset_span, intersection_spanset_spanset
+            intersection_set_set, intersection_spanset_span,
+            intersection_spanset_spanset
         """
         raise TypeError(f'Operation not supported with type {other.__class__}')
 

@@ -4,7 +4,7 @@ from typing import List
 
 import pytest
 
-from pymeos import Period, PeriodSet, TimestampSet, TFloatInst, TFloatSeq, STBox, TFloatSeqSet, TBox
+from pymeos import Period, PeriodSet, TFloatInst, TFloatSeq, STBox, TFloatSeqSet, TBox
 from tests.conftest import TestPyMEOS
 
 
@@ -169,7 +169,6 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     timestamp = datetime(year=2020, month=1, day=1)
-    timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
     instant = TFloatInst('1.0@2020-01-01')
     discrete_sequence = TFloatSeq('{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}')
     stepwise_sequence = TFloatSeq('Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]')
@@ -181,9 +180,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_adjacent(self, other):
@@ -201,9 +200,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_contains(self, other):
@@ -212,9 +211,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_overlaps(self, other):
@@ -222,9 +221,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_same(self, other):
@@ -232,9 +231,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_before(self, other):
@@ -242,9 +241,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_over_or_before(self, other):
@@ -252,9 +251,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_after(self, other):
@@ -262,9 +261,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_is_over_or_after(self, other):
@@ -272,9 +271,9 @@ class TestPeriodSetTopologicalPositionFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset, instant, discrete_sequence, stepwise_sequence, sequence_set,
+        [period, periodset, timestamp, instant, discrete_sequence, stepwise_sequence, sequence_set,
          continuous_sequence, tbox, stbox],
-        ids=['period', 'periodset', 'timestamp', 'timestampset', 'instant', 'discrete_sequence', 'stepwise_sequence',
+        ids=['period', 'periodset', 'timestamp', 'instant', 'discrete_sequence', 'stepwise_sequence',
              'continuous_sequence', 'sequence_set', 'tbox', 'stbox']
     )
     def test_distance(self, other):
@@ -286,12 +285,11 @@ class TestPeriodSetSetFunctions(TestPeriodSet):
     periodset = PeriodSet(
         '{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}')
     timestamp = datetime(year=2020, month=1, day=1)
-    timestampset = TimestampSet('{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}')
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset],
-        ids=['period', 'periodset', 'timestamp', 'timestampset']
+        [period, periodset, timestamp],
+        ids=['period', 'periodset', 'timestamp']
     )
     def test_intersection(self, other):
         self.periodset.intersection(other)
@@ -299,8 +297,8 @@ class TestPeriodSetSetFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset],
-        ids=['period', 'periodset', 'timestamp', 'timestampset']
+        [period, periodset, timestamp],
+        ids=['period', 'periodset', 'timestamp']
     )
     def test_union(self, other):
         self.periodset.union(other)
@@ -308,8 +306,8 @@ class TestPeriodSetSetFunctions(TestPeriodSet):
 
     @pytest.mark.parametrize(
         'other',
-        [period, periodset, timestamp, timestampset],
-        ids=['period', 'periodset', 'timestamp', 'timestampset']
+        [period, periodset, timestamp],
+        ids=['period', 'periodset', 'timestamp']
     )
     def test_minus(self, other):
         self.periodset.minus(other)

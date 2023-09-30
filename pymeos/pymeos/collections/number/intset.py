@@ -2,10 +2,12 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional
 
-from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, intset_end_value, \
-    intset_value_n, intset_values, contains_intset_int, intersection_intset_int, intersection_set_set, minus_intset_int, \
+from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, \
+    intset_end_value, intset_value_n, intset_values, contains_intset_int, \
+    intersection_intset_int, intersection_set_set, minus_intset_int, \
     left_intset_int, overleft_intset_int, right_intset_int, overright_intset_int, \
-    minus_set_set, union_set_set, union_intset_int, intset_shift_scale, minus_int_intset, distance_intset_int
+    minus_set_set, union_set_set, union_intset_int, intset_shift_scale, \
+    minus_int_intset, distance_intset_int
 
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
@@ -152,13 +154,13 @@ class IntSet(Set[int]):
         """
         return self.shift_scale(delta, None)
 
-    def scale(self, new_width: int) -> IntSet:
+    def scale(self, width: int) -> IntSet:
         """
         Returns a new ``IntSet`` instance with all elements scaled to so that the encompassing
-        span has width ``new_width``.
+        span has width ``width``.
 
         Args:
-            new_width: The new width.
+            width: The new width.
 
         Returns:
             A new :class:`IntSet` instance
@@ -166,16 +168,16 @@ class IntSet(Set[int]):
         MEOS Functions:
             intset_shift_scale
         """
-        return self.shift_scale(None, new_width)
+        return self.shift_scale(None, width)
 
-    def shift_scale(self, delta: Optional[int], new_width: Optional[int]) -> IntSet:
+    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSet:
         """
         Returns a new ``IntSet`` instance with all elements shifted by ``delta`` and scaled to so that the
-         encompassing span has width ``new_width``.
+         encompassing span has width ``width``.
 
         Args:
             delta: The value to shift by.
-            new_width: The new width.
+            width: The new width.
 
         Returns:
             A new :class:`IntSet` instance
@@ -184,7 +186,8 @@ class IntSet(Set[int]):
             intset_shift_scale
         """
         return IntSet(
-            _inner=intset_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None))
+            _inner=intset_shift_scale(self._inner, delta, width,
+            delta is not None, width is not None))
 
     # ------------------------- Topological Operations --------------------------------
 
