@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intspanset_in, intspanset_out
+from pymeos_cffi import intspanset_in, intspanset_out, spanset_width, \
+    intspanset_shift_scale
 
 from pymeos.collections import SpanSet
 
@@ -32,7 +33,7 @@ class IntSpanSet(SpanSet[int]):
     _mobilitydb_name = 'intspanset'
 
     _parse_function = intspanset_in
-    _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(spanset, str) else intspanset_in._inner[0]
+    _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
 
 
     # ------------------------- Output ----------------------------------------
@@ -64,6 +65,28 @@ class IntSpanSet(SpanSet[int]):
         return IntSpan(_inner=super().to_span())
 
     # ------------------------- Accessors -------------------------------------
+
+    def width(self, ignore_gaps: Optional[bool] = False) -> float:
+        """
+        Returns the width of the spanset. By default, i.e., when the second
+        argument is False, the function takes into account the gaps within,
+        i.e., returns the sum of the widths of the spans within.
+        Otherwise, the function returns the width of the spanset ignoring
+        any gap, i.e., the width from the lower bound of the first span to
+        the upper bound of the last span.
+
+        Parameters:
+            ignore_gaps: Whether to take into account potential gaps in
+            the spanset.
+
+        Returns:
+            A `float` representing the duration of the spanset
+
+        MEOS Functions:
+            spanset_width
+        """
+        return spanset_width(self._inner, ignore_gaps)
+
     def start_span(self) -> IntSpan:
         """
         Returns the first span in ``self``.
@@ -113,6 +136,61 @@ class IntSpanSet(SpanSet[int]):
         ps = super().spans()
         return [IntSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
+
+    # ------------------------- Transformations -------------------------------
+
+    def shift(self, delta: int) -> IntSpanSet:
+        """
+        Return a new ``IntSpanSet`` with the lower and upper bounds shifted by
+        ``delta``.
+
+        Args:
+            delta: The value to shift by
+
+        Returns:
+            A new ``IntSpanSet`` instance
+
+        MEOS Functions:
+            intspanset_shift_scale
+        """
+        return self.shift_scale(delta, None)
+
+    def scale(self, width: int) -> IntSpan:
+        """
+        Return a new ``IntSpanSet`` with the lower and upper bounds scaled so
+        that the width is ``width``.
+
+        Args:
+            width: The new width
+
+        Returns:
+            A new ``IntSpanSet`` instance
+
+        MEOS Functions:
+            intspanset_shift_scale
+        """
+        return self.shift_scale(None, width)
+
+    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSpanSet:
+        """
+        Return a new ``IntSpanSet`` with the lower and upper bounds shifted by
+        ``delta`` and scaled so that the width is ``width``.
+
+        Args:
+            delta: The value to shift by
+            width: The new width
+
+        Returns:
+            A new ``IntSpanSet`` instance
+
+        MEOS Functions:
+            intspanset_shift_scale
+        """
+        d = delta if delta is not None else 0
+        w = width if width is not None else 0
+        modified = intspanset_shift_scale(self._inner, d, w, delta is not None, 
+            width is not None)
+        return IntSpanSet(_inner=modified)
 
     # ------------------------- Set Operations --------------------------------
     @overload

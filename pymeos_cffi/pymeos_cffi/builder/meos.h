@@ -947,7 +947,7 @@ extern Span *spanset_span_n(const SpanSet *ss, int i);
 extern const Span **spanset_spans(const SpanSet *ss);
 extern Span *spanset_start_span(const SpanSet *ss);
 extern bool spanset_upper_inc(const SpanSet *ss);
-extern double spanset_width(const SpanSet *ss);
+extern double spanset_width(const SpanSet *ss, bool boundspan);
 extern STBox *spatialset_stbox(const Set *s);
 extern text *textset_end_value(const Set *s);
 extern text *textset_start_value(const Set *s);

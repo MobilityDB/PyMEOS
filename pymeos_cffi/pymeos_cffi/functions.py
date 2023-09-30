@@ -1512,9 +1512,9 @@ def spanset_upper_inc(ss: 'const SpanSet *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
-def spanset_width(ss: 'const SpanSet *') -> 'double':
+def spanset_width(ss: 'const SpanSet *', boundspan: bool) -> 'double':
     ss_converted = _ffi.cast('const SpanSet *', ss)
-    result = _lib.spanset_width(ss_converted)
+    result = _lib.spanset_width(ss_converted, boundspan)
     _check_error()
     return result if result != _ffi.NULL else None
 

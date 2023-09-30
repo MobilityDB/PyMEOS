@@ -172,8 +172,9 @@ class IntSet(Set[int]):
 
     def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSet:
         """
-        Returns a new ``IntSet`` instance with all elements shifted by ``delta`` and scaled to so that the
-         encompassing span has width ``width``.
+        Returns a new ``IntSet`` instance with all elements shifted by
+        ``delta`` and scaled to so that the encompassing span has width
+        ``width``.
 
         Args:
             delta: The value to shift by.

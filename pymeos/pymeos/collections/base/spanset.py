@@ -36,8 +36,8 @@ class SpanSet(Collection[T], ABC):
         elif string is not None:
             self._inner = self.__class__._parse_function(string)
         else:
-            periods = [self.__class__._parse_value_function(p) for p in span_list]
-            self._inner = spanset_make(periods, normalize)
+            spans = [self.__class__._parse_value_function(p) for p in span_list]
+            self._inner = spanset_make(spans, normalize)
 
     def __copy__(self: Self) -> Self:
         """

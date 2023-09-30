@@ -127,12 +127,13 @@ class IntSpan(Span[int]):
         """
         return self.shift_scale(delta, None)
 
-    def scale(self, new_width: int) -> IntSpan:
+    def scale(self, width: int) -> IntSpan:
         """
-        Return a new ``IntSpan`` with the lower and upper bounds scaled so that the width is ``new_width``.
+        Return a new ``IntSpan`` with the lower and upper bounds scaled so that
+        the width is ``width``.
 
         Args:
-            new_width: The new width
+            width: The new width
 
         Returns:
             A new ``IntSpan`` instance
@@ -140,7 +141,7 @@ class IntSpan(Span[int]):
         MEOS Functions:
             intspan_shift_scale
         """
-        return self.shift_scale(None, new_width)
+        return self.shift_scale(None, width)
 
     def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSpan:
         """
@@ -149,7 +150,7 @@ class IntSpan(Span[int]):
 
         Args:
             delta: The value to shift by
-            new_width: The new width
+            width: The new width
 
         Returns:
             A new ``IntSpan`` instance
