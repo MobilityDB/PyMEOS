@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import intersection_intset_int, distance_intset_int, \
-    intspan_in, intspan_lower, intspan_upper, numspan_shift_scale, \
+    intspan_in, intspan_lower, intspan_upper, intspan_shift_scale, \
     contains_intspan_int, adjacent_intspan_int, span_width, \
-    int_to_intspan, overlaps_span_span, span_eq, left_intspan_int,\
+    int_to_intspan, span_eq, left_intspan_int,\
     overleft_intspan_int, right_intspan_int, overright_intspan_int, \
     intersection_intspan_int, intersection_span_span, intersection_spanset_span, \
     minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
@@ -159,7 +159,7 @@ class IntSpan(Span[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = numspan_shift_scale(self._inner, d, w, delta is not None, 
+        modified = intspan_shift_scale(self._inner, d, w, delta is not None, 
             width is not None)
         return IntSpan(_inner=modified)
 
@@ -167,8 +167,8 @@ class IntSpan(Span[int]):
 
     def is_adjacent(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
-        contains it.
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        a bound but only one of them contains it.
 
         Args:
             other: object to compare with
@@ -202,28 +202,10 @@ class IntSpan(Span[int]):
         else:
             return super().contains(content)
 
-    def overlaps(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
-        """
-        Returns whether ``self`` overlaps ``other``. That is, both share at least an instant
-
-        Args:
-            other: object to compare with
-
-        Returns:
-            True if overlaps, False otherwise
-
-        MEOS Functions:
-            overlaps_span_span, overlaps_span_spanset, overlaps_period_timestampset,
-            overlaps_period_temporal
-        """
-        if isinstance(other, int):
-            return overlaps_span_span(self._inner, int_to_intspan(other))
-        else:
-            return super().overlaps(other)
-
     def is_same(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` and the bounding period of ``other`` is the same.
+        Returns whether ``self`` and the bounding period of ``other`` is the
+        same.
 
         Args:
             other: object to compare with
@@ -260,8 +242,8 @@ class IntSpan(Span[int]):
 
     def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
-        at the same time).
+        Returns whether ``self`` is before ``other`` allowing overlap. That is,
+        ``self`` ends before ``other`` ends (or at the same value).
 
         Args:
             other: object to compare with
@@ -297,8 +279,8 @@ class IntSpan(Span[int]):
 
     def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
-        (or at the same time).
+        Returns whether ``self`` is after ``other`` allowing overlap. That is,
+        ``self`` starts after ``other`` starts (or at the same value).
 
         Args:
             other: object to compare with
@@ -323,7 +305,7 @@ class IntSpan(Span[int]):
             other: object to compare with
 
         Returns:
-            A :class:`datetime.timedelta` instance
+            A float value
 
         MEOS Functions:
             distance_span_span, distance_span_spanset, distance_intset_int,
@@ -343,7 +325,7 @@ class IntSpan(Span[int]):
         ...
 
     @overload
-    def intersection(self, other: Union[IntSpan, IntSpanSet]) -> Optional[IntSpanSet]:
+    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]:
         ...
 
     def intersection(self, other):

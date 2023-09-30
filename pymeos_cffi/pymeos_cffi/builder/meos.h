@@ -963,19 +963,22 @@ extern TimestampTz *timestampset_values(const Set *ts);
 
 
 extern Set *bigintset_shift_scale(const Set *s, int64 shift, int64 width, bool hasshift, bool haswidth);
+extern Span *bigintspan_shift_scale(const Span *s, int64 shift, int64 width, bool hasshift, bool haswidth);
+extern SpanSet *bigintspanset_shift_scale(const SpanSet *ss, int64 shift, int64 width, bool hasshift, bool haswidth);
 extern Set *floatset_round(const Set *s, int maxdd);
 extern Set *floatset_shift_scale(const Set *s, double shift, double width, bool hasshift, bool haswidth);
 extern Span *floatspan_intspan(const Span *s);
 extern Span *floatspan_round(const Span *s, int maxdd);
+extern Span *floatspan_shift_scale(const Span *s, double shift, double width, bool hasshift, bool haswidth);
 extern SpanSet *floatspanset_intspanset(const SpanSet *ss);
 extern SpanSet *floatspanset_round(const SpanSet *ss, int maxdd);
+extern SpanSet *floatspanset_shift_scale(const SpanSet *ss, double shift, double width, bool hasshift, bool haswidth);
 extern Set *geoset_round(const Set *s, int maxdd);
 extern Set *intset_shift_scale(const Set *s, int shift, int width, bool hasshift, bool haswidth);
 extern Span *intspan_floatspan(const Span *s);
+extern Span *intspan_shift_scale(const Span *s, int shift, int width, bool hasshift, bool haswidth);
 extern SpanSet *intspanset_floatspanset(const SpanSet *ss);
-extern Set *numset_shift_scale(const Set *s, Datum shift, Datum width, bool hasshift, bool haswidth);
-extern Span *numspan_shift_scale(const Span *s, Datum shift, Datum width, bool hasshift, bool haswidth);
-extern SpanSet *numspanset_shift_scale(const SpanSet *ss, Datum shift, Datum width, bool hasshift, bool haswidth);
+extern SpanSet *intspanset_shift_scale(const SpanSet *ss, int shift, int width, bool hasshift, bool haswidth);
 extern Span *period_shift_scale(const Span *p, const Interval *shift, const Interval *duration);
 extern Span *period_tprecision(const Span *s, const Interval *duration, TimestampTz torigin);
 extern SpanSet *periodset_shift_scale(const SpanSet *ss, const Interval *shift, const Interval *duration);

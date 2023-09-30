@@ -2,7 +2,7 @@ from copy import copy
 
 import pytest
 
-from pymeos import IntSpan, IntSpanSet, IntSet
+from pymeos import IntSpan, IntSpanSet
 
 from tests.conftest import TestPyMEOS
 
@@ -193,8 +193,8 @@ class TestIntSpanTopologicalPositionFunctions(TestIntSpan):
 
     @pytest.mark.parametrize(
         'other',
-        [value, intspan], # intspanset],
-        ids=['value', 'intspan'] #, 'intspanset']
+        [intspan], # intspanset],
+        ids=['intspan'] #, 'intspanset']
     )
     def test_overlaps(self, other):
         self.intspan.overlaps(other)

@@ -1599,6 +1599,24 @@ def bigintset_shift_scale(s: 'const Set *', shift: int, width: int, hasshift: bo
     return result if result != _ffi.NULL else None
 
 
+def bigintspan_shift_scale(s: 'const Span *', shift: int, width: int, hasshift: bool, haswidth: bool) -> 'Span *':
+    s_converted = _ffi.cast('const Span *', s)
+    shift_converted = _ffi.cast('int64', shift)
+    width_converted = _ffi.cast('int64', width)
+    result = _lib.bigintspan_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def bigintspanset_shift_scale(ss: 'const SpanSet *', shift: int, width: int, hasshift: bool, haswidth: bool) -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    shift_converted = _ffi.cast('int64', shift)
+    width_converted = _ffi.cast('int64', width)
+    result = _lib.bigintspanset_shift_scale(ss_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def floatset_round(s: 'const Set *', maxdd: int) -> 'Set *':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.floatset_round(s_converted, maxdd)
@@ -1627,6 +1645,13 @@ def floatspan_round(s: 'const Span *', maxdd: int) -> 'Span *':
     return result if result != _ffi.NULL else None
 
 
+def floatspan_shift_scale(s: 'const Span *', shift: float, width: float, hasshift: bool, haswidth: bool) -> 'Span *':
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.floatspan_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def floatspanset_intspanset(ss: 'const SpanSet *') -> 'SpanSet *':
     ss_converted = _ffi.cast('const SpanSet *', ss)
     result = _lib.floatspanset_intspanset(ss_converted)
@@ -1637,6 +1662,13 @@ def floatspanset_intspanset(ss: 'const SpanSet *') -> 'SpanSet *':
 def floatspanset_round(ss: 'const SpanSet *', maxdd: int) -> 'SpanSet *':
     ss_converted = _ffi.cast('const SpanSet *', ss)
     result = _lib.floatspanset_round(ss_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspanset_shift_scale(ss: 'const SpanSet *', shift: float, width: float, hasshift: bool, haswidth: bool) -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.floatspanset_shift_scale(ss_converted, shift, width, hasshift, haswidth)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1662,6 +1694,13 @@ def intspan_floatspan(s: 'const Span *') -> 'Span *':
     return result if result != _ffi.NULL else None
 
 
+def intspan_shift_scale(s: 'const Span *', shift: int, width: int, hasshift: bool, haswidth: bool) -> 'Span *':
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.intspan_shift_scale(s_converted, shift, width, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def intspanset_floatspanset(ss: 'const SpanSet *') -> 'SpanSet *':
     ss_converted = _ffi.cast('const SpanSet *', ss)
     result = _lib.intspanset_floatspanset(ss_converted)
@@ -1669,29 +1708,9 @@ def intspanset_floatspanset(ss: 'const SpanSet *') -> 'SpanSet *':
     return result if result != _ffi.NULL else None
 
 
-def numset_shift_scale(s: 'const Set *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'Set *':
-    s_converted = _ffi.cast('const Set *', s)
-    shift_converted = _ffi.cast('Datum', shift)
-    width_converted = _ffi.cast('Datum', width)
-    result = _lib.numset_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def numspan_shift_scale(s: 'const Span *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'Span *':
-    s_converted = _ffi.cast('const Span *', s)
-    shift_converted = _ffi.cast('Datum', shift)
-    width_converted = _ffi.cast('Datum', width)
-    result = _lib.numspan_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def numspanset_shift_scale(ss: 'const SpanSet *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'SpanSet *':
+def intspanset_shift_scale(ss: 'const SpanSet *', shift: int, width: int, hasshift: bool, haswidth: bool) -> 'SpanSet *':
     ss_converted = _ffi.cast('const SpanSet *', ss)
-    shift_converted = _ffi.cast('Datum', shift)
-    width_converted = _ffi.cast('Datum', width)
-    result = _lib.numspanset_shift_scale(ss_converted, shift_converted, width_converted, hasshift, haswidth)
+    result = _lib.intspanset_shift_scale(ss_converted, shift, width, hasshift, haswidth)
     _check_error()
     return result if result != _ffi.NULL else None
 

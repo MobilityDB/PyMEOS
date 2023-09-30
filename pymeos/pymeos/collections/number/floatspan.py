@@ -2,19 +2,20 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intersection_floatset_float, distance_floatset_float, \
-    floatspan_in, floatspan_lower, floatspan_upper, numspan_shift_scale, contains_floatspan_float, \
-    adjacent_floatspan_float, \
-    float_to_floatspan, overlaps_span_span, span_eq, left_floatspan_float, overleft_floatspan_float, \
-    right_floatspan_float, overright_floatspan_float, intersection_span_span, intersection_spanset_span, \
-    minus_floatspan_float, minus_span_span, minus_spanset_span, union_floatspan_float, \
-    union_span_span, union_spanset_span, floatspan_out, floatspan_make
+from pymeos_cffi import intersection_floatspan_float, distance_floatspan_float, \
+    floatspan_in, floatspan_lower, floatspan_upper, floatspan_shift_scale, \
+    contains_floatspan_float, adjacent_floatspan_float, \
+    float_to_floatspan, span_eq, \
+    left_floatspan_float, overleft_floatspan_float, \
+    right_floatspan_float, overright_floatspan_float, \
+    intersection_span_span, intersection_spanset_span, \
+    minus_floatspan_float, minus_span_span, minus_spanset_span, \
+    union_floatspan_float,  union_span_span, union_spanset_span, \
+    floatspan_out, floatspan_make, span_width
 
 from .. import Span
 
 if TYPE_CHECKING:
-    from ...boxes import TBox
-    from .floatset import FloatSet
     from .floatspanset import FloatSpanSet
 
 
@@ -28,9 +29,10 @@ class FloatSpan(Span[float]):
 
         >>> FloatSpan('(2.5, 5.21]')
 
-    Another possibility is to provide the ``lower`` and ``upper`` named parameters (of type str or float), and
-    optionally indicate whether the bounds are inclusive or exclusive (by default, the lower bound is inclusive and the
-    upper is exclusive):
+    Another possibility is to provide the ``lower`` and ``upper`` named
+    parameters (of type str or float), and optionally indicate whether the
+    bounds are inclusive or exclusive (by default, the lower bound is inclusive
+    and the upper is exclusive):
 
         >>> FloatSpan(lower=2.0, upper=5.8)
         >>> FloatSpan(lower=2.0, upper=5.8, lower_inc=False, upper_inc=True)
@@ -109,12 +111,13 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             span_width
         """
-        return self.width()
+        return span_width(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: float) -> FloatSpan:
         """
-        Return a new ``FloatSpan`` with the lower and upper bounds shifted by ``delta``.
+        Return a new ``FloatSpan`` with the lower and upper bounds shifted by
+        ``delta``.
 
         Args:
             delta: The value to shift by
@@ -127,12 +130,13 @@ class FloatSpan(Span[float]):
         """
         return self.shift_scale(delta, None)
 
-    def scale(self, new_width: float) -> FloatSpan:
+    def scale(self, width: float) -> FloatSpan:
         """
-        Return a new ``FloatSpan`` with the lower and upper bounds scaled so that the width is ``new_width``.
+        Return a new ``FloatSpan`` with the lower and upper bounds scaled so
+        that the width is ``width``.
 
         Args:
-            new_width: The new width
+            width: The new width
 
         Returns:
             A new ``FloatSpan`` instance
@@ -140,15 +144,16 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             floatspan_shift_scale
         """
-        return self.shift_scale(None, new_width)
+        return self.shift_scale(None, width)
 
-    def shift_scale(self, delta: Optional[float], new_width: Optional[float]) -> FloatSpan:
+    def shift_scale(self, delta: Optional[float], width: Optional[float]) -> FloatSpan:
         """
-        Return a new ``FloatSpan`` with the lower and upper bounds shifted by ``delta`` and scaled so that the width is ``new_width``.
+        Return a new ``FloatSpan`` with the lower and upper bounds shifted by
+        ``delta`` and scaled so that the width is ``width``.
 
         Args:
             delta: The value to shift by
-            new_width: The new width
+            width: The new width
 
         Returns:
             A new ``FloatSpan`` instance
@@ -156,14 +161,18 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             floatspan_shift_scale
         """
-        return FloatSpan(numspan_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None))
+        d = delta if delta is not None else 0
+        w = width if width is not None else 0
+        modified = floatspan_shift_scale(self._inner, d, w, delta is not None, 
+            width is not None)
+        return FloatSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
 
-    def is_adjacent(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_adjacent(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is adjacent to ``other``. That is, they share a bound but only one of them
-        contains it.
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        a bound but only one of them contains it.
 
         Args:
             other: object to compare with
@@ -172,34 +181,14 @@ class FloatSpan(Span[float]):
             True if adjacent, False otherwise
 
         MEOS Functions:
-            adjacent_span_span, adjacent_span_spanset, adjacent_floatset_float
+            adjacent_span_span, adjacent_span_spanset, adjacent_floatspan_float
         """
-        if isinstance(other, float):
-            return adjacent_floatspan_float(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_adjacent(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return adjacent_floatspan_float(self._inner, float(other))
         else:
             return super().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[TBox, FloatSpan, FloatSpanSet]) -> bool:
-        """
-        Returns whether ``self`` is contained in ``container``.
-
-        Args:
-            container: object to compare with
-
-        Returns:
-            True if contained, False otherwise
-
-        MEOS Functions:
-            contained_span_span, contained_span_spanset, contained_floatset_float
-        """
-        if isinstance(container, TBox):
-            return self.is_contained_in(container.to_span())
-        else:
-            return super().is_contained_in(container)
-
-    def contains(self, content: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def contains(self, content: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -210,39 +199,17 @@ class FloatSpan(Span[float]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_floatset_float
+            contains_set_set, contains_floatspan_float
         """
-        if isinstance(content, float):
-            return contains_floatspan_float(self._inner, content)
-        elif isinstance(content, TBox):
-            return self.contains(content.to_span())
+        if isinstance(content, int) or isinstance(content, float) :
+            return contains_floatspan_float(self._inner, float(content))
         else:
             return super().contains(content)
 
-    def overlaps(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_same(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` overlaps ``other``. That is, both share at least an instant
-
-        Args:
-            other: object to compare with
-
-        Returns:
-            True if overlaps, False otherwise
-
-        MEOS Functions:
-            overlaps_span_span, overlaps_span_spanset, overlaps_period_timestampset,
-            overlaps_period_temporal
-        """
-        if isinstance(other, float):
-            return overlaps_span_span(self._inner, float_to_floatspan(other))
-        elif isinstance(other, TBox):
-            return self.overlaps(other.to_span())
-        else:
-            return super().overlaps(other)
-
-    def is_same(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
-        """
-        Returns whether ``self`` and the bounding period of ``other`` is the same.
+        Returns whether ``self`` and the bounding period of ``other`` is the
+        same.
 
         Args:
             other: object to compare with
@@ -253,17 +220,16 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             same_period_temporal
         """
-        if isinstance(other, float):
-            return span_eq(self._inner, float_to_floatspan(other))
-        elif isinstance(other, TBox):
-            return self.is_same(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return span_eq(self._inner, float_to_floatspan(float(other)))
         else:
             return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_left(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly before ``other``. That is,
+        ``self`` ends before ``other`` starts.
 
         Args:
             other: object to compare with
@@ -274,17 +240,15 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             left_span_span, left_span_spanset, left_floatspan_float
         """
-        if isinstance(other, float):
-            return left_floatspan_float(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_left(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return left_floatspan_float(self._inner, float(other))
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_over_or_left(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is before ``other`` allowing overlap. That is, ``self`` ends before ``other`` ends (or
-        at the same time).
+        Returns whether ``self`` is before ``other`` allowing overlap. That is,
+        ``self`` ends before ``other`` ends (or at the same value).
 
         Args:
             other: object to compare with
@@ -295,16 +259,15 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             overleft_span_span, overleft_span_spanset, overleft_floatspan_float
         """
-        if isinstance(other, float):
-            return overleft_floatspan_float(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.is_over_or_left(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return overleft_floatspan_float(self._inner, float(other))
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_right(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
+        Returns whether ``self`` is strictly after ``other``. That is, ``self``
+        starts after ``other`` ends.
 
         Args:
             other: object to compare with
@@ -315,17 +278,15 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             right_span_span, right_span_spanset, right_floatspan_float
         """
-        if isinstance(other, float):
-            return right_floatspan_float(other, self._inner)
-        elif isinstance(other, TBox):
-            return self.is_right(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return right_floatspan_float(self._inner, float(other))
         else:
             return super().is_right(other)
 
-    def is_over_or_right(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> bool:
+    def is_over_or_right(self, other: Union[float, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is after ``other`` allowing overlap. That is, ``self`` starts after ``other`` starts
-        (or at the same time).
+        Returns whether ``self`` is after ``other`` allowing overlap. That is,
+        ``self`` starts after ``other`` starts (or at the same value).
 
         Args:
             other: object to compare with
@@ -336,15 +297,13 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             overright_span_span, overright_span_spanset, overright_floatspan_float
         """
-        if isinstance(other, float):
-            return overright_floatspan_float(other, self._inner)
-        elif isinstance(other, TBox):
-            return self.is_over_or_right(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return overright_floatspan_float(self._inner, float(other))
         else:
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[float, TBox, FloatSet, FloatSpan, FloatSpanSet]) -> float:
+    def distance(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -352,21 +311,19 @@ class FloatSpan(Span[float]):
             other: object to compare with
 
         Returns:
-            A :class:`datetime.timedelta` instance
+            A float value
 
         MEOS Functions:
-            distance_span_span, distance_span_spanset, distance_floatset_float,
+            distance_span_span, distance_span_spanset, distance_floatspan_float,
         """
-        if isinstance(other, float):
-            return distance_floatset_float(self._inner, other)
-        elif isinstance(other, TBox):
-            return self.distance(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return distance_floatspan_float(self._inner, float(other))
         else:
             return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: float) -> Optional[float]:
+    def intersection(self, other: Union[int, float]) -> Optional[float]:
         ...
 
     @overload
@@ -374,7 +331,7 @@ class FloatSpan(Span[float]):
         ...
 
     @overload
-    def intersection(self, other: Union[FloatSet, FloatSpanSet]) -> Optional[FloatSpanSet]:
+    def intersection(self, other: FloatSpanSet) -> Optional[FloatSpanSet]:
         ...
 
     def intersection(self, other):
@@ -385,17 +342,16 @@ class FloatSpan(Span[float]):
             other: object to intersect with
 
         Returns:
-            A :class:`Collection[float]` instance. The actual class depends on ``other``.
+            A :class:`Collection[float]` instance. The actual class depends on
+            ``other``.
 
         MEOS Functions:
-            intersection_span_span, intersection_spanset_span, intersection_floatset_float
+            intersection_span_span, intersection_spanset_span,
+            intersection_floatset_float
         """
-        from .floatset import FloatSet
         from .floatspanset import FloatSpanSet
-        if isinstance(other, float):
-            return intersection_floatset_float(self._inner, other)
-        elif isinstance(other, FloatSet):
-            return self.intersection(other.to_span())
+        if isinstance(other, int) or isinstance(other, float) :
+            return intersection_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = intersection_span_span(self._inner, other._inner)
             return FloatSpan(_inner=result) if result is not None else None
@@ -405,7 +361,7 @@ class FloatSpan(Span[float]):
         else:
             super().intersection(other)
 
-    def minus(self, other: Union[float, FloatSet, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
+    def minus(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -416,14 +372,11 @@ class FloatSpan(Span[float]):
             A :class:`FloatSpanSet` instance.
 
         MEOS Functions:
-            minus_span_span, minus_spanset_span, minus_floatset_float
+            minus_span_span, minus_spanset_span, minus_floatspan_float
         """
-        from .floatset import FloatSet
         from .floatspanset import FloatSpanSet
-        if isinstance(other, float):
-            result = minus_floatspan_float(self._inner, other)
-        elif isinstance(other, FloatSet):
-            return self.minus(other.to_spanset())
+        if isinstance(other, int) or isinstance(other, float) :
+            result = minus_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = minus_span_span(self._inner, other._inner)
         elif isinstance(other, FloatSpanSet):
@@ -432,7 +385,7 @@ class FloatSpan(Span[float]):
             super().minus(other)
         return FloatSpanSet(_inner=result) if result is not None else None
 
-    def union(self, other: Union[float, FloatSet, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
+    def union(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 
@@ -443,14 +396,11 @@ class FloatSpan(Span[float]):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_spanset_span, union_span_span, union_floatset_float
+            union_spanset_span, union_span_span, union_floatspan_float
         """
-        from .floatset import FloatSet
         from .floatspanset import FloatSpanSet
-        if isinstance(other, float):
-            result = union_floatspan_float(self._inner, other)
-        elif isinstance(other, FloatSet):
-            return self.union(other.to_spanset())
+        if isinstance(other, int) or isinstance(other, float) :
+            result = union_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = union_span_span(self._inner, other._inner)
         elif isinstance(other, FloatSpanSet):
