@@ -9,7 +9,6 @@ from pymeos_cffi import *
 from .collection import Collection
 
 if TYPE_CHECKING:
-    from .set import Set
     from .span import Span
 
 T = TypeVar('T')
@@ -27,17 +26,17 @@ class SpanSet(Collection[T], ABC):
     _parse_value_function: Callable[[Union[str, T]], Any] = None
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *, period_list: Optional[List[Union[str, Span]]] = None,
+    def __init__(self, string: Optional[str] = None, *, span_list: Optional[List[Union[str, Span]]] = None,
                  normalize: bool = True, _inner=None):
         super().__init__()
-        assert (_inner is not None) or ((string is not None) != (period_list is not None)), \
-            "Either string must be not None or period_list must be not"
+        assert (_inner is not None) or ((string is not None) != (span_list is not None)), \
+            "Either string must be not None or span_list must be not"
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = self.__class__._parse_function(string)
         else:
-            periods = [self.__class__._parse_value_function(p) for p in period_list]
+            periods = [self.__class__._parse_value_function(p) for p in span_list]
             self._inner = spanset_make(periods, normalize)
 
     def __copy__(self: Self) -> Self:
@@ -149,27 +148,6 @@ class SpanSet(Collection[T], ABC):
 
     # ------------------------- Accessors -------------------------------------
 
-    @abstractmethod
-    def start_element(self) -> T:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def end_element(self) -> T:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def element_n(self, n: int) -> T:
-        if n < 0 or n >= self.num_elements():
-            raise IndexError(f'Index {n} out of bounds')
-
-    @abstractmethod
-    def elements(self) -> List[T]:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def num_elements(self) -> int:
-        raise NotImplementedError()
-
     def num_spans(self) -> int:
         """
         Returns the number of spans in ``self``.
@@ -258,11 +236,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             adjacent_spanset_span, adjacent_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.is_adjacent(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return adjacent_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return adjacent_spanset_spanset(self._inner, other._inner)
@@ -282,11 +257,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             contained_spanset_span, contained_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(container, Set):
-            return self.is_contained_in(container.to_spanset())
-        elif isinstance(container, Span):
+        if isinstance(container, Span):
             return contained_spanset_span(self._inner, container._inner)
         elif isinstance(container, SpanSet):
             return contained_spanset_spanset(self._inner, container._inner)
@@ -306,11 +278,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         contains_spanset_span, contains_spanset_spanset,
         """
-        from .set import Set
         from .span import Span
-        if isinstance(content, Set):
-            return contains_spanset_spanset(self._inner, set_to_spanset(content._inner))
-        elif isinstance(content, Span):
+        if isinstance(content, Span):
             return contains_spanset_span(self._inner, content._inner)
         elif isinstance(content, SpanSet):
             return contains_spanset_spanset(self._inner, content._inner)
@@ -345,11 +314,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             overlaps_spanset_span, overlaps_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.overlaps(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overlaps_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overlaps_spanset_spanset(self._inner, other._inner)
@@ -385,11 +351,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         before_periodset_timestamp, left_spanset_span, left_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.is_left(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return left_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return left_spanset_spanset(self._inner, other._inner)
@@ -410,11 +373,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             overleft_spanset_span, overleft_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return overleft_spanset_span(self._inner, set_span(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overleft_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overleft_spanset_spanset(self._inner, other._inner)
@@ -435,11 +395,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             overright_spanset_span, overright_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.is_over_or_right(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return overright_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overright_spanset_spanset(self._inner, other._inner)
@@ -459,11 +416,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             right_spanset_span, right_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.is_right(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return right_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return right_spanset_spanset(self._inner, other._inner)
@@ -483,11 +437,8 @@ class SpanSet(Collection[T], ABC):
 
         MEOS Functions:
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return distance_spanset_spanset(self._inner, set_to_spanset(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return distance_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return distance_spanset_spanset(self._inner, other._inner)
@@ -509,11 +460,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         intersection_spanset_spanset, intersection_spanset_span
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return intersection_spanset_spanset(self._inner, set_to_spanset(other._inner))
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return intersection_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return intersection_spanset_spanset(self._inner, other._inner)
@@ -549,11 +497,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         minus_spanset_span, minus_spanset_spanset
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.minus(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return minus_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return minus_spanset_spanset(self._inner, other._inner)
@@ -589,11 +534,8 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         union_periodset_timestamp, union_spanset_spanset, union_spanset_span
         """
-        from .set import Set
         from .span import Span
-        if isinstance(other, Set):
-            return self.union(other.to_spanset())
-        elif isinstance(other, Span):
+        if isinstance(other, Span):
             return union_spanset_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return union_spanset_spanset(self._inner, other._inner)

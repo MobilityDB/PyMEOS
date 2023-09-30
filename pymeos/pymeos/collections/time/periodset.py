@@ -31,8 +31,8 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
     periods, which can be instances  of ``str`` or ``Period``. The composing
     periods must be given in increasing order.
 
-        >>> PeriodSet(period_list=['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
-        >>> PeriodSet(period_list=[Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
+        >>> PeriodSet(span_list=['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
+        >>> PeriodSet(span_list=[Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
 
     """
 
@@ -106,7 +106,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return interval_to_timedelta(periodset_duration(self._inner, ignore_gaps))
 
-    def num_elements(self) -> int:
+    def num_timestamps(self) -> int:
         """
         Returns the number of timestamps in ``self``.
         Returns:
@@ -117,18 +117,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return periodset_num_timestamps(self._inner)
 
-    def num_timestamps(self) -> int:
-        """
-        Returns the number of timestamps in ``self``.
-        Returns:
-            An :class:`int`
-
-        MEOS Functions:
-            periodset_num_timestamps
-        """
-        return self.num_elements()
-
-    def start_element(self) -> datetime:
+    def start_timestamp(self) -> datetime:
         """
         Returns the first timestamp in ``self``.
         Returns:
@@ -139,18 +128,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
 
-    def start_timestamp(self) -> datetime:
-        """
-        Returns the first timestamp in ``self``.
-        Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            periodset_start_timestamp
-        """
-        return self.start_element()
-
-    def end_element(self) -> datetime:
+    def end_timestamp(self) -> datetime:
         """
         Returns the last timestamp in ``self``.
         Returns:
@@ -161,29 +139,6 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
 
-    def end_timestamp(self) -> datetime:
-        """
-        Returns the last timestamp in ``self``.
-        Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            periodset_end_timestamp
-        """
-        return self.end_element()
-
-    def element_n(self, n: int) -> datetime:
-        """
-        Returns the n-th timestamp in ``self``.
-        Returns:
-            A :class:`datetime` instance
-
-        MEOS Functions:
-            periodset_timestamp_n
-        """
-        super().element_n(n)
-        return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n + 1))
-
     def timestamp_n(self, n: int) -> datetime:
         """
         Returns the n-th timestamp in ``self``.
@@ -193,19 +148,9 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         MEOS Functions:
             periodset_timestamp_n
         """
-        return self.element_n(n)
-
-    def elements(self) -> List[datetime]:
-        """
-        Returns the list of distinct timestamps in ``self``.
-        Returns:
-            A :class:`list[datetime]` instance
-
-        MEOS Functions:
-            periodset_timestamps
-        """
-        ts, count = periodset_timestamps(self._inner)
-        return [timestamptz_to_datetime(ts[i]) for i in range(count)]
+        if n < 0 or n >= self.num_timestamps():
+            raise IndexError(f'Index {n} out of bounds')
+        return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n + 1))
 
     def timestamps(self) -> List[datetime]:
         """
@@ -216,18 +161,8 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         MEOS Functions:
             periodset_timestamps
         """
-        return self.elements()
-
-    def num_spans(self) -> int:
-        """
-        Returns the number of periods in ``self``.
-        Returns:
-            An :class:`int`
-
-        MEOS Functions:
-            spanset_num_spans
-        """
-        return spanset_num_spans(self._inner)
+        ts, count = periodset_timestamps(self._inner)
+        return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
     def num_periods(self) -> int:
         """
@@ -762,10 +697,6 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
     @overload
     def intersection(self, other: datetime) -> datetime:
-        ...
-
-    @overload
-    def intersection(self, other: TimestampSet) -> TimestampSet:
         ...
 
     def intersection(self, other: Time) -> Union[PeriodSet, datetime, TimestampSet]:

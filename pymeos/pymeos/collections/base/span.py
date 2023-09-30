@@ -35,7 +35,8 @@ class Span(Collection[T], ABC):
                  upper_inc: Optional[bool] = False,
                  _inner=None):
         super().__init__()
-        assert (_inner is not None) or ((string is not None) != (lower is not None and upper is not None)), \
+        assert (_inner is not None) or ((string is not None) != \
+            (lower is not None and upper is not None)), \
             "Either string must be not None or both lower and upper must be not"
         if _inner is not None:
             self._inner = _inner

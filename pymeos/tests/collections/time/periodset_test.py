@@ -25,8 +25,8 @@ class TestPeriodSetConstructors(TestPeriodSet):
             Period('[2019-09-03, 2019-09-04]')
         ])
 
-    def test_period_list_constructor(self):
-        periodset = PeriodSet(period_list=[
+    def test_span_list_constructor(self):
+        periodset = PeriodSet(span_list=[
             Period('[2019-09-01, 2019-09-02]'),
             Period('[2019-09-03, 2019-09-04]')
         ])
