@@ -723,10 +723,10 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             result = super().intersection(other)
             return TimestampSet(_inner=result) if result is not None else None
         elif isinstance(other, Period):
-            result = super().intersection(other)
+            result = intersection_spanset_span(self._inner, other._inner)
             return PeriodSet(_inner=result) if result is not None else None
         elif isinstance(other, PeriodSet):
-            result = super().intersection(other)
+            result = intersection_spanset_spanset(self._inner, other._inner)
             return PeriodSet(_inner=result) if result is not None else None
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
