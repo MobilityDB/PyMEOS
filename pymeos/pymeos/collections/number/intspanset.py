@@ -3,7 +3,13 @@ from __future__ import annotations
 from typing import Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import intspanset_in, intspanset_out, spanset_width, \
-    intspanset_shift_scale
+    intspanset_shift_scale, adjacent_intspanset_int, contains_intspanset_int, \
+    spanset_eq, int_to_intspanset, left_intspanset_int, \
+    overleft_intspanset_int, right_intspanset_int, overright_intspanset_int, \
+    distance_intspanset_int, intersection_intspanset_int, \
+    intersection_spanset_span, intersection_spanset_spanset, \
+    union_intspanset_int, union_spanset_span, union_spanset_spanset, \
+    minus_intspanset_int, minus_spanset_span, minus_spanset_spanset
 
 from pymeos.collections import SpanSet
 
@@ -192,20 +198,178 @@ class IntSpanSet(SpanSet[int]):
             width is not None)
         return IntSpanSet(_inner=modified)
 
+    # ------------------------- Topological Operations --------------------------------
+
+    def is_adjacent(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        a bound but only one of them contains it.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if adjacent, False otherwise
+
+        MEOS Functions:
+            adjacent_spanset_span, adjacent_spanset_spanset,
+            adjacent_intspanset_int
+        """
+        if isinstance(other, int):
+            return adjacent_intspanset_int(self._inner, other)
+        else:
+            return super().is_adjacent(other)
+
+    def contains(self, content: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` contains ``content``.
+
+        Args:
+            content: object to compare with
+
+        Returns:
+            True if contains, False otherwise
+
+        MEOS Functions:
+            contains_spanset_span, contains_spanset_spanset,
+            contains_intspanset_int
+        """
+        if isinstance(content, int):
+            return contains_intspanset_int(self._inner, content)
+        else:
+            return super().contains(content)
+
+    def is_same(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` and the bounding period of ``other`` is the
+        same.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if equal, False otherwise
+
+        MEOS Functions:
+            same_period_temporal
+        """
+        if isinstance(other, int):
+            return spanset_eq(self._inner, int_to_intspanset(other))
+        else:
+            return super().is_same(other)
+
+    # ------------------------- Position Operations ---------------------------
+    def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is strictly left of ``other``. That is, 
+        ``self`` ends before ``other`` starts.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if left, False otherwise
+
+        MEOS Functions:
+            left_span_span, left_span_spanset, left_intspan_int
+        """
+        if isinstance(other, int):
+            return left_intspanset_int(self._inner, other)
+        else:
+            return super().is_left(other)
+
+    def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is left ``other`` allowing overlap. That is,
+        ``self`` ends before ``other`` ends (or at the same value).
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if before, False otherwise
+
+        MEOS Functions:
+            overleft_span_span, overleft_span_spanset, overleft_intspan_int
+        """
+        if isinstance(other, int):
+            return overleft_intspanset_int(self._inner, other)
+        else:
+            return super().is_over_or_left(other)
+
+    def is_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is strictly right ``other``. That is, ``self``
+        starts after ``other`` ends.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if right, False otherwise
+
+        MEOS Functions:
+            right_span_span, right_span_spanset, right_intspan_int
+        """
+        if isinstance(other, int):
+            return right_intspanset_int(self._inner, other)
+        else:
+            return super().is_right(other)
+
+    def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is right ``other`` allowing overlap. That is,
+        ``self`` starts after ``other`` starts (or at the same value).
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if overlapping or after, False otherwise
+
+        MEOS Functions:
+            overright_spanset_span, overright_spanset_spanset,
+            overright_intspanset_int
+        """
+        if isinstance(other, int):
+            return overright_intspanset_int(self._inner, other)
+        else:
+            return super().is_over_or_right(other)
+
+    # ------------------------- Distance Operations ---------------------------
+    def distance(self, other: Union[int, IntSpan, IntSpanSet]) -> float:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            A float value
+
+        MEOS Functions:
+            distance_spanset_span, distance_spanset_spanset,
+            distance_intspanset_int
+        """
+        if isinstance(other, int):
+            return distance_intspanset_int(self._inner, other)
+        else:
+            return super().distance(other)
+
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: IntSpan) -> IntSpanSet:
+    def intersection(self, other: int) -> Optional[int]:
         ...
 
     @overload
-    def intersection(self, other: IntSpanSet) -> IntSpanSet:
+    def intersection(self, other: IntSpan) -> Optional[IntSpanSet]:
         ...
 
     @overload
-    def intersection(self, other: int) -> int:
+    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]:
         ...
 
-    def intersection(self, other: Union[int, IntSpan, IntSpanSet]) -> Union[int, IntSpanSet]:
+    def intersection(self, other):
         """
         Returns the intersection of ``self`` and ``other``.
 
@@ -222,19 +386,15 @@ class IntSpanSet(SpanSet[int]):
         """
         from .intspan import IntSpan
         if isinstance(other, int):
-            result = intersection_intspanset_int(self._inner, int)
-            return timestamptz_to_int(result) if result is not None else None
-        elif isinstance(other, TimestampSet):
-            result = super().intersection(other)
-            return TimestampSet(_inner=result) if result is not None else None
+            return intersection_intspanset_int(self._inner, int)
         elif isinstance(other, IntSpan):
-            result = super().intersection(other)
+            result = intersection_spanset_span(self._inner, other._inner)
             return IntSpanSet(_inner=result) if result is not None else None
         elif isinstance(other, IntSpanSet):
-            result = super().intersection(other)
+            result = intersection_spanset_spanset(self._inner, other._inner)
             return IntSpanSet(_inner=result) if result is not None else None
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            super().intersection(other)
 
     def __mul__(self, other):
         """

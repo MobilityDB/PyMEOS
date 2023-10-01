@@ -2899,6 +2899,14 @@ def left_bigint_bigintspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def left_bigint_bigintspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    i_converted = _ffi.cast('int64', i)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_bigint_bigintspanset(i_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def left_bigintset_bigint(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     i_converted = _ffi.cast('int64', i)
@@ -2911,6 +2919,14 @@ def left_bigintspan_bigint(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     i_converted = _ffi.cast('int64', i)
     result = _lib.left_bigintspan_bigint(s_converted, i_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_bigintspanset_bigint(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.left_bigintspanset_bigint(ss_converted, i_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -2929,6 +2945,13 @@ def left_float_floatspan(d: float, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def left_float_floatspanset(d: float, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_float_floatspanset(d, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def left_floatset_float(s: 'const Set *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.left_floatset_float(s_converted, d)
@@ -2939,6 +2962,13 @@ def left_floatset_float(s: 'const Set *', d: float) -> 'bool':
 def left_floatspan_float(s: 'const Span *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.left_floatspan_float(s_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_floatspanset_float(ss_converted, d)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -2957,6 +2987,13 @@ def left_int_intspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def left_int_intspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_int_intspanset(i, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def left_intset_int(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.left_intset_int(s_converted, i)
@@ -2967,6 +3004,13 @@ def left_intset_int(s: 'const Set *', i: int) -> 'bool':
 def left_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.left_intspan_int(s_converted, i)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_intspanset_int(ss_converted, i)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3139,6 +3183,14 @@ def overleft_bigint_bigintspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overleft_bigint_bigintspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    i_converted = _ffi.cast('int64', i)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_bigint_bigintspanset(i_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overleft_bigintset_bigint(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     i_converted = _ffi.cast('int64', i)
@@ -3151,6 +3203,14 @@ def overleft_bigintspan_bigint(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     i_converted = _ffi.cast('int64', i)
     result = _lib.overleft_bigintspan_bigint(s_converted, i_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_bigintspanset_bigint(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.overleft_bigintspanset_bigint(ss_converted, i_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3169,6 +3229,13 @@ def overleft_float_floatspan(d: float, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overleft_float_floatspanset(d: float, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_float_floatspanset(d, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overleft_floatset_float(s: 'const Set *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.overleft_floatset_float(s_converted, d)
@@ -3179,6 +3246,13 @@ def overleft_floatset_float(s: 'const Set *', d: float) -> 'bool':
 def overleft_floatspan_float(s: 'const Span *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.overleft_floatspan_float(s_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_floatspanset_float(ss_converted, d)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3197,6 +3271,13 @@ def overleft_int_intspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overleft_int_intspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_int_intspanset(i, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overleft_intset_int(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.overleft_intset_int(s_converted, i)
@@ -3207,6 +3288,13 @@ def overleft_intset_int(s: 'const Set *', i: int) -> 'bool':
 def overleft_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.overleft_intspan_int(s_converted, i)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_intspanset_int(ss_converted, i)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3283,6 +3371,14 @@ def overright_bigint_bigintspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overright_bigint_bigintspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    i_converted = _ffi.cast('int64', i)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_bigint_bigintspanset(i_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overright_bigintset_bigint(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     i_converted = _ffi.cast('int64', i)
@@ -3295,6 +3391,14 @@ def overright_bigintspan_bigint(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     i_converted = _ffi.cast('int64', i)
     result = _lib.overright_bigintspan_bigint(s_converted, i_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_bigintspanset_bigint(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.overright_bigintspanset_bigint(ss_converted, i_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3313,6 +3417,13 @@ def overright_float_floatspan(d: float, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overright_float_floatspanset(d: float, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_float_floatspanset(d, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overright_floatset_float(s: 'const Set *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.overright_floatset_float(s_converted, d)
@@ -3323,6 +3434,13 @@ def overright_floatset_float(s: 'const Set *', d: float) -> 'bool':
 def overright_floatspan_float(s: 'const Span *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.overright_floatspan_float(s_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_floatspanset_float(ss_converted, d)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3341,6 +3459,13 @@ def overright_int_intspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def overright_int_intspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_int_intspanset(i, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overright_intset_int(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.overright_intset_int(s_converted, i)
@@ -3351,6 +3476,13 @@ def overright_intset_int(s: 'const Set *', i: int) -> 'bool':
 def overright_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.overright_intspan_int(s_converted, i)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_intspanset_int(ss_converted, i)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3427,6 +3559,14 @@ def right_bigint_bigintspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def right_bigint_bigintspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    i_converted = _ffi.cast('int64', i)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_bigint_bigintspanset(i_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def right_bigintset_bigint(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     i_converted = _ffi.cast('int64', i)
@@ -3439,6 +3579,14 @@ def right_bigintspan_bigint(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     i_converted = _ffi.cast('int64', i)
     result = _lib.right_bigintspan_bigint(s_converted, i_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_bigintspanset_bigint(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    i_converted = _ffi.cast('int64', i)
+    result = _lib.right_bigintspanset_bigint(ss_converted, i_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3457,6 +3605,13 @@ def right_float_floatspan(d: float, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def right_float_floatspanset(d: float, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_float_floatspanset(d, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def right_floatset_float(s: 'const Set *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.right_floatset_float(s_converted, d)
@@ -3467,6 +3622,13 @@ def right_floatset_float(s: 'const Set *', d: float) -> 'bool':
 def right_floatspan_float(s: 'const Span *', d: float) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.right_floatspan_float(s_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_floatspanset_float(ss: 'const SpanSet *', d: float) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_floatspanset_float(ss_converted, d)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3485,6 +3647,13 @@ def right_int_intspan(i: int, s: 'const Span *') -> 'bool':
     return result if result != _ffi.NULL else None
 
 
+def right_int_intspanset(i: int, ss: 'const SpanSet *') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_int_intspanset(i, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def right_intset_int(s: 'const Set *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Set *', s)
     result = _lib.right_intset_int(s_converted, i)
@@ -3495,6 +3664,13 @@ def right_intset_int(s: 'const Set *', i: int) -> 'bool':
 def right_intspan_int(s: 'const Span *', i: int) -> 'bool':
     s_converted = _ffi.cast('const Span *', s)
     result = _lib.right_intspan_int(s_converted, i)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_intspanset_int(ss: 'const SpanSet *', i: int) -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_intspanset_int(ss_converted, i)
     _check_error()
     return result if result != _ffi.NULL else None
 

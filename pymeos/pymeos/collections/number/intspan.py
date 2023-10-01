@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intersection_intset_int, distance_intset_int, \
-    intspan_in, intspan_lower, intspan_upper, intspan_shift_scale, \
-    contains_intspan_int, adjacent_intspan_int, span_width, \
-    int_to_intspan, span_eq, left_intspan_int,\
+from pymeos_cffi import intspan_in, intspan_lower, intspan_upper, \
+    intspan_shift_scale, contains_intspan_int, adjacent_intspan_int, \
+    span_width, int_to_intspan, span_eq, left_intspan_int,\
     overleft_intspan_int, right_intspan_int, overright_intspan_int, \
     intersection_intspan_int, intersection_span_span, intersection_spanset_span, \
     minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
@@ -178,7 +177,7 @@ class IntSpan(Span[int]):
             True if adjacent, False otherwise
 
         MEOS Functions:
-            adjacent_span_span, adjacent_span_spanset, adjacent_intset_int
+            adjacent_span_span, adjacent_span_spanset, adjacent_intspan_int
         """
         if isinstance(other, int):
             return adjacent_intspan_int(self._inner, other)
@@ -196,7 +195,7 @@ class IntSpan(Span[int]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_intset_int
+            contains_span_span, contains_intspan_int
         """
         if isinstance(content, int):
             return contains_intspan_int(self._inner, content)
@@ -225,13 +224,14 @@ class IntSpan(Span[int]):
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly before ``other``. That is, ``self`` ends before ``other`` starts.
+        Returns whether ``self`` is strictly left ``other``. That is,
+        ``self`` ends before ``other`` starts.
 
         Args:
             other: object to compare with
 
         Returns:
-            True if before, False otherwise
+            True if left, False otherwise
 
         MEOS Functions:
             left_span_span, left_span_spanset, left_intspan_int
@@ -243,14 +243,14 @@ class IntSpan(Span[int]):
 
     def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is before ``other`` allowing overlap. That is,
+        Returns whether ``self`` is left ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same value).
 
         Args:
             other: object to compare with
 
         Returns:
-            True if before, False otherwise
+            True if over or left, False otherwise
 
         MEOS Functions:
             overleft_span_span, overleft_span_spanset, overleft_intspan_int
@@ -262,13 +262,14 @@ class IntSpan(Span[int]):
 
     def is_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly after ``other``. That is, ``self`` starts after ``other`` ends.
+        Returns whether ``self`` is strictly right ``other``. That is, ``self``
+        starts after ``other`` ends.
 
         Args:
             other: object to compare with
 
         Returns:
-            True if after, False otherwise
+            True if right, False otherwise
 
         MEOS Functions:
             right_span_span, right_span_spanset, right_intspan_int
@@ -280,7 +281,7 @@ class IntSpan(Span[int]):
 
     def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is after ``other`` allowing overlap. That is,
+        Returns whether ``self`` is right ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same value).
 
         Args:
@@ -309,7 +310,7 @@ class IntSpan(Span[int]):
             A float value
 
         MEOS Functions:
-            distance_span_span, distance_span_spanset, distance_intset_int,
+            distance_span_span, distance_span_spanset, distance_intspan_int,
         """
         if isinstance(other, int):
             return distance_intspan_int(self._inner, other)
@@ -337,10 +338,12 @@ class IntSpan(Span[int]):
             other: object to intersect with
 
         Returns:
-            A :class:`Collection[int]` instance. The actual class depends on ``other``.
+            A :class:`Collection[int]` instance. The actual class depends on
+            ``other``.
 
         MEOS Functions:
-            intersection_span_span, intersection_spanset_span, intersection_intset_int
+            intersection_span_span, intersection_spanset_span,
+            intersection_intspan_int
         """
         from .intspanset import IntSpanSet
         if isinstance(other, int):
@@ -365,7 +368,7 @@ class IntSpan(Span[int]):
             A :class:`IntSpanSet` instance.
 
         MEOS Functions:
-            minus_span_span, minus_spanset_span, minus_intset_int
+            minus_span_span, minus_spanset_span, minus_intspan_int
         """
         from .intspanset import IntSpanSet
         if isinstance(other, int):
@@ -389,7 +392,7 @@ class IntSpan(Span[int]):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_spanset_span, union_span_span, union_intset_int
+            union_spanset_span, union_span_span, union_intspan_int
         """
         from .intspanset import IntSpanSet
         if isinstance(other, int):

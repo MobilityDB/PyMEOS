@@ -462,13 +462,13 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def intersection(self, other):
         """
-        Returns the temporal intersection of ``self`` and ``other``.
+        Returns the intersection of ``self`` and ``other``.
 
         Args:
-            other: temporal object to intersect with
+            other: object to intersect with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A collection instance. The actual class depends on ``other``.
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
@@ -478,13 +478,13 @@ class Span(Collection[T], ABC):
 
     def __mul__(self, other):
         """
-        Returns the temporal intersection of ``self`` and ``other``.
+        Returns the intersection of ``self`` and ``other``.
 
         Args:
-            other: temporal object to intersect with
+            other: object to intersect with
 
         Returns:
-            A :class:`Time` instance. The actual class depends on ``other``.
+            A :class:`Span` instance. The actual class depends on ``other``.
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
