@@ -714,22 +714,13 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             intersection_spanset_span
         """
         from .period import Period
-        from .timestampset import TimestampSet
         if isinstance(other, datetime):
             result = intersection_periodset_timestamp(self._inner,
                 datetime_to_timestamptz(other))
             return timestamptz_to_datetime(result) if result is not None else None
-        elif isinstance(other, TimestampSet):
-            result = super().intersection(other)
-            return TimestampSet(_inner=result) if result is not None else None
-        elif isinstance(other, Period):
-            result = intersection_spanset_span(self._inner, other._inner)
-            return PeriodSet(_inner=result) if result is not None else None
-        elif isinstance(other, PeriodSet):
-            result = intersection_spanset_spanset(self._inner, other._inner)
-            return PeriodSet(_inner=result) if result is not None else None
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            result = super().intersection(other)
+        return PeriodSet(_inner=result) if result is not None else None
 
     def __mul__(self, other):
         """

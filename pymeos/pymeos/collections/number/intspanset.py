@@ -384,17 +384,11 @@ class IntSpanSet(SpanSet[int]):
             intersection_intspanset_int, intersection_spanset_spanset,
             intersection_spanset_span
         """
-        from .intspan import IntSpan
         if isinstance(other, int):
-            return intersection_intspanset_int(self._inner, int)
-        elif isinstance(other, IntSpan):
-            result = intersection_spanset_span(self._inner, other._inner)
-            return IntSpanSet(_inner=result) if result is not None else None
-        elif isinstance(other, IntSpanSet):
-            result = intersection_spanset_spanset(self._inner, other._inner)
-            return IntSpanSet(_inner=result) if result is not None else None
+            result = intersection_intspanset_int(self._inner, other)
         else:
-            super().intersection(other)
+            result = super().intersection(other)
+        return IntSpanSet(_inner=result) if result is not None else None
 
     def __mul__(self, other):
         """
@@ -426,7 +420,7 @@ class IntSpanSet(SpanSet[int]):
             minus_spanset_span, minus_spanset_spanset, minus_intspanset_int
         """
         if isinstance(other, int):
-            result = minus_intspanset_int(self._inner, int)
+            result = minus_intspanset_int(self._inner, other)
         else:
             result = super().minus(other)
         return IntSpanSet(_inner=result) if result is not None else None
@@ -462,7 +456,7 @@ class IntSpanSet(SpanSet[int]):
             union_spanset_span
         """
         if isinstance(other, int):
-            result = union_intspanset_int(self._inner, int)
+            result = union_intspanset_int(self._inner, other)
         else:
             result = super().union(other)
         return IntSpanSet(_inner=result) if result is not None else None

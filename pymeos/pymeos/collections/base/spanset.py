@@ -460,7 +460,13 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
         intersection_spanset_spanset, intersection_spanset_span
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        from .span import Span
+        if isinstance(other, Span):
+            return intersection_spanset_span(self._inner, other._inner)
+        elif isinstance(other, SpanSet):
+            return intersection_spanset_spanset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __mul__(self, other):
         """
@@ -526,7 +532,8 @@ class SpanSet(Collection[T], ABC):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-        union_periodset_timestamp, union_spanset_spanset, union_spanset_span
+            union_periodset_timestamp, union_spanset_spanset,
+            union_spanset_span
         """
         from .span import Span
         if isinstance(other, Span):

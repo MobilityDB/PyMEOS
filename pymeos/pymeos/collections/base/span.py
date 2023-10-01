@@ -474,7 +474,13 @@ class Span(Collection[T], ABC):
             intersection_span_span, intersection_spanset_span,
             intersection_period_timestamp
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        from .span import Span
+        if isinstance(other, Span):
+            return intersection_span_span(self._inner, other._inner)
+        elif isinstance(other, SpanSet):
+            return intersection_span_spanset(self._inner, other._inner)
+        else:
+            raise TypeError(f'Operation not supported with type {other.__class__}')
 
     def __mul__(self, other):
         """

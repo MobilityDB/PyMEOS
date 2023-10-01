@@ -358,7 +358,7 @@ class FloatSpanSet(SpanSet[float]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: int) -> Optional[int]:
+    def intersection(self, other: Union[int, float]) -> Optional[float]:
         ...
 
     @overload
@@ -385,16 +385,11 @@ class FloatSpanSet(SpanSet[float]):
             intersection_spanset_span
         """
         from .floatspan import FloatSpan
-        if isinstance(other, int):
-            return intersection_floatspanset_float(self._inner, int)
-        elif isinstance(other, FloatSpan):
-            result = intersection_spanset_span(self._inner, other._inner)
-            return FloatSpanSet(_inner=result) if result is not None else None
-        elif isinstance(other, FloatSpanSet):
-            result = intersection_spanset_spanset(self._inner, other._inner)
-            return FloatSpanSet(_inner=result) if result is not None else None
+        if isinstance(other, int) or isinstance(other, float):
+            result = intersection_floatspanset_float(self._inner, float(other))
         else:
-            super().intersection(other)
+            result = super().intersection(other)
+        return FloatSpanSet(_inner=result) if result is not None else None
 
     def __mul__(self, other):
         """
@@ -425,8 +420,8 @@ class FloatSpanSet(SpanSet[float]):
         MEOS Functions:
             minus_spanset_span, minus_spanset_spanset, minus_floatspanset_float
         """
-        if isinstance(other, float):
-            result = minus_floatspanset_float(self._inner, float)
+        if isinstance(other, int) or isinstance(other, float):
+            result = minus_floatspanset_float(self._inner, float(other))
         else:
             result = super().minus(other)
         return FloatSpanSet(_inner=result) if result is not None else None
@@ -461,8 +456,8 @@ class FloatSpanSet(SpanSet[float]):
             union_floatspanset_float, union_spanset_spanset,
             union_spanset_span
         """
-        if isinstance(other, float):
-            result = union_floatspanset_float(self._inner, float)
+        if isinstance(other, int) or isinstance(other, float):
+            result = union_floatspanset_float(self._inner, float(other))
         else:
             result = super().union(other)
         return FloatSpanSet(_inner=result) if result is not None else None
