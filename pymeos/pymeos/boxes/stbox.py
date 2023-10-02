@@ -2,15 +2,12 @@ from __future__ import annotations
 
 from typing import Optional, Union, List, TYPE_CHECKING, get_args
 
-import postgis as pg
 import shapely.geometry.base as shp
 from pymeos_cffi import *
 
 from ..main import TPoint
 from ..temporal import Temporal
 from ..collections import *
-
-Geometry = Union[pg.Geometry, shp.BaseGeometry]
 
 if TYPE_CHECKING:
     from .box import Box
@@ -42,10 +39,10 @@ class STBox:
 
     _mobilitydb_name = 'stbox'
 
-    def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], 
+    def _get_box(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time],
                  allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
-        if allow_space_only and isinstance(other, get_args(Geometry)):
+        if allow_space_only and isinstance(other, shp.BaseGeometry):
             other_box = geo_to_stbox(geo_to_gserialized(other, self.geodetic()))
         elif isinstance(other, STBox):
             other_box = other._inner
@@ -152,12 +149,12 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry(geom: Geometry, geodetic: bool = False) -> STBox:
+    def from_geometry(geom: shp.BaseGeometry, geodetic: bool = False) -> STBox:
         """
-        Returns a `STBox` from a `Geometry`.
+        Returns a `STBox` from a `shp.BaseGeometry`.
 
         Args:
-            geom: A `Geometry` instance.
+            geom: A `shp.BaseGeometry` instance.
             geodetic: Whether to create a geodetic or geometric `STBox`.
 
         Returns:
@@ -197,13 +194,13 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry_time(geometry: Geometry, time: Union[datetime, Period],
+    def from_geometry_time(geometry: shp.BaseGeometry, time: Union[datetime, Period],
                            geodetic: bool = False) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
 
         Args:
-            geometry: A `Geometry` instance representing the space dimension.
+            geometry: A `shp.BaseGeometry` instance representing the space dimension.
             time: A `Time` instance representing the time dimension.
             geodetic: Whether to create a geodetic or geometric `STBox`.
 
@@ -240,17 +237,17 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox],
+    def from_expanding_bounding_box(value: Union[shp.BaseGeometry, TPoint, STBox],
         expansion: float, geodetic: Optional[bool] = False) -> STBox:
         """
-        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance,
+        Returns a `STBox` from a `shp.BaseGeometry`, `TPoint` or `STBox` instance,
         expanding its bounding box by the given amount.
 
         Args:
-            value: A `Geometry`, `TPoint` or `STBox` instance.
+            value: A `shp.BaseGeometry`, `TPoint` or `STBox` instance.
             expansion: The amount to expand the bounding box.
             geodetic: Whether to create a geodetic or geometric `STBox`.
-            Only used when value is a `Geometry` instance.
+            Only used when value is a `shp.BaseGeometry` instance.
 
         Returns:
             A new :class:`STBox` instance.
@@ -258,7 +255,7 @@ class STBox:
         MEOS Functions:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
-        if isinstance(value, get_args(Geometry)):
+        if isinstance(value, shp.BaseGeometry):
             gs = geo_to_gserialized(value, geodetic)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
@@ -743,7 +740,7 @@ class STBox:
         return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def is_adjacent(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` and `other` are adjacent. Two spatiotemporal
         boxes are adjacent if they share n dimensions and the intersection is
@@ -764,7 +761,7 @@ class STBox:
             allow_time_only=True))
 
     def is_contained_in(self,
-            container: Union[Geometry, STBox, Temporal, Time]) -> bool:
+            container: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is contained in `container`. Note that for
         `TPoint` instances, the bounding box of the temporal point is used.
@@ -782,7 +779,7 @@ class STBox:
         return contained_stbox_stbox(self._inner, self._get_box(container,
             allow_time_only=True))
 
-    def contains(self, content: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def contains(self, content: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` contains `content`. Note that for `TPoint`
         instances, the bounding box of the temporal point is used.
@@ -819,7 +816,7 @@ class STBox:
         """
         return self.contains(item)
 
-    def overlaps(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def overlaps(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` overlaps `other`. Note that for `TPoint`
         instances, the bounding box of the temporal point is used.
@@ -836,7 +833,7 @@ class STBox:
         return overlaps_stbox_stbox(self._inner, self._get_box(other,
             allow_time_only=True))
 
-    def is_same(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def is_same(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
         Returns whether ``self`` is the same as `other`. Note that for `TPoint`
         instances, the bounding box of the temporal point is used.
@@ -854,7 +851,7 @@ class STBox:
             allow_time_only=True))
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_left(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly to the left  of `other`. Checks
         the X dimension.
@@ -871,7 +868,7 @@ class STBox:
         """
         return left_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_left(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is to the left `other` allowing for overlap.
         That is, ``self`` does not extend to the right of `other`. Checks the
@@ -889,7 +886,7 @@ class STBox:
         """
         return overleft_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_right(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly to the right of `other`.
         Checks the X dimension.
@@ -906,7 +903,7 @@ class STBox:
         """
         return right_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_right(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is to the right of `other` allowing for
         overlap. That is, ``self`` does not extend to the left of `other`.
@@ -924,7 +921,7 @@ class STBox:
         """
         return overright_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_below(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly below `other`.
         Checks the Y dimension.
@@ -941,7 +938,7 @@ class STBox:
         """
         return below_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_below(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is below `other` allowing for overlap.
         That is, ``self`` does not extend above `other`. Checks the Y dimension.
@@ -958,7 +955,7 @@ class STBox:
         """
         return overbelow_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_above(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly above `other`.
         Checks the Y dimension.
@@ -975,7 +972,7 @@ class STBox:
         """
         return above_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_above(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is above `other` allowing for overlap.
         That is, ``self`` does not extend below `other`.
@@ -993,7 +990,7 @@ class STBox:
         """
         return overabove_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_front(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly in front of `other`.
         Checks the Z dimension.
@@ -1010,7 +1007,7 @@ class STBox:
         """
         return front_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_front(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is in front of `other` allowing for overlap.
         That is, ``self`` does not extend behind `other`.
@@ -1028,7 +1025,7 @@ class STBox:
         """
         return overfront_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_behind(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is strictly behind `other`.
         Checks the Z dimension.
@@ -1045,7 +1042,7 @@ class STBox:
         """
         return back_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_behind(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
         Returns whether ``self`` is behind `other` allowing for overlap.
         That is, ``self`` does not extend in front of `other`.
@@ -1122,7 +1119,7 @@ class STBox:
         return self.to_period().is_over_or_after(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) \
+    def nearest_approach_distance(self, other: Union[shp.BaseGeometry, STBox, TPoint]) \
         -> float:
         """
         Returns the distance between the nearest points of ``self`` and `other`.
@@ -1137,7 +1134,7 @@ class STBox:
         MEOS Functions:
             nad_stbox_geo, nad_stbox_stbox
         """
-        if isinstance(other, get_args(Geometry)):
+        if isinstance(other, shp.BaseGeometry):
             gs = geo_to_gserialized(other, self.geodetic())
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):
@@ -1217,7 +1214,7 @@ class STBox:
 
     def tile(self, size: Optional[float] = None, 
              duration: Optional[Union[timedelta, str]] = None,
-             origin: Optional[Geometry] = None,
+             origin: Optional[shp.BaseGeometry] = None,
              start: Union[datetime, str, None] = None) -> \
              List[List[List[List[STBox]]]]:
         """
@@ -1270,7 +1267,7 @@ class STBox:
 
     def tile_flat(self, size: float, 
                   duration: Optional[Union[timedelta, str]] = None,
-                  origin: Optional[Geometry] = None,
+                  origin: Optional[shp.BaseGeometry] = None,
                   start: Union[datetime, str, None] = None) -> List[STBox]:
         """
         Returns a flat list of `STBox` instances representing the tiles of

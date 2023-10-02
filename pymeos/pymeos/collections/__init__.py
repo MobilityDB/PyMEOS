@@ -9,7 +9,7 @@ __all__ = [
     'Set', 'Span', 'SpanSet',
     'Time', 'TimestampSet', 'Period', 'PeriodSet', 'datetime', 'timedelta',
     'TextSet',
-    'GeometrySet', 'GeographySet',
+    'GeoSet', 'GeometrySet', 'GeographySet',
     'IntSet', 'IntSpan', 'IntSpanSet',
     'FloatSet', 'FloatSpan', 'FloatSpanSet'
 ]

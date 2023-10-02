@@ -26,7 +26,7 @@ __all__ = [
     'TextSet',
     'IntSet', 'IntSpan', 'IntSpanSet',
     'FloatSet', 'FloatSpan', 'FloatSpanSet',
-    'GeometrySet', 'GeographySet',
+    'GeoSet', 'GeometrySet', 'GeographySet',
     # extras
     'TInterpolation',
     # aggregators
