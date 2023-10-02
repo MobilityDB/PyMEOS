@@ -5,7 +5,6 @@ from functools import reduce
 from typing import Optional, List, Union, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
-from spans.types import floatrange, intrange
 
 from .tnumber import TNumber
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
@@ -668,8 +667,8 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[int, float, List[int], List[float],
-    floatrange, List[floatrange], TBox, Time]) -> TFloat:
+    def at(self, other: Union[float, int, FloatSet, IntSet, FloatSpan, IntSpan, \
+            FloatSpanSet, IntSpanSet, TBox, Time]) -> TFloat:
         """
         Returns a new temporal float with the values of `self` restricted to
         the value or time `other`.
@@ -681,26 +680,24 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             A new temporal float.
 
         MEOS Functions:
-            tfloat_at_value, tfloat_at_values, tfloat_at_span, tfloat_at_spanset,
+            tfloat_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
             temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
             temporal_at_periodset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_at_value(self._inner, float(other))
-        elif isinstance(other, floatrange):
-            result = tnumber_at_span(self._inner, floatrange_to_floatspan(other))
-        elif isinstance(other, list) and (isinstance(other[0], int) or \
-                                          isinstance(other[0], float)):
-            result = temporal_at_values(self._inner, floatset_make(other))
-        # elif isinstance(other, list) and (isinstance(other[0], floatrange) or isinstance(other[0], intrange)):
-        # results = [tnumber_at_span(self._inner, value) for value in other if other is not None]
-        # result = temporal_merge_array(results, len(results))
+        elif isinstance(other, IntSet):
+            return super().at(other.to_floatset())
+        elif isinstance(other, IntSpan):
+            return super().at(other.to_floatspan())
+        elif isinstance(other, IntSpanSet):
+            return super().at(other.to_floatspanset())
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[int, float, List[int], List[float],
-    floatrange, List[floatrange], TBox, Time]) -> Temporal:
+    def minus(self, other: Union[float, int, FloatSet, IntSet, FloatSpan, IntSpan, \
+            FloatSpanSet, IntSpanSet, TBox, Time]) -> Temporal:
         """
         Returns a new temporal float with the values of `self` restricted to
         the complement of the time or value `other`.
@@ -712,18 +709,18 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             A new temporal float.
 
         MEOS Functions:
-            tfloat_minus_value, tnumber_minus_span, 
+            tfloat_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
             temporal_minus_timestamp, temporal_minus_timestampset,
             temporal_minus_period, temporal_minus_periodset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_minus_value(self._inner, float(other))
-        elif isinstance(other, floatrange):
-            result = tnumber_minus_span(self._inner,
-                                        floatrange_to_floatspan(other))
-        elif isinstance(other, list) and isinstance(other[0], float):
-            result = temporal_minus_values(self._inner,
-                                           floatset_make(other))
+        elif isinstance(other, IntSet):
+            return super().minus(other.to_floatset())
+        elif isinstance(other, IntSpan):
+            return super().minus(other.to_floatspan())
+        elif isinstance(other, IntSpanSet):
+            return super().minus(other.to_floatspanset())
         else:
             return super().minus(other)
         return Temporal._factory(result)
@@ -827,11 +824,11 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         return [_TemporalFactory.create_temporal(fragments[i]) for i in \
                 range(count)]
 
-    def value_time_split(self, value_size: float, 
+    def value_time_split(self, value_size: float,
                          duration: Union[str, timedelta],
                          value_start: Optional[float] = 0.0,
                          time_start: Optional[Union[str, datetime]] = None) -> \
-                         List[Temporal]:
+            List[Temporal]:
         """
         Splits `self` into fragments with respect to value and period buckets.
 
@@ -859,7 +856,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
         fragments, _, _, count = tfloat_value_time_split(self._inner,
-            value_size, dt, value_start, st)
+                                                         value_size, dt, value_start, st)
         return [Temporal._factory(fragments[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------

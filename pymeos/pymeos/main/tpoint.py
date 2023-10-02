@@ -11,7 +11,7 @@ from geopandas import GeoDataFrame
 from pymeos_cffi import *
 
 from .tbool import TBool
-from .tfloat import TFloat, TFloatSeqSet
+from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..collections import *
 
@@ -23,6 +23,7 @@ TI = TypeVar('TI', bound='TPointInst')
 TS = TypeVar('TS', bound='TPointSeq')
 TSS = TypeVar('TSS', bound='TPointSeqSet')
 Self = TypeVar('Self', bound='TPoint')
+TF = TypeVar('TF', bound='TFloat', covariant=True)
 
 
 class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
@@ -219,7 +220,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         result = tpoint_speed(self._inner)
         return Temporal._factory(result)
 
-    def x(self) -> TFloat:
+    def x(self) -> TF:
         """
         Returns the x coordinate of the temporal point.
 
@@ -232,7 +233,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         result = tpoint_get_x(self._inner)
         return Temporal._factory(result)
 
-    def y(self) -> TFloat:
+    def y(self) -> TF:
         """
         Returns the y coordinate of the temporal point.
 
@@ -245,7 +246,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         result = tpoint_get_y(self._inner)
         return Temporal._factory(result)
 
-    def z(self) -> TFloat:
+    def z(self) -> TF:
         """
         Returns the z coordinate of the temporal point.
 
@@ -1173,44 +1174,29 @@ class TPointInst(TInstant[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS
         """
         return self.start_value(precision=precision)
 
+    def x(self) -> TFloatInst:
+        return super().x()
+
+    def y(self) -> TFloatInst:
+        return super().y()
+
+    def z(self) -> TFloatInst:
+        return super().z()
+
 
 class TPointSeq(TSequence[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC):
     """
     Abstract class for temporal point sequences.
     """
 
-    # @staticmethod
-    # def from_arrays(t: List[Union[datetime, str]], x: List[float], y: List[float], z: Optional[List[float]] = None,
-    #                 srid: int = 0, geodetic: bool = False, lower_inc: bool = True, upper_inc: bool = False,
-    #                 interpolation: TInterpolation = TInterpolation.LINEAR, normalize: bool = True) -> TPointSeq:
-    #     """
-    #     Creates a temporal point sequence from arrays of timestamps and coordinates.
-    #
-    #     Args:
-    #         t: The array of timestamps.
-    #         x: The array of x coordinates.
-    #         y: The array of y coordinates.
-    #         z: The array of z coordinates.
-    #         srid: The spatial reference system identifier.
-    #         geodetic: Whether the coordinates are geodetic.
-    #         lower_inc: Whether the lower bound is inclusive.
-    #         upper_inc: Whether the upper bound is inclusive.
-    #         interpolation: The interpolation method.
-    #         normalize: Whether to normalize the timestamps.
-    #
-    #     Returns:
-    #         A new :class:`TPointSeq` object.
-    #
-    #     MEOS Functions:
-    #         tpointseq_make_coords
-    #     """
-    #     from ..factory import _TemporalFactory
-    #     assert len(t) == len(x) == len(y)
-    #     times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else pg_timestamptz_in(ti, -1) for ti in t]
-    #     return _TemporalFactory.create_temporal(
-    #         tpointseq_make_coords(x, y, z, times, len(t), srid, geodetic, lower_inc, upper_inc, interpolation,
-    #                               normalize)
-    #     )
+    def x(self) -> TFloatSeq:
+        return super().x()
+
+    def y(self) -> TFloatSeq:
+        return super().y()
+
+    def z(self) -> TFloatSeq:
+        return super().z()
 
     def plot(self, *args, **kwargs):
         """
@@ -1255,6 +1241,15 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
                          seq.values(precision=precision)]
         }
         return GeoDataFrame(data, crs=self.srid()).set_index(keys=['sequence', 'time'])
+
+    def x(self) -> TFloatSeqSet:
+        return super().x()
+
+    def y(self) -> TFloatSeqSet:
+        return super().y()
+
+    def z(self) -> TFloatSeqSet:
+        return super().z()
 
     def plot(self, *args, **kwargs):
         """

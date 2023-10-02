@@ -417,7 +417,7 @@ class FloatSpanSet(SpanSet[float]):
         """
         return self.intersection(other)
 
-    def minus(self, other: Time) -> FloatSpanSet:
+    def minus(self, other: Union[int, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -452,7 +452,7 @@ class FloatSpanSet(SpanSet[float]):
         """
         return self.minus(other)
 
-    def union(self, other: Time) -> FloatSpanSet:
+    def union(self, other: Union[int, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 

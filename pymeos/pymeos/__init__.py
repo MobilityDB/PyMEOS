@@ -25,7 +25,8 @@ __all__ = [
     'Time', 'Period', 'TimestampSet', 'PeriodSet',
     'TextSet',
     'IntSet', 'IntSpan', 'IntSpanSet',
-    'FloatSet', 'FloatSpan', 'FloatSpanSet'
+    'FloatSet', 'FloatSpan', 'FloatSpanSet',
+    'GeometrySet', 'GeographySet',
     # extras
     'TInterpolation',
     # aggregators

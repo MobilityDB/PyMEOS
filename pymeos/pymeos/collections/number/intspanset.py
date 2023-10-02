@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Union, overload, Optional, TYPE_CHECKING
+from typing import Union, overload, Optional, TYPE_CHECKING, List
 
 from pymeos_cffi import intspanset_in, intspanset_out, spanset_width, \
     intspanset_shift_scale, adjacent_intspanset_int, contains_intspanset_int, \
@@ -417,7 +417,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.intersection(other)
 
-    def minus(self, other: Time) -> IntSpanSet:
+    def minus(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -452,7 +452,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.minus(other)
 
-    def union(self, other: Time) -> IntSpanSet:
+    def union(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 

@@ -1,15 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
-from typing import Generic, TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
-from typing import Optional, Union, overload, get_args, List
-
-from pymeos_cffi import *
-
-if TYPE_CHECKING:
-    from .spanset import SpanSet
-    from .span import Span
+from typing import Generic, TypeVar
 
 T = TypeVar('T')
 Self = TypeVar('Self', bound='Set[Any]')
@@ -19,7 +11,7 @@ class Collection(Generic[T], ABC):
     # ------------------------- Topological Operations ------------------------
     # @abstractmethod
     # def is_adjacent(self, other) -> bool:
-        # raise NotImplementedError()
+    # raise NotImplementedError()
 
     @abstractmethod
     def is_contained_in(self, container) -> bool:
@@ -39,7 +31,7 @@ class Collection(Generic[T], ABC):
 
     # @abstractmethod
     # def is_same(self, other) -> bool:
-        # raise NotImplementedError()
+    # raise NotImplementedError()
 
     # ------------------------- Position Operations ---------------------------
     @abstractmethod

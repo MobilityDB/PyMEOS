@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Union, List, TYPE_CHECKING, TypeVar
+from typing import Union, TYPE_CHECKING, TypeVar
 
 from pymeos_cffi import *
-from spans import intrange, floatrange
 
+from ..collections import IntSet, FloatSet
 from ..temporal import Temporal
 
 if TYPE_CHECKING:
@@ -19,6 +19,7 @@ TG = TypeVar('TG', 'TNumber[int]', 'TNumber[float]')
 TI = TypeVar('TI', 'TInstant[int]', 'TInstant[float]')
 TS = TypeVar('TS', 'TSequence[int]', 'TSequence[float]')
 TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
+Self = TypeVar('Self', bound='TNumber[Any]')
 
 
 class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
@@ -62,7 +63,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return tnumber_twavg(self._inner)
 
     # ------------------------- Transformations -------------------------------
-    def shift_value(self, delta: Union[int, float]) -> Self:
+    def shift_value(self: Self, delta: Union[int, float]) -> Self:
         """
         Returns a new :class:`TNumber` with the value dimension shifted by
         ``delta``.
@@ -83,7 +84,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {self.__class__}')
         return Temporal._factory(shifted)
 
-    def scale_value(self, width: Union[int, float]) -> Self:
+    def scale_value(self: Self, width: Union[int, float]) -> Self:
         """
         Returns a new :class:`TNumber` scaled so the value dimension has
         width ``width``.
@@ -104,8 +105,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             raise TypeError(f'Operation not supported with type {self.__class__}')
         return Temporal._factory(scaled)
 
-    def shift_scale_value(self, shift: Union[int, float] = None,
-        width: Union[int, float] = None) -> Self:
+    def shift_scale_value(self: Self, shift: Union[int, float] = None,
+                          width: Union[int, float] = None) -> Self:
         """
         Returns a new :class:`TNumber` with the value dimension shifted by
         ``shift`` and scaled so the value dimension has width ``width``.
@@ -123,18 +124,18 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             'shift and width must not be both None'
 
         if isinstance(self, TInt):
-            scaled = tint_shift_scale_value(self._inner, 
-                int(shift) if shift else None, int(width) if width else None)
+            scaled = tint_shift_scale_value(self._inner,
+                                            int(shift) if shift else None, int(width) if width else None)
         elif isinstance(self, TFloat):
-            scaled = tfloat_shift_scale_value(self._inner, 
-                float(shift) if shift else None, float(width) if width else None)
+            scaled = tfloat_shift_scale_value(self._inner,
+                                              float(shift) if shift else None, float(width) if width else None)
         else:
             raise TypeError(f'Operation not supported with type {self.__class__}')
         return Temporal._factory(scaled)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
-        TBox, Time]) -> TG:
+    def at(self, other: Union[IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
+    TBox, Time]) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the value or time `other`.
@@ -146,19 +147,17 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            tnumber_at_span, tnumber_at_spanset, tnumber_at_tbox,
+            temporal_at_values, tnumber_at_span, tnumber_at_spanset, tnumber_at_tbox,
             temporal_at_timestamp, temporal_at_timestampset,
             temporal_at_period, temporal_at_periodset
         """
         from ..boxes import TBox
-        from ..collections import IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
-        if isinstance(other, IntSpan):
+        from ..collections import IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        if isinstance(other, IntSet) or isinstance(other, FloatSet):
+            result = temporal_at_values(self._inner, other._inner)
+        elif isinstance(other, IntSpan) or isinstance(other, FloatSpan):
             result = tnumber_at_span(self._inner, other._inner)
-        elif isinstance(other, FloatSpan):
-            result = tnumber_at_span(self._inner, other._inner)
-        elif isinstance(other, IntSpanSet):
-            result = tnumber_at_spanset(self._inner, other._inner)
-        elif isinstance(other, FloatSpanSet):
+        elif isinstance(other, IntSpanSet) or isinstance(other, FloatSpanSet):
             result = tnumber_at_spanset(self._inner, other._inner)
         elif isinstance(other, TBox):
             result = tnumber_at_tbox(self._inner, other._inner)
@@ -166,8 +165,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
-        TBox, Time]) -> TG:
+    def minus(self, other: Union[IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
+    TBox, Time]) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the complement of the value or time `other`.
@@ -180,19 +179,17 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
+            temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
             temporal_minus_timestamp, temporal_minus_timestampset,
             temporal_minus_period, temporal_minus_periodset
         """
         from ..boxes import TBox
-        from ..collections import IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
-        if isinstance(other, IntSpan):
+        from ..collections import IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        if isinstance(other, IntSet) or isinstance(other, FloatSet):
+            result = temporal_minus_values(self._inner, other._inner)
+        elif isinstance(other, IntSpan) or isinstance(other, FloatSpan):
             result = tnumber_minus_span(self._inner, other._inner)
-        elif isinstance(other, FloatSpan):
-            result = tnumber_minus_span(self._inner, other._inner)
-        elif isinstance(other, IntSpanSet):
-            result = tnumber_minus_spanset(self._inner, other._inner)
-        elif isinstance(other, FloatSpanSet):
+        elif isinstance(other, IntSpanSet) or isinstance(other, FloatSpanSet):
             result = tnumber_minus_spanset(self._inner, other._inner)
         elif isinstance(other, TBox):
             result = tnumber_minus_tbox(self._inner, other._inner)
@@ -640,7 +637,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(result)
 
     def nearest_approach_distance(self, other: Union[int, float,
-            TNumber, TBox]) -> float:
+    TNumber, TBox]) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
@@ -665,4 +662,3 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return nad_tnumber_tbox(self._inner, other._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
-

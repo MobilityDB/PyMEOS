@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from datetime import timedelta
-from typing import Generic, TypeVar, Type, Callable, Any, TYPE_CHECKING
 from typing import Optional, Union
+from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING
 
 from pymeos_cffi import *
 
@@ -36,7 +35,7 @@ class Span(Collection[T], ABC):
                  _inner=None):
         super().__init__()
         assert (_inner is not None) or ((string is not None) != \
-            (lower is not None and upper is not None)), \
+                                        (lower is not None and upper is not None)), \
             "Either string must be not None or both lower and upper must be not"
         if _inner is not None:
             self._inner = _inner
@@ -46,7 +45,7 @@ class Span(Collection[T], ABC):
             lower_converted = self.__class__._parse_value_function(lower)
             upper_converted = self.__class__._parse_value_function(upper)
             self._inner = self.__class__._make_function(lower_converted,
-                upper_converted, lower_inc, upper_inc)
+                                                        upper_converted, lower_inc, upper_inc)
 
     def __copy__(self: Self) -> Self:
         """
@@ -474,11 +473,11 @@ class Span(Collection[T], ABC):
             intersection_span_span, intersection_spanset_span,
             intersection_period_timestamp
         """
-        from .span import Span
+        from .spanset import SpanSet
         if isinstance(other, Span):
             return intersection_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
-            return intersection_span_spanset(self._inner, other._inner)
+            return intersection_spanset_span(other._inner, self._inner)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
 

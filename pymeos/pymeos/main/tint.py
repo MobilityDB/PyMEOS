@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, Union, List, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
 
 from .tnumber import TNumber
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -653,9 +652,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[int, List[int],
-    intrange, floatrange, List[intrange], List[floatrange], TBox,
-    datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def at(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
         """
         Returns a new temporal int with th  e values of `self` restricted to
         the time or value `other`.
@@ -667,20 +665,24 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             A new temporal int.
 
         MEOS Functions:
-            tint_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            tint_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
+            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
+            temporal_at_periodset
         """
-        if isinstance(other, int):
-            result = tint_at_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            result = temporal_at_values(self._inner, intset_make(other))
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_at_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().at(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().at(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().at(other.to_intspanset())
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[int, List[int],
-    intrange, floatrange, List[intrange], List[floatrange], TBox,
-    datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
         """
         Returns a new temporal int with the values of `self` restricted to the
         complement of the time or value `other`.
@@ -692,14 +694,18 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             A new temporal int.
 
         MEOS Functions:
-            tint_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            tint_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
         """
-        if isinstance(other, int):
-            result = tint_minus_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            result = temporal_minus_values(self._inner, intset_make(other))
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_minus_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().minus(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().minus(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().minus(other.to_intspanset())
         else:
             return super().minus(other)
         return Temporal._factory(result)
@@ -749,9 +755,9 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def value_time_split(self, value_size: int,
                          duration: Union[str, timedelta],
-                         value_start: Optional[int] = 0, 
+                         value_start: Optional[int] = 0,
                          time_start: Optional[Union[str, datetime]] = None) -> \
-                         List[TInt]:
+            List[TInt]:
         """
         Splits `self` into fragments with respect to value and period buckets.
 
@@ -779,7 +785,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             if isinstance(duration, timedelta) \
             else pg_interval_in(duration, -1)
         tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt,
-                                                 value_start, st)
+                                                   value_start, st)
         return [Temporal._factory(tiles[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------

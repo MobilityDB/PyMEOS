@@ -30,7 +30,7 @@ class BoxPlotter:
             :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_period`
         """
         if not tbox.has_t:
-            return SpanPlotter.plot_range(tbox.to_floatrange(), *args, axes=axes, **kwargs)
+            return SpanPlotter.plot_range(tbox.to_floatspan(), *args, axes=axes, **kwargs)
         if not tbox.has_x:
             return TimePlotter.plot_period(tbox.to_period(), *args, axes=axes, **kwargs)
         return BoxPlotter._plot_box(tbox.tmin(), tbox.tmax(), tbox.xmin(), tbox.xmax(), *args, axes=axes, **kwargs)

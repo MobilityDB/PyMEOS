@@ -713,7 +713,6 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             intersection_periodset_timestamp, intersection_spanset_spanset,
             intersection_spanset_span
         """
-        from .period import Period
         if isinstance(other, datetime):
             result = intersection_periodset_timestamp(self._inner,
                 datetime_to_timestamptz(other))
