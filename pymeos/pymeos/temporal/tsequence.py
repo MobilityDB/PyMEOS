@@ -22,18 +22,13 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
     defined over a continuous period of time.
     """
 
-    def _expandable(self) -> bool:
-        return self._expandable_sequence
-
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
                  instant_list: Optional[List[Union[str, Any]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR,
                  normalize: bool = True, _inner=None):
-        assert (_inner is not None) or ((string is not None) != \
-            (instant_list is not None)), \
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), \
             "Either string must be not None or instant_list must be not"
         if _inner is not None:
             self._inner = as_tsequence(_inner)
@@ -41,19 +36,10 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
             self._inner = as_tsequence(self.__class__._parse_function(string))
         else:
             self._instants = [x._inner if isinstance(x, self.ComponentClass) \
-                else self.__class__._parse_function(x) for x in instant_list]
+                                  else self.__class__._parse_function(x) for x in instant_list]
             count = len(self._instants)
-            if not expandable:
-                self._inner = tsequence_make(self._instants, count, lower_inc,
-                    upper_inc, interpolation.value, normalize)
-            else:
-                max_size = max(expandable, count) \
-                    if isinstance(expandable, int) else 2 * count
-                self._inner = tsequence_make_exp(self._instants, count,
-                    max_size, lower_inc, upper_inc, interpolation.value,
-                    normalize)
-        self._expandable_sequence = bool(expandable) or \
-            self._inner.maxcount > self._inner.count
+            self._inner = tsequence_make(self._instants, count, lower_inc,
+                                         upper_inc, interpolation.value, normalize)
 
     @classmethod
     def from_instants(cls: Type[Self],
@@ -75,8 +61,8 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal sequence.
         """
         return cls(instant_list=instant_list, lower_inc=lower_inc,
-            upper_inc=upper_inc, interpolation=interpolation,
-            normalize=normalize)
+                   upper_inc=upper_inc, interpolation=interpolation,
+                   normalize=normalize)
 
     # ------------------------- Accessors -------------------------------------
     def lower_inc(self) -> bool:

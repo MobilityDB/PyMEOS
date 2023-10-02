@@ -833,11 +833,10 @@ class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt)
     def __init__(self, string: Optional[str] = None, *,
                  instant_list: Optional[List[Union[str, TIntInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.STEPWISE,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list,
-                         lower_inc=lower_inc, upper_inc=upper_inc, expandable=expandable,
+                         lower_inc=lower_inc, upper_inc=upper_inc,
                          interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 

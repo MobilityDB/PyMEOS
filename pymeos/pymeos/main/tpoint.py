@@ -1877,12 +1877,11 @@ class TGeomPointSeq(TPointSeq['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
     def __init__(self, string: Optional[str] = None, *,
                  instant_list: Optional[List[Union[str, TGeomPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list,
                          lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation,
+                         interpolation=interpolation,
                          normalize=normalize, _inner=_inner)
 
 
@@ -1896,12 +1895,11 @@ class TGeogPointSeq(TPointSeq['TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq',
     def __init__(self, string: Optional[str] = None, *,
                  instant_list: Optional[List[Union[str, TGeogPointInst]]] = None,
                  lower_inc: bool = True, upper_inc: bool = False,
-                 expandable: Union[bool, int] = False,
                  interpolation: TInterpolation = TInterpolation.LINEAR,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, instant_list=instant_list,
                          lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation,
+                         interpolation=interpolation,
                          normalize=normalize, _inner=_inner)
 
 
@@ -1915,10 +1913,9 @@ class TGeomPointSeqSet(TPointSeqSet['TGeomPoint', 'TGeomPointInst',
 
     def __init__(self, string: Optional[str] = None, *,
                  sequence_list: Optional[List[Union[str, TGeomPointSeq]]] = None,
-                 expandable: Union[bool, int] = False,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list,
-                         expandable=expandable, normalize=normalize, _inner=_inner)
+                         normalize=normalize, _inner=_inner)
 
 
 class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst',
@@ -1931,8 +1928,7 @@ class TGeogPointSeqSet(TPointSeqSet['TGeogPoint', 'TGeogPointInst',
 
     def __init__(self, string: Optional[str] = None, *,
                  sequence_list: Optional[List[Union[str, TGeogPointSeq]]] = None,
-                 expandable: Union[bool, int] = False,
                  normalize: bool = True, _inner=None):
         super().__init__(string=string, sequence_list=sequence_list,
-                         expandable=expandable, normalize=normalize,
+                         normalize=normalize,
                          _inner=_inner)
