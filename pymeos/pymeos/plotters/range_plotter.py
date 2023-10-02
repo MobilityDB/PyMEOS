@@ -10,12 +10,12 @@ class SpanPlotter:
     """
 
     @staticmethod
-    def plot_range(span: Union[IntSpan, FloatSpan], *args, axes=None, **kwargs):
+    def plot_span(span: Union[IntSpan, FloatSpan], *args, axes=None, **kwargs):
         """
         Plot a :class:`FloatSpan` or :class:`IntSpan` on the given axes.
 
         Params:
-            range: The :class:`FloatSpan` or :class:`IntSpan` to plot.
+            span: The :class:`FloatSpan` or :class:`IntSpan` to plot.
             axes: The axes to plot on. If None, the current axes are used.
             *args: Additional arguments to pass to the plot function.
             **kwargs: Additional keyword arguments to pass to the plot function.

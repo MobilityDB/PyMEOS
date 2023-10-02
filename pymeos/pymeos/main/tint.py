@@ -157,7 +157,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             An :class:`IntSpanSet` with the value spans of `self`.
 
         MEOS Functions:
-            tint_spanset
+            tnumber_valuespans
         """
         return IntSpanSet(_inner=tnumber_valuespans(self._inner))
 

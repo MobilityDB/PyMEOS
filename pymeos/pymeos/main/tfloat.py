@@ -172,10 +172,10 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         Returns the value spans of `self` taking into account gaps.
 
         Returns:
-            A list of :class:`floatrange` with the value spans of `self`.
+            A :class:`FloatSpanSet` with the value spans of `self`.
 
         MEOS Functions:
-            tfloat_spanset
+            tnumber_valuespans
         """
         return FloatSpanSet(_inner=(tnumber_valuespans(self._inner)))
 

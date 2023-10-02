@@ -29,7 +29,6 @@ autodoc_member_order = 'bysource'
 
 # -- Intersphinx config --------
 intersphinx_mapping = {
-    'spans': ('https://runfalk.github.io/spans/', None),
     'asyncpg': ('https://magicstack.github.io/asyncpg/current/', None),
     'psycopg': ('https://www.psycopg.org/psycopg3/docs/', None),
     'psycopg2': ('https://www.psycopg.org/docs/', None),
