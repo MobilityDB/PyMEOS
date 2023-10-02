@@ -4,17 +4,18 @@ from typing import Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import intspan_in, intspan_lower, intspan_upper, \
     intspan_shift_scale, contains_intspan_int, adjacent_intspan_int, \
-    span_width, int_to_intspan, span_eq, left_intspan_int,\
+    span_width, int_to_intspan, span_eq, left_intspan_int, \
     overleft_intspan_int, right_intspan_int, overright_intspan_int, \
     intersection_intspan_int, intersection_span_span, intersection_spanset_span, \
     minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
     union_span_span, union_spanset_span, intspan_out, intspan_make, \
-    distance_intspan_int
+    distance_intspan_int, intspan_floatspan
 
 from .. import Span
 
 if TYPE_CHECKING:
     from .intspanset import IntSpanSet
+    from .floatspan import FloatSpan
 
 
 class IntSpan(Span[int]):
@@ -71,6 +72,19 @@ class IntSpan(Span[int]):
         """
         from .intspanset import IntSpanSet
         return IntSpanSet(_inner=super().to_spanset())
+
+    def to_floatspan(self) -> FloatSpan:
+        """
+        Converts ``self`` to a :class:`FloatSpan` instance.
+
+        Returns:
+            A new :class:`FloatSpan` instance
+
+        MEOS Functions:
+            intspan_floatspan
+        """
+        from .floatspan import FloatSpan
+        return FloatSpan(_inner=intspan_floatspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def lower(self) -> int:
@@ -159,8 +173,8 @@ class IntSpan(Span[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspan_shift_scale(self._inner, d, w, delta is not None, 
-            width is not None)
+        modified = intspan_shift_scale(self._inner, d, w, delta is not None,
+                                       width is not None)
         return IntSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------

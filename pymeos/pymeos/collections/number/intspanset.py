@@ -7,14 +7,14 @@ from pymeos_cffi import intspanset_in, intspanset_out, spanset_width, \
     spanset_eq, int_to_intspanset, left_intspanset_int, \
     overleft_intspanset_int, right_intspanset_int, overright_intspanset_int, \
     distance_intspanset_int, intersection_intspanset_int, \
-    intersection_spanset_span, intersection_spanset_spanset, \
-    union_intspanset_int, union_spanset_span, union_spanset_spanset, \
-    minus_intspanset_int, minus_spanset_span, minus_spanset_spanset
+    union_intspanset_int, minus_intspanset_int, intspanset_floatspanset
 
 from pymeos.collections import SpanSet
 
 if TYPE_CHECKING:
     from .intspan import IntSpan
+    from .floatspanset import FloatSpanSet
+
 
 class IntSpanSet(SpanSet[int]):
     """
@@ -40,7 +40,6 @@ class IntSpanSet(SpanSet[int]):
 
     _parse_function = intspanset_in
     _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
-
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -69,6 +68,19 @@ class IntSpanSet(SpanSet[int]):
         """
         from .intspan import IntSpan
         return IntSpan(_inner=super().to_span())
+
+    def to_floatspanset(self) -> FloatSpanSet:
+        """
+        Converts ``self`` to a :class:`FloatSpanSet` instance.
+
+        Returns:
+            A new :class:`FloatSpanSet` instance
+
+        MEOS Functions:
+            intspanset_floatspanset
+        """
+        from .floatspanset import FloatSpanSet
+        return FloatSpanSet(_inner=intspanset_floatspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
 
@@ -142,7 +154,6 @@ class IntSpanSet(SpanSet[int]):
         ps = super().spans()
         return [IntSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
-
     # ------------------------- Transformations -------------------------------
 
     def shift(self, delta: int) -> IntSpanSet:
@@ -194,8 +205,8 @@ class IntSpanSet(SpanSet[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspanset_shift_scale(self._inner, d, w, delta is not None, 
-            width is not None)
+        modified = intspanset_shift_scale(self._inner, d, w, delta is not None,
+                                          width is not None)
         return IntSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -476,4 +487,3 @@ class IntSpanSet(SpanSet[int]):
             union_spanset_span
         """
         return self.union(other)
-

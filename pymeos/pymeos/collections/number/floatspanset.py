@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from typing import Union, overload, Optional, TYPE_CHECKING
+from typing import Union, overload, Optional, TYPE_CHECKING, List
 
 from pymeos_cffi import floatspanset_in, floatspanset_out, spanset_width, \
     floatspanset_shift_scale, adjacent_floatspanset_float, contains_floatspanset_float, \
     spanset_eq, float_to_floatspanset, left_floatspanset_float, \
     overleft_floatspanset_float, right_floatspanset_float, overright_floatspanset_float, \
     distance_floatspanset_float, intersection_floatspanset_float, \
-    intersection_spanset_span, intersection_spanset_spanset, \
-    union_floatspanset_float, union_spanset_span, union_spanset_spanset, \
-    minus_floatspanset_float, minus_spanset_span, minus_spanset_spanset
+    union_floatspanset_float, minus_floatspanset_float, floatspanset_intspanset
 
 from pymeos.collections import SpanSet
 
 if TYPE_CHECKING:
     from .floatspan import FloatSpan
+    from .intspanset import IntSpanSet
+
 
 class FloatSpanSet(SpanSet[float]):
     """
@@ -40,7 +40,6 @@ class FloatSpanSet(SpanSet[float]):
 
     _parse_function = floatspanset_in
     _parse_value_function = lambda span: floatspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
-
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):
@@ -69,6 +68,19 @@ class FloatSpanSet(SpanSet[float]):
         """
         from .floatspan import FloatSpan
         return FloatSpan(_inner=super().to_span())
+
+    def to_intspanset(self) -> IntSpanSet:
+        """
+        Returns an intspanset that encompasses ``self``.
+
+        Returns:
+            A new :class:`IntSpanSet` instance
+
+        MEOS Functions:
+            floatspanset_intspanset
+        """
+        from .intspanset import IntSpanSet
+        return IntSpanSet(_inner=floatspanset_intspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
 
@@ -142,7 +154,6 @@ class FloatSpanSet(SpanSet[float]):
         ps = super().spans()
         return [FloatSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
-
     # ------------------------- Transformations -------------------------------
 
     def shift(self, delta: int) -> FloatSpanSet:
@@ -194,8 +205,8 @@ class FloatSpanSet(SpanSet[float]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = floatspanset_shift_scale(self._inner, d, w, delta is not None, 
-            width is not None)
+        modified = floatspanset_shift_scale(self._inner, d, w, delta is not None,
+                                            width is not None)
         return FloatSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -384,7 +395,6 @@ class FloatSpanSet(SpanSet[float]):
             intersection_floatspanset_float, intersection_spanset_spanset,
             intersection_spanset_span
         """
-        from .floatspan import FloatSpan
         if isinstance(other, int) or isinstance(other, float):
             result = intersection_floatspanset_float(self._inner, float(other))
         else:
@@ -477,4 +487,3 @@ class FloatSpanSet(SpanSet[float]):
             union_spanset_span
         """
         return self.union(other)
-

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional
+from typing import List, Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import floatset_in, floatset_make, floatset_out, \
-    floatset_start_value,  floatset_end_value, floatset_value_n, \
+    floatset_start_value, floatset_end_value, floatset_value_n, \
     floatset_values, contains_floatset_float, intersection_floatset_float, \
     intersection_set_set, left_floatset_float, overleft_floatset_float, \
     right_floatset_float, overright_floatset_float, minus_floatset_float, \
@@ -13,6 +13,9 @@ from pymeos_cffi import floatset_in, floatset_make, floatset_out, \
 from .floatspan import FloatSpan
 from .floatspanset import FloatSpanSet
 from ..base import Set
+
+if TYPE_CHECKING:
+    from .intset import IntSet
 
 
 class FloatSet(Set[float]):
@@ -82,6 +85,16 @@ class FloatSet(Set[float]):
             set_span
         """
         return FloatSpan(_inner=super().to_span())
+
+    def to_intset(self) -> IntSet:
+        """
+        Converts ``self`` to an :class:`IntSet` instance.
+
+        Returns:
+            A new :class:`IntSet` instance
+        """
+        from .intset import IntSet
+        return IntSet(elements=[int(x) for x in self.elements()])
 
     # ------------------------- Accessors -------------------------------------
 

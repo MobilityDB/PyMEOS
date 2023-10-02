@@ -10,13 +10,14 @@ from pymeos_cffi import intersection_floatspan_float, distance_floatspan_float, 
     right_floatspan_float, overright_floatspan_float, \
     intersection_span_span, intersection_spanset_span, \
     minus_floatspan_float, minus_span_span, minus_spanset_span, \
-    union_floatspan_float,  union_span_span, union_spanset_span, \
-    floatspan_out, floatspan_make, span_width
+    union_floatspan_float, union_span_span, union_spanset_span, \
+    floatspan_out, floatspan_make, span_width, floatspan_intspan
 
 from .. import Span
 
 if TYPE_CHECKING:
     from .floatspanset import FloatSpanSet
+    from .intspan import IntSpan
 
 
 class FloatSpan(Span[float]):
@@ -74,6 +75,19 @@ class FloatSpan(Span[float]):
         """
         from .floatspanset import FloatSpanSet
         return FloatSpanSet(_inner=super().to_spanset())
+
+    def to_intspan(self) -> IntSpan:
+        """
+        Converts ``self`` to a :class:`IntSpan` instance.
+
+        Returns:
+            A new :class:`IntSpan` instance
+
+        MEOS Functions:
+            floatspan_intspan
+        """
+        from .intspan import IntSpan
+        return IntSpan(_inner=floatspan_intspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def lower(self) -> float:
@@ -163,8 +177,8 @@ class FloatSpan(Span[float]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = floatspan_shift_scale(self._inner, d, w, delta is not None, 
-            width is not None)
+        modified = floatspan_shift_scale(self._inner, d, w, delta is not None,
+                                         width is not None)
         return FloatSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -183,7 +197,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             adjacent_span_span, adjacent_span_spanset, adjacent_floatspan_float
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return adjacent_floatspan_float(self._inner, float(other))
         else:
             return super().is_adjacent(other)
@@ -201,7 +215,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             contains_set_set, contains_floatspan_float
         """
-        if isinstance(content, int) or isinstance(content, float) :
+        if isinstance(content, int) or isinstance(content, float):
             return contains_floatspan_float(self._inner, float(content))
         else:
             return super().contains(content)
@@ -220,7 +234,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             same_period_temporal
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return span_eq(self._inner, float_to_floatspan(float(other)))
         else:
             return super().is_same(other)
@@ -240,7 +254,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             left_span_span, left_span_spanset, left_floatspan_float
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return left_floatspan_float(self._inner, float(other))
         else:
             return super().is_left(other)
@@ -259,7 +273,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             overleft_span_span, overleft_span_spanset, overleft_floatspan_float
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return overleft_floatspan_float(self._inner, float(other))
         else:
             return super().is_over_or_left(other)
@@ -278,7 +292,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             right_span_span, right_span_spanset, right_floatspan_float
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return right_floatspan_float(self._inner, float(other))
         else:
             return super().is_right(other)
@@ -297,7 +311,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             overright_span_span, overright_span_spanset, overright_floatspan_float
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return overright_floatspan_float(self._inner, float(other))
         else:
             return super().is_over_or_right(other)
@@ -316,7 +330,7 @@ class FloatSpan(Span[float]):
         MEOS Functions:
             distance_span_span, distance_span_spanset, distance_floatspan_float,
         """
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return distance_floatspan_float(self._inner, float(other))
         else:
             return super().distance(other)
@@ -350,7 +364,7 @@ class FloatSpan(Span[float]):
             intersection_floatset_float
         """
         from .floatspanset import FloatSpanSet
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             return intersection_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = intersection_span_span(self._inner, other._inner)
@@ -375,7 +389,7 @@ class FloatSpan(Span[float]):
             minus_span_span, minus_spanset_span, minus_floatspan_float
         """
         from .floatspanset import FloatSpanSet
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             result = minus_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = minus_span_span(self._inner, other._inner)
@@ -399,7 +413,7 @@ class FloatSpan(Span[float]):
             union_spanset_span, union_span_span, union_floatspan_float
         """
         from .floatspanset import FloatSpanSet
-        if isinstance(other, int) or isinstance(other, float) :
+        if isinstance(other, int) or isinstance(other, float):
             result = union_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
             result = union_span_span(self._inner, other._inner)

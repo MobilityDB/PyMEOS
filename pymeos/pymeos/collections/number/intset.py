@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional
+from typing import List, Union, overload, Optional, TYPE_CHECKING
 
 from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, \
     intset_end_value, intset_value_n, intset_values, contains_intset_int, \
@@ -12,6 +12,9 @@ from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, 
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
 from ..base import Set
+
+if TYPE_CHECKING:
+    from .floatset import FloatSet
 
 
 class IntSet(Set[int]):
@@ -81,6 +84,16 @@ class IntSet(Set[int]):
             set_span
         """
         return IntSpan(_inner=super().to_span())
+
+    def to_floatset(self) -> FloatSet:
+        """
+        Converts ``self`` to a :class:`FloatSet` instance.
+
+        Returns:
+            A new :class:`FloatSet` instance
+        """
+        from .floatset import FloatSet
+        return FloatSet(elements=[float(x) for x in self.elements()])
 
     # ------------------------- Accessors -------------------------------------
 
@@ -188,7 +201,7 @@ class IntSet(Set[int]):
         """
         return IntSet(
             _inner=intset_shift_scale(self._inner, delta, width,
-            delta is not None, width is not None))
+                                      delta is not None, width is not None))
 
     # ------------------------- Topological Operations --------------------------------
 
@@ -205,7 +218,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             contains_set_set, contains_intset_int
         """
-        if isinstance(content, int):    
+        if isinstance(content, int):
             return contains_intset_int(self._inner, content)
         else:
             return super().contains(content)
@@ -226,7 +239,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             left_set_set, left_intset_int
         """
-        if isinstance(content, int):    
+        if isinstance(content, int):
             return left_intset_int(self._inner, content)
         else:
             return super().is_left(content)
@@ -245,7 +258,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             overleft_set_set, overleft_intset_int
         """
-        if isinstance(content, int):    
+        if isinstance(content, int):
             return overleft_intset_int(self._inner, content)
         else:
             return super().is_over_or_left(content)
@@ -264,7 +277,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             right_set_set, right_intset_int
         """
-        if isinstance(content, int):    
+        if isinstance(content, int):
             return right_intset_int(self._inner, content)
         else:
             return super().is_right(content)
@@ -283,7 +296,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             overright_set_set, overright_intset_int
         """
-        if isinstance(content, int):    
+        if isinstance(content, int):
             return overright_intset_int(self._inner, content)
         else:
             return super().is_over_or_right(content)
