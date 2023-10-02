@@ -6,7 +6,6 @@ from typing import Optional, List, TYPE_CHECKING, Set, Tuple, Union, TypeVar, Ty
 
 import shapely.geometry as shp
 import shapely.geometry.base as shpb
-from geopandas import GeoDataFrame
 from pymeos_cffi import *
 
 from .tbool import TBool
@@ -16,6 +15,17 @@ from ..collections import *
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
+    from geopandas import GeoDataFrame
+
+
+def import_geopandas():
+    try:
+        import geopandas as gpd
+        return gpd
+    except ImportError:
+        print('Geopandas not found. Please install geopandas to use this function.')
+        raise
+
 
 TG = TypeVar('TG', bound='TPoint')
 TI = TypeVar('TI', bound='TPointInst')
@@ -1225,6 +1235,7 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
             A new :class:`GeoDataFrame` representing the temporal point
             sequence set.
         """
+        gpd = import_geopandas()
         sequences = self.sequences()
         data = {
             'sequence': [i + 1 for i, seq in enumerate(sequences) for _ in
@@ -1233,7 +1244,7 @@ class TPointSeqSet(TSequenceSet[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, 
             'geometry': [v for seq in sequences for v in
                          seq.values(precision=precision)]
         }
-        return GeoDataFrame(data, crs=self.srid()).set_index(keys=['sequence', 'time'])
+        return gpd.GeoDataFrame(data, crs=self.srid()).set_index(keys=['sequence', 'time'])
 
     def x(self) -> TFloatSeqSet:
         return super().x()
@@ -1384,11 +1395,12 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
         Returns:
             A new :class:`GeoDataFrame` representing the trajectory.
         """
+        gpd = import_geopandas()
         data = {
             'time': self.timestamps(),
             'geometry': [i.value() for i in self.instants()]
         }
-        return GeoDataFrame(data, crs=self.srid()).set_index(keys=['time'])
+        return gpd.GeoDataFrame(data, crs=self.srid()).set_index(keys=['time'])
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_equal(self, value: shpb.BaseGeometry) -> bool:
