@@ -603,7 +603,7 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, PeriodSet):
             result = minus_span_spanset(self._inner, other._inner)
         else:
-            super().minus(other)
+            result = super().minus(other)
         return PeriodSet(_inner=result) if result is not None else None
 
     def union(self, other: Time) -> PeriodSet:

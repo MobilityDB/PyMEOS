@@ -172,7 +172,7 @@ class FloatSpanSet(SpanSet[float]):
         """
         return self.shift_scale(delta, None)
 
-    def scale(self, width: int) -> FloatSpan:
+    def scale(self, width: int) -> FloatSpanSet:
         """
         Return a new ``FloatSpanSet`` with the lower and upper bounds scaled so
         that the width is ``width``.

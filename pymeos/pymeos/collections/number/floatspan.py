@@ -396,7 +396,7 @@ class FloatSpan(Span[float]):
         elif isinstance(other, FloatSpanSet):
             result = minus_spanset_span(other._inner, self._inner)
         else:
-            super().minus(other)
+            result = super().minus(other)
         return FloatSpanSet(_inner=result) if result is not None else None
 
     def union(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> FloatSpanSet:
@@ -420,5 +420,5 @@ class FloatSpan(Span[float]):
         elif isinstance(other, FloatSpanSet):
             result = union_spanset_span(other._inner, self._inner)
         else:
-            super().union(other)
+            result = super().union(other)
         return FloatSpanSet(_inner=result) if result is not None else None

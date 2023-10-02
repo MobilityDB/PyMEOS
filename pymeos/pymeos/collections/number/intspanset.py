@@ -172,7 +172,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.shift_scale(delta, None)
 
-    def scale(self, width: int) -> IntSpan:
+    def scale(self, width: int) -> IntSpanSet:
         """
         Return a new ``IntSpanSet`` with the lower and upper bounds scaled so
         that the width is ``width``.

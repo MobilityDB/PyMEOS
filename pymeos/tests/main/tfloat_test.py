@@ -88,7 +88,7 @@ class TestTFloatConstructors(TestTFloat):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        tf = type(source, normalize=1)
+        tf = type(source, normalize=True)
         assert isinstance(tf, type)
         assert str(tf) == expected
 

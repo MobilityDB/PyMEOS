@@ -392,7 +392,7 @@ class IntSpan(Span[int]):
         elif isinstance(other, IntSpanSet):
             result = minus_spanset_span(other._inner, self._inner)
         else:
-            super().minus(other)
+            result = super().minus(other)
         return IntSpanSet(_inner=result) if result is not None else None
 
     def union(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
@@ -416,5 +416,5 @@ class IntSpan(Span[int]):
         elif isinstance(other, IntSpanSet):
             result = union_spanset_span(other._inner, self._inner)
         else:
-            super().union(other)
+            result = super().union(other)
         return IntSpanSet(_inner=result) if result is not None else None

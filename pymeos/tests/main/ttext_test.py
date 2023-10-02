@@ -82,7 +82,7 @@ class TestTTextConstructors(TestTText):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        tt = type(source, normalize=1)
+        tt = type(source, normalize=True)
         assert isinstance(tt, type)
         assert str(tt) == expected
 

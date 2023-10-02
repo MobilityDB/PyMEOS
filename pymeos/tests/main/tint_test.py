@@ -85,7 +85,7 @@ class TestTIntConstructors(TestTInt):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        ti = type(source, normalize=1)
+        ti = type(source, normalize=True)
         assert isinstance(ti, type)
         assert str(ti) == expected
 

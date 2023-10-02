@@ -95,7 +95,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        tp = type(source, normalize=1)
+        tp = type(source, normalize=True)
         assert isinstance(tp, type)
         assert str(tp) == expected
 
@@ -1911,6 +1911,45 @@ class TestTGeomPointSimilarityFunctions(TestTGeomPoint):
     def test_hausdorff_distance(self, temporal, argument, expected):
         assert temporal.hausdorff_distance(argument) == expected
 
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_frechet_distance_round(self, temporal, argument, expected):
+        assert round(temporal.frechet_distance(argument), 2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 9.9),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_dyntimewarp_distance_round(self, temporal, argument, expected):
+        assert round(temporal.dyntimewarp_distance(argument), 2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_hausdorff_distance_round(self, temporal, argument, expected):
+        assert round(temporal.hausdorff_distance(argument), 2) == expected
+
 
 class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
@@ -2124,53 +2163,6 @@ class TestTGeomPointDistanceOperations(TestTGeomPoint):
     )
     def test_shortest_line(self, temporal, argument):
         assert temporal.shortest_line(argument) == LineString([(1,1), (1,1)])
-
-
-class TestTGeomPointSimilarityFunctions(TestTGeomPoint):
-    tfi = TGeomPointInst('Point(1 1)@2019-09-01')
-    tfds = TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')
-    tfs = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
-    tfss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],'
-        '[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tfi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
-            (tfds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
-            (tfs, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
-            (tfss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
-    )
-    def test_frechet_distance(self, temporal, argument, expected):
-        assert round(temporal.frechet_distance(argument), 2) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tfi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
-            (tfds, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
-            (tfs, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
-            (tfss, TGeomPointInst('Point(3 3)@2019-09-08'), 9.9),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
-    )
-    def test_dyntimewarp_distance(self, temporal, argument, expected):
-        assert round(temporal.dyntimewarp_distance(argument), 2) == expected
-
-    @pytest.mark.parametrize(
-        'temporal, argument, expected',
-        [
-            (tfi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
-            (tfds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
-            (tfs, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
-            (tfss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
-        ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
-    )
-    def test_hausdorff_distance(self, temporal, argument, expected):
-        assert round(temporal.hausdorff_distance(argument), 2) == expected
 
 
 class TestTGeomPointSplitOperations(TestTGeomPoint):

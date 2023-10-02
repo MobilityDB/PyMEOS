@@ -177,10 +177,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         MEOS Functions:
             tfloat_spanset
         """
-        spanset = tnumber_valuespans(self._inner)
-        spans = spanset_spans(spanset)
-        count = spanset_num_spans(spanset)
-        return [floatspan_to_floatrange(spans[i]) for i in range(count)]
+        return FloatSpanSet(_inner=(tnumber_valuespans(self._inner)))
 
     def start_value(self) -> float:
         """

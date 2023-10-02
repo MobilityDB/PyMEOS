@@ -400,7 +400,7 @@ class STBox:
         """
         return stbox_isgeodetic(self._inner)
 
-    def xmin(self) -> float:
+    def xmin(self) -> Optional[float]:
         """
         Returns the minimum X coordinate of ``self``.
 
@@ -412,7 +412,7 @@ class STBox:
         """
         return stbox_xmin(self._inner)
 
-    def ymin(self) -> float:
+    def ymin(self) -> Optional[float]:
         """
         Returns the minimum Y coordinate of ``self``.
 
@@ -424,7 +424,7 @@ class STBox:
         """
         return stbox_ymin(self._inner)
 
-    def zmin(self) -> float:
+    def zmin(self) -> Optional[float]:
         """
         Returns the minimum Z coordinate of ``self``.
 
@@ -436,7 +436,7 @@ class STBox:
         """
         return stbox_zmin(self._inner)
 
-    def tmin(self) -> datetime:
+    def tmin(self) -> Optional[datetime]:
         """
         Returns the starting time of ``self``.
 
@@ -447,9 +447,7 @@ class STBox:
             stbox_tmin
         """
         result = stbox_tmin(self._inner)
-        if not result:
-            return None
-        return timestamptz_to_datetime(result)
+        return timestamptz_to_datetime(result) if result else None
 
     def tmin_inc(self) -> bool:
         """
@@ -464,7 +462,7 @@ class STBox:
         """
         return stbox_tmin_inc(self._inner)
 
-    def xmax(self) -> float:
+    def xmax(self) -> Optional[float]:
         """
         Returns the maximum X coordinate of ``self``.
 
@@ -476,7 +474,7 @@ class STBox:
         """
         return stbox_xmax(self._inner)
 
-    def ymax(self) -> float:
+    def ymax(self) -> Optional[float]:
         """
         Returns the maximum Y coordinate of ``self``.
 
@@ -488,7 +486,7 @@ class STBox:
         """
         return stbox_ymax(self._inner)
 
-    def zmax(self) -> float:
+    def zmax(self) -> Optional[float]:
         """
         Returns the maximum Z coordinate of ``self``.
 
@@ -500,7 +498,7 @@ class STBox:
         """
         return stbox_zmax(self._inner)
 
-    def tmax(self) -> datetime:
+    def tmax(self) -> Optional[datetime]:
         """
         Returns the ending time of ``self``.
 
@@ -511,9 +509,7 @@ class STBox:
             stbox_tmax
         """
         result = stbox_tmax(self._inner)
-        if not result:
-            return None
-        return timestamptz_to_datetime(result)
+        return timestamptz_to_datetime(result) if result else None
 
     def tmax_inc(self) -> bool:
         """
