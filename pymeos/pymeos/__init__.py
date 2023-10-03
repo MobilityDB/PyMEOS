@@ -4,6 +4,29 @@ from .main import *
 from .meos_init import *
 from .temporal import *
 from .collections import *
+from pymeos_cffi import \
+    MeosException, \
+    MeosInternalError, \
+    MeosArgumentError, \
+    MeosIoError, \
+    MeosInternalTypeError, \
+    MeosValueOutOfRangeError, \
+    MeosDivisionByZeroError, \
+    MeosMemoryAllocError, \
+    MeosAggregationError, \
+    MeosDirectoryError, \
+    MeosFileError, \
+    MeosInvalidArgError, \
+    MeosInvalidArgTypeError, \
+    MeosInvalidArgValueError, \
+    MeosMfJsonInputError, \
+    MeosMfJsonOutputError, \
+    MeosTextInputError, \
+    MeosTextOutputError, \
+    MeosWkbInputError, \
+    MeosWkbOutputError, \
+    MeosGeoJsonInputError, \
+    MeosGeoJsonOutputError
 
 __version__ = '1.1.3a1'
 __all__ = [
@@ -39,4 +62,27 @@ __all__ = [
     'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
     'TemporalPointExtentAggregator',
     'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
+    # exceptions
+    'MeosException',
+    'MeosInternalError',
+    'MeosArgumentError',
+    'MeosIoError',
+    'MeosInternalTypeError',
+    'MeosValueOutOfRangeError',
+    'MeosDivisionByZeroError',
+    'MeosMemoryAllocError',
+    'MeosAggregationError',
+    'MeosDirectoryError',
+    'MeosFileError',
+    'MeosInvalidArgError',
+    'MeosInvalidArgTypeError',
+    'MeosInvalidArgValueError',
+    'MeosMfJsonInputError',
+    'MeosMfJsonOutputError',
+    'MeosTextInputError',
+    'MeosTextOutputError',
+    'MeosWkbInputError',
+    'MeosWkbOutputError',
+    'MeosGeoJsonInputError',
+    'MeosGeoJsonOutputError',
 ]
