@@ -1,4 +1,6 @@
+import os.path
 import re
+import sys
 from re import RegexFlag
 from typing import List, Optional
 
@@ -209,8 +211,8 @@ def check_modifiers(functions: List[str]) -> None:
             print(f'Nullable Parameter defined for non-existent function {func} ({param})')
 
 
-def main():
-    with open('pymeos_cffi/builder/meos.h') as f:
+def main(header_path='pymeos_cffi/builder/meos.h'):
+    with open(header_path) as f:
         content = f.read()
     # Regex lines:
     # 1st line: Match beginning of function with optional "extern", "static" and "inline"
@@ -225,10 +227,14 @@ def main():
               r'\((?P<params>[\w\s,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
-    with open('pymeos_cffi/builder/templates/functions.py') as f:
+    template_path = os.path.join(os.path.dirname(__file__), 'templates/functions.py')
+    with open(template_path) as f:
         base = f.read()
 
-    with open('pymeos_cffi/functions.py', 'w+') as file:
+    functions_path = os.path.join(os.path.dirname(__file__), '../functions.py')
+    init_path = os.path.join(os.path.dirname(__file__), '../__init__.py')
+
+    with open(functions_path, 'w+') as file:
         file.write(base)
         for match in matches:
             named = match.groupdict()
@@ -244,7 +250,7 @@ def main():
             file.write('\n\n\n')
 
     functions = []
-    with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
+    with open(functions_path, 'r') as funcs, open(init_path, 'w+') as init:
         content = funcs.read()
         matches = list(re.finditer(r'def (\w+)\(', content))
         init.write('from .functions import *\n\n')
@@ -481,4 +487,4 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])

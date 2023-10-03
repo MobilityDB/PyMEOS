@@ -5,7 +5,7 @@ import _meos_cffi
 from .errors import raise_meos_exception
 import shapely.geometry as spg
 from dateutil.parser import parse
-from shapely import wkt, get_srid
+from shapely import wkt, get_srid, set_srid
 from shapely.geometry.base import BaseGeometry
 
 _ffi = _meos_cffi.ffi
@@ -84,12 +84,22 @@ def geography_to_gserialized(geom: BaseGeometry) -> 'GSERIALIZED *':
     return gs
 
 
-def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
-    return wkt.loads(gserialized_as_text(geom, precision))
+def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 15) -> spg.Point:
+    text = gserialized_as_text(geom, precision)
+    geometry = wkt.loads(text)
+    srid = lwgeom_get_srid(geom)
+    if srid > 0:
+        geometry = set_srid(geometry, srid)
+    return geometry
 
 
-def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
-    return wkt.loads(gserialized_as_text(geom, precision))
+def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 15) -> BaseGeometry:
+    text = gserialized_as_text(geom, precision)
+    geometry = wkt.loads(text)
+    srid = lwgeom_get_srid(geom)
+    if srid > 0:
+        geometry = set_srid(geometry, srid)
+    return geometry
 
 
 def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':

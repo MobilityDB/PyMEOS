@@ -26,7 +26,7 @@ def remove_undefined_functions(content, so_path):
     return content
 
 
-def main(header_path, so_path=None):
+def main(header_path, so_path=None, destination_path='pymeos_cffi/builder/meos.h'):
     with open(header_path, 'r') as f:
         content = f.read()
         # Remove comments
@@ -45,12 +45,12 @@ def main(header_path, so_path=None):
         # Add error handler
         content += '\n\nextern "Python" void py_error_handler(int, int, char*);'
 
-    with open('pymeos_cffi/builder/meos.h', 'w') as f:
+    with open(destination_path, 'w') as f:
         f.write(content)
 
 
 if __name__ == '__main__':
     if len(sys.argv) > 1:
-        main(sys.argv[1], sys.argv[2])
+        main(*sys.argv[1:])
     else:
         main('/usr/local/include/meos.h', '/usr/local/lib/libmeos.so')
