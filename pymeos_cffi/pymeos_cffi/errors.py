@@ -32,7 +32,11 @@ class MeosException(Exception):
 
     def __init__(self, code: int, message: str):
         super().__init__(message)
+        self.message = message
         self.code = code
+
+    def __str__(self):
+        return f'{self.__class__.__name__} ({self.code}): {self.message}'
 
 
 class MeosInternalError(MeosException):
