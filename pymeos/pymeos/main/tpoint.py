@@ -109,6 +109,23 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         return gserialized_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
+    def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
+        """
+        Returns the trajectory of the temporal point as a Shapely geometry.
+
+        Args:
+            precision: The precision of the returned geometry.
+
+        Returns:
+            A new :class:`~shapely.geometry.base.BaseGeometry` representing the
+            trajectory.
+
+        MEOS Functions:
+            gserialized_to_shapely_geometry
+        """
+        return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner),
+                                               precision)
+
     # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> STBox:
         """
@@ -1371,23 +1388,6 @@ class TGeomPoint(TPoint['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
         result = tgeompoint_to_tgeogpoint(self._inner)
         return Temporal._factory(result)
 
-    def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
-        """
-        Returns the trajectory of the temporal point as a Shapely geometry.
-
-        Args:
-            precision: The precision of the returned geometry.
-
-        Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` representing the
-            trajectory.
-
-        MEOS Functions:
-            gserialized_to_shapely_geometry
-        """
-        return gserialized_to_shapely_geometry(tpoint_trajectory(self._inner),
-                                               precision)
-
     def to_dataframe(self) -> GeoDataFrame:
         """
         Returns the trajectory of the temporal point as a GeoPandas DataFrame.
@@ -1840,13 +1840,17 @@ class TGeomPointInst(TPointInst['TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq',
     _cast_function = lambda x: None
 
     def __init__(self, string: Optional[str] = None, *,
-                 point: Optional[Union[str, shp.Point]] = None,
+                 point: Optional[Union[str, shp.Point, Tuple[float, float], Tuple[float, float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None,
                  srid: Optional[int] = 0, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp,
                          _inner=_inner)
         if self._inner is None:
-            self._inner = tgeompoint_in(f"SRID={srid};{point}@{timestamp}")
+            if isinstance(point, tuple):
+                p = f'POINT({" ".join(str(x) for x in point)})'
+            else:
+                p = f'{point}'
+            self._inner = tgeompoint_in(f"SRID={srid};{p}@{timestamp}")
 
 
 class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst',
@@ -1858,7 +1862,7 @@ class TGeogPointInst(TPointInst['TGeogPoint', 'TGeogPointInst',
     _cast_function = lambda x: None
 
     def __init__(self, string: Optional[str] = None, *,
-                 point: Optional[Union[str, shp.Point, Tuple[float, float]]] = None,
+                 point: Optional[Union[str, shp.Point, Tuple[float, float], Tuple[float, float, float]]] = None,
                  timestamp: Optional[Union[str, datetime]] = None,
                  srid: Optional[int] = 4326, _inner=None) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp,
