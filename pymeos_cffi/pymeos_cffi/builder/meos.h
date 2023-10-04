@@ -730,6 +730,47 @@ typedef struct
 } SkipList;
 
 /*****************************************************************************
+ * Error codes
+ *****************************************************************************/
+
+typedef enum
+{
+  MEOS_SUCCESS                  = 0,  
+
+  MEOS_ERR_INTERNAL_ERROR       = 1,  
+  MEOS_ERR_INTERNAL_TYPE_ERROR  = 2,  
+  MEOS_ERR_VALUE_OUT_OF_RANGE   = 3,  
+  MEOS_ERR_DIVISION_BY_ZERO     = 4,  
+  MEOS_ERR_MEMORY_ALLOC_ERROR   = 5,  
+  MEOS_ERR_AGGREGATION_ERROR    = 6,  
+  MEOS_ERR_DIRECTORY_ERROR      = 7,  
+  MEOS_ERR_FILE_ERROR           = 8,  
+
+  MEOS_ERR_INVALID_ARG          = 10, 
+  MEOS_ERR_INVALID_ARG_TYPE     = 11, 
+  MEOS_ERR_INVALID_ARG_VALUE    = 12, 
+
+  MEOS_ERR_MFJSON_INPUT         = 20, 
+  MEOS_ERR_MFJSON_OUTPUT        = 21, 
+  MEOS_ERR_TEXT_INPUT           = 22, 
+  MEOS_ERR_TEXT_OUTPUT          = 23, 
+  MEOS_ERR_WKB_INPUT            = 24, 
+  MEOS_ERR_WKB_OUTPUT           = 25, 
+  MEOS_ERR_GEOJSON_INPUT        = 26, 
+  MEOS_ERR_GEOJSON_OUTPUT       = 27, 
+
+} errorCode;
+
+extern void meos_error(int errlevel, int errcode, char *format, ...);
+
+
+
+
+
+
+
+
+/*****************************************************************************
  * Initialization of the MEOS library
  *****************************************************************************/
 
