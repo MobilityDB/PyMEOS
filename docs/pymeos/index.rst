@@ -5,7 +5,7 @@ PyMEOS package
    :maxdepth: 4
 
    pymeos.meos_init
-   pymeos.time
+   pymeos.collections
    pymeos.temporal
    pymeos.main
    pymeos.boxes

@@ -1,10 +1,10 @@
-Time
+Collections
 ===================
 
 Time
 -----------------------
 
-.. automodule:: pymeos.time.time
+.. automodule:: pymeos.collections.time.time
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,7 +12,7 @@ Time
 Period
 -------------------------
 
-.. automodule:: pymeos.time.period
+.. automodule:: pymeos.collections.time.period
    :members:
    :undoc-members:
    :show-inheritance:
@@ -20,7 +20,7 @@ Period
 PeriodSet
 ----------------------------
 
-.. automodule:: pymeos.time.periodset
+.. automodule:: pymeos.collections.time.periodset
    :members:
    :undoc-members:
    :show-inheritance:
@@ -28,7 +28,7 @@ PeriodSet
 TimestampSet
 -------------------------------
 
-.. automodule:: pymeos.time.timestampset
+.. automodule:: pymeos.collections.time.timestampset
    :members:
    :undoc-members:
    :show-inheritance:

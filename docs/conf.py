@@ -9,13 +9,15 @@
 project = 'PyMEOS'
 copyright = '2023, Víctor Diví'
 author = 'Víctor Diví'
-release = '1.1.2'
+release = '1.1.3a5'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 import os
 import sys
-sys.path.insert(0, os.path.abspath('..'))
+
+sys.path.insert(0, os.path.abspath('../pymeos_cffi'))
+sys.path.insert(0, os.path.abspath('../pymeos'))
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -35,7 +37,6 @@ intersphinx_mapping = {
     'shapely': ('https://shapely.readthedocs.io/en/stable/', None),
     'python': ('https://docs.python.org/3', None)
 }
-
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

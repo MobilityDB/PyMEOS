@@ -1,5 +1,5 @@
 .. PyMEOS documentation master file, created by
-   sphinx-quickstart on Fri Feb 10 11:27:17 2023.
+   sphinx-quickstart on Thu Oct  5 18:26:38 2023.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
@@ -10,7 +10,10 @@ Welcome to PyMEOS's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   pymeos
+   pymeos/index
+   pymeos_cffi/index
+
+
 
 Indices and tables
 ==================
