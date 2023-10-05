@@ -1,5 +1,10 @@
 python-dateutil
 shapely
 pymeos_cffi==1.1.0a6
+asyncpg
+psycopg
+psycopg2
+matplotlib
+geopandas
 sphinx
 sphinx_rtd_theme
