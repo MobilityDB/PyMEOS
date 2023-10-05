@@ -22,7 +22,7 @@ sys.path.insert(0, os.path.abspath('../pymeos'))
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
-    'sphinx.ext.intersphinx'
+    'sphinx.ext.intersphinx',
     'sphinx_rtd_theme',
 ]
 
