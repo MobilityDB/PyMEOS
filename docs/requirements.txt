@@ -1,5 +1,5 @@
 python-dateutil
 shapely
-cffi
+pymeos_cffi==1.1.0a5
 sphinx
 sphinx_rtd_theme
