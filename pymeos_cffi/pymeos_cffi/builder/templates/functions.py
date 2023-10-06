@@ -1,3 +1,4 @@
+import os
 from datetime import datetime, timedelta
 from typing import Any, Tuple, Optional, List, Union
 
@@ -14,6 +15,13 @@ _lib = _meos_cffi.lib
 _error: Optional[int] = None
 _error_level: Optional[int] = None
 _error_message: Optional[str] = None
+
+_debug = os.environ.get('MEOS_DEBUG', '0') == '1'
+
+
+def meos_set_debug(debug: bool) -> None:
+    global _debug
+    _debug = debug
 
 
 def _check_error() -> None:
@@ -34,6 +42,8 @@ def py_error_handler(error_level, error_code, error_msg):
     _error = error_code
     _error_level = error_level
     _error_message = _ffi.string(error_msg).decode('utf-8')
+    if _debug:
+        print(f'ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}')
 
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':

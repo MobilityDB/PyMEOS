@@ -765,10 +765,10 @@ extern void meos_error(int errlevel, int errcode, char *format, ...);
 
 
 
-
-
-
-
+extern int meos_errno(void);
+extern int meos_errno_set(int err);
+extern int meos_errno_restore(int err);
+extern int meos_errno_reset(void);
 
 /*****************************************************************************
  * Initialization of the MEOS library

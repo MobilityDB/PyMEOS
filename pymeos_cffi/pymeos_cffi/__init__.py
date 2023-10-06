@@ -27,6 +27,7 @@ __all__ = [
     'MeosGeoJsonInputError',
     'MeosGeoJsonOutputError',
     # Functions
+    'meos_set_debug',
     'py_error_handler',
     'create_pointer',
     'get_address',
@@ -52,6 +53,10 @@ __all__ = [
     'lwpoint_get_m',
     'lwgeom_has_z',
     'lwgeom_has_m',
+    'meos_errno',
+    'meos_errno_set',
+    'meos_errno_restore',
+    'meos_errno_reset',
     'meos_initialize',
     'meos_finalize',
     'bool_in',
