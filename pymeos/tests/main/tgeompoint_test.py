@@ -1315,7 +1315,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_round(self, temporal, expected):
-        assert temporal.round(maxdd=2)
+        assert temporal.round(max_decimals=2)
 
     @pytest.mark.parametrize(
         'temporal, expected',

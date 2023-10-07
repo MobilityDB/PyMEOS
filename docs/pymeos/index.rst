@@ -1,4 +1,4 @@
-PyMEOS package
+PyMEOS API Reference
 ==============
 
 .. toctree::

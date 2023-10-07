@@ -420,7 +420,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
 
     # ------------------------- Transformations -------------------------------
-    def round(self, maxdd: int = 0) -> TPoint:
+    def round(self, max_decimals: int = 0) -> TPoint:
         """
         Round the coordinate values to a number of decimal places.
 
@@ -430,7 +430,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             tpoint_round
         """
-        result = tpoint_round(self._inner, maxdd)
+        result = tpoint_round(self._inner, max_decimals)
         return Temporal._factory(result)
 
     def make_simple(self) -> List[TPoint]:

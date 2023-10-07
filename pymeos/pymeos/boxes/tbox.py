@@ -621,12 +621,12 @@ class TBox:
         )
         return TBox(_inner=result)
 
-    def round(self, maxdd: int = 0) -> TBox:
+    def round(self, max_decimals: int = 0) -> TBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
         Args:
-            maxdd: Maximum number of decimal digits.
+            max_decimals: Maximum number of decimal digits.
 
         Returns:
             A new :class:`TBox` instance
@@ -635,7 +635,7 @@ class TBox:
             tbox_round
         """
         new_inner = tbox_copy(self._inner)
-        tbox_round(new_inner, maxdd)
+        tbox_round(new_inner, max_decimals)
         return TBox(_inner=new_inner)
 
     # ------------------------- Set Operations --------------------------------

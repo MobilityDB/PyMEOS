@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import List, overload, Optional, Union
+from typing import List, overload, Optional, Union, TypeVar
 
 import shapely as shp
 from pymeos_cffi import geoset_start_value, gserialized_to_shapely_geometry, geoset_end_value, geoset_value_n, \
@@ -11,6 +11,8 @@ from pymeos_cffi import geoset_start_value, gserialized_to_shapely_geometry, geo
     union_set_set
 
 from ..base import Set
+
+Self = TypeVar('Self', bound='GeoSet')
 
 
 class GeoSet(Set[shp.Geometry], ABC):
@@ -171,7 +173,7 @@ class GeoSet(Set[shp.Geometry], ABC):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: str) -> Optional[str]:
+    def intersection(self, other: shp.Geometry) -> Optional[shp.Geometry]:
         ...
 
     @overload
@@ -268,7 +270,19 @@ class GeoSet(Set[shp.Geometry], ABC):
 
     # ------------------------- Transformations ------------------------------------
 
-    def round(self, max_decimals):
+    def round(self: Self, max_decimals: int) -> Self:
+        """
+        Rounds the coordinate values to a number of decimal places.
+
+        Args:
+            max_decimals: The number of decimal places to use for the coordinates.
+
+        Returns:
+            A new :class:`GeoSet` object of the same subtype of ``self``.
+
+        MEOS Functions:
+            tpoint_roundgeoset_round
+        """
         return self.__class__(_inner=geoset_round(self._inner, max_decimals))
 
 
@@ -281,7 +295,6 @@ class GeometrySet(GeoSet):
 
 class GeographySet(GeoSet):
     _mobilitydb_name = 'geogset'
-
 
     _parse_function = geogset_in
     _parse_value_function = lambda x: pgis_geography_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)

@@ -609,7 +609,7 @@ class TestSTBoxTransformations(TestSTBox):
         ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
     )
     def test_round(self, stbox, expected):
-        assert stbox.round(maxdd=2)
+        assert stbox.round(max_decimals=2)
 
 
 class TestSTBoxTopologicalFunctions(TestSTBox):

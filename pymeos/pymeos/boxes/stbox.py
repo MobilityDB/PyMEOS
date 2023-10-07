@@ -655,12 +655,12 @@ class STBox:
         )
         return STBox(_inner=result)
 
-    def round(self, maxdd : Optional[int] = 0) -> STBox:
+    def round(self, max_decimals : Optional[int] = 0) -> STBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
         Args:
-            maxdd: Maximum number of decimal digits.
+            max_decimals: Maximum number of decimal digits.
 
         Returns:
             A new :class:`STBox` instance
@@ -669,7 +669,7 @@ class STBox:
             stbox_round
         """
         new_inner = stbox_copy(self._inner)
-        stbox_round(new_inner, maxdd)
+        stbox_round(new_inner, max_decimals)
         return STBox(_inner=new_inner)
 
     # ------------------------- Set Operations --------------------------------

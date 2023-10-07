@@ -1,34 +1,13 @@
 Collections
 ===================
 
-Time
------------------------
 
-.. automodule:: pymeos.collections.time.time
-   :members:
-   :undoc-members:
-   :show-inheritance:
+.. toctree::
+   :maxdepth: 2
 
-Period
--------------------------
+   pymeos.collections.base
+   pymeos.collections.time
+   pymeos.collections.spatial
+   pymeos.collections.numeric
+   pymeos.collections.text
 
-.. automodule:: pymeos.collections.time.period
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-PeriodSet
-----------------------------
-
-.. automodule:: pymeos.collections.time.periodset
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-TimestampSet
--------------------------------
-
-.. automodule:: pymeos.collections.time.timestampset
-   :members:
-   :undoc-members:
-   :show-inheritance:

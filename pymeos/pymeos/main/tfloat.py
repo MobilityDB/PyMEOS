@@ -783,12 +783,12 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_radians(self._inner))
 
-    def round(self, maxdd: int = 0) -> TFloat:
+    def round(self, max_decimals: int = 0) -> TFloat:
         """
         Returns `self` rounded to the given number of decimal digits.
 
         Args:
-            maxdd: Maximum number of decimal digits.
+            max_decimals: Maximum number of decimal digits.
 
         Returns:
             A new :class:`TFloat` instance.
@@ -798,7 +798,7 @@ class TFloat(TNumber[float, 'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet']
         """
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tfloat_round(self._inner,
-                                                             maxdd))
+                                                             max_decimals))
 
     # ------------------------- Split Operations ------------------------------
     def value_split(self, size: float, start: Optional[float] = 0) -> \

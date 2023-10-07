@@ -461,7 +461,7 @@ class TestTBoxTransformations(TestTBox):
         ids=['TBoxFloat X', 'TBoxFloat XT']
     )
     def test_round(self, tbox, expected):
-        assert tbox.round(maxdd=2)
+        assert tbox.round(max_decimals=2)
 
 
 class TestTBoxTopologicalFunctions(TestTBox):
