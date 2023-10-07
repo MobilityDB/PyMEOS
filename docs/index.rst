@@ -7,13 +7,24 @@ Welcome to PyMEOS's documentation!
 ==================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+   :caption: User Guide
 
-   pymeos/index
-   pymeos_cffi/index
+   src/installation
+   src/manual
+   src/examples
 
 
+.. toctree::
+   :caption: API Reference
+
+   src/api/pymeos.meos_init
+   src/api/pymeos.collections
+   src/api/pymeos.temporal
+   src/api/pymeos.main
+   src/api/pymeos.boxes
+   src/api/pymeos.aggregators
+   src/api/pymeos.plotters
+   src/api/pymeos.db
 
 Indices and tables
 ==================

@@ -7,4 +7,4 @@ psycopg2
 matplotlib
 geopandas
 sphinx
-sphinx_rtd_theme
+sphinx-book-theme
