@@ -25,9 +25,6 @@ def pymeos_set_debug(debug: bool) -> None:
 
     Args:
         debug: :class:`bool` indicating whether debug mode should be enabled.
-
-    MEOS Functions:
-        meos_set_debug
     """
     meos_set_debug(debug)
 
