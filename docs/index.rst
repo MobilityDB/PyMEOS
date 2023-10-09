@@ -3,11 +3,42 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PyMEOS's documentation!
-==================================
+=======
+PyMEOS
+=======
+
+`MEOS (Mobility Engine, Open Source) <https://www.libmeos.org/>`__ is a
+C library which enables the manipulation of temporal and spatio-temporal
+data based on `MobilityDB <https://mobilitydb.com/>`__\ ’s data types
+and functions.
+
+PyMEOS is a library built on top of MEOS that provides all of its
+functionality wrapped in a set of Python classes.
+
+Requirements
+============
+
+PyMEOS 1.1 requires
+
+* Python >=3.7
+* MEOS >=1.1
+
+Installing PyMEOS
+==================
+
+We recommend installing PyMEOS using one of the available built
+distributions using ``pip``:
+
+.. code-block:: console
+
+    $ pip install pymeos
+
+See the `installation documentation <https://pymeos.readthedocs.io/en/latest/src/installation.html>`__
+for more details and advanced installation instructions.
 
 .. toctree::
    :caption: User Guide
+   :hidden:
 
    src/installation
    src/manual
@@ -16,6 +47,7 @@ Welcome to PyMEOS's documentation!
 
 .. toctree::
    :caption: API Reference
+   :hidden:
 
    src/api/pymeos.meos_init
    src/api/pymeos.collections
