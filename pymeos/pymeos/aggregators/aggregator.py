@@ -9,7 +9,7 @@ from pymeos_cffi import *
 from ..boxes import Box
 from ..factory import _TemporalFactory
 from ..temporal import Temporal
-from ..time import Time
+from ..collections import Time
 
 ResultType = TypeVar('ResultType', bound=Union[Temporal, Time, Box])
 SourceType = TypeVar('SourceType', bound=Union[Temporal, Time, Box])

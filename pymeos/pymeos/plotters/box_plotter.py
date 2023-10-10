@@ -1,6 +1,6 @@
 from matplotlib import pyplot as plt
 
-from .range_plotter import RangePlotter
+from .range_plotter import SpanPlotter
 from .time_plotter import TimePlotter
 from ..boxes import TBox, STBox
 
@@ -14,7 +14,7 @@ class BoxPlotter:
     def plot_tbox(tbox: TBox, *args, axes=None, **kwargs):
         """
         Plot a TBox on the given axes. If the TBox has only a temporal or spatial dimension, this is equivalent
-        to plotting the corresponding Period or Range respectively.
+        to plotting the corresponding Period or Span respectively.
 
         Params:
             tbox: The :class:`TBox` to plot.
@@ -30,7 +30,7 @@ class BoxPlotter:
             :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_period`
         """
         if not tbox.has_t:
-            return RangePlotter.plot_range(tbox.to_floatrange(), *args, axes=axes, **kwargs)
+            return SpanPlotter.plot_span(tbox.to_floatspan(), *args, axes=axes, **kwargs)
         if not tbox.has_x:
             return TimePlotter.plot_period(tbox.to_period(), *args, axes=axes, **kwargs)
         return BoxPlotter._plot_box(tbox.tmin(), tbox.tmax(), tbox.xmin(), tbox.xmax(), *args, axes=axes, **kwargs)

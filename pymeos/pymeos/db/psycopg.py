@@ -57,7 +57,7 @@ class MobilityDB:
         cursor = connection.cursor()
         classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
         for cl in classes:
-            cursor.execute(f'SELECT NULL::{cl.__name__}')
+            cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
             oid = cursor.description[0][1]
             connection.adapters.register_loader(oid, _pymeos_loader_factory(cl))
             connection.adapters.register_dumper(cl, _PymeosDumper)

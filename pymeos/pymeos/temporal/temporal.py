@@ -7,10 +7,11 @@ from pandas import DataFrame
 from pymeos_cffi import *
 
 from .interpolation import TInterpolation
-from ..time import *
+from ..collections import *
 
 if TYPE_CHECKING:
     from .tinstant import TInstant
+    from .tsequence import TSequence
     from ..main import TBool
     from ..boxes import Box
 TBase = TypeVar('TBase')
@@ -41,9 +42,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     """
 
     _parse_function = None
-
-    def _expandable(self) -> bool:
-        return False
 
     # ------------------------- Constructors ----------------------------------
     @classmethod
@@ -139,32 +137,38 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     @classmethod
     def from_merge(cls: Type[Self], *temporals: TG) -> Self:
         """
-        Returns a temporal object that is the result of merging the given temporal objects.
+        Returns a temporal object that is the result of merging the given
+        temporal objects.
 
         Args:
             *temporals: The temporal objects to merge.
 
         Returns:
-            A temporal object that is the result of merging the given temporal objects.
+            A temporal object that is the result of merging the given temporal
+            objects.
 
         MEOS Functions:
             temporal_merge_array
         """
-        result = temporal_merge_array([temp._inner for temp in temporals if temp is not None], len(temporals))
+        result = temporal_merge_array([temp._inner for temp in temporals \
+                                       if temp is not None], len(temporals))
         return Temporal._factory(result)
 
     @classmethod
     def from_merge_array(cls: Type[Self], temporals: List[TG]) -> Self:
         """
-        Returns a temporal object that is the result of merging the given temporal objects.
+        Returns a temporal object that is the result of merging the given
+        temporal objects.
 
         Args:
             temporals: The temporal objects to merge.
 
         Returns:
-            A temporal object that is the result of merging the given temporal objects.
+            A temporal object that is the result of merging the given temporal
+            objects.
         """
-        result = temporal_merge_array([temp._inner for temp in temporals if temp is not None], len(temporals))
+        result = temporal_merge_array([temp._inner for temp in temporals \
+                                       if temp is not None], len(temporals))
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
@@ -179,7 +183,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         pass
 
     def as_mfjson(self, with_bbox: bool = True, flags: int = 3,
-        precision: int = 6, srs: Optional[str] = None) -> str:
+                  precision: int = 6, srs: Optional[str] = None) -> str:
         """
         Returns the temporal object as a MF-JSON string.
 
@@ -222,7 +226,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return temporal_as_hexwkb(self._inner, 4)[0]
 
     # ------------------------- Accessors -------------------------------------
-    def bounding_box(self) -> TBox:
+    def bounding_box(self) -> Union[Period, Box]:
         """
         Returns the bounding box of `self`.
 
@@ -301,12 +305,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def duration(self, ignore_gaps=False) -> timedelta:
         """
-        Returns the duration of `self`. By default, the gaps in `self` are taken into account, but this can be
-        changed by setting `ignore_gaps` to ``True``. This will only potentially alter the result for sequence sets and
-        discrete sequences.
+        Returns the duration of `self`. By default, the gaps in `self` are
+        taken into account, but this can be changed by setting `ignore_gaps`
+        to ``True``. This will only potentially alter the result for sequence
+        sets and discrete sequences.
 
         Parameters:
-            ignore_gaps: Whether to take into account potential time gaps in the temporal value.
+            ignore_gaps: Whether to take into account potential time gaps in
+            the temporal value.
 
         MEOS Functions:
             temporal_duration
@@ -315,7 +321,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def period(self) -> Period:
         """
-        Returns the :class:`Period` on which `self` is defined ignoring potential time gaps.
+        Returns the :class:`Period` on which `self` is defined ignoring
+        potential time gaps.
 
         MEOS Functions:
             temporal_to_period
@@ -324,7 +331,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def timespan(self) -> Period:
         """
-        Returns the :class:`Period` on which `self` is defined ignoring potential time gaps.
+        Returns the :class:`Period` on which `self` is defined ignoring
+        potential time gaps.
 
         MEOS Functions:
             temporal_to_period
@@ -475,7 +483,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Transformations -------------------------------
     def set_interpolation(self: Self, interpolation: TInterpolation) -> Self:
         """
-        Returns a new :class:`Temporal` object equal to `self` with the given interpolation.
+        Returns a new :class:`Temporal` object equal to `self` with the given
+        interpolation.
 
         MEOS Functions:
             temporal_set_interpolation
@@ -483,46 +492,53 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         new_temp = temporal_set_interp(self._inner, interpolation)
         return Temporal._factory(new_temp)
 
-    def shift(self, delta: timedelta) -> Period:
+    def shift_time(self, delta: timedelta) -> Self:
         """
-        Returns a new :class:`Temporal` with the temporal dimension shifted by ``delta``.
+        Returns a new :class:`Temporal` with the temporal dimension shifted by
+        ``delta``.
 
         Args:
             delta: :class:`datetime.timedelta` instance to shift
 
         MEOS Functions:
-            temporal_shift
+            temporal_shift_time
         """
-        shifted = temporal_shift(self._inner, timedelta_to_interval(delta))
+        shifted = temporal_shift_time(self._inner, timedelta_to_interval(delta))
         return Temporal._factory(shifted)
 
-    def tscale(self, duration: timedelta) -> Period:
+    def scale_time(self, duration: timedelta) -> Self:
         """
-        Returns a new :class:`Temporal` scaled so the temporal dimension has duration ``duration``.
+        Returns a new :class:`Temporal` scaled so the temporal dimension has
+        duration ``duration``.
 
         Args:
-            duration: :class:`datetime.timedelta` instance representing the duration of the new temporal
+            duration: :class:`datetime.timedelta` instance representing the
+            duration of the new temporal
 
         MEOS Functions:
-            temporal_tscale
+            temporal_scale_time
         """
-        scaled = temporal_tscale(self._inner, timedelta_to_interval(duration))
+        scaled = temporal_scale_time(self._inner, timedelta_to_interval(duration))
         return Temporal._factory(scaled)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None) -> Self:
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
+                         duration: Optional[timedelta] = None) -> Self:
         """
-        Returns a new :class:`Temporal` with the time dimension shifted by ``shift`` and scaled so the temporal
-        dimension has duration ``duration``.
+        Returns a new :class:`Temporal` with the time dimension shifted by
+        ``shift`` and scaled so the temporal dimension has duration
+        ``duration``.
 
         Args:
             shift: :class:`datetime.timedelta` instance to shift
-            duration: :class:`datetime.timedelta` instance representing the duration of the new temporal
+            duration: :class:`datetime.timedelta` instance representing the
+            duration of the new temporal
 
         MEOS Functions:
-            temporal_shift_tscale
+            temporal_shift_scale_time
         """
-        assert shift is not None or duration is not None, 'shift and duration must not be both None'
-        scaled = temporal_shift_tscale(
+        assert shift is not None or duration is not None, \
+            'shift and duration must not be both None'
+        scaled = temporal_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None
@@ -530,20 +546,21 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return Temporal._factory(scaled)
 
     def temporal_sample(self, duration: Union[str, timedelta],
-        start: Optional[Union[str, datetime]] = None) -> TG:
+                        start: Optional[Union[str, datetime]] = None) -> TG:
         """
         Returns a new :class:`Temporal` downsampled with respect to ``duration``.
 
         Args:
-            duration: A :class:`str` or :class:`timedelta` with the duration of the temporal tiles.
-            start: A :class:`str` or :class:`datetime` with the start time of the temporal tiles. If None, the start
-                time of `self` is used.
-
+            duration: A :class:`str` or :class:`timedelta` with the duration of
+                the temporal tiles.
+            start: A :class:`str` or :class:`datetime` with the start time of
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
         MEOS Functions:
             temporal_tsample
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
@@ -551,25 +568,27 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            pg_interval_in(duration, -1)
+            dt = pg_interval_in(duration, -1)
         result = temporal_tsample(self._inner, dt, st)
         return Temporal._factory(result)
 
     def temporal_precision(self, duration: Union[str, timedelta],
-        start: Optional[Union[str, datetime]] = None) -> TG:
+                           start: Optional[Union[str, datetime]] = None) -> TG:
         """
         Returns a new :class:`Temporal` with precision reduced to ``duration``.
 
         Args:
-            duration: A :class:`str` or :class:`timedelta` with the duration of the temporal tiles.
-            start: A :class:`str` or :class:`datetime` with the start time of the temporal tiles. If None, the start
-                time of `self` is used.
+            duration: A :class:`str` or :class:`timedelta` with the duration
+                of the temporal tiles.
+            start: A :class:`str` or :class:`datetime` with the start time of
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
 
         MEOS Functions:
             temporal_tprecision
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
@@ -577,7 +596,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            pg_interval_in(duration, -1)
+            dt = pg_interval_in(duration, -1)
         result = temporal_tprecision(self._inner, dt, st)
         return Temporal._factory(result)
 
@@ -591,29 +610,30 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         inst = temporal_to_tinstant(self._inner)
         return Temporal._factory(inst)
 
-    def to_sequence(self) -> TS:
+    def to_sequence(self, interpolation: TInterpolation) -> TS:
         """
         Converts `self` into a :class:`TSequence`.
 
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner)
+        seq = temporal_to_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
-    def to_sequenceset(self) -> TSS:
+    def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
         """
         Returns `self` as a :class:`TSequenceSet`.
 
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner)
+        ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> DataFrame:
         """
-        Returns `self` as a :class:`pd.DataFrame` with two columns: `time` and `value`.
+        Returns `self` as a :class:`pd.DataFrame` with two columns: `time`
+            and `value`.
         """
         data = {
             'time': self.timestamps(),
@@ -623,9 +643,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     # ------------------------- Modifications ---------------------------------
     def append_instant(self, instant: TInstant[TBase], max_dist: Optional[float] = 0.0,
-        max_time: Optional[timedelta] = None) -> TG:
+                       max_time: Optional[timedelta] = None) -> TG:
         """
-        Returns a new :class:`Temporal` object equal to `self` with `instant` appended.
+        Returns a new :class:`Temporal` object equal to `self` with `instant`
+        appended.
 
         Args:
             instant: :class:`TInstant` to append
@@ -639,15 +660,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
-        new_inner = temporal_append_tinstant(self._inner, instant._inner, max_dist,
-            interv, self._expandable())
-        if new_inner == self._inner:
-            return self
+        new_inner = temporal_append_tinstant(self._inner, instant._inner,
+                                             max_dist, interv, False)
         return Temporal._factory(new_inner)
 
     def append_sequence(self, sequence: TSequence[TBase]) -> TG:
         """
-        Returns a new :class:`Temporal` object equal to `self` with `sequence` appended.
+        Returns a new :class:`Temporal` object equal to `self` with `sequence`
+        appended.
 
         Args:
             sequence: :class:`TSequence` to append
@@ -655,15 +675,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_append_tsequence
         """
-        new_inner = temporal_append_tsequence(self._inner, sequence._inner,
-             self._expandable())
-        if new_inner == self._inner:
-            return self
+        new_inner = temporal_append_tsequence(self._inner, sequence._inner, False)
         return Temporal._factory(new_inner)
 
     def merge(self, other: Union[type(None), Temporal[TBase], List[Temporal[TBase]]]) -> TG:
         """
-        Returns a new :class:`Temporal` object that is the result of merging `self` with `other`.
+        Returns a new :class:`Temporal` object that is the result of merging
+        `self` with `other`.
 
         MEOS Functions:
             temporal_merge, temporal_merge_array
@@ -675,18 +693,21 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
-            new_temp = temporal_merge_array([self._inner, *(o._inner for o in other)], len(other) + 1)
+            new_temp = temporal_merge_array([self._inner,
+                                             *(o._inner for o in other)], len(other) + 1)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return Temporal._factory(new_temp)
 
     def insert(self, other: TG, connect: bool = True) -> TG:
         """
-        Returns a new :class:`Temporal` object equal to `self` with `other` inserted.
+        Returns a new :class:`Temporal` object equal to `self` with `other`
+        inserted.
 
         Args:
             other: :class:`Temporal` object to insert in `self`
-            connect: wether to connect the inserted elements with the existing elements.
+            connect: wether to connect the inserted elements with the existing
+                elements.
 
         MEOS Functions:
             temporal_insert
@@ -698,11 +719,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def update(self, other: TG, connect: bool = True) -> TG:
         """
-        Returns a new :class:`Temporal` object equal to `self` updated with `other`.
+        Returns a new :class:`Temporal` object equal to `self` updated with
+        `other`.
 
         Args:
             other: :class:`Temporal` object to update `self` with
-            connect: wether to connect the updated elements with the existing elements.
+            connect: wether to connect the updated elements with the
+                existing elements.
 
         MEOS Functions:
             temporal_update
@@ -714,23 +737,29 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def delete(self, other: Time, connect: bool = True) -> TG:
         """
-        Returns a new :class:`Temporal` object equal to `self` with elements at `other` removed.
+        Returns a new :class:`Temporal` object equal to `self` with elements at
+        `other` removed.
 
         Args:
             other: :class:`Time` object to remove from `self`
-            connect: wether to connect the potential gaps generated by the deletions.
+            connect: whether to connect the potential gaps generated by the
+                deletions.
 
         MEOS Functions:
             temporal_update
         """
         if isinstance(other, datetime):
-            new_inner = temporal_delete_timestamp(self._inner, datetime_to_timestamptz(other), connect)
+            new_inner = temporal_delete_timestamp(self._inner,
+                                                  datetime_to_timestamptz(other), connect)
         elif isinstance(other, TimestampSet):
-            new_inner = temporal_delete_timestampset(self._inner, other._inner, connect)
+            new_inner = temporal_delete_timestampset(self._inner, other._inner,
+                                                     connect)
         elif isinstance(other, Period):
-            new_inner = temporal_delete_period(self._inner, other._inner, connect)
+            new_inner = temporal_delete_period(self._inner, other._inner,
+                                               connect)
         elif isinstance(other, PeriodSet):
-            new_inner = temporal_delete_periodset(self._inner, other._inner, connect)
+            new_inner = temporal_delete_periodset(self._inner, other._inner,
+                                                  connect)
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         if new_inner == self._inner:
@@ -740,7 +769,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Time) -> TG:
         """
-        Returns a new temporal object with the values of `self` restricted to the time `other`.
+        Returns a new temporal object with the values of `self` restricted to
+        the time `other`.
 
         Args:
             other: A time object to restrict the values of `self` to.
@@ -749,10 +779,12 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+            temporal_at_timestamp, temporal_at_timestampset,
+            temporal_at_period, temporal_at_periodset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
+            result = temporal_at_timestamp(self._inner,
+                                           datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             result = temporal_at_timestampset(self._inner, other._inner)
         elif isinstance(other, Period):
@@ -765,7 +797,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def at_min(self) -> TG:
         """
-        Returns a new temporal object containing the times ``self`` is at its minimum value.
+        Returns a new temporal object containing the times ``self`` is at its
+        minimum value.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -778,7 +811,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def at_max(self) -> TG:
         """
-        Returns a new temporal object containing the times ``self`` is at its maximum value.
+        Returns a new temporal object containing the times ``self`` is at its
+        maximum value.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -791,7 +825,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def minus(self, other: Time) -> TG:
         """
-        Returns a new temporal object with the values of `self` removing those happening at `other`.
+        Returns a new temporal object with the values of `self` removing those
+        happening at `other`.
 
         Args:
             other: A time object to remove from `self`.
@@ -800,14 +835,16 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
         """
         if isinstance(other, Period):
             result = temporal_minus_period(self._inner, other._inner)
         elif isinstance(other, PeriodSet):
             result = temporal_minus_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            result = temporal_minus_timestamp(self._inner, datetime_to_timestamptz(other))
+            result = temporal_minus_timestamp(self._inner,
+                                              datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             result = temporal_minus_timestampset(self._inner, other._inner)
         else:
@@ -816,7 +853,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def minus_min(self) -> TG:
         """
-        Returns a new temporal object containing the times ``self`` is not at its minimum value.
+        Returns a new temporal object containing the times ``self`` is not at
+        its minimum value.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -829,7 +867,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def minus_max(self) -> TG:
         """
-        Returns a new temporal object containing the times ``self`` is not at its maximum value.
+        Returns a new temporal object containing the times ``self`` is not at
+        its maximum value.
 
         Returns:
             A new temporal object of the same subtype as `self`.
@@ -843,9 +882,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding box of `self` is adjacent to the bounding box of `other`.
-        Temporal subclasses may override this method to provide more specific behavior related to their types and
-        check adjacency over more dimensions.
+        Returns whether the bounding box of `self` is adjacent to the bounding
+        box of `other`. Temporal subclasses may override this method to provide
+        more specific behavior related to their types an check adjacency over
+        more dimensions.
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -860,7 +900,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_temporally_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` is temporally adjacent to the bounding period of `other`.
+        Returns whether the bounding period of `self` is temporally adjacent
+        to the bounding period of `other`.
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -875,8 +916,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` is contained in the bounding period of `container`.
-        Temporal subclasses may override this method to provide more specific behavior related to their types
+        Returns whether the bounding period of `self` is contained in the
+        bounding period of `container`. Temporal subclasses may override this
+        method to provide more specific behavior related to their types
 
         Args:
             container: A time or temporal object to compare to `self`.
@@ -889,9 +931,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.bounding_box().is_contained_in(container)
 
-    def is_temporally_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
+    def is_temporally_contained_in(self,
+                                   container: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` is contained in the bounding period of `container`.
+        Returns whether the bounding period of `self` is contained in the
+        bounding period of `container`.
 
         Args:
             container: A time or temporal object to compare to `self`.
@@ -906,8 +950,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def contains(self, content: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` contains the bounding period of `content`.
-        Temporal subclasses may override this method to provide more specific behavior related to their types
+        Returns whether the bounding period of `self` contains the bounding
+        period of `content`. Temporal subclasses may override this method to
+        provide more specific behavior related to their types
 
         Args:
             content: A time or temporal object to compare to `self`.
@@ -922,7 +967,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def __contains__(self, item):
         """
-        Returns whether the bounding period of `self` contains the bounding period of `content`.
+        Returns whether the bounding period of `self` contains the bounding
+        period of `content`.
 
         Args:
             item: A time or temporal object to compare to `self`.
@@ -937,7 +983,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def temporally_contains(self, content: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` contains the bounding period of `content`.
+        Returns whether the bounding period of `self` contains the bounding
+        period of `content`.
 
         Args:
             content: A time or temporal object to compare to `self`.
@@ -952,8 +999,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` overlaps the bounding period of `other`.
-        Temporal subclasses may override this method to provide more specific behavior related to their types
+        Returns whether the bounding period of `self` overlaps the bounding
+        period of `other`. Temporal subclasses may override this method to
+        provide more specific behavior related to their types
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -968,7 +1016,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def temporally_overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` overlaps the bounding period of `other`.
+        Returns whether the bounding period of `self` overlaps the bounding
+        period of `other`.
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -983,8 +1032,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_same(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether the bounding period of `self` is the same as the bounding period of `other`.
-        Temporal subclasses may override this method to provide more specific behavior related to their types
+        Returns whether the bounding period of `self` is the same as the
+        bounding period of `other`. Temporal subclasses may override this
+        method to provide more specific behavior related to their types
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -1015,7 +1065,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether `self` is before `other` allowing overlap. That is, `self` doesn't extend after `other`.
+        Returns whether `self` is before `other` allowing overlap. That is,
+        `self` doesn't extend after `other`.
 
         Args:
             other: A time or temporal object to compare `self` to.
@@ -1045,7 +1096,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
         """
-        Returns whether `self` is after `other` allowing overlap. That is, `self` doesn't extend before `other`.
+        Returns whether `self` is after `other` allowing overlap. That is,
+        `self` doesn't extend before `other`.
 
         Args:
             other: A time or temporal object to compare `self` to.
@@ -1105,15 +1157,19 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return temporal_hausdorff_distance(self._inner, other._inner)
 
     # ------------------------- Split Operations ------------------------------
-    def time_split(self, duration: Union[str, timedelta], start: Optional[Union[str, datetime]] = None) -> List[TG]:
+    def time_split(self, duration: Union[str, timedelta],
+                   start: Optional[Union[str, datetime]] = None) -> List[TG]:
         """
-        Returns a list of temporal objects of the same subtype as `self` with the same values as `self` but split in
-        temporal tiles of duration `duration` starting at `start`.
+        Returns a list of temporal objects of the same subtype as `self` with
+        the same values as `self` but split in temporal tiles of duration
+        `duration` starting at `start`.
 
         Args:
-            duration: A :class:`str` or :class:`timedelta` with the duration of the temporal tiles.
-            start: A :class:`str` or :class:`datetime` with the start time of the temporal tiles. If None, the start
-                time of `self` is used.
+            duration: A :class:`str` or :class:`timedelta` with the duration
+                of the temporal tiles.
+            start: A :class:`str` or :class:`datetime` with the start time of
+                the temporal tiles. If None, the start time used by default is
+                Monday, January 3, 2000.
 
         Returns:
             A list of temporal objects of the same subtype as `self`.
@@ -1122,18 +1178,24 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_time_split
         """
         if start is None:
-            st = temporal_start_timestamp(self._inner)
+            st = pg_timestamptz_in('2000-01-03', -1)
         else:
-            st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        tiles, new_count = temporal_time_split(self._inner, dt, st)
+            st = datetime_to_timestamptz(start) \
+                if isinstance(start, datetime) \
+                else pg_timestamptz_in(start, -1)
+        dt = timedelta_to_interval(duration) \
+            if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1)
+        fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) \
+                for i in range(count)]
 
     def time_split_n(self, n: int) -> List[TG]:
         """
-        Returns a list of temporal objects of the same subtype as `self` with the same values as `self` but split in
-        n temporal tiles of equal duration.
+        Returns a list of temporal objects of the same subtype as `self` with
+        the same values as `self` but split in n temporal tiles of equal
+        duration.
 
         Args:
             n: An :class:`int` with the number of temporal tiles.
@@ -1147,20 +1209,23 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if self.end_timestamp() == self.start_timestamp():
             return [self]
         st = temporal_start_timestamp(self._inner)
-        dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
-        tiles, new_count = temporal_time_split(self._inner, dt, st)
+        dt = timedelta_to_interval((self.end_timestamp() -
+                                    self.start_timestamp()) / n)
+        fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(tiles[i]) for i in range(new_count)]
+        return [_TemporalFactory.create_temporal(fragments[i]) \
+                for i in range(count)]
 
     def stops(self, max_distance: Optional[float] = 0.0,
-        min_duration: Optional[timedelta] = timedelta()) -> TSS:
+              min_duration: Optional[timedelta] = timedelta()) -> TSS:
         """
-        Return the subsequences where the objects stay within an area with a given maximum size for at least
-        the specified duration.
+        Return the subsequences where the objects stay within an area with a
+        given maximum size for at least the specified duration.
 
         Args:
             max_distance: A :class:`float` with the maximum distance of a stop.
-            min_duration: A :class:`timedelta` with the minimum duration of a stop.
+            min_duration: A :class:`timedelta` with the minimum duration of
+                a stop.
 
         Returns:
             A :class:`SequenceSet` of the same subtype as `self` with the stops.
@@ -1168,7 +1233,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_stops
         """
-        new_inner = temporal_stops(self._inner, max_distance, timedelta_to_interval(min_duration))
+        new_inner = temporal_stops(self._inner, max_distance,
+                                   timedelta_to_interval(min_duration))
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(new_inner)
 
@@ -1246,7 +1312,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal less or equal relation.
+            A :class:`TBool` with the result of the temporal less or equal
+            relation.
 
         MEOS Functions:
             tle_temporal_temporal
@@ -1257,13 +1324,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def temporal_greater_or_equal(self, other: Temporal) -> TBool:
         """
-        Returns the temporal greater or equal relation between `self` and `other`.
+        Returns the temporal greater or equal relation between `self` and
+        `other`.
 
         Args:
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater or equal relation.
+            A :class:`TBool` with the result of the temporal greater or equal
+            relation.
 
         MEOS Functions:
             tge_temporal_temporal
@@ -1280,7 +1349,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater than relation.
+            A :class:`TBool` with the result of the temporal greater than
+            relation.
 
         MEOS Functions:
             tgt_temporal_temporal
@@ -1373,10 +1443,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             other: A temporal object to compare to `self`.
 
         Returns:
-            A :class:`bool` with the result of the greater or equal than relation.
+            A :class:`bool` with the result of the greater or equal than
+            relation.
 
         MEOS Functions:
             temporal_ge
         """
         return temporal_ge(self._inner, other._inner)
-

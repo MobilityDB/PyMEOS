@@ -1,14 +1,13 @@
+import os
 from datetime import datetime, timedelta
 from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
 from .errors import raise_meos_exception
-import postgis as pg
 import shapely.geometry as spg
 from dateutil.parser import parse
-from shapely import wkt, wkb, get_srid
+from shapely import wkt, get_srid, set_srid
 from shapely.geometry.base import BaseGeometry
-from spans.types import floatrange, intrange
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
@@ -16,6 +15,13 @@ _lib = _meos_cffi.lib
 _error: Optional[int] = None
 _error_level: Optional[int] = None
 _error_message: Optional[str] = None
+
+_debug = os.environ.get('MEOS_DEBUG', '0') == '1'
+
+
+def meos_set_debug(debug: bool) -> None:
+    global _debug
+    _debug = debug
 
 
 def _check_error() -> None:
@@ -36,6 +42,8 @@ def py_error_handler(error_level, error_code, error_msg):
     _error = error_code
     _error_level = error_level
     _error_message = _ffi.string(error_msg).decode('utf-8')
+    if _debug:
+        print(f'ERROR Handler called: Level: {_error} | Code: {_error_level} | Message: {_error_message}')
 
 
 def create_pointer(object: 'Any', type: str) -> 'Any *':
@@ -63,47 +71,45 @@ def interval_to_timedelta(interval: Any) -> timedelta:
     return timedelta(days=interval.day, microseconds=interval.time)
 
 
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry], geodetic: Optional[bool] = None) -> 'GSERIALIZED *':
-    if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
-        # if geom.has_srid():
-        # text = f'SRID={geom.srid};{text}'
-    elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
-        if get_srid(geom) > 0:
-            text = f'SRID={get_srid(geom)};{text}'
+def geo_to_gserialized(geom: BaseGeometry, geodetic: bool) -> 'GSERIALIZED *':
+    if geodetic:
+        return geography_to_gserialized(geom)
     else:
-        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    gs = gserialized_in(text, -1)
-    if geodetic is not None:
-        # GFlags is an 8-bit integer, where the 4th bit is the geodetic flag (0x80)
-        # If geodetic is True, then set the 4th bit to 1, otherwise set it to 0
-        gs.gflags = (gs.gflags | 0x08) if geodetic else (gs.gflags & 0xF7)
+        return geometry_to_gserialized(geom)
+
+
+def geometry_to_gserialized(geom: BaseGeometry) -> 'GSERIALIZED *':
+    text = wkt.dumps(geom)
+    if get_srid(geom) > 0:
+        text = f'SRID={get_srid(geom)};{text}'
+    gs = pgis_geometry_in(text, -1)
     return gs
 
 
-def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
-    return wkt.loads(gserialized_as_text(geom, precision))
+def geography_to_gserialized(geom: BaseGeometry) -> 'GSERIALIZED *':
+    text = wkt.dumps(geom)
+    if get_srid(geom) > 0:
+        text = f'SRID={get_srid(geom)};{text}'
+    gs = pgis_geography_in(text, -1)
+    return gs
 
 
-def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
-    return wkt.loads(gserialized_as_text(geom, precision))
+def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 15) -> spg.Point:
+    text = gserialized_as_text(geom, precision)
+    geometry = wkt.loads(text)
+    srid = lwgeom_get_srid(geom)
+    if srid > 0:
+        geometry = set_srid(geometry, srid)
+    return geometry
 
 
-def intrange_to_intspan(irange: intrange) -> 'Span *':
-    return intspan_make(irange.lower, irange.upper, irange.lower_inc, irange.upper_inc)
-
-
-def intspan_to_intrange(ispan: 'Span *') -> intrange:
-    return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
-
-
-def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
-    return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
-
-
-def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
-    return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
+def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 15) -> BaseGeometry:
+    text = gserialized_as_text(geom, precision)
+    geometry = wkt.loads(text)
+    srid = lwgeom_get_srid(geom)
+    if srid > 0:
+        geometry = set_srid(geometry, srid)
+    return geometry
 
 
 def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':
@@ -117,8 +123,6 @@ def as_tsequence(temporal: 'Temporal *') -> 'TSequence *':
 def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
     return _ffi.cast('TSequenceSet *', temporal)
 
-
 # -----------------------------------------------------------------------------
 # ----------------------End of manually-defined functions----------------------
 # -----------------------------------------------------------------------------
-

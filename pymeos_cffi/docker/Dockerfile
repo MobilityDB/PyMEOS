@@ -2,7 +2,8 @@ FROM pymeos/meos:latest
 WORKDIR MobilityDB
 
 RUN git fetch
-RUN git checkout develop
+RUN git checkout errmsg
+RUN git pull
 
 
 WORKDIR build
@@ -12,13 +13,15 @@ RUN make -j
 RUN make install
 
 COPY build_wheels.sh /build_wheels.sh
+RUN sed -i -e 's/\r$//' /build_wheels.sh
 RUN chmod +x /build_wheels.sh
 
 RUN rm -rf /opt/python/cp36-cp36m
+RUN rm -rf /opt/python/cp312-cp312
 RUN mkdir /wheelhouse_int
 
 ENV LD_LIBRARY_PATH=/usr/lib64;/lib64
 
 WORKDIR /
 
-CMD ["./build_wheels.sh"]
+CMD ["/build_wheels.sh"]

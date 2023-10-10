@@ -1,15 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, Union, List, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
-from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
+from ..collections import *
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -17,6 +15,8 @@ if TYPE_CHECKING:
 
 
 class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
+    _mobilitydb_name = 'tint'
+
     BaseClass = int
     _parse_function = tint_in
 
@@ -24,7 +24,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
     @staticmethod
     def from_base_temporal(value: int, base: Temporal) -> TInt:
         """
-        Returns a new temporal integer with the value `value` and the temporal frame of `base`.
+        Returns a new temporal integer with the value `value` and the temporal
+        frame of `base`.
 
         Args:
             value: Value of the temporal integer.
@@ -57,7 +58,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
     @staticmethod
     def from_base_time(value: int, base: Time) -> TInt:
         """
-        Returns a new temporal int with the value `value` and the temporal frame of `base`.
+        Returns a new temporal int with the value `value` and the temporal
+        frame of `base`.
 
         Args:
             value: Value of the temporal int.
@@ -71,13 +73,16 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             tintseq_from_base_period, tintseqset_from_base_periodset
         """
         if isinstance(base, datetime):
-            return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
+            return TIntInst(_inner=tintinst_make(value,
+                                                 datetime_to_timestamptz(base)))
         elif isinstance(base, TimestampSet):
-            return TIntSeq(_inner=tintseq_from_base_timestampset(value, base._inner))
+            return TIntSeq(_inner=tintseq_from_base_timestampset(value,
+                                                                 base._inner))
         elif isinstance(base, Period):
             return TIntSeq(_inner=tintseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TIntSeqSet(_inner=tintseqset_from_base_periodset(value, base._inner))
+            return TIntSeqSet(_inner=tintseqset_from_base_periodset(value,
+                                                                    base._inner))
         raise TypeError(f'Operation not supported with type {base.__class__}')
 
     # ------------------------- Output ----------------------------------------
@@ -119,45 +124,42 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         from ..factory import _TemporalFactory
         return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
 
-    def to_intrange(self) -> intrange:
+    def to_intspan(self) -> IntSpan:
         """
         Returns value span of `self`.
 
         Returns:
-            An :class:`intrange` with the value span of `self`.
+            An :class:`IntSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
-        return intspan_to_intrange(tnumber_to_span(self._inner))
+        return IntSpan(_inner=tnumber_to_span(self._inner))
 
     # ------------------------- Accessors -------------------------------------
-    def value_range(self) -> intrange:
+    def value_span(self) -> IntSpan:
         """
         Returns the value span of `self`.
 
         Returns:
-            An :class:`intrange` with the value span of `self`.
+            An :class:`IntSpan` with the value span of `self`.
 
         MEOS Functions:
             tnumber_to_span
         """
-        return self.to_intrange()
+        return self.to_intspan()
 
-    def value_ranges(self) -> List[intrange]:
+    def value_spans(self) -> IntSpanSet:
         """
         Returns the value spans of `self` taking into account gaps.
 
         Returns:
-            A list of :class:`intrange` with the value spans of `self`.
+            An :class:`IntSpanSet` with the value spans of `self`.
 
         MEOS Functions:
-            tint_spanset
+            tnumber_valuespans
         """
-        spanset = tnumber_valuespans(self._inner)
-        spans = spanset_spans(spanset)
-        count = spanset_num_spans(spanset)
-        return [intspan_to_intrange(spans[i]) for i in range(count)]
+        return IntSpanSet(_inner=tnumber_valuespans(self._inner))
 
     def start_value(self) -> int:
         """
@@ -233,7 +235,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_value_at_timestamp
         """
-        return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
+        return tint_value_at_timestamp(self._inner,
+                                       datetime_to_timestamptz(timestamp), True)
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_less(self, value: int) -> bool:
@@ -244,7 +247,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always less than `value`, `False` otherwise.
+            `True` if the values of `self` are always less than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_lt
@@ -253,13 +257,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def always_less_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are always less than or equal to `value`.
+        Returns whether the values of `self` are always less than or equal to
+        `value`.
 
         Args:
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always less than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are always less than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_always_le
@@ -274,7 +280,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always equal to `value`, `False` otherwise.
+            `True` if the values of `self` are always equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_eq
@@ -289,7 +296,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always not equal to `value`, `False` otherwise.
+            `True` if the values of `self` are always not equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_eq
@@ -298,13 +306,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def always_greater_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are always greater than or equal to `value`.
+        Returns whether the values of `self` are always greater than or equal
+        to `value`.
 
         Args:
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always greater than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are always greater than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_ever_lt
@@ -319,7 +329,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are always greater than `value`, `False` otherwise.
+            `True` if the values of `self` are always greater than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_le
@@ -334,7 +345,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever less than `value`, `False` otherwise.
+            `True` if the values of `self` are ever less than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_lt
@@ -343,13 +355,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def ever_less_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are ever less than or equal to `value`.
+        Returns whether the values of `self` are ever less than or equal to
+        `value`.
 
         Args:
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever less than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are ever less than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_ever_le
@@ -364,7 +378,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever equal to `value`, `False` otherwise.
+            `True` if the values of `self` are ever equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_eq
@@ -379,7 +394,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever not equal to `value`, `False` otherwise.
+            `True` if the values of `self` are ever not equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_eq
@@ -388,13 +404,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def ever_greater_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are ever greater than or equal to `value`.
+        Returns whether the values of `self` are ever greater than or equal to
+        `value`.
 
         Args:
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever greater than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are ever greater than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_always_lt
@@ -409,7 +427,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` to compare.
 
         Returns:
-            `True` if the values of `self` are ever greater than `value`, `False` otherwise.
+            `True` if the values of `self` are ever greater than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_le
@@ -424,7 +443,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never less than `value`, `False` otherwise.
+            `True` if the values of `self` are never less than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_lt
@@ -433,13 +453,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def never_less_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are never less than or equal to `value`.
+        Returns whether the values of `self` are never less than or equal to
+        `value`.
 
         Args:
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never less than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are never less than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_ever_le
@@ -454,7 +476,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never equal to `value`, `False` otherwise.
+            `True` if the values of `self` are never equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_ever_eq
@@ -469,7 +492,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never not equal to `value`, `False` otherwise.
+            `True` if the values of `self` are never not equal to `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_eq
@@ -478,13 +502,15 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
 
     def never_greater_or_equal(self, value: int) -> bool:
         """
-        Returns whether the values of `self` are never greater than or equal to `value`.
+        Returns whether the values of `self` are never greater than or equal to
+        `value`.
 
         Args:
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never greater than or equal to `value`, `False` otherwise.
+            `True` if the values of `self` are never greater than or equal to
+            `value`, `False` otherwise.
 
         MEOS Functions:
             tint_always_lt
@@ -499,7 +525,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             value: :class:`int` value to compare.
 
         Returns:
-            `True` if the values of `self` are never greater than `value`, `False` otherwise.
+            `True` if the values of `self` are never greater than `value`,
+            `False` otherwise.
 
         MEOS Functions:
             tint_always_le
@@ -572,7 +599,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             other: A :class:`int` or temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal less or equal relation.
+            A :class:`TBool` with the result of the temporal less or equal
+            relation.
 
         MEOS Functions:
             tle_tint_int, tle_temporal_temporal
@@ -591,7 +619,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             other: A :class:`int` or temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater or equal relation.
+            A :class:`TBool` with the result of the temporal greater or equal
+            relation.
 
         MEOS Functions:
             tge_tint_int, tge_temporal_temporal
@@ -610,7 +639,8 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             other: A :class:`int` or temporal object to compare to `self`.
 
         Returns:
-            A :class:`TBool` with the result of the temporal greater than relation.
+            A :class:`TBool` with the result of the temporal greater than
+            relation.
 
         MEOS Functions:
             tgt_tint_int, tgt_temporal_temporal
@@ -622,11 +652,11 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[int, List[int],
-                              intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def at(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
         """
-        Returns a new temporal int with th  e values of `self` restricted to the time or value `other`.
+        Returns a new temporal int with th  e values of `self` restricted to
+        the time or value `other`.
 
         Args:
             other: Time or value to restrict to.
@@ -635,24 +665,27 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             A new temporal int.
 
         MEOS Functions:
-            tint_at_value, temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+            tint_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
+            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
+            temporal_at_periodset
         """
-        if isinstance(other, int):
-            result = tint_at_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            # result = tint_at_values(self._inner, other)
-            results = [tint_at_value(self._inner, value) for value in other if other is not None]
-            result = temporal_merge_array(results, len(results))
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_at_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().at(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().at(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().at(other.to_intspanset())
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[int, List[int],
-                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
+    def minus(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
         """
-        Returns a new temporal int with the values of `self` restricted to the complement of the time or value
-         `other`.
+        Returns a new temporal int with the values of `self` restricted to the
+        complement of the time or value `other`.
 
         Args:
             other: Time or value to restrict to the complement of.
@@ -661,36 +694,39 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
             A new temporal int.
 
         MEOS Functions:
-            tint_minus_value, temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            tint_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
         """
-        if isinstance(other, int):
-            result = tint_minus_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            # result = reduce(tint_minus_value, other, self._inner)
-            # result = tint_minus_values(self._inner, other)
-            # results = [tint_minus_value(self._inner, value) for value in other if other is not None]
-            # result = temporal_merge_array(results, len(results))
-            result = tint_minus_value(self._inner, other)
-            for i in 1..len(other):
-              result = result.minus_value(other[i])
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_minus_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().minus(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().minus(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().minus(other.to_intspanset())
         else:
             return super().minus(other)
         return Temporal._factory(result)
 
     # ------------------------- Distance --------------------------------------
-    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+    def nearest_approach_distance(self,
+                                  other: Union[int, float, TNumber, TBox]) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
         Args:
-            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or 
+            :class:`TBox` to compare to `self`.
 
         Returns:
-            A :class:`float` with the nearest approach distance between `self` and `other`.
+            A :class:`float` with the nearest approach distance between `self`
+            and `other`.
 
         MEOS Functions:
-            nad_tint_int, nad_tint_tint, nad_tfloat_float, nad_tfloat_tfloat, nad_tnumber_tbox
+            nad_tint_int, nad_tint_tint, nad_tfloat_float, nad_tfloat_tfloat,
+            nad_tnumber_tbox
         """
         if isinstance(other, int):
             return nad_tint_int(self._inner, other)
@@ -714,37 +750,50 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         MEOS Functions:
             tint_value_split
         """
-        tiles, new_count = tint_value_split(self._inner, size, start)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        fragments, values, count = tint_value_split(self._inner, size, start)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
-    def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],
-                         duration: Union[str, timedelta]) -> List[TInt]:
+    def value_time_split(self, value_size: int,
+                         duration: Union[str, timedelta],
+                         value_start: Optional[int] = 0,
+                         time_start: Optional[Union[str, datetime]] = None) -> \
+            List[TInt]:
         """
         Splits `self` into fragments with respect to value and period buckets.
 
         Args:
-            value_start: Start value of the first value bucket.
             value_size: Size of the value buckets.
-            time_start: Start time of the first period bucket.
             duration: Duration of the period buckets.
+            value_start: Start value of the first value bucket. If None, the
+                start value used by default is 0
+            time_start: Start time of the first period bucket. If None, the
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
-            A list of temporal ints.
+            A list of temporal integers.
 
         MEOS Functions:
             tint_value_time_split
         """
-        st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
-            else pg_timestamptz_in(time_start, -1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        tiles, new_count = tint_value_time_split(self._inner, value_size, value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
+        if time_start is None:
+            st = pg_timestamptz_in('2000-01-03', -1)
+        else:
+            st = datetime_to_timestamptz(time_start) \
+                if isinstance(time_start, datetime) \
+                else pg_timestamptz_in(time_start, -1)
+        dt = timedelta_to_interval(duration) \
+            if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1)
+        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt,
+                                                   value_start, st)
+        return [Temporal._factory(tiles[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`TInt` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`TInt` from a database cursor. Used when automatically
+        loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:
@@ -768,9 +817,11 @@ class TIntInst(TInstant[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt)
     _make_function = tintinst_make
     _cast_function = int
 
-    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, int]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 value: Optional[Union[str, int]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
+        super().__init__(string=string, value=value, timestamp=timestamp,
+                         _inner=_inner)
 
 
 class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
@@ -779,19 +830,25 @@ class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt)
     """
     ComponentClass = TIntInst
 
-    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TIntInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
+    def __init__(self, string: Optional[str] = None, *,
+                 instant_list: Optional[List[Union[str, TIntInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: TInterpolation = TInterpolation.STEPWISE,
+                 normalize: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list,
+                         lower_inc=lower_inc, upper_inc=upper_inc,
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
+class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'],
+                 TInt):
     """
     Class for representing temporal integers over a period of time with gaps.
     """
     ComponentClass = TIntSeq
 
-    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
+        super().__init__(string=string, sequence_list=sequence_list,
+                         normalize=normalize, _inner=_inner)

@@ -2,15 +2,12 @@ from __future__ import annotations
 
 from typing import Optional, Union, List, TYPE_CHECKING, get_args
 
-import postgis as pg
 import shapely.geometry.base as shp
 from pymeos_cffi import *
 
 from ..main import TPoint
 from ..temporal import Temporal
-from ..time import *
-
-Geometry = Union[pg.Geometry, shp.BaseGeometry]
+from ..collections import *
 
 if TYPE_CHECKING:
     from .box import Box
@@ -18,7 +15,8 @@ if TYPE_CHECKING:
 
 class STBox:
     """
-    Class for representing a spatio-temporal box. Temporal bounds may be inclusive or exclusive.
+    Class for representing a spatio-temporal box. Temporal bounds may be inclusive or
+    exclusive.
 
     ``STBox`` objects can be created with a single argument of type string as in MobilityDB.
 
@@ -39,10 +37,13 @@ class STBox:
     """
     __slots__ = ['_inner']
 
-    def _get_box(self, other: Union[Geometry, STBox, Temporal, Time], allow_space_only: bool = True,
+    _mobilitydb_name = 'stbox'
+
+    def _get_box(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time],
+                 allow_space_only: bool = True,
                  allow_time_only: bool = False) -> STBox:
-        if allow_space_only and isinstance(other, get_args(Geometry)):
-            other_box = geo_to_stbox(geometry_to_gserialized(other, self.geodetic()))
+        if allow_space_only and isinstance(other, shp.BaseGeometry):
+            other_box = geo_to_stbox(geo_to_gserialized(other, self.geodetic()))
         elif isinstance(other, STBox):
             other_box = other._inner
         elif isinstance(other, TPoint):
@@ -63,23 +64,24 @@ class STBox:
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, float]] = None, 
+                 xmin: Optional[Union[str, float]] = None,
                  xmax: Optional[Union[str, float]] = None,
-                 ymin: Optional[Union[str, float]] = None, 
+                 ymin: Optional[Union[str, float]] = None,
                  ymax: Optional[Union[str, float]] = None,
-                 zmin: Optional[Union[str, float]] = None, 
+                 zmin: Optional[Union[str, float]] = None,
                  zmax: Optional[Union[str, float]] = None,
-                 tmin: Optional[Union[str, datetime]] = None, 
+                 tmin: Optional[Union[str, datetime]] = None,
                  tmax: Optional[Union[str, datetime]] = None,
                  tmin_inc: bool = True, tmax_inc: bool = True,
                  geodetic: bool = False, srid: Optional[int] = None,
                  _inner=None):
 
         assert (_inner is not None) or (string is not None) != (
-                (xmin is not None and xmax is not None and ymin is not None and ymax is not None) or
+                (xmin is not None and xmax is not None and ymin is not None and
+                 ymax is not None) or
                 (tmin is not None and tmax is not None)), \
-            "Either string must be not None or at least a bound pair (xmin/max and ymin/max, or tmin/max)" \
-            " must be not None"
+            "Either string must be not None or at least a bound pair (xmin/max" \
+            " and ymin/max, or tmin/max) must be not None"
 
         if _inner is not None:
             self._inner = _inner
@@ -88,12 +90,16 @@ class STBox:
         else:
             period = None
             hast = tmin is not None and tmax is not None
-            hasx = xmin is not None and xmax is not None and ymin is not None and ymax is not None
+            hasx = xmin is not None and xmax is not None and ymin is not None \
+            and ymax is not None
             hasz = zmin is not None and zmax is not None
             if hast:
-                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc)._inner
-            self._inner = stbox_make(hasx, hasz, geodetic, srid or 0, float(xmin or 0), float(xmax or 0),
-                                     float(ymin or 0), float(ymax or 0), float(zmin or 0), float(zmax or 0), period)
+                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc,
+                upper_inc=tmax_inc)._inner
+            self._inner = stbox_make(hasx, hasz, geodetic, srid or 0, 
+                float(xmin or 0), float(xmax or 0),
+                float(ymin or 0), float(ymax or 0),
+                float(zmin or 0), float(zmax or 0), period)
 
     def __copy__(self) -> STBox:
         """
@@ -143,21 +149,21 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry(geom: Geometry, geodetic: bool = False) -> STBox:
+    def from_geometry(geom: shp.BaseGeometry, geodetic: bool = False) -> STBox:
         """
-        Returns a `STBox` from a `Geometry`.
+        Returns a `STBox` from a `shp.BaseGeometry`.
 
         Args:
-            geom: A `Geometry` instance.
+            geom: A `shp.BaseGeometry` instance.
             geodetic: Whether to create a geodetic or geometric `STBox`.
 
         Returns:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            gserialized_in, geo_to_stbox
+            pgis_geometry_in, geo_to_stbox
         """
-        gs = geometry_to_gserialized(geom, geodetic)
+        gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
 
     @staticmethod
@@ -172,7 +178,8 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            timestamp_to_stbox, timestampset_to_stbox, period_to_stbox, periodset_to_stbox
+            timestamp_to_stbox, timestampset_to_stbox, period_to_stbox,
+            periodset_to_stbox
         """
         if isinstance(time, datetime):
             result = timestamp_to_stbox(datetime_to_timestamptz(time))
@@ -187,13 +194,13 @@ class STBox:
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry_time(geometry: Geometry, time: Union[datetime, Period],
+    def from_geometry_time(geometry: shp.BaseGeometry, time: Union[datetime, Period],
                            geodetic: bool = False) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
 
         Args:
-            geometry: A `Geometry` instance representing the space dimension.
+            geometry: A `shp.BaseGeometry` instance representing the space dimension.
             time: A `Time` instance representing the time dimension.
             geodetic: Whether to create a geodetic or geometric `STBox`.
 
@@ -203,13 +210,14 @@ class STBox:
         MEOS Functions:
             geo_timestamp_to_stbox, geo_period_to_stbox
         """
-        gs = geometry_to_gserialized(geometry, geodetic)
+        gs = geo_to_gserialized(geometry, geodetic)
         if isinstance(time, datetime):
             result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
         elif isinstance(time, Period):
             result = geo_period_to_stbox(gs, time._inner)
         else:
-            raise TypeError(f'Operation not supported with types {geometry.__class__} and {time.__class__}')
+            raise TypeError(f'Operation not supported with types ' \
+                '{geometry.__class__} and {time.__class__}')
         return STBox(_inner=result)
 
     @staticmethod
@@ -229,16 +237,17 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[Geometry, TPoint, STBox],
+    def from_expanding_bounding_box(value: Union[shp.BaseGeometry, TPoint, STBox],
         expansion: float, geodetic: Optional[bool] = False) -> STBox:
         """
-        Returns a `STBox` from a `Geometry`, `TPoint` or `STBox` instance, expanding its bounding box by the given amount.
+        Returns a `STBox` from a `shp.BaseGeometry`, `TPoint` or `STBox` instance,
+        expanding its bounding box by the given amount.
 
         Args:
-            value: A `Geometry`, `TPoint` or `STBox` instance.
+            value: A `shp.BaseGeometry`, `TPoint` or `STBox` instance.
             expansion: The amount to expand the bounding box.
-            geodetic: Whether to create a geodetic or geometric `STBox`. 
-            Only used when value is a `Geometry` instance.
+            geodetic: Whether to create a geodetic or geometric `STBox`.
+            Only used when value is a `shp.BaseGeometry` instance.
 
         Returns:
             A new :class:`STBox` instance.
@@ -246,8 +255,8 @@ class STBox:
         MEOS Functions:
             geo_expand_space, tpoint_expand_space, stbox_expand_space
         """
-        if isinstance(value, get_args(Geometry)):
-            gs = geometry_to_gserialized(value, geodetic)
+        if isinstance(value, shp.BaseGeometry):
+            gs = geo_to_gserialized(value, geodetic)
             result = geo_expand_space(gs, expansion)
         elif isinstance(value, TPoint):
             result = tpoint_expand_space(value._inner, expansion)
@@ -300,7 +309,8 @@ class STBox:
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
 
         Returns:
-            A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
+            A :class:`str` object with the WKB representation of ``self`` in
+            hex-encoded ASCII.
 
         MEOS Functions:
             stbox_as_hexwkb
@@ -310,7 +320,8 @@ class STBox:
     # ------------------------- Conversions ----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:
         """
-        Returns the spatial dimension of ``self`` as a `shapely` :class:`~shapely.BaseGeometry` instance.
+        Returns the spatial dimension of ``self`` as a `shapely`
+        :class:`~shapely.BaseGeometry` instance.
 
         Args:
             precision: The precision of the geometry coordinates.
@@ -321,7 +332,8 @@ class STBox:
         MEOS Functions:
             stbox_to_geo
         """
-        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
+        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner),
+            precision)
 
     def to_period(self) -> Period:
         """
@@ -385,7 +397,7 @@ class STBox:
         """
         return stbox_isgeodetic(self._inner)
 
-    def xmin(self) -> float:
+    def xmin(self) -> Optional[float]:
         """
         Returns the minimum X coordinate of ``self``.
 
@@ -397,7 +409,7 @@ class STBox:
         """
         return stbox_xmin(self._inner)
 
-    def ymin(self) -> float:
+    def ymin(self) -> Optional[float]:
         """
         Returns the minimum Y coordinate of ``self``.
 
@@ -409,7 +421,7 @@ class STBox:
         """
         return stbox_ymin(self._inner)
 
-    def zmin(self) -> float:
+    def zmin(self) -> Optional[float]:
         """
         Returns the minimum Z coordinate of ``self``.
 
@@ -421,7 +433,7 @@ class STBox:
         """
         return stbox_zmin(self._inner)
 
-    def tmin(self) -> datetime:
+    def tmin(self) -> Optional[datetime]:
         """
         Returns the starting time of ``self``.
 
@@ -432,23 +444,22 @@ class STBox:
             stbox_tmin
         """
         result = stbox_tmin(self._inner)
-        if not result:
-            return None
-        return timestamptz_to_datetime(result)
+        return timestamptz_to_datetime(result) if result else None
 
     def tmin_inc(self) -> bool:
         """
         Returns whether starting time of ``self`` is inclusive or not
 
         Returns:
-            True if the starting time of ``self`` is inclusive and False otherwise
+            True if the starting time of ``self`` is inclusive and False
+            otherwise
 
         MEOS Functions:
             stbox_tmin_inc
         """
         return stbox_tmin_inc(self._inner)
 
-    def xmax(self) -> float:
+    def xmax(self) -> Optional[float]:
         """
         Returns the maximum X coordinate of ``self``.
 
@@ -460,7 +471,7 @@ class STBox:
         """
         return stbox_xmax(self._inner)
 
-    def ymax(self) -> float:
+    def ymax(self) -> Optional[float]:
         """
         Returns the maximum Y coordinate of ``self``.
 
@@ -472,7 +483,7 @@ class STBox:
         """
         return stbox_ymax(self._inner)
 
-    def zmax(self) -> float:
+    def zmax(self) -> Optional[float]:
         """
         Returns the maximum Z coordinate of ``self``.
 
@@ -484,7 +495,7 @@ class STBox:
         """
         return stbox_zmax(self._inner)
 
-    def tmax(self) -> datetime:
+    def tmax(self) -> Optional[datetime]:
         """
         Returns the ending time of ``self``.
 
@@ -495,9 +506,7 @@ class STBox:
             stbox_tmax
         """
         result = stbox_tmax(self._inner)
-        if not result:
-            return None
-        return timestamptz_to_datetime(result)
+        return timestamptz_to_datetime(result) if result else None
 
     def tmax_inc(self) -> bool:
         """
@@ -540,12 +549,28 @@ class STBox:
         return STBox(_inner=stbox_set_srid(self._inner, value))
 
     # ------------------------- Transformations -------------------------------
-    def expand(self, other: Union[int, float, timedelta, STBox]) -> STBox:
+    def get_space(self) -> STBox:
+        """
+        Get the spatial dimension of ``self``, removing the temporal dimension
+        if any
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_get_space
+        """
+        result = stbox_get_space(self._inner)
+        return STBox(_inner=result)
+
+    def expand(self, other: Union[int, float, timedelta]) -> STBox:
         """
         Expands ``self`` with `other`.
-        If `other` is a :class:`int` or a :class:`float`, the result is equal to ``self`` but with the spatial dimensions
-        expanded by `other` in all directions. If `other` is a :class:`timedelta`, the result is equal to ``self``
-        but with the temporal dimension expanded by `other` in both directions.
+        If `other` is a :class:`int` or a :class:`float`, the result is equal
+        to ``self`` but with the spatial dimensions expanded by `other` in all
+        directions. If `other` is a :class:`timedelta`, the result is equal to
+        ``self``  but with the temporal dimension expanded by `other` in both
+        directions.
 
         Args:
             other: The object to expand ``self`` with.
@@ -559,15 +584,13 @@ class STBox:
         if isinstance(other, int) or isinstance(other, float):
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
-            result = stbox_expand_time(self._inner, timedelta_to_interval(other))
-        elif isinstance(other, STBox):
-            result = stbox_copy(self._inner)
-            stbox_expand(other._inner, result)
+            result = stbox_expand_time(self._inner,
+                timedelta_to_interval(other))
         else:
             raise TypeError(f'Operation not supported with type {other.__class__}')
         return STBox(_inner=result)
 
-    def shift(self, delta: timedelta) -> STBox:
+    def shift_time(self, delta: timedelta) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `delta`.
 
@@ -578,16 +601,17 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            periodshift_tscale
+            stbox_shift_scale_time
 
         See Also:
-            :meth:`Period.shift`
+            :meth:`STBox.shift`
         """
-        return self.shift_tscale(shift=delta)
+        return self.shift_scale_time(shift=delta)
 
-    def tscale(self, duration: timedelta) -> STBox:
+    def scale_time(self, duration: timedelta) -> STBox:
         """
-        Returns a new `STBox` with the time dimension having duration `duration`.
+        Returns a new `STBox` with the time dimension having duration 
+        `duration`.
 
         Args:
             duration: :class:`datetime.timedelta` instance with new duration
@@ -596,17 +620,18 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            period_shift_scale
 
         See Also:
-            :meth:`Period.tscale`
+            :meth:`STBox.scale`
         """
-        return self.shift_tscale(duration=duration)
+        return self.shift_scale_time(duration=duration)
 
-    def shift_tscale(self, shift: Optional[timedelta] = None,
+    def shift_scale_time(self, shift: Optional[timedelta] = None,
         duration: Optional[timedelta] = None) -> STBox:
         """
-        Returns a new `STBox` with the time dimension shifted by `shift` and with duration `duration`.
+        Returns a new `STBox` with the time dimension shifted by `shift` and
+        with duration `duration`.
 
         Args:
             shift: :class:`datetime.timedelta` instance to shift
@@ -616,27 +641,26 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            period_shift_tscale
+            stbox_shift_scale_time
 
         See Also:
-            :meth:`Period.shift_tscale`
+            :meth:`Period.shift_scale`
         """
-        assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
-        new_inner = stbox_copy(self._inner)
-        new_period = get_address(new_inner.period)
-        period_shift_tscale(
-            new_period,
+        assert shift is not None or duration is not None, \
+            'shift and scale deltas must not be both None'
+        result = stbox_shift_scale_time(
+            self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None
         )
-        return STBox(_inner=new_inner)
+        return STBox(_inner=result)
 
-    def round(self, maxdd : int = 0) -> STBox:
+    def round(self, max_decimals : Optional[int] = 0) -> STBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
         Args:
-            maxdd: Maximum number of decimal digits.
+            max_decimals: Maximum number of decimal digits.
 
         Returns:
             A new :class:`STBox` instance
@@ -645,16 +669,17 @@ class STBox:
             stbox_round
         """
         new_inner = stbox_copy(self._inner)
-        stbox_round(new_inner, maxdd)
+        stbox_round(new_inner, max_decimals)
         return STBox(_inner=new_inner)
 
     # ------------------------- Set Operations --------------------------------
-    def union(self, other: STBox, strict: Optional[bool] = True) -> STBox:
+    def union(self, other: STBox, strict: Optional[bool] = False) -> STBox:
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns the union of `self` with `other`.
 
         Args:
             other: spatiotemporal box to merge with
+            strict: Whether to fail if the boxes do not intersect.
 
         Returns:
             A :class:`STBox` instance.
@@ -666,7 +691,8 @@ class STBox:
 
     def __add__(self, other):
         """
-        Returns the union of `self` with `other`. Fails if the union is not contiguous.
+        Returns the union of `self` with `other`. Fails if the union is not
+        contiguous.
 
         Args:
             other: spatiotemporal box to merge with
@@ -677,7 +703,7 @@ class STBox:
         MEOS Functions:
             union_stbox_stbox
         """
-        return self.union(other)
+        return self.union(other, False)
 
     # TODO: Check returning None for empty intersection is the desired behaviour
     def intersection(self, other: STBox) -> Optional[STBox]:
@@ -688,7 +714,8 @@ class STBox:
             other: temporal object to merge with
 
         Returns:
-            A :class:`STBox` instance if the instersection is not empty, `None` otherwise.
+            A :class:`STBox` instance if the instersection is not empty, `None`
+            otherwise.
 
         MEOS Functions:
             intersection_stbox_stbox
@@ -704,7 +731,8 @@ class STBox:
             other: temporal object to merge with
 
         Returns:
-            A :class:`STBox` instance if the instersection is not empty, `None` otherwise.
+            A :class:`STBox` instance if the instersection is not empty, `None`
+            otherwise.
 
         MEOS Functions:
             intersection_stbox_stbox
@@ -712,14 +740,16 @@ class STBox:
         return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def is_adjacent(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` and `other` are adjacent. Two spatiotemporal boxes are adjacent if they share n
-        dimensions and the intersection is of at most n-1 dimensions. Note that for `TPoint` instances, the bounding box
-        of the temporal point is used.
+        Returns whether ``self`` and `other` are adjacent. Two spatiotemporal
+        boxes are adjacent if they share n dimensions and the intersection is
+        of at most n-1 dimensions. Note that for `TPoint` instances, the
+        bounding box of the temporal point is used.
 
         Args:
-            other: The other spatiotemporal object to check adjacency with ``self``.
+            other: The other spatiotemporal object to check adjacency with
+            ``self``.
 
         Returns:
             ``True`` if ``self`` and `other` are adjacent, ``False`` otherwise.
@@ -727,15 +757,18 @@ class STBox:
         MEOS Functions:
             adjacent_stbox_stbox
         """
-        return adjacent_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
+        return adjacent_stbox_stbox(self._inner, self._get_box(other,
+            allow_time_only=True))
 
-    def is_contained_in(self, container: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def is_contained_in(self,
+            container: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is contained in `container`. Note that for `TPoint` instances, the bounding
-        box of the temporal point is used.
+        Returns whether ``self`` is contained in `container`. Note that for
+        `TPoint` instances, the bounding box of the temporal point is used.
 
         Args:
-            container: The spatiotemporal object to check containment with ``self``.
+            container: The spatiotemporal object to check containment with
+            ``self``.
 
         Returns:
             ``True`` if ``self`` is contained in `container`, ``False`` otherwise.
@@ -743,15 +776,17 @@ class STBox:
         MEOS Functions:
             contained_stbox_stbox
         """
-        return contained_stbox_stbox(self._inner, self._get_box(container, allow_time_only=True))
+        return contained_stbox_stbox(self._inner, self._get_box(container,
+            allow_time_only=True))
 
-    def contains(self, content: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def contains(self, content: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` contains `content`. Note that for `TPoint` instances, the bounding box of
-        the temporal point is used.
+        Returns whether ``self`` contains `content`. Note that for `TPoint`
+        instances, the bounding box of the temporal point is used.
 
         Args:
-            content: The spatiotemporal object to check containment with ``self``.
+            content: The spatiotemporal object to check containment with
+            ``self``.
 
         Returns:
             ``True`` if ``self`` contains `content`, ``False`` otherwise.
@@ -759,14 +794,16 @@ class STBox:
         MEOS Functions:
             contains_stbox_stbox
         """
-        return contains_stbox_stbox(self._inner, self._get_box(content, allow_time_only=True))
+        return contains_stbox_stbox(self._inner, self._get_box(content,
+            allow_time_only=True))
 
     def __contains__(self, item):
         """
         Returns whether ``self`` contains `item`.
 
         Args:
-            item: The spatiotemporal object to check if it is contained in ``self``.
+            item: The spatiotemporal object to check if it is contained in
+            ``self``.
 
         Returns:
             ``True`` if ``self`` contains ``item``, ``False`` otherwise.
@@ -779,10 +816,10 @@ class STBox:
         """
         return self.contains(item)
 
-    def overlaps(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def overlaps(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` overlaps `other`. Note that for `TPoint` instances, the bounding box of
-        the temporal point is used.
+        Returns whether ``self`` overlaps `other`. Note that for `TPoint`
+        instances, the bounding box of the temporal point is used.
 
         Args:
             other: The spatiotemporal object to check overlap with ``self``.
@@ -793,12 +830,13 @@ class STBox:
         MEOS Functions:
             overlaps_stbox_stbox
         """
-        return overlaps_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
+        return overlaps_stbox_stbox(self._inner, self._get_box(other,
+            allow_time_only=True))
 
-    def is_same(self, other: Union[Geometry, STBox, Temporal, Time]) -> bool:
+    def is_same(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is the same as `other`. Note that for `TPoint` instances, the bounding box of
-        the temporal point is used.
+        Returns whether ``self`` is the same as `other`. Note that for `TPoint`
+        instances, the bounding box of the temporal point is used.
 
         Args:
             other: The spatiotemporal object to check equality with ``self``.
@@ -809,189 +847,213 @@ class STBox:
         MEOS Functions:
             same_stbox_stbox
         """
-        return same_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
+        return same_stbox_stbox(self._inner, self._get_box(other,
+            allow_time_only=True))
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_left(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly to the left  of `other`. Checks the X dimension.
+        Returns whether ``self`` is strictly to the left  of `other`. Checks
+        the X dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly to the left of `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly to the left of `other`, 
+            ``False`` otherwise.
 
         MEOS Functions:
             left_stbox_stbox
         """
         return left_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_left(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_left(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is to the left `other` allowing for overlap. That is, ``self`` does not extend
-        to the right of `other`. Checks the X dimension.
+        Returns whether ``self`` is to the left `other` allowing for overlap.
+        That is, ``self`` does not extend to the right of `other`. Checks the
+        X dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is to the left of `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is to the left of `other` allowing for
+            overlap, ``False`` otherwise.
 
         MEOS Functions:
             overleft_stbox_stbox, tpoint_to_stbox
         """
         return overleft_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_right(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly to the right of `other`. Checks the X dimension.
+        Returns whether ``self`` is strictly to the right of `other`.
+        Checks the X dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly to the right of `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly to the right of `other`,
+            ``False`` otherwise.
 
         MEOS Functions:
             right_stbox_stbox
         """
         return right_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_right(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_right(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is to the right of `other` allowing for overlap. That is, ``self`` does not
-        extend to the left of `other`. Checks the X dimension.
+        Returns whether ``self`` is to the right of `other` allowing for
+        overlap. That is, ``self`` does not extend to the left of `other`.
+        Checks the X dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is to the right of `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is to the right of `other` allowing for
+            overlap, ``False`` otherwise.
 
         MEOS Functions:
             overright_stbox_stbox
         """
         return overright_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_below(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly below `other`. Checks the Y dimension.
+        Returns whether ``self`` is strictly below `other`.
+        Checks the Y dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly below `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly below `other`, ``False``
+            otherwise.
 
         MEOS Functions:
             below_stbox_stbox
         """
         return below_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_below(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_below(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is below `other` allowing for overlap. That is, ``self`` does not extend
-        above `other`. Checks the Y dimension.
+        Returns whether ``self`` is below `other` allowing for overlap.
+        That is, ``self`` does not extend above `other`. Checks the Y dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is below `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is below `other` allowing for overlap,
+            ``False`` otherwise.
 
         MEOS Functions:
             overbelow_stbox_stbox
         """
         return overbelow_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_above(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly above `other`. Checks the Y dimension.
+        Returns whether ``self`` is strictly above `other`.
+        Checks the Y dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly above `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly above `other`, ``False``
+            otherwise.
 
         MEOS Functions:
             above_stbox_stbox
         """
         return above_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_above(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_above(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is above `other` allowing for overlap. That is, ``self`` does not extend
-        below `other`. Checks the Y dimension.
+        Returns whether ``self`` is above `other` allowing for overlap.
+        That is, ``self`` does not extend below `other`.
+        Checks the Y dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is above `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is above `other` allowing for overlap,
+            ``False`` otherwise.
 
         MEOS Functions:
             overabove_stbox_stbox
         """
         return overabove_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_front(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly in front of `other`. Checks the Z dimension.
+        Returns whether ``self`` is strictly in front of `other`.
+        Checks the Z dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly in front of `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly in front of `other`, ``False``
+            otherwise.
 
         MEOS Functions:
             front_stbox_stbox
         """
         return front_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_front(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_front(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is in front of `other` allowing for overlap. That is, ``self`` does not extend
-        behind `other`. Checks the Z dimension.
+        Returns whether ``self`` is in front of `other` allowing for overlap.
+        That is, ``self`` does not extend behind `other`.
+        Checks the Z dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is in front of `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is in front of `other` allowing for overlap,
+            ``False`` otherwise.
 
         MEOS Functions:
             overfront_stbox_stbox
         """
         return overfront_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_behind(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is strictly behind `other`. Checks the Z dimension.
+        Returns whether ``self`` is strictly behind `other`.
+        Checks the Z dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly behind `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly behind `other`, ``False``
+            otherwise.
 
         MEOS Functions:
             back_stbox_stbox
         """
         return back_stbox_stbox(self._inner, self._get_box(other))
 
-    def is_over_or_behind(self, other: Union[Geometry, STBox, TPoint]) -> bool:
+    def is_over_or_behind(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
         """
-        Returns whether ``self`` is behind `other` allowing for overlap. That is, ``self`` does not extend
-        in front of `other`. Checks the Z dimension.
+        Returns whether ``self`` is behind `other` allowing for overlap.
+        That is, ``self`` does not extend in front of `other`.
+        Checks the Z dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is behind `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is behind `other` allowing for overlap,
+            ``False`` otherwise.
 
         MEOS Functions:
             overback_stbox_stbox
@@ -1000,56 +1062,65 @@ class STBox:
 
     def is_before(self, other: Union[Box, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is strictly before `other`. Checks the time dimension.
+        Returns whether ``self`` is strictly before `other`.
+        Checks the time dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly before `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly before `other`, ``False``
+            otherwise.
         """
         return self.to_period().is_before(other)
 
     def is_over_or_before(self, other: Union[Box, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is before `other` allowing for overlap. That is, ``self`` does not extend
-        after `other`. Checks the time dimension.
+        Returns whether ``self`` is before `other` allowing for overlap.
+        That is, ``self`` does not extend after `other`.
+        Checks the time dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is before `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is before `other` allowing for overlap,
+            ``False`` otherwise.
         """
         return self.to_period().is_over_or_before(other)
 
     def is_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is strictly after `other`. Checks the time dimension.
+        Returns whether ``self`` is strictly after `other`.
+        Checks the time dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly after `other`, ``False`` otherwise.
+            ``True`` if ``self`` is strictly after `other`, ``False``
+            otherwise.
         """
         return self.to_period().is_after(other)
 
     def is_over_or_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
-        Returns whether ``self`` is after `other` allowing for overlap. That is, ``self`` does not extend
-        before `other`. Checks the time dimension.
+        Returns whether ``self`` is after `other` allowing for overlap.
+        That is, ``self`` does not extend before `other`.
+        Checks the time dimension.
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is after `other` allowing for overlap, ``False`` otherwise.
+            ``True`` if ``self`` is after `other` allowing for overlap, 
+            ``False`` otherwise.
         """
         return self.to_period().is_over_or_after(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def nearest_approach_distance(self, other: Union[Geometry, STBox, TPoint]) -> float:
+    def nearest_approach_distance(self, other: Union[shp.BaseGeometry, STBox, TPoint]) \
+        -> float:
         """
         Returns the distance between the nearest points of ``self`` and `other`.
 
@@ -1057,13 +1128,14 @@ class STBox:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            A :class:`float` with the distance between the nearest points of ``self`` and ``other``.
+            A :class:`float` with the distance between the nearest points of
+            ``self`` and ``other``.
 
         MEOS Functions:
             nad_stbox_geo, nad_stbox_stbox
         """
-        if isinstance(other, get_args(Geometry)):
-            gs = geometry_to_gserialized(other, self.geodetic())
+        if isinstance(other, shp.BaseGeometry):
+            gs = geo_to_gserialized(other, self.geodetic())
             return nad_stbox_geo(self._inner, gs)
         elif isinstance(other, STBox):
             return nad_stbox_stbox(self._inner, other._inner)
@@ -1075,10 +1147,11 @@ class STBox:
     # ------------------------- Splitting --------------------------------------
     def quad_split_flat(self) -> List[STBox]:
         """
-        Returns a list of 4 (or 8 if `self`has Z dimension) :class:`STBox` instances resulting from the quad
-        split of ``self``.
+        Returns a list of 4 (or 8 if `self`has Z dimension) :class:`STBox`
+        instances resulting from the quad  split of ``self``.
 
-        Indices of returned array are as follows (back only present if Z dimension is present):
+        Indices of returned array are as follows (back only present if Z
+        dimension is present):
 
            >>> #    (front)          (back)
            >>> # -------------   -------------
@@ -1098,7 +1171,8 @@ class STBox:
 
     def quad_split(self) -> Union[List[List[STBox]], List[List[List[STBox]]]]:
         """
-        Returns a 2D (YxX) or 3D (ZxYxX) list of :class:`STBox` instances resulting from the quad split of ``self``.
+        Returns a 2D (YxX) or 3D (ZxYxX) list of :class:`STBox` instances
+        resulting from the quad split of ``self``.
 
         Indices of returned array are as follows:
 
@@ -1129,28 +1203,37 @@ class STBox:
         boxes, count = stbox_quad_split(self._inner)
         if self.has_z():
             return [
-                [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]],
-                [[STBox(_inner=boxes + i) for i in range(4, 6)], [STBox(_inner=boxes + i) for i in range(6, 8)]]
+                [[STBox(_inner=boxes + i) for i in range(2)],
+                    [STBox(_inner=boxes + i) for i in range(2, 4)]],
+                [[STBox(_inner=boxes + i) for i in range(4, 6)],
+                    [STBox(_inner=boxes + i) for i in range(6, 8)]]
             ]
         else:
-            return [[STBox(_inner=boxes + i) for i in range(2)], [STBox(_inner=boxes + i) for i in range(2, 4)]]
+            return [[STBox(_inner=boxes + i) for i in range(2)],
+                [STBox(_inner=boxes + i) for i in range(2, 4)]]
 
-    def tile(self, size: Optional[float] = None, duration: Optional[Union[timedelta, str]] = None,
-             origin: Optional[Geometry] = None,
-             start: Union[datetime, str, None] = None) -> List[List[List[List[STBox]]]]:
+    def tile(self, size: Optional[float] = None, 
+             duration: Optional[Union[timedelta, str]] = None,
+             origin: Optional[shp.BaseGeometry] = None,
+             start: Union[datetime, str, None] = None) -> \
+             List[List[List[List[STBox]]]]:
         """
-        Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the tiles of ``self``.
-        The resulting matrix has 4 dimensions regardless of the dimensionality of ``self``. If the ``self``
-        is missing a dimension, the resulting matrix will have a size of 1 for that dimension.
+        Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the
+        tiles of ``self``. The resulting matrix has 4 dimensions regardless
+        of the dimensionality of ``self``. If the ``self`` is missing a
+        dimension, the resulting matrix will have a size of 1 for that dimension.
 
         Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
+            size: The size of the spatial tiles. If the `STBox` instance has a
+                spatial dimension and this argument is not provided, the tiling
+                will be only temporal.
+            duration: The duration of the temporal tiles. If the `STBox`
+                instance has a time dimension and this argument is not
+                provided, the tiling will be only spatial.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided,
+                the start time used by default is Monday, January 3, 2000.
 
         Returns:
             A 4D matrix (XxYxZxT) of `STBox` instances.
@@ -1165,10 +1248,11 @@ class STBox:
             else None
         st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
             else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else datetime_to_timestamptz(self.tmin()) if self.has_t() \
+            else pg_timestamptz_in('2000-01-03', -1) if self.has_t() \
             else 0
-        gs = geometry_to_gserialized(origin) if origin is not None \
-            else gserialized_in('Point(0 0 0)', -1)
+        gs = geo_to_gserialized(origin, self.geodetic()) if origin is not None \
+            else pgis_geography_in('Point(0 0 0)', -1) if self.geodetic() \
+            else pgis_geometry_in('Point(0 0 0)', -1)
         tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
         x_size = dimensions[0] or 1
         y_size = dimensions[1] or 1
@@ -1177,23 +1261,29 @@ class STBox:
         x_factor = y_size * z_size * t_size
         y_factor = z_size * t_size
         z_factor = t_size
-        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) for t in range(t_size)]
-                  for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
+        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) 
+                for t in range(t_size)]
+                for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
 
-    def tile_flat(self, size: float, duration: Optional[Union[timedelta, str]] = None,
-                  origin: Optional[Geometry] = None,
+    def tile_flat(self, size: float, 
+                  duration: Optional[Union[timedelta, str]] = None,
+                  origin: Optional[shp.BaseGeometry] = None,
                   start: Union[datetime, str, None] = None) -> List[STBox]:
         """
-        Returns a flat list of `STBox` instances representing the tiles of ``self``.
+        Returns a flat list of `STBox` instances representing the tiles of
+        ``self``.
 
         Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a spatial dimension and this
-                argument is not provided, the tiling will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox` instance has a time dimension and this
-                argument is not provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the start time will be the starting time of
-                the `STBox` time dimension.
+            size: The size of the spatial tiles. If the `STBox` instance has a
+                spatial dimension and this argument is not provided, the tiling
+                will be only temporal.
+            duration: The duration of the temporal tiles. If the `STBox`
+                instance has a time dimension and this argument is not
+                provided, the tiling will be only spatial.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided, the
+                start time used by default is Monday, January 3, 2000.
 
         Returns:
             A flat list of `STBox` instances.
@@ -1246,8 +1336,9 @@ class STBox:
 
     def __lt__(self, other):
         """
-        Returns whether ``self`` is less than `other`. Compares first the SRID, then the time dimension,
-        and finally the spatial dimension (X, then Y then Z lower bounds and then the upper bounds).
+        Returns whether ``self`` is less than `other`. Compares first the SRID,
+        then the time dimension, and finally the spatial dimension (X, then Y
+        then Z lower bounds and then the upper bounds).
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
@@ -1264,14 +1355,16 @@ class STBox:
 
     def __le__(self, other):
         """
-        Returns whether ``self`` is less than or equal to `other`. Compares first the SRID, then the time dimension,
-        and finally the spatial dimension (X, then Y then Z lower bounds and then the upper bounds).
+        Returns whether ``self`` is less than or equal to `other`. Compares
+        first the SRID, then the time dimension, and finally the spatial
+        dimension (X, then Y then Z lower bounds and then the upper bounds).
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is less than or equal to ``other``, ``False`` otherwise.
+            ``True`` if ``self`` is less than or equal to ``other``, ``False``
+            otherwise.
 
         MEOS Functions:
             stbox_le
@@ -1282,8 +1375,9 @@ class STBox:
 
     def __gt__(self, other):
         """
-        Returns whether ``self`` is greater than `other`. Compares first the SRID, then the time dimension,
-        and finally the spatial dimension (X, then Y then Z lower bounds and then the upper bounds).
+        Returns whether ``self`` is greater than `other`. Compares first the
+        SRID, then the time dimension, and finally the spatial dimension (X,
+        then Y then Z lower bounds and then the upper bounds).
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
@@ -1300,14 +1394,16 @@ class STBox:
 
     def __ge__(self, other):
         """
-        Returns whether ``self`` is greater than or equal to `other`. Compares first the SRID, then the time dimension,
-        and finally the spatial dimension (X, then Y then Z lower bounds and then the upper bounds).
+        Returns whether ``self`` is greater than or equal to `other`. Compares
+        first the SRID, then the time dimension, and finally the spatial
+        dimension (X, then Y then Z lower bounds and then the upper bounds).
 
         Args:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is greater than or equal to ``other``, ``False`` otherwise.
+            ``True`` if ``self`` is greater than or equal to ``other``,
+            ``False`` otherwise.
 
         MEOS Functions:
             stbox_ge
@@ -1329,7 +1425,8 @@ class STBox:
 
     def plot_xt(self, *args, **kwargs):
         """
-        Plots the first spatial dimension and the temporal dimension (XT) of ``self``.
+        Plots the first spatial dimension and the temporal dimension (XT) of
+        ``self``.
 
         See Also:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_stbox_xt`
@@ -1339,7 +1436,8 @@ class STBox:
 
     def plot_yt(self, *args, **kwargs):
         """
-        Plots the second spatial dimension and the temporal dimension (YT) of ``self``.
+        Plots the second spatial dimension and the temporal dimension (YT) of
+        ``self``.
 
         See Also:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_stbox_yt`
@@ -1351,7 +1449,8 @@ class STBox:
     @staticmethod
     def read_from_cursor(value, _=None):
         """
-        Reads a :class:`STBox` from a database cursor. Used when automatically loading objects from the database.
+        Reads a :class:`STBox` from a database cursor. Used when automatically
+        loading objects from the database.
         Users should use the class constructor instead.
         """
         if not value:

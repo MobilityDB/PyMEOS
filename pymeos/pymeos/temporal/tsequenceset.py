@@ -18,16 +18,13 @@ Self = TypeVar('Self', bound='TSequenceSet[Any]')
 
 class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
-    Base class for temporal sequence set types, i.e. temporal values that are defined by a set of temporal sequences.
+    Base class for temporal sequence set types, i.e. temporal values that are
+    defined by a set of temporal sequences.
     """
-
-    def _expandable(self) -> bool:
-        return self._expandable_sequenceset
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, string: Optional[str] = None, *,
                  sequence_list: Optional[List[Union[str, Any]]] = None,
-                 expandable: Union[bool, int] = False,
                  normalize: bool = True, _inner=None):
         assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), \
             "Either string must be not None or sequence_list must be not"
@@ -36,20 +33,14 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif string is not None:
             self._inner = as_tsequenceset(self.__class__._parse_function(string))
         else:
-            sequences = [x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x)
-                         for x in sequence_list]
+            sequences = [x._inner if isinstance(x, self.ComponentClass) \
+                             else self.__class__._parse_function(x) for x in sequence_list]
             count = len(sequences)
             self._inner = tsequenceset_make(sequences, count, normalize)
-            if not expandable:
-                self._inner = tsequenceset_make(sequences, count, normalize)
-            else:
-                max_size = max(expandable, count) if isinstance(expandable, int) else 2 * count
-                self._inner = tsequenceset_make_exp(sequences, count, max_size,
-                                                    normalize)
-        self._expandable_sequenceset = bool(expandable) or self._inner.maxcount > self._inner.count
 
     @classmethod
-    def from_sequences(cls: Type[Self], sequence_list: Optional[List[Union[str, Any]]] = None,
+    def from_sequences(cls: Type[Self],
+                       sequence_list: Optional[List[Union[str, Any]]] = None,
                        normalize: bool = True) -> Self:
         """
         Create a temporal sequence set from a list of sequences.
@@ -102,7 +93,8 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         sequences = self.sequences()
         data = {
-            'sequence': [i for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],
+            'sequence': [i for i, seq in enumerate(sequences) \
+                         for _ in range(seq.num_instants())],
             'time': [t for seq in sequences for t in seq.timestamps()],
             'value': [v for seq in sequences for v in seq.values()]
         }

@@ -95,7 +95,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         ids=['Sequence', 'SequenceSet']
     )
     def test_string_constructor_normalization(self, source, type, expected):
-        tp = type(source, normalize=1)
+        tp = type(source, normalize=True)
         assert isinstance(tp, type)
         assert str(tp) == expected
 
@@ -157,6 +157,7 @@ class TestTGeomPointConstructors(TestTGeomPoint):
              'Instant 3D', 'Discrete Sequence 3D', 'Sequence 3D', 'SequenceSet 3D']
     )
     def test_from_as_constructor(self, temporal):
+        assert temporal == temporal.__class__(str(temporal))
         assert temporal == temporal.from_wkb(temporal.as_wkb())
         assert temporal == temporal.from_hexwkb(temporal.as_hexwkb())
         assert temporal == temporal.from_mfjson(temporal.as_mfjson())
@@ -844,19 +845,19 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
     def test_cumulative_length(self, temporal, expected):
         assert temporal.cumulative_length() == expected
 
-    # @pytest.mark.parametrize(
-        # 'temporal, expected',
-        # [
-            # (tpi, None),
-            # (tpds, None),
-            # (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
-            # (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
-                # '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
-        # ],
-        # ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
-    # )
-    # def test_speed(self, temporal, expected):
-        # assert temporal.speed() == expected
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, None),
+            (tpds, None),
+            (tps, TFloatSeq('Interp=Step;[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02]') / 3600 / 24),
+            (tpss, TFloatSeqSet('Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02],'
+                '[0@2019-09-03, 0@2019-09-05]}') / 3600 / 24),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_speed(self, temporal, expected):
+        assert temporal.speed() == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1011,9 +1012,9 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
             (tpi, Point(1,1)),
             (tpds, Point(1.5,1.5)),
             (tps, Point(1.5,1.5)),
-            # (tpss, Point(1.167,1.167)),
+            (tpss, Point(1.166666666666667,1.166666666666667)),
         ],
-        ids=['Instant', 'Discrete Sequence', 'Sequence'] #, 'SequenceSet']
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_weighted_centroid(self, temporal, expected):
         assert temporal.time_weighted_centroid() == expected
@@ -1110,40 +1111,46 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+            (TGeomPointInst('Point(1 1)@2019-09-01'), TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01]')),
             (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                TInterpolation.DISCRETE,
                 TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}')),
             (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
             (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequence(self, temporal, expected):
-        temp = temporal.to_sequence()
+    def test_to_sequence(self, temporal, interpolation, expected):
+        temp = temporal.to_sequence(interpolation)
         assert isinstance(temp, TGeomPointSeq)
         assert temp == expected
 
     @pytest.mark.parametrize(
-        'temporal, expected',
+        'temporal, interpolation, expected',
         [
-            (TGeomPointInst('Point(1 1)@2019-09-01'), 
+            (TGeomPointInst('Point(1 1)@2019-09-01'), TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01]}')),
             (TGeomPointSeq('{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}')),
             (TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
             (TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}'),
+                TInterpolation.LINEAR,
                 TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}')),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_to_sequenceset(self, temporal, expected):
-        temp = temporal.to_sequenceset()
+    def test_to_sequenceset(self, temporal, interpolation, expected):
+        temp = temporal.to_sequenceset(interpolation)
         assert isinstance(temp, TGeomPointSeqSet)
         assert temp == expected
 
@@ -1219,8 +1226,8 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              'Sequence Set posi(tpve days', 'Sequence Set nega(tpve days', 
              'Sequence Set posi(tpve hours', 'Sequence Set nega(tpve hours']
     )
-    def test_shift(self, tpoint, delta, expected):
-        assert tpoint.shift(delta) == expected
+    def test_shift_time(self, tpoint, delta, expected):
+        assert tpoint.shift_time(delta) == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
@@ -1241,11 +1248,11 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              'Sequence posi(tpve days', 'Sequence posi(tpve hours',
              'Sequence Set posi(tpve days', 'Sequence Set posi(tpve hours']
     )
-    def test_scale(self, tpoint, delta, expected):
-        assert tpoint.tscale(delta) == expected
+    def test_scale_time(self, tpoint, delta, expected):
+        assert tpoint.scale_time(delta) == expected
 
-    def test_shift_tscale(self):
-        assert self.tpss.shift_tscale(timedelta(days=4), timedelta(hours=2)) == \
+    def test_shift_scale_time(self):
+        assert self.tpss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == \
              TGeomPointSeqSet('{[Point(1 1)@2019-09-05 00:00:00, Point(2 2)@2019-09-05 00:30:00],'
              '[Point(1 1)@2019-09-05 01:00:00, Point(1 1)@2019-09-05 02:00:00]}')
 
@@ -1271,7 +1278,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              ]
     )
     def test_temporal_sample(self, tpoint, delta, expected):
-        assert tpoint.temporal_sample(delta) == expected
+        assert tpoint.temporal_sample(delta, '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'tpoint, delta, expected',
@@ -1285,7 +1292,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
              'Sequence Set days', 'Sequence Set hours']
     )
     def test_stops(self, tpoint, delta, expected):
-        assert tpoint.stops(0.0, delta) == expected
+        assert tpoint.stops(0.1, delta) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1308,7 +1315,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_round(self, temporal, expected):
-        assert temporal.round(maxdd=2)
+        assert temporal.round(max_decimals=2)
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1904,6 +1911,45 @@ class TestTGeomPointSimilarityFunctions(TestTGeomPoint):
     def test_hausdorff_distance(self, temporal, argument, expected):
         assert temporal.hausdorff_distance(argument) == expected
 
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_frechet_distance_round(self, temporal, argument, expected):
+        assert round(temporal.frechet_distance(argument), 2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 4.24),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 9.9),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_dyntimewarp_distance_round(self, temporal, argument, expected):
+        assert round(temporal.dyntimewarp_distance(argument), 2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, argument, expected',
+        [
+            (tpi, TGeomPointInst('Point(3 3)@2019-09-02'), 2.83),
+            (tpds, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tps, TGeomPointInst('Point(3 3)@2019-09-03'), 2.83),
+            (tpss, TGeomPointInst('Point(3 3)@2019-09-08'), 2.83),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'Sequence Set']
+    )
+    def test_hausdorff_distance_round(self, temporal, argument, expected):
+        assert round(temporal.hausdorff_distance(argument), 2) == expected
+
 
 class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
     tpi = TGeomPointInst('Point(1 1)@2019-09-01')
@@ -1921,14 +1967,27 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_ever_contained_withindist_intersects_touches(self, temporal, expected):
+    def test_temporal_ever_contained_withindist_intersects(self, temporal, expected):
         assert temporal.is_ever_contained_in(Polygon([(0,0),(0,2),(2,2),(2,0),(0,0)])) == expected
         assert temporal.is_ever_contained_in(STBox('STBOX X((0,0),(2,2))')) == expected
         assert temporal.is_ever_within_distance(Point(1,1), 1) == expected
         assert temporal.is_ever_within_distance(TGeomPointInst('Point(1 1)@2019-09-01'), 1) == expected
         assert temporal.ever_intersects(Point(1,1)) == expected
         assert temporal.ever_intersects(TGeomPointInst('Point(1 1)@2019-09-01')) == expected
-        # assert temporal.ever_touches(Point(1,1)) == expected
+
+    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, False),
+            (tpds, False),
+            (tps, False),
+            (tpss, False),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_ever_touches(self, temporal, expected):
+        assert temporal.ever_touches(Point(1,1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -1962,10 +2021,24 @@ class TestTGeomPointTemporalSpatialOperations(TestTGeomPoint):
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
-    def test_temporal_intersects_disjoint_touches(self, temporal, expected):
+    def test_temporal_intersects_disjoint(self, temporal, expected):
         assert temporal.intersects(Point(1,1)) == expected
         assert temporal.disjoint(Point(1,1)) == ~expected
-        # assert temporal.touches(Point(1,1)) == expected
+
+    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, TBoolInst('False@2019-09-01')),
+            (tpds, TBoolSeq('{False@2019-09-01, False@2019-09-02}')),
+            (tps, TBoolSeqSet('[False@2019-09-01, False@2019-09-02]')),
+            (tpss, TBoolSeqSet('{[False@2019-09-01, False@2019-09-02],'
+                '[False@2019-09-03, False@2019-09-05]}')),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_temporal_touches(self, temporal, expected):
+        assert temporal.touches(Point(1,1)) == expected
 
     @pytest.mark.parametrize(
         'temporal, argument, expected',
@@ -2098,8 +2171,6 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
     tps = TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]')
     tpss = TGeomPointSeqSet('{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}')
 
-    # The PyMEOS function uses as default origin the initial timestamp of the
-    # temporal value while in MEOS the default origin is Monday Janury 3, 2000
     @pytest.mark.parametrize(
         'temporal, expected',
         [
@@ -2112,7 +2183,7 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
     def test_time_split(self, temporal, expected):
-        assert temporal.time_split(timedelta(days=2)) == expected
+        assert temporal.time_split(timedelta(days=2), '2019-09-01') == expected
 
     @pytest.mark.parametrize(
         'temporal, expected',
@@ -2129,6 +2200,42 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
     )
     def test_time_split_n(self, temporal, expected):
         assert temporal.time_split_n(2) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, [TGeomPointInst('Point(1 1)@2019-09-01')]),
+            (tpds, [TGeomPointSeq('{Point(1 1)@2019-09-01}'),
+                TGeomPointSeq('{Point(2 2)@2019-09-02}')]),
+            (tps, [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)'),
+                TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
+            (tpss, [TGeomPointSeqSet('{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02),'
+                '[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}'),
+                TGeomPointSeqSet('{[POINT(2 2)@2019-09-02]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_space_split(self, temporal, expected):
+        assert temporal.space_split(1.0) == expected
+
+    @pytest.mark.parametrize(
+        'temporal, expected',
+        [
+            (tpi, [TGeomPointInst('Point(1 1)@2019-09-01')]),
+            (tpds, [TGeomPointSeq('{Point(1 1)@2019-09-01}'),
+                TGeomPointSeq('{Point(2 2)@2019-09-02}')]),
+            (tps, [TGeomPointSeq('[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)'),
+                TGeomPointSeq('[Point(2 2)@2019-09-02]')]),
+            (tpss, [TGeomPointSeq('{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02)}'),
+                    TGeomPointSeq('{[POINT(2 2)@2019-09-02]}'),
+                    TGeomPointSeq('{[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05)}'),
+                    TGeomPointSeq('{[POINT(1 1)@2019-09-05]}')]),
+        ],
+        ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
+    )
+    def test_space_time_split(self, temporal, expected):
+        assert temporal.space_time_split(1.0, timedelta(days=2),
+            time_start='2019-09-01') == expected
 
 
 class TestTGeomPointComparisons(TestTGeomPoint):

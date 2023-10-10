@@ -1,10 +1,10 @@
 from copy import copy
 from datetime import datetime, timezone, timedelta
-from spans.types import intrange, floatrange
 
 import pytest
 
 from pymeos import TBox, TInterpolation, TimestampSet, Period, PeriodSet, \
+    IntSpan, FloatSpan, \
     TInt, TIntInst, TIntSeq, TIntSeqSet, TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 
 from tests.conftest import TestPyMEOS
@@ -74,62 +74,64 @@ class TestTBoxConstructors(TestTBox):
         [
             (1, 'TBOXINT X([1, 2))'),
             (1.5, 'TBOXFLOAT X([1.5, 1.5])'),
-            (intrange(1, 2, True, True), 'TBOXINT X([1, 3))'),
-            (floatrange(1.5, 2.5, True, True), 'TBOXFLOAT X([1.5, 2.5])'),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True),
+                'TBOXINT X([1, 3))'),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True),
+                'TBOXFLOAT X([1.5, 2.5])'),
         ],
-        ids=['int', 'float', 'intrange', 'floatrange']
+        ids=['int', 'float', 'IntSpan', 'FloatSpan']
     )
     def test_from_value_constructor(self, value, expected):
         tb = TBox.from_value(value)
         assert isinstance(tb, TBox)
         assert str(tb) == expected
 
-    # @pytest.mark.parametrize(
-        # 'time, expected',
-        # [
-            # (datetime(2019, 9, 1), 
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (TimestampSet('{2019-09-01, 2019-09-02}'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
-                # 'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-        # ],
-        # ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
-    # )
-    # def test_from_time_constructor(self, time, expected):
-        # tb = TBox.from_time(time)
-        # assert isinstance(tb, TBox)
-        # assert str(tb) == expected
+    @pytest.mark.parametrize(
+        'time, expected',
+        [
+            (datetime(2019, 9, 1),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (TimestampSet('{2019-09-01, 2019-09-02}'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (Period('[2019-09-01, 2019-09-02]'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (PeriodSet('{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}'),
+                'TBOX T([2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])'),
+        ],
+        ids=['Timestamp', 'TimestampSet', 'Period', 'PeriodSet']
+    )
+    def test_from_time_constructor(self, time, expected):
+        tb = TBox.from_time(time)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
 
-    # @pytest.mark.parametrize(
-        # 'value, time, expected',
-        # [
-            # (1, datetime(2019, 9, 1),
-                # 'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (1.5, datetime(2019, 9, 1),
-                # 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (intrange(1, 2, True, True), datetime(2019, 9, 1),
-                # 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (floatrange(1.5, 2.5, True, True), datetime(2019, 9, 1),
-                # 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
-            # (1, Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (1.5, Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (intrange(1, 2, True, True), Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-            # (floatrange(1.5, 2.5, True, True), Period('[2019-09-01, 2019-09-02]'),
-                # 'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
-        # ],
-        # ids=['int-Timestamp', 'float-Timestamp', 'intrange-Timestamp', 'floatrange-Timestamp',
-             # 'int-Period', 'float-Period', 'intrange-Period', 'floatrange-Period',]
-    # )
-    # def test_from_value_time_constructor(self, value, time, expected):
-        # tb = TBox.from_value_time(value, time)
-        # assert isinstance(tb, TBox)
-        # assert str(tb) == expected
+    @pytest.mark.parametrize(
+        'value, time, expected',
+        [
+            (1, datetime(2019, 9, 1),
+                'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (1.5, datetime(2019, 9, 1),
+                'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True), datetime(2019, 9, 1),
+                'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True), datetime(2019, 9, 1),
+                'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])'),
+            (1, Period('[2019-09-01, 2019-09-02]'),
+                'TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (1.5, Period('[2019-09-01, 2019-09-02]'),
+                'TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True), Period('[2019-09-01, 2019-09-02]'),
+                'TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+            (FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True), Period('[2019-09-01, 2019-09-02]'),
+                'TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])'),
+        ],
+        ids=['int-Timestamp', 'float-Timestamp', 'IntSpan-Timestamp', 'FloatSpan-Timestamp',
+             'int-Period', 'float-Period', 'IntSpan-Period', 'FloatSpan-Period',]
+    )
+    def test_from_value_time_constructor(self, value, time, expected):
+        tb = TBox.from_value_time(value, time)
+        assert isinstance(tb, TBox)
+        assert str(tb) == expected
 
     @pytest.mark.parametrize(
         'tnumber, expected',
@@ -160,6 +162,7 @@ class TestTBoxConstructors(TestTBox):
         ids=['TBoxFloat X', 'TBox T', 'TBoxFloat XT']
     )
     def test_from_as_constructor(self, tbox):
+        assert tbox == TBox(str(tbox))
         assert tbox == tbox.from_wkb(tbox.as_wkb())
         assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
@@ -218,14 +221,14 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         'tbox, expected',
         [
-            (tbfx, floatrange(1.0, 2.0, True, True)),
-            (tbfxt, floatrange(1.0, 2.0, True, True)),
+            (tbfx, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
+            (tbfxt, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
         ],
         ids=['TBoxFloat X', 'TBoxFloat XT']
     )
-    def test_to_floatrange(self, tbox, expected):
-        tb = tbox.to_floatrange()
-        assert isinstance(tb, floatrange)
+    def test_to_floatspan(self, tbox, expected):
+        tb = tbox.to_floatspan()
+        assert isinstance(tb, FloatSpan)
         assert tb == expected
 
     @pytest.mark.parametrize(
@@ -377,46 +380,75 @@ class TestTBoxTransformations(TestTBox):
         assert isinstance(tb, TBox)
         assert tb == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
+        [(tbfx, 2.0, TBox('TBOXFLOAT X([3,4])')),
+         (tbfx, -2.0, TBox('TBOXFLOAT X([-1,0])')),
+         (tbfxt, 2.0, TBox('TBOXFLOAT XT([3,4],[2019-09-01, 2019-09-02])')),
+         (tbfxt, -2.0, TBox('TBOXFLOAT XT([-1,0],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T positive', 'TBox T negative', 
+             'TBoxFloat XT positive', 'TBoxFloat XT negative'
+             ]
+    )
+    def test_shift_value(self, tbox, delta, expected):
+        assert tbox.shift_value(delta) == expected
+
     @pytest.mark.parametrize(
         'tbox, delta, expected',
         [(tbt, timedelta(days=4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-05,2019-09-06])')),
          (tbt, timedelta(days=-4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-08-28,2019-08-29])')),
          (tbt, timedelta(hours=2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01 02:00:00,2019-09-02 02:00:00])')),
          (tbt, timedelta(hours=-2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-08-31 22:00:00,2019-09-01 22:00:00])')),
          ],
         ids=['positive days', 'negative days', 'positive hours', 'negative hours']
     )
-    def test_shift(self, tbox, delta, expected):
-        assert tbox.shift(delta) == expected
+    def test_shift_time(self, tbox, delta, expected):
+        assert tbox.shift_time(delta) == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
+    @pytest.mark.parametrize(
+        'tbox, delta, expected',
+        [(tbfx, 4.0, TBox('TBOXFLOAT X([1,5])')),
+         (tbfxt, 4.0, TBox('TBOXFLOAT XT([1,5],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T', 'TBoxFloat XT']
+    )
+    def test_scale_value(self, tbox, delta, expected):
+        assert tbox.scale_value(delta) == expected
+
     @pytest.mark.parametrize(
         'tbox, delta, expected',
         [(tbt, timedelta(days=4),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01,2019-09-05])')),
         (tbt, timedelta(hours=2),
-          TBox('TBOX T([2019-09-01,2019-09-02])')),
+          TBox('TBOX T([2019-09-01,2019-09-01 02:00:00])')),
          ],
         ids=['positive days', 'positive hours']
     )
-    def test_tscale(self, tbox, delta, expected):
-        assert tbox.tscale(delta) == expected
+    def test_scale_time(self, tbox, delta, expected):
+        assert tbox.scale_time(delta) == expected
 
-    #####################################
-    ## THIS TEST DOES NOT WORK CORRECTLY
-    #####################################
-    def test_shift_tscale(self):
-        assert self.tbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
-            TBox('TBOX T([2019-09-01,2019-09-02])')
+    @pytest.mark.parametrize(
+        'tbox, delta, width, expected',
+        [(tbfx, 2.0, 4.0, TBox('TBOXFLOAT X([3,7])')),
+         (tbfx, -2.0, 4.0, TBox('TBOXFLOAT X([-1,3])')),
+         (tbfxt, 2.0, 4.0, TBox('TBOXFLOAT XT([3,7],[2019-09-01, 2019-09-02])')),
+         (tbfxt, -2.0, 4.0, TBox('TBOXFLOAT XT([-1,3],[2019-09-01, 2019-09-02])')),
+         ],
+        ids=['TBox T positive', 'TBox T negative', 
+             'TBoxFloat XT positive', 'TBoxFloat XT negative'
+             ]
+    )
+    def test_shift_scale_value(self, tbox, delta, width, expected):
+        assert tbox.shift_scale_value(delta, width) == expected
+
+    def test_shift_scale_time(self):
+        assert self.tbt.shift_scale_time(timedelta(days=4), timedelta(hours=4)) == \
+            TBox('TBOX T([2019-09-05,2019-09-05 04:00:00])')
 
     @pytest.mark.parametrize(
         'tbox, expected',
@@ -429,7 +461,7 @@ class TestTBoxTransformations(TestTBox):
         ids=['TBoxFloat X', 'TBoxFloat XT']
     )
     def test_round(self, tbox, expected):
-        assert tbox.round(maxdd=2)
+        assert tbox.round(max_decimals=2)
 
 
 class TestTBoxTopologicalFunctions(TestTBox):

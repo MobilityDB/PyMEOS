@@ -172,7 +172,7 @@ class TestSTBoxConstructors(TestSTBox):
         ],
         ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
     )
-    def test_from_geo_expand_space_constructor(self, stbox, expected):
+    def test_from_stbox_expand_space_constructor(self, stbox, expected):
         stb = STBox.from_expanding_bounding_box(stbox, 1)
         assert isinstance(stb, STBox)
         assert str(stb) == expected
@@ -215,6 +215,7 @@ class TestSTBoxConstructors(TestSTBox):
         ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
     )
     def test_from_as_constructor(self, stbox):
+        assert stbox == STBox(str(stbox))
         assert stbox == stbox.from_wkb(stbox.as_wkb())
         assert stbox == stbox.from_hexwkb(stbox.as_hexwkb())
 
@@ -487,25 +488,23 @@ class TestSTBoxAccessors(TestSTBox):
         [
             (stbx, 0),
             (stbz, 0),
-            (stbt, 0),
             (stbxt, 0),
             (stbzt, 0),
             (gstbx, 4326),
             (gstbz, 4326),
-            (gstbt, 4326),
             (gstbxt, 4326),
             (gstbzt, 4326)
         ],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT',
-             'Geodetic STBox X', 'Geodetic STBox Z', 'Geodetic STBox T', 'Geodetic STBox XT', 'Geodetic STBox ZT']
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT',
+             'Geodetic STBox X', 'Geodetic STBox Z', 'Geodetic STBox XT', 'Geodetic STBox ZT']
     )
     def test_srid(self, stbox, expected):
         assert stbox.srid() == expected
 
     @pytest.mark.parametrize(
         'stbox',
-        [stbx, stbz, stbt, stbxt, stbzt],
-        ids=['STBox X', 'STBox Z', 'STBox T', 'STBox XT', 'STBox ZT']
+        [stbx, stbz, stbxt, stbzt],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
     )
     def test_set_srid(self, stbox):
         assert stbox.set_srid(5676).srid() == 5676
@@ -517,6 +516,21 @@ class TestSTBoxTransformations(TestSTBox):
     stbt = STBox('STBOX T([2019-09-01,2019-09-02])')
     stbxt = STBox('STBOX XT(((1,1),(2,2)),[2019-09-01,2019-09-02])')
     stbzt = STBox('STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01,2019-09-02])')
+
+    @pytest.mark.parametrize(
+        'stbox, expected',
+        [
+            (stbx, STBox('STBOX X((1,1),(2,2))')),
+            (stbz, STBox('STBOX Z((1,1,1),(2,2,2))')),
+            (stbxt, STBox('STBOX X((1,1),(2,2))')),
+            (stbzt, STBox('STBOX Z((1,1,1),(2,2,2))')),
+        ],
+        ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
+    )
+    def test_get_space(self, stbox, expected):
+        stb = stbox.get_space()
+        assert isinstance(stb, STBox)
+        assert stb == expected
 
     @pytest.mark.parametrize(
         'stbox, expected',
@@ -547,46 +561,37 @@ class TestSTBoxTransformations(TestSTBox):
         assert isinstance(stb, STBox)
         assert stb == expected
 
-    ######################################
-    # THIS TEST DOES NOT WORK CORRECTLY
-    ######################################
     @pytest.mark.parametrize(
         'stbox, delta, expected',
         [(stbt, timedelta(days=4),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-09-05,2019-09-06])')),
          (stbt, timedelta(days=-4),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-08-28,2019-08-29])')),
          (stbt, timedelta(hours=2),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-09-01 02:00:00,2019-09-02 02:00:00])')),
          (stbt, timedelta(hours=-2),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-08-31 22:00:00,2019-09-01 22:00:00])')),
          ],
         ids=['positive days', 'negative days', 'positive hours', 'negative hours']
     )
-    def test_shift(self, stbox, delta, expected):
-        assert stbox.shift(delta) == expected
+    def test_shift_time(self, stbox, delta, expected):
+        assert stbox.shift_time(delta) == expected
 
-    ######################################
-    # THIS TEST DOES NOT WORK CORRECTLY
-    ######################################
     @pytest.mark.parametrize(
         'stbox, delta, expected',
         [(stbt, timedelta(days=4),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-09-01,2019-09-05])')),
         (stbt, timedelta(hours=2),
-          STBox('STBOX T([2019-09-01,2019-09-02])')),
+          STBox('STBOX T([2019-09-01,2019-09-01 02:00:00])')),
          ],
         ids=['positive days', 'positive hours']
     )
-    def test_tscale(self, stbox, delta, expected):
-        assert stbox.tscale(delta) == expected
+    def test_scale_time(self, stbox, delta, expected):
+        assert stbox.scale_time(delta) == expected
 
-    ######################################
-    # THIS TEST DOES NOT WORK CORRECTLY
-    ######################################
-    def test_shift_tscale(self):
-        assert self.stbt.shift_tscale(timedelta(days=4), timedelta(hours=4)) == \
-            STBox('STBOX T([2019-09-01,2019-09-02])')
+    def test_shift_scale_time(self):
+        assert self.stbt.shift_scale_time(timedelta(days=4), timedelta(hours=4)) == \
+            STBox('STBOX T([2019-09-05,2019-09-05 04:00:00])')
 
     @pytest.mark.parametrize(
         'stbox, expected',
@@ -604,7 +609,7 @@ class TestSTBoxTransformations(TestSTBox):
         ids=['STBox X', 'STBox Z', 'STBox XT', 'STBox ZT']
     )
     def test_round(self, stbox, expected):
-        assert stbox.round(maxdd=2)
+        assert stbox.round(max_decimals=2)
 
 
 class TestSTBoxTopologicalFunctions(TestSTBox):
