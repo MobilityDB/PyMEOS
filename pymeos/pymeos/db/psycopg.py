@@ -4,7 +4,7 @@ import psycopg
 from psycopg import connect
 from psycopg.adapt import Loader, Buffer, Dumper
 
-from pymeos import TBool, TInt, TFloat, TText, TGeomPoint, TGeogPoint, TBox, STBox, TimestampSet, Period, PeriodSet
+from .db_objects import db_objects
 
 
 def _pymeos_loader_factory(cl):
@@ -25,10 +25,11 @@ class MobilityDB:
     Helper class to register MobilityDB classes to a psycopg (3) connection and their automatic conversion to
     PyMEOS classes.
     """
+
     @classmethod
     def connect(cls, *args, **kwargs):
         """
-        Establisesh a connection to a MobilityDB server.
+        Establishes a connection to a MobilityDB server.
 
         Refer to :func:`psycopg.connect` for the list of valid arguments.
 
@@ -55,8 +56,7 @@ class MobilityDB:
             connection: An :class:`psycopg.Connection` to register the classes to.
         """
         cursor = connection.cursor()
-        classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
-        for cl in classes:
+        for cl in db_objects:
             cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
             oid = cursor.description[0][1]
             connection.adapters.register_loader(oid, _pymeos_loader_factory(cl))

@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2 import extensions, connect
 
-from pymeos import TBool, TInt, TFloat, TText, TGeomPoint, TGeogPoint, TBox, STBox, TimestampSet, Period, PeriodSet
+from .db_objects import db_objects
 
 
 class MobilityDB:
@@ -12,7 +12,7 @@ class MobilityDB:
     @classmethod
     def connect(cls, *args, **kwargs) -> psycopg2.extensions.connection:
         """
-        Establisesh a connection to a MobilityDB server.
+        Establishes a connection to a MobilityDB server.
 
         Refer to :func:`psycopg2.connect` for the list of valid arguments.
 
@@ -45,8 +45,7 @@ class MobilityDB:
             cursor = connection.cursor()
 
         # Add MobilityDB types to PostgreSQL adapter and specify the reader function for each type.
-        classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
-        for cl in classes:
+        for cl in db_objects:
             cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
             oid = cursor.description[0][1]
             extensions.register_type(extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor))

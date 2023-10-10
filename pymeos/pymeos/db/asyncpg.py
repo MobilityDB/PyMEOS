@@ -1,6 +1,6 @@
 import asyncpg
 
-from pymeos import TBool, TInt, TFloat, TText, TGeomPoint, TGeogPoint, TBox, STBox, TimestampSet, Period, PeriodSet
+from .db_objects import db_objects
 
 
 class MobilityDB:
@@ -8,6 +8,7 @@ class MobilityDB:
     Helper class to register MobilityDB classes to an asyncpg connection and their automatic conversion to
     PyMEOS classes.
     """
+
     @classmethod
     async def connect(cls, *args, **kwargs) -> asyncpg.connection.Connection:
         """
@@ -37,6 +38,5 @@ class MobilityDB:
         Args:
             connection: An :class:`asyncpg.connection.Connection` to register the classes to.
         """
-        classes = [TimestampSet, Period, PeriodSet, TBox, TBool, TInt, TFloat, TText, STBox, TGeomPoint, TGeogPoint]
-        for cl in classes:
+        for cl in db_objects:
             await connection.set_type_codec(cl._mobilitydb_name, encoder=str, decoder=cl.read_from_cursor)
