@@ -1,39 +1,13 @@
-###############################################################################
-#
-# This MobilityDB code is provided under The PostgreSQL License.
-#
-# Copyright (c) 2019-2022, Université libre de Bruxelles and MobilityDB
-# contributors
-#
-# Permission to use, copy, modify, and distribute this software and its
-# documentation for any purpose, without fee, and without a written 
-# agreement is hereby granted, provided that the above copyright notice and
-# this paragraph and the following two paragraphs appear in all copies.
-#
-# IN NO EVENT SHALL UNIVERSITE LIBRE DE BRUXELLES BE LIABLE TO ANY PARTY FOR
-# DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING
-# LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION,
-# EVEN IF UNIVERSITE LIBRE DE BRUXELLES HAS BEEN ADVISED OF THE POSSIBILITY 
-# OF SUCH DAMAGE.
-#
-# UNIVERSITE LIBRE DE BRUXELLES SPECIFICALLY DISCLAIMS ANY WARRANTIES, 
-# INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-# AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS ON
-# AN "AS IS" BASIS, AND UNIVERSITE LIBRE DE BRUXELLES HAS NO OBLIGATIONS TO 
-# PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS. 
-#
-###############################################################################
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, TYPE_CHECKING, Set
+from typing import Optional, Union, List, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
-from spans.types import intrange, floatrange
 
 from .tnumber import TNumber
+from ..collections import *
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..time import *
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -41,118 +15,538 @@ if TYPE_CHECKING:
 
 
 class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
+    _mobilitydb_name = 'tint'
+
     BaseClass = int
     _parse_function = tint_in
 
-    def is_adjacent(self, other: Union[int,
-                                       TBox, TNumber, floatrange, intrange,
-                                       Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int):
-            return adjacent_tint_int(self._inner, other)
-        else:
-            return super().is_adjacent(other)
+    # ------------------------- Constructors ----------------------------------
+    @staticmethod
+    def from_base_temporal(value: int, base: Temporal) -> TInt:
+        """
+        Returns a new temporal integer with the value `value` and the temporal
+        frame of `base`.
 
-    def is_contained_in(self, container: Union[int,
-                                               TBox, TNumber, floatrange, intrange,
-                                               Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(container, int):
-            return contained_tint_int(self._inner, container)
-        else:
-            return super().is_contained_in(container)
+        Args:
+            value: Value of the temporal integer.
+            base: Temporal object to get the temporal frame from.
 
-    def contains(self, content: Union[int,
-                                      TBox, TNumber, floatrange, intrange,
-                                      Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(content, int):
-            return contains_tint_int(self._inner, content)
-        else:
-            return super().contains(content)
+        Returns:
+            A new :class:`TInt` object.
 
-    def overlaps(self, other: Union[int,
-                                    TBox, TNumber, floatrange, intrange,
-                                    Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int):
-            return overlaps_tint_int(self._inner, other)
-        else:
-            return super().overlaps(other)
+        MEOS Functions:
+            tint_from_base_temp
+        """
+        result = tint_from_base_temp(value, base._inner)
+        return Temporal._factory(result)
 
-    def is_same(self, other: Union[int,
-                                   TBox, TNumber, floatrange, intrange,
-                                   Period, PeriodSet, datetime, TimestampSet, Temporal]) -> bool:
-        if isinstance(other, int):
-            return same_tint_int(self._inner, other)
-        else:
-            return super().is_same(other)
+    @staticmethod
+    @overload
+    def from_base_time(value: int, base: datetime) -> TIntInst:
+        ...
 
+    @staticmethod
+    @overload
+    def from_base_time(value: int, base: Union[TimestampSet, Period]) -> TIntSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(value: int, base: PeriodSet) -> TIntSeqSet:
+        ...
+
+    @staticmethod
+    def from_base_time(value: int, base: Time) -> TInt:
+        """
+        Returns a new temporal int with the value `value` and the temporal
+        frame of `base`.
+
+        Args:
+            value: Value of the temporal int.
+            base: Time object to get the temporal frame from.
+
+        Returns:
+            A new temporal int.
+
+        MEOS Functions:
+            tintinst_make, tintseq_from_base_timestampset,
+            tintseq_from_base_period, tintseqset_from_base_periodset
+        """
+        if isinstance(base, datetime):
+            return TIntInst(_inner=tintinst_make(value,
+                                                 datetime_to_timestamptz(base)))
+        elif isinstance(base, TimestampSet):
+            return TIntSeq(_inner=tintseq_from_base_timestampset(value,
+                                                                 base._inner))
+        elif isinstance(base, Period):
+            return TIntSeq(_inner=tintseq_from_base_period(value, base._inner))
+        elif isinstance(base, PeriodSet):
+            return TIntSeqSet(_inner=tintseqset_from_base_periodset(value,
+                                                                    base._inner))
+        raise TypeError(f'Operation not supported with type {base.__class__}')
+
+    # ------------------------- Output ----------------------------------------
+    def __str__(self):
+        """
+        Returns a string representation of `self`.
+
+        Returns:
+            A string representation of `self`.
+
+        MEOS Functions:
+            tint_out
+        """
+        return tint_out(self._inner)
+
+    def as_wkt(self):
+        """
+        Returns a WKT representation of `self`.
+
+        Returns:
+            A WKT representation of `self`.
+
+        MEOS Functions:
+            tint_as_wkt
+        """
+        return tint_out(self._inner)
+
+    # ------------------------- Conversions ----------------------------------
+    def to_tfloat(self) -> TFloat:
+        """
+        Returns a new temporal float with the values of `self`.
+
+        Returns:
+            A new temporal float.
+
+        MEOS Functions:
+            tint_to_tfloat
+        """
+        from ..factory import _TemporalFactory
+        return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
+
+    def to_intspan(self) -> IntSpan:
+        """
+        Returns value span of `self`.
+
+        Returns:
+            An :class:`IntSpan` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
+        """
+        return IntSpan(_inner=tnumber_to_span(self._inner))
+
+    # ------------------------- Accessors -------------------------------------
+    def value_span(self) -> IntSpan:
+        """
+        Returns the value span of `self`.
+
+        Returns:
+            An :class:`IntSpan` with the value span of `self`.
+
+        MEOS Functions:
+            tnumber_to_span
+        """
+        return self.to_intspan()
+
+    def value_spans(self) -> IntSpanSet:
+        """
+        Returns the value spans of `self` taking into account gaps.
+
+        Returns:
+            An :class:`IntSpanSet` with the value spans of `self`.
+
+        MEOS Functions:
+            tnumber_valuespans
+        """
+        return IntSpanSet(_inner=tnumber_valuespans(self._inner))
+
+    def start_value(self) -> int:
+        """
+        Returns the start value of `self`.
+
+        Returns:
+            A :class:`int` with the start value.
+
+        MEOS Functions:
+            tint_start_value
+        """
+        return tint_start_value(self._inner)
+
+    def end_value(self) -> int:
+        """
+        Returns the end value of `self`.
+
+        Returns:
+            A :class:`int` with the end value.
+
+        MEOS Functions:
+            tint_end_value
+        """
+        return tint_end_value(self._inner)
+
+    def value_set(self) -> Set[int]:
+        """
+        Returns the set of values of `self`.
+
+        Returns:
+            A :class:`set` with the values of `self`.
+
+        MEOS Functions:
+            tint_values
+        """
+        values, count = tint_values(self._inner)
+        return {values[i] for i in range(count)}
+
+    def min_value(self) -> int:
+        """
+        Returns the minimum value of the temporal int.
+
+        Returns:
+            A :class:`int` with the minimum value.
+
+        MEOS Functions:
+            tint_min_value
+        """
+        return tint_min_value(self._inner)
+
+    def max_value(self) -> int:
+        """
+        Returns the maximum value of the temporal int.
+
+        Returns:
+            A :class:`int` with the maximum value.
+
+        MEOS Functions:
+            tint_max_value
+        """
+        return tint_max_value(self._inner)
+
+    def value_at_timestamp(self, timestamp) -> int:
+        """
+        Returns the value that `self` takes at a certain moment.
+
+        Args:
+            timestamp: The moment to get the value.
+
+        Returns:
+            An :class:`int` with the value of `self` at `timestamp`.
+
+        MEOS Functions:
+            tint_value_at_timestamp
+        """
+        return tint_value_at_timestamp(self._inner,
+                                       datetime_to_timestamptz(timestamp), True)
+
+    # ------------------------- Ever and Always Comparisons -------------------
     def always_less(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always less than `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always less than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_lt
+        """
         return tint_always_lt(self._inner, value)
 
     def always_less_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always less than or equal to
+        `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always less than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_always_le
+        """
         return tint_always_le(self._inner, value)
 
     def always_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always equal to `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_eq
+        """
         return tint_always_eq(self._inner, value)
 
     def always_not_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always not equal to `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_eq
+        """
         return not tint_ever_eq(self._inner, value)
 
     def always_greater_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always greater than or equal
+        to `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always greater than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_lt
+        """
         return not tint_ever_lt(self._inner, value)
 
     def always_greater(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are always greater than `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are always greater than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_le
+        """
         return not tint_ever_le(self._inner, value)
 
     def ever_less(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever less than `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever less than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_lt
+        """
         return tint_ever_lt(self._inner, value)
 
     def ever_less_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever less than or equal to
+        `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever less than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_le
+        """
         return tint_ever_le(self._inner, value)
 
     def ever_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever equal to `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_eq
+        """
         return tint_ever_eq(self._inner, value)
 
     def ever_not_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever not equal to `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_eq
+        """
         return not tint_always_eq(self._inner, value)
 
     def ever_greater_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever greater than or equal to
+        `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever greater than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_always_lt
+        """
         return not tint_always_lt(self._inner, value)
 
     def ever_greater(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are ever greater than `value`.
+
+        Args:
+            value: :class:`int` to compare.
+
+        Returns:
+            `True` if the values of `self` are ever greater than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_le
+        """
         return not tint_always_le(self._inner, value)
 
     def never_less(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never less than `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never less than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_lt
+        """
         return not tint_ever_lt(self._inner, value)
 
     def never_less_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never less than or equal to
+        `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never less than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_le
+        """
         return not tint_ever_le(self._inner, value)
 
     def never_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never equal to `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_ever_eq
+        """
         return not tint_ever_eq(self._inner, value)
 
     def never_not_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never not equal to `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_eq
+        """
         return tint_always_eq(self._inner, value)
 
     def never_greater_or_equal(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never greater than or equal to
+        `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never greater than or equal to
+            `value`, `False` otherwise.
+
+        MEOS Functions:
+            tint_always_lt
+        """
         return tint_always_lt(self._inner, value)
 
     def never_greater(self, value: int) -> bool:
+        """
+        Returns whether the values of `self` are never greater than `value`.
+
+        Args:
+            value: :class:`int` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never greater than `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            tint_always_le
+        """
         return tint_always_le(self._inner, value)
 
-    def temporal_less(self, other: Union[int, Temporal]) -> Temporal:
-        if isinstance(other, int):
-            result = tlt_tint_int(self._inner, other)
-        else:
-            return super().temporal_less(other)
-        return Temporal._factory(result)
-
-    def temporal_less_or_equal(self, other: Union[int, Temporal]) -> Temporal:
-        if isinstance(other, int):
-            result = tle_tint_int(self._inner, other)
-        else:
-            return super().temporal_less_or_equal(other)
-        return Temporal._factory(result)
-
+    # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal equality relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal equality relation.
+
+        MEOS Functions:
+            teq_tint_int, teq_temporal_temporal
+        """
         if isinstance(other, int):
             result = teq_tint_int(self._inner, other)
         else:
@@ -160,13 +554,77 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal not equal relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal not equal relation.
+
+        MEOS Functions:
+            tne_tint_int, tne_temporal_temporal
+        """
         if isinstance(other, int):
             result = tne_tint_int(self._inner, other)
         else:
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
+    def temporal_less(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal less than relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal less than relation.
+
+        MEOS Functions:
+            tlt_tint_int, tlt_temporal_temporal
+        """
+        if isinstance(other, int):
+            result = tlt_tint_int(self._inner, other)
+        else:
+            return super().temporal_less(other)
+        return Temporal._factory(result)
+
+    def temporal_less_or_equal(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal less or equal relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal less or equal
+            relation.
+
+        MEOS Functions:
+            tle_tint_int, tle_temporal_temporal
+        """
+        if isinstance(other, int):
+            result = tle_tint_int(self._inner, other)
+        else:
+            return super().temporal_less_or_equal(other)
+        return Temporal._factory(result)
+
     def temporal_greater_or_equal(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal greater or equal relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal greater or equal
+            relation.
+
+        MEOS Functions:
+            tge_tint_int, tge_temporal_temporal
+        """
         if isinstance(other, int):
             result = tge_tint_int(self._inner, other)
         else:
@@ -174,68 +632,170 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         return Temporal._factory(result)
 
     def temporal_greater(self, other: Union[int, Temporal]) -> Temporal:
+        """
+        Returns the temporal greater than relation between `self` and `other`.
+
+        Args:
+            other: A :class:`int` or temporal object to compare to `self`.
+
+        Returns:
+            A :class:`TBool` with the result of the temporal greater than
+            relation.
+
+        MEOS Functions:
+            tgt_tint_int, tgt_temporal_temporal
+        """
         if isinstance(other, int):
             result = tgt_tint_int(self._inner, other)
         else:
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def at(self, other: Union[int, List[int],
-                              intrange, floatrange, List[intrange], List[floatrange], TBox,
-                              datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
-        if isinstance(other, int):
-            result = tint_at_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            result = tint_at_values(self._inner, other)
+    # ------------------------- Restrictions ----------------------------------
+    def at(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
+        """
+        Returns a new temporal int with th  e values of `self` restricted to
+        the time or value `other`.
+
+        Args:
+            other: Time or value to restrict to.
+
+        Returns:
+            A new temporal int.
+
+        MEOS Functions:
+            tint_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
+            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
+            temporal_at_periodset
+        """
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_at_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().at(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().at(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().at(other.to_intspanset())
         else:
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[int, List[int],
-                                 intrange, floatrange, List[intrange], List[floatrange], TBox,
-                                 datetime, TimestampSet, Period, PeriodSet]) -> Temporal:
-        if isinstance(other, int):
-            result = tint_minus_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], int):
-            result = tint_minus_values(self._inner, other)
+    def minus(self, other: Union[int, float, IntSet, FloatSet, IntSpan, FloatSpan, \
+            IntSpanSet, FloatSpanSet, TBox, Time]) -> Temporal:
+        """
+        Returns a new temporal int with the values of `self` restricted to the
+        complement of the time or value `other`.
+
+        Args:
+            other: Time or value to restrict to the complement of.
+
+        Returns:
+            A new temporal int.
+
+        MEOS Functions:
+            tint_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
+            temporal_minus_timestamp, temporal_minus_timestampset,
+            temporal_minus_period, temporal_minus_periodset
+        """
+        if isinstance(other, int) or isinstance(other, float):
+            result = tint_minus_value(self._inner, int(other))
+        elif isinstance(other, FloatSet):
+            return super().minus(other.to_intset())
+        elif isinstance(other, FloatSpan):
+            return super().minus(other.to_intspan())
+        elif isinstance(other, FloatSpanSet):
+            return super().minus(other.to_intspanset())
         else:
             return super().minus(other)
         return Temporal._factory(result)
 
-    def nearest_approach_distance(self, other: Union[int, float, TNumber, TBox]) -> float:
+    # ------------------------- Distance --------------------------------------
+    def nearest_approach_distance(self,
+                                  other: Union[int, float, TNumber, TBox]) -> float:
+        """
+        Returns the nearest approach distance between `self` and `other`.
+
+        Args:
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or 
+            :class:`TBox` to compare to `self`.
+
+        Returns:
+            A :class:`float` with the nearest approach distance between `self`
+            and `other`.
+
+        MEOS Functions:
+            nad_tint_int, nad_tint_tint, nad_tfloat_float, nad_tfloat_tfloat,
+            nad_tnumber_tbox
+        """
         if isinstance(other, int):
             return nad_tint_int(self._inner, other)
         elif isinstance(other, TInt):
             return nad_tint_tint(self._inner, other._inner)
         else:
-            return super(TInt, self).nearest_approach_distance(other)
+            return super().nearest_approach_distance(other)
 
-    def to_tfloat(self) -> TFloat:
-        from ..factory import _TemporalFactory
-        return _TemporalFactory.create_temporal(tint_to_tfloat(self._inner))
+    # ------------------------- Split Operations ------------------------------
+    def value_split(self, size: int, start: Optional[int] = 0) -> List[TInt]:
+        """
+        Splits `self` into fragments with respect to value buckets
 
-    def to_intrange(self) -> intrange:
-        return intspan_to_intrange(tnumber_to_span(self._inner))
+        Args:
+            start: Start value of the first value bucket.
+            size: Size of the value buckets.
 
-    @staticmethod
-    def from_base(value: int, base: Temporal) -> TInt:
-        result = tint_from_base(value, base._inner)
-        return Temporal._factory(result)
+        Returns:
+            A list of temporal ints.
 
-    @staticmethod
-    def from_base_time(value: int, base: Time) -> TInt:
-        if isinstance(base, datetime):
-            return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
-        elif isinstance(base, TimestampSet):
-            return TIntSeq(_inner=tintdiscseq_from_base_time(value, base._inner))
-        elif isinstance(base, Period):
-            return TIntSeq(_inner=tintseq_from_base_time(value, base._inner))
-        elif isinstance(base, PeriodSet):
-            return TIntSeqSet(_inner=tintseqset_from_base_time(value, base._inner))
-        raise TypeError(f'Operation not supported with type {base.__class__}')
+        MEOS Functions:
+            tint_value_split
+        """
+        fragments, values, count = tint_value_split(self._inner, size, start)
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
+    def value_time_split(self, value_size: int,
+                         duration: Union[str, timedelta],
+                         value_start: Optional[int] = 0,
+                         time_start: Optional[Union[str, datetime]] = None) -> \
+            List[TInt]:
+        """
+        Splits `self` into fragments with respect to value and period buckets.
+
+        Args:
+            value_size: Size of the value buckets.
+            duration: Duration of the period buckets.
+            value_start: Start value of the first value bucket. If None, the
+                start value used by default is 0
+            time_start: Start time of the first period bucket. If None, the
+                start time used by default is Monday, January 3, 2000.
+
+        Returns:
+            A list of temporal integers.
+
+        MEOS Functions:
+            tint_value_time_split
+        """
+        if time_start is None:
+            st = pg_timestamptz_in('2000-01-03', -1)
+        else:
+            st = datetime_to_timestamptz(time_start) \
+                if isinstance(time_start, datetime) \
+                else pg_timestamptz_in(time_start, -1)
+        dt = timedelta_to_interval(duration) \
+            if isinstance(duration, timedelta) \
+            else pg_interval_in(duration, -1)
+        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt,
+                                                   value_start, st)
+        return [Temporal._factory(tiles[i]) for i in range(count)]
+
+    # ------------------------- Database Operations ---------------------------
     @staticmethod
     def read_from_cursor(value, _=None):
+        """
+        Reads a :class:`TInt` from a database cursor. Used when automatically
+        loading objects from the database.
+        Users should use the class constructor instead.
+        """
         if not value:
             return None
         if value[0] != '{' and value[0] != '[' and value[0] != '(':
@@ -249,96 +809,46 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
                 return TIntSeq(string=value)
         raise Exception("ERROR: Could not parse temporal integer value")
 
-    @property
-    def value_range(self) -> intrange:
-        """
-        Range of values taken by the temporal value as defined by its minimum and maximum value
-        """
-        return self.to_intrange()
-
-    @property
-    def start_value(self) -> int:
-        """
-        Start value.
-        """
-        return tint_start_value(self._inner)
-
-    @property
-    def end_value(self) -> int:
-        """
-        End value.
-        """
-        return tint_end_value(self._inner)
-
-    @property
-    def value_set(self) -> Set[int]:
-        """
-        List of distinct values.
-        """
-        values, count = tint_values(self._inner)
-        return {values[i] for i in range(count)}
-
-    @property
-    def min_value(self) -> int:
-        """
-        Minimum value.
-        """
-        return tint_min_value(self._inner)
-
-    @property
-    def max_value(self) -> int:
-        """
-        Maximum value.
-        """
-        return tint_max_value(self._inner)
-
-    def value_at_timestamp(self, timestamp) -> int:
-        """
-        Value at timestamp.
-        """
-        return tint_value_at_timestamp(self._inner, datetime_to_timestamptz(timestamp), True)
-
-    def value_split(self, start: int, size: int) -> List[Temporal]:
-        tiles, new_count = tint_value_split(self._inner, size, start)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
-
-    def time_value_split(self, value_start: int, value_size: int, time_start: Union[str, datetime],
-                         duration: Union[str, timedelta]) -> List[Temporal]:
-        st = datetime_to_timestamptz(time_start) if isinstance(time_start, datetime) \
-            else pg_timestamptz_in(time_start, -1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        tiles, new_count = tint_value_time_split(self._inner, value_size, value_start, dt, st)
-        return [Temporal._factory(tiles[i]) for i in range(new_count)]
-
-    def __str__(self):
-        return tint_out(self._inner)
-
-    def as_wkt(self):
-        return tint_out(self._inner)
-
 
 class TIntInst(TInstant[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
+    """
+    Class for representing temporal integers at a single instant.
+    """
     _make_function = tintinst_make
     _cast_function = int
 
-    def __init__(self, string: Optional[str] = None, *, value: Optional[Union[str, int]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 value: Optional[Union[str, int]] = None,
                  timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
+        super().__init__(string=string, value=value, timestamp=timestamp,
+                         _inner=_inner)
 
 
 class TIntSeq(TSequence[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
+    """
+    Class for representing temporal integers over a period of time.
+    """
     ComponentClass = TIntInst
 
-    def __init__(self, string: Optional[str] = None, *, instant_list: Optional[List[Union[str, TIntInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False, expandable: Union[bool, int] = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE, normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list, lower_inc=lower_inc, upper_inc=upper_inc,
-                         expandable=expandable, interpolation=interpolation, normalize=normalize, _inner=_inner)
+    def __init__(self, string: Optional[str] = None, *,
+                 instant_list: Optional[List[Union[str, TIntInst]]] = None,
+                 lower_inc: bool = True, upper_inc: bool = False,
+                 interpolation: TInterpolation = TInterpolation.STEPWISE,
+                 normalize: bool = True, _inner=None):
+        super().__init__(string=string, instant_list=instant_list,
+                         lower_inc=lower_inc, upper_inc=upper_inc,
+                         interpolation=interpolation, normalize=normalize, _inner=_inner)
 
 
-class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], TInt):
+class TIntSeqSet(TSequenceSet[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'],
+                 TInt):
+    """
+    Class for representing temporal integers over a period of time with gaps.
+    """
     ComponentClass = TIntSeq
 
-    def __init__(self, string: Optional[str] = None, *, sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+    def __init__(self, string: Optional[str] = None, *,
+                 sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
                  normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list, normalize=normalize, _inner=_inner)
+        super().__init__(string=string, sequence_list=sequence_list,
+                         normalize=normalize, _inner=_inner)

@@ -3,9 +3,32 @@ from .boxes import *
 from .main import *
 from .meos_init import *
 from .temporal import *
-from .time import *
+from .collections import *
+from pymeos_cffi import \
+    MeosException, \
+    MeosInternalError, \
+    MeosArgumentError, \
+    MeosIoError, \
+    MeosInternalTypeError, \
+    MeosValueOutOfRangeError, \
+    MeosDivisionByZeroError, \
+    MeosMemoryAllocError, \
+    MeosAggregationError, \
+    MeosDirectoryError, \
+    MeosFileError, \
+    MeosInvalidArgError, \
+    MeosInvalidArgTypeError, \
+    MeosInvalidArgValueError, \
+    MeosMfJsonInputError, \
+    MeosMfJsonOutputError, \
+    MeosTextInputError, \
+    MeosTextOutputError, \
+    MeosWkbInputError, \
+    MeosWkbOutputError, \
+    MeosGeoJsonInputError, \
+    MeosGeoJsonOutputError
 
-__version__ = '1.1.2'
+__version__ = '1.1.3b1'
 __all__ = [
     # initialization
     'pymeos_initialize', 'pymeos_finalize',
@@ -21,8 +44,12 @@ __all__ = [
     'TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet',
     # temporal
     'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
-    # time
+    # Collections
     'Time', 'Period', 'TimestampSet', 'PeriodSet',
+    'TextSet',
+    'IntSet', 'IntSpan', 'IntSpanSet',
+    'FloatSet', 'FloatSpan', 'FloatSpanSet',
+    'GeoSet', 'GeometrySet', 'GeographySet',
     # extras
     'TInterpolation',
     # aggregators
@@ -34,5 +61,28 @@ __all__ = [
     'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
     'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
     'TemporalPointExtentAggregator',
-    'TemporalTimestampUnionAggregator', 'TemporalPeriodUnionAggregator',
+    'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
+    # exceptions
+    'MeosException',
+    'MeosInternalError',
+    'MeosArgumentError',
+    'MeosIoError',
+    'MeosInternalTypeError',
+    'MeosValueOutOfRangeError',
+    'MeosDivisionByZeroError',
+    'MeosMemoryAllocError',
+    'MeosAggregationError',
+    'MeosDirectoryError',
+    'MeosFileError',
+    'MeosInvalidArgError',
+    'MeosInvalidArgTypeError',
+    'MeosInvalidArgValueError',
+    'MeosMfJsonInputError',
+    'MeosMfJsonOutputError',
+    'MeosTextInputError',
+    'MeosTextOutputError',
+    'MeosWkbInputError',
+    'MeosWkbOutputError',
+    'MeosGeoJsonInputError',
+    'MeosGeoJsonOutputError',
 ]

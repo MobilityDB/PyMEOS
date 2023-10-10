@@ -1,35 +1,50 @@
 [build-system]
-requires = ["setuptools>=61.0"]
-build-backend = "setuptools.build_meta"
+requires = ['setuptools>=61.0']
+build-backend = 'setuptools.build_meta'
 
 [project]
-name = "pymeos"
-version = "1.1.2"
+name = 'pymeos'
+version = '1.1.3-beta.1'
 authors = [
-    { name = "Victor Divi", email = "vdiviloper@gmail.com" },
-    { name = "Zhicheng Luo", email = "zhicheng.luo@ulb.be" },
-    { name = "Krishna Chaitanya Bommakanti", email = "bkchaitan94@gmail.com" },
+    { name = 'Victor Divi', email = 'vdiviloper@gmail.com' },
+    { name = 'Zhicheng Luo', email = 'zhicheng.luo@ulb.be' },
+    { name = 'Krishna Chaitanya Bommakanti', email = 'bkchaitan94@gmail.com' },
 ]
-description = "Python wrapper for the MEOS C Library."
+description = 'Python wrapper for the MEOS C Library.'
 classifiers = [
-    "Programming Language :: Python :: 3",
-    "Operating System :: OS Independent",
+    'License :: OSI Approved :: PostgreSQL License',
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Intended Audience :: Science/Research',
+    'Programming Language :: C',
+    'Programming Language :: Python',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3 :: Only',
+    'Programming Language :: Python :: Implementation :: CPython',
+    'Operating System :: POSIX',
+    'Operating System :: Unix'
 ]
-readme = "README.md"
-license = { text = "PostgreSQL" }
+readme = 'README.md'
+license = {file = 'LICENSE'}
 
-requires-python = ">=3.7"
+requires-python = '>=3.7'
 dependencies = [
-    'pymeos-cffi==0.0.18',
+    'pymeos-cffi ==1.1.0b1',
     'python-dateutil',
-    'spans',
-    'postgis',
     'shapely',
-    'geopandas'
 ]
 
 [project.optional-dependencies]
 dbp = [
+    'psycopg'
+]
+
+dbp2 = [
     'psycopg2'
 ]
 
@@ -41,7 +56,11 @@ plot = [
     'matplotlib'
 ]
 
+pandas = [
+    'geopandas'
+]
+
 [project.urls]
-"Homepage" = "https://github.com/MobilityDB/PyMEOS"
-"Bug Tracker" = "https://github.com/MobilityDB/PyMEOS/issues"
-"Changelog" = "https://github.com/MobilityDB/PyMEOS/blob/master/pymeos/CHANGELOG.md"
+'Homepage' = 'https://github.com/MobilityDB/PyMEOS/pymeos'
+'Bug Tracker' = 'https://github.com/MobilityDB/PyMEOS/issues'
+'Changelog' = 'https://github.com/MobilityDB/PyMEOS/blob/master/pymeos/CHANGELOG.md'

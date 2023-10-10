@@ -1,4 +1,6 @@
+import os.path
 import re
+import sys
 from re import RegexFlag
 from typing import List, Optional
 
@@ -38,115 +40,48 @@ class ReturnType:
         self.conversion = conversion
 
 
-BASE = """from datetime import datetime, timedelta
-from typing import Any, Tuple, Optional, List, Union
+# List of functions defined in functions.py that shouldn't be exported
 
-import _meos_cffi
-import postgis as pg
-import shapely.geometry as spg
-from dateutil.parser import parse
-from shapely import wkt, wkb
-from shapely.geometry.base import BaseGeometry
-from spans.types import floatrange, intrange
+hidden_functions = [
+    '_check_error',
+]
 
-_ffi = _meos_cffi.ffi
-_lib = _meos_cffi.lib
-
-
-def create_pointer(object: 'Any', type: str) -> 'Any *':
-    return _ffi.new(f'{type} *', object)
-
-
-def datetime_to_timestamptz(dt: datetime) -> int:
-    return _lib.pg_timestamptz_in(dt.strftime('%Y-%m-%d %H:%M:%S%z').encode('utf-8'), -1)
-
-
-def timestamptz_to_datetime(ts: int) -> datetime:
-    return parse(pg_timestamptz_out(ts))
-
-
-def timedelta_to_interval(td: timedelta) -> Any:
-    return _ffi.new('Interval *', {'time': td.microseconds + td.seconds * 1000000, 'day': td.days, 'month': 0})
-
-
-def interval_to_timedelta(interval: Any) -> timedelta:
-    # TODO fix for months/years
-    return timedelta(days=interval.day, microseconds=interval.time)
-
-
-def geometry_to_gserialized(geom: Union[pg.Geometry, BaseGeometry]) -> 'GSERIALIZED *':
-    if isinstance(geom, pg.Geometry):
-        text = geom.to_ewkb()
-    elif isinstance(geom, BaseGeometry):
-        text = wkb.dumps(geom, hex=True)
-    else:
-        raise TypeError('Parameter geom must be either a PostGIS Geometry or a Shapely BaseGeometry')
-    return gserialized_in(text, -1)
-
-
-def gserialized_to_shapely_point(geom: 'const GSERIALIZED *', precision: int = 6) -> spg.Point:
-    return wkt.loads(gserialized_as_text(geom, precision))
-
-
-def gserialized_to_shapely_geometry(geom: 'const GSERIALIZED *', precision: int = 6) -> BaseGeometry:
-    return wkt.loads(gserialized_as_text(geom, precision))
-
-
-def intrange_to_intspan(irange: intrange) -> 'Span *':
-    return intspan_make(irange.lower, irange.upper, irange.lower_inc, irange.upper_inc)
-
-
-def intspan_to_intrange(ispan: 'Span *') -> intrange:
-    return intrange(intspan_lower(ispan), intspan_upper(ispan), ispan.lower_inc, ispan.upper_inc)
-
-
-def floatrange_to_floatspan(frange: floatrange) -> 'Span *':
-    return floatspan_make(frange.lower, frange.upper, frange.lower_inc, frange.upper_inc)
-
-
-def floatspan_to_floatrange(fspan: 'Span *') -> floatrange:
-    return floatrange(floatspan_lower(fspan), floatspan_upper(fspan), fspan.lower_inc, fspan.upper_inc)
-
-
-def as_tinstant(temporal: 'Temporal *') -> 'TInstant *':
-    return _ffi.cast('TInstant *', temporal)
-
-
-def as_tsequence(temporal: 'Temporal *') -> 'TSequence *':
-    return _ffi.cast('TSequence *', temporal)
-
-
-def as_tsequenceset(temporal: 'Temporal *') -> 'TSequenceSet *':
-    return _ffi.cast('TSequenceSet *', temporal)
-
-
-# -----------------------------------------------------------------------------
-# ----------------------End of manually-defined functions----------------------
-# -----------------------------------------------------------------------------
-
-
-"""
+# List of MEOS functions that should not defined in functions.py
+skipped_functions = [
+    'py_error_handler',
+    'meos_initialize_timezone',
+    'meos_initialize_error_handler',
+    'meos_finalize_timezone',
+]
 
 function_notes = {
 }
 
 function_modifiers = {
-    'period_shift_tscale': period_shift_tscale_modifier,
+    'meos_initialize': meos_initialize_modifier,
+    'meos_finalize': remove_error_check_modifier,
     'cstring2text': cstring2text_modifier,
     'text2cstring': text2cstring_modifier,
-    'timestampset_make': timestampset_make_modifier,
-    'tint_at_values': tint_at_values_modifier,
-    'tint_minus_values': tint_minus_values_modifier,
-    'tfloat_at_values': tfloat_at_values_modifier,
-    'tfloat_minus_values': tfloat_minus_values_modifier,
-    'tbool_at_values': tbool_at_values_modifier,
-    'tbool_minus_values': tbool_minus_values_modifier,
-    'ttext_at_values': array_length_remover_modifier('values_converted'),
-    'ttext_minus_values': array_length_remover_modifier('values_converted'),
-    'tpoint_at_values': array_length_remover_modifier('values_converted'),
-    'tpoint_minus_values': array_length_remover_modifier('values_converted'),
     'gserialized_from_lwgeom': gserialized_from_lwgeom_modifier,
-    'tpointseq_make_coords': tpointseq_make_coords_modifier,
+    'spanset_make': spanset_make_modifier,
+    'temporal_from_wkb': from_wkb_modifier('temporal_from_wkb', 'Temporal'),
+    'set_from_wkb': from_wkb_modifier('set_from_wkb', 'Set'),
+    'span_from_wkb': from_wkb_modifier('span_from_wkb', 'Span'),
+    'spanset_from_wkb': from_wkb_modifier('spanset_from_wkb', 'SpanSet'),
+    'tbox_from_wkb': from_wkb_modifier('tbox_from_wkb', 'TBOX'),
+    'stbox_from_wkb': from_wkb_modifier('stbox_from_wkb', 'STBOX'),
+    'temporal_as_wkb': as_wkb_modifier,
+    'set_as_wkb': as_wkb_modifier,
+    'span_as_wkb': as_wkb_modifier,
+    'spanset_as_wkb': as_wkb_modifier,
+    'tbox_as_wkb': as_wkb_modifier,
+    'stbox_as_wkb': as_wkb_modifier,
+    'timestampset_make': timestampset_make_modifier,
+    'intset_make': array_parameter_modifier('values', 'count'),
+    'bigintset_make': array_parameter_modifier('values', 'count'),
+    'floatset_make': array_parameter_modifier('values', 'count'),
+    'textset_make': textset_make_modifier,
+    'geoset_make': array_length_remover_modifier('values', 'count'),
 }
 
 # List of result function parameters in tuples of (function, parameter)
@@ -158,51 +93,61 @@ result_parameters = {
     ('tpoint_value_at_timestamp', 'value'),
 }
 
-# List of output function parameters in tuples of (function, parameter). All parameters named result are assumed
-# to be output parameters, and it's not necessary to list them here.
+# List of output function parameters in tuples of (function, parameter).
+# All parameters named result are assumed to be output parameters, and it is
+# not necessary to list them here.
 output_parameters = {
-    ('temporal_time_split', 'buckets'),
-    ('temporal_time_split', 'newcount'),
-    ('tint_value_split', 'buckets'),
-    ('tint_value_split', 'newcount'),
-    ('tfloat_value_split', 'buckets'),
-    ('tfloat_value_split', 'newcount'),
-    ('tint_value_time_split', 'newcount'),
-    ('tfloat_value_time_split', 'newcount'),
+    ('temporal_time_split', 'time_buckets'),
+    ('temporal_time_split', 'count'),
+    ('tint_value_split', 'value_buckets'),
+    ('tint_value_split', 'count'),
+    ('tfloat_value_split', 'value_buckets'),
+    ('tfloat_value_split', 'count'),
+    ('tint_value_time_split', 'value_buckets'),
+    ('tint_value_time_split', 'time_buckets'),
+    ('tint_value_time_split', 'count'),
+    ('tfloat_value_time_split', 'value_buckets'),
+    ('tfloat_value_time_split', 'time_buckets'),
+    ('tfloat_value_time_split', 'count'),
+    ('tpoint_space_split', 'space_buckets'),
+    ('tpoint_space_split', 'count'),
+    ('tpoint_space_time_split', 'space_buckets'),
+    ('tpoint_space_time_split', 'time_buckets'),
+    ('tpoint_space_time_split', 'count'),
     ('tbox_as_hexwkb', 'size'),
     ('stbox_as_hexwkb', 'size'),
-    ('tbox_tile_list', 'rows'),
-    ('tbox_tile_list', 'columns'),
+    ('tintbox_tile_list', 'count'),
+    ('tfloatbox_tile_list', 'count'),
     ('stbox_tile_list', 'cellcount'),
 }
 
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
     ('meos_initialize', 'tz_str'),
+    ('temporal_append_tinstant', 'maxt'),
     ('temporal_as_mfjson', 'srs'),
     ('gserialized_as_geojson', 'srs'),
-    ('period_shift_tscale', 'duration'),
-    ('period_shift_tscale', 'start'),
-    ('period_shift_tscale', 'start'),
-    ('timestampset_shift_tscale', 'start'),
-    ('timestampset_shift_tscale', 'duration'),
-    ('timestampset_shift_tscale', 'start'),
-    ('periodset_shift_tscale', 'start'),
-    ('periodset_shift_tscale', 'duration'),
-    ('periodset_shift_tscale', 'start'),
-    ('temporal_shift_tscale', 'start'),
-    ('temporal_shift_tscale', 'duration'),
-    ('temporal_shift_tscale', 'shift'),
+    ('period_shift_scale', 'shift'),
+    ('period_shift_scale', 'duration'),
+    ('timestampset_shift_scale', 'shift'),
+    ('timestampset_shift_scale', 'duration'),
+    ('periodset_shift_scale', 'shift'),
+    ('periodset_shift_scale', 'duration'),
+    ('temporal_shift_scale_time', 'shift'),
+    ('temporal_shift_scale_time', 'duration'),
     ('tbox_make', 'p'),
     ('tbox_make', 's'),
     ('stbox_make', 'p'),
-    ('tpointseq_make_coords', 'zcoords'),
+    ('stbox_shift_scale_time', 'shift'),
+    ('stbox_shift_scale_time', 'duration'),
     ('temporal_tcount_transfn', 'state'),
     ('temporal_extent_transfn', 'p'),
     ('tnumber_extent_transfn', 'box'),
     ('tpoint_extent_transfn', 'box'),
     ('tbool_tand_transfn', 'state'),
     ('tbool_tor_transfn', 'state'),
+    ('tbox_shift_scale_time', 'shift'),
+    ('tbox_shift_scale_time', 'duration'),
     ('tint_tmin_transfn', 'state'),
     ('tfloat_tmin_transfn', 'state'),
     ('tint_tmax_transfn', 'state'),
@@ -218,20 +163,15 @@ nullable_parameters = {
     ('period_tcount_transfn', 'interval'),
     ('periodset_tcount_transfn', 'interval'),
     ('timestamp_extent_transfn', 'p'),
-    ('timestampset_extent_transfn', 'p'),
-    ('period_extent_transfn', 'p'),
-    ('periodset_extent_transfn', 'p'),
-    ('timestamp_tunion_transfn', 'state'),
-    ('timestampset_tunion_transfn', 'state'),
-    ('period_tunion_transfn', 'state'),
-    ('periodset_tunion_transfn', 'state'),
     ('timestamp_tcount_transfn', 'state'),
     ('timestampset_tcount_transfn', 'state'),
     ('period_tcount_transfn', 'state'),
     ('periodset_tcount_transfn', 'state'),
     ('stbox_tile_list', 'duration'),
-    ('tbox_tile_list', 'xorigin'),
-    ('tbox_tile_list', 'torigin'),
+    ('tintbox_tile_list', 'xorigin'),
+    ('tintbox_tile_list', 'torigin'),
+    ('tfloatbox_tile_list', 'xorigin'),
+    ('tfloatbox_tile_list', 'torigin'),
 }
 
 
@@ -256,8 +196,23 @@ def is_output_parameter(function: str, parameter: Parameter) -> bool:
     return (function, parameter.name) in output_parameters
 
 
-def main():
-    with open('pymeos_cffi/builder/meos.h') as f:
+def check_modifiers(functions: List[str]) -> None:
+    for func in function_modifiers.keys():
+        if func not in functions:
+            print(f'Modifier defined for non-existent function {func}')
+    for func, param in result_parameters:
+        if func not in functions:
+            print(f'Result parameter defined for non-existent function {func} ({param})')
+    for func, param in output_parameters:
+        if func not in functions:
+            print(f'Output parameter defined for non-existent function {func} ({param})')
+    for func, param in nullable_parameters:
+        if func not in functions:
+            print(f'Nullable Parameter defined for non-existent function {func} ({param})')
+
+
+def main(header_path='pymeos_cffi/builder/meos.h'):
+    with open(header_path) as f:
         content = f.read()
     # Regex lines:
     # 1st line: Match beginning of function with optional "extern", "static" and "inline"
@@ -272,12 +227,21 @@ def main():
               r'\((?P<params>[\w\s,\*]*)\);'
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
-    with open('pymeos_cffi/functions.py', 'w+') as file:
-        file.write(BASE)
+    template_path = os.path.join(os.path.dirname(__file__), 'templates/functions.py')
+    with open(template_path) as f:
+        base = f.read()
+
+    functions_path = os.path.join(os.path.dirname(__file__), '../functions.py')
+    init_path = os.path.join(os.path.dirname(__file__), '../__init__.py')
+
+    with open(functions_path, 'w+') as file:
+        file.write(base)
         for match in matches:
             named = match.groupdict()
             function = named['function']
             inner_return_type = named['returnType']
+            if function in skipped_functions:
+                continue
             return_type = get_return_type(inner_return_type)
             inner_params = named['params']
             params = get_params(function, inner_params)
@@ -285,14 +249,47 @@ def main():
             file.write(function_string)
             file.write('\n\n\n')
 
-    with open('pymeos_cffi/functions.py', 'r') as funcs, open('pymeos_cffi/__init__.py', 'w+') as init:
+    functions = []
+    with open(functions_path, 'r') as funcs, open(init_path, 'w+') as init:
         content = funcs.read()
-        f_names = re.finditer(r'def (\w+)\(', content)
+        matches = list(re.finditer(r'def (\w+)\(', content))
         init.write('from .functions import *\n\n')
-        init.write('__all__ = [\n')
-        for fn in f_names:
-            init.write(f"    '{fn.group(1)}',\n")
+        init.write('from .errors import *\n\n')
+        init.write('__all__ = [\n'
+                   "    # Exceptions \n"
+                   "    'MeosException',\n"
+                   "    'MeosInternalError',\n"
+                   "    'MeosArgumentError',\n"
+                   "    'MeosIoError',\n"
+                   "    'MeosInternalTypeError',\n"
+                   "    'MeosValueOutOfRangeError',\n"
+                   "    'MeosDivisionByZeroError',\n"
+                   "    'MeosMemoryAllocError',\n"
+                   "    'MeosAggregationError',\n"
+                   "    'MeosDirectoryError',\n"
+                   "    'MeosFileError',\n"
+                   "    'MeosInvalidArgError',\n"
+                   "    'MeosInvalidArgTypeError',\n"
+                   "    'MeosInvalidArgValueError',\n"
+                   "    'MeosMfJsonInputError',\n"
+                   "    'MeosMfJsonOutputError',\n"
+                   "    'MeosTextInputError',\n"
+                   "    'MeosTextOutputError',\n"
+                   "    'MeosWkbInputError',\n"
+                   "    'MeosWkbOutputError',\n"
+                   "    'MeosGeoJsonInputError',\n"
+                   "    'MeosGeoJsonOutputError',\n"
+                   "    # Functions\n"
+                   )
+        for fn in matches:
+            function_name = fn.group(1)
+            if function_name in hidden_functions:
+                continue
+            init.write(f"    '{function_name}',\n")
+            functions.append(function_name)
         init.write(']\n')
+
+    check_modifiers(functions)
 
 
 def get_params(function: str, inner_params: str) -> List[Parameter]:
@@ -308,11 +305,10 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     param_type = ' '.join(split[:-1])
 
     # Check if parameter is pointer and fix type and name accordingly
-    if split[-1].startswith('**'):
-        param_type += ' **'
-    elif split[-1].startswith('*'):
-        param_type += ' *'
     param_name = split[-1].lstrip('*')
+    pointer_level = len(split[-1]) - len(param_name)
+    if pointer_level > 0:
+        param_type += ' ' + '*' * pointer_level
 
     # Check if the parameter name is a reserved word and change it if necessary
     reserved_words = {
@@ -425,12 +421,13 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         if result_param.is_interoperable():
             returning_object += '[0]'
 
-        # If original C function returned bool, use it to return it when result is True, or raise exception when False
+        # If original C function returned bool, use it to return it when result is True, or return None otherwise.
         if return_type.return_type == 'bool':
-            result_manipulation = (result_manipulation or '') + "    if result:\n" \
-                                                                f"        return {returning_object} if " \
-                                                                f"{returning_object} != _ffi.NULL else None\n" \
-                                                                "    raise Exception(f'C call went wrong: {result}')"
+
+            result_manipulation = (result_manipulation or '') + \
+                                  "    if result:\n" \
+                                  f"        return {returning_object} if {returning_object} != _ffi.NULL else None\n" \
+                                  "    return None"
         # Otherwise, just return it normally
         else:
             result_manipulation = (result_manipulation or '') + f'    return {returning_object} if {returning_object}' \
@@ -475,6 +472,9 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
         function_string = f'{base}' \
                           f'    result = _lib.{function_name}({inner_params})'
 
+    # Add error handling
+    function_string += f'\n    _check_error()'
+
     # Add whatever manipulation the result needs (maybe empty)
     if result_manipulation is not None:
         function_string += f'\n{result_manipulation}'
@@ -487,4 +487,4 @@ def build_function_string(function_name: str, return_type: ReturnType, parameter
 
 
 if __name__ == '__main__':
-    main()
+    main(*sys.argv[1:])

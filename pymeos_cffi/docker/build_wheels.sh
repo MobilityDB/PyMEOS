@@ -2,6 +2,7 @@
 set -e -u
 #
 # Command: docker run --rm -ti -v <path-to-pymeos-project>:/PyMEOS -v <path-to-store-wheels>:/wheelhouse pymeos/builder
+# Example: docker run --rm -ti -v /home/diviloper/MobilityDB/PyMEOS:/PyMEOS -v /home/diviloper/MobilityDB/PyMEOS/pymeos_cffi/dist:/wheelhouse pymeos/builder
 #
 function repair_wheel {
   wheel="$1"
@@ -12,7 +13,7 @@ function repair_wheel {
   fi
 }
 
-for PYBIN in /opt/python/*/bin; do
+for PYBIN in /opt/python/cp*/bin; do
   echo "================START $PYBIN================"
   echo "================COMPILE================"
   "${PYBIN}/pip" install -r /PyMEOS/pymeos_cffi/dev-requirements.txt
@@ -24,7 +25,7 @@ for PYBIN in /opt/python/*/bin; do
     rm "$whl"
   done
   echo "==============TEST=============="
-  "${PYBIN}/pip" install pymeos_cffi -f /wheelhouse
-  "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finish; meos_initialize('UTC'); meos_finish()"
+  "${PYBIN}/pip" install pymeos_cffi --pre -f /wheelhouse
+  "${PYBIN}/python" -c "from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()"
   echo "==============FINISH $PYBIN========="
 done

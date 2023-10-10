@@ -9,11 +9,10 @@ python-dateutil = "*"
 parsec = "*"
 spans = "*"
 postgis = "*"
-shapely = "*"
+shapely = "<2.0.0"
 
 [dev-packages]
 psycopg2 = "*"
 tqdm = "*"
-
-[requires]
-python_version = "3.8"
+sphinx = "*"
+pytest = "*"

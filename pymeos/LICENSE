@@ -3,7 +3,7 @@ PostgreSQL License
 -------------------------------------------------------------------------------
 This PyMEOS code is provided under The PostgreSQL License.
 
-Copyright (c) 2020, Université libre de Bruxelles and MobilityDB contributors
+Copyright (c) 2020, Université libre de Bruxelles and PyMEOS contributors
 
 Permission to use, copy, modify, and distribute this software and its documentation for any purpose, without fee, and without a written agreement is hereby
 granted, provided that the above copyright notice and this paragraph and the following two paragraphs appear in all copies.

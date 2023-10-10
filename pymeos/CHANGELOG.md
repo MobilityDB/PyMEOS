@@ -1,11 +1,23 @@
-## 1.1.2
-
-- Add support for `asyncpg`.
+## 1.2.0
 
 ### Breaking changes
 
-- `MobilityDB` using `psycopg2` has been moved from `pymeos.db` to `pymeos.db.psycopg` due to the addition of `asyncpg`
-  support.
+- All `@property` decorators have been removed to reflect that the elements return are computed.
+  They may be added again in the future, probably with some caching mechanism.
+- `Period` method `distance` now returns a `datetime.timedelta` with the distance instead
+  of returning the number of seconds.
+- `BaseGranularityAggregator` renamed to `BaseGranularAggregator` and no longer subclass of `BaseAggregator`
+- Time aggregators renamed to `TimeInstantaneousUnionAggregator` and `TimeContinuousUnionAggregator`
+
+## 1.1.2
+
+- Add support for `asyncpg`.
+- Add support for `psycopg` (psycopg v3).
+
+### Breaking changes
+
+- `MobilityDB` using `psycopg2` has been moved from `pymeos.db` to `pymeos.db.psycopg2` due to the addition of `asyncpg` 
+   and `psycopg` support.
 
 ## 1.1.1
 
