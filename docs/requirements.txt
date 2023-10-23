@@ -9,4 +9,4 @@ geopandas
 sphinx
 sphinx-book-theme
 myst_nb
-sphinx_collections @ https://github.com/Diviloper/sphinx-collections/releases/download/symlink_patch/sphinxcontrib_collections-0.0.2-py3-none-any.whl
+sphinxcontrib_collections @ https://github.com/Diviloper/sphinx-collections/releases/download/symlink_patch/sphinxcontrib_collections-0.0.2-py3-none-any.whl
