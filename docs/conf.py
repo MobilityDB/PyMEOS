@@ -32,7 +32,7 @@ nb_execution_mode = "off"
 collections = {
     'notebooks': {
         'driver': 'symlink',
-        'source': '../pymeos_examples/PyMEOS Examples/',
+        'source': '../pymeos_examples/PyMEOS_Examples/',
     }
 }
 
