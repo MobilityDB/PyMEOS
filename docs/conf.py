@@ -24,17 +24,9 @@ extensions = [
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'myst_nb',
-    'sphinxcontrib.collections',
 ]
 
 nb_execution_mode = "off"
-
-collections = {
-    'notebooks': {
-        'driver': 'copy_folder',
-        'source': '../pymeos_examples/PyMEOS_Examples/',
-    }
-}
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_build', '**.ipynb_checkpoints']

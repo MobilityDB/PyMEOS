@@ -9,5 +9,5 @@ Section under construction. However, you can check the existing examples availab
    :maxdepth: 1
    :caption: Examples:
 
-   /_collections/notebooks/AIS.ipynb
-   /_collections/notebooks/BerlinMOD.ipynb
+   examples/AIS.ipynb
+   examples/BerlinMOD.ipynb
