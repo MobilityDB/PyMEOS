@@ -16,7 +16,6 @@ release = '1.1.3b1'
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../pymeos_examples'))
 sys.path.insert(0, os.path.abspath('../pymeos_cffi'))
 sys.path.insert(0, os.path.abspath('../pymeos'))
 
@@ -31,10 +30,11 @@ extensions = [
 nb_execution_mode = "off"
 
 collections = {
-  'notebooks': {
-     'driver': 'symlink',
-     'source': '../pymeos_examples/PyMEOS Examples/'
-  }
+    'notebooks': {
+        'driver': 'symlink',
+        'source': '../pymeos_examples/PyMEOS Examples/',
+        'clean': False,
+    }
 }
 
 templates_path = ['_templates']
