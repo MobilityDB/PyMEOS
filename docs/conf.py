@@ -31,7 +31,7 @@ nb_execution_mode = "off"
 
 collections = {
     'notebooks': {
-        'driver': 'symlink',
+        'driver': 'copy_folder',
         'source': '../pymeos_examples/PyMEOS_Examples/',
     }
 }
