@@ -33,7 +33,6 @@ collections = {
     'notebooks': {
         'driver': 'symlink',
         'source': '../pymeos_examples/PyMEOS Examples/',
-        'clean': False,
     }
 }
 
