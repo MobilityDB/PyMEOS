@@ -8,3 +8,5 @@ matplotlib
 geopandas
 sphinx
 sphinx-book-theme
+myst_nb
+sphinx_collections
