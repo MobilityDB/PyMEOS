@@ -717,8 +717,7 @@ class TInt(TNumber[int, 'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet'], ABC):
         Returns the nearest approach distance between `self` and `other`.
 
         Args:
-            other: A :class:`int`, :class:`float`, :class:`TNumber` or 
-            :class:`TBox` to compare to `self`.
+            other: A :class:`int`, :class:`float`, :class:`TNumber` or :class:`TBox` to compare to `self`.
 
         Returns:
             A :class:`float` with the nearest approach distance between `self`

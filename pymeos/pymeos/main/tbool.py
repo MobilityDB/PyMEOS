@@ -264,7 +264,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         Returns a new temporal boolean with the values of `self` restricted to
         the complement of the time or value
-         `other`.
+        `other`.
 
         Args:
             other: Time or value to restrict to the complement of.

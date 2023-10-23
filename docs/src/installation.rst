@@ -17,7 +17,7 @@ time of the PyMEOS release. Install the binary wheel with pip as follows::
     $ pip install pymeos
 
 Installation using conda (incoming, not available yet)
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyMEOS is available on the conda-forge channel. Install as follows::
 
@@ -25,7 +25,7 @@ PyMEOS is available on the conda-forge channel. Install as follows::
 
 
 Installation from source with custom MEOS library
-------------------------------------------------
+-------------------------------------------------
 
 If you want to use a specific MEOS version or a MEOS distribution that is
 already present on your system, you can compile the PyMEOS packages from source yourself,
@@ -44,7 +44,7 @@ Then, install PyMEOS CFFI from source::
 
 
 Updating the PyMEOS CFFI wrapper for custom MEOS library
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If your MEOS library API doesn't match the one used by the PyMEOS CFFI wrapper, it will crash. You can fix this
 by updating the header file used by PyMEOS CFFI to match your MEOS version. To do so, you will need to recompile it
