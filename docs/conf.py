@@ -16,6 +16,7 @@ release = '1.1.3b1'
 import os
 import sys
 
+sys.path.insert(0, os.path.abspath('../pymeos_examples'))
 sys.path.insert(0, os.path.abspath('../pymeos_cffi'))
 sys.path.insert(0, os.path.abspath('../pymeos'))
 
@@ -23,10 +24,21 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'myst_nb',
+    'sphinxcontrib.collections',
 ]
 
+nb_execution_mode = "off"
+
+collections = {
+  'notebooks': {
+     'driver': 'symlink',
+     'source': '../pymeos_examples/PyMEOS Examples/'
+  }
+}
+
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_build', '**.ipynb_checkpoints']
 autodoc_member_order = 'bysource'
 
 # -- Intersphinx config --------
