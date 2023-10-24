@@ -3,7 +3,6 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Optional, List, Union, TYPE_CHECKING, Set, Generic, TypeVar, Type
 
-from pandas import DataFrame
 from pymeos_cffi import *
 
 from .interpolation import TInterpolation
@@ -14,6 +13,18 @@ if TYPE_CHECKING:
     from .tsequence import TSequence
     from ..main import TBool
     from ..boxes import Box
+    import pandas as pd
+
+
+def import_pandas():
+    try:
+        import pandas as pd
+        return pd
+    except ImportError:
+        print('Pandas not found. Please install Pandas to use this function.')
+        raise
+
+
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
 TI = TypeVar('TI', bound='TInstant[Any]')
@@ -630,16 +641,17 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
-    def to_dataframe(self) -> DataFrame:
+    def to_dataframe(self) -> pd.DataFrame:
         """
         Returns `self` as a :class:`pd.DataFrame` with two columns: `time`
             and `value`.
         """
+        pd = import_pandas()
         data = {
             'time': self.timestamps(),
             'value': self.values()
         }
-        return DataFrame(data).set_index(keys='time')
+        return pd.DataFrame(data).set_index(keys='time')
 
     # ------------------------- Modifications ---------------------------------
     def append_instant(self, instant: TInstant[TBase], max_dist: Optional[float] = 0.0,
