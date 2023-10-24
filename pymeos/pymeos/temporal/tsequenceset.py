@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, Any, TypeVar, Type
+from typing import Optional, List, Union, Any, TypeVar, Type, TYPE_CHECKING
 
-from pandas import DataFrame
 from pymeos_cffi import *
 
-from ..temporal.temporal import Temporal
+from .temporal import Temporal, import_pandas
+
+if TYPE_CHECKING:
+    import pandas as pd
+
 
 TBase = TypeVar('TBase')
 TG = TypeVar('TG', bound='Temporal[Any]')
@@ -87,10 +90,11 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         return [self.ComponentClass(_inner=ss[i]) for i in range(count)]
 
     # ------------------------- Transformations -------------------------------
-    def to_dataframe(self) -> DataFrame:
+    def to_dataframe(self) -> pd.DataFrame:
         """
         Returns a pandas DataFrame representation of ``self``.
         """
+        pd = import_pandas()
         sequences = self.sequences()
         data = {
             'sequence': [i for i, seq in enumerate(sequences) \
@@ -98,7 +102,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
             'time': [t for seq in sequences for t in seq.timestamps()],
             'value': [v for seq in sequences for v in seq.values()]
         }
-        return DataFrame(data).set_index(keys=['sequence', 'time'])
+        return pd.DataFrame(data).set_index(keys=['sequence', 'time'])
 
     # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
