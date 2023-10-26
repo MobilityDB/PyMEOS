@@ -314,6 +314,7 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     reserved_words = {
         'str': 'string',
         'is': 'iset',
+        'from': 'from_'
     }
     if param_name in reserved_words:
         param_name = reserved_words[param_name]
