@@ -8324,3 +8324,4093 @@ def tpoint_space_time_split(temp: 'Temporal *', xsize: 'float', ysize: 'float', 
     return result if result != _ffi.NULL else None, space_buckets[0], time_buckets[0], count[0]
 
 
+def meostype_name(temptype: 'meosType') -> str:
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.meostype_name(temptype_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def temptype_basetype(temptype: 'meosType') -> 'meosType':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.temptype_basetype(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def settype_basetype(settype: 'meosType') -> 'meosType':
+    settype_converted = _ffi.cast('meosType', settype)
+    result = _lib.settype_basetype(settype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spantype_basetype(spantype: 'meosType') -> 'meosType':
+    spantype_converted = _ffi.cast('meosType', spantype)
+    result = _lib.spantype_basetype(spantype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spantype_spansettype(spantype: 'meosType') -> 'meosType':
+    spantype_converted = _ffi.cast('meosType', spantype)
+    result = _lib.spantype_spansettype(spantype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spansettype_spantype(spansettype: 'meosType') -> 'meosType':
+    spansettype_converted = _ffi.cast('meosType', spansettype)
+    result = _lib.spansettype_spantype(spansettype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def basetype_spantype(basetype: 'meosType') -> 'meosType':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.basetype_spantype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def basetype_settype(basetype: 'meosType') -> 'meosType':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.basetype_settype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def meostype_internal(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.meostype_internal(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def meos_basetype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.meos_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def alpha_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.alpha_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def number_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.number_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def alphanum_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.alphanum_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geo_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.geo_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spatial_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.spatial_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def time_type(timetype: 'meosType') -> 'bool':
+    timetype_converted = _ffi.cast('meosType', timetype)
+    result = _lib.time_type(timetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.set_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.set_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.numset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_numset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_numset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timeset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.timeset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_spantype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.set_spantype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_set_spantype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_set_spantype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def alphanumset_type(settype: 'meosType') -> 'bool':
+    settype_converted = _ffi.cast('meosType', settype)
+    result = _lib.alphanumset_type(settype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geoset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.geoset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_geoset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_geoset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spatialset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.spatialset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_spatialset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_spatialset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_basetype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.span_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_canon_basetype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.span_canon_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.span_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_bbox_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.span_bbox_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numspan_basetype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.numspan_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numspan_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.numspan_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_numspan_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_numspan_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timespan_basetype(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.timespan_basetype(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timespan_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.timespan_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.spanset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numspanset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.numspanset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def timespanset_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.timespanset_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.temporal_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.temporal_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temptype_continuous(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.temptype_continuous(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def basetype_byvalue(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.basetype_byvalue(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def basetype_varlength(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.basetype_varlength(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def basetype_length(basetype: 'meosType') -> 'int16':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.basetype_length(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def talphanum_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.talphanum_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def talpha_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.talpha_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.tnumber_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_tnumber_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.ensure_tnumber_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.tnumber_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_settype(settype: 'meosType') -> 'bool':
+    settype_converted = _ffi.cast('meosType', settype)
+    result = _lib.tnumber_settype(settype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_spantype(settype: 'meosType') -> 'bool':
+    settype_converted = _ffi.cast('meosType', settype)
+    result = _lib.tnumber_spantype(settype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_spansettype(spansettype: 'meosType') -> 'bool':
+    spansettype_converted = _ffi.cast('meosType', spansettype)
+    result = _lib.tnumber_spansettype(spansettype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tspatial_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.tspatial_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_tspatial_type(temptype: 'meosType') -> 'bool':
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.ensure_tspatial_type(temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tspatial_basetype(basetype: 'meosType') -> 'bool':
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.tspatial_basetype(basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeo_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.tgeo_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_tgeo_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_tgeo_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ensure_tnumber_tgeo_type(type: 'meosType') -> 'bool':
+    type_converted = _ffi.cast('meosType', type)
+    result = _lib.ensure_tnumber_tgeo_type(type_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datum_hash(d: 'Datum', basetype: 'meosType') -> 'uint32':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.datum_hash(d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datum_hash_extended(d: 'Datum', basetype: 'meosType', seed: int) -> 'uint64':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    seed_converted = _ffi.cast('uint64', seed)
+    result = _lib.datum_hash_extended(d_converted, basetype_converted, seed_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_in(string: str, basetype: 'meosType') -> 'Set *':
+    string_converted = string.encode('utf-8')
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.set_in(string_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_out(s: 'const Set *', maxdd: int) -> str:
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_out(s_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def span_in(string: str, spantype: 'meosType') -> 'Span *':
+    string_converted = string.encode('utf-8')
+    spantype_converted = _ffi.cast('meosType', spantype)
+    result = _lib.span_in(string_converted, spantype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_out(s: 'const Span *', maxdd: int) -> str:
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.span_out(s_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def spanset_in(string: str, spantype: 'meosType') -> 'SpanSet *':
+    string_converted = string.encode('utf-8')
+    spantype_converted = _ffi.cast('meosType', spantype)
+    result = _lib.spanset_in(string_converted, spantype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_out(ss: 'const SpanSet *', maxdd: int) -> str:
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.spanset_out(ss_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def set_compact(s: 'const Set *') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_compact(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_make(values: 'const Datum *', count: int, basetype: 'meosType', ordered: bool) -> 'Set *':
+    values_converted = _ffi.cast('const Datum *', values)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.set_make(values_converted, count, basetype_converted, ordered)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_make_exp(values: 'const Datum *', count: int, maxcount: int, basetype: 'meosType', ordered: bool) -> 'Set *':
+    values_converted = _ffi.cast('const Datum *', values)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.set_make_exp(values_converted, count, maxcount, basetype_converted, ordered)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_make_free(values: 'Datum *', count: int, basetype: 'meosType', ordered: bool) -> 'Set *':
+    values_converted = _ffi.cast('Datum *', values)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.set_make_free(values_converted, count, basetype_converted, ordered)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_out(s: 'const Set *', maxdd: int) -> str:
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_out(s_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def span_make(lower: 'Datum', upper: 'Datum', lower_inc: bool, upper_inc: bool, basetype: 'meosType') -> 'Span *':
+    lower_converted = _ffi.cast('Datum', lower)
+    upper_converted = _ffi.cast('Datum', upper)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.span_make(lower_converted, upper_converted, lower_inc, upper_inc, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_out(s: 'const Span *', maxdd: int) -> str:
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.span_out(s_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def span_set(lower: 'Datum', upper: 'Datum', lower_inc: bool, upper_inc: bool, basetype: 'meosType', s: 'Span *') -> None:
+    lower_converted = _ffi.cast('Datum', lower)
+    upper_converted = _ffi.cast('Datum', upper)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('Span *', s)
+    _lib.span_set(lower_converted, upper_converted, lower_inc, upper_inc, basetype_converted, s_converted)
+    _check_error()
+
+
+def spanset_compact(ss: 'SpanSet *') -> 'SpanSet *':
+    ss_converted = _ffi.cast('SpanSet *', ss)
+    result = _lib.spanset_compact(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_make_exp(spans: 'Span *', count: int, maxcount: int, normalize: bool, ordered: bool) -> 'SpanSet *':
+    spans_converted = _ffi.cast('Span *', spans)
+    result = _lib.spanset_make_exp(spans_converted, count, maxcount, normalize, ordered)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_make_free(spans: 'Span *', count: int, normalize: bool) -> 'SpanSet *':
+    spans_converted = _ffi.cast('Span *', spans)
+    result = _lib.spanset_make_free(spans_converted, count, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_out(ss: 'const SpanSet *', maxdd: int) -> str:
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.spanset_out(ss_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def value_to_set(d: 'Datum', basetype: 'meosType') -> 'Set *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.value_to_set(d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def value_to_span(d: 'Datum', basetype: 'meosType') -> 'Span *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.value_to_span(d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def value_to_spanset(d: 'Datum', basetype: 'meosType') -> 'SpanSet *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.value_to_spanset(d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_end_value(s: 'const Set *') -> 'Datum':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_end_value(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_mem_size(s: 'const Set *') -> 'int':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_mem_size(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_set_span(os: 'const Set *', s: 'Span *') -> None:
+    os_converted = _ffi.cast('const Set *', os)
+    s_converted = _ffi.cast('Span *', s)
+    _lib.set_set_span(os_converted, s_converted)
+    _check_error()
+
+
+def set_start_value(s: 'const Set *') -> 'Datum':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_start_value(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_value_n(s: 'const Set *', n: int) -> 'Datum *':
+    s_converted = _ffi.cast('const Set *', s)
+    out_result = _ffi.new('Datum *')
+    result = _lib.set_value_n(s_converted, n, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def set_values(s: 'const Set *') -> 'Datum *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_values(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_mem_size(ss: 'const SpanSet *') -> 'int':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.spanset_mem_size(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spatialset_set_stbox(set: 'const Set *', box: 'STBox *') -> None:
+    set_converted = _ffi.cast('const Set *', set)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.spatialset_set_stbox(set_converted, box_converted)
+    _check_error()
+
+
+def value_set_span(d: 'Datum', basetype: 'meosType', s: 'Span *') -> None:
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('Span *', s)
+    _lib.value_set_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+
+
+def floatspan_round_int(span: 'const Span *', size: 'Datum') -> 'Span *':
+    span_converted = _ffi.cast('const Span *', span)
+    size_converted = _ffi.cast('Datum', size)
+    out_result = _ffi.new('Span *')
+    _lib.floatspan_round_int(span_converted, size_converted, out_result)
+    _check_error()
+    return out_result if out_result!= _ffi.NULL else None
+
+
+
+def floatspan_set_intspan(s1: 'const Span *', s2: 'Span *') -> None:
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('Span *', s2)
+    _lib.floatspan_set_intspan(s1_converted, s2_converted)
+    _check_error()
+
+
+def floatspan_set_numspan(s1: 'const Span *', s2: 'Span *', basetype: 'meosType') -> None:
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('Span *', s2)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    _lib.floatspan_set_numspan(s1_converted, s2_converted, basetype_converted)
+    _check_error()
+
+
+def intspan_set_floatspan(s1: 'const Span *', s2: 'Span *') -> None:
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('Span *', s2)
+    _lib.intspan_set_floatspan(s1_converted, s2_converted)
+    _check_error()
+
+
+def numset_shift_scale(s: 'const Set *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.numset_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numspan_set_floatspan(s1: 'const Span *', s2: 'Span *') -> None:
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('Span *', s2)
+    _lib.numspan_set_floatspan(s1_converted, s2_converted)
+    _check_error()
+
+
+def numspan_shift_scale(s: 'const Span *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'Span *':
+    s_converted = _ffi.cast('const Span *', s)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.numspan_shift_scale(s_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def numspanset_shift_scale(ss: 'const SpanSet *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.numspanset_shift_scale(ss_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_compact(s: 'const Set *') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.set_compact(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_shift(s: 'const Set *', shift: 'Datum') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    shift_converted = _ffi.cast('Datum', shift)
+    result = _lib.set_shift(s_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_expand(s1: 'const Span *', s2: 'Span *') -> None:
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('Span *', s2)
+    _lib.span_expand(s1_converted, s2_converted)
+    _check_error()
+
+
+def span_shift(s: 'Span *', value: 'Datum') -> None:
+    s_converted = _ffi.cast('Span *', s)
+    value_converted = _ffi.cast('Datum', value)
+    _lib.span_shift(s_converted, value_converted)
+    _check_error()
+
+
+def spanset_shift(s: 'SpanSet *', value: 'Datum') -> None:
+    s_converted = _ffi.cast('SpanSet *', s)
+    value_converted = _ffi.cast('Datum', value)
+    _lib.spanset_shift(s_converted, value_converted)
+    _check_error()
+
+
+def spanbase_extent_transfn(s: 'Span *', d: 'Datum', basetype: 'meosType') -> 'Span *':
+    s_converted = _ffi.cast('Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.spanbase_extent_transfn(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def value_union_transfn(state: 'Set *', d: 'Datum', basetype: 'meosType') -> 'Set *':
+    state_converted = _ffi.cast('Set *', state)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.value_union_transfn(state_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.adjacent_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.adjacent_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.contains_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.contains_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.contains_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.contains_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.contained_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.contained_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.contained_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.contained_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.overlaps_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overlaps_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overlaps_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overlaps_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.overlaps_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.left_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.left_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.left_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.left_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.left_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.left_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.left_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.right_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.right_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.right_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.right_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.right_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.right_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.right_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.overleft_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overleft_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.overleft_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.overleft_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overleft_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overleft_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overleft_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.overright_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overright_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_set_set(s1: 'const Set *', s2: 'const Set *') -> 'bool':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.overright_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    result = _lib.overright_value_span(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'bool':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.overright_value_spanset(d_converted, basetype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overright_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'bool':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.overright_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def inter_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('const Span *', s2)
+    out_result = _ffi.new('Span *')
+    result = _lib.inter_span_span(s1_converted, s2_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def intersection_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'Datum *':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    out_result = _ffi.new('Datum *')
+    result = _lib.intersection_set_value(s_converted, d_converted, basetype_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def intersection_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'Datum *':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    out_result = _ffi.new('Datum *')
+    result = _lib.intersection_span_value(s_converted, d_converted, basetype_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def intersection_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'Datum *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    out_result = _ffi.new('Datum *')
+    result = _lib.intersection_spanset_value(ss_converted, d_converted, basetype_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def minus_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.minus_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def minus_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'SpanSet *':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.minus_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def minus_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.minus_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def minus_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'Datum *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    out_result = _ffi.new('Datum *')
+    result = _lib.minus_value_set(d_converted, basetype_converted, s_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def minus_value_span(d: 'Datum', basetype: 'meosType', s: 'const Span *') -> 'Datum *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Span *', s)
+    out_result = _ffi.new('Datum *')
+    result = _lib.minus_value_span(d_converted, basetype_converted, s_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def minus_value_spanset(d: 'Datum', basetype: 'meosType', ss: 'const SpanSet *') -> 'Datum *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    out_result = _ffi.new('Datum *')
+    result = _lib.minus_value_spanset(d_converted, basetype_converted, ss_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def union_set_value(s: 'const Set *', d: 'const Datum', basetype: 'meosType') -> 'Set *':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('const Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.union_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def union_span_value(s: 'const Span *', v: 'Datum', basetype: 'meosType') -> 'SpanSet *':
+    s_converted = _ffi.cast('const Span *', s)
+    v_converted = _ffi.cast('Datum', v)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.union_span_value(s_converted, v_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def union_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'SpanSet *':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.union_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_value_value(l: 'Datum', r: 'Datum', basetype: 'meosType') -> 'double':
+    l_converted = _ffi.cast('Datum', l)
+    r_converted = _ffi.cast('Datum', r)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.distance_value_value(l_converted, r_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_span_value(s: 'const Span *', d: 'Datum', basetype: 'meosType') -> 'double':
+    s_converted = _ffi.cast('const Span *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.distance_span_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_spanset_value(ss: 'const SpanSet *', d: 'Datum', basetype: 'meosType') -> 'double':
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.distance_spanset_value(ss_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_value_set(d: 'Datum', basetype: 'meosType', s: 'const Set *') -> 'double':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    s_converted = _ffi.cast('const Set *', s)
+    result = _lib.distance_value_set(d_converted, basetype_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_set_value(s: 'const Set *', d: 'Datum', basetype: 'meosType') -> 'double':
+    s_converted = _ffi.cast('const Set *', s)
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.distance_set_value(s_converted, d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_set_set(s1: 'const Set *', s2: 'const Set *') -> 'double':
+    s1_converted = _ffi.cast('const Set *', s1)
+    s2_converted = _ffi.cast('const Set *', s2)
+    result = _lib.distance_set_set(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datum_hash(d: 'Datum', basetype: 'meosType') -> 'uint32':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.datum_hash(d_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datum_hash_extended(d: 'Datum', basetype: 'meosType', seed: int) -> 'uint64':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    seed_converted = _ffi.cast('uint64', seed)
+    result = _lib.datum_hash_extended(d_converted, basetype_converted, seed_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def number_period_to_tbox(d: 'Datum', basetype: 'meosType', p: 'const Span *') -> 'TBox *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.number_period_to_tbox(d_converted, basetype_converted, p_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def number_timestamp_to_tbox(d: 'Datum', basetype: 'meosType', t: int) -> 'TBox *':
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.number_timestamp_to_tbox(d_converted, basetype_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_set(hasx: bool, hasz: bool, geodetic: bool, srid: int, xmin: float, xmax: float, ymin: float, ymax: float, zmin: float, zmax: float, p: 'const Span *', box: 'STBox *') -> None:
+    srid_converted = _ffi.cast('int32', srid)
+    p_converted = _ffi.cast('const Span *', p)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.stbox_set(hasx, hasz, geodetic, srid_converted, xmin, xmax, ymin, ymax, zmin, zmax, p_converted, box_converted)
+    _check_error()
+
+
+def tbox_set(s: 'const Span *', p: 'const Span *', box: 'TBox *') -> None:
+    s_converted = _ffi.cast('const Span *', s)
+    p_converted = _ffi.cast('const Span *', p)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.tbox_set(s_converted, p_converted, box_converted)
+    _check_error()
+
+
+def float_set_tbox(d: float, box: 'TBox *') -> None:
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.float_set_tbox(d, box_converted)
+    _check_error()
+
+
+def geo_set_stbox(gs: 'const GSERIALIZED *', box: 'STBox *') -> 'bool':
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    box_converted = _ffi.cast('STBox *', box)
+    result = _lib.geo_set_stbox(gs_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geoarr_set_stbox(values: 'const Datum *', count: int, box: 'STBox *') -> None:
+    values_converted = _ffi.cast('const Datum *', values)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.geoarr_set_stbox(values_converted, count, box_converted)
+    _check_error()
+
+
+def int_set_tbox(i: int, box: 'TBox *') -> None:
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.int_set_tbox(i, box_converted)
+    _check_error()
+
+
+def number_set_tbox(d: 'Datum', basetype: 'meosType', box: 'TBox *') -> None:
+    d_converted = _ffi.cast('Datum', d)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.number_set_tbox(d_converted, basetype_converted, box_converted)
+    _check_error()
+
+
+def numset_set_tbox(s: 'const Set *', box: 'TBox *') -> None:
+    s_converted = _ffi.cast('const Set *', s)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.numset_set_tbox(s_converted, box_converted)
+    _check_error()
+
+
+def numspan_set_tbox(span: 'const Span *', box: 'TBox *') -> None:
+    span_converted = _ffi.cast('const Span *', span)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.numspan_set_tbox(span_converted, box_converted)
+    _check_error()
+
+
+def numspanset_set_tbox(ss: 'const SpanSet *', box: 'TBox *') -> None:
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.numspanset_set_tbox(ss_converted, box_converted)
+    _check_error()
+
+
+def period_set_stbox(p: 'const Span *', box: 'STBox *') -> None:
+    p_converted = _ffi.cast('const Span *', p)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.period_set_stbox(p_converted, box_converted)
+    _check_error()
+
+
+def period_set_tbox(p: 'const Span *', box: 'TBox *') -> None:
+    p_converted = _ffi.cast('const Span *', p)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.period_set_tbox(p_converted, box_converted)
+    _check_error()
+
+
+def periodset_set_stbox(ps: 'const SpanSet *', box: 'STBox *') -> None:
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.periodset_set_stbox(ps_converted, box_converted)
+    _check_error()
+
+
+def periodset_set_tbox(ps: 'const SpanSet *', box: 'TBox *') -> None:
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.periodset_set_tbox(ps_converted, box_converted)
+    _check_error()
+
+
+def stbox_set_box3d(box: 'const STBox *', box3d: 'BOX3D *') -> None:
+    box_converted = _ffi.cast('const STBox *', box)
+    box3d_converted = _ffi.cast('BOX3D *', box3d)
+    _lib.stbox_set_box3d(box_converted, box3d_converted)
+    _check_error()
+
+
+def stbox_set_gbox(box: 'const STBox *', gbox: 'GBOX *') -> None:
+    box_converted = _ffi.cast('const STBox *', box)
+    gbox_converted = _ffi.cast('GBOX *', gbox)
+    _lib.stbox_set_gbox(box_converted, gbox_converted)
+    _check_error()
+
+
+def timestamp_set_stbox(t: int, box: 'STBox *') -> None:
+    t_converted = _ffi.cast('TimestampTz', t)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.timestamp_set_stbox(t_converted, box_converted)
+    _check_error()
+
+
+def timestamp_set_tbox(t: int, box: 'TBox *') -> None:
+    t_converted = _ffi.cast('TimestampTz', t)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.timestamp_set_tbox(t_converted, box_converted)
+    _check_error()
+
+
+def timestampset_set_stbox(ts: 'const Set *', box: 'STBox *') -> None:
+    ts_converted = _ffi.cast('const Set *', ts)
+    box_converted = _ffi.cast('STBox *', box)
+    _lib.timestampset_set_stbox(ts_converted, box_converted)
+    _check_error()
+
+
+def timestampset_set_tbox(ts: 'const Set *', box: 'TBox *') -> None:
+    ts_converted = _ffi.cast('const Set *', ts)
+    box_converted = _ffi.cast('TBox *', box)
+    _lib.timestampset_set_tbox(ts_converted, box_converted)
+    _check_error()
+
+
+def tbox_shift_scale_value(box: 'const TBox *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'TBox *':
+    box_converted = _ffi.cast('const TBox *', box)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.tbox_shift_scale_value(box_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_expand(box1: 'const STBox *', box2: 'STBox *') -> None:
+    box1_converted = _ffi.cast('const STBox *', box1)
+    box2_converted = _ffi.cast('STBox *', box2)
+    _lib.stbox_expand(box1_converted, box2_converted)
+    _check_error()
+
+
+def tbox_expand(box1: 'const TBox *', box2: 'TBox *') -> None:
+    box1_converted = _ffi.cast('const TBox *', box1)
+    box2_converted = _ffi.cast('TBox *', box2)
+    _lib.tbox_expand(box1_converted, box2_converted)
+    _check_error()
+
+
+def bbox_union_span_span(s1: 'const Span *', s2: 'const Span *') -> 'Span *':
+    s1_converted = _ffi.cast('const Span *', s1)
+    s2_converted = _ffi.cast('const Span *', s2)
+    out_result = _ffi.new('Span *')
+    _lib.bbox_union_span_span(s1_converted, s2_converted, out_result)
+    _check_error()
+    return out_result if out_result!= _ffi.NULL else None
+
+
+
+def inter_stbox_stbox(box1: 'const STBox *', box2: 'const STBox *') -> 'STBox *':
+    box1_converted = _ffi.cast('const STBox *', box1)
+    box2_converted = _ffi.cast('const STBox *', box2)
+    out_result = _ffi.new('STBox *')
+    result = _lib.inter_stbox_stbox(box1_converted, box2_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def inter_tbox_tbox(box1: 'const TBox *', box2: 'const TBox *') -> 'TBox *':
+    box1_converted = _ffi.cast('const TBox *', box1)
+    box2_converted = _ffi.cast('const TBox *', box2)
+    out_result = _ffi.new('TBox *')
+    result = _lib.inter_tbox_tbox(box1_converted, box2_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def geoarr_as_text(geoarr: 'const Datum *', count: int, maxdd: int, extended: bool) -> 'char **':
+    geoarr_converted = _ffi.cast('const Datum *', geoarr)
+    result = _lib.geoarr_as_text(geoarr_converted, count, maxdd, extended)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolinst_as_mfjson(inst: 'const TInstant *', with_bbox: bool) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tboolinst_as_mfjson(inst_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tboolinst_from_mfjson(mfjson: 'json_object *') -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tboolinst_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tboolinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolseq_as_mfjson(seq: 'const TSequence *', with_bbox: bool) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tboolseq_as_mfjson(seq_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tboolseq_from_mfjson(mfjson: 'json_object *') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tboolseq_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tboolseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolseqset_as_mfjson(ss: 'const TSequenceSet *', with_bbox: bool) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tboolseqset_as_mfjson(ss_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tboolseqset_from_mfjson(mfjson: 'json_object *') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tboolseqset_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tboolseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tboolseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_in(string: str, temptype: 'meosType') -> 'Temporal *':
+    string_converted = string.encode('utf-8')
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.temporal_in(string_converted, temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_out(temp: 'const Temporal *', maxdd: int) -> str:
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_out(temp_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def temporal_values(temp: 'const Temporal *') -> "Tuple['Datum *', 'int']":
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    count = _ffi.new('int *')
+    result = _lib.temporal_values(temp_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def temporalarr_out(temparr: 'const Temporal **', count: int, maxdd: int) -> 'char **':
+    temparr_converted = [_ffi.cast('const Temporal *', x) for x in temparr]
+    result = _lib.temporalarr_out(temparr_converted, count, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatinst_as_mfjson(inst: 'const TInstant *', with_bbox: bool, precision: int) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tfloatinst_as_mfjson(inst_converted, with_bbox, precision)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tfloatinst_from_mfjson(mfjson: 'json_object *') -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tfloatinst_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tfloatinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseq_as_mfjson(seq: 'const TSequence *', with_bbox: bool, precision: int) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tfloatseq_as_mfjson(seq_converted, with_bbox, precision)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseq_from_mfjson(mfjson: 'json_object *', interp: 'interpType') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tfloatseq_from_mfjson(mfjson_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tfloatseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseqset_as_mfjson(ss: 'const TSequenceSet *', with_bbox: bool, precision: int) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tfloatseqset_as_mfjson(ss_converted, with_bbox, precision)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseqset_from_mfjson(mfjson: 'json_object *', interp: 'interpType') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tfloatseqset_from_mfjson(mfjson_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tfloatseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointinst_from_mfjson(mfjson: 'json_object *', srid: int) -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tgeogpointinst_from_mfjson(mfjson_converted, srid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tgeogpointinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointseq_from_mfjson(mfjson: 'json_object *', srid: int, interp: 'interpType') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeogpointseq_from_mfjson(mfjson_converted, srid, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeogpointseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointseqset_from_mfjson(mfjson: 'json_object *', srid: int, interp: 'interpType') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeogpointseqset_from_mfjson(mfjson_converted, srid, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpointseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tgeogpointseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointinst_from_mfjson(mfjson: 'json_object *', srid: int) -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tgeompointinst_from_mfjson(mfjson_converted, srid)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tgeompointinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseq_from_mfjson(mfjson: 'json_object *', srid: int, interp: 'interpType') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeompointseq_from_mfjson(mfjson_converted, srid, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeompointseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseqset_from_mfjson(mfjson: 'json_object *', srid: int, interp: 'interpType') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tgeompointseqset_from_mfjson(mfjson_converted, srid, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tgeompointseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_as_mfjson(inst: 'const TInstant *', precision: int, with_bbox: bool, srs: str) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tinstant_as_mfjson(inst_converted, precision, with_bbox, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_from_mfjson(mfjson: 'json_object *', isgeo: bool, srid: int, temptype: 'meosType') -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.tinstant_from_mfjson(mfjson_converted, isgeo, srid, temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_in(string: str, temptype: 'meosType') -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    temptype_converted = _ffi.cast('meosType', temptype)
+    result = _lib.tinstant_in(string_converted, temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_out(inst: 'const TInstant *', maxdd: int) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_out(inst_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tintinst_as_mfjson(inst: 'const TInstant *', with_bbox: bool) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tintinst_as_mfjson(inst_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tintinst_from_mfjson(mfjson: 'json_object *') -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tintinst_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tintinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintseq_as_mfjson(seq: 'const TSequence *', with_bbox: bool) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tintseq_as_mfjson(seq_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tintseq_from_mfjson(mfjson: 'json_object *') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tintseq_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tintseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintseqset_as_mfjson(ss: 'const TSequenceSet *', with_bbox: bool) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tintseqset_as_mfjson(ss_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tintseqset_from_mfjson(mfjson: 'json_object *') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.tintseqset_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tintseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.tintseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointarr_as_text(temparr: 'const Temporal **', count: int, maxdd: int, extended: bool) -> 'char **':
+    temparr_converted = [_ffi.cast('const Temporal *', x) for x in temparr]
+    result = _lib.tpointarr_as_text(temparr_converted, count, maxdd, extended)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_as_mfjson(inst: 'const TInstant *', with_bbox: bool, precision: int, srs: str) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tpointinst_as_mfjson(inst_converted, with_bbox, precision, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_as_mfjson(seq: 'const TSequence *', with_bbox: bool, precision: int, srs: str) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tpointseq_as_mfjson(seq_converted, with_bbox, precision, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_as_mfjson(ss: 'const TSequenceSet *', with_bbox: bool, precision: int, srs: str) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tpointseqset_as_mfjson(ss_converted, with_bbox, precision, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_as_mfjson(seq: 'const TSequence *', precision: int, with_bbox: bool, srs: str) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tsequence_as_mfjson(seq_converted, precision, with_bbox, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_from_mfjson(mfjson: 'json_object *', isgeo: bool, srid: int, temptype: 'meosType', interp: 'interpType') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_from_mfjson(mfjson_converted, isgeo, srid, temptype_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_in(string: str, temptype: 'meosType', interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    temptype_converted = _ffi.cast('meosType', temptype)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_in(string_converted, temptype_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_out(seq: 'const TSequence *', maxdd: int) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_out(seq_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_as_mfjson(ss: 'const TSequenceSet *', precision: int, with_bbox: bool, srs: str) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    srs_converted = srs.encode('utf-8')
+    result = _lib.tsequenceset_as_mfjson(ss_converted, precision, with_bbox, srs_converted)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_from_mfjson(mfjson: 'json_object *', isgeo: bool, srid: int, temptype: 'meosType', interp: 'interpType') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequenceset_from_mfjson(mfjson_converted, isgeo, srid, temptype_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_in(string: str, temptype: 'meosType', interp: 'interpType') -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    temptype_converted = _ffi.cast('meosType', temptype)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequenceset_in(string_converted, temptype_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_out(ss: 'const TSequenceSet *', maxdd: int) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_out(ss_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def ttextinst_as_mfjson(inst: 'const TInstant *', with_bbox: bool) -> str:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.ttextinst_as_mfjson(inst_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def ttextinst_from_mfjson(mfjson: 'json_object *') -> 'TInstant *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.ttextinst_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttextinst_in(string: str) -> 'TInstant *':
+    string_converted = string.encode('utf-8')
+    result = _lib.ttextinst_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttextseq_as_mfjson(seq: 'const TSequence *', with_bbox: bool) -> str:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.ttextseq_as_mfjson(seq_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def ttextseq_from_mfjson(mfjson: 'json_object *') -> 'TSequence *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.ttextseq_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttextseq_in(string: str, interp: 'interpType') -> 'TSequence *':
+    string_converted = string.encode('utf-8')
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.ttextseq_in(string_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttextseqset_as_mfjson(ss: 'const TSequenceSet *', with_bbox: bool) -> str:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.ttextseqset_as_mfjson(ss_converted, with_bbox)
+    _check_error()
+    result = _ffi.string(result).decode('utf-8')
+    return result if result != _ffi.NULL else None
+
+
+def ttextseqset_from_mfjson(mfjson: 'json_object *') -> 'TSequenceSet *':
+    mfjson_converted = _ffi.cast('json_object *', mfjson)
+    result = _lib.ttextseqset_from_mfjson(mfjson_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttextseqset_in(string: str) -> 'TSequenceSet *':
+    string_converted = string.encode('utf-8')
+    result = _lib.ttextseqset_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_from_base_temp(value: 'Datum', temptype: 'meosType', temp: 'const Temporal *') -> 'Temporal *':
+    value_converted = _ffi.cast('Datum', value)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_from_base_temp(value_converted, temptype_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_copy(inst: 'const TInstant *') -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_copy(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_make(value: 'Datum', temptype: 'meosType', t: int) -> 'TInstant *':
+    value_converted = _ffi.cast('Datum', value)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tinstant_make(value_converted, temptype_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_make_coords(xcoords: 'const double *', ycoords: 'const double *', zcoords: 'const double *', times: int, count: int, srid: int, geodetic: bool, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+    xcoords_converted = _ffi.cast('const double *', xcoords)
+    ycoords_converted = _ffi.cast('const double *', ycoords)
+    zcoords_converted = _ffi.cast('const double *', zcoords)
+    times_converted = _ffi.cast('const TimestampTz *', times)
+    srid_converted = _ffi.cast('int32', srid)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tpointseq_make_coords(xcoords_converted, ycoords_converted, zcoords_converted, times_converted, count, srid_converted, geodetic, lower_inc, upper_inc, interp_converted, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_from_base_timestampset(value: 'Datum', temptype: 'meosType', ss: 'const Set *') -> 'TSequence *':
+    value_converted = _ffi.cast('Datum', value)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    ss_converted = _ffi.cast('const Set *', ss)
+    result = _lib.tsequence_from_base_timestampset(value_converted, temptype_converted, ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_make_exp(instants: 'const TInstant **', count: int, maxcount: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+    instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_make_exp(instants_converted, count, maxcount, lower_inc, upper_inc, interp_converted, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_compact(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_compact(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restart(seq: 'TSequence *', last: int) -> None:
+    seq_converted = _ffi.cast('TSequence *', seq)
+    _lib.tsequence_restart(seq_converted, last)
+    _check_error()
+
+
+def tsequence_subseq(seq: 'const TSequence *', from_: int, to: int, lower_inc: bool, upper_inc: bool) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_subseq(seq_converted, from_, to, lower_inc, upper_inc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_copy(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_copy(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_from_base_period(value: 'Datum', temptype: 'meosType', p: 'const Span *', interp: 'interpType') -> 'TSequence *':
+    value_converted = _ffi.cast('Datum', value)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    p_converted = _ffi.cast('const Span *', p)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_from_base_period(value_converted, temptype_converted, p_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_make_free(instants: 'TInstant **', count: int, lower_inc: bool, upper_inc: bool, interp: 'interpType', normalize: bool) -> 'TSequence *':
+    instants_converted = [_ffi.cast('TInstant *', x) for x in instants]
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_make_free(instants_converted, count, lower_inc, upper_inc, interp_converted, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_make_exp(sequences: 'const TSequence **', count: int, maxcount: int, normalize: bool) -> 'TSequenceSet *':
+    sequences_converted = [_ffi.cast('const TSequence *', x) for x in sequences]
+    result = _lib.tsequenceset_make_exp(sequences_converted, count, maxcount, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_compact(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_compact(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_make_free(sequences: 'TSequence **', count: int, normalize: bool) -> 'TSequenceSet *':
+    sequences_converted = [_ffi.cast('TSequence *', x) for x in sequences]
+    result = _lib.tsequenceset_make_free(sequences_converted, count, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restart(ss: 'TSequenceSet *', last: int) -> None:
+    ss_converted = _ffi.cast('TSequenceSet *', ss)
+    _lib.tsequenceset_restart(ss_converted, last)
+    _check_error()
+
+
+def tsequenceset_copy(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_copy(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tseqsetarr_to_tseqset(seqsets: 'TSequenceSet **', count: int, totalseqs: int) -> 'TSequenceSet *':
+    seqsets_converted = [_ffi.cast('TSequenceSet *', x) for x in seqsets]
+    result = _lib.tseqsetarr_to_tseqset(seqsets_converted, count, totalseqs)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_from_base_periodset(value: 'Datum', temptype: 'meosType', ps: 'const SpanSet *', interp: 'interpType') -> 'TSequenceSet *':
+    value_converted = _ffi.cast('Datum', value)
+    temptype_converted = _ffi.cast('meosType', temptype)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequenceset_from_base_periodset(value_converted, temptype_converted, ps_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_set_period(temp: 'const Temporal *', p: 'Span *') -> None:
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    p_converted = _ffi.cast('Span *', p)
+    _lib.temporal_set_period(temp_converted, p_converted)
+    _check_error()
+
+
+def tinstant_set_period(inst: 'const TInstant *', p: 'Span *') -> None:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    p_converted = _ffi.cast('Span *', p)
+    _lib.tinstant_set_period(inst_converted, p_converted)
+    _check_error()
+
+
+def tsequence_set_period(seq: 'const TSequence *', p: 'Span *') -> None:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    p_converted = _ffi.cast('Span *', p)
+    _lib.tsequence_set_period(seq_converted, p_converted)
+    _check_error()
+
+
+def tsequenceset_set_period(ss: 'const TSequenceSet *', p: 'Span *') -> None:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    p_converted = _ffi.cast('Span *', p)
+    _lib.tsequenceset_set_period(ss_converted, p_converted)
+    _check_error()
+
+
+def temporal_end_value(temp: 'const Temporal *') -> 'Datum':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_end_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_max_value(temp: 'const Temporal *') -> 'Datum':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_max_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_mem_size(temp: 'const Temporal *') -> 'size_t':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_mem_size(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_min_value(temp: 'const Temporal *') -> 'Datum':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_min_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_set_bbox(temp: 'const Temporal *', box: 'void *') -> None:
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    box_converted = _ffi.cast('void *', box)
+    _lib.temporal_set_bbox(temp_converted, box_converted)
+    _check_error()
+
+
+def tfloatseq_derivative(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tfloatseq_derivative(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloatseqset_derivative(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tfloatseqset_derivative(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_set_span(temp: 'const Temporal *', span: 'Span *') -> None:
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    span_converted = _ffi.cast('Span *', span)
+    _lib.tnumber_set_span(temp_converted, span_converted)
+    _check_error()
+
+
+def temporal_start_value(temp: 'const Temporal *') -> 'Datum':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_start_value(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberinst_abs(inst: 'const TInstant *') -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tnumberinst_abs(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_abs(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_abs(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_abs(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_abs(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_angular_difference(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_angular_difference(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_angular_difference(ss: 'const TSequenceSet *') -> 'TSequence *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_angular_difference(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_delta_value(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_delta_value(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_delta_value(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_delta_value(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberinst_valuespans(inst: 'const TInstant *') -> 'SpanSet *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tnumberinst_valuespans(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_valuespans(seq: 'const TSequence *') -> 'SpanSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_valuespans(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_valuespans(ss: 'const TSequenceSet *') -> 'SpanSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_valuespans(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_hash(inst: 'const TInstant *') -> 'uint32':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_hash(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_instants(inst: 'const TInstant *') -> "Tuple['const TInstant **', 'int']":
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    count = _ffi.new('int *')
+    result = _lib.tinstant_instants(inst_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tinstant_set_bbox(inst: 'const TInstant *', box: 'void *') -> None:
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    box_converted = _ffi.cast('void *', box)
+    _lib.tinstant_set_bbox(inst_converted, box_converted)
+    _check_error()
+
+
+def tinstant_time(inst: 'const TInstant *') -> 'SpanSet *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_time(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_timestamps(inst: 'const TInstant *') -> "Tuple['TimestampTz *', 'int']":
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    count = _ffi.new('int *')
+    result = _lib.tinstant_timestamps(inst_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tinstant_value(inst: 'const TInstant *') -> 'Datum':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_value(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_value_at_timestamp(inst: 'const TInstant *', t: int) -> 'Datum *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    t_converted = _ffi.cast('TimestampTz', t)
+    out_result = _ffi.new('Datum *')
+    result = _lib.tinstant_value_at_timestamp(inst_converted, t_converted, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def tinstant_value_copy(inst: 'const TInstant *') -> 'Datum':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tinstant_value_copy(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_values(inst: 'const TInstant *') -> "Tuple['Datum *', 'int']":
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    count = _ffi.new('int *')
+    result = _lib.tinstant_values(inst_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_duration(seq: 'const TSequence *') -> 'Interval *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_duration(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_end_timestamp(seq: 'const TSequence *') -> 'TimestampTz':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_end_timestamp(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_hash(seq: 'const TSequence *') -> 'uint32':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_hash(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_instants(seq: 'const TSequence *') -> 'const TInstant **':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_instants(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_max_instant(seq: 'const TSequence *') -> 'const TInstant *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_max_instant(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_max_value(seq: 'const TSequence *') -> 'Datum':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_max_value(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_min_instant(seq: 'const TSequence *') -> 'const TInstant *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_min_instant(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_min_value(seq: 'const TSequence *') -> 'Datum':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_min_value(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_segments(seq: 'const TSequence *') -> "Tuple['TSequence **', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tsequence_segments(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_sequences(seq: 'const TSequence *') -> "Tuple['TSequence **', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tsequence_sequences(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_set_bbox(seq: 'const TSequence *', box: 'void *') -> None:
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    box_converted = _ffi.cast('void *', box)
+    _lib.tsequence_set_bbox(seq_converted, box_converted)
+    _check_error()
+
+
+def tsequence_expand_bbox(seq: 'TSequence *', inst: 'const TInstant *') -> None:
+    seq_converted = _ffi.cast('TSequence *', seq)
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    _lib.tsequence_expand_bbox(seq_converted, inst_converted)
+    _check_error()
+
+
+def tsequenceset_expand_bbox(ss: 'TSequenceSet *', seq: 'const TSequence *') -> None:
+    ss_converted = _ffi.cast('TSequenceSet *', ss)
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    _lib.tsequenceset_expand_bbox(ss_converted, seq_converted)
+    _check_error()
+
+
+def tsequence_start_timestamp(seq: 'const TSequence *') -> 'TimestampTz':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_start_timestamp(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_time(seq: 'const TSequence *') -> 'SpanSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_time(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_timestamps(seq: 'const TSequence *') -> "Tuple['TimestampTz *', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tsequence_timestamps(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequence_value_at_timestamp(seq: 'const TSequence *', t: int, strict: bool) -> 'Datum *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    t_converted = _ffi.cast('TimestampTz', t)
+    out_result = _ffi.new('Datum *')
+    result = _lib.tsequence_value_at_timestamp(seq_converted, t_converted, strict, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def tsequence_values(seq: 'const TSequence *') -> "Tuple['Datum *', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tsequence_values(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_duration(ss: 'const TSequenceSet *', boundspan: bool) -> 'Interval *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_duration(ss_converted, boundspan)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_end_timestamp(ss: 'const TSequenceSet *') -> 'TimestampTz':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_end_timestamp(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_hash(ss: 'const TSequenceSet *') -> 'uint32':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_hash(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_inst_n(ss: 'const TSequenceSet *', n: int) -> 'const TInstant *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_inst_n(ss_converted, n)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_instants(ss: 'const TSequenceSet *') -> 'const TInstant **':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_instants(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_max_instant(ss: 'const TSequenceSet *') -> 'const TInstant *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_max_instant(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_max_value(ss: 'const TSequenceSet *') -> 'Datum':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_max_value(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_min_instant(ss: 'const TSequenceSet *') -> 'const TInstant *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_min_instant(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_min_value(ss: 'const TSequenceSet *') -> 'Datum':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_min_value(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_num_instants(ss: 'const TSequenceSet *') -> 'int':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_num_instants(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_num_timestamps(ss: 'const TSequenceSet *') -> 'int':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_num_timestamps(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_segments(ss: 'const TSequenceSet *') -> "Tuple['TSequence **', 'int']":
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    count = _ffi.new('int *')
+    result = _lib.tsequenceset_segments(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_sequences(ss: 'const TSequenceSet *') -> 'TSequence **':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_sequences(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_sequences_p(ss: 'const TSequenceSet *') -> 'const TSequence **':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_sequences_p(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_set_bbox(ss: 'const TSequenceSet *', box: 'void *') -> None:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    box_converted = _ffi.cast('void *', box)
+    _lib.tsequenceset_set_bbox(ss_converted, box_converted)
+    _check_error()
+
+
+def tsequenceset_start_timestamp(ss: 'const TSequenceSet *') -> 'TimestampTz':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_start_timestamp(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_time(ss: 'const TSequenceSet *') -> 'SpanSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_time(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_timespan(ss: 'const TSequenceSet *') -> 'Interval *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_timespan(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_timestamp_n(ss: 'const TSequenceSet *', n: int) -> int:
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    out_result = _ffi.new('TimestampTz *')
+    result = _lib.tsequenceset_timestamp_n(ss_converted, n, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tsequenceset_timestamps(ss: 'const TSequenceSet *') -> "Tuple['TimestampTz *', 'int']":
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    count = _ffi.new('int *')
+    result = _lib.tsequenceset_timestamps(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tsequenceset_value_at_timestamp(ss: 'const TSequenceSet *', t: int, strict: bool) -> 'Datum *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    t_converted = _ffi.cast('TimestampTz', t)
+    out_result = _ffi.new('Datum *')
+    result = _lib.tsequenceset_value_at_timestamp(ss_converted, t_converted, strict, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def tsequenceset_values(ss: 'const TSequenceSet *') -> "Tuple['Datum *', 'int']":
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    count = _ffi.new('int *')
+    result = _lib.tsequenceset_values(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tinstant_merge(inst1: 'const TInstant *', inst2: 'const TInstant *') -> 'Temporal *':
+    inst1_converted = _ffi.cast('const TInstant *', inst1)
+    inst2_converted = _ffi.cast('const TInstant *', inst2)
+    result = _lib.tinstant_merge(inst1_converted, inst2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_merge_array(instants: 'const TInstant **', count: int) -> 'Temporal *':
+    instants_converted = [_ffi.cast('const TInstant *', x) for x in instants]
+    result = _lib.tinstant_merge_array(instants_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_shift_time(inst: 'const TInstant *', interval: 'const Interval *') -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    interval_converted = _ffi.cast('const Interval *', interval)
+    result = _lib.tinstant_shift_time(inst_converted, interval_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_to_tsequence(inst: 'const TInstant *', interp: 'interpType') -> 'TSequence *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tinstant_to_tsequence(inst_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_to_tsequenceset(inst: 'const TInstant *', interp: 'interpType') -> 'TSequenceSet *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tinstant_to_tsequenceset(inst_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_shift_scale_value(temp: 'const Temporal *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.tnumber_shift_scale_value(temp_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnuminst_shift_value(inst: 'const TInstant *', shift: 'Datum') -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    shift_converted = _ffi.cast('Datum', shift)
+    result = _lib.tnuminst_shift_value(inst_converted, shift_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_shift_scale_value(seq: 'const TSequence *', shift: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    shift_converted = _ffi.cast('Datum', shift)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.tnumberseq_shift_scale_value(seq_converted, shift_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_append_tinstant(seq: 'TSequence *', inst: 'const TInstant *', maxdist: float, maxt: 'const Interval *', expand: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('TSequence *', seq)
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    maxt_converted = _ffi.cast('const Interval *', maxt)
+    result = _lib.tsequence_append_tinstant(seq_converted, inst_converted, maxdist, maxt_converted, expand)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_append_tsequence(seq1: 'TSequence *', seq2: 'const TSequence *', expand: bool) -> 'Temporal *':
+    seq1_converted = _ffi.cast('TSequence *', seq1)
+    seq2_converted = _ffi.cast('const TSequence *', seq2)
+    result = _lib.tsequence_append_tsequence(seq1_converted, seq2_converted, expand)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_merge(seq1: 'const TSequence *', seq2: 'const TSequence *') -> 'Temporal *':
+    seq1_converted = _ffi.cast('const TSequence *', seq1)
+    seq2_converted = _ffi.cast('const TSequence *', seq2)
+    result = _lib.tsequence_merge(seq1_converted, seq2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_merge_array(sequences: 'const TSequence **', count: int) -> 'Temporal *':
+    sequences_converted = [_ffi.cast('const TSequence *', x) for x in sequences]
+    result = _lib.tsequence_merge_array(sequences_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_set_interp(seq: 'const TSequence *', interp: 'interpType') -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_set_interp(seq_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_shift_scale_time(seq: 'const TSequence *', shift: 'const Interval *', duration: 'const Interval *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    shift_converted = _ffi.cast('const Interval *', shift)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    result = _lib.tsequence_shift_scale_time(seq_converted, shift_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tinstant(seq: 'const TSequence *') -> 'TInstant *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_to_tinstant(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tdiscseq(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_to_tdiscseq(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tcontseq(seq: 'const TSequence *', interp: 'interpType') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_to_tcontseq(seq_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tsequenceset(seq: 'const TSequence *') -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_to_tsequenceset(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tsequenceset_interp(seq: 'const TSequence *', interp: 'interpType') -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequence_to_tsequenceset_interp(seq_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_append_tinstant(ss: 'TSequenceSet *', inst: 'const TInstant *', maxdist: float, maxt: 'const Interval *', expand: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('TSequenceSet *', ss)
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    maxt_converted = _ffi.cast('const Interval *', maxt)
+    result = _lib.tsequenceset_append_tinstant(ss_converted, inst_converted, maxdist, maxt_converted, expand)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_append_tsequence(ss: 'TSequenceSet *', seq: 'const TSequence *', expand: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('TSequenceSet *', ss)
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequenceset_append_tsequence(ss_converted, seq_converted, expand)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_merge(ss1: 'const TSequenceSet *', ss2: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss1_converted = _ffi.cast('const TSequenceSet *', ss1)
+    ss2_converted = _ffi.cast('const TSequenceSet *', ss2)
+    result = _lib.tsequenceset_merge(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_merge_array(seqsets: 'const TSequenceSet **', count: int) -> 'TSequenceSet *':
+    seqsets_converted = [_ffi.cast('const TSequenceSet *', x) for x in seqsets]
+    result = _lib.tsequenceset_merge_array(seqsets_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_set_interp(ss: 'const TSequenceSet *', interp: 'interpType') -> 'Temporal *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    interp_converted = _ffi.cast('interpType', interp)
+    result = _lib.tsequenceset_set_interp(ss_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_shift_scale_value(ss: 'const TSequenceSet *', start: 'Datum', width: 'Datum', hasshift: bool, haswidth: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    start_converted = _ffi.cast('Datum', start)
+    width_converted = _ffi.cast('Datum', width)
+    result = _lib.tnumberseqset_shift_scale_value(ss_converted, start_converted, width_converted, hasshift, haswidth)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_shift_scale_time(ss: 'const TSequenceSet *', start: 'const Interval *', duration: 'const Interval *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    start_converted = _ffi.cast('const Interval *', start)
+    duration_converted = _ffi.cast('const Interval *', duration)
+    result = _lib.tsequenceset_shift_scale_time(ss_converted, start_converted, duration_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_to_tinstant(ss: 'const TSequenceSet *') -> 'TInstant *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_to_tinstant(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_to_discrete(ss: 'const TSequenceSet *') -> 'TSequence *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_to_discrete(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_to_step(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_to_step(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_to_linear(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_to_linear(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_to_tsequence(ss: 'const TSequenceSet *') -> 'TSequence *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_to_tsequence(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_bbox_restrict_set(temp: 'const Temporal *', set: 'const Set *') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    set_converted = _ffi.cast('const Set *', set)
+    result = _lib.temporal_bbox_restrict_set(temp_converted, set_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_minmax(temp: 'const Temporal *', min: bool, atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_restrict_minmax(temp_converted, min, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_period(temp: 'const Temporal *', p: 'const Span *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.temporal_restrict_period(temp_converted, p_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_periodset(temp: 'const Temporal *', ps: 'const SpanSet *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.temporal_restrict_periodset(temp_converted, ps_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_timestamp(temp: 'const Temporal *', t: int, atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.temporal_restrict_timestamp(temp_converted, t_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_timestampset(temp: 'const Temporal *', ts: 'const Set *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.temporal_restrict_timestampset(temp_converted, ts_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_value(temp: 'const Temporal *', value: 'Datum', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_restrict_value(temp_converted, value_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_restrict_values(temp: 'const Temporal *', set: 'const Set *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    set_converted = _ffi.cast('const Set *', set)
+    result = _lib.temporal_restrict_values(temp_converted, set_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_value_at_timestamp(temp: 'const Temporal *', t: int, strict: bool) -> 'Datum *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    t_converted = _ffi.cast('TimestampTz', t)
+    out_result = _ffi.new('Datum *')
+    result = _lib.temporal_value_at_timestamp(temp_converted, t_converted, strict, out_result)
+    _check_error()
+    if result:
+        return out_result if out_result != _ffi.NULL else None
+    return None
+
+
+def tinstant_restrict_period(inst: 'const TInstant *', period: 'const Span *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    period_converted = _ffi.cast('const Span *', period)
+    result = _lib.tinstant_restrict_period(inst_converted, period_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_restrict_periodset(inst: 'const TInstant *', ps: 'const SpanSet *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.tinstant_restrict_periodset(inst_converted, ps_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_restrict_timestamp(inst: 'const TInstant *', t: int, atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tinstant_restrict_timestamp(inst_converted, t_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_restrict_timestampset(inst: 'const TInstant *', ts: 'const Set *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.tinstant_restrict_timestampset(inst_converted, ts_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_restrict_value(inst: 'const TInstant *', value: 'Datum', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_restrict_value(inst_converted, value_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_restrict_values(inst: 'const TInstant *', set: 'const Set *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    set_converted = _ffi.cast('const Set *', set)
+    result = _lib.tinstant_restrict_values(inst_converted, set_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_restrict_span(temp: 'const Temporal *', span: 'const Span *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    span_converted = _ffi.cast('const Span *', span)
+    result = _lib.tnumber_restrict_span(temp_converted, span_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_restrict_spanset(temp: 'const Temporal *', ss: 'const SpanSet *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.tnumber_restrict_spanset(temp_converted, ss_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberinst_restrict_span(inst: 'const TInstant *', span: 'const Span *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    span_converted = _ffi.cast('const Span *', span)
+    result = _lib.tnumberinst_restrict_span(inst_converted, span_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberinst_restrict_spanset(inst: 'const TInstant *', ss: 'const SpanSet *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    ss_converted = _ffi.cast('const SpanSet *', ss)
+    result = _lib.tnumberinst_restrict_spanset(inst_converted, ss_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_restrict_span(ss: 'const TSequenceSet *', span: 'const Span *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    span_converted = _ffi.cast('const Span *', span)
+    result = _lib.tnumberseqset_restrict_span(ss_converted, span_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_restrict_spanset(ss: 'const TSequenceSet *', spanset: 'const SpanSet *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    spanset_converted = _ffi.cast('const SpanSet *', spanset)
+    result = _lib.tnumberseqset_restrict_spanset(ss_converted, spanset_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_restrict_geom_time(temp: 'const Temporal *', gs: 'const GSERIALIZED *', zspan: 'const Span *', period: 'const Span *', atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    zspan_converted = _ffi.cast('const Span *', zspan)
+    period_converted = _ffi.cast('const Span *', period)
+    result = _lib.tpoint_restrict_geom_time(temp_converted, gs_converted, zspan_converted, period_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_restrict_stbox(temp: 'const Temporal *', box: 'const STBox *', border_inc: bool, atfunc: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.tpoint_restrict_stbox(temp_converted, box_converted, border_inc, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_restrict_geom_time(inst: 'const TInstant *', gs: 'const GSERIALIZED *', zspan: 'const Span *', period: 'const Span *', atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    zspan_converted = _ffi.cast('const Span *', zspan)
+    period_converted = _ffi.cast('const Span *', period)
+    result = _lib.tpointinst_restrict_geom_time(inst_converted, gs_converted, zspan_converted, period_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_restrict_stbox(inst: 'const TInstant *', box: 'const STBox *', border_inc: bool, atfunc: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.tpointinst_restrict_stbox(inst_converted, box_converted, border_inc, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_restrict_geom_time(seq: 'const TSequence *', gs: 'const GSERIALIZED *', zspan: 'const Span *', period: 'const Span *', atfunc: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    zspan_converted = _ffi.cast('const Span *', zspan)
+    period_converted = _ffi.cast('const Span *', period)
+    result = _lib.tpointseq_restrict_geom_time(seq_converted, gs_converted, zspan_converted, period_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_restrict_stbox(seq: 'const TSequence *', box: 'const STBox *', border_inc: bool, atfunc: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.tpointseq_restrict_stbox(seq_converted, box_converted, border_inc, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_restrict_geom_time(ss: 'const TSequenceSet *', gs: 'const GSERIALIZED *', zspan: 'const Span *', period: 'const Span *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    gs_converted = _ffi.cast('const GSERIALIZED *', gs)
+    zspan_converted = _ffi.cast('const Span *', zspan)
+    period_converted = _ffi.cast('const Span *', period)
+    result = _lib.tpointseqset_restrict_geom_time(ss_converted, gs_converted, zspan_converted, period_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_restrict_stbox(ss: 'const TSequenceSet *', box: 'const STBox *', border_inc: bool, atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    box_converted = _ffi.cast('const STBox *', box)
+    result = _lib.tpointseqset_restrict_stbox(ss_converted, box_converted, border_inc, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_at_period(seq: 'const TSequence *', p: 'const Span *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.tsequence_at_period(seq_converted, p_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_at_timestamp(seq: 'const TSequence *', t: int) -> 'TInstant *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tsequence_at_timestamp(seq_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_minmax(seq: 'const TSequence *', min: bool, atfunc: bool) -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_restrict_minmax(seq_converted, min, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_period(seq: 'const TSequence *', p: 'const Span *', atfunc: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.tsequence_restrict_period(seq_converted, p_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_periodset(seq: 'const TSequence *', ps: 'const SpanSet *', atfunc: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.tsequence_restrict_periodset(seq_converted, ps_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_timestamp(seq: 'const TSequence *', t: int, atfunc: bool) -> 'TInstant *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tsequence_restrict_timestamp(seq_converted, t_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_timestampset(seq: 'const TSequence *', ts: 'const Set *', atfunc: bool) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.tsequence_restrict_timestampset(seq_converted, ts_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_value(seq: 'const TSequence *', value: 'Datum', atfunc: bool) -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_restrict_value(seq_converted, value_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_restrict_values(seq: 'const TSequence *', set: 'const Set *', atfunc: bool) -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    set_converted = _ffi.cast('const Set *', set)
+    result = _lib.tsequence_restrict_values(seq_converted, set_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_minmax(ss: 'const TSequenceSet *', min: bool, atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_restrict_minmax(ss_converted, min, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_period(ss: 'const TSequenceSet *', p: 'const Span *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.tsequenceset_restrict_period(ss_converted, p_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_periodset(ss: 'const TSequenceSet *', ps: 'const SpanSet *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.tsequenceset_restrict_periodset(ss_converted, ps_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_timestamp(ss: 'const TSequenceSet *', t: int, atfunc: bool) -> 'Temporal *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tsequenceset_restrict_timestamp(ss_converted, t_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_timestampset(ss: 'const TSequenceSet *', ts: 'const Set *', atfunc: bool) -> 'Temporal *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.tsequenceset_restrict_timestampset(ss_converted, ts_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_value(ss: 'const TSequenceSet *', value: 'Datum', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_restrict_value(ss_converted, value_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_restrict_values(ss: 'const TSequenceSet *', set: 'const Set *', atfunc: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    set_converted = _ffi.cast('const Set *', set)
+    result = _lib.tsequenceset_restrict_values(ss_converted, set_converted, atfunc)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_derivative(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_derivative(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_derivative(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_derivative(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_tnumber_number(temp: 'const Temporal *', value: 'Datum', valuetype: 'meosType', restype: 'meosType') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    valuetype_converted = _ffi.cast('meosType', valuetype)
+    restype_converted = _ffi.cast('meosType', restype)
+    result = _lib.distance_tnumber_number(temp_converted, value_converted, valuetype_converted, restype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tnumber_number(temp: 'const Temporal *', value: 'Datum', basetype: 'meosType') -> 'double':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    basetype_converted = _ffi.cast('meosType', basetype)
+    result = _lib.nad_tnumber_number(temp_converted, value_converted, basetype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_always_eq(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_always_eq(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_always_le(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_always_le(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_always_lt(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_always_lt(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_ever_eq(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_ever_eq(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_ever_le(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_ever_le(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_ever_lt(temp: 'const Temporal *', value: 'Datum') -> 'bool':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.temporal_ever_lt(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_always_eq(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_always_eq(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_always_le(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_always_le(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_always_lt(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_always_lt(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_ever_eq(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_ever_eq(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_ever_le(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_ever_le(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_ever_lt(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tinstant_ever_lt(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_always_eq(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointinst_always_eq(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_ever_eq(inst: 'const TInstant *', value: 'Datum') -> 'bool':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointinst_ever_eq(inst_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_always_eq(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointseq_always_eq(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_ever_eq(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointseq_ever_eq(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_always_eq(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointseqset_always_eq(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_ever_eq(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tpointseqset_ever_eq(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_always_eq(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_always_eq(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_always_le(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_always_le(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_always_lt(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_always_lt(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_ever_eq(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_ever_eq(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_ever_le(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_ever_le(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_ever_lt(seq: 'const TSequence *', value: 'Datum') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequence_ever_lt(seq_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_always_eq(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_always_eq(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_always_le(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_always_le(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_always_lt(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_always_lt(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_ever_eq(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_ever_eq(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_ever_le(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_ever_le(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_ever_lt(ss: 'const TSequenceSet *', value: 'Datum') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    value_converted = _ffi.cast('Datum', value)
+    result = _lib.tsequenceset_ever_lt(ss_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_cmp(inst1: 'const TInstant *', inst2: 'const TInstant *') -> 'int':
+    inst1_converted = _ffi.cast('const TInstant *', inst1)
+    inst2_converted = _ffi.cast('const TInstant *', inst2)
+    result = _lib.tinstant_cmp(inst1_converted, inst2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_eq(inst1: 'const TInstant *', inst2: 'const TInstant *') -> 'bool':
+    inst1_converted = _ffi.cast('const TInstant *', inst1)
+    inst2_converted = _ffi.cast('const TInstant *', inst2)
+    result = _lib.tinstant_eq(inst1_converted, inst2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_cmp(seq1: 'const TSequence *', seq2: 'const TSequence *') -> 'int':
+    seq1_converted = _ffi.cast('const TSequence *', seq1)
+    seq2_converted = _ffi.cast('const TSequence *', seq2)
+    result = _lib.tsequence_cmp(seq1_converted, seq2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_eq(seq1: 'const TSequence *', seq2: 'const TSequence *') -> 'bool':
+    seq1_converted = _ffi.cast('const TSequence *', seq1)
+    seq2_converted = _ffi.cast('const TSequence *', seq2)
+    result = _lib.tsequence_eq(seq1_converted, seq2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_cmp(ss1: 'const TSequenceSet *', ss2: 'const TSequenceSet *') -> 'int':
+    ss1_converted = _ffi.cast('const TSequenceSet *', ss1)
+    ss2_converted = _ffi.cast('const TSequenceSet *', ss2)
+    result = _lib.tsequenceset_cmp(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_eq(ss1: 'const TSequenceSet *', ss2: 'const TSequenceSet *') -> 'bool':
+    ss1_converted = _ffi.cast('const TSequenceSet *', ss1)
+    ss2_converted = _ffi.cast('const TSequenceSet *', ss2)
+    result = _lib.tsequenceset_eq(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_srid(inst: 'const TInstant *') -> 'int':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tpointinst_srid(inst_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_trajectory(seq: 'const TSequence *') -> 'GSERIALIZED *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_trajectory(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_azimuth(seq: 'const TSequence *') -> 'TSequenceSet *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_azimuth(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_cumulative_length(seq: 'const TSequence *', prevlength: float) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_cumulative_length(seq_converted, prevlength)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_is_simple(seq: 'const TSequence *') -> 'bool':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_is_simple(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_length(seq: 'const TSequence *') -> 'double':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_length(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_speed(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_speed(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_srid(seq: 'const TSequence *') -> 'int':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_srid(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_stboxes(seq: 'const TSequence *') -> "Tuple['STBox *', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tpointseq_stboxes(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointseqset_azimuth(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_azimuth(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_cumulative_length(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_cumulative_length(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_is_simple(ss: 'const TSequenceSet *') -> 'bool':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_is_simple(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_length(ss: 'const TSequenceSet *') -> 'double':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_length(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_speed(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_speed(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_srid(ss: 'const TSequenceSet *') -> 'int':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_srid(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_stboxes(ss: 'const TSequenceSet *') -> "Tuple['STBox *', 'int']":
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    count = _ffi.new('int *')
+    result = _lib.tpointseqset_stboxes(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointseqset_trajectory(ss: 'const TSequenceSet *') -> 'GSERIALIZED *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_trajectory(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_get_coord(temp: 'const Temporal *', coord: int) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tpoint_get_coord(temp_converted, coord)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointinst_tgeogpointinst(inst: 'const TInstant *', oper: bool) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    result = _lib.tgeompointinst_tgeogpointinst(inst_converted, oper)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseq_tgeogpointseq(seq: 'const TSequence *', oper: bool) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tgeompointseq_tgeogpointseq(seq_converted, oper)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompointseqset_tgeogpointseqset(ss: 'const TSequenceSet *', oper: bool) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tgeompointseqset_tgeogpointseqset(ss_converted, oper)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompoint_tgeogpoint(temp: 'const Temporal *', oper: bool) -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.tgeompoint_tgeogpoint(temp_converted, oper)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointinst_set_srid(inst: 'const TInstant *', srid: int) -> 'TInstant *':
+    inst_converted = _ffi.cast('const TInstant *', inst)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.tpointinst_set_srid(inst_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_make_simple(seq: 'const TSequence *') -> "Tuple['TSequence **', 'int']":
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    count = _ffi.new('int *')
+    result = _lib.tpointseq_make_simple(seq_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointseq_set_srid(seq: 'const TSequence *', srid: int) -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.tpointseq_set_srid(seq_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_make_simple(ss: 'const TSequenceSet *') -> "Tuple['TSequence **', 'int']":
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    count = _ffi.new('int *')
+    result = _lib.tpointseqset_make_simple(ss_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
+def tpointseqset_set_srid(ss: 'const TSequenceSet *', srid: int) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    srid_converted = _ffi.cast('int32', srid)
+    result = _lib.tpointseqset_set_srid(ss_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_insert(seq1: 'const TSequence *', seq2: 'const TSequence *', connect: bool) -> 'Temporal *':
+    seq1_converted = _ffi.cast('const TSequence *', seq1)
+    seq2_converted = _ffi.cast('const TSequence *', seq2)
+    result = _lib.tsequence_insert(seq1_converted, seq2_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_insert(ss1: 'const TSequenceSet *', ss2: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss1_converted = _ffi.cast('const TSequenceSet *', ss1)
+    ss2_converted = _ffi.cast('const TSequenceSet *', ss2)
+    result = _lib.tsequenceset_insert(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_delete_timestamp(seq: 'const TSequence *', t: int, connect: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tsequence_delete_timestamp(seq_converted, t_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_delete_timestampset(seq: 'const TSequence *', ts: 'const Set *', connect: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.tsequence_delete_timestampset(seq_converted, ts_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_delete_period(seq: 'const TSequence *', p: 'const Span *', connect: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.tsequence_delete_period(seq_converted, p_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_delete_periodset(seq: 'const TSequence *', ps: 'const SpanSet *', connect: bool) -> 'Temporal *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.tsequence_delete_periodset(seq_converted, ps_converted, connect)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_delete_timestamp(ss: 'const TSequenceSet *', t: int) -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    t_converted = _ffi.cast('TimestampTz', t)
+    result = _lib.tsequenceset_delete_timestamp(ss_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_delete_timestampset(ss: 'const TSequenceSet *', ts: 'const Set *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    ts_converted = _ffi.cast('const Set *', ts)
+    result = _lib.tsequenceset_delete_timestampset(ss_converted, ts_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_delete_period(ss: 'const TSequenceSet *', p: 'const Span *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    p_converted = _ffi.cast('const Span *', p)
+    result = _lib.tsequenceset_delete_period(ss_converted, p_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_delete_periodset(ss: 'const TSequenceSet *', ps: 'const SpanSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    ps_converted = _ffi.cast('const SpanSet *', ps)
+    result = _lib.tsequenceset_delete_periodset(ss_converted, ps_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_integral(seq: 'const TSequence *') -> 'double':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_integral(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseq_twavg(seq: 'const TSequence *') -> 'double':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tnumberseq_twavg(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_integral(ss: 'const TSequenceSet *') -> 'double':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_integral(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumberseqset_twavg(ss: 'const TSequenceSet *') -> 'double':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tnumberseqset_twavg(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseq_twcentroid(seq: 'const TSequence *') -> 'GSERIALIZED *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tpointseq_twcentroid(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpointseqset_twcentroid(ss: 'const TSequenceSet *') -> 'GSERIALIZED *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tpointseqset_twcentroid(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_compact(temp: 'const Temporal *') -> 'Temporal *':
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    result = _lib.temporal_compact(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_compact(seq: 'const TSequence *') -> 'TSequence *':
+    seq_converted = _ffi.cast('const TSequence *', seq)
+    result = _lib.tsequence_compact(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequenceset_compact(ss: 'const TSequenceSet *') -> 'TSequenceSet *':
+    ss_converted = _ffi.cast('const TSequenceSet *', ss)
+    result = _lib.tsequenceset_compact(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_value_split(temp: 'const Temporal *', size: 'Datum', origin: 'Datum', buckets: 'Datum **') -> "Tuple['Temporal **', 'int']":
+    temp_converted = _ffi.cast('const Temporal *', temp)
+    size_converted = _ffi.cast('Datum', size)
+    origin_converted = _ffi.cast('Datum', origin)
+    buckets_converted = [_ffi.cast('Datum *', x) for x in buckets]
+    count = _ffi.new('int *')
+    result = _lib.tnumber_value_split(temp_converted, size_converted, origin_converted, buckets_converted, count)
+    _check_error()
+    return result if result != _ffi.NULL else None, count[0]
+
+
