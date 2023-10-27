@@ -2,12 +2,25 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING, List
 
-from pymeos_cffi import intspanset_in, intspanset_out, spanset_width, \
-    intspanset_shift_scale, adjacent_intspanset_int, contains_intspanset_int, \
-    spanset_eq, int_to_intspanset, left_intspanset_int, \
-    overleft_intspanset_int, right_intspanset_int, overright_intspanset_int, \
-    distance_intspanset_int, intersection_intspanset_int, \
-    union_intspanset_int, minus_intspanset_int, intspanset_floatspanset
+from pymeos_cffi import (
+    intspanset_in,
+    intspanset_out,
+    spanset_width,
+    intspanset_shift_scale,
+    adjacent_intspanset_int,
+    contains_intspanset_int,
+    spanset_eq,
+    int_to_intspanset,
+    left_intspanset_int,
+    overleft_intspanset_int,
+    right_intspanset_int,
+    overright_intspanset_int,
+    distance_intspanset_int,
+    intersection_intspanset_int,
+    union_intspanset_int,
+    minus_intspanset_int,
+    intspanset_floatspanset,
+)
 
 from pymeos.collections import SpanSet
 
@@ -34,12 +47,14 @@ class IntSpanSet(SpanSet[int]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'intspanset'
+    _mobilitydb_name = "intspanset"
 
     _parse_function = intspanset_in
-    _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
+    _parse_value_function = (
+        lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
+    )
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -67,6 +82,7 @@ class IntSpanSet(SpanSet[int]):
             spanset_span
         """
         from .intspan import IntSpan
+
         return IntSpan(_inner=super().to_span())
 
     def to_floatspanset(self) -> FloatSpanSet:
@@ -80,6 +96,7 @@ class IntSpanSet(SpanSet[int]):
             intspanset_floatspanset
         """
         from .floatspanset import FloatSpanSet
+
         return FloatSpanSet(_inner=intspanset_floatspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
@@ -115,6 +132,7 @@ class IntSpanSet(SpanSet[int]):
             spanset_start_span
         """
         from .intspan import IntSpan
+
         return IntSpan(_inner=super().start_span())
 
     def end_span(self) -> IntSpan:
@@ -127,6 +145,7 @@ class IntSpanSet(SpanSet[int]):
             spanset_end_span
         """
         from .intspan import IntSpan
+
         return IntSpan(_inner=super().end_span())
 
     def span_n(self, n: int) -> IntSpan:
@@ -139,6 +158,7 @@ class IntSpanSet(SpanSet[int]):
             spanset_span_n
         """
         from .intspan import IntSpan
+
         return IntSpan(_inner=super().span_n(n))
 
     def spans(self) -> List[IntSpan]:
@@ -151,6 +171,7 @@ class IntSpanSet(SpanSet[int]):
             spanset_spans
         """
         from .intspan import IntSpan
+
         ps = super().spans()
         return [IntSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
@@ -205,8 +226,9 @@ class IntSpanSet(SpanSet[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspanset_shift_scale(self._inner, d, w, delta is not None,
-                                          width is not None)
+        modified = intspanset_shift_scale(
+            self._inner, d, w, delta is not None, width is not None
+        )
         return IntSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -272,7 +294,7 @@ class IntSpanSet(SpanSet[int]):
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly left of ``other``. That is, 
+        Returns whether ``self`` is strictly left of ``other``. That is,
         ``self`` ends before ``other`` starts.
 
         Args:

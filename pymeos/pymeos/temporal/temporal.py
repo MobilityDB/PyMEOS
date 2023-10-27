@@ -19,25 +19,27 @@ if TYPE_CHECKING:
 def import_pandas():
     try:
         import pandas as pd
+
         return pd
     except ImportError:
-        print('Pandas not found. Please install Pandas to use this function.')
+        print("Pandas not found. Please install Pandas to use this function.")
         raise
 
 
-TBase = TypeVar('TBase')
-TG = TypeVar('TG', bound='Temporal[Any]')
-TI = TypeVar('TI', bound='TInstant[Any]')
-TS = TypeVar('TS', bound='TSequence[Any]')
-TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
-Self = TypeVar('Self', bound='Temporal[Any]')
+TBase = TypeVar("TBase")
+TG = TypeVar("TG", bound="Temporal[Any]")
+TI = TypeVar("TI", bound="TInstant[Any]")
+TS = TypeVar("TS", bound="TSequence[Any]")
+TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
+Self = TypeVar("Self", bound="Temporal[Any]")
 
 
 class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     """
     Abstract class for representing temporal values of any subtype.
     """
-    __slots__ = ['_inner']
+
+    __slots__ = ["_inner"]
 
     BaseClass = None
     """
@@ -58,6 +60,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
     @classmethod
     def _factory(cls, inner):
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(inner)
 
     def __copy__(self) -> Self:
@@ -75,8 +78,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         pass
 
     def __repr__(self) -> str:
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        return f"{self.__class__.__name__}" f"({self})"
 
     @staticmethod
     @abstractmethod
@@ -161,8 +163,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_merge_array
         """
-        result = temporal_merge_array([temp._inner for temp in temporals \
-                                       if temp is not None], len(temporals))
+        result = temporal_merge_array(
+            [temp._inner for temp in temporals if temp is not None], len(temporals)
+        )
         return Temporal._factory(result)
 
     @classmethod
@@ -178,8 +181,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             A temporal object that is the result of merging the given temporal
             objects.
         """
-        result = temporal_merge_array([temp._inner for temp in temporals \
-                                       if temp is not None], len(temporals))
+        result = temporal_merge_array(
+            [temp._inner for temp in temporals if temp is not None], len(temporals)
+        )
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
@@ -193,8 +197,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         pass
 
-    def as_mfjson(self, with_bbox: bool = True, flags: int = 3,
-                  precision: int = 6, srs: Optional[str] = None) -> str:
+    def as_mfjson(
+        self,
+        with_bbox: bool = True,
+        flags: int = 3,
+        precision: int = 6,
+        srs: Optional[str] = None,
+    ) -> str:
         """
         Returns the temporal object as a MF-JSON string.
 
@@ -367,6 +376,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_start_instant
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(temporal_start_instant(self._inner))
 
     def end_instant(self) -> TI:
@@ -377,6 +387,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_end_instant
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(temporal_end_instant(self._inner))
 
     def min_instant(self) -> TI:
@@ -388,6 +399,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_min_instant
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(temporal_min_instant(self._inner))
 
     def max_instant(self) -> TI:
@@ -399,6 +411,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_max_instant
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(temporal_max_instant(self._inner))
 
     def instant_n(self, n: int) -> TI:
@@ -409,6 +422,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_instant_n
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n + 1))
 
     def instants(self) -> List[TI]:
@@ -419,6 +433,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_instants
         """
         from ..factory import _TemporalFactory
+
         ins, count = temporal_instants(self._inner)
         return [_TemporalFactory.create_temporal(ins[i]) for i in range(count)]
 
@@ -477,6 +492,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         seqs, count = temporal_segments(self._inner)
         from ..factory import _TemporalFactory
+
         return [_TemporalFactory.create_temporal(seqs[i]) for i in range(count)]
 
     def __hash__(self) -> int:
@@ -532,8 +548,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         scaled = temporal_scale_time(self._inner, timedelta_to_interval(duration))
         return Temporal._factory(scaled)
 
-    def shift_scale_time(self, shift: Optional[timedelta] = None,
-                         duration: Optional[timedelta] = None) -> Self:
+    def shift_scale_time(
+        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
+    ) -> Self:
         """
         Returns a new :class:`Temporal` with the time dimension shifted by
         ``shift`` and scaled so the temporal dimension has duration
@@ -547,17 +564,21 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_shift_scale_time
         """
-        assert shift is not None or duration is not None, \
-            'shift and duration must not be both None'
+        assert (
+            shift is not None or duration is not None
+        ), "shift and duration must not be both None"
         scaled = temporal_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None
+            timedelta_to_interval(duration) if duration else None,
         )
         return Temporal._factory(scaled)
 
-    def temporal_sample(self, duration: Union[str, timedelta],
-                        start: Optional[Union[str, datetime]] = None) -> TG:
+    def temporal_sample(
+        self,
+        duration: Union[str, timedelta],
+        start: Optional[Union[str, datetime]] = None,
+    ) -> TG:
         """
         Returns a new :class:`Temporal` downsampled with respect to ``duration``.
 
@@ -571,7 +592,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_tsample
         """
         if start is None:
-            st = pg_timestamptz_in('2000-01-03', -1)
+            st = pg_timestamptz_in("2000-01-03", -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
@@ -583,8 +604,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         result = temporal_tsample(self._inner, dt, st)
         return Temporal._factory(result)
 
-    def temporal_precision(self, duration: Union[str, timedelta],
-                           start: Optional[Union[str, datetime]] = None) -> TG:
+    def temporal_precision(
+        self,
+        duration: Union[str, timedelta],
+        start: Optional[Union[str, datetime]] = None,
+    ) -> TG:
         """
         Returns a new :class:`Temporal` with precision reduced to ``duration``.
 
@@ -599,7 +623,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_tprecision
         """
         if start is None:
-            st = pg_timestamptz_in('2000-01-03', -1)
+            st = pg_timestamptz_in("2000-01-03", -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
@@ -647,15 +671,16 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             and `value`.
         """
         pd = import_pandas()
-        data = {
-            'time': self.timestamps(),
-            'value': self.values()
-        }
-        return pd.DataFrame(data).set_index(keys='time')
+        data = {"time": self.timestamps(), "value": self.values()}
+        return pd.DataFrame(data).set_index(keys="time")
 
     # ------------------------- Modifications ---------------------------------
-    def append_instant(self, instant: TInstant[TBase], max_dist: Optional[float] = 0.0,
-                       max_time: Optional[timedelta] = None) -> TG:
+    def append_instant(
+        self,
+        instant: TInstant[TBase],
+        max_dist: Optional[float] = 0.0,
+        max_time: Optional[timedelta] = None,
+    ) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with `instant`
         appended.
@@ -672,8 +697,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
-        new_inner = temporal_append_tinstant(self._inner, instant._inner,
-                                             max_dist, interv, False)
+        new_inner = temporal_append_tinstant(
+            self._inner, instant._inner, max_dist, interv, False
+        )
         return Temporal._factory(new_inner)
 
     def append_sequence(self, sequence: TSequence[TBase]) -> TG:
@@ -690,7 +716,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         new_inner = temporal_append_tsequence(self._inner, sequence._inner, False)
         return Temporal._factory(new_inner)
 
-    def merge(self, other: Union[type(None), Temporal[TBase], List[Temporal[TBase]]]) -> TG:
+    def merge(
+        self, other: Union[type(None), Temporal[TBase], List[Temporal[TBase]]]
+    ) -> TG:
         """
         Returns a new :class:`Temporal` object that is the result of merging
         `self` with `other`.
@@ -705,10 +733,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
-            new_temp = temporal_merge_array([self._inner,
-                                             *(o._inner for o in other)], len(other) + 1)
+            new_temp = temporal_merge_array(
+                [self._inner, *(o._inner for o in other)], len(other) + 1
+            )
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(new_temp)
 
     def insert(self, other: TG, connect: bool = True) -> TG:
@@ -761,19 +790,17 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_update
         """
         if isinstance(other, datetime):
-            new_inner = temporal_delete_timestamp(self._inner,
-                                                  datetime_to_timestamptz(other), connect)
+            new_inner = temporal_delete_timestamp(
+                self._inner, datetime_to_timestamptz(other), connect
+            )
         elif isinstance(other, TimestampSet):
-            new_inner = temporal_delete_timestampset(self._inner, other._inner,
-                                                     connect)
+            new_inner = temporal_delete_timestampset(self._inner, other._inner, connect)
         elif isinstance(other, Period):
-            new_inner = temporal_delete_period(self._inner, other._inner,
-                                               connect)
+            new_inner = temporal_delete_period(self._inner, other._inner, connect)
         elif isinstance(other, PeriodSet):
-            new_inner = temporal_delete_periodset(self._inner, other._inner,
-                                                  connect)
+            new_inner = temporal_delete_periodset(self._inner, other._inner, connect)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         if new_inner == self._inner:
             return self
         return Temporal._factory(new_inner)
@@ -795,8 +822,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_at_period, temporal_at_periodset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamp(self._inner,
-                                           datetime_to_timestamptz(other))
+            result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             result = temporal_at_timestampset(self._inner, other._inner)
         elif isinstance(other, Period):
@@ -804,7 +830,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, PeriodSet):
             result = temporal_at_periodset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def at_min(self) -> TG:
@@ -855,12 +881,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, PeriodSet):
             result = temporal_minus_periodset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            result = temporal_minus_timestamp(self._inner,
-                                              datetime_to_timestamptz(other))
+            result = temporal_minus_timestamp(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, TimestampSet):
             result = temporal_minus_timestampset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def minus_min(self) -> TG:
@@ -943,8 +970,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.bounding_box().is_contained_in(container)
 
-    def is_temporally_contained_in(self,
-                                   container: Union[Time, Temporal, Box]) -> bool:
+    def is_temporally_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
         """
         Returns whether the bounding period of `self` is contained in the
         bounding period of `container`.
@@ -1169,8 +1195,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         return temporal_hausdorff_distance(self._inner, other._inner)
 
     # ------------------------- Split Operations ------------------------------
-    def time_split(self, duration: Union[str, timedelta],
-                   start: Optional[Union[str, datetime]] = None) -> List[TG]:
+    def time_split(
+        self,
+        duration: Union[str, timedelta],
+        start: Optional[Union[str, datetime]] = None,
+    ) -> List[TG]:
         """
         Returns a list of temporal objects of the same subtype as `self` with
         the same values as `self` but split in temporal tiles of duration
@@ -1190,18 +1219,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             temporal_time_split
         """
         if start is None:
-            st = pg_timestamptz_in('2000-01-03', -1)
+            st = pg_timestamptz_in("2000-01-03", -1)
         else:
-            st = datetime_to_timestamptz(start) \
-                if isinstance(start, datetime) \
+            st = (
+                datetime_to_timestamptz(start)
+                if isinstance(start, datetime)
                 else pg_timestamptz_in(start, -1)
-        dt = timedelta_to_interval(duration) \
-            if isinstance(duration, timedelta) \
+            )
+        dt = (
+            timedelta_to_interval(duration)
+            if isinstance(duration, timedelta)
             else pg_interval_in(duration, -1)
+        )
         fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(fragments[i]) \
-                for i in range(count)]
+
+        return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
 
     def time_split_n(self, n: int) -> List[TG]:
         """
@@ -1221,15 +1254,17 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         if self.end_timestamp() == self.start_timestamp():
             return [self]
         st = temporal_start_timestamp(self._inner)
-        dt = timedelta_to_interval((self.end_timestamp() -
-                                    self.start_timestamp()) / n)
+        dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
         fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
-        return [_TemporalFactory.create_temporal(fragments[i]) \
-                for i in range(count)]
 
-    def stops(self, max_distance: Optional[float] = 0.0,
-              min_duration: Optional[timedelta] = timedelta()) -> TSS:
+        return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
+
+    def stops(
+        self,
+        max_distance: Optional[float] = 0.0,
+        min_duration: Optional[timedelta] = timedelta(),
+    ) -> TSS:
         """
         Return the subsequences where the objects stay within an area with a
         given maximum size for at least the specified duration.
@@ -1245,9 +1280,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_stops
         """
-        new_inner = temporal_stops(self._inner, max_distance,
-                                   timedelta_to_interval(min_duration))
+        new_inner = temporal_stops(
+            self._inner, max_distance, timedelta_to_interval(min_duration)
+        )
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(new_inner)
 
     # ------------------------- Temporal Comparisons --------------------------
@@ -1262,8 +1299,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
 
     def __assert_comparable(self, other: Temporal) -> None:
         if not self.__comparable(other):
-            raise TypeError(f'Operation not supported with type {other.__class__}. '
-                            f'{self.BaseClass} and {other.BaseClass} are not comparable.')
+            raise TypeError(
+                f"Operation not supported with type {other.__class__}. "
+                f"{self.BaseClass} and {other.BaseClass} are not comparable."
+            )
 
     def temporal_equal(self, other: Temporal) -> TBool:
         """

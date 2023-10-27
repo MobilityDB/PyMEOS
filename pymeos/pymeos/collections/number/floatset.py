@@ -2,13 +2,29 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import floatset_in, floatset_make, floatset_out, \
-    floatset_start_value, floatset_end_value, floatset_value_n, \
-    floatset_values, contains_floatset_float, intersection_floatset_float, \
-    intersection_set_set, left_floatset_float, overleft_floatset_float, \
-    right_floatset_float, overright_floatset_float, minus_floatset_float, \
-    minus_set_set, union_set_set, union_floatset_float, floatset_shift_scale, \
-    minus_float_floatset, distance_floatset_float
+from pymeos_cffi import (
+    floatset_in,
+    floatset_make,
+    floatset_out,
+    floatset_start_value,
+    floatset_end_value,
+    floatset_value_n,
+    floatset_values,
+    contains_floatset_float,
+    intersection_floatset_float,
+    intersection_set_set,
+    left_floatset_float,
+    overleft_floatset_float,
+    right_floatset_float,
+    overright_floatset_float,
+    minus_floatset_float,
+    minus_set_set,
+    union_set_set,
+    union_floatset_float,
+    floatset_shift_scale,
+    minus_float_floatset,
+    distance_floatset_float,
+)
 
 from .floatspan import FloatSpan
 from .floatspanset import FloatSpanSet
@@ -35,9 +51,9 @@ class FloatSet(Set[float]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'floatset'
+    _mobilitydb_name = "floatset"
 
     _parse_function = floatset_in
     _parse_value_function = float
@@ -94,6 +110,7 @@ class FloatSet(Set[float]):
             A new :class:`IntSet` instance
         """
         from .intset import IntSet
+
         return IntSet(elements=[int(x) for x in self.elements()])
 
     # ------------------------- Accessors -------------------------------------
@@ -184,7 +201,9 @@ class FloatSet(Set[float]):
         """
         return self.shift_scale(None, new_width)
 
-    def shift_scale(self, delta: Optional[float], new_width: Optional[float]) -> FloatSet:
+    def shift_scale(
+        self, delta: Optional[float], new_width: Optional[float]
+    ) -> FloatSet:
         """
         Returns a new ``FloatSet`` instance with all elements shifted by ``delta`` and scaled to so that the
          encompassing span has width ``new_width``.
@@ -200,7 +219,10 @@ class FloatSet(Set[float]):
             floatset_shift_scale
         """
         return FloatSet(
-            _inner=floatset_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None))
+            _inner=floatset_shift_scale(
+                self._inner, delta, new_width, delta is not None, new_width is not None
+            )
+        )
 
     # ------------------------- Topological Operations --------------------------------
 

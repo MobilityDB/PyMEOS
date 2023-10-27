@@ -2,14 +2,34 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intspan_in, intspan_lower, intspan_upper, \
-    intspan_shift_scale, contains_intspan_int, adjacent_intspan_int, \
-    span_width, int_to_intspan, span_eq, left_intspan_int, \
-    overleft_intspan_int, right_intspan_int, overright_intspan_int, \
-    intersection_intspan_int, intersection_span_span, intersection_spanset_span, \
-    minus_intspan_int, minus_span_span, minus_spanset_span, union_intspan_int, \
-    union_span_span, union_spanset_span, intspan_out, intspan_make, \
-    distance_intspan_int, intspan_floatspan
+from pymeos_cffi import (
+    intspan_in,
+    intspan_lower,
+    intspan_upper,
+    intspan_shift_scale,
+    contains_intspan_int,
+    adjacent_intspan_int,
+    span_width,
+    int_to_intspan,
+    span_eq,
+    left_intspan_int,
+    overleft_intspan_int,
+    right_intspan_int,
+    overright_intspan_int,
+    intersection_intspan_int,
+    intersection_span_span,
+    intersection_spanset_span,
+    minus_intspan_int,
+    minus_span_span,
+    minus_spanset_span,
+    union_intspan_int,
+    union_span_span,
+    union_spanset_span,
+    intspan_out,
+    intspan_make,
+    distance_intspan_int,
+    intspan_floatspan,
+)
 
 from .. import Span
 
@@ -37,9 +57,9 @@ class IntSpan(Span[int]):
         >>> IntSpan(lower='2', upper='5', upper_inc=True)
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'intspan'
+    _mobilitydb_name = "intspan"
 
     _parse_function = intspan_in
     _parse_value_function = int
@@ -71,6 +91,7 @@ class IntSpan(Span[int]):
             span_to_spanset
         """
         from .intspanset import IntSpanSet
+
         return IntSpanSet(_inner=super().to_spanset())
 
     def to_floatspan(self) -> FloatSpan:
@@ -84,6 +105,7 @@ class IntSpan(Span[int]):
             intspan_floatspan
         """
         from .floatspan import FloatSpan
+
         return FloatSpan(_inner=intspan_floatspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
@@ -173,8 +195,9 @@ class IntSpan(Span[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspan_shift_scale(self._inner, d, w, delta is not None,
-                                       width is not None)
+        modified = intspan_shift_scale(
+            self._inner, d, w, delta is not None, width is not None
+        )
         return IntSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -360,6 +383,7 @@ class IntSpan(Span[int]):
             intersection_intspan_int
         """
         from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             return intersection_intspan_int(self._inner, other)
         elif isinstance(other, IntSpan):
@@ -385,6 +409,7 @@ class IntSpan(Span[int]):
             minus_span_span, minus_spanset_span, minus_intspan_int
         """
         from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             result = minus_intspan_int(self._inner, other)
         elif isinstance(other, IntSpan):
@@ -409,6 +434,7 @@ class IntSpan(Span[int]):
             union_spanset_span, union_span_span, union_intspan_int
         """
         from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             result = union_intspan_int(self._inner, other)
         elif isinstance(other, IntSpan):

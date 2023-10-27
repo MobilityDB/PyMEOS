@@ -2,16 +2,34 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intersection_floatspan_float, distance_floatspan_float, \
-    floatspan_in, floatspan_lower, floatspan_upper, floatspan_shift_scale, \
-    contains_floatspan_float, adjacent_floatspan_float, \
-    float_to_floatspan, span_eq, \
-    left_floatspan_float, overleft_floatspan_float, \
-    right_floatspan_float, overright_floatspan_float, \
-    intersection_span_span, intersection_spanset_span, \
-    minus_floatspan_float, minus_span_span, minus_spanset_span, \
-    union_floatspan_float, union_span_span, union_spanset_span, \
-    floatspan_out, floatspan_make, span_width, floatspan_intspan
+from pymeos_cffi import (
+    intersection_floatspan_float,
+    distance_floatspan_float,
+    floatspan_in,
+    floatspan_lower,
+    floatspan_upper,
+    floatspan_shift_scale,
+    contains_floatspan_float,
+    adjacent_floatspan_float,
+    float_to_floatspan,
+    span_eq,
+    left_floatspan_float,
+    overleft_floatspan_float,
+    right_floatspan_float,
+    overright_floatspan_float,
+    intersection_span_span,
+    intersection_spanset_span,
+    minus_floatspan_float,
+    minus_span_span,
+    minus_spanset_span,
+    union_floatspan_float,
+    union_span_span,
+    union_spanset_span,
+    floatspan_out,
+    floatspan_make,
+    span_width,
+    floatspan_intspan,
+)
 
 from .. import Span
 
@@ -40,9 +58,9 @@ class FloatSpan(Span[float]):
         >>> FloatSpan(lower='2.0', upper='5.8', upper_inc=True)
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'floatspan'
+    _mobilitydb_name = "floatspan"
 
     _parse_function = floatspan_in
     _parse_value_function = float
@@ -74,6 +92,7 @@ class FloatSpan(Span[float]):
             span_to_spanset
         """
         from .floatspanset import FloatSpanSet
+
         return FloatSpanSet(_inner=super().to_spanset())
 
     def to_intspan(self) -> IntSpan:
@@ -87,6 +106,7 @@ class FloatSpan(Span[float]):
             floatspan_intspan
         """
         from .intspan import IntSpan
+
         return IntSpan(_inner=floatspan_intspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
@@ -177,8 +197,9 @@ class FloatSpan(Span[float]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = floatspan_shift_scale(self._inner, d, w, delta is not None,
-                                         width is not None)
+        modified = floatspan_shift_scale(
+            self._inner, d, w, delta is not None, width is not None
+        )
         return FloatSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -259,7 +280,9 @@ class FloatSpan(Span[float]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> bool:
+    def is_over_or_left(
+        self, other: Union[int, float, FloatSpan, FloatSpanSet]
+    ) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same value).
@@ -364,6 +387,7 @@ class FloatSpan(Span[float]):
             intersection_floatset_float
         """
         from .floatspanset import FloatSpanSet
+
         if isinstance(other, int) or isinstance(other, float):
             return intersection_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
@@ -389,6 +413,7 @@ class FloatSpan(Span[float]):
             minus_span_span, minus_spanset_span, minus_floatspan_float
         """
         from .floatspanset import FloatSpanSet
+
         if isinstance(other, int) or isinstance(other, float):
             result = minus_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):
@@ -413,6 +438,7 @@ class FloatSpan(Span[float]):
             union_spanset_span, union_span_span, union_floatspan_float
         """
         from .floatspanset import FloatSpanSet
+
         if isinstance(other, int) or isinstance(other, float):
             result = union_floatspan_float(self._inner, float(other))
         elif isinstance(other, FloatSpan):

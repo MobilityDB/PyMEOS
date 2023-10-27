@@ -2,12 +2,29 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, \
-    intset_end_value, intset_value_n, intset_values, contains_intset_int, \
-    intersection_intset_int, intersection_set_set, minus_intset_int, \
-    left_intset_int, overleft_intset_int, right_intset_int, overright_intset_int, \
-    minus_set_set, union_set_set, union_intset_int, intset_shift_scale, \
-    minus_int_intset, distance_intset_int
+from pymeos_cffi import (
+    intset_in,
+    intset_make,
+    intset_out,
+    intset_start_value,
+    intset_end_value,
+    intset_value_n,
+    intset_values,
+    contains_intset_int,
+    intersection_intset_int,
+    intersection_set_set,
+    minus_intset_int,
+    left_intset_int,
+    overleft_intset_int,
+    right_intset_int,
+    overright_intset_int,
+    minus_set_set,
+    union_set_set,
+    union_intset_int,
+    intset_shift_scale,
+    minus_int_intset,
+    distance_intset_int,
+)
 
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
@@ -34,9 +51,9 @@ class IntSet(Set[int]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'intset'
+    _mobilitydb_name = "intset"
 
     _parse_function = intset_in
     _parse_value_function = int
@@ -93,6 +110,7 @@ class IntSet(Set[int]):
             A new :class:`FloatSet` instance
         """
         from .floatset import FloatSet
+
         return FloatSet(elements=[float(x) for x in self.elements()])
 
     # ------------------------- Accessors -------------------------------------
@@ -200,8 +218,10 @@ class IntSet(Set[int]):
             intset_shift_scale
         """
         return IntSet(
-            _inner=intset_shift_scale(self._inner, delta, width,
-                                      delta is not None, width is not None))
+            _inner=intset_shift_scale(
+                self._inner, delta, width, delta is not None, width is not None
+            )
+        )
 
     # ------------------------- Topological Operations --------------------------------
 

@@ -10,12 +10,12 @@ from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceS
 from ..collections import *
 
 
-class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC):
+class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC):
     """
     Base class for temporal boolean.
     """
 
-    _mobilitydb_name = 'tbool'
+    _mobilitydb_name = "tbool"
 
     BaseClass = bool
     _parse_function = tbool_in
@@ -50,8 +50,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: Union[TimestampSet, Period]) -> \
-            TBoolSeq:
+    def from_base_time(value: bool, base: Union[TimestampSet, Period]) -> TBoolSeq:
         ...
 
     @staticmethod
@@ -76,18 +75,18 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             tboolseq_from_base_period, tboolseqset_from_base_periodset
         """
         if isinstance(base, datetime):
-            return TBoolInst(_inner=tboolinst_make(value,
-                                                   datetime_to_timestamptz(base)))
+            return TBoolInst(
+                _inner=tboolinst_make(value, datetime_to_timestamptz(base))
+            )
         elif isinstance(base, TimestampSet):
-            return TBoolSeq(_inner=tboolseq_from_base_timestampset(value,
-                                                                   base._inner))
+            return TBoolSeq(_inner=tboolseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TBoolSeq(_inner=tboolseq_from_base_period(value,
-                                                             base._inner))
+            return TBoolSeq(_inner=tboolseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value,
-                                                                      base._inner))
-        raise TypeError(f'Operation not supported with type {base.__class__}')
+            return TBoolSeqSet(
+                _inner=tboolseqset_from_base_periodset(value, base._inner)
+            )
+        raise TypeError(f"Operation not supported with type {base.__class__}")
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -150,8 +149,9 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         MEOS Function:
             tbool_value_at_timestamp
         """
-        return tbool_value_at_timestamp(self._inner,
-                                        datetime_to_timestamptz(timestamp), True)
+        return tbool_value_at_timestamp(
+            self._inner, datetime_to_timestamptz(timestamp), True
+        )
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_eq(self, value: bool) -> bool:
@@ -301,9 +301,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         if isinstance(other, bool):
             return self.__class__(_inner=tand_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
-            return self.__class__(_inner=tand_tbool_tbool(self._inner,
-                                                          other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __and__(self, other):
         """
@@ -336,9 +335,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         if isinstance(other, bool):
             return self.__class__(_inner=tor_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
-            return self.__class__(_inner=tor_tbool_tbool(self._inner,
-                                                         other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __or__(self, other):
         """
@@ -427,59 +425,86 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         if not value:
             return None
-        if value[0] != '{' and value[0] != '[' and value[0] != '(':
+        if value[0] != "{" and value[0] != "[" and value[0] != "(":
             return TBoolInst(string=value)
-        elif value[0] == '[' or value[0] == '(':
+        elif value[0] == "[" or value[0] == "(":
             return TBoolSeq(string=value)
-        elif value[0] == '{':
-            if value[1] == '[' or value[1] == '(':
+        elif value[0] == "{":
+            if value[1] == "[" or value[1] == "(":
                 return TBoolSeqSet(string=value)
             else:
                 return TBoolSeq(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
 
 
-class TBoolInst(TInstant[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], TBool):
+class TBoolInst(TInstant[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool):
     """
     Class for representing temporal boolean values at a single instant.
     """
+
     _make_function = tboolinst_make
     _cast_function = bool
 
-    def __init__(self, string: Optional[str] = None, *,
-                 value: Optional[Union[str, bool]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp,
-                         _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        value: Optional[Union[str, bool]] = None,
+        timestamp: Optional[Union[str, datetime]] = None,
+        _inner=None,
+    ):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TBoolSeq(TSequence[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-'TBoolSeqSet'], TBool):
+class TBoolSeq(TSequence[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool):
     """
     Class for representing temporal boolean values over a period of time.
     """
+
     ComponentClass = TBoolInst
 
-    def __init__(self, string: Optional[str] = None, *,
-                 instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list,
-                         lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+        lower_inc: bool = True,
+        upper_inc: bool = False,
+        interpolation: TInterpolation = TInterpolation.STEPWISE,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            instant_list=instant_list,
+            lower_inc=lower_inc,
+            upper_inc=upper_inc,
+            interpolation=interpolation,
+            normalize=normalize,
+            _inner=_inner,
+        )
 
 
-class TBoolSeqSet(TSequenceSet[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-'TBoolSeqSet'], TBool):
+class TBoolSeqSet(
+    TSequenceSet[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool
+):
     """
     Class for representing temporal boolean values over a period of time with gaps.
     """
+
     ComponentClass = TBoolSeq
 
-    def __init__(self, string: Optional[str] = None, *,
-                 sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            sequence_list=sequence_list,
+            normalize=normalize,
+            _inner=_inner,
+        )

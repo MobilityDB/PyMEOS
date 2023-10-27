@@ -28,11 +28,15 @@ class TemporalPointSequenceSetPlotter:
             :func:`~pymeos.plotters.point_sequence_plotter.TemporalPointSequencePlotter.plot_xy`,
             :func:`~pymeos.plotters.point_sequence_plotter.TemporalPointSequencePlotter.plot_sequences_xy`
         """
-        seqs = sequence_set.sequences() if isinstance(sequence_set, TPointSeqSet) else sequence_set
+        seqs = (
+            sequence_set.sequences()
+            if isinstance(sequence_set, TPointSeqSet)
+            else sequence_set
+        )
         plots = [TemporalPointSequencePlotter.plot_xy(seqs[0], *args, **kwargs)]
-        if 'color' not in kwargs:
-            kwargs['color'] = plots[0][0][0].get_color()
-        kwargs.pop('label', None)
+        if "color" not in kwargs:
+            kwargs["color"] = plots[0][0][0].get_color()
+        kwargs.pop("label", None)
         for seq in seqs[1:]:
-            plots.append(TemporalPointSequencePlotter.plot_xy(seq, *args,  **kwargs))
+            plots.append(TemporalPointSequencePlotter.plot_xy(seq, *args, **kwargs))
         return plots

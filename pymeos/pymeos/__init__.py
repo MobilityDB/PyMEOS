@@ -4,85 +4,130 @@ from .main import *
 from .meos_init import *
 from .temporal import *
 from .collections import *
-from pymeos_cffi import \
-    MeosException, \
-    MeosInternalError, \
-    MeosArgumentError, \
-    MeosIoError, \
-    MeosInternalTypeError, \
-    MeosValueOutOfRangeError, \
-    MeosDivisionByZeroError, \
-    MeosMemoryAllocError, \
-    MeosAggregationError, \
-    MeosDirectoryError, \
-    MeosFileError, \
-    MeosInvalidArgError, \
-    MeosInvalidArgTypeError, \
-    MeosInvalidArgValueError, \
-    MeosMfJsonInputError, \
-    MeosMfJsonOutputError, \
-    MeosTextInputError, \
-    MeosTextOutputError, \
-    MeosWkbInputError, \
-    MeosWkbOutputError, \
-    MeosGeoJsonInputError, \
-    MeosGeoJsonOutputError
+from pymeos_cffi import (
+    MeosException,
+    MeosInternalError,
+    MeosArgumentError,
+    MeosIoError,
+    MeosInternalTypeError,
+    MeosValueOutOfRangeError,
+    MeosDivisionByZeroError,
+    MeosMemoryAllocError,
+    MeosAggregationError,
+    MeosDirectoryError,
+    MeosFileError,
+    MeosInvalidArgError,
+    MeosInvalidArgTypeError,
+    MeosInvalidArgValueError,
+    MeosMfJsonInputError,
+    MeosMfJsonOutputError,
+    MeosTextInputError,
+    MeosTextOutputError,
+    MeosWkbInputError,
+    MeosWkbOutputError,
+    MeosGeoJsonInputError,
+    MeosGeoJsonOutputError,
+)
 
-__version__ = '1.1.3b2'
+__version__ = "1.1.3b2"
 __all__ = [
     # initialization
-    'pymeos_initialize', 'pymeos_finalize',
+    "pymeos_initialize",
+    "pymeos_finalize",
     # boxes
-    'Box', 'TBox', 'STBox',
+    "Box",
+    "TBox",
+    "STBox",
     # main
-    'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet',
-    'TInt', 'TIntInst', 'TIntSeq', 'TIntSeqSet',
-    'TFloat', 'TFloatInst', 'TFloatSeq', 'TFloatSeqSet',
-    'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet',
-    'TPointInst', 'TPointSeq', 'TPointSeqSet',
-    'TGeomPoint', 'TGeomPointInst', 'TGeomPointSeq', 'TGeomPointSeqSet',
-    'TGeogPoint', 'TGeogPointInst', 'TGeogPointSeq', 'TGeogPointSeqSet',
+    "TBool",
+    "TBoolInst",
+    "TBoolSeq",
+    "TBoolSeqSet",
+    "TInt",
+    "TIntInst",
+    "TIntSeq",
+    "TIntSeqSet",
+    "TFloat",
+    "TFloatInst",
+    "TFloatSeq",
+    "TFloatSeqSet",
+    "TText",
+    "TTextInst",
+    "TTextSeq",
+    "TTextSeqSet",
+    "TPointInst",
+    "TPointSeq",
+    "TPointSeqSet",
+    "TGeomPoint",
+    "TGeomPointInst",
+    "TGeomPointSeq",
+    "TGeomPointSeqSet",
+    "TGeogPoint",
+    "TGeogPointInst",
+    "TGeogPointSeq",
+    "TGeogPointSeqSet",
     # temporal
-    'Temporal', 'TInstant', 'TSequence', 'TSequenceSet',
+    "Temporal",
+    "TInstant",
+    "TSequence",
+    "TSequenceSet",
     # Collections
-    'Time', 'Period', 'TimestampSet', 'PeriodSet',
-    'TextSet',
-    'IntSet', 'IntSpan', 'IntSpanSet',
-    'FloatSet', 'FloatSpan', 'FloatSpanSet',
-    'GeoSet', 'GeometrySet', 'GeographySet',
+    "Time",
+    "Period",
+    "TimestampSet",
+    "PeriodSet",
+    "TextSet",
+    "IntSet",
+    "IntSpan",
+    "IntSpanSet",
+    "FloatSet",
+    "FloatSpan",
+    "FloatSpanSet",
+    "GeoSet",
+    "GeometrySet",
+    "GeographySet",
     # extras
-    'TInterpolation',
+    "TInterpolation",
     # aggregators
-    'TemporalInstantCountAggregator', 'TemporalPeriodCountAggregator', 'TemporalExtentAggregator',
-    'TemporalAndAggregator', 'TemporalOrAggregator',
-    'TemporalAverageAggregator',
-    'TemporalNumberExtentAggregator',
-    'TemporalIntMaxAggregator', 'TemporalIntMinAggregator', 'TemporalIntSumAggregator',
-    'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
-    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
-    'TemporalPointExtentAggregator',
-    'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
+    "TemporalInstantCountAggregator",
+    "TemporalPeriodCountAggregator",
+    "TemporalExtentAggregator",
+    "TemporalAndAggregator",
+    "TemporalOrAggregator",
+    "TemporalAverageAggregator",
+    "TemporalNumberExtentAggregator",
+    "TemporalIntMaxAggregator",
+    "TemporalIntMinAggregator",
+    "TemporalIntSumAggregator",
+    "TemporalFloatMaxAggregator",
+    "TemporalFloatMinAggregator",
+    "TemporalFloatSumAggregator",
+    "TemporalTextMaxAggregator",
+    "TemporalTextMinAggregator",
+    "TemporalPointExtentAggregator",
+    "TimeInstantaneousUnionAggregator",
+    "TimeContinuousUnionAggregator",
     # exceptions
-    'MeosException',
-    'MeosInternalError',
-    'MeosArgumentError',
-    'MeosIoError',
-    'MeosInternalTypeError',
-    'MeosValueOutOfRangeError',
-    'MeosDivisionByZeroError',
-    'MeosMemoryAllocError',
-    'MeosAggregationError',
-    'MeosDirectoryError',
-    'MeosFileError',
-    'MeosInvalidArgError',
-    'MeosInvalidArgTypeError',
-    'MeosInvalidArgValueError',
-    'MeosMfJsonInputError',
-    'MeosMfJsonOutputError',
-    'MeosTextInputError',
-    'MeosTextOutputError',
-    'MeosWkbInputError',
-    'MeosWkbOutputError',
-    'MeosGeoJsonInputError',
-    'MeosGeoJsonOutputError',
+    "MeosException",
+    "MeosInternalError",
+    "MeosArgumentError",
+    "MeosIoError",
+    "MeosInternalTypeError",
+    "MeosValueOutOfRangeError",
+    "MeosDivisionByZeroError",
+    "MeosMemoryAllocError",
+    "MeosAggregationError",
+    "MeosDirectoryError",
+    "MeosFileError",
+    "MeosInvalidArgError",
+    "MeosInvalidArgTypeError",
+    "MeosInvalidArgValueError",
+    "MeosMfJsonInputError",
+    "MeosMfJsonOutputError",
+    "MeosTextInputError",
+    "MeosTextOutputError",
+    "MeosWkbInputError",
+    "MeosWkbOutputError",
+    "MeosGeoJsonInputError",
+    "MeosGeoJsonOutputError",
 ]

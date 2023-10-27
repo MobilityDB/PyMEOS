@@ -1,4 +1,8 @@
-# ![MEOS Logo](https://raw.githubusercontent.com/MobilityDB/PyMEOS/master/doc/images/PyMEOS%20Logo.png)
+# ![MEOS Logo](https://raw.githubusercontent.com/MobilityDB/PyMEOS/master/docs/images/PyMEOS%20Logo.png)
+
+[![pypi](https://img.shields.io/pypi/v/pymeos.svg)](https://pypi.python.org/pypi/pymeos/)
+[![docs status](https://readthedocs.org/projects/pymeos/badge/?version=latest)](https://pymeos.readthedocs.io/en/latest/)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 [MEOS (Mobility Engine, Open Source)](https://www.libmeos.org/) is a C library which enables the manipulation of
 temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)'s data types and functions.

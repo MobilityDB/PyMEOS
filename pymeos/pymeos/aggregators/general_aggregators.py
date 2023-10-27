@@ -10,9 +10,9 @@ from ..temporal import Temporal, TInterpolation
 from ..collections import Time, TimestampSet, Period, PeriodSet
 
 
-class TemporalInstantCountAggregator(BaseAggregator[
-                                         Union[datetime, TimestampSet, Temporal],
-                                         TIntSeq]):
+class TemporalInstantCountAggregator(
+    BaseAggregator[Union[datetime, TimestampSet, Temporal], TIntSeq]
+):
     """
     Temporal count for instantaneous temporal objects:
 
@@ -30,14 +30,19 @@ class TemporalInstantCountAggregator(BaseAggregator[
             state = timestamp_tcount_transfn(state, datetime_to_timestamptz(temporal))
         elif isinstance(temporal, TimestampSet):
             state = timestampset_tcount_transfn(state, temporal._inner)
-        elif isinstance(temporal, Temporal) and temporal.interpolation() == TInterpolation.DISCRETE:
+        elif (
+            isinstance(temporal, Temporal)
+            and temporal.interpolation() == TInterpolation.DISCRETE
+        ):
             state = temporal_tcount_transfn(state, temporal._inner)
         else:
             cls._error(temporal)
         return state
 
 
-class TemporalPeriodCountAggregator(BaseAggregator[Union[Period, PeriodSet, Temporal], TIntSeqSet]):
+class TemporalPeriodCountAggregator(
+    BaseAggregator[Union[Period, PeriodSet, Temporal], TIntSeqSet]
+):
     """
     Temporal count for non-instantaneous temporal objects:
 
@@ -55,7 +60,10 @@ class TemporalPeriodCountAggregator(BaseAggregator[Union[Period, PeriodSet, Temp
             state = period_tcount_transfn(state, temporal._inner)
         elif isinstance(temporal, PeriodSet):
             state = periodset_tcount_transfn(state, temporal._inner)
-        elif isinstance(temporal, Temporal) and temporal.interpolation() != TInterpolation.DISCRETE:
+        elif (
+            isinstance(temporal, Temporal)
+            and temporal.interpolation() != TInterpolation.DISCRETE
+        ):
             state = temporal_tcount_transfn(state, temporal._inner)
         else:
             cls._error(temporal)

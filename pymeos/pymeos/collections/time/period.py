@@ -37,12 +37,16 @@ class Period(Span[datetime], TimeCollection):
         >>> Period(lower=parse('2019-09-08 00:00:00+01'), upper=parse('2019-09-10 00:00:00+01'), upper_inc=True)
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'tstzspan'
+    _mobilitydb_name = "tstzspan"
 
     _parse_function = period_in
-    _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
+    _parse_value_function = (
+        lambda x: pg_timestamptz_in(x, -1)
+        if isinstance(x, str)
+        else datetime_to_timestamptz(x)
+    )
     _make_function = period_make
 
     # ------------------------- Constructors ----------------------------------
@@ -73,6 +77,7 @@ class Period(Span[datetime], TimeCollection):
             span_to_spanset
         """
         from .periodset import PeriodSet
+
         return PeriodSet(_inner=super().to_spanset())
 
     def to_periodset(self) -> PeriodSet:
@@ -178,8 +183,9 @@ class Period(Span[datetime], TimeCollection):
         """
         return self.shift_scale(duration=duration)
 
-    def shift_scale(self, shift: Optional[timedelta] = None,
-        duration: Optional[timedelta] = None) -> Period:
+    def shift_scale(
+        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
+    ) -> Period:
         """
         Returns a new period that starts at ``self`` shifted by ``shift`` and
         has duration ``duration``
@@ -199,7 +205,9 @@ class Period(Span[datetime], TimeCollection):
         MEOS Functions:
             period_shift_scale
         """
-        assert shift is not None or duration is not None, 'shift and scale deltas must not be both None'
+        assert (
+            shift is not None or duration is not None
+        ), "shift and scale deltas must not be both None"
         modified = period_shift_scale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
@@ -233,9 +241,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return adjacent_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            return adjacent_period_timestamp(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, Temporal):
             return adjacent_span_span(self._inner, temporal_to_period(other._inner))
         elif isinstance(other, get_args(Box)):
@@ -243,7 +253,9 @@ class Period(Span[datetime], TimeCollection):
         else:
             return super().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[Period, PeriodSet, Box, Temporal]) -> bool:
+    def is_contained_in(
+        self, container: Union[Period, PeriodSet, Box, Temporal]
+    ) -> bool:
         """
         Returns whether ``self`` is temporally contained in ``container``.
 
@@ -266,6 +278,7 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(container, Temporal):
             return self.is_contained_in(container.period())
         elif isinstance(container, Box):
@@ -297,9 +310,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(content, datetime):
-            return contains_period_timestamp(self._inner,
-                datetime_to_timestamptz(content))
+            return contains_period_timestamp(
+                self._inner, datetime_to_timestamptz(content)
+            )
         elif isinstance(content, Temporal):
             return self.contains(content.period())
         elif isinstance(content, get_args(Box)):
@@ -327,14 +342,16 @@ class Period(Span[datetime], TimeCollection):
             True if overlaps, False otherwise
 
         MEOS Functions:
-            overlaps_span_span, overlaps_span_spanset, 
+            overlaps_span_span, overlaps_span_spanset,
             overlaps_period_timestampset, overlaps_period_temporal
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return overlaps_span_span(self._inner,
-                timestamp_to_period(datetime_to_timestamptz(other)))
+            return overlaps_span_span(
+                self._inner, timestamp_to_period(datetime_to_timestamptz(other))
+            )
         elif isinstance(other, Temporal):
             return self.overlaps(other.period())
         elif isinstance(other, get_args(Box)):
@@ -357,13 +374,15 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, Temporal):
             return self.is_same(other.period())
         elif isinstance(other, get_args(Box)):
             return self.is_same(other.to_period())
         elif isinstance(other, datetime):
-            return span_eq(self._inner,
-                timestamp_to_period(datetime_to_timestamptz(other)))
+            return span_eq(
+                self._inner, timestamp_to_period(datetime_to_timestamptz(other))
+            )
         else:
             return super().is_same(other)
 
@@ -393,9 +412,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return overafter_timestamp_period(datetime_to_timestamptz(other),
-                self._inner)
+            return overafter_timestamp_period(
+                datetime_to_timestamptz(other), self._inner
+            )
         elif isinstance(other, Temporal):
             return self.is_left(other.period())
         elif isinstance(other, get_args(Box)):
@@ -428,9 +449,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return overbefore_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            return overbefore_period_timestamp(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, Temporal):
             return self.is_over_or_left(other.period())
         elif isinstance(other, get_args(Box)):
@@ -463,9 +486,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return overbefore_timestamp_period(datetime_to_timestamptz(other),
-                self._inner)
+            return overbefore_timestamp_period(
+                datetime_to_timestamptz(other), self._inner
+            )
         elif isinstance(other, Temporal):
             return self.is_right(other.period())
         elif isinstance(other, get_args(Box)):
@@ -498,9 +523,11 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return overafter_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            return overafter_period_timestamp(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, Temporal):
             return self.is_over_or_right(other.period())
         elif isinstance(other, get_args(Box)):
@@ -524,9 +551,13 @@ class Period(Span[datetime], TimeCollection):
         """
         from ...temporal import Temporal
         from ...boxes import Box
+
         if isinstance(other, datetime):
-            return timedelta(seconds=distance_period_timestamp(self._inner,
-                datetime_to_timestamptz(other)))
+            return timedelta(
+                seconds=distance_period_timestamp(
+                    self._inner, datetime_to_timestamptz(other)
+                )
+            )
         elif isinstance(other, Temporal):
             return self.distance(other.period())
         elif isinstance(other, get_args(Box)):
@@ -544,7 +575,9 @@ class Period(Span[datetime], TimeCollection):
         ...
 
     @overload
-    def intersection(self, other: Union[TimestampSet, PeriodSet]) -> Optional[PeriodSet]:
+    def intersection(
+        self, other: Union[TimestampSet, PeriodSet]
+    ) -> Optional[PeriodSet]:
         ...
 
     def intersection(self, other: Time) -> Optional[Time]:
@@ -558,14 +591,16 @@ class Period(Span[datetime], TimeCollection):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_span_span, intersection_spanset_span, 
+            intersection_span_span, intersection_spanset_span,
             intersection_period_timestamp
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+
         if isinstance(other, datetime):
-            result = intersection_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            result = intersection_period_timestamp(
+                self._inner, datetime_to_timestamptz(other)
+            )
             return timestamptz_to_datetime(result) if result is not None else None
         elif isinstance(other, TimestampSet):
             return self.intersection(other.to_periodset())
@@ -593,9 +628,9 @@ class Period(Span[datetime], TimeCollection):
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+
         if isinstance(other, datetime):
-            result = minus_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            result = minus_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             return self.minus(other.to_periodset())
         elif isinstance(other, Period):
@@ -621,9 +656,9 @@ class Period(Span[datetime], TimeCollection):
         """
         from .periodset import PeriodSet
         from .timestampset import TimestampSet
+
         if isinstance(other, datetime):
-            result = union_period_timestamp(self._inner,
-                datetime_to_timestamptz(other))
+            result = union_period_timestamp(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TimestampSet):
             result = super().union(other)
         elif isinstance(other, Period):
@@ -631,10 +666,11 @@ class Period(Span[datetime], TimeCollection):
         elif isinstance(other, PeriodSet):
             result = super().union(other)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return PeriodSet(_inner=result) if result is not None else None
 
     # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
+
         return TimePlotter.plot_period(self, *args, **kwargs)

@@ -35,13 +35,17 @@ class STBox:
         >>> STBox(xmin=1.0, xmax=4.0, ymin=2.0, ymax=5.0, tmin=datetime(2001, 1, 1), tmax=datetime(2001, 1, 2))
 
     """
-    __slots__ = ['_inner']
 
-    _mobilitydb_name = 'stbox'
+    __slots__ = ["_inner"]
 
-    def _get_box(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time],
-                 allow_space_only: bool = True,
-                 allow_time_only: bool = False) -> STBox:
+    _mobilitydb_name = "stbox"
+
+    def _get_box(
+        self,
+        other: Union[shp.BaseGeometry, STBox, Temporal, Time],
+        allow_space_only: bool = True,
+        allow_time_only: bool = False,
+    ) -> STBox:
         if allow_space_only and isinstance(other, shp.BaseGeometry):
             other_box = geo_to_stbox(geo_to_gserialized(other, self.geodetic()))
         elif isinstance(other, STBox):
@@ -59,29 +63,40 @@ class STBox:
         elif allow_time_only and isinstance(other, PeriodSet):
             other_box = periodset_to_stbox(other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return other_box
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, float]] = None,
-                 xmax: Optional[Union[str, float]] = None,
-                 ymin: Optional[Union[str, float]] = None,
-                 ymax: Optional[Union[str, float]] = None,
-                 zmin: Optional[Union[str, float]] = None,
-                 zmax: Optional[Union[str, float]] = None,
-                 tmin: Optional[Union[str, datetime]] = None,
-                 tmax: Optional[Union[str, datetime]] = None,
-                 tmin_inc: bool = True, tmax_inc: bool = True,
-                 geodetic: bool = False, srid: Optional[int] = None,
-                 _inner=None):
-
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        xmin: Optional[Union[str, float]] = None,
+        xmax: Optional[Union[str, float]] = None,
+        ymin: Optional[Union[str, float]] = None,
+        ymax: Optional[Union[str, float]] = None,
+        zmin: Optional[Union[str, float]] = None,
+        zmax: Optional[Union[str, float]] = None,
+        tmin: Optional[Union[str, datetime]] = None,
+        tmax: Optional[Union[str, datetime]] = None,
+        tmin_inc: bool = True,
+        tmax_inc: bool = True,
+        geodetic: bool = False,
+        srid: Optional[int] = None,
+        _inner=None,
+    ):
         assert (_inner is not None) or (string is not None) != (
-                (xmin is not None and xmax is not None and ymin is not None and
-                 ymax is not None) or
-                (tmin is not None and tmax is not None)), \
-            "Either string must be not None or at least a bound pair (xmin/max" \
+            (
+                xmin is not None
+                and xmax is not None
+                and ymin is not None
+                and ymax is not None
+            )
+            or (tmin is not None and tmax is not None)
+        ), (
+            "Either string must be not None or at least a bound pair (xmin/max"
             " and ymin/max, or tmin/max) must be not None"
+        )
 
         if _inner is not None:
             self._inner = _inner
@@ -90,16 +105,30 @@ class STBox:
         else:
             period = None
             hast = tmin is not None and tmax is not None
-            hasx = xmin is not None and xmax is not None and ymin is not None \
-            and ymax is not None
+            hasx = (
+                xmin is not None
+                and xmax is not None
+                and ymin is not None
+                and ymax is not None
+            )
             hasz = zmin is not None and zmax is not None
             if hast:
-                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc,
-                upper_inc=tmax_inc)._inner
-            self._inner = stbox_make(hasx, hasz, geodetic, srid or 0, 
-                float(xmin or 0), float(xmax or 0),
-                float(ymin or 0), float(ymax or 0),
-                float(zmin or 0), float(zmax or 0), period)
+                period = Period(
+                    lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc
+                )._inner
+            self._inner = stbox_make(
+                hasx,
+                hasz,
+                geodetic,
+                srid or 0,
+                float(xmin or 0),
+                float(xmax or 0),
+                float(ymin or 0),
+                float(ymax or 0),
+                float(zmin or 0),
+                float(zmax or 0),
+                period,
+            )
 
     def __copy__(self) -> STBox:
         """
@@ -190,12 +219,15 @@ class STBox:
         elif isinstance(time, PeriodSet):
             result = periodset_to_stbox(time._inner)
         else:
-            raise TypeError(f'Operation not supported with type {time.__class__}')
+            raise TypeError(f"Operation not supported with type {time.__class__}")
         return STBox(_inner=result)
 
     @staticmethod
-    def from_geometry_time(geometry: shp.BaseGeometry, time: Union[datetime, Period],
-                           geodetic: bool = False) -> STBox:
+    def from_geometry_time(
+        geometry: shp.BaseGeometry,
+        time: Union[datetime, Period],
+        geodetic: bool = False,
+    ) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
 
@@ -216,8 +248,10 @@ class STBox:
         elif isinstance(time, Period):
             result = geo_period_to_stbox(gs, time._inner)
         else:
-            raise TypeError(f'Operation not supported with types ' \
-                '{geometry.__class__} and {time.__class__}')
+            raise TypeError(
+                f"Operation not supported with types "
+                "{geometry.__class__} and {time.__class__}"
+            )
         return STBox(_inner=result)
 
     @staticmethod
@@ -237,8 +271,11 @@ class STBox:
         return STBox(_inner=tpoint_to_stbox(temporal._inner))
 
     @staticmethod
-    def from_expanding_bounding_box(value: Union[shp.BaseGeometry, TPoint, STBox],
-        expansion: float, geodetic: Optional[bool] = False) -> STBox:
+    def from_expanding_bounding_box(
+        value: Union[shp.BaseGeometry, TPoint, STBox],
+        expansion: float,
+        geodetic: Optional[bool] = False,
+    ) -> STBox:
         """
         Returns a `STBox` from a `shp.BaseGeometry`, `TPoint` or `STBox` instance,
         expanding its bounding box by the given amount.
@@ -263,7 +300,7 @@ class STBox:
         elif isinstance(value, STBox):
             result = stbox_expand_space(value._inner, expansion)
         else:
-            raise TypeError(f'Operation not supported with type {value.__class__}')
+            raise TypeError(f"Operation not supported with type {value.__class__}")
         return STBox(_inner=result)
 
     # ------------------------- Output ----------------------------------------
@@ -289,8 +326,7 @@ class STBox:
         MEOS Functions:
             stbox_out
         """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        return f"{self.__class__.__name__}" f"({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -332,8 +368,7 @@ class STBox:
         MEOS Functions:
             stbox_to_geo
         """
-        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner),
-            precision)
+        return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
 
     def to_period(self) -> Period:
         """
@@ -349,7 +384,6 @@ class STBox:
 
     # ------------------------- Accessors -------------------------------------
     def has_xy(self) -> bool:
-
         """
         Returns whether ``self`` has a spatial (XY) dimension.
 
@@ -584,10 +618,9 @@ class STBox:
         if isinstance(other, int) or isinstance(other, float):
             result = stbox_expand_space(self._inner, float(other))
         elif isinstance(other, timedelta):
-            result = stbox_expand_time(self._inner,
-                timedelta_to_interval(other))
+            result = stbox_expand_time(self._inner, timedelta_to_interval(other))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return STBox(_inner=result)
 
     def shift_time(self, delta: timedelta) -> STBox:
@@ -610,7 +643,7 @@ class STBox:
 
     def scale_time(self, duration: timedelta) -> STBox:
         """
-        Returns a new `STBox` with the time dimension having duration 
+        Returns a new `STBox` with the time dimension having duration
         `duration`.
 
         Args:
@@ -627,8 +660,9 @@ class STBox:
         """
         return self.shift_scale_time(duration=duration)
 
-    def shift_scale_time(self, shift: Optional[timedelta] = None,
-        duration: Optional[timedelta] = None) -> STBox:
+    def shift_scale_time(
+        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
+    ) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `shift` and
         with duration `duration`.
@@ -646,16 +680,17 @@ class STBox:
         See Also:
             :meth:`Period.shift_scale`
         """
-        assert shift is not None or duration is not None, \
-            'shift and scale deltas must not be both None'
+        assert (
+            shift is not None or duration is not None
+        ), "shift and scale deltas must not be both None"
         result = stbox_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None
+            timedelta_to_interval(duration) if duration else None,
         )
         return STBox(_inner=result)
 
-    def round(self, max_decimals : Optional[int] = 0) -> STBox:
+    def round(self, max_decimals: Optional[int] = 0) -> STBox:
         """
         Returns `self` rounded to the given number of decimal digits.
 
@@ -740,7 +775,9 @@ class STBox:
         return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
+    def is_adjacent(
+        self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]
+    ) -> bool:
         """
         Returns whether ``self`` and `other` are adjacent. Two spatiotemporal
         boxes are adjacent if they share n dimensions and the intersection is
@@ -757,11 +794,13 @@ class STBox:
         MEOS Functions:
             adjacent_stbox_stbox
         """
-        return adjacent_stbox_stbox(self._inner, self._get_box(other,
-            allow_time_only=True))
+        return adjacent_stbox_stbox(
+            self._inner, self._get_box(other, allow_time_only=True)
+        )
 
-    def is_contained_in(self,
-            container: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
+    def is_contained_in(
+        self, container: Union[shp.BaseGeometry, STBox, Temporal, Time]
+    ) -> bool:
         """
         Returns whether ``self`` is contained in `container`. Note that for
         `TPoint` instances, the bounding box of the temporal point is used.
@@ -776,8 +815,9 @@ class STBox:
         MEOS Functions:
             contained_stbox_stbox
         """
-        return contained_stbox_stbox(self._inner, self._get_box(container,
-            allow_time_only=True))
+        return contained_stbox_stbox(
+            self._inner, self._get_box(container, allow_time_only=True)
+        )
 
     def contains(self, content: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
@@ -794,8 +834,9 @@ class STBox:
         MEOS Functions:
             contains_stbox_stbox
         """
-        return contains_stbox_stbox(self._inner, self._get_box(content,
-            allow_time_only=True))
+        return contains_stbox_stbox(
+            self._inner, self._get_box(content, allow_time_only=True)
+        )
 
     def __contains__(self, item):
         """
@@ -830,8 +871,9 @@ class STBox:
         MEOS Functions:
             overlaps_stbox_stbox
         """
-        return overlaps_stbox_stbox(self._inner, self._get_box(other,
-            allow_time_only=True))
+        return overlaps_stbox_stbox(
+            self._inner, self._get_box(other, allow_time_only=True)
+        )
 
     def is_same(self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]) -> bool:
         """
@@ -847,8 +889,7 @@ class STBox:
         MEOS Functions:
             same_stbox_stbox
         """
-        return same_stbox_stbox(self._inner, self._get_box(other,
-            allow_time_only=True))
+        return same_stbox_stbox(self._inner, self._get_box(other, allow_time_only=True))
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[shp.BaseGeometry, STBox, TPoint]) -> bool:
@@ -860,7 +901,7 @@ class STBox:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is strictly to the left of `other`, 
+            ``True`` if ``self`` is strictly to the left of `other`,
             ``False`` otherwise.
 
         MEOS Functions:
@@ -1113,14 +1154,15 @@ class STBox:
             other: The spatiotemporal object to compare with ``self``.
 
         Returns:
-            ``True`` if ``self`` is after `other` allowing for overlap, 
+            ``True`` if ``self`` is after `other` allowing for overlap,
             ``False`` otherwise.
         """
         return self.to_period().is_over_or_after(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def nearest_approach_distance(self, other: Union[shp.BaseGeometry, STBox, TPoint]) \
-        -> float:
+    def nearest_approach_distance(
+        self, other: Union[shp.BaseGeometry, STBox, TPoint]
+    ) -> float:
         """
         Returns the distance between the nearest points of ``self`` and `other`.
 
@@ -1142,7 +1184,7 @@ class STBox:
         elif isinstance(other, TPoint):
             return nad_tpoint_stbox(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Splitting --------------------------------------
     def quad_split_flat(self) -> List[STBox]:
@@ -1203,20 +1245,28 @@ class STBox:
         boxes, count = stbox_quad_split(self._inner)
         if self.has_z():
             return [
-                [[STBox(_inner=boxes + i) for i in range(2)],
-                    [STBox(_inner=boxes + i) for i in range(2, 4)]],
-                [[STBox(_inner=boxes + i) for i in range(4, 6)],
-                    [STBox(_inner=boxes + i) for i in range(6, 8)]]
+                [
+                    [STBox(_inner=boxes + i) for i in range(2)],
+                    [STBox(_inner=boxes + i) for i in range(2, 4)],
+                ],
+                [
+                    [STBox(_inner=boxes + i) for i in range(4, 6)],
+                    [STBox(_inner=boxes + i) for i in range(6, 8)],
+                ],
             ]
         else:
-            return [[STBox(_inner=boxes + i) for i in range(2)],
-                [STBox(_inner=boxes + i) for i in range(2, 4)]]
+            return [
+                [STBox(_inner=boxes + i) for i in range(2)],
+                [STBox(_inner=boxes + i) for i in range(2, 4)],
+            ]
 
-    def tile(self, size: Optional[float] = None, 
-             duration: Optional[Union[timedelta, str]] = None,
-             origin: Optional[shp.BaseGeometry] = None,
-             start: Union[datetime, str, None] = None) -> \
-             List[List[List[List[STBox]]]]:
+    def tile(
+        self,
+        size: Optional[float] = None,
+        duration: Optional[Union[timedelta, str]] = None,
+        origin: Optional[shp.BaseGeometry] = None,
+        start: Union[datetime, str, None] = None,
+    ) -> List[List[List[List[STBox]]]]:
         """
         Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the
         tiles of ``self``. The resulting matrix has 4 dimensions regardless
@@ -1241,18 +1291,37 @@ class STBox:
         MEOS Functions:
             stbox_tile_list
         """
-        sz = size or (max(self.xmax() - self.xmin(), self.ymax() - self.ymin(),
-                          (self.zmax() - self.zmin() if self.has_z() else 0)) + 1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
-            else pg_interval_in(duration, -1) if isinstance(duration, str) \
+        sz = size or (
+            max(
+                self.xmax() - self.xmin(),
+                self.ymax() - self.ymin(),
+                (self.zmax() - self.zmin() if self.has_z() else 0),
+            )
+            + 1
+        )
+        dt = (
+            timedelta_to_interval(duration)
+            if isinstance(duration, timedelta)
+            else pg_interval_in(duration, -1)
+            if isinstance(duration, str)
             else None
-        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
-            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else pg_timestamptz_in('2000-01-03', -1) if self.has_t() \
+        )
+        st = (
+            datetime_to_timestamptz(start)
+            if isinstance(start, datetime)
+            else pg_timestamptz_in(start, -1)
+            if isinstance(start, str)
+            else pg_timestamptz_in("2000-01-03", -1)
+            if self.has_t()
             else 0
-        gs = geo_to_gserialized(origin, self.geodetic()) if origin is not None \
-            else pgis_geography_in('Point(0 0 0)', -1) if self.geodetic() \
-            else pgis_geometry_in('Point(0 0 0)', -1)
+        )
+        gs = (
+            geo_to_gserialized(origin, self.geodetic())
+            if origin is not None
+            else pgis_geography_in("Point(0 0 0)", -1)
+            if self.geodetic()
+            else pgis_geometry_in("Point(0 0 0)", -1)
+        )
         tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
         x_size = dimensions[0] or 1
         y_size = dimensions[1] or 1
@@ -1261,14 +1330,33 @@ class STBox:
         x_factor = y_size * z_size * t_size
         y_factor = z_size * t_size
         z_factor = t_size
-        return [[[[STBox(_inner=tiles + x * x_factor + y * y_factor + z * z_factor + t) 
-                for t in range(t_size)]
-                for z in range(z_size)] for y in range(y_size)] for x in range(x_size)]
+        return [
+            [
+                [
+                    [
+                        STBox(
+                            _inner=tiles
+                            + x * x_factor
+                            + y * y_factor
+                            + z * z_factor
+                            + t
+                        )
+                        for t in range(t_size)
+                    ]
+                    for z in range(z_size)
+                ]
+                for y in range(y_size)
+            ]
+            for x in range(x_size)
+        ]
 
-    def tile_flat(self, size: float, 
-                  duration: Optional[Union[timedelta, str]] = None,
-                  origin: Optional[shp.BaseGeometry] = None,
-                  start: Union[datetime, str, None] = None) -> List[STBox]:
+    def tile_flat(
+        self,
+        size: float,
+        duration: Optional[Union[timedelta, str]] = None,
+        origin: Optional[shp.BaseGeometry] = None,
+        start: Union[datetime, str, None] = None,
+    ) -> List[STBox]:
         """
         Returns a flat list of `STBox` instances representing the tiles of
         ``self``.
@@ -1292,12 +1380,7 @@ class STBox:
             stbox_tile_list
         """
         boxes = self.tile(size, duration, origin, start)
-        return [b
-                for x in boxes
-                for y in x
-                for z in y
-                for b in z
-                ]
+        return [b for x in boxes for y in x for z in y for b in z]
 
     # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
@@ -1351,7 +1434,7 @@ class STBox:
         """
         if isinstance(other, self.__class__):
             return stbox_lt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __le__(self, other):
         """
@@ -1371,7 +1454,7 @@ class STBox:
         """
         if isinstance(other, self.__class__):
             return stbox_le(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __gt__(self, other):
         """
@@ -1390,7 +1473,7 @@ class STBox:
         """
         if isinstance(other, self.__class__):
             return stbox_gt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __ge__(self, other):
         """
@@ -1410,7 +1493,7 @@ class STBox:
         """
         if isinstance(other, self.__class__):
             return stbox_ge(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Plot Operations -------------------------------
     def plot_xy(self, *args, **kwargs):
@@ -1421,6 +1504,7 @@ class STBox:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_stbox_xy`
         """
         from ..plotters import BoxPlotter
+
         return BoxPlotter.plot_stbox_xy(self, *args, **kwargs)
 
     def plot_xt(self, *args, **kwargs):
@@ -1432,6 +1516,7 @@ class STBox:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_stbox_xt`
         """
         from ..plotters import BoxPlotter
+
         return BoxPlotter.plot_stbox_xt(self, *args, **kwargs)
 
     def plot_yt(self, *args, **kwargs):
@@ -1443,6 +1528,7 @@ class STBox:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_stbox_yt`
         """
         from ..plotters import BoxPlotter
+
         return BoxPlotter.plot_stbox_yt(self, *args, **kwargs)
 
     # ------------------------- Database Operations ---------------------------

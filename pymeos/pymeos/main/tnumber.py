@@ -14,16 +14,15 @@ if TYPE_CHECKING:
     from .tint import TInt
     from .tfloat import TFloat
 
-TBase = TypeVar('TBase', int, float)
-TG = TypeVar('TG', 'TNumber[int]', 'TNumber[float]')
-TI = TypeVar('TI', 'TInstant[int]', 'TInstant[float]')
-TS = TypeVar('TS', 'TSequence[int]', 'TSequence[float]')
-TSS = TypeVar('TSS', 'TSequenceSet[int]', 'TSequenceSet[float]')
-Self = TypeVar('Self', bound='TNumber[Any]')
+TBase = TypeVar("TBase", int, float)
+TG = TypeVar("TG", "TNumber[int]", "TNumber[float]")
+TI = TypeVar("TI", "TInstant[int]", "TInstant[float]")
+TS = TypeVar("TS", "TSequence[int]", "TSequence[float]")
+TSS = TypeVar("TSS", "TSequenceSet[int]", "TSequenceSet[float]")
+Self = TypeVar("Self", bound="TNumber[Any]")
 
 
 class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
-
     # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> TBox:
         """
@@ -36,6 +35,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             tbox_tnumber
         """
         from ..boxes import TBox
+
         return TBox(_inner=tnumber_to_tbox(self._inner))
 
     def integral(self) -> float:
@@ -76,12 +76,13 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt):
             shifted = tint_shift_value(self._inner, int(delta))
         elif isinstance(self, TFloat):
             shifted = tfloat_shift_value(self._inner, float(delta))
         else:
-            raise TypeError(f'Operation not supported with type {self.__class__}')
+            raise TypeError(f"Operation not supported with type {self.__class__}")
         return Temporal._factory(shifted)
 
     def scale_value(self: Self, width: Union[int, float]) -> Self:
@@ -97,16 +98,18 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt):
             scaled = tint_scale_value(self._inner, int(width))
         elif isinstance(self, TFloat):
             scaled = tfloat_scale_value(self._inner, float(width))
         else:
-            raise TypeError(f'Operation not supported with type {self.__class__}')
+            raise TypeError(f"Operation not supported with type {self.__class__}")
         return Temporal._factory(scaled)
 
-    def shift_scale_value(self: Self, shift: Union[int, float] = None,
-                          width: Union[int, float] = None) -> Self:
+    def shift_scale_value(
+        self: Self, shift: Union[int, float] = None, width: Union[int, float] = None
+    ) -> Self:
         """
         Returns a new :class:`TNumber` with the value dimension shifted by
         ``shift`` and scaled so the value dimension has width ``width``.
@@ -120,22 +123,34 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
-        assert shift is not None or width is not None, \
-            'shift and width must not be both None'
+
+        assert (
+            shift is not None or width is not None
+        ), "shift and width must not be both None"
 
         if isinstance(self, TInt):
-            scaled = tint_shift_scale_value(self._inner,
-                                            int(shift) if shift else None, int(width) if width else None)
+            scaled = tint_shift_scale_value(
+                self._inner,
+                int(shift) if shift else None,
+                int(width) if width else None,
+            )
         elif isinstance(self, TFloat):
-            scaled = tfloat_shift_scale_value(self._inner,
-                                              float(shift) if shift else None, float(width) if width else None)
+            scaled = tfloat_shift_scale_value(
+                self._inner,
+                float(shift) if shift else None,
+                float(width) if width else None,
+            )
         else:
-            raise TypeError(f'Operation not supported with type {self.__class__}')
+            raise TypeError(f"Operation not supported with type {self.__class__}")
         return Temporal._factory(scaled)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
-    TBox, Time]) -> TG:
+    def at(
+        self,
+        other: Union[
+            IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet, TBox, Time
+        ],
+    ) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the value or time `other`.
@@ -152,7 +167,15 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             temporal_at_period, temporal_at_periodset
         """
         from ..boxes import TBox
-        from ..collections import IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        from ..collections import (
+            IntSet,
+            FloatSet,
+            IntSpan,
+            FloatSpan,
+            IntSpanSet,
+            FloatSpanSet,
+        )
+
         if isinstance(other, IntSet) or isinstance(other, FloatSet):
             result = temporal_at_values(self._inner, other._inner)
         elif isinstance(other, IntSpan) or isinstance(other, FloatSpan):
@@ -165,8 +188,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet,
-    TBox, Time]) -> TG:
+    def minus(
+        self,
+        other: Union[
+            IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet, TBox, Time
+        ],
+    ) -> TG:
         """
         Returns a new temporal object with the values of `self` restricted to
         the complement of the value or time `other`.
@@ -184,7 +211,15 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             temporal_minus_period, temporal_minus_periodset
         """
         from ..boxes import TBox
-        from ..collections import IntSet, FloatSet, IntSpan, FloatSpan, IntSpanSet, FloatSpanSet
+        from ..collections import (
+            IntSet,
+            FloatSet,
+            IntSpan,
+            FloatSpan,
+            IntSpanSet,
+            FloatSpanSet,
+        )
+
         if isinstance(other, IntSet) or isinstance(other, FloatSet):
             result = temporal_minus_values(self._inner, other._inner)
         elif isinstance(other, IntSpan) or isinstance(other, FloatSpan):
@@ -276,6 +311,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = add_tint_int(self._inner, other)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
@@ -283,7 +319,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TNumber):
             result = add_tnumber_tnumber(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def radd(self, other: Union[int, float]) -> TNumber:
@@ -301,12 +337,13 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = add_int_tint(other, self._inner)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
             result = add_float_tfloat(float(other), self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def sub(self, other: Union[int, float, TNumber]) -> TNumber:
@@ -325,6 +362,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = sub_tint_int(self._inner, other)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
@@ -332,7 +370,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TNumber):
             result = sub_tnumber_tnumber(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def rsub(self, other: Union[int, float]) -> TNumber:
@@ -350,12 +388,13 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = sub_int_tint(other, self._inner)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
             result = sub_float_tfloat(float(other), self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def mul(self, other: Union[int, float, TNumber]) -> TNumber:
@@ -375,6 +414,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = mult_tint_int(self._inner, other)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
@@ -382,7 +422,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TNumber):
             result = mult_tnumber_tnumber(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def rmul(self, other: Union[int, float]) -> TNumber:
@@ -401,12 +441,13 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = mult_int_tint(other, self._inner)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
             result = mult_float_tfloat(float(other), self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def div(self, other: Union[int, float, TNumber]) -> TNumber:
@@ -426,6 +467,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = div_tint_int(self._inner, other)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
@@ -433,7 +475,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TNumber):
             result = div_tnumber_tnumber(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def rdiv(self, other: Union[int, float]) -> TNumber:
@@ -452,12 +494,13 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         from .tint import TInt
         from .tfloat import TFloat
+
         if isinstance(self, TInt) and isinstance(other, int):
             result = div_int_tint(other, self._inner)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
             result = div_float_tfloat(float(other), self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def __add__(self, other):
@@ -596,6 +639,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             tnumber_abs
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(tnumber_abs(self._inner))
 
     def delta_value(self) -> TNumber:
@@ -609,6 +653,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             tnumber_delta_value
         """
         from ..factory import _TemporalFactory
+
         return _TemporalFactory.create_temporal(tnumber_delta_value(self._inner))
 
     # ------------------------- Distance Operations --------------------------
@@ -633,11 +678,12 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TNumber):
             result = distance_tnumber_tnumber(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
-    def nearest_approach_distance(self, other: Union[int, float,
-    TNumber, TBox]) -> float:
+    def nearest_approach_distance(
+        self, other: Union[int, float, TNumber, TBox]
+    ) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
@@ -661,4 +707,4 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
         elif isinstance(other, TBox):
             return nad_tnumber_tbox(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")

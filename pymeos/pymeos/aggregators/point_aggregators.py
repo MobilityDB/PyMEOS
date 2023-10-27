@@ -13,6 +13,7 @@ class TemporalPointExtentAggregator(BaseAggregator[TPoint, STBox]):
     MEOS Functions:
         tpoint_extent_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tpoint_extent_transfn
 
     @classmethod

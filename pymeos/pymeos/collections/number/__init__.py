@@ -5,7 +5,4 @@ from .floatset import FloatSet
 from .floatspan import FloatSpan
 from .floatspanset import FloatSpanSet
 
-__all__ = [
-    'IntSet', 'IntSpan', 'IntSpanSet',
-    'FloatSet', 'FloatSpan', 'FloatSpanSet'
-]
+__all__ = ["IntSet", "IntSpan", "IntSpanSet", "FloatSet", "FloatSpan", "FloatSpanSet"]

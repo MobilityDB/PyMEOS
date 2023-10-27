@@ -11,3 +11,4 @@ shapely = "*"
 
 [dev-packages]
 build = "*"
+black = "*"
