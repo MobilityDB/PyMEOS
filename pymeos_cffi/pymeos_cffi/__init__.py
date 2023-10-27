@@ -26,6 +26,11 @@ __all__ = [
     'MeosWkbOutputError',
     'MeosGeoJsonInputError',
     'MeosGeoJsonOutputError',
+    # Enums
+    'MeosType',
+    'MeosOperation',
+    'InterpolationType',
+    'SpatialRelation',
     # Functions
     'meos_set_debug',
     'py_error_handler',

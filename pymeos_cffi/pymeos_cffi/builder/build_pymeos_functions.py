@@ -279,6 +279,11 @@ def main(header_path='pymeos_cffi/builder/meos.h'):
                    "    'MeosWkbOutputError',\n"
                    "    'MeosGeoJsonInputError',\n"
                    "    'MeosGeoJsonOutputError',\n"
+                   "    # Enums\n"
+                   "    'MeosType',\n"
+                   "    'MeosOperation',\n"
+                   "    'InterpolationType',\n"
+                   "    'SpatialRelation',\n"
                    "    # Functions\n"
                    )
         for fn in matches:
