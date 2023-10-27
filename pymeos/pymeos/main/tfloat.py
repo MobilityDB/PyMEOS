@@ -1,21 +1,25 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, List, Union, TYPE_CHECKING, Set, overload
 
 from pymeos_cffi import *
 
 from .tnumber import TNumber
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..mixins import TemporalSimplify
 
 if TYPE_CHECKING:
     from ..boxes import TBox
     from .tint import TInt
 
 
-class TFloat(TNumber[float, "TFloat", "TFloatInst", "TFloatSeq", "TFloatSeqSet"], ABC):
+class TFloat(
+    TNumber[float, "TFloat", "TFloatInst", "TFloatSeq", "TFloatSeqSet"],
+    TemporalSimplify,
+    ABC,
+):
     _mobilitydb_name = "tfloat"
 
     BaseClass = float

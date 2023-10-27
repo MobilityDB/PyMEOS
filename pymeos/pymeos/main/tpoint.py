@@ -19,8 +19,9 @@ from pymeos_cffi import *
 
 from .tbool import TBool
 from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
-from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..collections import *
+from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
+from ..mixins import TemporalSimplify
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
@@ -45,7 +46,7 @@ Self = TypeVar("Self", bound="TPoint")
 TF = TypeVar("TF", bound="TFloat", covariant=True)
 
 
-class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
+class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
     """
     Abstract class for temporal points.
     """
