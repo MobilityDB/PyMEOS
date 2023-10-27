@@ -1112,6 +1112,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
         duration: Optional[Union[timedelta, str]] = None,
         origin: Optional[shpb.BaseGeometry] = None,
         start: Union[datetime, str, None] = None,
+        remove_empty: Optional[bool] = False,
     ) -> List[TG]:
         """
         Split the temporal point into segments following the tiling of the
@@ -1128,6 +1129,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
                 origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided,
                 the start time used by default is Monday, January 3, 2000.
+            remove_empty: If True, remove the tiles that are empty.
 
         Returns:
             A list of :class:`TPoint` objects.
@@ -1139,7 +1141,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
 
         bbox = STBox.from_tpoint(self)
         tiles = bbox.tile(size, duration, origin, start)
-        return [self.at(tile) for tile in tiles]
+        if remove_empty:
+            return [x for x in (self.at(tile) for tile in tiles) if x]
+        else:
+            return [self.at(tile) for tile in tiles]
 
     # ------------------------- Split Operations ------------------------------
     def space_split(
