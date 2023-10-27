@@ -35,7 +35,10 @@ class TemporalSequenceSetPlotter:
         )
         plots = [TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)]
         if "color" not in kwargs:
-            kwargs["color"] = plots[0][0].get_color()
+            pl = plots[0]
+            while isinstance(pl, list):
+                pl = pl[0]
+            kwargs["color"] = pl.get_color()
         kwargs.pop("label", None)
         for seq in seqs[1:]:
             plots.append(TemporalSequencePlotter.plot(seq, *args, **kwargs))
