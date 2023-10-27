@@ -28,6 +28,7 @@ __all__ = [
     'MeosGeoJsonOutputError',
     # Enums
     'MeosType',
+    'MeosTemporalSubtype',
     'MeosOperation',
     'InterpolationType',
     'SpatialRelation',

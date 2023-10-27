@@ -61,7 +61,7 @@ def main(include_dir, so_path=None, destination_path='pymeos_cffi/builder/meos.h
 
             # Remove macros that are not number constants
             content = content.replace('#', '//#')
-            content = re.sub(r'^//(#define \w+ \d+)\s*$', r'\g<1>', content, flags=re.RegexFlag.MULTILINE)
+            content = re.sub(r'^//(#define +\w+ +\d+)\s*$', r'\g<1>', content, flags=re.RegexFlag.MULTILINE)
             content = re.sub(r'//#ifdef.*?//#endif', '', content, flags=re.RegexFlag.DOTALL)
             content = content.replace('//#endif', '')
             content = re.sub(r'//# *\w+ +([\w,()]+) *((?:\\\n|.)*?)\n', '', content)

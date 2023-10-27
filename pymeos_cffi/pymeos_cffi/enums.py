@@ -51,6 +51,13 @@ class MeosType(IntEnum):
     T_TNPOINT = _lib.T_TNPOINT
 
 
+class MeosTemporalSubtype(IntEnum):
+    ANY = _lib.ANYTEMPSUBTYPE
+    INSTANT = _lib.TINSTANT
+    SEQUENCE = _lib.TSEQUENCE
+    SEQUENCE_SET = _lib.TSEQUENCESET
+
+
 class MeosOperation(IntEnum):
     UNKNOWN_OP = _lib.UNKNOWN_OP
     EQ_OP = _lib.EQ_OP
