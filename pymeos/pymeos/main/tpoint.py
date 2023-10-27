@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import (
     Optional,
     List,
@@ -165,12 +164,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A :class:`list` of :class:`~shapely.geometry.Point` with the values.
 
         MEOS Functions:
-            tpoint_values
+            temporal_instants
         """
-        result, count = tpoint_values(self._inner)
-        return [
-            gserialized_to_shapely_point(result[i], precision) for i in range(count)
-        ]
+        return [i.value(precision=precision) for i in self.instants()]
 
     def start_value(self, precision: int = 15) -> shp.Point:
         """
@@ -511,9 +507,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         from ..boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
+        if isinstance(other, shp.Point):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
             result = tpoint_at_value(self._inner, gs)
+        elif isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tpoint_at_geom_time(self._inner, gs, None, None)
         elif isinstance(other, GeoSet):
             result = temporal_at_values(self._inner, other._inner)
         elif isinstance(other, STBox):
@@ -538,9 +537,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         from ..boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
+        if isinstance(other, shp.Point):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
             result = tpoint_minus_value(self._inner, gs)
+        elif isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tpoint_minus_geom_time(self._inner, gs, None, None)
         elif isinstance(other, GeoSet):
             result = temporal_minus_values(self._inner, other._inner)
         elif isinstance(other, STBox):
