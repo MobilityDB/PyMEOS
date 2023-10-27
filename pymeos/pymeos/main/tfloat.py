@@ -789,9 +789,7 @@ class TFloat(
         MEOS Functions:
             tfloat_derivative
         """
-        from ..factory import _TemporalFactory
-
-        return _TemporalFactory.create_temporal(tfloat_derivative(self._inner))
+        return Temporal._factory(tfloat_derivative(self._inner))
 
     # ------------------------- Transformations ----------------------------------
     def to_degrees(self, normalize: bool = True) -> TFloat:
@@ -808,9 +806,7 @@ class TFloat(
         MEOS Functions:
             tfloat_degrees
         """
-        from ..factory import _TemporalFactory
-
-        return _TemporalFactory.create_temporal(tfloat_degrees(self._inner, normalize))
+        return Temporal._factory(tfloat_degrees(self._inner, normalize))
 
     def to_radians(self) -> TFloat:
         """
@@ -822,9 +818,7 @@ class TFloat(
         MEOS Functions:
             tfloat_radians
         """
-        from ..factory import _TemporalFactory
-
-        return _TemporalFactory.create_temporal(tfloat_radians(self._inner))
+        return Temporal._factory(tfloat_radians(self._inner))
 
     def round(self, max_decimals: int = 0) -> TFloat:
         """
@@ -839,9 +833,7 @@ class TFloat(
         MEOS Functions:
             tfloat_round
         """
-        from ..factory import _TemporalFactory
-
-        return _TemporalFactory.create_temporal(tfloat_round(self._inner, max_decimals))
+        return Temporal._factory(tfloat_round(self._inner, max_decimals))
 
     # ------------------------- Split Operations ------------------------------
     def value_split(self, size: float, start: Optional[float] = 0) -> List[Temporal]:
@@ -859,9 +851,7 @@ class TFloat(
             tfloat_value_split
         """
         fragments, _, count = tfloat_value_split(self._inner, size, start)
-        from ..factory import _TemporalFactory
-
-        return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     def value_time_split(
         self,
