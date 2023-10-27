@@ -1828,6 +1828,11 @@ extern bool ensure_tnumber_tgeo_type(meosType type);
 //#include <meos.h>
 //#include "meos_catalog.h" 
 
+#define ANYTEMPSUBTYPE  0
+#define TINSTANT        1
+#define TSEQUENCE       2
+#define TSEQUENCESET    3
+
  
 
 extern uint32 datum_hash(Datum d, meosType basetype);
