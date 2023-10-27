@@ -9,9 +9,7 @@ ffibuilder.cdef(content)
 
 ffibuilder.set_source(
     "_meos_cffi",
-    '#include "meos.h"\n'
-    '#include "meos_catalog.h"\n'
-    '#include "meos_internal.h"',
+    '#include "meos.h"\n' '#include "meos_catalog.h"\n' '#include "meos_internal.h"',
     libraries=["meos"],
     library_dirs=["/usr/local/lib"],
 )  # library name, for the linker
