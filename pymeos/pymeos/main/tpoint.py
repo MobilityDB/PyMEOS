@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import (
     Optional,
     List,
@@ -20,8 +19,9 @@ from pymeos_cffi import *
 
 from .tbool import TBool
 from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
-from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
 from ..collections import *
+from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
+from ..mixins import TemporalSimplify
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
@@ -46,7 +46,7 @@ Self = TypeVar("Self", bound="TPoint")
 TF = TypeVar("TF", bound="TFloat", covariant=True)
 
 
-class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
+class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
     """
     Abstract class for temporal points.
     """
@@ -165,12 +165,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             A :class:`list` of :class:`~shapely.geometry.Point` with the values.
 
         MEOS Functions:
-            tpoint_values
+            temporal_instants
         """
-        result, count = tpoint_values(self._inner)
-        return [
-            gserialized_to_shapely_point(result[i], precision) for i in range(count)
-        ]
+        return [i.value(precision=precision) for i in self.instants()]
 
     def start_value(self, precision: int = 15) -> shp.Point:
         """
@@ -511,9 +508,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         from ..boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
+        if isinstance(other, shp.Point):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
             result = tpoint_at_value(self._inner, gs)
+        elif isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tpoint_at_geom_time(self._inner, gs, None, None)
         elif isinstance(other, GeoSet):
             result = temporal_at_values(self._inner, other._inner)
         elif isinstance(other, STBox):
@@ -538,9 +538,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         """
         from ..boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
+        if isinstance(other, shp.Point):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
             result = tpoint_minus_value(self._inner, gs)
+        elif isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = tpoint_minus_geom_time(self._inner, gs, None, None)
         elif isinstance(other, GeoSet):
             result = temporal_minus_values(self._inner, other._inner)
         elif isinstance(other, STBox):
@@ -1109,7 +1112,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         duration: Optional[Union[timedelta, str]] = None,
         origin: Optional[shpb.BaseGeometry] = None,
         start: Union[datetime, str, None] = None,
-    ) -> List[List[List[List[TG]]]]:
+        remove_empty: Optional[bool] = False,
+    ) -> List[TG]:
         """
         Split the temporal point into segments following the tiling of the
         bounding box.
@@ -1125,9 +1129,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
                 origin will be (0, 0, 0).
             start: The start time of the temporal tiling. If not provided,
                 the start time used by default is Monday, January 3, 2000.
+            remove_empty: If True, remove the tiles that are empty.
 
         Returns:
-            A 4D matrix (XxYxZxT) of :class:`TPoint` objects.
+            A list of :class:`TPoint` objects.
 
         See Also:
             :meth:`STBox.tile`
@@ -1136,45 +1141,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
 
         bbox = STBox.from_tpoint(self)
         tiles = bbox.tile(size, duration, origin, start)
-        return [
-            [[[self.at(tile) for tile in z_dim] for z_dim in y_dim] for y_dim in x_dim]
-            for x_dim in tiles
-        ]
-
-    def tile_flat(
-        self,
-        size: float,
-        duration: Optional[Union[timedelta, str]] = None,
-        origin: Optional[shpb.BaseGeometry] = None,
-        start: Union[datetime, str, None] = None,
-    ) -> List[TG]:
-        """
-        Split the temporal point into segments following the tiling of the
-        bounding box.
-
-        Args:
-            size: The size of the spatial tiles. If `self` has a spatial
-                dimension and this argument is not provided, the tiling will be
-                only temporal.
-            duration: The duration of the temporal tiles. If `self` has a time
-                dimension and this argument is not provided, the tiling will be
-                only spatial.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the
-                the start time used by default is Monday, January 3, 2000.
-
-        Returns:
-            A :class:`list` of :class:`TPoint` objects.
-
-        See Also:
-            :meth:`STBox.tile_flat`
-        """
-        from ..boxes import STBox
-
-        bbox = STBox.from_tpoint(self)
-        tiles = bbox.tile_flat(size, duration, origin, start)
-        return [x for x in (self.at(tile) for tile in tiles) if x]
+        if remove_empty:
+            return [x for x in (self.at(tile) for tile in tiles) if x]
+        else:
+            return [self.at(tile) for tile in tiles]
 
     # ------------------------- Split Operations ------------------------------
     def space_split(
@@ -1194,6 +1164,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             zsize: Size of the z dimension.
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
+            bitmatrix: If True, use a bitmatrix to speed up the process.
 
         Returns:
             A list of temporal points.
@@ -1204,7 +1175,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
         ysz = ysize if ysize is not None else xsize
         zsz = zsize if zsize is not None else xsize
         gs = (
-            geo_to_gserialized(origin, self.geodetic())
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else pgis_geography_in("Point(0 0 0)", -1)
             if isinstance(self, TGeogPoint)
@@ -1239,6 +1210,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
                 origin will be (0, 0, 0).
             time_start: Start time of the first period bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
+            bitmatrix: If True, use a bitmatrix to speed up the process.
 
         Returns:
             A list of temporal floats.
@@ -1254,7 +1226,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], ABC):
             else pg_interval_in(duration, -1)
         )
         gs = (
-            geo_to_gserialized(origin, self.geodetic())
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else pgis_geography_in("Point(0 0 0)", -1)
             if isinstance(self, TGeogPoint)

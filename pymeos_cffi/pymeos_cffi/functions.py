@@ -6735,13 +6735,17 @@ def tnumber_minus_tbox(temp: "const Temporal *", box: "const TBox *") -> "Tempor
 def tpoint_at_geom_time(
     temp: "const Temporal *",
     gs: "const GSERIALIZED *",
-    zspan: "const Span *",
-    period: "const Span *",
+    zspan: "Optional['const Span *']",
+    period: "Optional['const Span *']",
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
+    zspan_converted = (
+        _ffi.cast("const Span *", zspan) if zspan is not None else _ffi.NULL
+    )
+    period_converted = (
+        _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
+    )
     result = _lib.tpoint_at_geom_time(
         temp_converted, gs_converted, zspan_converted, period_converted
     )
@@ -6770,13 +6774,17 @@ def tpoint_at_value(temp: "const Temporal *", gs: "GSERIALIZED *") -> "Temporal 
 def tpoint_minus_geom_time(
     temp: "const Temporal *",
     gs: "const GSERIALIZED *",
-    zspan: "const Span *",
-    period: "const Span *",
+    zspan: "Optional['const Span *']",
+    period: "Optional['const Span *']",
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    zspan_converted = _ffi.cast("const Span *", zspan)
-    period_converted = _ffi.cast("const Span *", period)
+    zspan_converted = (
+        _ffi.cast("const Span *", zspan) if zspan is not None else _ffi.NULL
+    )
+    period_converted = (
+        _ffi.cast("const Span *", period) if period is not None else _ffi.NULL
+    )
     result = _lib.tpoint_minus_geom_time(
         temp_converted, gs_converted, zspan_converted, period_converted
     )

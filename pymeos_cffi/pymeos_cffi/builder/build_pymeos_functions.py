@@ -178,6 +178,10 @@ nullable_parameters = {
     ("tintbox_tile_list", "torigin"),
     ("tfloatbox_tile_list", "xorigin"),
     ("tfloatbox_tile_list", "torigin"),
+    ("tpoint_at_geom_time", "zspan"),
+    ("tpoint_at_geom_time", "period"),
+    ("tpoint_minus_geom_time", "zspan"),
+    ("tpoint_minus_geom_time", "period"),
 }
 
 
