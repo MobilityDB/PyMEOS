@@ -228,8 +228,10 @@ def main(header_path='pymeos_cffi/builder/meos.h'):
     matches = re.finditer(f_regex, ''.join(content.splitlines()), flags=RegexFlag.MULTILINE)
 
     template_path = os.path.join(os.path.dirname(__file__), 'templates/functions.py')
-    with open(template_path) as f:
+    init_template_path = os.path.join(os.path.dirname(__file__), 'templates/init.py')
+    with open(template_path) as f, open(init_template_path) as i:
         base = f.read()
+        init_text = i.read()
 
     functions_path = os.path.join(os.path.dirname(__file__), '../functions.py')
     init_path = os.path.join(os.path.dirname(__file__), '../__init__.py')
@@ -250,49 +252,19 @@ def main(header_path='pymeos_cffi/builder/meos.h'):
             file.write('\n\n\n')
 
     functions = []
-    with open(functions_path, 'r') as funcs, open(init_path, 'w+') as init:
+    with open(functions_path, 'r') as funcs:
         content = funcs.read()
         matches = list(re.finditer(r'def (\w+)\(', content))
-        init.write('from .functions import *\n\n')
-        init.write('from .errors import *\n\n')
-        init.write('__all__ = [\n'
-                   "    # Exceptions \n"
-                   "    'MeosException',\n"
-                   "    'MeosInternalError',\n"
-                   "    'MeosArgumentError',\n"
-                   "    'MeosIoError',\n"
-                   "    'MeosInternalTypeError',\n"
-                   "    'MeosValueOutOfRangeError',\n"
-                   "    'MeosDivisionByZeroError',\n"
-                   "    'MeosMemoryAllocError',\n"
-                   "    'MeosAggregationError',\n"
-                   "    'MeosDirectoryError',\n"
-                   "    'MeosFileError',\n"
-                   "    'MeosInvalidArgError',\n"
-                   "    'MeosInvalidArgTypeError',\n"
-                   "    'MeosInvalidArgValueError',\n"
-                   "    'MeosMfJsonInputError',\n"
-                   "    'MeosMfJsonOutputError',\n"
-                   "    'MeosTextInputError',\n"
-                   "    'MeosTextOutputError',\n"
-                   "    'MeosWkbInputError',\n"
-                   "    'MeosWkbOutputError',\n"
-                   "    'MeosGeoJsonInputError',\n"
-                   "    'MeosGeoJsonOutputError',\n"
-                   "    # Enums\n"
-                   "    'MeosType',\n"
-                   "    'MeosOperation',\n"
-                   "    'InterpolationType',\n"
-                   "    'SpatialRelation',\n"
-                   "    # Functions\n"
-                   )
+        function_text = ''
         for fn in matches:
             function_name = fn.group(1)
             if function_name in hidden_functions:
                 continue
-            init.write(f"    '{function_name}',\n")
+            function_text += f"    '{function_name}',\n"
             functions.append(function_name)
-        init.write(']\n')
+    init_text = init_text.replace('FUNCTIONS_REPLACE', function_text)
+    with open(init_path, 'w+') as init:
+        init.write(init_text)
 
     check_modifiers(functions)
 
