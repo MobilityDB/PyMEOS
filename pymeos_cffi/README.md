@@ -1,6 +1,4 @@
-# PyMEOS CFFI
-
-![MEOS Logo](../docs/images/meos-logo.png)
+# ![MEOS Logo](https://raw.githubusercontent.com/MobilityDB/PyMEOS/master/docs/images/PyMEOS%20Logo.png)
 
 [MEOS (Mobility Engine, Open Source)](https://www.libmeos.org/) is a C library which enables the manipulation of
 temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)'s data types and functions.
