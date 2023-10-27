@@ -1266,12 +1266,10 @@ class STBox:
         duration: Optional[Union[timedelta, str]] = None,
         origin: Optional[shp.BaseGeometry] = None,
         start: Union[datetime, str, None] = None,
-    ) -> List[List[List[List[STBox]]]]:
+    ) -> List[STBox]:
         """
-        Returns a 4D matrix (XxYxZxT) of `STBox` instances representing the
-        tiles of ``self``. The resulting matrix has 4 dimensions regardless
-        of the dimensionality of ``self``. If the ``self`` is missing a
-        dimension, the resulting matrix will have a size of 1 for that dimension.
+        Returns a list of `STBox` instances representing the tiles of
+        ``self``.
 
         Args:
             size: The size of the spatial tiles. If the `STBox` instance has a
@@ -1286,7 +1284,7 @@ class STBox:
                 the start time used by default is Monday, January 3, 2000.
 
         Returns:
-            A 4D matrix (XxYxZxT) of `STBox` instances.
+            A list of `STBox` instances.
 
         MEOS Functions:
             stbox_tile_list
@@ -1322,65 +1320,8 @@ class STBox:
             if self.geodetic()
             else pgis_geometry_in("Point(0 0 0)", -1)
         )
-        tiles, dimensions = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
-        x_size = dimensions[0] or 1
-        y_size = dimensions[1] or 1
-        z_size = dimensions[2] or 1
-        t_size = dimensions[3] or 1
-        x_factor = y_size * z_size * t_size
-        y_factor = z_size * t_size
-        z_factor = t_size
-        return [
-            [
-                [
-                    [
-                        STBox(
-                            _inner=tiles
-                            + x * x_factor
-                            + y * y_factor
-                            + z * z_factor
-                            + t
-                        )
-                        for t in range(t_size)
-                    ]
-                    for z in range(z_size)
-                ]
-                for y in range(y_size)
-            ]
-            for x in range(x_size)
-        ]
-
-    def tile_flat(
-        self,
-        size: float,
-        duration: Optional[Union[timedelta, str]] = None,
-        origin: Optional[shp.BaseGeometry] = None,
-        start: Union[datetime, str, None] = None,
-    ) -> List[STBox]:
-        """
-        Returns a flat list of `STBox` instances representing the tiles of
-        ``self``.
-
-        Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a
-                spatial dimension and this argument is not provided, the tiling
-                will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox`
-                instance has a time dimension and this argument is not
-                provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the
-                start time used by default is Monday, January 3, 2000.
-
-        Returns:
-            A flat list of `STBox` instances.
-
-        MEOS Functions:
-            stbox_tile_list
-        """
-        boxes = self.tile(size, duration, origin, start)
-        return [b for x in boxes for y in x for z in y for b in z]
+        tiles, count = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
+        return [STBox(_inner=tiles + i) for i in range(count)]
 
     # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):

@@ -1112,7 +1112,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
         duration: Optional[Union[timedelta, str]] = None,
         origin: Optional[shpb.BaseGeometry] = None,
         start: Union[datetime, str, None] = None,
-    ) -> List[List[List[List[TG]]]]:
+    ) -> List[TG]:
         """
         Split the temporal point into segments following the tiling of the
         bounding box.
@@ -1130,7 +1130,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
                 the start time used by default is Monday, January 3, 2000.
 
         Returns:
-            A 4D matrix (XxYxZxT) of :class:`TPoint` objects.
+            A list of :class:`TPoint` objects.
 
         See Also:
             :meth:`STBox.tile`
@@ -1139,45 +1139,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
 
         bbox = STBox.from_tpoint(self)
         tiles = bbox.tile(size, duration, origin, start)
-        return [
-            [[[self.at(tile) for tile in z_dim] for z_dim in y_dim] for y_dim in x_dim]
-            for x_dim in tiles
-        ]
-
-    def tile_flat(
-        self,
-        size: float,
-        duration: Optional[Union[timedelta, str]] = None,
-        origin: Optional[shpb.BaseGeometry] = None,
-        start: Union[datetime, str, None] = None,
-    ) -> List[TG]:
-        """
-        Split the temporal point into segments following the tiling of the
-        bounding box.
-
-        Args:
-            size: The size of the spatial tiles. If `self` has a spatial
-                dimension and this argument is not provided, the tiling will be
-                only temporal.
-            duration: The duration of the temporal tiles. If `self` has a time
-                dimension and this argument is not provided, the tiling will be
-                only spatial.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided, the
-                the start time used by default is Monday, January 3, 2000.
-
-        Returns:
-            A :class:`list` of :class:`TPoint` objects.
-
-        See Also:
-            :meth:`STBox.tile_flat`
-        """
-        from ..boxes import STBox
-
-        bbox = STBox.from_tpoint(self)
-        tiles = bbox.tile_flat(size, duration, origin, start)
-        return [x for x in (self.at(tile) for tile in tiles) if x]
+        return [self.at(tile) for tile in tiles]
 
     # ------------------------- Split Operations ------------------------------
     def space_split(
@@ -1197,6 +1159,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
             zsize: Size of the z dimension.
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
+            bitmatrix: If True, use a bitmatrix to speed up the process.
 
         Returns:
             A list of temporal points.
@@ -1207,7 +1170,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
         ysz = ysize if ysize is not None else xsize
         zsz = zsize if zsize is not None else xsize
         gs = (
-            geo_to_gserialized(origin, self.geodetic())
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else pgis_geography_in("Point(0 0 0)", -1)
             if isinstance(self, TGeogPoint)
@@ -1242,6 +1205,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
                 origin will be (0, 0, 0).
             time_start: Start time of the first period bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
+            bitmatrix: If True, use a bitmatrix to speed up the process.
 
         Returns:
             A list of temporal floats.
@@ -1257,7 +1221,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
             else pg_interval_in(duration, -1)
         )
         gs = (
-            geo_to_gserialized(origin, self.geodetic())
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else pgis_geography_in("Point(0 0 0)", -1)
             if isinstance(self, TGeogPoint)

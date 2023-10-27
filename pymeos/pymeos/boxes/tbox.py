@@ -1088,7 +1088,7 @@ class TBox:
         start: Union[datetime, str, None] = None,
     ) -> List[TBox]:
         """
-        Returns 2d matrix of TBoxes resulting of tiling ``self``.
+        Returns a list of TBoxes resulting from tiling ``self``.
 
         Args:
             size: size of the numeric dimension of the tiles
@@ -1098,7 +1098,7 @@ class TBox:
                 start time used by default is Monday, January 3, 2000.
 
         Returns:
-            An array of :class:`TBox` instances.
+            A list of :class:`TBox` instances.
 
         MEOS Functions:
             tintbox_tile_list, tfloabox_tile_list
@@ -1122,28 +1122,6 @@ class TBox:
                 self._inner, int(size), dt, int(origin), st
             )
         return [TBox(_inner=tiles + c) for c in range(count)]
-
-    # def tile_flat(self, size: float, duration: Union[timedelta, str],
-    #               origin: float = 0.0,
-    #               start: Union[datetime, str, None] = None) -> List[TBox]:
-    #     """
-    #     Returns an array of TBoxes resulting of tiling ``self``.
-    #
-    #     Args:
-    #         size: size of the numeric dimension of the tiles
-    #         duration: size of the temporal dimenstion of the tiles
-    #         origin: origin of the numeric dimension of the tiles
-    #         start: origin of the temporal dimension of the tiles. If None, the
-    #             start time used by default is Monday, January 3, 2000.
-    #
-    #     Returns:
-    #         An array of :class:`TBox` instances.
-    #
-    #     MEOS Functions:
-    #         tbox_tile_list
-    #     """
-    #     tiles = self.tile(size, duration, origin, start)
-    #     return [box for row in tiles for box in row]
 
     # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
