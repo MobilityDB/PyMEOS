@@ -7,12 +7,14 @@ name = "pypi"
 pymeos_cffi = {path = "../pymeos_cffi"}
 python-dateutil = "*"
 parsec = "*"
-spans = "*"
 postgis = "*"
 shapely = "<2.0.0"
 
 [dev-packages]
 psycopg2 = "*"
+psycopg = "*"
+asyncpg = "*"
+geopandas = "*"
 tqdm = "*"
 sphinx = "*"
 pytest = "*"
