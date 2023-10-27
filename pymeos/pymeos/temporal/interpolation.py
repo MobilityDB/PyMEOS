@@ -8,6 +8,7 @@ class TInterpolation(IntEnum):
     Enum for representing the different types of interpolation present in
     PyMEOS.
     """
+
     NONE = InterpolationType.NONE
     DISCRETE = InterpolationType.DISCRETE
     STEPWISE = InterpolationType.STEP
@@ -31,13 +32,13 @@ class TInterpolation(IntEnum):
             and `none` is False
 
         """
-        if source.lower() == 'discrete':
+        if source.lower() == "discrete":
             return TInterpolation.DISCRETE
-        elif source.lower() == 'linear':
+        elif source.lower() == "linear":
             return TInterpolation.LINEAR
-        elif source.lower() == 'stepwise' or source.lower() == 'step':
+        elif source.lower() == "stepwise" or source.lower() == "step":
             return TInterpolation.STEPWISE
-        elif source.lower() == 'none' or none:
+        elif source.lower() == "none" or none:
             return TInterpolation.NONE
         else:
-            raise ValueError(f"Value {source} doesn't represent any valid interpolation")
+            raise ValueError(f"Value {source} doesn't represent a valid interpolation")

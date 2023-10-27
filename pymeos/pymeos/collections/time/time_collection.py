@@ -5,7 +5,6 @@ from ..base.collection import Collection
 
 
 class TimeCollection(Collection[datetime], ABC):
-
     def is_before(self, other) -> bool:
         return self.is_left(other)
 

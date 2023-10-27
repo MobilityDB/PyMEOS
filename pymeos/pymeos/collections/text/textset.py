@@ -23,9 +23,9 @@ class TextSet(Set[str]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'textset'
+    _mobilitydb_name = "textset"
 
     _parse_function = textset_in
     _parse_value_function = lambda x: x
@@ -129,7 +129,6 @@ class TextSet(Set[str]):
             return contains_textset_text(self._inner, content)
         else:
             return super().contains(content)
-
 
     # ------------------------- Transformations --------------------------------
     def lowercase(self):

@@ -8,12 +8,12 @@ from pymeos_cffi import *
 
 from .temporal import Temporal
 
-TBase = TypeVar('TBase')
-TG = TypeVar('TG', bound='Temporal[Any]')
-TI = TypeVar('TI', bound='TInstant[Any]')
-TS = TypeVar('TS', bound='TSequence[Any]')
-TSS = TypeVar('TSS', bound='TSequenceSet[Any]')
-Self = TypeVar('Self', bound='TInstant[Any]')
+TBase = TypeVar("TBase")
+TG = TypeVar("TG", bound="Temporal[Any]")
+TI = TypeVar("TI", bound="TInstant[Any]")
+TS = TypeVar("TS", bound="TSequence[Any]")
+TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
+Self = TypeVar("Self", bound="TInstant[Any]")
 
 
 class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
@@ -21,26 +21,36 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
     Base class for temporal instant types, i.e. temporal values that are
     defined at a single point in time.
     """
-    __slots__ = ['_inner']
+
+    __slots__ = ["_inner"]
 
     _make_function = None
     _cast_function = None
 
-    def __init__(self, string: Optional[str] = None, *,
-                 value: Optional[Union[str, TBase]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None,
-                 _inner=None):
-        assert (_inner is not None) or ((string is not None) != \
-            (value is not None and timestamp is not None)), \
-            "Either string must be not None or both point and timestamp must be not"
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        value: Optional[Union[str, TBase]] = None,
+        timestamp: Optional[Union[str, datetime]] = None,
+        _inner=None,
+    ):
+        assert (_inner is not None) or (
+            (string is not None) != (value is not None and timestamp is not None)
+        ), "Either string must be not None or both point and timestamp must be not"
         if _inner is not None:
             self._inner = as_tinstant(_inner)
         elif string is not None:
             self._inner = as_tinstant(self.__class__._parse_function(string))
         else:
-            ts = datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) \
+            ts = (
+                datetime_to_timestamptz(timestamp)
+                if isinstance(timestamp, datetime)
                 else pg_timestamptz_in(timestamp, -1)
-            self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
+            )
+            self._inner = self.__class__._make_function(
+                self.__class__._cast_function(value), ts
+            )
 
     def value(self) -> TBase:
         """

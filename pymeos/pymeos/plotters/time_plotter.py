@@ -44,7 +44,7 @@ class TimePlotter:
         base = axes or plt.gca()
         stamps = timestampset.timestamps()
         plot = base.axvline(stamps[0], *args, **kwargs)
-        kwargs.pop('label', None)
+        kwargs.pop("label", None)
         plots = [plot]
         for stamp in stamps[1:]:
             plots.append(base.axvline(stamp, *args, color=plot.get_color(), **kwargs))
@@ -66,9 +66,19 @@ class TimePlotter:
             List with the plotted elements.
         """
         base = axes or plt.gca()
-        ll = base.axvline(period.lower(), *args, linestyle='-' if period.lower_inc() else '--', **kwargs)
-        kwargs.pop('label', None)
-        ul = base.axvline(period.upper(), *args, linestyle='-' if period.upper_inc() else '--', **kwargs)
+        ll = base.axvline(
+            period.lower(),
+            *args,
+            linestyle="-" if period.lower_inc() else "--",
+            **kwargs,
+        )
+        kwargs.pop("label", None)
+        ul = base.axvline(
+            period.upper(),
+            *args,
+            linestyle="-" if period.upper_inc() else "--",
+            **kwargs,
+        )
         s = base.axvspan(period.lower(), period.upper(), *args, alpha=0.3, **kwargs)
         return [ll, ul, s]
 
@@ -90,10 +100,10 @@ class TimePlotter:
         """
         periods = periodset.periods()
         line = TimePlotter.plot_period(periods[0], *args, axes=axes, **kwargs)
-        kwargs.pop('label', None)
+        kwargs.pop("label", None)
         lines = [line]
-        if 'color' not in kwargs:
-            kwargs['color'] = line[0].get_color()
+        if "color" not in kwargs:
+            kwargs["color"] = line[0].get_color()
         for p in periods[1:]:
             lines.append(TimePlotter.plot_period(p, *args, axes=axes, **kwargs))
         return lines

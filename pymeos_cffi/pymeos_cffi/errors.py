@@ -10,111 +10,132 @@ class MeosException(Exception):
         self.code = code
 
     def __str__(self):
-        return f'{self.__class__.__name__} ({self.code}): {self.message}'
+        return f"{self.__class__.__name__} ({self.code}): {self.message}"
 
 
 class MeosInternalError(MeosException):
     """Superclass for internal errors."""
+
     pass
 
 
 class MeosArgumentError(MeosException):
     """Superclass for invalid argument errors."""
+
     pass
 
 
 class MeosIoError(MeosException):
     """Unspecified internal error."""
+
     pass
 
 
 class MeosInternalTypeError(MeosInternalError):
     """Internal type error."""
+
     pass
 
 
 class MeosValueOutOfRangeError(MeosInternalError):
     """Internal out of range error."""
+
     pass
 
 
 class MeosDivisionByZeroError(MeosInternalError):
     """Internal division by zero error."""
+
     pass
 
 
 class MeosMemoryAllocError(MeosInternalError):
     """Internal malloc error."""
+
     pass
 
 
 class MeosAggregationError(MeosInternalError):
     """Internal aggregation error."""
+
     pass
 
 
 class MeosDirectoryError(MeosInternalError):
     """Internal directory error."""
+
     pass
 
 
 class MeosFileError(MeosInternalError):
     """Internal file error."""
+
     pass
 
 
 class MeosInvalidArgError(MeosArgumentError):
     """Invalid argument."""
+
     pass
 
 
 class MeosInvalidArgTypeError(MeosArgumentError):
     """Invalid argument type."""
+
     pass
 
 
 class MeosInvalidArgValueError(MeosArgumentError):
     """Invalid argument value."""
+
     pass
 
 
 class MeosMfJsonInputError(MeosIoError):
     """MFJSON input error."""
+
     pass
 
 
 class MeosMfJsonOutputError(MeosIoError):
     """MFJSON output error."""
+
     pass
 
 
 class MeosTextInputError(MeosIoError):
     """Text input error."""
+
     pass
 
 
 class MeosTextOutputError(MeosIoError):
     """Text output error."""
+
     pass
 
 
 class MeosWkbInputError(MeosIoError):
     """WKB input error."""
+
     pass
 
 
 class MeosWkbOutputError(MeosIoError):
     """WKB output error."""
+
     pass
 
 
 class MeosGeoJsonInputError(MeosIoError):
     """GEOJSON input error."""
+
     pass
 
 
 class MeosGeoJsonOutputError(MeosIoError):
     """GEOJSON output error."""
+
     pass
 
 

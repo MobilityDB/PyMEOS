@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
-T = TypeVar('T')
-Self = TypeVar('Self', bound='Set[Any]')
+T = TypeVar("T")
+Self = TypeVar("Self", bound="Set[Any]")
 
 
 class Collection(Generic[T], ABC):

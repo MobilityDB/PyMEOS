@@ -1,3 +1,3 @@
 from .textset import TextSet
 
-__all__ = ['TextSet']
+__all__ = ["TextSet"]

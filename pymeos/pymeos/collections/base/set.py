@@ -12,8 +12,8 @@ if TYPE_CHECKING:
     from .spanset import SpanSet
     from .span import Span
 
-T = TypeVar('T')
-Self = TypeVar('Self', bound='Set[Any]')
+T = TypeVar("T")
+Self = TypeVar("Self", bound="Set[Any]")
 
 
 class Set(Collection[T], ABC):
@@ -21,25 +21,32 @@ class Set(Collection[T], ABC):
     Base class for all set classes.
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _parse_function: Callable[[str], 'CData'] = None
+    _parse_function: Callable[[str], "CData"] = None
     _parse_value_function: Callable[[Union[str, T]], Any] = None
-    _make_function: Callable[[Iterable[Any]], 'CData'] = None
+    _make_function: Callable[[Iterable[Any]], "CData"] = None
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *,
-                 elements: Optional[List[Union[str, T]]] = None,
-                 _inner=None):
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        elements: Optional[List[Union[str, T]]] = None,
+        _inner=None,
+    ):
         super().__init__()
-        assert (_inner is not None) or ((string is not None) != (elements is not None)), \
-            "Either string must be not None or elements must be not"
+        assert (_inner is not None) or (
+            (string is not None) != (elements is not None)
+        ), "Either string must be not None or elements must be not"
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = self.__class__._parse_function(string)
         else:
-            parsed_elements = [self.__class__._parse_value_function(ts) for ts in elements]
+            parsed_elements = [
+                self.__class__._parse_value_function(ts) for ts in elements
+            ]
             self._inner = self.__class__._make_function(parsed_elements)
 
     def __copy__(self: Self) -> Self:
@@ -106,8 +113,7 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_out
         """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        return f"{self.__class__.__name__}" f"({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -208,7 +214,7 @@ class Set(Collection[T], ABC):
             A :class:`T` instance
         """
         if n < 0 or n >= self.num_elements():
-            raise IndexError(f'Index {n} out of bounds')
+            raise IndexError(f"Index {n} out of bounds")
 
     @abstractmethod
     def elements(self) -> List[T]:
@@ -250,7 +256,7 @@ class Set(Collection[T], ABC):
         if isinstance(container, Set):
             return contained_set_set(self._inner, container._inner)
         else:
-            raise TypeError(f'Operation not supported with type {container.__class__}')
+            raise TypeError(f"Operation not supported with type {container.__class__}")
 
     @abstractmethod
     def contains(self, content) -> bool:
@@ -269,7 +275,7 @@ class Set(Collection[T], ABC):
         if isinstance(content, Set):
             return contains_set_set(self._inner, content._inner)
         else:
-            raise TypeError(f'Operation not supported with type {content.__class__}')
+            raise TypeError(f"Operation not supported with type {content.__class__}")
 
     def __contains__(self, item):
         """
@@ -302,7 +308,7 @@ class Set(Collection[T], ABC):
         if isinstance(other, Set):
             return overlaps_set_set(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other) -> bool:
@@ -322,7 +328,7 @@ class Set(Collection[T], ABC):
         if isinstance(other, Set):
             return left_set_set(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_left(self, other) -> bool:
         """
@@ -341,7 +347,7 @@ class Set(Collection[T], ABC):
         if isinstance(other, Set):
             return overleft_set_set(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_right(self, other) -> bool:
         """
@@ -360,7 +366,7 @@ class Set(Collection[T], ABC):
         if isinstance(other, Set):
             return overright_set_set(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_right(self, other) -> bool:
         """
@@ -379,7 +385,7 @@ class Set(Collection[T], ABC):
         if isinstance(other, Set):
             return right_set_set(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
     def distance(self, other) -> float:
@@ -397,6 +403,7 @@ class Set(Collection[T], ABC):
         """
         from .span import Span
         from .spanset import SpanSet
+
         if isinstance(other, Set):
             return distance_set_set(self._inner, other._inner)
         elif isinstance(other, Span):
@@ -404,7 +411,7 @@ class Set(Collection[T], ABC):
         elif isinstance(other, SpanSet):
             return distance_spanset_span(other._inner, set_span(self._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Set Operations --------------------------------
     @abstractmethod
@@ -422,7 +429,7 @@ class Set(Collection[T], ABC):
             intersection_set_set, intersection_spanset_span,
             intersection_spanset_spanset
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __mul__(self, other):
         """
@@ -447,7 +454,7 @@ class Set(Collection[T], ABC):
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __sub__(self, other):
         """
@@ -500,7 +507,7 @@ class Set(Collection[T], ABC):
         Returns:
             A :class:`Collection` instance. The actual class depends on ``other``.
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __add__(self, other):
         """
@@ -564,7 +571,7 @@ class Set(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return set_lt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __le__(self, other):
         """
@@ -581,7 +588,7 @@ class Set(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return set_le(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __gt__(self, other):
         """
@@ -598,7 +605,7 @@ class Set(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return set_gt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __ge__(self, other):
         """
@@ -615,4 +622,4 @@ class Set(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return set_ge(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")

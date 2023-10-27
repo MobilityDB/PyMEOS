@@ -11,6 +11,7 @@ class TemporalTextMaxAggregator(BaseAggregator[TText, TText]):
     MEOS Functions:
         ttext_tmax_transfn, temporal_tagg_finalfn
     """
+
     _add_function = ttext_tmax_transfn
 
 
@@ -21,4 +22,5 @@ class TemporalTextMinAggregator(BaseAggregator[TText, TText]):
     MEOS Functions:
         ttext_tmin_transfn, temporal_tagg_finalfn
     """
+
     _add_function = ttext_tmin_transfn

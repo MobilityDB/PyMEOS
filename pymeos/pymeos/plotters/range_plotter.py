@@ -24,8 +24,12 @@ class SpanPlotter:
             List with the plotted elements.
         """
         base = axes or plt.gca()
-        ll = base.axhline(span.lower(), *args, linestyle='-' if span.lower_inc() else '--', **kwargs)
-        kwargs.pop('label', None)
-        ul = base.axhline(span.upper(), *args, linestyle='-' if span.upper_inc() else '--', **kwargs)
+        ll = base.axhline(
+            span.lower(), *args, linestyle="-" if span.lower_inc() else "--", **kwargs
+        )
+        kwargs.pop("label", None)
+        ul = base.axhline(
+            span.upper(), *args, linestyle="-" if span.upper_inc() else "--", **kwargs
+        )
         s = base.axhspan(span.lower(), span.upper(), *args, alpha=0.3, **kwargs)
         return [ll, ul, s]

@@ -12,6 +12,7 @@ class TemporalAverageAggregator(BaseAggregator[TNumber, TNumber]):
     MEOS Functions:
         tnumber_tavg_transfn, tnumber_tavg_finalfn
     """
+
     _add_function = tnumber_tavg_transfn
     _final_function = tnumber_tavg_finalfn
 
@@ -24,6 +25,7 @@ class TemporalNumberExtentAggregator(BaseAggregator[TNumber, TBox]):
     MEOS Functions:
         tnumber_extent_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tnumber_extent_transfn
 
     @classmethod
@@ -38,6 +40,7 @@ class TemporalIntMaxAggregator(BaseAggregator[TInt, TInt]):
     MEOS Functions:
         tint_tmax_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tint_tmax_transfn
 
 
@@ -48,6 +51,7 @@ class TemporalIntMinAggregator(BaseAggregator[TInt, TInt]):
     MEOS Functions:
         tint_tmin_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tint_tmin_transfn
 
 
@@ -58,6 +62,7 @@ class TemporalIntSumAggregator(BaseAggregator[TInt, TInt]):
     MEOS Functions:
         tint_tsum_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tint_tsum_transfn
 
 
@@ -68,6 +73,7 @@ class TemporalFloatMaxAggregator(BaseAggregator[TFloat, TFloat]):
     MEOS Functions:
         tfloat_tmax_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tfloat_tmax_transfn
 
 
@@ -78,6 +84,7 @@ class TemporalFloatMinAggregator(BaseAggregator[TFloat, TFloat]):
     MEOS Functions:
         tfloat_tmin_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tfloat_tmin_transfn
 
 
@@ -88,4 +95,5 @@ class TemporalFloatSumAggregator(BaseAggregator[TFloat, TFloat]):
     MEOS Functions:
         tfloat_tsum_transfn, temporal_tagg_finalfn
     """
+
     _add_function = tfloat_tsum_transfn

@@ -28,11 +28,15 @@ class TemporalSequenceSetPlotter:
             :func:`~pymeos.plotters.sequence_plotter.TemporalSequencePlotter.plot`
 
         """
-        seqs = sequence_set.sequences() if isinstance(sequence_set, TSequenceSet) else sequence_set
+        seqs = (
+            sequence_set.sequences()
+            if isinstance(sequence_set, TSequenceSet)
+            else sequence_set
+        )
         plots = [TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)]
-        if 'color' not in kwargs:
-            kwargs['color'] = plots[0][0].get_color()
-        kwargs.pop('label', None)
+        if "color" not in kwargs:
+            kwargs["color"] = plots[0][0].get_color()
+        kwargs.pop("label", None)
         for seq in seqs[1:]:
             plots.append(TemporalSequencePlotter.plot(seq, *args, **kwargs))
         return plots

@@ -13,8 +13,8 @@ if TYPE_CHECKING:
     from .tbool import TBool
 
 
-class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC):
-    _mobilitydb_name = 'ttext'
+class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC):
+    _mobilitydb_name = "ttext"
 
     BaseClass = str
 
@@ -50,8 +50,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TimestampSet, Period]) -> \
-            TTextSeq:
+    def from_base_time(value: str, base: Union[TimestampSet, Period]) -> TTextSeq:
         ...
 
     @staticmethod
@@ -76,18 +75,18 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             ttextseq_from_base_period, ttextseqset_from_base_periodset
         """
         if isinstance(base, datetime):
-            return TTextInst(_inner=ttextinst_make(value,
-                                                   datetime_to_timestamptz(base)))
+            return TTextInst(
+                _inner=ttextinst_make(value, datetime_to_timestamptz(base))
+            )
         elif isinstance(base, TimestampSet):
-            return TTextSeq(_inner=ttextseq_from_base_timestampset(value,
-                                                                   base._inner))
+            return TTextSeq(_inner=ttextseq_from_base_timestampset(value, base._inner))
         elif isinstance(base, Period):
-            return TTextSeq(_inner=ttextseq_from_base_period(value,
-                                                             base._inner))
+            return TTextSeq(_inner=ttextseq_from_base_period(value, base._inner))
         elif isinstance(base, PeriodSet):
-            return TTextSeqSet(_inner=ttextseqset_from_base_periodset(value,
-                                                                      base._inner))
-        raise TypeError(f'Operation not supported with type {base.__class__}')
+            return TTextSeqSet(
+                _inner=ttextseqset_from_base_periodset(value, base._inner)
+            )
+        raise TypeError(f"Operation not supported with type {base.__class__}")
 
     # ------------------------- Output ----------------------------------------
     def __str__(self) -> str:
@@ -215,8 +214,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         MEOS Functions:
             ttext_value_at_timestamp
         """
-        result = ttext_value_at_timestamp(self._inner,
-                                          datetime_to_timestamptz(timestamp), True)
+        result = ttext_value_at_timestamp(
+            self._inner, datetime_to_timestamptz(timestamp), True
+        )
         return text2cstring(result[0])
 
     # ------------------------- Ever and Always Comparisons -------------------
@@ -634,8 +634,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period,
-    PeriodSet]) -> TText:
+    def at(
+        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+    ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the time or value `other`.
@@ -658,8 +659,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[str, List[str], datetime, TimestampSet,
-    Period, PeriodSet]) -> TText:
+    def minus(
+        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+    ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the complement of the time or value `other`.
@@ -702,15 +704,19 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
 
         """
         if isinstance(other, str):
-            result = textcat_ttext_text(self._inner, other) \
-                if not other_before \
+            result = (
+                textcat_ttext_text(self._inner, other)
+                if not other_before
                 else textcat_text_ttext(other, self._inner)
+            )
         elif isinstance(other, TText):
-            result = textcat_ttext_ttext(self._inner, other._inner) \
-                if not other_before \
+            result = (
+                textcat_ttext_ttext(self._inner, other._inner)
+                if not other_before
                 else textcat_ttext_ttext(other._inner, self._inner)
+            )
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return self.__class__(_inner=result)
 
     def __add__(self, other):
@@ -755,61 +761,86 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         """
         if not value:
             return None
-        if value[0] != '{' and value[0] != '[' and value[0] != '(':
+        if value[0] != "{" and value[0] != "[" and value[0] != "(":
             return TTextInst(string=value)
-        elif value[0] == '[' or value[0] == '(':
+        elif value[0] == "[" or value[0] == "(":
             return TTextSeq(string=value)
-        elif value[0] == '{':
-            if value[1] == '[' or value[1] == '(':
+        elif value[0] == "{":
+            if value[1] == "[" or value[1] == "(":
                 return TTextSeqSet(string=value)
             else:
                 return TTextSeq(string=value)
         raise Exception("ERROR: Could not parse temporal text value")
 
 
-class TTextInst(TInstant[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextInst(TInstant[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
     Class for representing temporal strings at a single instant.
     """
+
     _make_function = ttextinst_make
     _cast_function = str
 
-    def __init__(self, string: Optional[str] = None, *,
-                 value: Optional[str] = None,
-                 timestamp: Optional[Union[str, datetime]] = None,
-                 _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp,
-                         _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        value: Optional[str] = None,
+        timestamp: Optional[Union[str, datetime]] = None,
+        _inner=None,
+    ):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TTextSeq(TSequence[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
     Class for representing temporal strings over a period of time.
     """
+
     ComponentClass = TTextInst
 
-    def __init__(self, string: Optional[str] = None, *,
-                 instant_list: Optional[List[Union[str, TTextInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list,
-                         lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        instant_list: Optional[List[Union[str, TTextInst]]] = None,
+        lower_inc: bool = True,
+        upper_inc: bool = False,
+        interpolation: TInterpolation = TInterpolation.STEPWISE,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            instant_list=instant_list,
+            lower_inc=lower_inc,
+            upper_inc=upper_inc,
+            interpolation=interpolation,
+            normalize=normalize,
+            _inner=_inner,
+        )
 
 
-class TTextSeqSet(TSequenceSet[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextSeqSet(
+    TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText
+):
     """
     Class for representing temporal strings over a period of time with gaps.
     """
+
     ComponentClass = TTextSeq
 
-    def __init__(self, string: Optional[str] = None, *,
-                 sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            sequence_list=sequence_list,
+            normalize=normalize,
+            _inner=_inner,
+        )

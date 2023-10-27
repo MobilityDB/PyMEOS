@@ -12,8 +12,14 @@ class TemporalPointSequencePlotter:
     """
 
     @staticmethod
-    def plot_xy(sequence: Union[TPointSeq, List[TPointInst]], *args, axes=None, show_markers=True, show_grid=True,
-                **kwargs):
+    def plot_xy(
+        sequence: Union[TPointSeq, List[TPointInst]],
+        *args,
+        axes=None,
+        show_markers=True,
+        show_grid=True,
+        **kwargs,
+    ):
         """
         Plot a TPointSeq or a list of TPointInst on the given axes. The actual plot function is chosen
         based on the interpolation of the sequence.
@@ -40,7 +46,9 @@ class TemporalPointSequencePlotter:
         else:
             plot_func = base.scatter
 
-        ins : list[TPointInst] = sequence.instants() if isinstance(sequence, TPointSeq) else sequence
+        ins: list[TPointInst] = (
+            sequence.instants() if isinstance(sequence, TPointSeq) else sequence
+        )
         x = [i.x().value() for i in ins]
         y = [i.y().value() for i in ins]
 
@@ -52,12 +60,28 @@ class TemporalPointSequencePlotter:
 
         if linear and show_markers:
             color = plots[0][0].get_color()
-            plots.append(base.scatter(x[0], y[0], s=80, marker='o',
-                                      facecolors=color if sequence.lower_inc() else 'none',
-                                      edgecolors=color, zorder=2 if sequence.lower_inc() else 3))
-            plots.append(base.scatter(x[-1], y[-1], s=80, marker='o',
-                                      facecolors=color if sequence.upper_inc() else 'none',
-                                      edgecolors=color, zorder=2 if sequence.upper_inc() else 3))
+            plots.append(
+                base.scatter(
+                    x[0],
+                    y[0],
+                    s=80,
+                    marker="o",
+                    facecolors=color if sequence.lower_inc() else "none",
+                    edgecolors=color,
+                    zorder=2 if sequence.lower_inc() else 3,
+                )
+            )
+            plots.append(
+                base.scatter(
+                    x[-1],
+                    y[-1],
+                    s=80,
+                    marker="o",
+                    facecolors=color if sequence.upper_inc() else "none",
+                    edgecolors=color,
+                    zorder=2 if sequence.upper_inc() else 3,
+                )
+            )
 
         base.tick_params(axis="x", rotation=45)
 
