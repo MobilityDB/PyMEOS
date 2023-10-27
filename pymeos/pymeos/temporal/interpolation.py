@@ -1,5 +1,5 @@
 from __future__ import annotations
-
+from pymeos_cffi import InterpolationType
 from enum import IntEnum
 
 
@@ -8,10 +8,10 @@ class TInterpolation(IntEnum):
     Enum for representing the different types of interpolation present in
     PyMEOS.
     """
-    NONE = 0
-    DISCRETE = 1
-    STEPWISE = 2
-    LINEAR = 3
+    NONE = InterpolationType.NONE
+    DISCRETE = InterpolationType.DISCRETE
+    STEPWISE = InterpolationType.STEP
+    LINEAR = InterpolationType.LINEAR
 
     @staticmethod
     def from_string(source: str, none: bool = True) -> TInterpolation:
