@@ -480,7 +480,7 @@ class TestTGeomPointTemporalAccessors(TestTGeomPoint):
             (tpi, [Point(1,1)]),
             (tpds, [Point(1,1), Point(2,2)]),
             (tps, [Point(1,1), Point(2,2)]),
-            (tpss, [Point(1,1), Point(2,2)]),
+            (tpss, [Point(1,1), Point(2,2), Point(1,1), Point(1,1)]),
         ],
         ids=['Instant', 'Discrete Sequence', 'Sequence', 'SequenceSet']
     )
