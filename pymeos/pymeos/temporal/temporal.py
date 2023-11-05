@@ -7,6 +7,7 @@ from pymeos_cffi import *
 
 from .interpolation import TInterpolation
 from ..collections import *
+from ..mixins.comparison import TemporalComparable
 
 if TYPE_CHECKING:
     from .tinstant import TInstant
@@ -34,7 +35,7 @@ TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
+class Temporal(Generic[TBase, TG, TI, TS, TSS], TemporalComparable, ABC):
     """
     Abstract class for representing temporal values of any subtype.
     """
@@ -1405,95 +1406,3 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         self.__assert_comparable(other)
         result = tgt_temporal_temporal(self._inner, other._inner)
         return Temporal._factory(result)
-
-    # ------------------------- Comparisons -----------------------------------
-    def __eq__(self, other):
-        """
-        Returns whether `self` is equal to `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the equality relation.
-
-        MEOS Functions:
-            temporal_eq
-        """
-        return temporal_eq(self._inner, other._inner)
-
-    def __ne__(self, other):
-        """
-        Returns whether `self` is not equal to `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the not equal relation.
-
-        MEOS Functions:
-            temporal_ne
-        """
-        return temporal_ne(self._inner, other._inner)
-
-    def __lt__(self, other):
-        """
-        Returns whether `self` is less than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the less than relation.
-
-        MEOS Functions:
-            temporal_lt
-        """
-        return temporal_lt(self._inner, other._inner)
-
-    def __le__(self, other):
-        """
-        Returns whether `self` is less or equal than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the less or equal than relation.
-
-        MEOS Functions:
-            temporal_le
-        """
-        return temporal_le(self._inner, other._inner)
-
-    def __gt__(self, other):
-        """
-        Returns whether `self` is greater than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the greater than relation.
-
-        MEOS Functions:
-            temporal_gt
-        """
-        return temporal_gt(self._inner, other._inner)
-
-    def __ge__(self, other):
-        """
-        Returns whether `self` is greater or equal than `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`bool` with the result of the greater or equal than
-            relation.
-
-        MEOS Functions:
-            temporal_ge
-        """
-        return temporal_ge(self._inner, other._inner)
