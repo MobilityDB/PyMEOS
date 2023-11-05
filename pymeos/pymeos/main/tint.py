@@ -7,6 +7,7 @@ from pymeos_cffi import *
 
 from .tnumber import TNumber
 from ..collections import *
+from ..mixins import TTemporallyComparable
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
@@ -15,7 +16,11 @@ if TYPE_CHECKING:
     from .tbool import TBool
 
 
-class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
+class TInt(
+    TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"],
+    TTemporallyComparable,
+    ABC,
+):
     _mobilitydb_name = "tint"
 
     BaseClass = int
@@ -534,7 +539,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
         return tint_always_le(self._inner, value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -553,7 +558,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_not_equal(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -572,7 +577,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_less(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -591,7 +596,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_less_or_equal(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -611,7 +616,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_greater_or_equal(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and `other`.
 
@@ -631,7 +636,7 @@ class TInt(TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], ABC):
             return super().temporal_greater_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[int, Temporal]) -> TBool:
+    def temporal_greater(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 

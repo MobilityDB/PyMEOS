@@ -1,19 +1,23 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
 
 from pymeos_cffi import *
 
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..mixins import TTemporallyComparable
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
     from .tbool import TBool
 
 
-class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC):
+class TText(
+    Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"],
+    TTemporallyComparable,
+    ABC,
+):
     _mobilitydb_name = "ttext"
 
     BaseClass = str
@@ -515,7 +519,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
         return ttext_always_le(self._inner, value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -534,7 +538,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -553,7 +557,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[str, Temporal]) -> TBool:
+    def temporal_less(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -572,7 +576,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_less_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -592,7 +596,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -612,7 +616,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and
         `other`.

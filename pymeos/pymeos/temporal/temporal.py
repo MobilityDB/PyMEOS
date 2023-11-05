@@ -7,12 +7,11 @@ from pymeos_cffi import *
 
 from .interpolation import TInterpolation
 from ..collections import *
-from ..mixins.comparison import TemporalComparable
+from ..mixins import TComparable, TTemporallyEquatable
 
 if TYPE_CHECKING:
     from .tinstant import TInstant
     from .tsequence import TSequence
-    from ..main import TBool
     from ..boxes import Box
     import pandas as pd
 
@@ -35,7 +34,9 @@ TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class Temporal(Generic[TBase, TG, TI, TS, TSS], TemporalComparable, ABC):
+class Temporal(
+    Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatable, ABC
+):
     """
     Abstract class for representing temporal values of any subtype.
     """
@@ -1283,126 +1284,3 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TemporalComparable, ABC):
         from ..factory import _TemporalFactory
 
         return _TemporalFactory.create_temporal(new_inner)
-
-    # ------------------------- Temporal Comparisons --------------------------
-    def __comparable(self, other: Temporal) -> bool:
-        if not isinstance(other, Temporal):
-            return False
-        if self.BaseClass == other.BaseClass:
-            return True
-        if self.BaseClass in [int, float] and other.BaseClass in [int, float]:
-            return True
-        return False
-
-    def __assert_comparable(self, other: Temporal) -> None:
-        if not self.__comparable(other):
-            raise TypeError(
-                f"Operation not supported with type {other.__class__}. "
-                f"{self.BaseClass} and {other.BaseClass} are not comparable."
-            )
-
-    def temporal_equal(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal equality relation between `self` and `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
-
-        MEOS Functions:
-            teq_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = teq_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)
-
-    def temporal_not_equal(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal not equal relation between `self` and `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal not equal relation.
-
-        MEOS Functions:
-            tne_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = tne_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)
-
-    def temporal_less(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal less than relation between `self` and `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal less than relation.
-
-        MEOS Functions:
-            tlt_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = tlt_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)
-
-    def temporal_less_or_equal(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal less or equal relation between `self` and `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal less or equal
-            relation.
-
-        MEOS Functions:
-            tle_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = tle_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)
-
-    def temporal_greater_or_equal(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal greater or equal relation between `self` and
-        `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal greater or equal
-            relation.
-
-        MEOS Functions:
-            tge_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = tge_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)
-
-    def temporal_greater(self, other: Temporal) -> TBool:
-        """
-        Returns the temporal greater than relation between `self` and `other`.
-
-        Args:
-            other: A temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal greater than
-            relation.
-
-        MEOS Functions:
-            tgt_temporal_temporal
-        """
-        self.__assert_comparable(other)
-        result = tgt_temporal_temporal(self._inner, other._inner)
-        return Temporal._factory(result)

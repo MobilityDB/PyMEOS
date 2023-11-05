@@ -20,8 +20,8 @@ from pymeos_cffi import *
 from .tbool import TBool
 from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 from ..collections import *
+from ..mixins import TSimplifiable
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
-from ..mixins import TemporalSimplify
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
@@ -46,7 +46,7 @@ Self = TypeVar("Self", bound="TPoint")
 TF = TypeVar("TF", bound="TFloat", covariant=True)
 
 
-class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TemporalSimplify, ABC):
+class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
     """
     Abstract class for temporal points.
     """
@@ -1587,7 +1587,7 @@ class TGeomPoint(
         return tpoint_always_eq(self._inner, gs)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[shp.Point, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[shp.Point, TGeomPoint]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -1607,7 +1607,7 @@ class TGeomPoint(
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[shp.Point, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[shp.Point, TGeomPoint]) -> TBool:
         """
         Returns the temporal inequality relation between `self` and `other`.
 
@@ -1855,7 +1855,7 @@ class TGeogPoint(
         return tpoint_always_eq(self._inner, gs)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[shp.Point, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[shp.Point, TGeogPoint]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -1875,7 +1875,7 @@ class TGeogPoint(
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[shp.Point, Temporal]) -> TBool:
+    def temporal_not_equal(self, other: Union[shp.Point, TGeogPoint]) -> TBool:
         """
         Returns the temporal inequality relation between `self` and `other`.
 

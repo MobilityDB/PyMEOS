@@ -12,7 +12,7 @@ from pymeos_cffi import (
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class TemporalComparable:
+class TComparable:
     def __eq__(self: Self, other):
         """
         Returns whether `self` is equal to `other`.

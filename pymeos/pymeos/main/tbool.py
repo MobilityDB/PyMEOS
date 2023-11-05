@@ -1,13 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, Union, List, Set, overload
 
 from pymeos_cffi import *
 
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 
 class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC):
@@ -200,7 +199,7 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
         return not tbool_ever_eq(self._inner, value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[bool, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -219,7 +218,7 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[bool, Temporal]) -> TBool:
+    def temporal_not_equal(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal inequality relation between `self` and `other`.
 

@@ -12,7 +12,7 @@ from pymeos_cffi import (
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class TemporalSimplify:
+class TSimplifiable:
     def simplify_min_distance(self: Self, distance: float) -> Self:
         """
         Simplifies a temporal value ensuring that consecutive values are at least a
