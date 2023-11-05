@@ -1739,7 +1739,7 @@ class TestTBoolRestrictors(TestTBool):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TBool.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+            TBool.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
         )
 
     @pytest.mark.parametrize(
@@ -1748,8 +1748,8 @@ class TestTBoolRestrictors(TestTBool):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TBool.merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TBool.merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert TBool.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TBool.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTBoolComparisons(TestTBool):

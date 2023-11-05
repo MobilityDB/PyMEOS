@@ -163,9 +163,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_merge_array
         """
-        result = temporal_merge_array(
-            [temp._inner for temp in temporals if temp is not None], len(temporals)
-        )
+        _temporals = [temp._inner for temp in temporals if temp is not None]
+        result = temporal_merge_array(_temporals, len(_temporals))
         return Temporal._factory(result)
 
     @classmethod
@@ -181,9 +180,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
             A temporal object that is the result of merging the given temporal
             objects.
         """
-        result = temporal_merge_array(
-            [temp._inner for temp in temporals if temp is not None], len(temporals)
-        )
+        _temporals = [temp._inner for temp in temporals if temp is not None]
+        result = temporal_merge_array(_temporals, len(_temporals))
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
@@ -726,11 +724,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], ABC):
         MEOS Functions:
             temporal_merge, temporal_merge_array
         """
-        if isinstance(self, type(None)):
-            return other
-        if isinstance(other, type(None)):
+        if other is None:
             return self
-        if isinstance(other, Temporal):
+        elif isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
             new_temp = temporal_merge_array(

@@ -2402,7 +2402,7 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TGeomPoint.merge(temporal.at(restrictor), temporal.minus(restrictor))
+            TGeomPoint.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
             == temporal
         )
 
@@ -2412,8 +2412,8 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TGeomPoint.merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeomPoint.merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTGeomPointTopologicalFunctions(TestTGeomPoint):

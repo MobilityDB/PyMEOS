@@ -2560,7 +2560,7 @@ class TestTFloatRestrictors(TestTFloat):
     )
     def test_at_minus_values(self, temporal, restrictor):
         assert (
-            TFloat.merge(temporal.at(restrictor), temporal.minus(restrictor))
+            TFloat.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
             == temporal
         )
 
@@ -2570,8 +2570,8 @@ class TestTFloatRestrictors(TestTFloat):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TFloat.merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TFloat.merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert TFloat.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TFloat.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTFloatTopologicalFunctions(TestTFloat):

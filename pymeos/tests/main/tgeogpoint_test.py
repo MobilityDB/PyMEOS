@@ -2266,9 +2266,18 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TGeogPoint.merge(temporal.at(restrictor), temporal.minus(restrictor))
+            TGeogPoint.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
             == temporal
         )
+
+    @pytest.mark.parametrize(
+        "temporal",
+        [tpi, tpds, tps, tpss],
+        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+    )
+    def test_at_minus_min_max(self, temporal):
+        assert TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTGeogPointEverSpatialOperations(TestTGeogPoint):

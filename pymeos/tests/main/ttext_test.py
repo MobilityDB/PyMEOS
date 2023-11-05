@@ -1710,7 +1710,7 @@ class TestTTextRestrictors(TestTText):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TText.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+            TText.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
         )
 
     @pytest.mark.parametrize(
@@ -1719,8 +1719,8 @@ class TestTTextRestrictors(TestTText):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TText.merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TText.merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert TText.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TText.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTTextTopologicalFunctions(TestTText):

@@ -2250,7 +2250,8 @@ class TestTIntRestrictors(TestTInt):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TInt.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+            TInt.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
+            == temporal
         )
 
     @pytest.mark.parametrize(
@@ -2259,8 +2260,8 @@ class TestTIntRestrictors(TestTInt):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TInt.merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TInt.merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert TInt.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        assert TInt.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
 
 
 class TestTIntTopologicalFunctions(TestTInt):
