@@ -411,42 +411,45 @@ class TestTBoxOutputs(TestTBox):
 
 
 class TestTBoxAccessors(TestTBox):
-    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbt = TBox("TBOX T([2019-09-01,2019-09-02])")
+
+    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbfxt = TBox("TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])")
+
+    tbix = TBox("TBOXINT X([1,2])")
+    tbixt = TBox("TBOXINT XT([1,2],[2019-09-01,2019-09-02])")
 
     @pytest.mark.parametrize(
         "tbox, expected",
-        [(tbfx, True), (tbt, False), (tbfxt, True)],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        [(tbt, False), (tbfx, True), (tbfxt, True), (tbix, True), (tbixt, True)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_has_x(self, tbox, expected):
         assert tbox.has_x() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
-        [(tbfx, False), (tbt, True), (tbfxt, True)],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        [(tbt, True), (tbfx, False), (tbfxt, True), (tbix, False), (tbixt, True)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_has_t(self, tbox, expected):
         assert tbox.has_t() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
-        [(tbfx, 1), (tbt, None), (tbfxt, 1)],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        [(tbt, None), (tbfx, 1), (tbfxt, 1), (tbix, 1), (tbixt, 1)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_xmin(self, tbox, expected):
         assert tbox.xmin() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
-        [(tbfx, True), (tbt, None), (tbfxt, True)],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        [(tbt, None), (tbfx, True), (tbfxt, True), (tbix, True), (tbixt, True)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
-    def test_xmin_xmax_inc(self, tbox, expected):
+    def test_xmin_inc(self, tbox, expected):
         assert tbox.xmin_inc() == expected
-        assert tbox.xmax_inc() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
@@ -458,36 +461,55 @@ class TestTBoxAccessors(TestTBox):
 
     @pytest.mark.parametrize(
         "tbox, expected",
+        [(tbt, None), (tbfx, True), (tbfxt, True), (tbix, False), (tbixt, False)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
+    )
+    def test_xmax_inc(self, tbox, expected):
+        assert tbox.xmax_inc() == expected
+
+    @pytest.mark.parametrize(
+        "tbox, expected",
         [
-            (tbfx, None),
             (tbt, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbfx, None),
             (tbfxt, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
+            (tbix, None),
+            (tbixt, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_tmin(self, tbox, expected):
         assert tbox.tmin() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
-        [(tbfx, None), (tbt, True), (tbfxt, True)],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        [(tbt, True), (tbfx, None), (tbfxt, True), (tbix, None), (tbixt, True)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
-    def test_tmin_tmax_inc(self, tbox, expected):
+    def test_tmin_inc(self, tbox, expected):
         assert tbox.tmin_inc() == expected
-        assert tbox.tmax_inc() == expected
 
     @pytest.mark.parametrize(
         "tbox, expected",
         [
-            (tbfx, None),
             (tbt, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbfx, None),
             (tbfxt, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
+            (tbix, None),
+            (tbixt, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc)),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_tmax(self, tbox, expected):
         assert tbox.tmax() == expected
+
+    @pytest.mark.parametrize(
+        "tbox, expected",
+        [(tbt, True), (tbfx, None), (tbfxt, True), (tbix, None), (tbixt, True)],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
+    )
+    def test_tmax_inc(self, tbox, expected):
+        assert tbox.tmax_inc() == expected
 
 
 class TestTBoxTransformations(TestTBox):
