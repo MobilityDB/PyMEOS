@@ -921,7 +921,7 @@ class Temporal(
         """
         Returns whether the bounding box of `self` is adjacent to the bounding
         box of `other`. Temporal subclasses may override this method to provide
-        more specific behavior related to their types an check adjacency over
+        more specific behavior related to their types and check adjacency over
         more dimensions.
 
         Args:
