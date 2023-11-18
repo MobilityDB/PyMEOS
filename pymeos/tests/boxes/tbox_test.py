@@ -315,21 +315,30 @@ class TestTBoxConstructors(TestTBox):
 
 
 class TestTBoxOutputs(TestTBox):
-    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbt = TBox("TBOX T([2019-09-01,2019-09-02])")
+
+    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbfxt = TBox("TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])")
+
+    tbix = TBox("TBOXINT X([1,2])")
+    tbixt = TBox("TBOXINT XT([1,2],[2019-09-01,2019-09-02])")
 
     @pytest.mark.parametrize(
         "tbox, expected",
         [
-            (tbfx, "TBOXFLOAT X([1, 2])"),
             (tbt, "TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+            (tbfx, "TBOXFLOAT X([1, 2])"),
             (
                 tbfxt,
                 "TBOXFLOAT XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
+            (tbix, "TBOXINT X([1, 3))"),
+            (
+                tbixt,
+                "TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
+            ),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_str(self, tbox, expected):
         assert str(tbox) == expected
@@ -337,14 +346,19 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         "tbox, expected",
         [
-            (tbfx, "TBox(TBOXFLOAT X([1, 2]))"),
             (tbt, "TBox(TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00]))"),
+            (tbfx, "TBox(TBOXFLOAT X([1, 2]))"),
             (
                 tbfxt,
                 "TBox(TBOXFLOAT XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00]))",
             ),
+            (tbix, "TBox(TBOXINT X([1, 3)))"),
+            (
+                tbixt,
+                "TBox(TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00]))",
+            ),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_repr(self, tbox, expected):
         assert repr(tbox) == expected
@@ -352,14 +366,16 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         "tbox, expected",
         [
-            (tbfx, "0101070003000000000000F03F0000000000000040"),
             (tbt, "010221000300A01E4E713402000000F66B85340200"),
+            (tbfx, "0101070003000000000000F03F0000000000000040"),
             (
                 tbfxt,
                 "010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040",
             ),
+            (tbix, "01010D00010100000003000000"),
+            (tbixt, "010321000300A01E4E713402000000F66B853402000D00010100000003000000"),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_as_hexwkb(self, tbox, expected):
         assert tbox.as_hexwkb() == expected
@@ -369,8 +385,10 @@ class TestTBoxOutputs(TestTBox):
         [
             (tbfx, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
             (tbfxt, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
+            (tbix, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
+            (tbixt, FloatSpan(lower=1.0, upper=2.0, lower_inc=True, upper_inc=True)),
         ],
-        ids=["TBoxFloat X", "TBoxFloat XT"],
+        ids=["TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_to_floatspan(self, tbox, expected):
         tb = tbox.to_floatspan()
@@ -382,8 +400,9 @@ class TestTBoxOutputs(TestTBox):
         [
             (tbt, Period("[2019-09-01, 2019-09-02]")),
             (tbfxt, Period("[2019-09-01, 2019-09-02]")),
+            (tbixt, Period("[2019-09-01, 2019-09-02]")),
         ],
-        ids=["TBoxFloat X", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat XT", "TBoxInt XT"],
     )
     def test_to_period(self, tbox, expected):
         tb = tbox.to_period()
