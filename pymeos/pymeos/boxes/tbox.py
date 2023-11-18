@@ -50,7 +50,7 @@ class TBox:
         return _ffi.addressof(self._inner.span)
 
     def _is_float(self) -> bool:
-        return self._inner.span.basetype == 5
+        return self._inner.span.spantype == MeosType.T_FLOATSPAN
 
     # ------------------------- Constructors ----------------------------------
     def __init__(

@@ -56,60 +56,85 @@ class TestTBox(TestPyMEOS):
 
 
 class TestTBoxConstructors(TestTBox):
-    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbt = TBox("TBOX T([2019-09-01,2019-09-02])")
+
+    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbfxt = TBox("TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])")
 
+    tbix = TBox("TBOXINT X([1,2])")
+    tbixt = TBox("TBOXINT XT([1,2],[2019-09-01,2019-09-02])")
+
     @pytest.mark.parametrize(
-        "source, type, expected",
+        "source, expected",
         [
-            ("TBOXFLOAT X([1,2])", TBox, "TBOXFLOAT X([1, 2])"),
+            ("TBOX T([2019-09-01,2019-09-02])", tbt),
+            ("TBOXFLOAT X([1,2])", tbfx),
+            ("TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])", tbfxt),
+            ("TBOXINT X([1,2])", tbix),
+            ("TBOXINT XT([1,2],[2019-09-01,2019-09-02])", tbixt),
+        ],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
+    )
+    def test_string_constructor(self, source, expected):
+        tb = TBox(source)
+        assert isinstance(tb, TBox)
+        assert tb == expected
+
+    @pytest.mark.parametrize(
+        "args, expected",
+        [
             (
-                "TBOX T([2019-09-01,2019-09-02])",
-                TBox,
-                "TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
+                {"tmin": "2019-09-01", "tmax": datetime(2019, 9, 2), "tmax_inc": True},
+                tbt,
             ),
+            ({"xmin": "1", "xmax": 2.0, "xmax_inc": True}, tbfx),
             (
-                "TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])",
-                TBox,
-                "TBOXFLOAT XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
+                {
+                    "tmin": "2019-09-01",
+                    "tmax": datetime(2019, 9, 2),
+                    "tmax_inc": True,
+                    "xmin": "1",
+                    "xmax": 2.0,
+                    "xmax_inc": True,
+                },
+                tbfxt,
+            ),
+            ({"xmin": 1, "xmax": 2, "xmax_inc": True}, tbix),
+            (
+                {
+                    "tmin": "2019-09-01",
+                    "tmax": datetime(2019, 9, 2),
+                    "tmax_inc": True,
+                    "xmin": 1,
+                    "xmax": 2,
+                    "xmax_inc": True,
+                },
+                tbixt,
             ),
         ],
-        ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"],
+        ids=["TBox T", "TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
-    def test_string_constructor(self, source, type, expected):
-        tb = type(source)
-        assert isinstance(tb, type)
-        assert str(tb) == expected
+    def test_values_constructor(self, args, expected):
+        tb = TBox(**args)
+        assert isinstance(tb, TBox)
+        assert tb == expected
 
     def test_hexwkb_constructor(self):
-        source = "010321000300A01E4E713402000000F66B85340200070003000000000000F03F0000000000000040"
-        tbox = TBox.from_hexwkb(source)
-        self.assert_tbox_equality(
-            tbox,
-            1,
-            2,
-            datetime(2019, 9, 1, tzinfo=timezone.utc),
-            datetime(2019, 9, 2, tzinfo=timezone.utc),
-            True,
-            True,
-            True,
-            True,
+        source = (
+            "010321000300A01E4E713402000000F66B85340200070003000000000000F03F"
+            "0000000000000040"
         )
+        tbox = TBox.from_hexwkb(source)
+        assert isinstance(tbox, TBox)
+        assert tbox == self.tbfxt
 
     @pytest.mark.parametrize(
         "value, expected",
         [
             (1, "TBOXINT X([1, 2))"),
             (1.5, "TBOXFLOAT X([1.5, 1.5])"),
-            (
-                IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True),
-                "TBOXINT X([1, 3))",
-            ),
-            (
-                FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True),
-                "TBOXFLOAT X([1.5, 2.5])",
-            ),
+            (IntSpan("[1, 2]"), "TBOXINT X([1, 3))"),
+            (FloatSpan("[1.5, 2.5]"), "TBOXFLOAT X([1.5, 2.5])"),
         ],
         ids=["int", "float", "IntSpan", "FloatSpan"],
     )
@@ -274,6 +299,19 @@ class TestTBoxConstructors(TestTBox):
         other = copy(tbox)
         assert tbox == other
         assert tbox is not other
+
+    @pytest.mark.parametrize(
+        "constructor, args",
+        [
+            (TBox.from_value, (None,)),
+            (TBox.from_time, (None,)),
+            (TBox.from_value_time, (None, None)),
+        ],
+        ids=["from_value", "from_time", "from_value_time"],
+    )
+    def test_wrong_type_in_constructors(self, constructor, args):
+        with pytest.raises(TypeError):
+            constructor(*args)
 
 
 class TestTBoxOutputs(TestTBox):
@@ -664,9 +702,13 @@ class TestTBoxTopologicalFunctions(TestTBox):
 
 
 class TestTBoxPositionFunctions(TestTBox):
-    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbt = TBox("TBOX T([2019-09-01,2019-09-02])")
+
+    tbfx = TBox("TBOXFLOAT X([1,2])")
     tbfxt = TBox("TBOXFLOAT XT([1,2],[2019-09-01,2019-09-02])")
+
+    tbix = TBox("TBOXINT X([1,2])")
+    tbixt = TBox("TBOXINT XT([1,2],[2019-09-01,2019-09-02])")
 
     @pytest.mark.parametrize(
         "tbox, argument, expected",
@@ -675,12 +717,36 @@ class TestTBoxPositionFunctions(TestTBox):
             (tbfx, TBox("TBOXFLOAT X([3,4])"), True),
             (tbfxt, TBox("TBOXFLOAT XT([1,3],[2019-09-01,2019-09-03])"), False),
             (tbfxt, TBox("TBOXFLOAT XT([3,4],[2019-09-02,2019-09-03])"), True),
+            (tbix, TBox("TBOXINT X([1,3])"), False),
+            (tbix, TBox("TBOXINT X([3,4])"), True),
+            (tbixt, TBox("TBOXINT XT([1,3],[2019-09-01,2019-09-03])"), False),
+            (tbixt, TBox("TBOXINT XT([3,4],[2019-09-02,2019-09-03])"), True),
+            (tbfx, TFloatSeq("[1@2019-09-01, 3@2019-09-03]"), False),
+            (tbfx, TFloatSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbfxt, TFloatSeq("[1@2019-09-01, 3@2019-09-03]"), False),
+            (tbfxt, TFloatSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbix, TIntSeq("[1@2019-09-01, 3@2019-09-03]"), False),
+            (tbix, TIntSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbixt, TIntSeq("[1@2019-09-01, 3@2019-09-03]"), False),
+            (tbixt, TIntSeq("[3@2019-09-01, 4@2019-09-03]"), True),
         ],
         ids=[
             "TBoxFloat X False",
             "TBoxFloat X True",
             "TBoxFloat XT False",
             "TBoxFloat XT True",
+            "TBoxInt X False",
+            "TBoxInt X True",
+            "TBoxInt XT False",
+            "TBoxInt XT True",
+            "TFloat X False",
+            "TFloat X True",
+            "TFloat XT False",
+            "TFloat XT True",
+            "TInt X False",
+            "TInt X True",
+            "TInt XT False",
+            "TInt XT True",
         ],
     )
     def test_is_left_right(self, tbox, argument, expected):
@@ -694,12 +760,36 @@ class TestTBoxPositionFunctions(TestTBox):
             (tbfx, TBox("TBOXFLOAT X([3,4])"), True),
             (tbfxt, TBox("TBOXFLOAT XT([1,1],[2019-09-01,2019-09-03])"), False),
             (tbfxt, TBox("TBOXFLOAT XT([3,4],[2019-09-02,2019-09-03])"), True),
+            (tbix, TBox("TBOXINT X([1,1])"), False),
+            (tbix, TBox("TBOXINT X([3,4])"), True),
+            (tbixt, TBox("TBOXINT XT([1,1],[2019-09-01,2019-09-03])"), False),
+            (tbixt, TBox("TBOXINT XT([3,4],[2019-09-02,2019-09-03])"), True),
+            (tbfx, TFloatSeq("[1@2019-09-01, 1@2019-09-03]"), False),
+            (tbfx, TFloatSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbfxt, TFloatSeq("[1@2019-09-01, 1@2019-09-03]"), False),
+            (tbfxt, TFloatSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbix, TIntSeq("[1@2019-09-01, 1@2019-09-03]"), False),
+            (tbix, TIntSeq("[3@2019-09-01, 4@2019-09-03]"), True),
+            (tbixt, TIntSeq("[1@2019-09-01, 1@2019-09-03]"), False),
+            (tbixt, TIntSeq("[3@2019-09-01, 4@2019-09-03]"), True),
         ],
         ids=[
             "TBoxFloat X False",
             "TBoxFloat X True",
             "TBoxFloat XT False",
             "TBoxFloat XT True",
+            "TBoxInt X False",
+            "TBoxInt X True",
+            "TBoxInt XT False",
+            "TBoxInt XT True",
+            "TFloat X False",
+            "TFloat X True",
+            "TFloat XT False",
+            "TFloat XT True",
+            "TInt X False",
+            "TInt X True",
+            "TInt XT False",
+            "TInt XT True",
         ],
     )
     def test_is_over_or_left(self, tbox, argument, expected):
