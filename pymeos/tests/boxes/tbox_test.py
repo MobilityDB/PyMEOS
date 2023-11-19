@@ -5,22 +5,18 @@ import pytest
 
 from pymeos import (
     TBox,
-    TInterpolation,
     TimestampSet,
     Period,
     PeriodSet,
     IntSpan,
     FloatSpan,
-    TInt,
     TIntInst,
     TIntSeq,
     TIntSeqSet,
-    TFloat,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
 )
-
 from tests.conftest import TestPyMEOS
 
 
