@@ -2,7 +2,7 @@ from .functions import *
 from .enums import *
 from .errors import *
 
-__version__ = "1.1.0b4"
+__version__ = "1.1.0b5"
 __all__ = [
     # Exceptions
     "MeosException",
@@ -92,6 +92,7 @@ __all__ = [
     "pg_to_date",
     "pg_to_timestamp",
     "text2cstring",
+    "text_out",
     "geography_from_hexewkb",
     "geography_from_text",
     "geometry_from_hexewkb",
@@ -177,6 +178,7 @@ __all__ = [
     "set_to_spanset",
     "span_to_spanset",
     "text_to_textset",
+    "date_to_tstzspan",
     "timestamp_to_period",
     "timestamp_to_periodset",
     "timestamp_to_tstzset",
@@ -600,6 +602,8 @@ __all__ = [
     "stbox_make",
     "tbox_copy",
     "tbox_make",
+    "box3d_to_stbox",
+    "gbox_to_stbox",
     "float_to_tbox",
     "geo_to_stbox",
     "int_to_tbox",
@@ -610,6 +614,8 @@ __all__ = [
     "period_to_tbox",
     "periodset_to_stbox",
     "periodset_to_tbox",
+    "stbox_to_gbox",
+    "stbox_to_box3d",
     "stbox_to_geo",
     "stbox_to_period",
     "tbox_to_floatspan",
@@ -652,7 +658,8 @@ __all__ = [
     "stbox_set_srid",
     "stbox_shift_scale_time",
     "tbox_expand_time",
-    "tbox_expand_value",
+    "tbox_expand_float",
+    "tbox_expand_int",
     "tbox_round",
     "tbox_shift_scale_float",
     "tbox_shift_scale_int",

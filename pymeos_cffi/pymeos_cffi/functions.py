@@ -467,6 +467,14 @@ def text2cstring(textptr: "text *") -> str:
     return result
 
 
+def text_out(txt: str) -> str:
+    txt_converted = cstring2text(txt)
+    result = _lib.text_out(txt_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
 def geography_from_hexewkb(wkt: str) -> "GSERIALIZED *":
     wkt_converted = wkt.encode("utf-8")
     result = _lib.geography_from_hexewkb(wkt_converted)
@@ -1109,6 +1117,13 @@ def span_to_spanset(s: "const Span *") -> "SpanSet *":
 def text_to_textset(txt: str) -> "Set *":
     txt_converted = cstring2text(txt)
     result = _lib.text_to_textset(txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def date_to_tstzspan(d: "DateADT") -> "Span *":
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.date_to_tstzspan(d_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -4537,6 +4552,20 @@ def tbox_make(s: "Optional['const Span *']", p: "Optional['const Span *']") -> "
     return result if result != _ffi.NULL else None
 
 
+def box3d_to_stbox(box: "const BOX3D *") -> "STBox *":
+    box_converted = _ffi.cast("const BOX3D *", box)
+    result = _lib.box3d_to_stbox(box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def gbox_to_stbox(box: "const GBOX *") -> "STBox *":
+    box_converted = _ffi.cast("const GBOX *", box)
+    result = _lib.gbox_to_stbox(box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def float_to_tbox(d: float) -> "TBox *":
     result = _lib.float_to_tbox(d)
     _check_error()
@@ -4601,6 +4630,20 @@ def periodset_to_stbox(ps: "const SpanSet *") -> "STBox *":
 def periodset_to_tbox(ps: "const SpanSet *") -> "TBox *":
     ps_converted = _ffi.cast("const SpanSet *", ps)
     result = _lib.periodset_to_tbox(ps_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_to_gbox(box: "const STBox *") -> "GBOX *":
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.stbox_to_gbox(box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_to_box3d(box: "const STBox *") -> "BOX3D *":
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.stbox_to_box3d(box_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -4968,10 +5011,18 @@ def tbox_expand_time(box: "const TBox *", interval: "const Interval *") -> "TBox
     return result if result != _ffi.NULL else None
 
 
-def tbox_expand_value(box: "const TBox *", d: "const double") -> "TBox *":
+def tbox_expand_float(box: "const TBox *", d: "const double") -> "TBox *":
     box_converted = _ffi.cast("const TBox *", box)
     d_converted = _ffi.cast("const double", d)
-    result = _lib.tbox_expand_value(box_converted, d_converted)
+    result = _lib.tbox_expand_float(box_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbox_expand_int(box: "const TBox *", i: "const int") -> "TBox *":
+    box_converted = _ffi.cast("const TBox *", box)
+    i_converted = _ffi.cast("const int", i)
+    result = _lib.tbox_expand_int(box_converted, i_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

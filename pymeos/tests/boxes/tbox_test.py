@@ -531,7 +531,7 @@ class TestTBoxTransformations(TestTBox):
         ],
         ids=["TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
-    def test_expand_float(self, tbox, expected):
+    def test_expand_value(self, tbox, expected):
         tb = tbox.expand(1)
         assert isinstance(tb, TBox)
         assert tb == expected
@@ -557,10 +557,10 @@ class TestTBoxTransformations(TestTBox):
             (tbfx, -2.0, TBox("TBOXFLOAT X([-1,0])")),
             (tbfxt, 2.0, TBox("TBOXFLOAT XT([3,4],[2019-09-01, 2019-09-02])")),
             (tbfxt, -2.0, TBox("TBOXFLOAT XT([-1,0],[2019-09-01, 2019-09-02])")),
-            (tbix, 2.0, TBox("TBOXINT X([3,5))")),
-            (tbix, -2.0, TBox("TBOXINT X([-1,1))")),
-            (tbixt, 2.0, TBox("TBOXINT XT([3,5),[2019-09-01, 2019-09-02])")),
-            (tbixt, -2.0, TBox("TBOXINT XT([-1,1),[2019-09-01, 2019-09-02])")),
+            (tbix, 2, TBox("TBOXINT X([3,5))")),
+            (tbix, -2, TBox("TBOXINT X([-1,1))")),
+            (tbixt, 2, TBox("TBOXINT XT([3,5),[2019-09-01, 2019-09-02])")),
+            (tbixt, -2, TBox("TBOXINT XT([-1,1),[2019-09-01, 2019-09-02])")),
         ],
         ids=[
             "TBox T positive",
@@ -667,8 +667,8 @@ class TestTBoxTransformations(TestTBox):
         [
             (tbfx, 4.0, TBox("TBOXFLOAT X([1,5])")),
             (tbfxt, 4.0, TBox("TBOXFLOAT XT([1,5],[2019-09-01, 2019-09-02])")),
-            (tbix, 4.0, TBox("TBOXINT X([1,6))")),
-            (tbixt, 4.0, TBox("TBOXINT XT([1,6),[2019-09-01, 2019-09-02])")),
+            (tbix, 4, TBox("TBOXINT X([1,6))")),
+            (tbixt, 4, TBox("TBOXINT XT([1,6),[2019-09-01, 2019-09-02])")),
         ],
         ids=["TBox T", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
@@ -730,10 +730,10 @@ class TestTBoxTransformations(TestTBox):
             (tbfx, -2.0, 4.0, TBox("TBOXFLOAT X([-1,3])")),
             (tbfxt, 2.0, 4.0, TBox("TBOXFLOAT XT([3,7],[2019-09-01, 2019-09-02])")),
             (tbfxt, -2.0, 4.0, TBox("TBOXFLOAT XT([-1,3],[2019-09-01, 2019-09-02])")),
-            (tbix, 2.0, 4.0, TBox("TBOXINT X([3,8))")),
-            (tbix, -2.0, 4.0, TBox("TBOXINT X([-1,4))")),
-            (tbixt, 2.0, 4.0, TBox("TBOXINT XT([3,8),[2019-09-01, 2019-09-02])")),
-            (tbixt, -2.0, 4.0, TBox("TBOXINT XT([-1,4),[2019-09-01, 2019-09-02])")),
+            (tbix, 2, 4, TBox("TBOXINT X([3,8))")),
+            (tbix, -2, 4, TBox("TBOXINT X([-1,4))")),
+            (tbixt, 2, 4, TBox("TBOXINT XT([3,8),[2019-09-01, 2019-09-02])")),
+            (tbixt, -2, 4, TBox("TBOXINT XT([-1,4),[2019-09-01, 2019-09-02])")),
         ],
         ids=[
             "TBoxFloat X positive",

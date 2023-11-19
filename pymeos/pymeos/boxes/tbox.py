@@ -471,7 +471,10 @@ class TBox:
             tbox_expand_value, tbox_expand_time
         """
         if isinstance(other, int) or isinstance(other, float):
-            result = tbox_expand_value(self._inner, float(other))
+            if self._is_float():
+                result = tbox_expand_float(self._inner, float(other))
+            else:
+                result = tbox_expand_int(self._inner, int(other))
         elif isinstance(other, timedelta):
             result = tbox_expand_time(self._inner, timedelta_to_interval(other))
         else:
