@@ -24,9 +24,9 @@ from pymeos import (
     TGeogPointSeq,
     TGeogPointSeqSet,
     TInterpolation,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     STBox,
 )
 from tests.conftest import TestPyMEOS
@@ -86,15 +86,15 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         [
             (datetime(2000, 1, 1), TGeomPointInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TGeomPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TGeomPointSeq, TInterpolation.LINEAR),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeomPointSeq, TInterpolation.LINEAR),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TGeomPointSeqSet,
-                TInterpolation.LINEAR,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TGeomPointSeqSet,
+                    TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -469,7 +469,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "       1\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -501,7 +501,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -540,7 +540,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -579,7 +579,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -742,10 +742,10 @@ class TestTGeomPointTemporalAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tpds, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tps, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (tpss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tpi, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tpds, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tps, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (tpss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -781,23 +781,23 @@ class TestTGeomPointTemporalAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, Period("[2019-09-01, 2019-09-01]")),
-            (tpds, Period("[2019-09-01, 2019-09-02]")),
-            (tps, Period("[2019-09-01, 2019-09-02]")),
-            (tpss, Period("[2019-09-01, 2019-09-05]")),
+            (tpi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tpds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tps, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tpss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, Period("[2019-09-01, 2019-09-01]")),
-            (tpds, Period("[2019-09-01, 2019-09-02]")),
-            (tps, Period("[2019-09-01, 2019-09-02]")),
-            (tpss, Period("[2019-09-01, 2019-09-05]")),
+            (tpi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tpds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tps, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tpss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -2078,29 +2078,29 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
     )
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tpi, timestamp, TGeomPointInst("Point(1 1)@2019-09-01")),
             (tpi, timestamp_set, TGeomPointInst("Point(1 1)@2019-09-01")),
-            (tpi, period, TGeomPointInst("Point(1 1)@2019-09-01")),
-            (tpi, period_set, TGeomPointInst("Point(1 1)@2019-09-01")),
+            (tpi, tstzspan, TGeomPointInst("Point(1 1)@2019-09-01")),
+            (tpi, tstzspan_set, TGeomPointInst("Point(1 1)@2019-09-01")),
             (tpi, Point(1, 1), TGeomPointInst("Point(1 1)@2019-09-01")),
             (tpi, Point(2, 2), None),
             (tpds, timestamp, TGeomPointSeq("{Point(1 1)@2019-09-01}")),
             (tpds, timestamp_set, TGeomPointSeq("{Point(1 1)@2019-09-01}")),
             (
                 tpds,
-                period,
+                tstzspan,
                 TGeomPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
                 tpds,
-                period_set,
+                tstzspan_set,
                 TGeomPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (tpds, Point(1, 1), TGeomPointSeq("{Point(1 1)@2019-09-01}")),
@@ -2109,12 +2109,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             (tps, timestamp_set, TGeomPointSeq("{Point(1 1)@2019-09-01}")),
             (
                 tps,
-                period,
+                tstzspan,
                 TGeomPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
                 tps,
-                period_set,
+                tstzspan_set,
                 TGeomPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (tps, Point(1, 1), TGeomPointSeq("[Point(1 1)@2019-09-01]")),
@@ -2127,12 +2127,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             ),
             (
                 tpss,
-                period,
+                tstzspan,
                 TGeomPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
                 tpss,
-                period_set,
+                tstzspan_set,
                 TGeomPointSeqSet(
                     "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
                 ),
@@ -2148,27 +2148,27 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-True",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-True",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-True",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-True",
             "SequenceSet-Point(2,2)",
         ],
@@ -2212,14 +2212,14 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         [
             (tpi, timestamp, None),
             (tpi, timestamp_set, None),
-            (tpi, period, None),
-            (tpi, period_set, None),
+            (tpi, tstzspan, None),
+            (tpi, tstzspan_set, None),
             (tpi, Point(1, 1), None),
             (tpi, Point(2, 2), TGeomPointInst("Point(1 1)@2019-09-01")),
             (tpds, timestamp, TGeomPointSeq("{Point(2 2)@2019-09-02}")),
             (tpds, timestamp_set, TGeomPointSeq("{Point(2 2)@2019-09-02}")),
-            (tpds, period, None),
-            (tpds, period_set, None),
+            (tpds, tstzspan, None),
+            (tpds, tstzspan_set, None),
             (tpds, Point(1, 1), TGeomPointSeq("{Point(2 2)@2019-09-02}")),
             (tpds, Point(2, 2), TGeomPointSeq("{Point(1 1)@2019-09-01}")),
             (
@@ -2232,8 +2232,8 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
                 timestamp_set,
                 TGeomPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
-            (tps, period, None),
-            (tps, period_set, None),
+            (tps, tstzspan, None),
+            (tps, tstzspan_set, None),
             (
                 tps,
                 Point(1, 1),
@@ -2260,10 +2260,10 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
             ),
             (
                 tpss,
-                period,
+                tstzspan,
                 TGeomPointSeqSet("{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
-            (tpss, period_set, None),
+            (tpss, tstzspan_set, None),
             (
                 tpss,
                 Point(1, 1),
@@ -2279,27 +2279,27 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-Point(1,1)",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-Point(1,1)",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-Point(1,1)",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-Point(1,1)",
             "SequenceSet-Point(2,2)",
         ],
@@ -2350,52 +2350,52 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         [
             (tpi, timestamp),
             (tpi, timestamp_set),
-            (tpi, period),
-            (tpi, period_set),
+            (tpi, tstzspan),
+            (tpi, tstzspan_set),
             (tpi, Point(1, 1)),
             (tpi, Point(2, 2)),
             (tpds, timestamp),
             (tpds, timestamp_set),
-            (tpds, period),
-            (tpds, period_set),
+            (tpds, tstzspan),
+            (tpds, tstzspan_set),
             (tpds, Point(1, 1)),
             (tpds, Point(2, 2)),
             (tps, timestamp),
             (tps, timestamp_set),
-            (tps, period),
-            (tps, period_set),
+            (tps, tstzspan),
+            (tps, tstzspan_set),
             (tps, Point(1, 1)),
             (tps, Point(2, 2)),
             (tpss, timestamp),
             (tpss, timestamp_set),
-            (tpss, period),
-            (tpss, period_set),
+            (tpss, tstzspan),
+            (tpss, tstzspan_set),
             (tpss, Point(1, 1)),
             (tpss, Point(2, 2)),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-Point(1,1)",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-Point(1,1)",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-Point(1,1)",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-Point(1,1)",
             "SequenceSet-Point(2,2)",
         ],

@@ -18,9 +18,9 @@ from pymeos import (
     TIntSeqSet,
     TInterpolation,
     TBox,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     IntSpan,
     IntSet,
     IntSpanSet,
@@ -72,15 +72,15 @@ class TestTIntConstructors(TestTInt):
         [
             (datetime(2000, 1, 1), TIntInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TIntSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TIntSeq, TInterpolation.STEPWISE),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TIntSeq, TInterpolation.STEPWISE),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TIntSeqSet,
-                TInterpolation.STEPWISE,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TIntSeqSet,
+                    TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -361,7 +361,7 @@ class TestTIntOutputs(TestTInt):
                 "     1,\n"
                 "     1\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -384,7 +384,7 @@ class TestTIntOutputs(TestTInt):
                 "     1,\n"
                 "     2\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -411,7 +411,7 @@ class TestTIntOutputs(TestTInt):
                 "     1,\n"
                 "     2\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -438,7 +438,7 @@ class TestTIntOutputs(TestTInt):
                 "     1,\n"
                 "     2\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -624,10 +624,10 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tii, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tids, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tis, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (tiss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tii, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tids, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tis, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (tiss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -663,23 +663,23 @@ class TestTIntAccessors(TestTInt):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tii, Period("[2019-09-01, 2019-09-01]")),
-            (tids, Period("[2019-09-01, 2019-09-02]")),
-            (tis, Period("[2019-09-01, 2019-09-02]")),
-            (tiss, Period("[2019-09-01, 2019-09-05]")),
+            (tii, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tids, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tis, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tiss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tii, Period("[2019-09-01, 2019-09-01]")),
-            (tids, Period("[2019-09-01, 2019-09-02]")),
-            (tis, Period("[2019-09-01, 2019-09-02]")),
-            (tiss, Period("[2019-09-01, 2019-09-05]")),
+            (tii, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tids, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tis, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tiss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1752,31 +1752,31 @@ class TestTIntRestrictors(TestTInt):
     tiss = TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}")
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tii, timestamp, TIntInst("1@2019-09-01")),
             (tii, timestamp_set, TIntInst("1@2019-09-01")),
-            (tii, period, TIntInst("1@2019-09-01")),
-            (tii, period_set, TIntInst("1@2019-09-01")),
+            (tii, tstzspan, TIntInst("1@2019-09-01")),
+            (tii, tstzspan_set, TIntInst("1@2019-09-01")),
             (tids, timestamp, TIntSeq("{1@2019-09-01}")),
             (tids, timestamp_set, TIntSeq("{1@2019-09-01}")),
-            (tids, period, TIntSeq("{1@2019-09-01, 2@2019-09-02}")),
-            (tids, period_set, TIntSeq("{1@2019-09-01, 2@2019-09-02}")),
+            (tids, tstzspan, TIntSeq("{1@2019-09-01, 2@2019-09-02}")),
+            (tids, tstzspan_set, TIntSeq("{1@2019-09-01, 2@2019-09-02}")),
             (tis, timestamp, TIntSeq("[1@2019-09-01]")),
             (tis, timestamp_set, TIntSeq("{1@2019-09-01}")),
-            (tis, period, TIntSeq("[1@2019-09-01, 2@2019-09-02]")),
-            (tis, period_set, TIntSeq("[1@2019-09-01, 2@2019-09-02]")),
+            (tis, tstzspan, TIntSeq("[1@2019-09-01, 2@2019-09-02]")),
+            (tis, tstzspan_set, TIntSeq("[1@2019-09-01, 2@2019-09-02]")),
             (tiss, timestamp, TIntSeqSet("[1@2019-09-01]")),
             (tiss, timestamp_set, TIntSeq("{1@2019-09-01, 1@2019-09-03}")),
-            (tiss, period, TIntSeqSet("{[1@2019-09-01, 2@2019-09-02]}")),
+            (tiss, tstzspan, TIntSeqSet("{[1@2019-09-01, 2@2019-09-02]}")),
             (
                 tiss,
-                period_set,
+                tstzspan_set,
                 TIntSeqSet(
                     "{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"
                 ),
@@ -1784,21 +1784,21 @@ class TestTIntRestrictors(TestTInt):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
         ],
     )
     def test_at_time(self, temporal, restrictor, expected):
@@ -1950,16 +1950,16 @@ class TestTIntRestrictors(TestTInt):
         [
             (tii, timestamp, None),
             (tii, timestamp_set, None),
-            (tii, period, None),
-            (tii, period_set, None),
+            (tii, tstzspan, None),
+            (tii, tstzspan_set, None),
             (tids, timestamp, TIntSeq("{2@2019-09-02}")),
             (tids, timestamp_set, TIntSeq("{2@2019-09-02}")),
-            (tids, period, None),
-            (tids, period_set, None),
+            (tids, tstzspan, None),
+            (tids, tstzspan_set, None),
             (tis, timestamp, TIntSeqSet("{(1@2019-09-01, 2@2019-09-02]}")),
             (tis, timestamp_set, TIntSeqSet("{(1@2019-09-01, 2@2019-09-02]}")),
-            (tis, period, None),
-            (tis, period_set, None),
+            (tis, tstzspan, None),
+            (tis, tstzspan_set, None),
             (
                 tiss,
                 timestamp,
@@ -1974,26 +1974,26 @@ class TestTIntRestrictors(TestTInt):
                     "{(1@2019-09-01, 2@2019-09-02],(1@2019-09-03, 1@2019-09-05]}"
                 ),
             ),
-            (tiss, period, TIntSeqSet("{[1@2019-09-03, 1@2019-09-05]}")),
-            (tiss, period_set, None),
+            (tiss, tstzspan, TIntSeqSet("{[1@2019-09-03, 1@2019-09-05]}")),
+            (tiss, tstzspan_set, None),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
         ],
     )
     def test_minus_time(self, temporal, restrictor, expected):
@@ -2142,8 +2142,8 @@ class TestTIntRestrictors(TestTInt):
         [
             (tii, timestamp),
             (tii, timestamp_set),
-            (tii, period),
-            (tii, period_set),
+            (tii, tstzspan),
+            (tii, tstzspan_set),
             (tii, 1),
             (tii, 2),
             (tii, IntSet(elements=[1, 2])),
@@ -2159,8 +2159,8 @@ class TestTIntRestrictors(TestTInt):
             ),
             (tids, timestamp),
             (tids, timestamp_set),
-            (tids, period),
-            (tids, period_set),
+            (tids, tstzspan),
+            (tids, tstzspan_set),
             (tids, 1),
             (tids, 2),
             (tids, IntSet(elements=[1, 2])),
@@ -2176,8 +2176,8 @@ class TestTIntRestrictors(TestTInt):
             ),
             (tis, timestamp),
             (tis, timestamp_set),
-            (tis, period),
-            (tis, period_set),
+            (tis, tstzspan),
+            (tis, tstzspan_set),
             (tis, 1),
             (tis, 2),
             (tis, IntSet(elements=[1, 2])),
@@ -2193,8 +2193,8 @@ class TestTIntRestrictors(TestTInt):
             ),
             (tiss, timestamp),
             (tiss, timestamp_set),
-            (tiss, period),
-            (tiss, period_set),
+            (tiss, tstzspan),
+            (tiss, tstzspan_set),
             (tiss, 1),
             (tiss, 2),
             (tiss, IntSet(elements=[1, 2])),
@@ -2211,36 +2211,36 @@ class TestTIntRestrictors(TestTInt):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-1",
             "Instant-2",
             "Instant-Set",
             "Instant-Span",
             "Instant-SpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-1",
             "Discrete Sequence-2",
             "Discrete Sequence-Set",
             "Discrete Sequence-Span",
             "Discrete Sequence-SpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-1",
             "Sequence-2",
             "Sequence-Set",
             "Sequence-Span",
             "Sequence-SpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-1",
             "SequenceSet-2",
             "SequenceSet-Set",

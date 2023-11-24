@@ -31,7 +31,7 @@ class TBox:
 
     Note that you can create a TBox with only the numerical or the temporal
     dimension. In these cases, it will be equivalent to a
-    :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or
+    :class:`~pymeos.time.tstzspan.TsTzSpan` (if it only has temporal dimension) or
     to a :class:`FloatSpan` (if it only has the numeric dimension).
     """
 
@@ -39,10 +39,10 @@ class TBox:
 
     _mobilitydb_name = "tbox"
 
-    def _inner_period(self):
+    def _inner_tstzspan(self):
         from pymeos_cffi.functions import _ffi
 
-        return _ffi.addressof(self._inner.period)
+        return _ffi.addressof(self._inner.tstzspan)
 
     def _inner_span(self):
         from pymeos_cffi.functions import _ffi
@@ -70,24 +70,27 @@ class TBox:
         assert (_inner is not None) or (string is not None) != (
             (xmin is not None and xmax is not None)
             or (tmin is not None and tmax is not None)
-        ), "Either string must be not None or at least a bound pair (xmin/max or tmin/max) must be not None"
+        ), (
+            "Either string must be not None or at least a bound pair (xmin/max or "
+            "tmin/max) must be not None"
+        )
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = tbox_in(string)
         else:
             span = None
-            period = None
+            tstzspan = None
             if xmin is not None and xmax is not None:
                 if isinstance(xmin, int) and isinstance(xmax, int):
                     span = intspan_make(xmin, xmax, xmin_inc, xmax_inc)
                 else:
                     span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
             if tmin is not None and tmax is not None:
-                period = Period(
+                tstzspan = TsTzSpan(
                     lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc
                 )._inner
-            self._inner = tbox_make(span, period)
+            self._inner = tbox_make(span, tstzspan)
 
     def __copy__(self) -> TBox:
         """
@@ -176,24 +179,24 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            timestamp_to_tbox, timestampset_to_tbox, period_to_tbox,
-            periodset_to_tbox
+            timestamptz_to_tbox, tstzset_to_tbox, tstzspan_to_tbox,
+            tstzspanset_to_tbox
         """
         if isinstance(time, datetime):
-            result = timestamp_to_tbox(datetime_to_timestamptz(time))
-        elif isinstance(time, TimestampSet):
-            result = timestampset_to_tbox(time._inner)
-        elif isinstance(time, Period):
-            result = period_to_tbox(time._inner)
-        elif isinstance(time, PeriodSet):
-            result = periodset_to_tbox(time._inner)
+            result = timestamptz_to_tbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TsTzSet):
+            result = tstzset_to_tbox(time._inner)
+        elif isinstance(time, TsTzSpan):
+            result = tstzspan_to_tbox(time._inner)
+        elif isinstance(time, TsTzSpanSet):
+            result = tstzspanset_to_tbox(time._inner)
         else:
             raise TypeError(f"Operation not supported with type {time.__class__}")
         return TBox(_inner=result)
 
     @staticmethod
     def from_value_time(
-        value: Union[int, float, IntSpan, FloatSpan], time: Union[datetime, Period]
+        value: Union[int, float, IntSpan, FloatSpan], time: Union[datetime, TsTzSpan]
     ) -> TBox:
         """
         Returns a `TBox` from a numerical and a temporal object.
@@ -206,26 +209,30 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            int_timestamp_to_tbox, int_period_to_tbox,
-            float_timestamp_to_tbox, float_period_to_tbox,
-            span_timestamp_to_tbox, span_period_to_tbox
+            int_timestamptz_to_tbox, int_tstzspan_to_tbox,
+            float_timestamptz_to_tbox, float_tstzspan_to_tbox,
+            span_timestamptz_to_tbox, span_tstzspan_to_tbox
         """
         if isinstance(value, int) and isinstance(time, datetime):
-            result = int_timestamp_to_tbox(value, datetime_to_timestamptz(time))
-        elif isinstance(value, int) and isinstance(time, Period):
-            result = int_period_to_tbox(value, time._inner)
+            result = int_timestamptz_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, int) and isinstance(time, TsTzSpan):
+            result = int_tstzspan_to_tbox(value, time._inner)
         elif isinstance(value, float) and isinstance(time, datetime):
-            result = float_timestamp_to_tbox(value, datetime_to_timestamptz(time))
-        elif isinstance(value, float) and isinstance(time, Period):
-            result = float_period_to_tbox(value, time._inner)
+            result = float_timestamptz_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, float) and isinstance(time, TsTzSpan):
+            result = float_tstzspan_to_tbox(value, time._inner)
         elif isinstance(value, IntSpan) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(value._inner, datetime_to_timestamptz(time))
-        elif isinstance(value, IntSpan) and isinstance(time, Period):
-            result = span_period_to_tbox(value._inner, time._inner)
+            result = numspan_timestamptz_to_tbox(
+                value._inner, datetime_to_timestamptz(time)
+            )
+        elif isinstance(value, IntSpan) and isinstance(time, TsTzSpan):
+            result = numspan_tstzspan_to_tbox(value._inner, time._inner)
         elif isinstance(value, FloatSpan) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(value._inner, datetime_to_timestamptz(time))
-        elif isinstance(value, FloatSpan) and isinstance(time, Period):
-            result = span_period_to_tbox(value._inner, time._inner)
+            result = numspan_timestamptz_to_tbox(
+                value._inner, datetime_to_timestamptz(time)
+            )
+        elif isinstance(value, FloatSpan) and isinstance(time, TsTzSpan):
+            result = numspan_tstzspan_to_tbox(value._inner, time._inner)
         else:
             raise TypeError(
                 f"Operation not supported with types {value.__class__} and {time.__class__}"
@@ -313,17 +320,17 @@ class TBox:
 
         return FloatSpan(_inner=tbox_to_floatspan(self._inner))
 
-    def to_period(self) -> Period:
+    def to_tstzspan(self) -> TsTzSpan:
         """
         Returns the temporal span of ``self``.
 
         Returns:
-            A new :class:`~pymeos.time.period.Period` instance
+            A new :class:`~pymeos.time.tstzspan.TsTzSpan` instance
 
         MEOS Functions:
-            tbox_to_period
+            tbox_to_tstzspan
         """
-        return Period(_inner=tbox_to_period(self._inner))
+        return TsTzSpan(_inner=tbox_to_tstzspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def has_x(self) -> bool:
@@ -510,10 +517,10 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.shift`
+            :meth:`TsTzSpan.shift`
         """
         return self.shift_scale_time(shift=delta)
 
@@ -546,10 +553,10 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.scale`
+            :meth:`TsTzSpan.scale`
         """
         return self.shift_scale_time(duration=duration)
 
@@ -631,10 +638,10 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.shift_scale`
+            :meth:`TsTzSpan.shift_scale`
         """
         assert (
             shift is not None or duration is not None
@@ -756,11 +763,9 @@ class TBox:
             adjacent_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(other, int):
-            return adjacent_span_span(
-                self._inner_span(), float_to_floatspan(float(other))
-            )
+            return adjacent_span_span(self._inner_span(), float_to_span(float(other)))
         elif isinstance(other, float):
-            return adjacent_span_span(self._inner_span(), float_to_floatspan(other))
+            return adjacent_span_span(self._inner_span(), float_to_span(other))
         elif isinstance(other, IntSpan):
             from pymeos_cffi.functions import _ffi
 

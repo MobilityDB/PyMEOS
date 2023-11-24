@@ -83,7 +83,7 @@ def as_wkb_modifier(function: str) -> str:
     )
 
 
-def timestampset_make_modifier(function: str) -> str:
+def tstzset_make_modifier(function: str) -> str:
     return (
         function.replace("values: int", "values: List[int]")
         .replace(", count: int", "")

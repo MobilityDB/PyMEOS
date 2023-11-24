@@ -68,13 +68,13 @@ class Span(Collection[T], ABC):
     @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
         """
-        Returns a `Period` from its WKB representation.
+        Returns a `TsTzSpan` from its WKB representation.
 
         Args:
             wkb: The WKB string.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             span_from_wkb
@@ -84,13 +84,13 @@ class Span(Collection[T], ABC):
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
         """
-        Returns a `Period` from its WKB representation in hex-encoded ASCII.
+        Returns a `TsTzSpan` from its WKB representation in hex-encoded ASCII.
 
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             span_from_hexwkb
@@ -147,10 +147,10 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def to_spanset(self) -> SpanSet:
         """
-        Returns a period set containing ``self``.
+        Returns a tstzspan set containing ``self``.
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A new :class:`TsTzSpanSet` instance
 
         MEOS Functions:
             span_to_spanset
@@ -161,23 +161,23 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def lower(self) -> T:
         """
-        Returns the lower bound of a period
+        Returns the lower bound of a tstzspan
         """
         return NotImplementedError()
 
     @abstractmethod
     def upper(self) -> T:
         """
-        Returns the upper bound of a period
+        Returns the upper bound of a tstzspan
         """
         return NotImplementedError()
 
     def lower_inc(self) -> bool:
         """
-        Returns whether the lower bound of the period is inclusive or not
+        Returns whether the lower bound of the tstzspan is inclusive or not
 
         Returns:
-            True if the lower bound of the period is inclusive and False
+            True if the lower bound of the tstzspan is inclusive and False
             otherwise
 
         MEOS Functions:
@@ -187,10 +187,10 @@ class Span(Collection[T], ABC):
 
     def upper_inc(self) -> bool:
         """
-        Returns whether the upper bound of the period is inclusive or not
+        Returns whether the upper bound of the tstzspan is inclusive or not
 
         Returns:
-            True if the upper bound of the period is inclusive and False
+            True if the upper bound of the tstzspan is inclusive and False
             otherwise
 
         MEOS Functions:
@@ -200,10 +200,10 @@ class Span(Collection[T], ABC):
 
     def width(self) -> float:
         """
-        Returns the duration of the period.
+        Returns the duration of the tstzspan.
 
         Returns:
-            Returns a `float` representing the duration of the period in seconds
+            Returns a `float` representing the duration of the tstzspan in seconds
 
         MEOS Functions:
             span_width
@@ -258,7 +258,7 @@ class Span(Collection[T], ABC):
             True if contained, False otherwise
 
         MEOS Functions:
-            contained_span_span, contained_span_spanset, contained_period_temporal
+            contained_span_span, contained_span_spanset, contained_tstzspan_temporal
         """
         from .spanset import SpanSet
 
@@ -280,8 +280,8 @@ class Span(Collection[T], ABC):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_span_span, contains_span_spanset, contains_period_timestamp,
-            contains_period_timestampset, contains_period_temporal
+            contains_span_span, contains_span_spanset, contains_tstzspan_timestamp,
+            contains_tstzspan_tstzset, contains_tstzspan_temporal
         """
         from .spanset import SpanSet
 
@@ -303,8 +303,8 @@ class Span(Collection[T], ABC):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_span_span, contains_span_spanset, contains_period_timestamp,
-            contains_period_timestampset, contains_period_temporal
+            contains_span_span, contains_span_spanset, contains_tstzspan_timestamp,
+            contains_tstzspan_tstzset, contains_tstzspan_temporal
         """
         return self.contains(item)
 
@@ -333,7 +333,7 @@ class Span(Collection[T], ABC):
 
     def is_same(self, other) -> bool:
         """
-        Returns whether ``self`` and the bounding period of ``other`` is the
+        Returns whether ``self`` and the bounding tstzspan of ``other`` is the
         same.
 
         Args:
@@ -343,7 +343,7 @@ class Span(Collection[T], ABC):
             True if equal, False otherwise
 
         MEOS Functions:
-            same_period_temporal
+            same_tstzspan_temporal
         """
         from .spanset import SpanSet
 
@@ -413,8 +413,8 @@ class Span(Collection[T], ABC):
             True if overlapping or after, False otherwise
 
         MEOS Functions:
-            overright_span_span, overright_span_spanset, overafter_period_timestamp,
-            overafter_period_timestampset, overafter_period_temporal
+            overright_span_span, overright_span_spanset, overafter_tstzspan_timestamp,
+            overafter_tstzspan_tstzset, overafter_tstzspan_temporal
         """
         from .spanset import SpanSet
 
@@ -485,7 +485,7 @@ class Span(Collection[T], ABC):
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
-            intersection_period_timestamp
+            intersection_tstzspan_timestamp
         """
         from .spanset import SpanSet
 
@@ -508,7 +508,7 @@ class Span(Collection[T], ABC):
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
-            intersection_period_timestamp
+            intersection_tstzspan_timestamp
         """
         return self.intersection(other)
 
@@ -546,10 +546,10 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`PeriodSet` instance.
+            A :class:`TsTzSpanSet` instance.
 
         MEOS Functions:
-        union_period_timestamp, union_spanset_span, union_span_span
+        union_tstzspan_timestamp, union_spanset_span, union_span_span
         """
         from .spanset import SpanSet
 
@@ -568,10 +568,10 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`PeriodSet` instance.
+            A :class:`TsTzSpanSet` instance.
 
         MEOS Functions:
-        union_period_timestamp, union_spanset_span, union_span_span
+        union_tstzspan_timestamp, union_spanset_span, union_span_span
         """
         return self.union(other)
 

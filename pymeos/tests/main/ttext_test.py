@@ -17,9 +17,9 @@ from pymeos import (
     TIntSeq,
     TIntSeqSet,
     TInterpolation,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -70,15 +70,15 @@ class TestTTextConstructors(TestTText):
         [
             (datetime(2000, 1, 1), TTextInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TTextSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TTextSeq, TInterpolation.STEPWISE),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TTextSeq, TInterpolation.STEPWISE),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TTextSeqSet,
-                TInterpolation.STEPWISE,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TTextSeqSet,
+                    TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -369,7 +369,7 @@ class TestTTextOutputs(TestTText):
                 tti,
                 "{\n"
                 '   "type": "MovingText",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -388,7 +388,7 @@ class TestTTextOutputs(TestTText):
                 ttds,
                 "{\n"
                 '   "type": "MovingText",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -411,7 +411,7 @@ class TestTTextOutputs(TestTText):
                 tts,
                 "{\n"
                 '   "type": "MovingText",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -434,7 +434,7 @@ class TestTTextOutputs(TestTText):
                 ttss,
                 "{\n"
                 '   "type": "MovingText",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -487,10 +487,10 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tti, Period("[2019-09-01, 2019-09-01]")),
-            (ttds, Period("[2019-09-01, 2019-09-02]")),
-            (tts, Period("[2019-09-01, 2019-09-02]")),
-            (ttss, Period("[2019-09-01, 2019-09-05]")),
+            (tti, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (ttds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tts, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (ttss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -579,10 +579,10 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tti, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (ttds, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tts, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (ttss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tti, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (ttds, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tts, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (ttss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -618,23 +618,23 @@ class TestTTextAccessors(TestTText):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tti, Period("[2019-09-01, 2019-09-01]")),
-            (ttds, Period("[2019-09-01, 2019-09-02]")),
-            (tts, Period("[2019-09-01, 2019-09-02]")),
-            (ttss, Period("[2019-09-01, 2019-09-05]")),
+            (tti, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (ttds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tts, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (ttss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tti, Period("[2019-09-01, 2019-09-01]")),
-            (ttds, Period("[2019-09-01, 2019-09-02]")),
-            (tts, Period("[2019-09-01, 2019-09-02]")),
-            (ttss, Period("[2019-09-01, 2019-09-05]")),
+            (tti, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (ttds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tts, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (ttss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1414,40 +1414,40 @@ class TestTTextRestrictors(TestTText):
     )
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tti, timestamp, TTextInst("AAA@2019-09-01")),
             (tti, timestamp_set, TTextInst("AAA@2019-09-01")),
-            (tti, period, TTextInst("AAA@2019-09-01")),
-            (tti, period_set, TTextInst("AAA@2019-09-01")),
+            (tti, tstzspan, TTextInst("AAA@2019-09-01")),
+            (tti, tstzspan_set, TTextInst("AAA@2019-09-01")),
             (tti, "AAA", TTextInst("AAA@2019-09-01")),
             (tti, "BBB", None),
             (tti, ["AAA", "BBB"], tti),
             (ttds, timestamp, TTextSeq("{AAA@2019-09-01}")),
             (ttds, timestamp_set, TTextSeq("{AAA@2019-09-01}")),
-            (ttds, period, TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
-            (ttds, period_set, TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
+            (ttds, tstzspan, TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
+            (ttds, tstzspan_set, TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
             (ttds, "AAA", TTextSeq("{AAA@2019-09-01}")),
             (ttds, "BBB", TTextSeq("{BBB@2019-09-02}")),
             (ttds, ["AAA", "BBB"], ttds),
             (tts, timestamp, TTextSeq("[AAA@2019-09-01]")),
             (tts, timestamp_set, TTextSeq("{AAA@2019-09-01}")),
-            (tts, period, TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")),
-            (tts, period_set, TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")),
+            (tts, tstzspan, TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")),
+            (tts, tstzspan_set, TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")),
             (tts, "AAA", TTextSeq("[AAA@2019-09-01, AAA@2019-09-02)")),
             (tts, "BBB", TTextSeq("[BBB@2019-09-02]")),
             (tts, ["AAA", "BBB"], tts),
             (ttss, timestamp, TTextSeqSet("[AAA@2019-09-01]")),
             (ttss, timestamp_set, TTextSeq("{AAA@2019-09-01, AAA@2019-09-03}")),
-            (ttss, period, TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02]}")),
+            (ttss, tstzspan, TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02]}")),
             (
                 ttss,
-                period_set,
+                tstzspan_set,
                 TTextSeqSet(
                     "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
                 ),
@@ -1464,30 +1464,30 @@ class TestTTextRestrictors(TestTText):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-AAA",
             "Instant-BBB",
             "Instant-[AAA,BBB]",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-AAA",
             "Discrete Sequence-BBB",
             "Discrete Sequence-[AAA,BBB]",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-AAA",
             "Sequence-BBB",
             "Sequence-[AAA,BBB]",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-AAA",
             "SequenceSet-BBB",
             "SequenceSet-[AAA,BBB]",
@@ -1532,22 +1532,22 @@ class TestTTextRestrictors(TestTText):
         [
             (tti, timestamp, None),
             (tti, timestamp_set, None),
-            (tti, period, None),
-            (tti, period_set, None),
+            (tti, tstzspan, None),
+            (tti, tstzspan_set, None),
             (tti, "AAA", None),
             (tti, "BBB", TTextInst("AAA@2019-09-01")),
             (tti, ["AAA", "BBB"], None),
             (ttds, timestamp, TTextSeq("{BBB@2019-09-02}")),
             (ttds, timestamp_set, TTextSeq("{BBB@2019-09-02}")),
-            (ttds, period, None),
-            (ttds, period_set, None),
+            (ttds, tstzspan, None),
+            (ttds, tstzspan_set, None),
             (ttds, "AAA", TTextSeq("{BBB@2019-09-02}")),
             (ttds, "BBB", TTextSeq("{AAA@2019-09-01}")),
             (ttds, ["AAA", "BBB"], None),
             (tts, timestamp, TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02]}")),
             (tts, timestamp_set, TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02]}")),
-            (tts, period, None),
-            (tts, period_set, None),
+            (tts, tstzspan, None),
+            (tts, tstzspan_set, None),
             (tts, "AAA", TTextSeqSet("{[BBB@2019-09-02]}")),
             (tts, "BBB", TTextSeqSet("{[AAA@2019-09-01, AAA@2019-09-02)}")),
             (tts, ["AAA", "BBB"], None),
@@ -1565,8 +1565,8 @@ class TestTTextRestrictors(TestTText):
                     "{(AAA@2019-09-01, BBB@2019-09-02],(AAA@2019-09-03, AAA@2019-09-05]}"
                 ),
             ),
-            (ttss, period, TTextSeqSet("{[AAA@2019-09-03, AAA@2019-09-05]}")),
-            (ttss, period_set, None),
+            (ttss, tstzspan, TTextSeqSet("{[AAA@2019-09-03, AAA@2019-09-05]}")),
+            (ttss, tstzspan_set, None),
             (ttss, "AAA", TTextSeqSet("{[BBB@2019-09-02]}")),
             (
                 ttss,
@@ -1579,30 +1579,30 @@ class TestTTextRestrictors(TestTText):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-AAA",
             "Instant-BBB",
             "Instant-[AAA,BBB]",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-AAA",
             "Discrete Sequence-BBB",
             "Discrete Sequence-[AAA,BBB]",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-AAA",
             "Sequence-BBB",
             "Sequence-[AAA,BBB]",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-AAA",
             "SequenceSet-BBB",
             "SequenceSet-[AAA,BBB]",
@@ -1650,59 +1650,59 @@ class TestTTextRestrictors(TestTText):
         [
             (tti, timestamp),
             (tti, timestamp_set),
-            (tti, period),
-            (tti, period_set),
+            (tti, tstzspan),
+            (tti, tstzspan_set),
             (tti, "AAA"),
             (tti, "BBB"),
             (tti, ["AAA", "BBB"]),
             (ttds, timestamp),
             (ttds, timestamp_set),
-            (ttds, period),
-            (ttds, period_set),
+            (ttds, tstzspan),
+            (ttds, tstzspan_set),
             (ttds, "AAA"),
             (ttds, "BBB"),
             (ttds, ["AAA", "BBB"]),
             (tts, timestamp),
             (tts, timestamp_set),
-            (tts, period),
-            (tts, period_set),
+            (tts, tstzspan),
+            (tts, tstzspan_set),
             (tts, "AAA"),
             (tts, "BBB"),
             (tts, ["AAA", "BBB"]),
             (ttss, timestamp),
             (ttss, timestamp_set),
-            (ttss, period),
-            (ttss, period_set),
+            (ttss, tstzspan),
+            (ttss, tstzspan_set),
             (ttss, "AAA"),
             (ttss, "BBB"),
             (ttss, ["AAA", "BBB"]),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-AAA",
             "Instant-BBB",
             "Instant-[AAA,BBB]",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-AAA",
             "Discrete Sequence-BBB",
             "Discrete Sequence-[AAA,BBB]",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-AAA",
             "Sequence-BBB",
             "Sequence-[AAA,BBB]",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-AAA",
             "SequenceSet-BBB",
             "SequenceSet-[AAA,BBB]",

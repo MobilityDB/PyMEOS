@@ -5,9 +5,9 @@ import pytest
 
 from pymeos import (
     TBox,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     IntSpan,
     FloatSpan,
     TIntInst,
@@ -147,19 +147,19 @@ class TestTBoxConstructors(TestTBox):
                 "TBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])",
             ),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 "TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                Period("[2019-09-01, 2019-09-02]"),
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "TBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
                 "TBOX T([2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])",
             ),
         ],
-        ids=["Timestamp", "TimestampSet", "Period", "PeriodSet"],
+        ids=["Timestamp", "TsTzSet", "TsTzSpan", "TsTzSpanSet"],
     )
     def test_from_time_constructor(self, time, expected):
         tb = TBox.from_time(time)
@@ -190,23 +190,23 @@ class TestTBoxConstructors(TestTBox):
                 "TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])",
             ),
             (
-                1,
-                Period("[2019-09-01, 2019-09-02]"),
+                    1,
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "TBOXINT XT([1, 2),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                1.5,
-                Period("[2019-09-01, 2019-09-02]"),
+                    1.5,
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "TBOXFLOAT XT([1.5, 1.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True),
-                Period("[2019-09-01, 2019-09-02]"),
+                    IntSpan(lower=1, upper=2, lower_inc=True, upper_inc=True),
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True),
-                Period("[2019-09-01, 2019-09-02]"),
+                    FloatSpan(lower=1.5, upper=2.5, lower_inc=True, upper_inc=True),
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "TBOXFLOAT XT([1.5, 2.5],[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
         ],
@@ -215,10 +215,10 @@ class TestTBoxConstructors(TestTBox):
             "float-Timestamp",
             "IntSpan-Timestamp",
             "FloatSpan-Timestamp",
-            "int-Period",
-            "float-Period",
-            "IntSpan-Period",
-            "FloatSpan-Period",
+            "int-TsTzSpan",
+            "float-TsTzSpan",
+            "IntSpan-TsTzSpan",
+            "FloatSpan-TsTzSpan",
         ],
     )
     def test_from_value_time_constructor(self, value, time, expected):
@@ -394,15 +394,15 @@ class TestTBoxOutputs(TestTBox):
     @pytest.mark.parametrize(
         "tbox, expected",
         [
-            (tbt, Period("[2019-09-01, 2019-09-02]")),
-            (tbfxt, Period("[2019-09-01, 2019-09-02]")),
-            (tbixt, Period("[2019-09-01, 2019-09-02]")),
+            (tbt, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbfxt, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbixt, TsTzSpan("[2019-09-01, 2019-09-02]")),
         ],
         ids=["TBox T", "TBoxFloat XT", "TBoxInt XT"],
     )
-    def test_to_period(self, tbox, expected):
-        tb = tbox.to_period()
-        assert isinstance(tb, Period)
+    def test_to_tstzspan(self, tbox, expected):
+        tb = tbox.to_tstzspan()
+        assert isinstance(tb, TsTzSpan)
         assert tb == expected
 
 

@@ -26,9 +26,9 @@ from pymeos import (
     TGeogPointSeqSet,
     STBox,
     TInterpolation,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -93,15 +93,15 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         [
             (datetime(2000, 1, 1), TGeogPointInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TGeogPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TGeogPointSeq, TInterpolation.LINEAR),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeogPointSeq, TInterpolation.LINEAR),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TGeogPointSeqSet,
-                TInterpolation.LINEAR,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TGeogPointSeqSet,
+                    TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -455,7 +455,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "       1\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -487,7 +487,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -526,7 +526,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -565,7 +565,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "       2\n"
                 "     ]\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -721,10 +721,10 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tpds, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tps, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (tpss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tpi, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tpds, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tps, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (tpss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -760,23 +760,23 @@ class TestTGeogPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, Period("[2019-09-01, 2019-09-01]")),
-            (tpds, Period("[2019-09-01, 2019-09-02]")),
-            (tps, Period("[2019-09-01, 2019-09-02]")),
-            (tpss, Period("[2019-09-01, 2019-09-05]")),
+            (tpi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tpds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tps, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tpss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, Period("[2019-09-01, 2019-09-01]")),
-            (tpds, Period("[2019-09-01, 2019-09-02]")),
-            (tps, Period("[2019-09-01, 2019-09-02]")),
-            (tpss, Period("[2019-09-01, 2019-09-05]")),
+            (tpi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tpds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tps, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tpss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1974,17 +1974,17 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     )
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tpi, timestamp, TGeogPointInst("Point(1 1)@2019-09-01")),
             (tpi, timestamp_set, TGeogPointInst("Point(1 1)@2019-09-01")),
-            (tpi, period, TGeogPointInst("Point(1 1)@2019-09-01")),
-            (tpi, period_set, TGeogPointInst("Point(1 1)@2019-09-01")),
+            (tpi, tstzspan, TGeogPointInst("Point(1 1)@2019-09-01")),
+            (tpi, tstzspan_set, TGeogPointInst("Point(1 1)@2019-09-01")),
             (
                 tpi,
                 shapely.set_srid(shapely.Point(1, 1), 4326),
@@ -1995,12 +1995,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             (tpds, timestamp_set, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
                 tpds,
-                period,
+                tstzspan,
                 TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
                 tpds,
-                period_set,
+                tstzspan_set,
                 TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
@@ -2017,12 +2017,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             (tps, timestamp_set, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
                 tps,
-                period,
+                tstzspan,
                 TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
                 tps,
-                period_set,
+                tstzspan_set,
                 TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
@@ -2043,12 +2043,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             ),
             (
                 tpss,
-                period,
+                tstzspan,
                 TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
                 tpss,
-                period_set,
+                tstzspan_set,
                 TGeogPointSeqSet(
                     "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],"
                     "[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}"
@@ -2069,27 +2069,27 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-True",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-True",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-True",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-True",
             "SequenceSet-Point(2,2)",
         ],
@@ -2102,8 +2102,8 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         [
             (tpi, timestamp, None),
             (tpi, timestamp_set, None),
-            (tpi, period, None),
-            (tpi, period_set, None),
+            (tpi, tstzspan, None),
+            (tpi, tstzspan_set, None),
             (tpi, shapely.set_srid(shapely.Point(1, 1), 4326), None),
             (
                 tpi,
@@ -2112,8 +2112,8 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             ),
             (tpds, timestamp, TGeogPointSeq("{Point(2 2)@2019-09-02}")),
             (tpds, timestamp_set, TGeogPointSeq("{Point(2 2)@2019-09-02}")),
-            (tpds, period, None),
-            (tpds, period_set, None),
+            (tpds, tstzspan, None),
+            (tpds, tstzspan_set, None),
             (
                 tpds,
                 shapely.set_srid(shapely.Point(1, 1), 4326),
@@ -2134,8 +2134,8 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
                 timestamp_set,
                 TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
-            (tps, period, None),
-            (tps, period_set, None),
+            (tps, tstzspan, None),
+            (tps, tstzspan_set, None),
             (
                 tps,
                 shapely.set_srid(shapely.Point(1, 1), 4326),
@@ -2162,10 +2162,10 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             ),
             (
                 tpss,
-                period,
+                tstzspan,
                 TGeogPointSeqSet("{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
-            (tpss, period_set, None),
+            (tpss, tstzspan_set, None),
             (
                 tpss,
                 shapely.set_srid(shapely.Point(1, 1), 4326),
@@ -2181,27 +2181,27 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-Point(1,1)",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-Point(1,1)",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-Point(1,1)",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-Point(1,1)",
             "SequenceSet-Point(2,2)",
         ],
@@ -2214,52 +2214,52 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         [
             (tpi, timestamp),
             (tpi, timestamp_set),
-            (tpi, period),
-            (tpi, period_set),
+            (tpi, tstzspan),
+            (tpi, tstzspan_set),
             (tpi, shapely.set_srid(shapely.Point(1, 1), 4326)),
             (tpi, shapely.set_srid(shapely.Point(2, 2), 4326)),
             (tpds, timestamp),
             (tpds, timestamp_set),
-            (tpds, period),
-            (tpds, period_set),
+            (tpds, tstzspan),
+            (tpds, tstzspan_set),
             (tpds, shapely.set_srid(shapely.Point(1, 1), 4326)),
             (tpds, shapely.set_srid(shapely.Point(2, 2), 4326)),
             (tps, timestamp),
             (tps, timestamp_set),
-            (tps, period),
-            (tps, period_set),
+            (tps, tstzspan),
+            (tps, tstzspan_set),
             (tps, shapely.set_srid(shapely.Point(1, 1), 4326)),
             (tps, shapely.set_srid(shapely.Point(2, 2), 4326)),
             (tpss, timestamp),
             (tpss, timestamp_set),
-            (tpss, period),
-            (tpss, period_set),
+            (tpss, tstzspan),
+            (tpss, tstzspan_set),
             (tpss, shapely.set_srid(shapely.Point(1, 1), 4326)),
             (tpss, shapely.set_srid(shapely.Point(2, 2), 4326)),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-Point(1,1)",
             "Instant-Point(2,2)",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-Point(1,1)",
             "Discrete Sequence-Point(2,2)",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-Point(1,1)",
             "Sequence-Point(2,2)",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-Point(1,1)",
             "SequenceSet-Point(2,2)",
         ],

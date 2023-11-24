@@ -49,12 +49,12 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: Union[TimestampSet, Period]) -> TBoolSeq:
+    def from_base_time(value: bool, base: Union[TsTzSet, TsTzSpan]) -> TBoolSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: PeriodSet) -> TBoolSeqSet:
+    def from_base_time(value: bool, base: TsTzSpanSet) -> TBoolSeqSet:
         ...
 
     @staticmethod
@@ -70,20 +70,20 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             A new temporal boolean.
 
         MEOS Functions:
-            tboolinst_make, tboolseq_from_base_timestampset,
-            tboolseq_from_base_period, tboolseqset_from_base_periodset
+            tboolinst_make, tboolseq_from_base_tstzset,
+            tboolseq_from_base_tstzspan, tboolseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
             return TBoolInst(
                 _inner=tboolinst_make(value, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
-            return TBoolSeq(_inner=tboolseq_from_base_timestampset(value, base._inner))
-        elif isinstance(base, Period):
-            return TBoolSeq(_inner=tboolseq_from_base_period(value, base._inner))
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSet):
+            return TBoolSeq(_inner=tboolseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TBoolSeq(_inner=tboolseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
             return TBoolSeqSet(
-                _inner=tboolseqset_from_base_periodset(value, base._inner)
+                _inner=tboolseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -250,8 +250,8 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             A new temporal boolean.
 
         MEOS Functions:
-            tbool_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            tbool_at_value, temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, bool):
             result = tbool_at_value(self._inner, other)
@@ -273,8 +273,8 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
 
         MEOS Functions:
             tbool_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            temporal_minus_tstzset, temporal_minus_tstzspan,
+            temporal_minus_tstzspanset
         """
         if isinstance(other, bool):
             result = tbool_minus_value(self._inner, other)
@@ -388,31 +388,31 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
         """
         return self.temporal_not()
 
-    def when_true(self) -> Optional[PeriodSet]:
+    def when_true(self) -> Optional[TsTzSpanSet]:
         """
-        Returns a period set with the periods where `self` is True.
+        Returns a tstzspan set with the tstzspans where `self` is True.
 
         Returns:
-            A :class:`PeriodSet` with the periods where `self` is True.
+            A :class:`TsTzSpanSet` with the tstzspans where `self` is True.
 
         MEOS Function:
             tbool_when_true
         """
         result = tbool_when_true(self._inner)
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
-    def when_false(self) -> Optional[PeriodSet]:
+    def when_false(self) -> Optional[TsTzSpanSet]:
         """
-        Returns a period set with the periods where `self` is False.
+        Returns a tstzspan set with the tstzspans where `self` is False.
 
         Returns:
-            A :class:`PeriodSet` with the periods where `self` is False.
+            A :class:`TsTzSpanSet` with the tstzspans where `self` is False.
 
         MEOS Function:
             tbool_when_true, tnot_tbool
         """
         result = tbool_when_true(tnot_tbool(self._inner))
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod
@@ -457,7 +457,7 @@ class TBoolInst(TInstant[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"],
 
 class TBoolSeq(TSequence[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool):
     """
-    Class for representing temporal boolean values over a period of time.
+    Class for representing temporal boolean values over a tstzspan of time.
     """
 
     ComponentClass = TBoolInst
@@ -488,7 +488,7 @@ class TBoolSeqSet(
     TSequenceSet[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool
 ):
     """
-    Class for representing temporal boolean values over a period of time with gaps.
+    Class for representing temporal boolean values over a tstzspan of time with gaps.
     """
 
     ComponentClass = TBoolSeq

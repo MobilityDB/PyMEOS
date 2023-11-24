@@ -1,8 +1,6 @@
 import os.path
-import re
 import sys
-from re import RegexFlag
-from typing import List, Optional
+from typing import List
 
 from build_pymeos_functions_modifiers import *
 from objects import conversion_map, Conversion
@@ -36,7 +34,10 @@ class Parameter:
             return self.ptype
 
     def __str__(self) -> str:
-        return f"{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, {self.cp_conversion=}"
+        return (
+            f"{self.name=}, {self.converted_name=}, {self.ctype=}, {self.ptype=}, "
+            f"{self.cp_conversion=}"
+        )
 
 
 class ReturnType:
@@ -82,7 +83,7 @@ function_modifiers = {
     "spanset_as_wkb": as_wkb_modifier,
     "tbox_as_wkb": as_wkb_modifier,
     "stbox_as_wkb": as_wkb_modifier,
-    "timestampset_make": timestampset_make_modifier,
+    "tstzset_make": tstzset_make_modifier,
     "intset_make": array_parameter_modifier("values", "count"),
     "bigintset_make": array_parameter_modifier("values", "count"),
     "floatset_make": array_parameter_modifier("values", "count"),
@@ -133,12 +134,12 @@ nullable_parameters = {
     ("temporal_append_tinstant", "maxt"),
     ("temporal_as_mfjson", "srs"),
     ("gserialized_as_geojson", "srs"),
-    ("period_shift_scale", "shift"),
-    ("period_shift_scale", "duration"),
-    ("timestampset_shift_scale", "shift"),
-    ("timestampset_shift_scale", "duration"),
-    ("periodset_shift_scale", "shift"),
-    ("periodset_shift_scale", "duration"),
+    ("tstzspan_shift_scale", "shift"),
+    ("tstzspan_shift_scale", "duration"),
+    ("tstzset_shift_scale", "shift"),
+    ("tstzset_shift_scale", "duration"),
+    ("tstzspanset_shift_scale", "shift"),
+    ("tstzspanset_shift_scale", "duration"),
     ("temporal_shift_scale_time", "shift"),
     ("temporal_shift_scale_time", "duration"),
     ("tbox_make", "p"),
@@ -164,24 +165,24 @@ nullable_parameters = {
     ("ttext_tmin_transfn", "state"),
     ("ttext_tmax_transfn", "state"),
     ("temporal_tcount_transfn", "interval"),
-    ("timestamp_tcount_transfn", "interval"),
-    ("timestampset_tcount_transfn", "interval"),
-    ("period_tcount_transfn", "interval"),
-    ("periodset_tcount_transfn", "interval"),
-    ("timestamp_extent_transfn", "p"),
-    ("timestamp_tcount_transfn", "state"),
-    ("timestampset_tcount_transfn", "state"),
-    ("period_tcount_transfn", "state"),
-    ("periodset_tcount_transfn", "state"),
+    ("timestamptz_tcount_transfn", "interval"),
+    ("tstzset_tcount_transfn", "interval"),
+    ("tstzspan_tcount_transfn", "interval"),
+    ("tstzspanset_tcount_transfn", "interval"),
+    ("timestamptz_extent_transfn", "p"),
+    ("timestamptz_tcount_transfn", "state"),
+    ("tstzset_tcount_transfn", "state"),
+    ("tstzspan_tcount_transfn", "state"),
+    ("tstzspanset_tcount_transfn", "state"),
     ("stbox_tile_list", "duration"),
     ("tintbox_tile_list", "xorigin"),
     ("tintbox_tile_list", "torigin"),
     ("tfloatbox_tile_list", "xorigin"),
     ("tfloatbox_tile_list", "torigin"),
     ("tpoint_at_geom_time", "zspan"),
-    ("tpoint_at_geom_time", "period"),
+    ("tpoint_at_geom_time", "tstzspan"),
     ("tpoint_minus_geom_time", "zspan"),
-    ("tpoint_minus_geom_time", "period"),
+    ("tpoint_minus_geom_time", "tstzspan"),
 }
 
 
@@ -231,12 +232,14 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
     with open(header_path) as f:
         content = f.read()
     # Regex lines:
-    # 1st line: Match beginning of function with optional "extern", "static" and "inline"
-    # 2nd line: Match the return type as any alphanumeric string with optional "const" modifier (before the type) or
-    #             pointer modifier (after the type)
+    # 1st line: Match beginning of function with optional "extern", "static" and
+    #           "inline"
+    # 2nd line: Match the return type as any alphanumeric string with optional "const"
+    #           modifier (before the type) or pointer modifier (after the type)
     # 3rd line: Match the name of the function as any alphanumeric string
-    # 4th line: Match the parameters as any sequence of alphanumeric characters, commas, spaces and asterisks between
-    #             parenthesis and end with a semicolon. (Parameter decomposition will be performed later)
+    # 4th line: Match the parameters as any sequence of alphanumeric characters, commas,
+    #           spaces and asterisks between parenthesis and end with a semicolon.
+    #           (Parameter decomposition will be performed later)
     f_regex = (
         r"(?:extern )?(?:static )?(?:inline )?"
         r"(?P<returnType>(?:const )?\w+(?: \*+)?)"
@@ -244,7 +247,7 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
         r"\((?P<params>[\w\s,\*]*)\);"
     )
     matches = re.finditer(
-        f_regex, "".join(content.splitlines()), flags=RegexFlag.MULTILINE
+        f_regex, "".join(content.splitlines()), flags=re.RegexFlag.MULTILINE
     )
 
     template_path = os.path.join(os.path.dirname(__file__), "templates/functions.py")
@@ -328,7 +331,8 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
     # Check if parameter is nullable
     nullable = is_nullable_parameter(function, param_name)
 
-    # If no conversion is needed between c and python types, use parameter name also as converted name
+    # If no conversion is needed between c and python types, use parameter name also as
+    # converted name
     if conversion.p_to_c is None:
         # If nullable, add null check
         if nullable:
@@ -337,7 +341,8 @@ def get_param(function: str, inner_param: str) -> Optional[Parameter]:
                 f"{param_name}_converted",
                 param_type,
                 f"'Optional[{conversion.p_type}]'",
-                f"{param_name}_converted = {param_name} if {param_name} is not None else _ffi.NULL",
+                f"{param_name}_converted = {param_name} if {param_name} is "
+                f"not None else _ffi.NULL",
             )
         return Parameter(param_name, param_name, param_type, conversion.p_type, None)
 
@@ -403,15 +408,17 @@ def get_return_type(inner_return_type) -> ReturnType:
 def build_function_string(
     function_name: str, return_type: ReturnType, parameters: List[Parameter]
 ) -> str:
-    # Check if there is a result param, i.e. output parameters that are the actual product of the function, instead of
-    # whatever the function returns (typically void or bool/int indicating the success or failure of the function)
+    # Check if there is a result param, i.e. output parameters that are the actual
+    # product of the function, instead of  whatever the function returns (typically
+    # void or bool/int indicating the success or failure of the function)
     result_param = None
     if len(parameters) > 1 and is_result_parameter(function_name, parameters[-1]):
         # Remove it from the list of parameters
         result_param = parameters.pop(-1)
 
-    # Check if there are output parameters. Unlike result parameters, these are just normal parameters that provide
-    # extra information or actual results that are meant to go along with whatever the function returns
+    # Check if there are output parameters. Unlike result parameters, these are just
+    # normal parameters that provide extra information or actual results that are meant
+    # to go along with whatever the function returns
     out_params = []
     if len(parameters) > 1:
         out_params = [p for p in parameters if is_output_parameter(function_name, p)]
@@ -438,8 +445,9 @@ def build_function_string(
     if return_type.conversion is not None:
         result_manipulation = f"    result = {return_type.conversion}\n"
 
-    # Initialize the function return type to the python type unless it needs no conversion (where the C type gives
-    # extra information while being interoperable), or the function is void
+    # Initialize the function return type to the python type unless it needs no
+    # conversion (where the C type gives extra information while being interoperable),
+    # or the function is void
     function_return_type = (
         return_type.return_type
         if return_type.conversion is not None or return_type.return_type == "None"
@@ -457,13 +465,16 @@ def build_function_string(
         if result_param.is_interoperable():
             returning_object += "[0]"
 
-        # If original C function returned bool, use it to return it when result is True, or return None otherwise.
+        # If original C function returned bool, use it to return it when result is True,
+        # or return None otherwise.
         if return_type.return_type == "bool":
-            result_manipulation = (
-                (result_manipulation or "") + "    if result:\n"
-                f"        return {returning_object} if {returning_object} != _ffi.NULL else None\n"
+            boll_guard = (
+                "    if result:\n"
+                f"        return {returning_object} if {returning_object} != "
+                "_ffi.NULL else None\n"
                 "    return None"
             )
+            result_manipulation = (result_manipulation or "") + boll_guard
         # Otherwise, just return it normally
         else:
             result_manipulation = (
@@ -471,7 +482,8 @@ def build_function_string(
                 + f"    return {returning_object} if {returning_object}"
                 f"!= _ffi.NULL else None\n"
             )
-        # Set the return type as the Python type, removing the pointer modifier if necessary
+        # Set the return type as the Python type, removing the pointer modifier if
+        # necessary
         function_return_type = result_param.get_ptype_without_pointers()
     # Otherwise, return the result normally (if needed)
     elif return_type.return_type != "None":
@@ -483,7 +495,8 @@ def build_function_string(
     for out_param in out_params:
         # Create the CFFI object to hold it
         param_conversions += f"\n    {out_param.name} = _ffi.new('{out_param.ctype}')"
-        # Add its type to the return type of the function, removing the pointer modifier if necessary
+        # Add its type to the return type of the function, removing the pointer modifier
+        # if necessary
         function_return_type += ", " + out_param.get_ptype_without_pointers()
         # Add it to the return statement
         result_manipulation += f", {out_param.name}[0]"
@@ -501,7 +514,8 @@ def build_function_string(
     if function_name in function_notes:
         note = f"#TODO {function_notes[function_name]}\n"
 
-    # Create common part of function string (note, name, parameters, return type and parameter conversions).
+    # Create common part of function string (note, name, parameters, return type and
+    # parameter conversions).
     base = (
         f"{note}def {function_name}({params}) -> {function_return_type}:\n"
         f"{param_conversions}"

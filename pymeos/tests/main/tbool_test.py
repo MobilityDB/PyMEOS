@@ -12,9 +12,9 @@ from pymeos import (
     TIntSeq,
     TIntSeqSet,
     TInterpolation,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -65,15 +65,15 @@ class TestTBoolConstructors(TestTBool):
         [
             (datetime(2000, 1, 1), TBoolInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TBoolSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TBoolSeq, TInterpolation.STEPWISE),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TBoolSeq, TInterpolation.STEPWISE),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TBoolSeqSet,
-                TInterpolation.STEPWISE,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TBoolSeqSet,
+                    TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -354,7 +354,7 @@ class TestTBoolOutputs(TestTBool):
                 tbi,
                 "{\n"
                 '   "type": "MovingBoolean",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -373,7 +373,7 @@ class TestTBoolOutputs(TestTBool):
                 tbds,
                 "{\n"
                 '   "type": "MovingBoolean",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -396,7 +396,7 @@ class TestTBoolOutputs(TestTBool):
                 tbs,
                 "{\n"
                 '   "type": "MovingBoolean",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -419,7 +419,7 @@ class TestTBoolOutputs(TestTBool):
                 tbss,
                 "{\n"
                 '   "type": "MovingBoolean",\n'
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -472,10 +472,10 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tbi, Period("[2019-09-01, 2019-09-01]")),
-            (tbds, Period("[2019-09-01, 2019-09-02]")),
-            (tbs, Period("[2019-09-01, 2019-09-02]")),
-            (tbss, Period("[2019-09-01, 2019-09-05]")),
+            (tbi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tbds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbs, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -564,10 +564,10 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tbi, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tbds, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tbs, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (tbss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tbi, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tbds, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tbs, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (tbss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -603,23 +603,23 @@ class TestTBoolAccessors(TestTBool):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tbi, Period("[2019-09-01, 2019-09-01]")),
-            (tbds, Period("[2019-09-01, 2019-09-02]")),
-            (tbs, Period("[2019-09-01, 2019-09-02]")),
-            (tbss, Period("[2019-09-01, 2019-09-05]")),
+            (tbi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tbds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbs, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tbi, Period("[2019-09-01, 2019-09-01]")),
-            (tbds, Period("[2019-09-01, 2019-09-02]")),
-            (tbs, Period("[2019-09-01, 2019-09-02]")),
-            (tbss, Period("[2019-09-01, 2019-09-05]")),
+            (tbi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tbds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbs, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tbss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1444,17 +1444,17 @@ class TestTBoolRestrictors(TestTBool):
     )
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tbi, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tbds, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tbs, PeriodSet("{[2019-09-01, 2019-09-02)}")),
-            (tbss, PeriodSet("{[2019-09-01, 2019-09-02),[2019-09-03, 2019-09-05]}")),
+            (tbi, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tbds, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tbs, TsTzSpanSet("{[2019-09-01, 2019-09-02)}")),
+            (tbss, TsTzSpanSet("{[2019-09-01, 2019-09-02),[2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1465,9 +1465,9 @@ class TestTBoolRestrictors(TestTBool):
         "temporal, expected",
         [
             (tbi, None),
-            (tbds, PeriodSet("{[2019-09-02, 2019-09-02]}")),
-            (tbs, PeriodSet("{[2019-09-02, 2019-09-02]}")),
-            (tbss, PeriodSet("{[2019-09-02, 2019-09-02]}")),
+            (tbds, TsTzSpanSet("{[2019-09-02, 2019-09-02]}")),
+            (tbs, TsTzSpanSet("{[2019-09-02, 2019-09-02]}")),
+            (tbss, TsTzSpanSet("{[2019-09-02, 2019-09-02]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1479,28 +1479,28 @@ class TestTBoolRestrictors(TestTBool):
         [
             (tbi, timestamp, TBoolInst("True@2019-09-01")),
             (tbi, timestamp_set, TBoolInst("True@2019-09-01")),
-            (tbi, period, TBoolInst("True@2019-09-01")),
-            (tbi, period_set, TBoolInst("True@2019-09-01")),
+            (tbi, tstzspan, TBoolInst("True@2019-09-01")),
+            (tbi, tstzspan_set, TBoolInst("True@2019-09-01")),
             (tbi, True, TBoolInst("True@2019-09-01")),
             (tbi, False, None),
             (tbds, timestamp, TBoolSeq("{True@2019-09-01}")),
             (tbds, timestamp_set, TBoolSeq("{True@2019-09-01}")),
-            (tbds, period, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
-            (tbds, period_set, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
+            (tbds, tstzspan, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
+            (tbds, tstzspan_set, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
             (tbds, True, TBoolSeq("{True@2019-09-01}")),
             (tbds, False, TBoolSeq("{False@2019-09-02}")),
             (tbs, timestamp, TBoolSeq("[True@2019-09-01]")),
             (tbs, timestamp_set, TBoolSeq("{True@2019-09-01}")),
-            (tbs, period, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
-            (tbs, period_set, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
+            (tbs, tstzspan, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
+            (tbs, tstzspan_set, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
             (tbs, True, TBoolSeq("[True@2019-09-01, True@2019-09-02)")),
             (tbs, False, TBoolSeq("[False@2019-09-02]")),
             (tbss, timestamp, TBoolSeqSet("[True@2019-09-01]")),
             (tbss, timestamp_set, TBoolSeq("{True@2019-09-01, True@2019-09-03}")),
-            (tbss, period, TBoolSeqSet("{[True@2019-09-01, False@2019-09-02]}")),
+            (tbss, tstzspan, TBoolSeqSet("{[True@2019-09-01, False@2019-09-02]}")),
             (
                 tbss,
-                period_set,
+                tstzspan_set,
                 TBoolSeqSet(
                     "{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
                 ),
@@ -1516,27 +1516,27 @@ class TestTBoolRestrictors(TestTBool):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-True",
             "Instant-False",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-True",
             "Discrete Sequence-False",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-True",
             "Sequence-False",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-True",
             "SequenceSet-False",
         ],
@@ -1580,20 +1580,20 @@ class TestTBoolRestrictors(TestTBool):
         [
             (tbi, timestamp, None),
             (tbi, timestamp_set, None),
-            (tbi, period, None),
-            (tbi, period_set, None),
+            (tbi, tstzspan, None),
+            (tbi, tstzspan_set, None),
             (tbi, True, None),
             (tbi, False, TBoolInst("True@2019-09-01")),
             (tbds, timestamp, TBoolSeq("{False@2019-09-02}")),
             (tbds, timestamp_set, TBoolSeq("{False@2019-09-02}")),
-            (tbds, period, None),
-            (tbds, period_set, None),
+            (tbds, tstzspan, None),
+            (tbds, tstzspan_set, None),
             (tbds, True, TBoolSeq("{False@2019-09-02}")),
             (tbds, False, TBoolSeq("{True@2019-09-01}")),
             (tbs, timestamp, TBoolSeqSet("{(True@2019-09-01, False@2019-09-02]}")),
             (tbs, timestamp_set, TBoolSeqSet("{(True@2019-09-01, False@2019-09-02]}")),
-            (tbs, period, None),
-            (tbs, period_set, None),
+            (tbs, tstzspan, None),
+            (tbs, tstzspan_set, None),
             (tbs, True, TBoolSeqSet("{[False@2019-09-02]}")),
             (tbs, False, TBoolSeqSet("{[True@2019-09-01, True@2019-09-02)}")),
             (
@@ -1610,8 +1610,8 @@ class TestTBoolRestrictors(TestTBool):
                     "{(True@2019-09-01, False@2019-09-02],(True@2019-09-03, True@2019-09-05]}"
                 ),
             ),
-            (tbss, period, TBoolSeqSet("{[True@2019-09-03, True@2019-09-05]}")),
-            (tbss, period_set, None),
+            (tbss, tstzspan, TBoolSeqSet("{[True@2019-09-03, True@2019-09-05]}")),
+            (tbss, tstzspan_set, None),
             (tbss, True, TBoolSeqSet("{[False@2019-09-02]}")),
             (
                 tbss,
@@ -1623,27 +1623,27 @@ class TestTBoolRestrictors(TestTBool):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-True",
             "Instant-False",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-True",
             "Discrete Sequence-False",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-True",
             "Sequence-False",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-True",
             "SequenceSet-False",
         ],
@@ -1687,52 +1687,52 @@ class TestTBoolRestrictors(TestTBool):
         [
             (tbi, timestamp),
             (tbi, timestamp_set),
-            (tbi, period),
-            (tbi, period_set),
+            (tbi, tstzspan),
+            (tbi, tstzspan_set),
             (tbi, True),
             (tbi, False),
             (tbds, timestamp),
             (tbds, timestamp_set),
-            (tbds, period),
-            (tbds, period_set),
+            (tbds, tstzspan),
+            (tbds, tstzspan_set),
             (tbds, True),
             (tbds, False),
             (tbs, timestamp),
             (tbs, timestamp_set),
-            (tbs, period),
-            (tbs, period_set),
+            (tbs, tstzspan),
+            (tbs, tstzspan_set),
             (tbs, True),
             (tbs, False),
             (tbss, timestamp),
             (tbss, timestamp_set),
-            (tbss, period),
-            (tbss, period_set),
+            (tbss, tstzspan),
+            (tbss, tstzspan_set),
             (tbss, True),
             (tbss, False),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Instant-True",
             "Instant-False",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Discrete Sequence-True",
             "Discrete Sequence-False",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "Sequence-True",
             "Sequence-False",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
             "SequenceSet-True",
             "SequenceSet-False",
         ],

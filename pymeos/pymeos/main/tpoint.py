@@ -504,7 +504,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         MEOS Functions:
             tpoint_at_value, tpoint_at_stbox, temporal_at_values,
-            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period, temporal_at_periodset
+            temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan, temporal_at_tstzspanset
         """
         from ..boxes import STBox
 
@@ -534,7 +534,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         MEOS Functions:
             tpoint_minus_value, tpoint_minus_stbox, temporal_minus_values,
-            temporal_minus_timestamp, temporal_minus_timestampset, temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_tstzset, temporal_minus_tstzspan, temporal_minus_tstzspanset
         """
         from ..boxes import STBox
 
@@ -564,7 +564,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if left, False otherwise.
 
         See Also:
-            :meth:`Period.is_before`
+            :meth:`TsTzSpan.is_before`
         """
         return self.bounding_box().is_left(other)
 
@@ -579,7 +579,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or left, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_left(other)
 
@@ -594,7 +594,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if right, False otherwise.
 
         See Also:
-            :meth:`Period.is_after`
+            :meth:`TsTzSpan.is_after`
         """
         return self.bounding_box().is_right(other)
 
@@ -609,7 +609,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or right, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_right(other)
 
@@ -624,7 +624,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if below, False otherwise.
 
         See Also:
-            :meth:`Period.is_before`
+            :meth:`TsTzSpan.is_before`
         """
         return self.bounding_box().is_below(other)
 
@@ -639,7 +639,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or below, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_below(other)
 
@@ -654,7 +654,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if above, False otherwise.
 
         See Also:
-            :meth:`Period.is_after`
+            :meth:`TsTzSpan.is_after`
         """
         return self.bounding_box().is_above(other)
 
@@ -669,7 +669,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or above, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_above(other)
 
@@ -684,7 +684,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if front, False otherwise.
 
         See Also:
-            :meth:`Period.is_before`
+            :meth:`TsTzSpan.is_before`
         """
         return self.bounding_box().is_front(other)
 
@@ -699,7 +699,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or front, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_front(other)
 
@@ -714,7 +714,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if behind, False otherwise.
 
         See Also:
-            :meth:`Period.is_after`
+            :meth:`TsTzSpan.is_after`
         """
         return self.bounding_box().is_behind(other)
 
@@ -729,7 +729,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             True if over or behind, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_behind(other)
 
@@ -1199,16 +1199,16 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         bitmatrix: Optional[bool] = False,
     ) -> List[Temporal]:
         """
-        Splits `self` into fragments with respect to space and period buckets.
+        Splits `self` into fragments with respect to space and tstzspan buckets.
 
         Args:
             xsize: Size of the x dimension.
             ysize: Size of the y dimension.
             zsize: Size of the z dimension.
-            duration: Duration of the period buckets.
+            duration: Duration of the tstzspan buckets.
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
-            time_start: Start time of the first period bucket. If None, the
+            time_start: Start time of the first tstzspan bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
             bitmatrix: If True, use a bitmatrix to speed up the process.
 
@@ -1414,13 +1414,13 @@ class TGeomPoint(
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TimestampSet, Period]
+        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
     ) -> TGeomPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: PeriodSet) -> TGeomPointSeqSet:
+    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeomPointSeqSet:
         ...
 
     @staticmethod
@@ -1439,25 +1439,25 @@ class TGeomPoint(
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tpointinst_make, tpointseq_from_base_timestampset,
-            tpointseq_from_base_period, tpointseqset_from_base_periodset
+            tpointinst_make, tpointseq_from_base_tstzset,
+            tpointseq_from_base_tstzspan, tpointseqset_from_base_tstzspanset
         """
         gs = geometry_to_gserialized(value)
         if isinstance(base, datetime):
             return TGeomPointInst(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
+        elif isinstance(base, TsTzSet):
             return TGeomPointSeq(
-                _inner=tpointseq_from_base_timestampset(gs, base._inner)
+                _inner=tpointseq_from_base_tstzset(gs, base._inner)
             )
-        elif isinstance(base, Period):
+        elif isinstance(base, TsTzSpan):
             return TGeomPointSeq(
-                _inner=tpointseq_from_base_period(gs, base._inner, interpolation)
+                _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSpanSet):
             return TGeomPointSeqSet(
-                _inner=tpointseqset_from_base_periodset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -1696,13 +1696,13 @@ class TGeogPoint(
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TimestampSet, Period]
+        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
     ) -> TGeogPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: PeriodSet) -> TGeogPointSeqSet:
+    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeogPointSeqSet:
         ...
 
     @staticmethod
@@ -1721,25 +1721,25 @@ class TGeogPoint(
             A new :class:`TGeogPoint` object.
 
         MEOS Functions:
-            tpointinst_make, tpointseq_from_base_timestampset,
-            tpointseq_from_base_period, tpointseqset_from_base_periodset
+            tpointinst_make, tpointseq_from_base_tstzset,
+            tpointseq_from_base_tstzspan, tpointseqset_from_base_tstzspanset
         """
         gs = geography_to_gserialized(value)
         if isinstance(base, datetime):
             return TGeogPointInst(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
+        elif isinstance(base, TsTzSet):
             return TGeogPointSeq(
-                _inner=tpointseq_from_base_timestampset(gs, base._inner)
+                _inner=tpointseq_from_base_tstzset(gs, base._inner)
             )
-        elif isinstance(base, Period):
+        elif isinstance(base, TsTzSpan):
             return TGeogPointSeq(
-                _inner=tpointseq_from_base_period(gs, base._inner, interpolation)
+                _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSpanSet):
             return TGeogPointSeqSet(
-                _inner=tpointseqset_from_base_periodset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -1991,7 +1991,7 @@ class TGeomPointSeq(
     TGeomPoint,
 ):
     """
-    Class for representing temporal geometric points over a period of time.
+    Class for representing temporal geometric points over a tstzspan of time.
     """
 
     ComponentClass = TGeomPointInst
@@ -2023,7 +2023,7 @@ class TGeogPointSeq(
     TGeogPoint,
 ):
     """
-    Class for representing temporal geographic points over a period of time.
+    Class for representing temporal geographic points over a tstzspan of time.
     """
 
     ComponentClass = TGeogPointInst
@@ -2055,7 +2055,7 @@ class TGeomPointSeqSet(
     TGeomPoint,
 ):
     """
-    Class for representing temporal geometric points over a period of time
+    Class for representing temporal geometric points over a tstzspan of time
     with gaps.
     """
 
@@ -2082,7 +2082,7 @@ class TGeogPointSeqSet(
     TGeogPoint,
 ):
     """
-    Class for representing temporal geographic points over a period of time
+    Class for representing temporal geographic points over a tstzspan of time
     with gaps.
     """
 

@@ -163,8 +163,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
         MEOS Functions:
             temporal_at_values, tnumber_at_span, tnumber_at_spanset, tnumber_at_tbox,
-            temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         from ..boxes import TBox
         from ..collections import (
@@ -207,8 +207,8 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
         MEOS Functions:
             temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset, tnumber_minus_tbox,
-            temporal_minus_timestamp, temporal_minus_timestampset,
-            temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_tstzset,
+            temporal_minus_tstzspan, temporal_minus_tstzspanset
         """
         from ..boxes import TBox
         from ..collections import (
@@ -245,7 +245,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             True if left, False otherwise.
 
         See Also:
-            :meth:`Period.is_before`
+            :meth:`TsTzSpan.is_before`
         """
         return self.bounding_box().is_left(other)
 
@@ -261,7 +261,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             True if over or left, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_left(other)
 
@@ -277,7 +277,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             True if right, False otherwise.
 
         See Also:
-            :meth:`Period.is_after`
+            :meth:`TsTzSpan.is_after`
         """
         return self.bounding_box().is_right(other)
 
@@ -293,7 +293,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             True if over or right, False otherwise.
 
         See Also:
-            :meth:`Period.is_over_or_before`
+            :meth:`TsTzSpan.is_over_or_before`
         """
         return self.bounding_box().is_over_or_right(other)
 

@@ -4,9 +4,9 @@ from datetime import datetime, timezone, timedelta
 import pytest
 
 from pymeos import (
-    Period,
-    PeriodSet,
-    TimestampSet,
+    TsTzSpan,
+    TsTzSpanSet,
+    TsTzSet,
     TBox,
     STBox,
     TFloatInst,
@@ -18,24 +18,24 @@ from tests.conftest import TestPyMEOS
 
 
 class TestPeriod(TestPyMEOS):
-    period = Period("(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)")
+    tstzspan = TsTzSpan("(2019-09-08 00:00:00+0, 2019-09-10 00:00:00+0)")
 
     @staticmethod
-    def assert_period_equality(
-        period: Period,
+    def assert_tstzspan_equality(
+        tstzspan: TsTzSpan,
         lower: datetime = None,
         upper: datetime = None,
         lower_inc: bool = None,
         upper_inc: bool = None,
     ):
         if lower is not None:
-            assert period.lower() == lower
+            assert tstzspan.lower() == lower
         if upper is not None:
-            assert period.upper() == upper
+            assert tstzspan.upper() == upper
         if lower_inc is not None:
-            assert period.lower_inc() == lower_inc
+            assert tstzspan.lower_inc() == lower_inc
         if upper_inc is not None:
-            assert period.upper_inc() == upper_inc
+            assert tstzspan.upper_inc() == upper_inc
 
 
 class TestPeriodConstructors(TestPeriod):
@@ -63,8 +63,8 @@ class TestPeriodConstructors(TestPeriod):
         ],
     )
     def test_string_constructor(self, source, params):
-        period = Period(source)
-        self.assert_period_equality(period, *params)
+        tstzspan = TsTzSpan(source)
+        self.assert_tstzspan_equality(tstzspan, *params)
 
     @pytest.mark.parametrize(
         "input_lower,input_upper,lower,upper",
@@ -91,12 +91,12 @@ class TestPeriodConstructors(TestPeriod):
         ids=["string", "datetime", "mixed"],
     )
     def test_constructor_bounds(self, input_lower, input_upper, lower, upper):
-        period = Period(lower=lower, upper=upper)
-        self.assert_period_equality(period, lower, upper)
+        tstzspan = TsTzSpan(lower=lower, upper=upper)
+        self.assert_tstzspan_equality(tstzspan, lower, upper)
 
     def test_constructor_bound_inclusivity_defaults(self):
-        period = Period(lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0")
-        self.assert_period_equality(period, lower_inc=True, upper_inc=False)
+        tstzspan = TsTzSpan(lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0")
+        self.assert_tstzspan_equality(tstzspan, lower_inc=True, upper_inc=False)
 
     @pytest.mark.parametrize(
         "lower,upper",
@@ -108,19 +108,19 @@ class TestPeriodConstructors(TestPeriod):
         ],
     )
     def test_constructor_bound_inclusivity(self, lower, upper):
-        period = Period(
+        tstzspan = TsTzSpan(
             lower="2019-09-08 00:00:00+0",
             upper="2019-09-10 00:00:00+0",
             lower_inc=lower,
             upper_inc=upper,
         )
-        self.assert_period_equality(period, lower_inc=lower, upper_inc=upper)
+        self.assert_tstzspan_equality(tstzspan, lower_inc=lower, upper_inc=upper)
 
     def test_hexwkb_constructor(self):
         source = "012100000040021FFE3402000000B15A26350200"
-        period = Period.from_hexwkb(source)
-        self.assert_period_equality(
-            period,
+        tstzspan = TsTzSpan.from_hexwkb(source)
+        self.assert_tstzspan_equality(
+            tstzspan,
             datetime(2019, 9, 8, tzinfo=timezone.utc),
             datetime(2019, 9, 10, tzinfo=timezone.utc),
             False,
@@ -128,67 +128,67 @@ class TestPeriodConstructors(TestPeriod):
         )
 
     def test_from_as_constructor(self):
-        assert self.period == Period(str(self.period))
-        assert self.period == Period.from_wkb(self.period.as_wkb())
-        assert self.period == Period.from_hexwkb(self.period.as_hexwkb())
+        assert self.tstzspan == TsTzSpan(str(self.tstzspan))
+        assert self.tstzspan == TsTzSpan.from_wkb(self.tstzspan.as_wkb())
+        assert self.tstzspan == TsTzSpan.from_hexwkb(self.tstzspan.as_hexwkb())
 
     def test_copy_constructor(self):
-        other = copy(self.period)
-        assert self.period == other
-        assert self.period is not other
+        other = copy(self.tstzspan)
+        assert self.tstzspan == other
+        assert self.tstzspan is not other
 
 
 class TestPeriodOutputs(TestPeriod):
     def test_str(self):
-        assert str(self.period) == "(2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00)"
+        assert str(self.tstzspan) == "(2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00)"
 
     def test_repr(self):
         assert (
-            repr(self.period)
-            == "Period((2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00))"
+            repr(self.tstzspan)
+            == "TsTzSpan((2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00))"
         )
 
     def test_hexwkb(self):
-        assert self.period.as_hexwkb() == "012100000040021FFE3402000000B15A26350200"
+        assert self.tstzspan.as_hexwkb() == "012100000040021FFE3402000000B15A26350200"
 
 
 class TestPeriodConversions(TestPeriod):
-    def test_to_periodset(self):
-        periodset = self.period.to_periodset()
-        assert isinstance(periodset, PeriodSet)
-        assert periodset.num_periods() == 1
-        assert periodset.start_period() == self.period
+    def test_to_tstzspanset(self):
+        tstzspanset = self.tstzspan.to_tstzspanset()
+        assert isinstance(tstzspanset, TsTzSpanSet)
+        assert tstzspanset.num_tstzspans() == 1
+        assert tstzspanset.start_tstzspan() == self.tstzspan
 
 
 class TestPeriodAccessors(TestPeriod):
-    period2 = Period("[2019-09-08 02:03:00+0, 2019-09-10 02:03:00+0]")
+    tstzspan2 = TsTzSpan("[2019-09-08 02:03:00+0, 2019-09-10 02:03:00+0]")
 
     def test_lower(self):
-        assert self.period.lower() == datetime(2019, 9, 8, tzinfo=timezone.utc)
-        assert self.period2.lower() == datetime(2019, 9, 8, 2, 3, tzinfo=timezone.utc)
+        assert self.tstzspan.lower() == datetime(2019, 9, 8, tzinfo=timezone.utc)
+        assert self.tstzspan2.lower() == datetime(2019, 9, 8, 2, 3, tzinfo=timezone.utc)
 
     def test_upper(self):
-        assert self.period.upper() == datetime(2019, 9, 10, tzinfo=timezone.utc)
-        assert self.period2.upper() == datetime(2019, 9, 10, 2, 3, tzinfo=timezone.utc)
+        assert self.tstzspan.upper() == datetime(2019, 9, 10, tzinfo=timezone.utc)
+        assert self.tstzspan2.upper() == datetime(2019, 9, 10, 2, 3, tzinfo=timezone.utc)
 
     def test_lower_inc(self):
-        assert not self.period.lower_inc()
-        assert self.period2.lower_inc()
+        assert not self.tstzspan.lower_inc()
+        assert self.tstzspan2.lower_inc()
 
     def test_upper_inc(self):
-        assert not self.period.upper_inc()
-        assert self.period2.upper_inc()
+        assert not self.tstzspan.upper_inc()
+        assert self.tstzspan2.upper_inc()
 
     def test_duration(self):
-        assert self.period.duration() == timedelta(days=2)
-        assert self.period2.duration() == timedelta(days=2)
+        assert self.tstzspan.duration() == timedelta(days=2)
+        assert self.tstzspan2.duration() == timedelta(days=2)
 
     def test_duration_in_seconds(self):
-        assert self.period.duration_in_seconds() == 172800
-        assert self.period2.duration_in_seconds() == 172800
+        assert self.tstzspan.duration_in_seconds() == 172800
+        assert self.tstzspan2.duration_in_seconds() == 172800
 
     def test_hash(self):
-        assert hash(self.period) == 1164402929
+        assert hash(self.tstzspan) == 1164402929
 
 
 class TestPeriodTransformations(TestPeriod):
@@ -235,8 +235,8 @@ class TestPeriodTransformations(TestPeriod):
         ids=["positive days", "negative days", "positive hours", "negative hours"],
     )
     def test_shift(self, delta, result):
-        shifted = self.period.shift(delta)
-        self.assert_period_equality(shifted, *result)
+        shifted = self.tstzspan.shift(delta)
+        self.assert_tstzspan_equality(shifted, *result)
 
     @pytest.mark.parametrize(
         "delta,result",
@@ -263,12 +263,12 @@ class TestPeriodTransformations(TestPeriod):
         ids=["days", "hours"],
     )
     def test_scale(self, delta, result):
-        scaled = self.period.scale(delta)
-        self.assert_period_equality(scaled, *result)
+        scaled = self.tstzspan.scale(delta)
+        self.assert_tstzspan_equality(scaled, *result)
 
     def test_shift_scale(self):
-        shifted_scaled = self.period.shift_scale(timedelta(days=4), timedelta(hours=4))
-        self.assert_period_equality(
+        shifted_scaled = self.tstzspan.shift_scale(timedelta(days=4), timedelta(hours=4))
+        self.assert_tstzspan_equality(
             shifted_scaled,
             datetime(2019, 9, 12, 0, tzinfo=timezone.utc),
             datetime(2019, 9, 12, 4, tzinfo=timezone.utc),
@@ -278,8 +278,8 @@ class TestPeriodTransformations(TestPeriod):
 
 
 class TestPeriodTopologicalPositionFunctions(TestPeriod):
-    period = Period("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
-    periodset = PeriodSet(
+    tstzspan = TsTzSpan("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
+    tstzspanset = TsTzSpanSet(
         "{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}"
     )
     timestamp = datetime(year=2020, month=1, day=1)
@@ -303,8 +303,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -315,8 +315,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -328,13 +328,13 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_adjacent(self, other):
-        self.period.is_adjacent(other)
+        self.tstzspan.is_adjacent(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             instant,
             discrete_sequence,
             stepwise_sequence,
@@ -344,8 +344,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "instant",
             "discrete_sequence",
             "stepwise_sequence",
@@ -356,13 +356,13 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_contained_in(self, other):
-        self.period.is_contained_in(other)
+        self.tstzspan.is_contained_in(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -373,8 +373,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -386,14 +386,14 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_contains(self, other):
-        self.period.contains(other)
-        _ = other in self.period
+        self.tstzspan.contains(other)
+        _ = other in self.tstzspan
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -404,8 +404,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -417,13 +417,13 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_overlaps(self, other):
-        self.period.overlaps(other)
+        self.tstzspan.overlaps(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -434,8 +434,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -447,13 +447,13 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_same(self, other):
-        self.period.is_same(other)
+        self.tstzspan.is_same(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -464,8 +464,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -477,14 +477,14 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_before(self, other):
-        self.period.is_before(other)
-        self.period.is_left(other)
+        self.tstzspan.is_before(other)
+        self.tstzspan.is_left(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -495,8 +495,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -508,14 +508,14 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_over_or_before(self, other):
-        self.period.is_over_or_before(other)
-        self.period.is_over_or_left(other)
+        self.tstzspan.is_over_or_before(other)
+        self.tstzspan.is_over_or_left(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -526,8 +526,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -539,14 +539,14 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_after(self, other):
-        self.period.is_after(other)
-        self.period.is_right(other)
+        self.tstzspan.is_after(other)
+        self.tstzspan.is_right(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -557,8 +557,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -570,14 +570,14 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_is_over_or_after(self, other):
-        self.period.is_over_or_after(other)
-        self.period.is_over_or_right(other)
+        self.tstzspan.is_over_or_after(other)
+        self.tstzspan.is_over_or_right(other)
 
     @pytest.mark.parametrize(
         "other",
         [
-            period,
-            periodset,
+            tstzspan,
+            tstzspanset,
             timestamp,
             instant,
             discrete_sequence,
@@ -588,8 +588,8 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
             stbox,
         ],
         ids=[
-            "period",
-            "periodset",
+            "tstzspan",
+            "tstzspanset",
             "timestamp",
             "instant",
             "discrete_sequence",
@@ -601,62 +601,62 @@ class TestPeriodTopologicalPositionFunctions(TestPeriod):
         ],
     )
     def test_distance(self, other):
-        self.period.distance(other)
+        self.tstzspan.distance(other)
 
 
 class TestPeriodSetFunctions(TestPeriod):
-    period = Period("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
-    periodset = PeriodSet(
+    tstzspan = TsTzSpan("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
+    tstzspanset = TsTzSpanSet(
         "{(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0), (2021-01-01 00:00:00+0, 2021-01-31 00:00:00+0)}"
     )
     timestamp = datetime(year=2020, month=1, day=1)
 
     @pytest.mark.parametrize(
         "other",
-        [period, periodset, timestamp],
-        ids=["period", "periodset", "timestamp"],
+        [tstzspan, tstzspanset, timestamp],
+        ids=["tstzspan", "tstzspanset", "timestamp"],
     )
     def test_intersection(self, other):
-        self.period.intersection(other)
-        self.period * other
+        self.tstzspan.intersection(other)
+        self.tstzspan * other
 
     @pytest.mark.parametrize(
         "other",
-        [period, periodset, timestamp],
-        ids=["period", "periodset", "timestamp"],
+        [tstzspan, tstzspanset, timestamp],
+        ids=["tstzspan", "tstzspanset", "timestamp"],
     )
     def test_union(self, other):
-        self.period.union(other)
-        self.period + other
+        self.tstzspan.union(other)
+        self.tstzspan + other
 
     @pytest.mark.parametrize(
         "other",
-        [period, periodset, timestamp],
-        ids=["period", "periodset", "timestamp"],
+        [tstzspan, tstzspanset, timestamp],
+        ids=["tstzspan", "tstzspanset", "timestamp"],
     )
     def test_minus(self, other):
-        self.period.minus(other)
-        self.period - other
+        self.tstzspan.minus(other)
+        self.tstzspan - other
 
 
 class TestPeriodComparisons(TestPeriod):
-    period = Period("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
-    other = Period("(2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0)")
+    tstzspan = TsTzSpan("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
+    other = TsTzSpan("(2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0)")
 
     def test_eq(self):
-        _ = self.period == self.other
+        _ = self.tstzspan == self.other
 
     def test_ne(self):
-        _ = self.period != self.other
+        _ = self.tstzspan != self.other
 
     def test_lt(self):
-        _ = self.period < self.other
+        _ = self.tstzspan < self.other
 
     def test_le(self):
-        _ = self.period <= self.other
+        _ = self.tstzspan <= self.other
 
     def test_gt(self):
-        _ = self.period > self.other
+        _ = self.tstzspan > self.other
 
     def test_ge(self):
-        _ = self.period >= self.other
+        _ = self.tstzspan >= self.other

@@ -54,12 +54,12 @@ class TText(
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TimestampSet, Period]) -> TTextSeq:
+    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: PeriodSet) -> TTextSeqSet:
+    def from_base_time(value: str, base: TsTzSpanSet) -> TTextSeqSet:
         ...
 
     @staticmethod
@@ -75,20 +75,20 @@ class TText(
             A new temporal string.
 
         MEOS Functions:
-            ttextinst_make, ttextseq_from_base_timestampset,
-            ttextseq_from_base_period, ttextseqset_from_base_periodset
+            ttextinst_make, ttextseq_from_base_tstzset,
+            ttextseq_from_base_tstzspan, ttextseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
             return TTextInst(
                 _inner=ttextinst_make(value, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
-            return TTextSeq(_inner=ttextseq_from_base_timestampset(value, base._inner))
-        elif isinstance(base, Period):
-            return TTextSeq(_inner=ttextseq_from_base_period(value, base._inner))
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSet):
+            return TTextSeq(_inner=ttextseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TTextSeq(_inner=ttextseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
             return TTextSeqSet(
-                _inner=ttextseqset_from_base_periodset(value, base._inner)
+                _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -639,7 +639,7 @@ class TText(
 
     # ------------------------- Restrictions ----------------------------------
     def at(
-        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
     ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
@@ -652,8 +652,8 @@ class TText(
             A new temporal string.
 
         MEOS Functions:
-            ttext_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            ttext_at_value, temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_at_value(self._inner, other)
@@ -664,7 +664,7 @@ class TText(
         return Temporal._factory(result)
 
     def minus(
-        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
     ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
@@ -678,8 +678,8 @@ class TText(
 
         MEOS Functions:
             ttext_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            temporal_minus_tstzset, temporal_minus_tstzspan,
+            temporal_minus_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_minus_value(self._inner, other)
@@ -798,7 +798,7 @@ class TTextInst(TInstant[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], 
 
 class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
-    Class for representing temporal strings over a period of time.
+    Class for representing temporal strings over a tstzspan of time.
     """
 
     ComponentClass = TTextInst
@@ -829,7 +829,7 @@ class TTextSeqSet(
     TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText
 ):
     """
-    Class for representing temporal strings over a period of time with gaps.
+    Class for representing temporal strings over a tstzspan of time with gaps.
     """
 
     ComponentClass = TTextSeq

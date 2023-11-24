@@ -18,9 +18,9 @@ from pymeos import (
     TIntSeqSet,
     TInterpolation,
     TBox,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     FloatSpan,
     FloatSpanSet,
     FloatSet,
@@ -74,15 +74,15 @@ class TestTFloatConstructors(TestTFloat):
         [
             (datetime(2000, 1, 1), TFloatInst, TInterpolation.NONE),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 TFloatSeq,
                 TInterpolation.DISCRETE,
             ),
-            (Period("[2019-09-01, 2019-09-02]"), TFloatSeq, TInterpolation.LINEAR),
+            (TsTzSpan("[2019-09-01, 2019-09-02]"), TFloatSeq, TInterpolation.LINEAR),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                TFloatSeqSet,
-                TInterpolation.LINEAR,
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TFloatSeqSet,
+                    TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -413,7 +413,7 @@ class TestTFloatOutputs(TestTFloat):
                 "     1.5,\n"
                 "     1.5\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-01T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -436,7 +436,7 @@ class TestTFloatOutputs(TestTFloat):
                 "     1.5,\n"
                 "     2.5\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -463,7 +463,7 @@ class TestTFloatOutputs(TestTFloat):
                 "     1.5,\n"
                 "     2.5\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-02T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -490,7 +490,7 @@ class TestTFloatOutputs(TestTFloat):
                 "     1.5,\n"
                 "     2.5\n"
                 "   ],\n"
-                '   "period": {\n'
+                '   "tstzspan": {\n'
                 '     "begin": "2019-09-01T00:00:00+00",\n'
                 '     "end": "2019-09-05T00:00:00+00",\n'
                 '     "lower_inc": true,\n'
@@ -691,10 +691,10 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, PeriodSet("{[2019-09-01, 2019-09-01]}")),
-            (tfds, PeriodSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
-            (tfs, PeriodSet("{[2019-09-01, 2019-09-02]}")),
-            (tfss, PeriodSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
+            (tfi, TsTzSpanSet("{[2019-09-01, 2019-09-01]}")),
+            (tfds, TsTzSpanSet("{[2019-09-01, 2019-09-01], [2019-09-02, 2019-09-02]}")),
+            (tfs, TsTzSpanSet("{[2019-09-01, 2019-09-02]}")),
+            (tfss, TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-05]}")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -730,23 +730,23 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, Period("[2019-09-01, 2019-09-01]")),
-            (tfds, Period("[2019-09-01, 2019-09-02]")),
-            (tfs, Period("[2019-09-01, 2019-09-02]")),
-            (tfss, Period("[2019-09-01, 2019-09-05]")),
+            (tfi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tfds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tfs, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tfss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_period(self, temporal, expected):
-        assert temporal.period() == expected
+    def test_tstzspan(self, temporal, expected):
+        assert temporal.tstzspan() == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, Period("[2019-09-01, 2019-09-01]")),
-            (tfds, Period("[2019-09-01, 2019-09-02]")),
-            (tfs, Period("[2019-09-01, 2019-09-02]")),
-            (tfss, Period("[2019-09-01, 2019-09-05]")),
+            (tfi, TsTzSpan("[2019-09-01, 2019-09-01]")),
+            (tfds, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tfs, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (tfss, TsTzSpan("[2019-09-01, 2019-09-05]")),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -2064,31 +2064,31 @@ class TestTFloatRestrictors(TestTFloat):
     )
 
     timestamp = datetime(2019, 9, 1)
-    timestamp_set = TimestampSet("{2019-09-01, 2019-09-03}")
-    period = Period("[2019-09-01, 2019-09-02]")
-    period_set = PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
+    timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
+    tstzspan = TsTzSpan("[2019-09-01, 2019-09-02]")
+    tstzspan_set = TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tfi, timestamp, TFloatInst("1.5@2019-09-01")),
             (tfi, timestamp_set, TFloatInst("1.5@2019-09-01")),
-            (tfi, period, TFloatInst("1.5@2019-09-01")),
-            (tfi, period_set, TFloatInst("1.5@2019-09-01")),
+            (tfi, tstzspan, TFloatInst("1.5@2019-09-01")),
+            (tfi, tstzspan_set, TFloatInst("1.5@2019-09-01")),
             (tfds, timestamp, TFloatSeq("{1.5@2019-09-01}")),
             (tfds, timestamp_set, TFloatSeq("{1.5@2019-09-01}")),
-            (tfds, period, TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
-            (tfds, period_set, TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
+            (tfds, tstzspan, TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
+            (tfds, tstzspan_set, TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
             (tfs, timestamp, TFloatSeq("[1.5@2019-09-01]")),
             (tfs, timestamp_set, TFloatSeq("{1.5@2019-09-01}")),
-            (tfs, period, TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")),
-            (tfs, period_set, TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")),
+            (tfs, tstzspan, TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")),
+            (tfs, tstzspan_set, TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")),
             (tfss, timestamp, TFloatSeqSet("[1.5@2019-09-01]")),
             (tfss, timestamp_set, TFloatSeq("{1.5@2019-09-01, 1.5@2019-09-03}")),
-            (tfss, period, TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02]}")),
+            (tfss, tstzspan, TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02]}")),
             (
                 tfss,
-                period_set,
+                tstzspan_set,
                 TFloatSeqSet(
                     "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
                 ),
@@ -2096,21 +2096,21 @@ class TestTFloatRestrictors(TestTFloat):
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
         ],
     )
     def test_at_time(self, temporal, restrictor, expected):
@@ -2274,16 +2274,16 @@ class TestTFloatRestrictors(TestTFloat):
         [
             (tfi, timestamp, None),
             (tfi, timestamp_set, None),
-            (tfi, period, None),
-            (tfi, period_set, None),
+            (tfi, tstzspan, None),
+            (tfi, tstzspan_set, None),
             (tfds, timestamp, TFloatSeq("{2.5@2019-09-02}")),
             (tfds, timestamp_set, TFloatSeq("{2.5@2019-09-02}")),
-            (tfds, period, None),
-            (tfds, period_set, None),
+            (tfds, tstzspan, None),
+            (tfds, tstzspan_set, None),
             (tfs, timestamp, TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02]}")),
             (tfs, timestamp_set, TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02]}")),
-            (tfs, period, None),
-            (tfs, period_set, None),
+            (tfs, tstzspan, None),
+            (tfs, tstzspan_set, None),
             (
                 tfss,
                 timestamp,
@@ -2298,26 +2298,26 @@ class TestTFloatRestrictors(TestTFloat):
                     "{(1.5@2019-09-01, 2.5@2019-09-02],(1.5@2019-09-03, 1.5@2019-09-05]}"
                 ),
             ),
-            (tfss, period, TFloatSeqSet("{[1.5@2019-09-03, 1.5@2019-09-05]}")),
-            (tfss, period_set, None),
+            (tfss, tstzspan, TFloatSeqSet("{[1.5@2019-09-03, 1.5@2019-09-05]}")),
+            (tfss, tstzspan_set, None),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
         ],
     )
     def test_minus_time(self, temporal, restrictor, expected):
@@ -2439,38 +2439,38 @@ class TestTFloatRestrictors(TestTFloat):
         [
             (tfi, timestamp),
             (tfi, timestamp_set),
-            (tfi, period),
-            (tfi, period_set),
+            (tfi, tstzspan),
+            (tfi, tstzspan_set),
             (tfds, timestamp),
             (tfds, timestamp_set),
-            (tfds, period),
-            (tfds, period_set),
+            (tfds, tstzspan),
+            (tfds, tstzspan_set),
             (tfs, timestamp),
             (tfs, timestamp_set),
-            (tfs, period),
-            (tfs, period_set),
+            (tfs, tstzspan),
+            (tfs, tstzspan_set),
             (tfss, timestamp),
             (tfss, timestamp_set),
-            (tfss, period),
-            (tfss, period_set),
+            (tfss, tstzspan),
+            (tfss, tstzspan_set),
         ],
         ids=[
             "Instant-Timestamp",
-            "Instant-TimestampSet",
-            "Instant-Period",
-            "Instant-PeriodSet",
+            "Instant-TsTzSet",
+            "Instant-TsTzSpan",
+            "Instant-TsTzSpanSet",
             "Discrete Sequence-Timestamp",
-            "Discrete Sequence-TimestampSet",
-            "Discrete Sequence-Period",
-            "Discrete Sequence-PeriodSet",
+            "Discrete Sequence-TsTzSet",
+            "Discrete Sequence-TsTzSpan",
+            "Discrete Sequence-TsTzSpanSet",
             "Sequence-Timestamp",
-            "Sequence-TimestampSet",
-            "Sequence-Period",
-            "Sequence-PeriodSet",
+            "Sequence-TsTzSet",
+            "Sequence-TsTzSpan",
+            "Sequence-TsTzSpanSet",
             "SequenceSet-Timestamp",
-            "SequenceSet-TimestampSet",
-            "SequenceSet-Period",
-            "SequenceSet-PeriodSet",
+            "SequenceSet-TsTzSet",
+            "SequenceSet-TsTzSpan",
+            "SequenceSet-TsTzSpanSet",
         ],
     )
     def test_at_minus_time(self, temporal, restrictor):

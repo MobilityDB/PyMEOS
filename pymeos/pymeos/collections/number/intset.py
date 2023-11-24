@@ -10,20 +10,20 @@ from pymeos_cffi import (
     intset_end_value,
     intset_value_n,
     intset_values,
-    contains_intset_int,
-    intersection_intset_int,
+    contains_set_int,
+    intersection_set_int,
     intersection_set_set,
-    minus_intset_int,
-    left_intset_int,
-    overleft_intset_int,
-    right_intset_int,
-    overright_intset_int,
+    minus_set_int,
+    left_set_int,
+    overleft_set_int,
+    right_set_int,
+    overright_set_int,
     minus_set_set,
     union_set_set,
-    union_intset_int,
+    union_set_int,
     intset_shift_scale,
-    minus_int_intset,
-    distance_intset_int,
+    minus_int_set,
+    distance_set_int,
 )
 
 from .intspan import IntSpan
@@ -236,10 +236,10 @@ class IntSet(Set[int]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_intset_int
+            contains_set_set, contains_set_int
         """
         if isinstance(content, int):
-            return contains_intset_int(self._inner, content)
+            return contains_set_int(self._inner, content)
         else:
             return super().contains(content)
 
@@ -257,10 +257,10 @@ class IntSet(Set[int]):
             True if left, False otherwise
 
         MEOS Functions:
-            left_set_set, left_intset_int
+            left_set_set, left_set_int
         """
         if isinstance(content, int):
-            return left_intset_int(self._inner, content)
+            return left_set_int(self._inner, content)
         else:
             return super().is_left(content)
 
@@ -276,10 +276,10 @@ class IntSet(Set[int]):
             True if is over or left, False otherwise
 
         MEOS Functions:
-            overleft_set_set, overleft_intset_int
+            overleft_set_set, overleft_set_int
         """
         if isinstance(content, int):
-            return overleft_intset_int(self._inner, content)
+            return overleft_set_int(self._inner, content)
         else:
             return super().is_over_or_left(content)
 
@@ -295,10 +295,10 @@ class IntSet(Set[int]):
             True if right, False otherwise
 
         MEOS Functions:
-            right_set_set, right_intset_int
+            right_set_set, right_set_int
         """
         if isinstance(content, int):
-            return right_intset_int(self._inner, content)
+            return right_set_int(self._inner, content)
         else:
             return super().is_right(content)
 
@@ -314,10 +314,10 @@ class IntSet(Set[int]):
             True if is over or right, False otherwise
 
         MEOS Functions:
-            overright_set_set, overright_intset_int
+            overright_set_set, overright_set_int
         """
         if isinstance(content, int):
-            return overright_intset_int(self._inner, content)
+            return overright_set_int(self._inner, content)
         else:
             return super().is_over_or_right(content)
 
@@ -343,10 +343,10 @@ class IntSet(Set[int]):
             intersection is empty.
 
         MEOS Functions:
-            intersection_set_set, intersection_intset_int
+            intersection_set_set, intersection_set_int
         """
         if isinstance(other, int):
-            return intersection_intset_int(self._inner, other)
+            return intersection_set_int(self._inner, other)
         elif isinstance(other, IntSet):
             result = intersection_set_set(self._inner, other._inner)
             return IntSet(_inner=result) if result is not None else None
@@ -364,10 +364,10 @@ class IntSet(Set[int]):
             A :class:`IntSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_set_set, minus_intset_int
+            minus_set_set, minus_set_int
         """
         if isinstance(other, int):
-            result = minus_intset_int(self._inner, other)
+            result = minus_set_int(self._inner, other)
             return IntSet(_inner=result) if result is not None else None
         elif isinstance(other, IntSet):
             result = minus_set_set(self._inner, other._inner)
@@ -386,12 +386,12 @@ class IntSet(Set[int]):
             A :class:`int` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_int_intset
+            minus_int_set
 
         See Also:
             :meth:`minus`
         """
-        return minus_int_intset(other, self._inner)
+        return minus_int_set(other, self._inner)
 
     def union(self, other: Union[IntSet, int]) -> IntSet:
         """
@@ -404,10 +404,10 @@ class IntSet(Set[int]):
             A :class:`IntSet` instance.
 
         MEOS Functions:
-            union_set_set, union_intset_int
+            union_set_set, union_set_int
         """
         if isinstance(other, int):
-            result = union_intset_int(self._inner, other)
+            result = union_set_int(self._inner, other)
             return IntSet(_inner=result) if result is not None else None
         elif isinstance(other, IntSet):
             result = union_set_set(self._inner, other._inner)
@@ -419,6 +419,6 @@ class IntSet(Set[int]):
 
     def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> float:
         if isinstance(other, int):
-            return distance_intset_int(self._inner, other)
+            return distance_set_int(self._inner, other)
         else:
             return super().distance(other)

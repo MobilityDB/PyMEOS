@@ -6,33 +6,33 @@ from typing import TYPE_CHECKING
 
 from pymeos_cffi import *
 
-from .time_collection import TimeCollection
+from .tstzcollection import TsTzCollection
 
 if TYPE_CHECKING:
     from ...temporal import Temporal
     from ...boxes import Box
-    from .period import Period
-    from .timestampset import TimestampSet
+    from .tstzspan import TsTzSpan
+    from .tstzset import TsTzSet
     from .time import Time
 
 from ..base.spanset import SpanSet
 
 
-class PeriodSet(SpanSet[datetime], TimeCollection):
+class TsTzSpanSet(SpanSet[datetime], TsTzCollection):
     """
-    Class for representing lists of disjoint periods.
+    Class for representing lists of disjoint tstzspans.
 
-    ``PeriodSet`` objects can be created with a single argument of type string
+    ``TsTzSpanSet`` objects can be created with a single argument of type string
     as in MobilityDB.
 
-        >>> PeriodSet(string='{[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01], [2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]}')
+        >>> TsTzSpanSet(string='{[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01], [2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]}')
 
     Another possibility is to give a list specifying the composing
-    periods, which can be instances  of ``str`` or ``Period``. The composing
-    periods must be given in increasing order.
+    tstzspans, which can be instances  of ``str`` or ``TsTzSpan``. The composing
+    tstzspans must be given in increasing order.
 
-        >>> PeriodSet(span_list=['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
-        >>> PeriodSet(span_list=[Period('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), Period('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
+        >>> TsTzSpanSet(span_list=['[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]', '[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]'])
+        >>> TsTzSpanSet(span_list=[TsTzSpan('[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01]'), TsTzSpan('[2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]')])
 
     """
 
@@ -40,11 +40,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
     _mobilitydb_name = "tstzspanset"
 
-    _parse_function = periodset_in
+    _parse_function = tstzspanset_in
     _parse_value_function = (
-        lambda period: period_in(period)[0]
-        if isinstance(period, str)
-        else period._inner[0]
+        lambda tstzspan: tstzspan_in(tstzspan)[0]
+        if isinstance(tstzspan, str)
+        else tstzspan._inner[0]
     )
 
     # ------------------------- Output ----------------------------------------
@@ -56,32 +56,32 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A new :class:`str` instance
 
         MEOS Functions:
-            periodset_out
+            tstzspanset_out
         """
-        return periodset_out(self._inner)
+        return tstzspanset_out(self._inner)
 
     # ------------------------- Conversions -----------------------------------
 
-    def to_span(self) -> Period:
+    def to_span(self) -> TsTzSpan:
         """
-        Returns a period that encompasses ``self``.
+        Returns a tstzspan that encompasses ``self``.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_span
         """
-        from .period import Period
+        from .tstzspan import TsTzSpan
 
-        return Period(_inner=super().to_span())
+        return TsTzSpan(_inner=super().to_span())
 
-    def to_period(self) -> Period:
+    def to_tstzspan(self) -> TsTzSpan:
         """
-        Returns a period that encompasses ``self``.
+        Returns a tstzspan that encompasses ``self``.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_span
@@ -91,25 +91,25 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
     # ------------------------- Accessors -------------------------------------
     def duration(self, ignore_gaps: Optional[bool] = False) -> timedelta:
         """
-        Returns the duration of the periodset. By default, i.e., when the
+        Returns the duration of the tstzspanset. By default, i.e., when the
         second argument is False, the function takes into account the gaps within,
-        i.e., returns the sum of the durations of the periods within.
-        Otherwise, the function returns the duration of the periodset ignoring
-        any gap, i.e., the duration from the lower bound of the first period to
-        the upper bound of the last period.
+        i.e., returns the sum of the durations of the tstzspans within.
+        Otherwise, the function returns the duration of the tstzspanset ignoring
+        any gap, i.e., the duration from the lower bound of the first tstzspan to
+        the upper bound of the last tstzspan.
 
         Parameters:
             ignore_gaps: Whether to take into account potential time gaps in
-            the periodset.
+            the tstzspanset.
 
         Returns:
             A :class:`datetime.timedelta` instance representing the duration of
-            the periodset
+            the tstzspanset
 
         MEOS Functions:
-            periodset_duration
+            tstzspanset_duration
         """
-        return interval_to_timedelta(periodset_duration(self._inner, ignore_gaps))
+        return interval_to_timedelta(tstzspanset_duration(self._inner, ignore_gaps))
 
     def num_timestamps(self) -> int:
         """
@@ -118,9 +118,9 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             An :class:`int`
 
         MEOS Functions:
-            periodset_num_timestamps
+            tstzspanset_num_timestamps
         """
-        return periodset_num_timestamps(self._inner)
+        return tstzspanset_num_timestamps(self._inner)
 
     def start_timestamp(self) -> datetime:
         """
@@ -129,9 +129,9 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            periodset_start_timestamp
+            tstzspanset_start_timestamp
         """
-        return timestamptz_to_datetime(periodset_start_timestamp(self._inner))
+        return timestamptz_to_datetime(tstzspanset_start_timestamp(self._inner))
 
     def end_timestamp(self) -> datetime:
         """
@@ -140,9 +140,9 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            periodset_end_timestamp
+            tstzspanset_end_timestamp
         """
-        return timestamptz_to_datetime(periodset_end_timestamp(self._inner))
+        return timestamptz_to_datetime(tstzspanset_end_timestamp(self._inner))
 
     def timestamp_n(self, n: int) -> datetime:
         """
@@ -151,11 +151,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            periodset_timestamp_n
+            spanset_timestamp_n
         """
         if n < 0 or n >= self.num_timestamps():
             raise IndexError(f"Index {n} out of bounds")
-        return timestamptz_to_datetime(periodset_timestamp_n(self._inner, n + 1))
+        return timestamptz_to_datetime(tstzspanset_timestamp_n(self._inner, n + 1))
 
     def timestamps(self) -> List[datetime]:
         """
@@ -164,14 +164,14 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`list[datetime]` instance
 
         MEOS Functions:
-            periodset_timestamps
+            spanset_timestamptzs
         """
-        ts, count = periodset_timestamps(self._inner)
+        ts, count = tstzspanset_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    def num_periods(self) -> int:
+    def num_tstzspans(self) -> int:
         """
-        Returns the number of periods in ``self``.
+        Returns the number of tstzspans in ``self``.
         Returns:
             An :class:`int`
 
@@ -180,97 +180,97 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         """
         return self.num_spans()
 
-    def start_span(self) -> Period:
+    def start_span(self) -> TsTzSpan:
         """
-        Returns the first period in ``self``.
+        Returns the first tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_start_span
         """
-        from .period import Period
+        from .tstzspan import TsTzSpan
 
-        return Period(_inner=super().start_span())
+        return TsTzSpan(_inner=super().start_span())
 
-    def start_period(self) -> Period:
+    def start_tstzspan(self) -> TsTzSpan:
         """
-        Returns the first period in ``self``.
+        Returns the first tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_start_span
         """
         return self.start_span()
 
-    def end_span(self) -> Period:
+    def end_span(self) -> TsTzSpan:
         """
-        Returns the last period in ``self``.
+        Returns the last tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_end_span
         """
-        from .period import Period
+        from .tstzspan import TsTzSpan
 
-        return Period(_inner=super().end_span())
+        return TsTzSpan(_inner=super().end_span())
 
-    def end_period(self) -> Period:
+    def end_tstzspan(self) -> TsTzSpan:
         """
-        Returns the last period in ``self``.
+        Returns the last tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_end_span
         """
         return self.end_span()
 
-    def span_n(self, n: int) -> Period:
+    def span_n(self, n: int) -> TsTzSpan:
         """
-        Returns the n-th period in ``self``.
+        Returns the n-th tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_span_n
         """
-        from .period import Period
+        from .tstzspan import TsTzSpan
 
-        return Period(_inner=super().span_n(n))
+        return TsTzSpan(_inner=super().span_n(n))
 
-    def period_n(self, n: int) -> Period:
+    def tstzspan_n(self, n: int) -> TsTzSpan:
         """
-        Returns the n-th period in ``self``.
+        Returns the n-th tstzspan in ``self``.
         Returns:
-            A :class:`Period` instance
+            A :class:`TsTzSpan` instance
 
         MEOS Functions:
             spanset_span_n
         """
         return self.span_n(n)
 
-    def spans(self) -> List[Period]:
+    def spans(self) -> List[TsTzSpan]:
         """
-        Returns the list of periods in ``self``.
+        Returns the list of tstzspans in ``self``.
         Returns:
-            A :class:`list[Period]` instance
+            A :class:`list[TsTzSpan]` instance
 
         MEOS Functions:
             spanset_spans
         """
-        from .period import Period
+        from .tstzspan import TsTzSpan
 
         ps = super().spans()
-        return [Period(_inner=ps[i]) for i in range(self.num_spans())]
+        return [TsTzSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
-    def periods(self) -> List[Period]:
+    def tstzspans(self) -> List[TsTzSpan]:
         """
-        Returns the list of periods in ``self``.
+        Returns the list of tstzspans in ``self``.
         Returns:
-            A :class:`list[Period]` instance
+            A :class:`list[TsTzSpan]` instance
 
         MEOS Functions:
             spanset_spans
@@ -278,14 +278,14 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         return self.spans()
 
     # ------------------------- Transformations -------------------------------
-    def shift(self, delta: timedelta) -> PeriodSet:
+    def shift(self, delta: timedelta) -> TsTzSpanSet:
         """
-        Returns a new periodset that is the result of shifting ``self`` by
+        Returns a new tstzspanset that is the result of shifting ``self`` by
         ``delta``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').shift(timedelta(days=2))
-            >>> 'Period([2000-01-03 00:00:00+01, 2000-01-12 00:00:00+01])'
+            >>> TsTzSpan('[2000-01-01, 2000-01-10]').shift(timedelta(days=2))
+            >>> 'TsTzSpan([2000-01-03 00:00:00+01, 2000-01-12 00:00:00+01])'
 
         Args:
             delta: :class:`datetime.timedelta` instance to shift
@@ -294,62 +294,62 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_scale
+            tstzspanset_shift_scale
         """
         return self.shift_scale(shift=delta)
 
-    def scale(self, duration: timedelta) -> PeriodSet:
+    def scale(self, duration: timedelta) -> TsTzSpanSet:
         """
-        Returns a new periodset that starts as ``self`` but has duration
+        Returns a new tstzspanset that starts as ``self`` but has duration
         ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').scale(timedelta(days=2))
-            >>> 'Period([2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01])'
+            >>> TsTzSpan('[2000-01-01, 2000-01-10]').scale(timedelta(days=2))
+            >>> 'TsTzSpan([2000-01-01 00:00:00+01, 2000-01-03 00:00:00+01])'
 
         Args:
             duration: :class:`datetime.timedelta` instance representing the
-            duration of the new period
+            duration of the new tstzspan
 
         Returns:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_scale
+            tstzspanset_shift_scale
         """
         return self.shift_scale(duration=duration)
 
     def shift_scale(
         self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
-    ) -> PeriodSet:
+    ) -> TsTzSpanSet:
         """
-        Returns a new periodset that starts at ``self`` shifted by ``shift``
+        Returns a new tstzspanset that starts at ``self`` shifted by ``shift``
         and has duration ``duration``
 
         Examples:
-            >>> Period('[2000-01-01, 2000-01-10]').shift_scale(shift=timedelta(days=2), duration=timedelta(days=4))
-            >>> 'Period([2000-01-03 00:00:00+01, 2000-01-07 00:00:00+01])'
+            >>> TsTzSpan('[2000-01-01, 2000-01-10]').shift_scale(shift=timedelta(days=2), duration=timedelta(days=4))
+            >>> 'TsTzSpan([2000-01-03 00:00:00+01, 2000-01-07 00:00:00+01])'
 
         Args:
             shift: :class:`datetime.timedelta` instance to shift
             duration: :class:`datetime.timedelta` instance representing the
-            duration of the new period
+            duration of the new tstzspan
 
         Returns:
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            periodset_shift_scale
+            tstzspanset_shift_scale
         """
         assert (
             shift is not None or duration is not None
         ), "shift and scale deltas must not be both None"
-        ps = periodset_shift_scale(
+        ps = tstzspanset_shift_scale(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
             timedelta_to_interval(duration) if duration else None,
         )
-        return PeriodSet(_inner=ps)
+        return TsTzSpanSet(_inner=ps)
 
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(self, other: Union[Time, Box, Temporal]) -> bool:
@@ -358,11 +358,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         they share a bound but only one of them contains it.
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_adjacent(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').is_adjacent(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').is_adjacent(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').is_adjacent(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> False  # Both contain bound
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_adjacent(PeriodSet('{[(2012-01-02, 2012-01-03]]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').is_adjacent(TsTzSpanSet('{[(2012-01-02, 2012-01-03]]}'))
             >>> False  # Neither contain bound
 
         Args:
@@ -373,19 +373,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             adjacent_spanset_span, adjacent_spanset_spanset,
-            adjacent_periodset_timestamp, adjacent_periodset_timestampset
+            adjacent_spanset_timestamptz, adjacent_tstzspanset_tstzset
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return adjacent_periodset_timestamp(
+            return adjacent_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         elif isinstance(other, Temporal):
-            return self.is_adjacent(other.period())
+            return self.is_adjacent(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.is_adjacent(other.to_period())
+            return self.is_adjacent(other.to_tstzspan())
         else:
             return super().is_adjacent(other)
 
@@ -394,11 +394,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         Returns whether ``self`` is temporally contained in ``container``.
 
         Examples:
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_contained_in(Period('{[2012-01-01, 2012-01-04]}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_contained_in(TsTzSpan('{[2012-01-01, 2012-01-04]}'))
             >>> True
-            >>> PeriodSet('{(2012-01-01, 2012-01-02)}').is_contained_in(Period('{[2012-01-01, 2012-01-02]}'))
+            >>> TsTzSpanSet('{(2012-01-01, 2012-01-02)}').is_contained_in(TsTzSpan('{[2012-01-01, 2012-01-02]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').is_contained_in(Period('{(2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').is_contained_in(TsTzSpan('{(2012-01-01, 2012-01-02)}'))
             >>> False
 
         Args:
@@ -409,19 +409,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             contained_spanset_span, contained_spanset_spanset,
-            contained_periodset_temporal
+            contained_tstzspanset_temporal
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(container, datetime):
             return contained_spanset_span(
-                self._inner, timestamp_to_period(datetime_to_timestamptz(container))
+                self._inner, timestamptz_to_span(datetime_to_timestamptz(container))
             )
         elif isinstance(container, Temporal):
-            return self.is_contained_in(container.period())
+            return self.is_contained_in(container.tstzspan())
         elif isinstance(container, get_args(Box)):
-            return self.is_contained_in(container.to_period())
+            return self.is_contained_in(container.to_tstzspan())
         else:
             return super().is_contained_in(container)
 
@@ -430,11 +430,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         Returns whether ``self`` temporally contains ``content``.
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-04]}').contains(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-04]}').contains(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').contains(PeriodSet('{(2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').contains(TsTzSpanSet('{(2012-01-01, 2012-01-02)}'))
             >>> True
-            >>> PeriodSet('{(2012-01-01, 2012-01-02)}').contains(PeriodSet('{[2012-01-01, 2012-01-02]}'))
+            >>> TsTzSpanSet('{(2012-01-01, 2012-01-02)}').contains(TsTzSpanSet('{[2012-01-01, 2012-01-02]}'))
             >>> False
 
         Args:
@@ -445,19 +445,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             contains_spanset_span, contains_spanset_spanset,
-            contains_periodset_timestamp
+            contains_spanset_timestamptz
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(content, datetime):
-            return contains_periodset_timestamp(
+            return contains_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(content)
             )
         elif isinstance(content, Temporal):
-            return self.contains(content.period())
+            return self.contains(content.tstzspan())
         elif isinstance(content, get_args(Box)):
-            return self.contains(content.to_period())
+            return self.contains(content.to_tstzspan())
         else:
             return super().contains(content)
 
@@ -466,11 +466,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         Returns whether ``self`` temporally contains ``content``.
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-04]}').contains(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-04]}').contains(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').contains(PeriodSet('{(2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').contains(TsTzSpanSet('{(2012-01-01, 2012-01-02)}'))
             >>> True
-            >>> PeriodSet('{(2012-01-01, 2012-01-02)}').contains(PeriodSet('{[2012-01-01, 2012-01-02]}'))
+            >>> TsTzSpanSet('{(2012-01-01, 2012-01-02)}').contains(TsTzSpanSet('{[2012-01-01, 2012-01-02]}'))
             >>> False
 
         Args:
@@ -481,8 +481,8 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             contains_spanset_span, contains_spanset_spanset,
-            contains_periodset_timestamp, contains_periodset_timestampset,
-            contains_periodset_temporal
+            contains_spanset_timestamptz, contains_tstzspanset_tstzset,
+            contains_tstzspanset_temporal
         """
         return self.contains(item)
 
@@ -492,11 +492,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         share at least an instant
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').overlaps(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').overlaps(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').overlaps(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').overlaps(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> False
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').overlaps(PeriodSet('{(2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').overlaps(TsTzSpanSet('{(2012-01-02, 2012-01-03]}'))
             >>> False
 
         Args:
@@ -513,19 +513,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         if isinstance(other, datetime):
             return overlaps_spanset_span(
-                self._inner, timestamp_to_period(datetime_to_timestamptz(other))
+                self._inner, timestamptz_to_span(datetime_to_timestamptz(other))
             )
         elif isinstance(other, Temporal):
-            return self.overlaps(other.period())
+            return self.overlaps(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.overlaps(other.to_period())
+            return self.overlaps(other.to_tstzspan())
         else:
             return super().overlaps(other)
 
     def is_same(self, other: Union[Time, Box, Temporal]) -> bool:
         """
-        Returns whether the bounding period of `self` is the same as the
-        bounding period of `other`.
+        Returns whether the bounding tstzspan of `self` is the same as the
+        bounding tstzspan of `other`.
 
         Args:
             other: A time or temporal object to compare to `self`.
@@ -534,9 +534,9 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             True if same, False otherwise.
 
         See Also:
-            :meth:`Period.is_same`
+            :meth:`TsTzSpan.is_same`
         """
-        return self.to_period().is_same(other)
+        return self.to_tstzspan().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Time, Box, Temporal]) -> bool:
@@ -545,11 +545,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         ``self`` ends before ``other`` starts.
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_left(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').is_left(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_left(PeriodSet('{(2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').is_left(TsTzSpanSet('{(2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').is_left(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').is_left(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> False
 
         Args:
@@ -559,19 +559,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             True if before, False otherwise
 
         MEOS Functions:
-        before_periodset_timestamp, left_spanset_span, left_spanset_spanset
+        before_spanset_timestamptz, left_spanset_span, left_spanset_spanset
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return before_periodset_timestamp(
+            return before_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         elif isinstance(other, Temporal):
-            return self.is_left(other.period())
+            return self.is_left(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.is_left(other.to_period())
+            return self.is_left(other.to_tstzspan())
         else:
             return super().is_left(other)
 
@@ -581,11 +581,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         ``self`` ends before ``other`` ends (or at the same time).
 
         Examples:
-            >>> PeriodSet('{[2012-01-01, 2012-01-02)}').is_over_or_left(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02)}').is_over_or_left(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-01, 2012-01-02]}').is_over_or_left(PeriodSet('{[2012-01-02, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-01, 2012-01-02]}').is_over_or_left(TsTzSpanSet('{[2012-01-02, 2012-01-03]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-03, 2012-01-05]}').is_over_or_left(PeriodSet('{[2012-01-01, 2012-01-04]}'))
+            >>> TsTzSpanSet('{[2012-01-03, 2012-01-05]}').is_over_or_left(TsTzSpanSet('{[2012-01-01, 2012-01-04]}'))
             >>> False
 
         Args:
@@ -596,20 +596,20 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             overleft_spanset_span, overleft_spanset_spanset,
-            overbefore_periodset_timestamp, overbefore_periodset_timestampset,
-            overbefore_periodset_temporal
+            overbefore_spanset_timestamptz, overbefore_tstzspanset_tstzset,
+            overbefore_tstzspanset_temporal
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return overbefore_periodset_timestamp(
+            return overbefore_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         elif isinstance(other, Temporal):
-            return self.is_over_or_left(other.period())
+            return self.is_over_or_left(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.is_over_or_left(other.to_period())
+            return self.is_over_or_left(other.to_tstzspan())
         else:
             return super().is_over_or_left(other)
 
@@ -619,11 +619,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         ``self`` starts after ``other`` starts (or at the same time).
 
         Examples:
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(PeriodSet('{[2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(TsTzSpanSet('{[2012-01-01, 2012-01-02)}'))
             >>> True
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(PeriodSet('{[2012-01-01, 2012-01-02]}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(TsTzSpanSet('{[2012-01-01, 2012-01-02]}'))
             >>> True
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(PeriodSet('{[2012-01-01, 2012-01-03]}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_over_or_right(TsTzSpanSet('{[2012-01-01, 2012-01-03]}'))
             >>> False
 
         Args:
@@ -634,19 +634,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             overright_spanset_span, overright_spanset_spanset,
-            overafter_periodset_timestamp, overafter_periodset_timestampset,
+            overafter_spanset_timestamptz, overafter_tstzspanset_tstzset,
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return overafter_periodset_timestamp(
+            return overafter_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         elif isinstance(other, Temporal):
-            return self.is_over_or_right(other.period())
+            return self.is_over_or_right(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.is_over_or_right(other.to_period())
+            return self.is_over_or_right(other.to_tstzspan())
         else:
             return super().is_over_or_right(other)
 
@@ -656,11 +656,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
         starts after ``other`` ends.
 
         Examples:
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_right(PeriodSet('{[2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_right(TsTzSpanSet('{[2012-01-01, 2012-01-02)}'))
             >>> True
-            >>> PeriodSet('{(2012-01-02, 2012-01-03]}').is_right(PeriodSet('{[2012-01-01, 2012-01-02)}'))
+            >>> TsTzSpanSet('{(2012-01-02, 2012-01-03]}').is_right(TsTzSpanSet('{[2012-01-01, 2012-01-02)}'))
             >>> True
-            >>> PeriodSet('{[2012-01-02, 2012-01-03]}').is_right(PeriodSet('{[2012-01-01, 2012-01-02]}'))
+            >>> TsTzSpanSet('{[2012-01-02, 2012-01-03]}').is_right(TsTzSpanSet('{[2012-01-01, 2012-01-02]}'))
             >>> False
 
         Args:
@@ -671,19 +671,19 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             right_spanset_span, right_spanset_spanset,
-            overbefore_timestamp_periodset
+            overbefore_timestamp_tstzspanset
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return overbefore_timestamp_periodset(
+            return overbefore_timestamptz_spanset(
                 datetime_to_timestamptz(other), self._inner
             )
         elif isinstance(other, Temporal):
-            return self.is_right(other.period())
+            return self.is_right(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.is_right(other.to_period())
+            return self.is_right(other.to_tstzspan())
         else:
             return super().is_right(other)
 
@@ -699,39 +699,39 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_periodset_period, distance_periodset_periodset,
-            distance_periodset_timestamp, distance_periodset_timestampset
+            distance_tstzspanset_tstzspan, distance_tstzspanset_tstzspanset,
+            distance_spanset_timestamptz, distance_tstzspanset_tstzset
         """
         from ...temporal import Temporal
         from ...boxes import Box
 
         if isinstance(other, datetime):
             return timedelta(
-                seconds=distance_periodset_timestamp(
+                seconds=distance_spanset_timestamptz(
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
         if isinstance(other, Temporal):
-            return self.distance(other.period())
+            return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):
-            return self.distance(other.to_period())
+            return self.distance(other.to_tstzspan())
         else:
             return timedelta(seconds=super().distance(other))
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: Period) -> PeriodSet:
+    def intersection(self, other: TsTzSpan) -> TsTzSpanSet:
         ...
 
     @overload
-    def intersection(self, other: PeriodSet) -> PeriodSet:
+    def intersection(self, other: TsTzSpanSet) -> TsTzSpanSet:
         ...
 
     @overload
     def intersection(self, other: datetime) -> datetime:
         ...
 
-    def intersection(self, other: Time) -> Union[PeriodSet, datetime, TimestampSet]:
+    def intersection(self, other: Time) -> Union[TsTzSpanSet, datetime, TsTzSet]:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 
@@ -742,17 +742,17 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_periodset_timestamp, intersection_spanset_spanset,
+            intersection_spanset_timestamptz, intersection_spanset_spanset,
             intersection_spanset_span
         """
         if isinstance(other, datetime):
-            result = intersection_periodset_timestamp(
+            result = intersection_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
             return timestamptz_to_datetime(result) if result is not None else None
         else:
             result = super().intersection(other)
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
     def __mul__(self, other):
         """
@@ -765,12 +765,12 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_periodset_timestamp, intersection_spanset_spanset,
+            intersection_spanset_timestamptz, intersection_spanset_spanset,
             intersection_spanset_span
         """
         return self.intersection(other)
 
-    def minus(self, other: Time) -> PeriodSet:
+    def minus(self, other: Time) -> TsTzSpanSet:
         """
         Returns the temporal difference of ``self`` and ``other``.
 
@@ -781,15 +781,15 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            minus_spanset_span, minus_spanset_spanset, minus_periodset_timestamp
+            minus_spanset_span, minus_spanset_spanset, minus_spanset_timestamptz
         """
         if isinstance(other, datetime):
-            result = minus_periodset_timestamp(
+            result = minus_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         else:
             result = super().minus(other)
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
     def __sub__(self, other):
         """
@@ -803,11 +803,11 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
 
         MEOS Functions:
             minus_spanset_span, minus_spanset_spanset,
-            minus_periodset_timestamp
+            minus_spanset_timestamptz
         """
         return self.minus(other)
 
-    def union(self, other: Time) -> PeriodSet:
+    def union(self, other: Time) -> TsTzSpanSet:
         """
         Returns the temporal union of ``self`` and ``other``.
 
@@ -818,16 +818,16 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_periodset_timestamp, union_spanset_spanset,
+            union_spanset_timestamptz, union_spanset_spanset,
             union_spanset_span
         """
         if isinstance(other, datetime):
-            result = union_periodset_timestamp(
+            result = union_spanset_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         else:
             result = super().union(other)
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
     def __add__(self, other):
         """
@@ -840,7 +840,7 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_periodset_timestamp, union_spanset_spanset,
+            union_spanset_timestamptz, union_spanset_spanset,
             union_spanset_span
         """
         return self.union(other)
@@ -849,4 +849,4 @@ class PeriodSet(SpanSet[datetime], TimeCollection):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
 
-        return TimePlotter.plot_periodset(self, *args, **kwargs)
+        return TimePlotter.plot_tstzspanset(self, *args, **kwargs)

@@ -9,9 +9,9 @@ import math
 from pymeos import (
     STBox,
     TInterpolation,
-    TimestampSet,
-    Period,
-    PeriodSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     TGeomPointInst,
     TGeomPointSeq,
     TGeomPointSeqSet,
@@ -85,19 +85,19 @@ class TestSTBoxConstructors(TestSTBox):
                 "STBOX T([2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])",
             ),
             (
-                TimestampSet("{2019-09-01, 2019-09-02}"),
+                TsTzSet("{2019-09-01, 2019-09-02}"),
                 "STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                Period("[2019-09-01, 2019-09-02]"),
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "STBOX T([2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
             (
-                PeriodSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
                 "STBOX T([2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])",
             ),
         ],
-        ids=["Timestamp", "TimestampSet", "Period", "PeriodSet"],
+        ids=["Timestamp", "TsTzSet", "TsTzSpan", "TsTzSpanSet"],
     )
     def test_from_time_constructor(self, time, expected):
         stb = STBox.from_time(time)
@@ -113,12 +113,12 @@ class TestSTBoxConstructors(TestSTBox):
                 "STBOX XT(((1,1),(1,1)),[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00])",
             ),
             (
-                Point(1, 1),
-                Period("[2019-09-01, 2019-09-02]"),
+                    Point(1, 1),
+                    TsTzSpan("[2019-09-01, 2019-09-02]"),
                 "STBOX XT(((1,1),(1,1)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])",
             ),
         ],
-        ids=["geometry-Timestamp", "geometry-Period"],
+        ids=["geometry-Timestamp", "geometry-TsTzSpan"],
     )
     def test_from_geometry_time_constructor(self, geometry, time, expected):
         stb = STBox.from_geometry_time(geometry, time)
@@ -472,14 +472,14 @@ class TestSTBoxOutputs(TestSTBox):
     @pytest.mark.parametrize(
         "stbox, expected",
         [
-            (stbt, Period("[2019-09-01, 2019-09-02]")),
-            (stbxt, Period("[2019-09-01, 2019-09-02]")),
+            (stbt, TsTzSpan("[2019-09-01, 2019-09-02]")),
+            (stbxt, TsTzSpan("[2019-09-01, 2019-09-02]")),
         ],
         ids=["STBox X", "STBox XT"],
     )
-    def test_to_period(self, stbox, expected):
-        stb = stbox.to_period()
-        assert isinstance(stb, Period)
+    def test_to_tstzspan(self, stbox, expected):
+        stb = stbox.to_tstzspan()
+        assert isinstance(stb, TsTzSpan)
         assert stb == expected
 
 

@@ -53,12 +53,12 @@ class TInt(
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: Union[TimestampSet, Period]) -> TIntSeq:
+    def from_base_time(value: int, base: Union[TsTzSet, TsTzSpan]) -> TIntSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: PeriodSet) -> TIntSeqSet:
+    def from_base_time(value: int, base: TsTzSpanSet) -> TIntSeqSet:
         ...
 
     @staticmethod
@@ -75,17 +75,17 @@ class TInt(
             A new temporal int.
 
         MEOS Functions:
-            tintinst_make, tintseq_from_base_timestampset,
-            tintseq_from_base_period, tintseqset_from_base_periodset
+            tintinst_make, tintseq_from_base_tstzset,
+            tintseq_from_base_tstzspan, tintseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
             return TIntInst(_inner=tintinst_make(value, datetime_to_timestamptz(base)))
-        elif isinstance(base, TimestampSet):
-            return TIntSeq(_inner=tintseq_from_base_timestampset(value, base._inner))
-        elif isinstance(base, Period):
-            return TIntSeq(_inner=tintseq_from_base_period(value, base._inner))
-        elif isinstance(base, PeriodSet):
-            return TIntSeqSet(_inner=tintseqset_from_base_periodset(value, base._inner))
+        elif isinstance(base, TsTzSet):
+            return TIntSeq(_inner=tintseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TIntSeq(_inner=tintseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
+            return TIntSeqSet(_inner=tintseqset_from_base_tstzspanset(value, base._inner))
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
     # ------------------------- Output ----------------------------------------
@@ -684,8 +684,8 @@ class TInt(
 
         MEOS Functions:
             tint_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
-            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
-            temporal_at_periodset
+            temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan,
+            temporal_at_tstzspanset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tint_at_value(self._inner, int(other))
@@ -726,8 +726,8 @@ class TInt(
 
         MEOS Functions:
             tint_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
-            temporal_minus_timestamp, temporal_minus_timestampset,
-            temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_tstzset,
+            temporal_minus_tstzspan, temporal_minus_tstzspanset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tint_minus_value(self._inner, int(other))
@@ -792,14 +792,14 @@ class TInt(
         time_start: Optional[Union[str, datetime]] = None,
     ) -> List[TInt]:
         """
-        Splits `self` into fragments with respect to value and period buckets.
+        Splits `self` into fragments with respect to value and tstzspan buckets.
 
         Args:
             value_size: Size of the value buckets.
-            duration: Duration of the period buckets.
+            duration: Duration of the tstzspan buckets.
             value_start: Start value of the first value bucket. If None, the
                 start value used by default is 0
-            time_start: Start time of the first period bucket. If None, the
+            time_start: Start time of the first tstzspan bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
 
         Returns:
@@ -869,7 +869,7 @@ class TIntInst(TInstant[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt)
 
 class TIntSeq(TSequence[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt):
     """
-    Class for representing temporal integers over a period of time.
+    Class for representing temporal integers over a tstzspan of time.
     """
 
     ComponentClass = TIntInst
@@ -898,7 +898,7 @@ class TIntSeq(TSequence[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt)
 
 class TIntSeqSet(TSequenceSet[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt):
     """
-    Class for representing temporal integers over a period of time with gaps.
+    Class for representing temporal integers over a tstzspan of time with gaps.
     """
 
     ComponentClass = TIntSeq
