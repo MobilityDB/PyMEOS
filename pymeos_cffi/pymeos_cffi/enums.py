@@ -115,3 +115,9 @@ class SpatialRelation(IntEnum):
     INTERSECTS = _lib.INTERSECTS
     CONTAINS = _lib.CONTAINS
     TOUCHES = _lib.TOUCHES
+
+
+class ErrorLevel(IntEnum):
+    NOTICE = 18
+    WARNING = 19
+    ERROR = 21
