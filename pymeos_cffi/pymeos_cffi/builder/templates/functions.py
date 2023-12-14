@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
-from .errors import raise_meos_exception
+from .errors import report_meos_exception
 import shapely.geometry as spg
 from dateutil.parser import parse
 from shapely import wkt, get_srid, set_srid
@@ -33,7 +33,7 @@ def _check_error() -> None:
         _error = None
         _error_level = None
         _error_message = None
-        raise_meos_exception(error_level, error, error_message)
+        report_meos_exception(error_level, error, error_message)
 
 
 @_ffi.def_extern()

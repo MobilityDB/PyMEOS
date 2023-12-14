@@ -1,4 +1,7 @@
+import logging
 from _meos_cffi import lib as _lib
+
+logger = logging.getLogger("PyMEOS")
 
 
 class MeosException(Exception):
@@ -162,6 +165,16 @@ _exception_map = {
 }
 
 
-def raise_meos_exception(level: int, code: int, message: str):
+def report_meos_exception(level: int, code: int, message: str):
     exception_class = _exception_map.get(code, MeosException)
-    raise exception_class(code, message)
+    exception = exception_class(code, message)
+    if level == 18:  # Notice
+        logger.info(exception)
+    elif level == 19:  # Warning
+        logger.warning(exception)
+    elif level == 21:  # Error
+        logger.error(exception)
+        raise exception
+    else:  # Unknown
+        logger.error(f"Error raised with unknown level {level}: {exception}")
+        raise exception
