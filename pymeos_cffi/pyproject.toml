@@ -7,7 +7,7 @@ py-modules = []
 
 [project]
 name = 'pymeos_cffi'
-version = '1.1.0-beta.4'
+dynamic = ['version']
 authors = [
     { name = 'Victor Divi', email = 'vdiviloper@gmail.com' }
 ]
@@ -43,3 +43,6 @@ dependencies = [
 [project.urls]
 'Homepage' = 'https://github.com/MobilityDB/PyMEOS'
 'Bug Tracker' = 'https://github.com/MobilityDB/PyMEOS/issues'
+
+[tool.setuptools.dynamic]
+version = { attr = "pymeos_cffi.__version__" }
