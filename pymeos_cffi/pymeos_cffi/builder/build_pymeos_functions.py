@@ -130,6 +130,7 @@ output_parameters = {
 # List of nullable function parameters in tuples of (function, parameter)
 nullable_parameters = {
     ("meos_initialize", "tz_str"),
+    ("meos_set_intervalstyle", "extra"),
     ("temporal_append_tinstant", "maxt"),
     ("temporal_as_mfjson", "srs"),
     ("gserialized_as_geojson", "srs"),
