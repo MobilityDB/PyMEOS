@@ -54,7 +54,7 @@ hidden_functions = [
     "_check_error",
 ]
 
-# List of MEOS functions that should not defined in functions.py
+# List of MEOS functions that should not be defined in functions.py
 skipped_functions = [
     "py_error_handler",
     "meos_initialize_timezone",
@@ -285,7 +285,7 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
                 continue
             function_text += f"    '{function_name}',\n"
             functions.append(function_name)
-    init_text = init_text.replace("FUNCTIONS_REPLACE,", function_text)
+    init_text = init_text.replace("    FUNCTIONS_REPLACE,", function_text)
     with open(init_path, "w+") as init:
         init.write(init_text)
 
