@@ -19,7 +19,7 @@ Self = TypeVar("Self", bound="TSequence[Any]")
 class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
     """
     Base class for temporal sequence types, i.e. temporal values that are
-    defined over a continuous period of time.
+    defined over a continuous tstzspan of time.
     """
 
     # ------------------------- Constructors ----------------------------------

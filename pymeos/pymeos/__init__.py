@@ -73,9 +73,9 @@ __all__ = [
     "TSequenceSet",
     # Collections
     "Time",
-    "Period",
-    "TimestampSet",
-    "PeriodSet",
+    "TsTzSpan",
+    "TsTzSet",
+    "TsTzSpanSet",
     "TextSet",
     "IntSet",
     "IntSpan",

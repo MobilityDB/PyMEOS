@@ -7,29 +7,29 @@ from .aggregator import BaseAggregator
 from ..boxes import Box
 from ..main import TIntSeq, TIntSeqSet
 from ..temporal import Temporal, TInterpolation
-from ..collections import Time, TimestampSet, Period, PeriodSet
+from ..collections import Time, TsTzSet, TsTzSpan, TsTzSpanSet
 
 
 class TemporalInstantCountAggregator(
-    BaseAggregator[Union[datetime, TimestampSet, Temporal], TIntSeq]
+    BaseAggregator[Union[datetime, TsTzSet, Temporal], TIntSeq]
 ):
     """
     Temporal count for instantaneous temporal objects:
 
      - :class:`~datetime.datetime`
-     - :class:`~pymeos.time.timestampset.TimestampSet`
+     - :class:`~pymeos.time.tstzset.TsTzSet`
      - :class:`~pymeos.temporal.temporal.Temporal` with Discrete interpolation
 
     MEOS Functions:
-        timestamp_tcount_transfn, timestampset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
+        timestamp_tcount_transfn, tstzset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
     """
 
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, datetime):
             state = timestamp_tcount_transfn(state, datetime_to_timestamptz(temporal))
-        elif isinstance(temporal, TimestampSet):
-            state = timestampset_tcount_transfn(state, temporal._inner)
+        elif isinstance(temporal, TsTzSet):
+            state = tstzset_tcount_transfn(state, temporal._inner)
         elif (
             isinstance(temporal, Temporal)
             and temporal.interpolation() == TInterpolation.DISCRETE
@@ -41,25 +41,25 @@ class TemporalInstantCountAggregator(
 
 
 class TemporalPeriodCountAggregator(
-    BaseAggregator[Union[Period, PeriodSet, Temporal], TIntSeqSet]
+    BaseAggregator[Union[TsTzSpan, TsTzSpanSet, Temporal], TIntSeqSet]
 ):
     """
     Temporal count for non-instantaneous temporal objects:
 
-     - :class:`~pymeos.time.period.Period`
-     - :class:`~pymeos.time.periodset.PeriodSet`
+     - :class:`~pymeos.time.tstzspan.TsTzSpan`
+     - :class:`~pymeos.time.tstzspanset.TsTzSpanSet`
      - :class:`~pymeos.temporal.temporal.Temporal` without Discrete interpolation
 
     MEOS Functions:
-        period_tcount_transfn, periodset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
+        tstzspan_tcount_transfn, tstzspanset_tcount_transfn, temporal_tcount_transfn, temporal_tagg_finalfn
     """
 
     @classmethod
     def _add(cls, state, temporal):
-        if isinstance(temporal, Period):
-            state = period_tcount_transfn(state, temporal._inner)
-        elif isinstance(temporal, PeriodSet):
-            state = periodset_tcount_transfn(state, temporal._inner)
+        if isinstance(temporal, TsTzSpan):
+            state = tstzspan_tcount_transfn(state, temporal._inner)
+        elif isinstance(temporal, TsTzSpanSet):
+            state = tstzspanset_tcount_transfn(state, temporal._inner)
         elif (
             isinstance(temporal, Temporal)
             and temporal.interpolation() != TInterpolation.DISCRETE
@@ -70,13 +70,13 @@ class TemporalPeriodCountAggregator(
         return state
 
 
-class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
+class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], TsTzSpan]):
     """
-    Temporal extent of any kind of temporal object, i.e. smallest :class:`~pymeos.time.period.Period` that includes
+    Temporal extent of any kind of temporal object, i.e. smallest :class:`~pymeos.time.tstzspan.TsTzSpan` that includes
     all aggregated temporal objects.
 
     MEOS Functions:
-        temporal_extent_transfn, timestamp_extent_transfn, timestampset_extent_transfn, span_extent_transfn,
+        temporal_extent_transfn, timestamp_extent_transfn, tstzset_extent_transfn, span_extent_transfn,
          spanset_extent_transfn, temporal_tagg_finalfn
     """
 
@@ -86,12 +86,12 @@ class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
             state = temporal_extent_transfn(state, temporal._inner)
         elif isinstance(temporal, datetime):
             state = timestamp_extent_transfn(state, datetime_to_timestamptz(temporal))
-        elif isinstance(temporal, TimestampSet):
+        elif isinstance(temporal, TsTzSet):
             state = set_extent_transfn(state, temporal._inner)
-        elif isinstance(temporal, Period):
+        elif isinstance(temporal, TsTzSpan):
             state = span_extent_transfn(state, temporal._inner)
             pass
-        elif isinstance(temporal, PeriodSet):
+        elif isinstance(temporal, TsTzSpanSet):
             state = spanset_extent_transfn(state, temporal._inner)
         else:
             cls._error(temporal)
@@ -99,4 +99,4 @@ class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], Period]):
 
     @classmethod
     def _finish(cls, state) -> Union[Temporal, Time, Box]:
-        return Period(_inner=state)
+        return TsTzSpan(_inner=state)

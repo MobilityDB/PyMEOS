@@ -111,7 +111,7 @@ class SpanSet(Collection[T], ABC):
             A new :class:`str` instance
 
         MEOS Functions:
-            periodset_out
+            tstzspanset_out
         """
         return f"{self.__class__.__name__}" f"({self})"
 
@@ -204,9 +204,9 @@ class SpanSet(Collection[T], ABC):
     @abstractmethod
     def spans(self) -> List[Span]:
         """
-        Returns the list of periods in ``self``.
+        Returns the list of tstzspans in ``self``.
         Returns:
-            A :class:`list[Period]` instance
+            A :class:`list[TsTzSpan]` instance
 
         MEOS Functions:
             spanset_spans
@@ -343,7 +343,7 @@ class SpanSet(Collection[T], ABC):
             True if same, False otherwise.
 
         See Also:
-            :meth:`Period.is_same`
+            :meth:`TsTzSpan.is_same`
         """
         return self.to_span().is_same(other)
 
@@ -359,7 +359,7 @@ class SpanSet(Collection[T], ABC):
             True if before, False otherwise
 
         MEOS Functions:
-        before_periodset_timestamp, left_spanset_span, left_spanset_spanset
+        before_tstzspanset_timestamp, left_spanset_span, left_spanset_spanset
         """
         from .span import Span
 
@@ -495,7 +495,7 @@ class SpanSet(Collection[T], ABC):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-        intersection_periodset_timestamp, intersection_spanset_spanset, intersection_spanset_span
+        intersection_tstzspanset_timestamp, intersection_spanset_spanset, intersection_spanset_span
         """
         return self.intersection(other)
 
@@ -508,7 +508,7 @@ class SpanSet(Collection[T], ABC):
             other: temporal object to diff with
 
         Returns:
-            A :class:`PeriodSet` instance.
+            A :class:`TsTzSpanSet` instance.
 
         MEOS Functions:
         minus_spanset_span, minus_spanset_spanset
@@ -533,7 +533,7 @@ class SpanSet(Collection[T], ABC):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-        minus_spanset_span, minus_spanset_spanset, minus_periodset_timestamp
+        minus_spanset_span, minus_spanset_spanset, minus_tstzspanset_timestamp
         """
         return self.minus(other)
 
@@ -549,7 +549,7 @@ class SpanSet(Collection[T], ABC):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-            union_periodset_timestamp, union_spanset_spanset,
+            union_tstzspanset_timestamp, union_spanset_spanset,
             union_spanset_span
         """
         from .span import Span
@@ -572,7 +572,7 @@ class SpanSet(Collection[T], ABC):
             A :class:`PeriodSet` instance.
 
         MEOS Functions:
-        union_periodset_timestamp, union_spanset_spanset, union_spanset_span
+        union_tstzspanset_timestamp, union_spanset_spanset, union_spanset_span
         """
         return self.union(other)
 

@@ -25,31 +25,31 @@ class MeosArgumentError(MeosException):
     pass
 
 
-class MeosIoError(MeosException):
+class MeosIoError(MeosException, IOError):
     """Unspecified internal error."""
 
     pass
 
 
-class MeosInternalTypeError(MeosInternalError):
+class MeosInternalTypeError(MeosInternalError, TypeError):
     """Internal type error."""
 
     pass
 
 
-class MeosValueOutOfRangeError(MeosInternalError):
+class MeosValueOutOfRangeError(MeosInternalError, IndexError):
     """Internal out of range error."""
 
     pass
 
 
-class MeosDivisionByZeroError(MeosInternalError):
+class MeosDivisionByZeroError(MeosInternalError, ZeroDivisionError):
     """Internal division by zero error."""
 
     pass
 
 
-class MeosMemoryAllocError(MeosInternalError):
+class MeosMemoryAllocError(MeosInternalError, MemoryError):
     """Internal malloc error."""
 
     pass
@@ -79,13 +79,13 @@ class MeosInvalidArgError(MeosArgumentError):
     pass
 
 
-class MeosInvalidArgTypeError(MeosArgumentError):
+class MeosInvalidArgTypeError(MeosArgumentError, TypeError):
     """Invalid argument type."""
 
     pass
 
 
-class MeosInvalidArgValueError(MeosArgumentError):
+class MeosInvalidArgValueError(MeosArgumentError, ValueError):
     """Invalid argument value."""
 
     pass

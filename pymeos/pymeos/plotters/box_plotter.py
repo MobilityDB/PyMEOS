@@ -12,7 +12,7 @@ class BoxPlotter:
     def plot_tbox(tbox: TBox, *args, axes=None, **kwargs):
         """
         Plot a TBox on the given axes. If the TBox has only a temporal or spatial dimension, this is equivalent
-        to plotting the corresponding Period or Span respectively.
+        to plotting the corresponding TsTzSpan or Span respectively.
 
         Params:
             tbox: The :class:`TBox` to plot.
@@ -25,14 +25,14 @@ class BoxPlotter:
 
         See Also:
             :func:`~pymeos.plotters.range_plotter.RangePlotter.plot_range`,
-            :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_period`
+            :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_tstzspan`
         """
         if not tbox.has_t:
             return SpanPlotter.plot_span(
                 tbox.to_floatspan(), *args, axes=axes, **kwargs
             )
         if not tbox.has_x:
-            return TimePlotter.plot_period(tbox.to_period(), *args, axes=axes, **kwargs)
+            return TimePlotter.plot_tstzspan(tbox.to_tstzspan(), *args, axes=axes, **kwargs)
         return BoxPlotter._plot_box(
             tbox.tmin(),
             tbox.tmax(),

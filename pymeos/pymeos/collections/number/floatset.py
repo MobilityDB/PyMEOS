@@ -10,20 +10,20 @@ from pymeos_cffi import (
     floatset_end_value,
     floatset_value_n,
     floatset_values,
-    contains_floatset_float,
-    intersection_floatset_float,
+    contains_set_float,
+    intersection_set_float,
     intersection_set_set,
-    left_floatset_float,
-    overleft_floatset_float,
-    right_floatset_float,
-    overright_floatset_float,
-    minus_floatset_float,
+    left_set_float,
+    overleft_set_float,
+    right_set_float,
+    overright_set_float,
+    minus_set_float,
     minus_set_set,
     union_set_set,
-    union_floatset_float,
+    union_set_float,
     floatset_shift_scale,
-    minus_float_floatset,
-    distance_floatset_float,
+    minus_float_set,
+    distance_set_float,
 )
 
 from .floatspan import FloatSpan
@@ -237,10 +237,10 @@ class FloatSet(Set[float]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_floatset_float
+            contains_set_set, contains_set_float
         """
         if isinstance(content, float):
-            return contains_floatset_float(self._inner, content)
+            return contains_set_float(self._inner, content)
         else:
             return super().contains(content)
 
@@ -258,10 +258,10 @@ class FloatSet(Set[float]):
             True if contains, False otherwise
 
         MEOS Functions:
-            left_set_set, left_floatset_float
+            left_set_set, left_set_float
         """
         if isinstance(content, float):
-            return left_floatset_float(self._inner, content)
+            return left_set_float(self._inner, content)
         else:
             return super().is_left(content)
 
@@ -277,10 +277,10 @@ class FloatSet(Set[float]):
             True if contains, False otherwise
 
         MEOS Functions:
-            overleft_set_set, overleft_floatset_float
+            overleft_set_set, overleft_set_float
         """
         if isinstance(content, float):
-            return overleft_floatset_float(self._inner, content)
+            return overleft_set_float(self._inner, content)
         else:
             return super().is_over_or_left(content)
 
@@ -296,10 +296,10 @@ class FloatSet(Set[float]):
             True if is rigth, False otherwise
 
         MEOS Functions:
-            right_set_set, right_floatset_float
+            right_set_set, right_set_float
         """
         if isinstance(content, float):
-            return right_floatset_float(self._inner, content)
+            return right_set_float(self._inner, content)
         else:
             return super().is_right(content)
 
@@ -315,10 +315,10 @@ class FloatSet(Set[float]):
             True if contains, False otherwise
 
         MEOS Functions:
-            overright_set_set, overright_floatset_float
+            overright_set_set, overright_set_float
         """
         if isinstance(content, float):
-            return overright_floatset_float(self._inner, content)
+            return overright_set_float(self._inner, content)
         else:
             return super().is_over_or_right(content)
 
@@ -343,10 +343,10 @@ class FloatSet(Set[float]):
             An object of the same type as ``other`` or ``None`` if the intersection is empty.
 
         MEOS Functions:
-            intersection_set_set, intersection_floatset_float
+            intersection_set_set, intersection_set_float
         """
         if isinstance(other, float):
-            return intersection_floatset_float(self._inner, other)
+            return intersection_set_float(self._inner, other)
         elif isinstance(other, FloatSet):
             result = intersection_set_set(self._inner, other._inner)
             return FloatSet(_inner=result) if result is not None else None
@@ -364,10 +364,10 @@ class FloatSet(Set[float]):
             A :class:`FloatSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_set_set, minus_floatset_float
+            minus_set_set, minus_set_float
         """
         if isinstance(other, float):
-            result = minus_floatset_float(self._inner, other)
+            result = minus_set_float(self._inner, other)
             return FloatSet(_inner=result) if result is not None else None
         elif isinstance(other, FloatSet):
             result = minus_set_set(self._inner, other._inner)
@@ -386,12 +386,12 @@ class FloatSet(Set[float]):
             A :class:`float` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_float_floatset
+            minus_float_set
 
         See Also:
             :meth:`minus`
         """
-        return minus_float_floatset(other, self._inner)
+        return minus_float_set(other, self._inner)
 
     def union(self, other: Union[FloatSet, float]) -> FloatSet:
         """
@@ -404,10 +404,10 @@ class FloatSet(Set[float]):
             A :class:`FloatSet` instance.
 
         MEOS Functions:
-            union_set_set, union_floatset_float
+            union_set_set, union_set_float
         """
         if isinstance(other, float):
-            result = union_floatset_float(self._inner, other)
+            result = union_set_float(self._inner, other)
             return FloatSet(_inner=result) if result is not None else None
         elif isinstance(other, FloatSet):
             result = union_set_set(self._inner, other._inner)
@@ -419,6 +419,6 @@ class FloatSet(Set[float]):
 
     def distance(self, other: Union[float, FloatSet, FloatSpan, FloatSpanSet]) -> float:
         if isinstance(other, float):
-            return distance_floatset_float(self._inner, other)
+            return distance_set_float(self._inner, other)
         else:
             return super().distance(other)

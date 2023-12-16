@@ -1,19 +1,23 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
 from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
 
 from pymeos_cffi import *
 
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..mixins import TTemporallyComparable
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
     from .tbool import TBool
 
 
-class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC):
+class TText(
+    Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"],
+    TTemporallyComparable,
+    ABC,
+):
     _mobilitydb_name = "ttext"
 
     BaseClass = str
@@ -50,12 +54,12 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TimestampSet, Period]) -> TTextSeq:
+    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: PeriodSet) -> TTextSeqSet:
+    def from_base_time(value: str, base: TsTzSpanSet) -> TTextSeqSet:
         ...
 
     @staticmethod
@@ -71,20 +75,20 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttextinst_make, ttextseq_from_base_timestampset,
-            ttextseq_from_base_period, ttextseqset_from_base_periodset
+            ttextinst_make, ttextseq_from_base_tstzset,
+            ttextseq_from_base_tstzspan, ttextseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
             return TTextInst(
                 _inner=ttextinst_make(value, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
-            return TTextSeq(_inner=ttextseq_from_base_timestampset(value, base._inner))
-        elif isinstance(base, Period):
-            return TTextSeq(_inner=ttextseq_from_base_period(value, base._inner))
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSet):
+            return TTextSeq(_inner=ttextseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TTextSeq(_inner=ttextseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
             return TTextSeqSet(
-                _inner=ttextseqset_from_base_periodset(value, base._inner)
+                _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -515,7 +519,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
         return ttext_always_le(self._inner, value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -534,7 +538,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -553,7 +557,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[str, Temporal]) -> TBool:
+    def temporal_less(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -572,7 +576,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_less_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -592,7 +596,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -612,7 +616,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and
         `other`.
@@ -635,7 +639,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
 
     # ------------------------- Restrictions ----------------------------------
     def at(
-        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
     ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
@@ -648,8 +652,8 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttext_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            ttext_at_value, temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_at_value(self._inner, other)
@@ -660,7 +664,7 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
         return Temporal._factory(result)
 
     def minus(
-        self, other: Union[str, List[str], datetime, TimestampSet, Period, PeriodSet]
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
     ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
@@ -674,8 +678,8 @@ class TText(Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], ABC)
 
         MEOS Functions:
             ttext_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            temporal_minus_tstzset, temporal_minus_tstzspan,
+            temporal_minus_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_minus_value(self._inner, other)
@@ -794,7 +798,7 @@ class TTextInst(TInstant[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], 
 
 class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
-    Class for representing temporal strings over a period of time.
+    Class for representing temporal strings over a tstzspan of time.
     """
 
     ComponentClass = TTextInst
@@ -825,7 +829,7 @@ class TTextSeqSet(
     TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText
 ):
     """
-    Class for representing temporal strings over a period of time with gaps.
+    Class for representing temporal strings over a tstzspan of time with gaps.
     """
 
     ComponentClass = TTextSeq

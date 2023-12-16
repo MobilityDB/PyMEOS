@@ -7,17 +7,19 @@ from pymeos_cffi import *
 
 from .tnumber import TNumber
 from ..collections import *
+from ..mixins import TSimplifiable, TTemporallyComparable
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
-from ..mixins import TemporalSimplify
 
 if TYPE_CHECKING:
     from ..boxes import TBox
     from .tint import TInt
+    from .tbool import TBool
 
 
 class TFloat(
     TNumber[float, "TFloat", "TFloatInst", "TFloatSeq", "TFloatSeqSet"],
-    TemporalSimplify,
+    TSimplifiable,
+    TTemporallyComparable,
     ABC,
 ):
     _mobilitydb_name = "tfloat"
@@ -57,12 +59,12 @@ class TFloat(
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: Union[TimestampSet, Period]) -> TFloatSeq:
+    def from_base_time(value: float, base: Union[TsTzSet, TsTzSpan]) -> TFloatSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: PeriodSet) -> TFloatSeqSet:
+    def from_base_time(value: float, base: TsTzSpanSet) -> TFloatSeqSet:
         ...
 
     @staticmethod
@@ -82,24 +84,24 @@ class TFloat(
             A new temporal float.
 
         MEOS Functions:
-            tfloatinst_make, tfloatseq_from_base_timestampset,
+            tfloatinst_make, tfloatseq_from_base_tstzset,
             tfloatseq_from_base_time, tfloatseqset_from_base_time
         """
         if isinstance(base, datetime):
             return TFloatInst(
                 _inner=tfloatinst_make(value, datetime_to_timestamptz(base))
             )
-        elif isinstance(base, TimestampSet):
+        elif isinstance(base, TsTzSet):
             return TFloatSeq(
-                _inner=tfloatseq_from_base_timestampset(value, base._inner)
+                _inner=tfloatseq_from_base_tstzset(value, base._inner)
             )
-        elif isinstance(base, Period):
+        elif isinstance(base, TsTzSpan):
             return TFloatSeq(
-                _inner=tfloatseq_from_base_period(value, base._inner, interpolation)
+                _inner=tfloatseq_from_base_tstzspan(value, base._inner, interpolation)
             )
-        elif isinstance(base, PeriodSet):
+        elif isinstance(base, TsTzSpanSet):
             return TFloatSeqSet(
-                _inner=tfloatseqset_from_base_periodset(
+                _inner=tfloatseqset_from_base_tstzspanset(
                     value, base._inner, interpolation
                 )
             )
@@ -554,7 +556,7 @@ class TFloat(
         return tfloat_always_le(self._inner, value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_equal(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -574,7 +576,7 @@ class TFloat(
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -594,7 +596,7 @@ class TFloat(
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_less(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -614,7 +616,7 @@ class TFloat(
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_less_or_equal(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -635,7 +637,7 @@ class TFloat(
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_greater_or_equal(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and `other`.
 
@@ -656,7 +658,7 @@ class TFloat(
             return super().temporal_greater_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[int, float, Temporal]) -> Temporal:
+    def temporal_greater(self, other: Union[int, float, TFloat]) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -705,8 +707,8 @@ class TFloat(
 
         MEOS Functions:
             tfloat_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
-            temporal_at_timestamp, temporal_at_timestampset, temporal_at_period,
-            temporal_at_periodset
+            temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan,
+            temporal_at_tstzspanset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_at_value(self._inner, float(other))
@@ -747,8 +749,8 @@ class TFloat(
 
         MEOS Functions:
             tfloat_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
-            temporal_minus_timestamp, temporal_minus_timestampset,
-            temporal_minus_period, temporal_minus_periodset
+            temporal_minus_timestamp, temporal_minus_tstzset,
+            temporal_minus_tstzspan, temporal_minus_tstzspanset
         """
         if isinstance(other, int) or isinstance(other, float):
             result = tfloat_minus_value(self._inner, float(other))
@@ -861,14 +863,14 @@ class TFloat(
         time_start: Optional[Union[str, datetime]] = None,
     ) -> List[Temporal]:
         """
-        Splits `self` into fragments with respect to value and period buckets.
+        Splits `self` into fragments with respect to value and tstzspan buckets.
 
         Args:
             value_size: Size of the value buckets.
-            duration: Duration of the period buckets.
+            duration: Duration of the tstzspan buckets.
             value_start: Start value of the first value bucket. If None, the
                 start value used by default is 0
-            time_start: Start time of the first period bucket. If None, the
+            time_start: Start time of the first tstzspan bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
 
         Returns:
@@ -948,7 +950,7 @@ class TFloatSeq(
     TSequence[float, "TFloat", "TFloatInst", "TFloatSeq", "TFloatSeqSet"], TFloat
 ):
     """
-    Class for representing temporal floats over a period of time.
+    Class for representing temporal floats over a tstzspan of time.
     """
 
     ComponentClass = TFloatInst
@@ -979,7 +981,7 @@ class TFloatSeqSet(
     TSequenceSet[float, "TFloat", "TFloatInst", "TFloatSeq", "TFloatSeqSet"], TFloat
 ):
     """
-    Class for representing temporal floats over a period of time with gaps.
+    Class for representing temporal floats over a tstzspan of time with gaps.
     """
 
     ComponentClass = TFloatSeq

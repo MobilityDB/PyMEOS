@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Union, List, TYPE_CHECKING, get_args
+from typing import Optional, Union, List, TYPE_CHECKING
 
 import shapely.geometry.base as shp
 from pymeos_cffi import *
@@ -53,15 +53,15 @@ class STBox:
         elif isinstance(other, TPoint):
             other_box = tpoint_to_stbox(other._inner)
         elif allow_time_only and isinstance(other, Temporal):
-            other_box = period_to_stbox(temporal_to_period(other._inner))
+            other_box = tstzspan_to_stbox(temporal_to_tstzspan(other._inner))
         elif allow_time_only and isinstance(other, datetime):
-            other_box = timestamp_to_stbox(datetime_to_timestamptz(other))
-        elif allow_time_only and isinstance(other, TimestampSet):
-            other_box = timestampset_to_stbox(other._inner)
-        elif allow_time_only and isinstance(other, Period):
-            other_box = period_to_stbox(other._inner)
-        elif allow_time_only and isinstance(other, PeriodSet):
-            other_box = periodset_to_stbox(other._inner)
+            other_box = timestamptz_to_stbox(datetime_to_timestamptz(other))
+        elif allow_time_only and isinstance(other, TsTzSet):
+            other_box = tstzset_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, TsTzSpan):
+            other_box = tstzspan_to_stbox(other._inner)
+        elif allow_time_only and isinstance(other, TsTzSpanSet):
+            other_box = tstzspanset_to_stbox(other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return other_box
@@ -103,7 +103,7 @@ class STBox:
         elif string is not None:
             self._inner = stbox_in(string)
         else:
-            period = None
+            tstzspan = None
             hast = tmin is not None and tmax is not None
             hasx = (
                 xmin is not None
@@ -113,7 +113,7 @@ class STBox:
             )
             hasz = zmin is not None and zmax is not None
             if hast:
-                period = Period(
+                tstzspan = TsTzSpan(
                     lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc
                 )._inner
             self._inner = stbox_make(
@@ -127,7 +127,7 @@ class STBox:
                 float(ymax or 0),
                 float(zmin or 0),
                 float(zmax or 0),
-                period,
+                tstzspan,
             )
 
     def __copy__(self) -> STBox:
@@ -207,17 +207,17 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            timestamp_to_stbox, timestampset_to_stbox, period_to_stbox,
-            periodset_to_stbox
+            timestamp_to_stbox, tstzset_to_stbox, tstzspan_to_stbox,
+            tstzspanset_to_stbox
         """
         if isinstance(time, datetime):
-            result = timestamp_to_stbox(datetime_to_timestamptz(time))
-        elif isinstance(time, TimestampSet):
-            result = timestampset_to_stbox(time._inner)
-        elif isinstance(time, Period):
-            result = period_to_stbox(time._inner)
-        elif isinstance(time, PeriodSet):
-            result = periodset_to_stbox(time._inner)
+            result = timestamptz_to_stbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TsTzSet):
+            result = tstzset_to_stbox(time._inner)
+        elif isinstance(time, TsTzSpan):
+            result = tstzspan_to_stbox(time._inner)
+        elif isinstance(time, TsTzSpanSet):
+            result = tstzspanset_to_stbox(time._inner)
         else:
             raise TypeError(f"Operation not supported with type {time.__class__}")
         return STBox(_inner=result)
@@ -225,7 +225,7 @@ class STBox:
     @staticmethod
     def from_geometry_time(
         geometry: shp.BaseGeometry,
-        time: Union[datetime, Period],
+        time: Union[datetime, TsTzSpan],
         geodetic: bool = False,
     ) -> STBox:
         """
@@ -240,13 +240,13 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            geo_timestamp_to_stbox, geo_period_to_stbox
+            geo_timestamp_to_stbox, geo_tstzspan_to_stbox
         """
         gs = geo_to_gserialized(geometry, geodetic)
         if isinstance(time, datetime):
-            result = geo_timestamp_to_stbox(gs, datetime_to_timestamptz(time))
-        elif isinstance(time, Period):
-            result = geo_period_to_stbox(gs, time._inner)
+            result = geo_timestamptz_to_stbox(gs, datetime_to_timestamptz(time))
+        elif isinstance(time, TsTzSpan):
+            result = geo_tstzspan_to_stbox(gs, time._inner)
         else:
             raise TypeError(
                 f"Operation not supported with types "
@@ -370,17 +370,17 @@ class STBox:
         """
         return gserialized_to_shapely_geometry(stbox_to_geo(self._inner), precision)
 
-    def to_period(self) -> Period:
+    def to_tstzspan(self) -> TsTzSpan:
         """
-        Returns the temporal dimension of ``self`` as a `Period` instance.
+        Returns the temporal dimension of ``self`` as a `TsTzSpan` instance.
 
         Returns:
-            A new :class:`Period` instance.
+            A new :class:`TsTzSpan` instance.
 
         MEOS Functions:
-            stbox_to_period
+            stbox_to_tstzspan
         """
-        return Period(_inner=stbox_to_period(self._inner))
+        return TsTzSpan(_inner=stbox_to_tstzspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def has_xy(self) -> bool:
@@ -653,7 +653,7 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
             :meth:`STBox.scale`
@@ -678,7 +678,7 @@ class STBox:
             stbox_shift_scale_time
 
         See Also:
-            :meth:`Period.shift_scale`
+            :meth:`TsTzSpan.shift_scale`
         """
         assert (
             shift is not None or duration is not None
@@ -1113,7 +1113,7 @@ class STBox:
             ``True`` if ``self`` is strictly before `other`, ``False``
             otherwise.
         """
-        return self.to_period().is_before(other)
+        return self.to_tstzspan().is_before(other)
 
     def is_over_or_before(self, other: Union[Box, Temporal, Time]) -> bool:
         """
@@ -1128,7 +1128,7 @@ class STBox:
             ``True`` if ``self`` is before `other` allowing for overlap,
             ``False`` otherwise.
         """
-        return self.to_period().is_over_or_before(other)
+        return self.to_tstzspan().is_over_or_before(other)
 
     def is_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
@@ -1142,7 +1142,7 @@ class STBox:
             ``True`` if ``self`` is strictly after `other`, ``False``
             otherwise.
         """
-        return self.to_period().is_after(other)
+        return self.to_tstzspan().is_after(other)
 
     def is_over_or_after(self, other: Union[Box, Temporal, Time]) -> bool:
         """
@@ -1157,7 +1157,7 @@ class STBox:
             ``True`` if ``self`` is after `other` allowing for overlap,
             ``False`` otherwise.
         """
-        return self.to_period().is_over_or_after(other)
+        return self.to_tstzspan().is_over_or_after(other)
 
     # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(
