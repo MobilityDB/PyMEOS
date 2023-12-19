@@ -218,7 +218,7 @@ class TText(
         MEOS Functions:
             ttext_value_at_timestamp
         """
-        result = ttext_value_at_timestamp(
+        result = ttext_value_at_timestamptz(
             self._inner, datetime_to_timestamptz(timestamp), True
         )
         return text2cstring(result[0])

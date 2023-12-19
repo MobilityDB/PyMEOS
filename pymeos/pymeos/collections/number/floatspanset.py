@@ -19,7 +19,7 @@ from pymeos_cffi import (
     intersection_spanset_float,
     union_spanset_float,
     minus_spanset_float,
-    floatspanset_intspanset,
+    floatspanset_to_intspanset,
 )
 
 from pymeos.collections import SpanSet
@@ -95,11 +95,11 @@ class FloatSpanSet(SpanSet[float]):
             A new :class:`IntSpanSet` instance
 
         MEOS Functions:
-            floatspanset_intspanset
+            floatspanset_to_intspanset
         """
         from .intspanset import IntSpanSet
 
-        return IntSpanSet(_inner=floatspanset_intspanset(self._inner))
+        return IntSpanSet(_inner=floatspanset_to_intspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
 

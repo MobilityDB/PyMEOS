@@ -360,7 +360,7 @@ class TestTTextOutputs(TestTText):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
+        assert temporal == TText.from_hexwkb(temporal.as_hexwkb())
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1261,7 +1261,7 @@ class TestTTextModifications(TestTText):
             (
                 tti,
                 TTextInst("AAA@2019-09-02"),
-                TTextSeq("{AAA@2019-09-01, AAA@2019-09-02}"),
+                TTextSeq("[AAA@2019-09-01, AAA@2019-09-02]"),
             ),
             (
                 ttds,

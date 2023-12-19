@@ -788,7 +788,7 @@ class Temporal(
             temporal_update
         """
         if isinstance(other, datetime):
-            new_inner = temporal_delete_timestamp(
+            new_inner = temporal_delete_timestamptz(
                 self._inner, datetime_to_timestamptz(other), connect
             )
         elif isinstance(other, TsTzSet):
@@ -820,7 +820,7 @@ class Temporal(
             temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamp(self._inner, datetime_to_timestamptz(other))
+            result = temporal_at_timestamptz(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TsTzSet):
             result = temporal_at_tstzset(self._inner, other._inner)
         elif isinstance(other, TsTzSpan):
@@ -879,7 +879,7 @@ class Temporal(
         elif isinstance(other, TsTzSpanSet):
             result = temporal_minus_tstzspanset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            result = temporal_minus_timestamp(
+            result = temporal_minus_timestamptz(
                 self._inner, datetime_to_timestamptz(other)
             )
         elif isinstance(other, TsTzSet):

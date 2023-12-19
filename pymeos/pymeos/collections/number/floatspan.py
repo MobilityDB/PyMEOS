@@ -28,7 +28,7 @@ from pymeos_cffi import (
     floatspan_out,
     floatspan_make,
     span_width,
-    floatspan_intspan,
+    floatspan_to_intspan,
 )
 
 from .. import Span
@@ -103,11 +103,11 @@ class FloatSpan(Span[float]):
             A new :class:`IntSpan` instance
 
         MEOS Functions:
-            floatspan_intspan
+            floatspan_to_intspan
         """
         from .intspan import IntSpan
 
-        return IntSpan(_inner=floatspan_intspan(self._inner))
+        return IntSpan(_inner=floatspan_to_intspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def lower(self) -> float:

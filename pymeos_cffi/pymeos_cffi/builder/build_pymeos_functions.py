@@ -93,11 +93,11 @@ function_modifiers = {
 
 # List of result function parameters in tuples of (function, parameter)
 result_parameters = {
-    ("tbool_value_at_timestamp", "value"),
-    ("ttext_value_at_timestamp", "value"),
-    ("tint_value_at_timestamp", "value"),
-    ("tfloat_value_at_timestamp", "value"),
-    ("tpoint_value_at_timestamp", "value"),
+    ("tbool_value_at_timestamptz", "value"),
+    ("ttext_value_at_timestamptz", "value"),
+    ("tint_value_at_timestamptz", "value"),
+    ("tfloat_value_at_timestamptz", "value"),
+    ("tpoint_value_at_timestamptz", "value"),
 }
 
 # List of output function parameters in tuples of (function, parameter).

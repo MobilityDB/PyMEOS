@@ -239,7 +239,7 @@ class TInt(
         MEOS Functions:
             tint_value_at_timestamp
         """
-        return tint_value_at_timestamp(
+        return tint_value_at_timestamptz(
             self._inner, datetime_to_timestamptz(timestamp), True
         )
 

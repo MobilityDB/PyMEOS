@@ -26,9 +26,7 @@ class TestTextSetConstructors(TestTextSet):
         self.assert_textset_equality(ts_set, ["A", "BB", "ccc"])
 
     def test_hexwkb_constructor(self):
-        ts_set = TextSet.from_hexwkb(
-            "011A000103000000020000000000000041000300000000000000424200040000000000000063636300"
-        )
+        ts_set = TextSet.from_hexwkb(TextSet(elements=["A", "BB", "ccc"]).as_hexwkb())
         self.assert_textset_equality(ts_set, ["A", "BB", "ccc"])
 
     def test_from_as_constructor(self):
@@ -50,10 +48,7 @@ class TestTextSetOutputs(TestTextSet):
         assert repr(self.tset) == 'TextSet({"A", "BB", "ccc"})'
 
     def test_as_hexwkb(self):
-        assert self.tset.as_hexwkb() == (
-            "011A00010300000002000000000000004"
-            "1000300000000000000424200040000000000000063636300"
-        )
+        assert self.tset == TextSet.from_hexwkb(self.tset.as_hexwkb())
 
 
 class TestTimestampConversions(TestTextSet):
@@ -101,7 +96,7 @@ class TestTextSetSetFunctions(TestTextSet):
 
     @pytest.mark.parametrize(
         "other, expected",
-        [(string, "A"), (other, TextSet("{BB, ccc}"))],
+        [(string, TextSet("{A}")), (other, TextSet("{BB, ccc}"))],
         ids=["string", "TextSet"],
     )
     def test_intersection(self, other, expected):

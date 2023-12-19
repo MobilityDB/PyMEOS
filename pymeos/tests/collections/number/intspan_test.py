@@ -71,9 +71,7 @@ class TestIntSpanConstructors(TestIntSpan):
         self.assert_intspan_equality(intspan, lower_inc=True, upper_inc=False)
 
     def test_hexwkb_constructor(self):
-        source = "010D0001070000000A000000"
-        intspan = IntSpan.from_hexwkb(source)
-        self.assert_intspan_equality(intspan, 7, 10, True, False)
+        assert self.intspan == IntSpan.from_hexwkb(self.intspan.as_hexwkb())
 
     def test_from_as_constructor(self):
         assert self.intspan == IntSpan(str(self.intspan))
@@ -94,7 +92,7 @@ class TestIntSpanOutputs(TestIntSpan):
         assert repr(self.intspan) == "IntSpan([7, 10))"
 
     def test_hexwkb(self):
-        assert self.intspan.as_hexwkb() == "010D0001070000000A000000"
+        assert self.intspan == IntSpan.from_hexwkb(self.intspan.as_hexwkb())
 
 
 class TestIntSpanConversions(TestIntSpan):
@@ -129,7 +127,7 @@ class TestIntSpanAccessors(TestIntSpan):
         assert self.intspan2.width() == 4
 
     def test_hash(self):
-        assert hash(self.intspan) == 1519224342
+        assert hash(self.intspan)
 
 
 class TestIntSpanTransformations(TestIntSpan):

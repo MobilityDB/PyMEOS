@@ -345,7 +345,7 @@ class TestTBoolOutputs(TestTBool):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
+        assert temporal == TBool.from_hexwkb(temporal.as_hexwkb())
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1251,7 +1251,7 @@ class TestTBoolModifications(TestTBool):
             (
                 tbi,
                 TBoolInst("True@2019-09-02"),
-                TBoolSeq("{True@2019-09-01, True@2019-09-02}"),
+                TBoolSeq("[True@2019-09-01, True@2019-09-02]"),
             ),
             (
                 tbds,

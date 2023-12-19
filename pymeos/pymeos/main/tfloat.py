@@ -777,7 +777,7 @@ class TFloat(
         MEOS Functions:
             tfloat_value_at_timestamp
         """
-        return tfloat_value_at_timestamp(
+        return tfloat_value_at_timestamptz(
             self._inner, datetime_to_timestamptz(timestamp), True
         )
 

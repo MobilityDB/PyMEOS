@@ -180,7 +180,7 @@ class TextSet(Set[str]):
         """
         if isinstance(other, str):
             result = intersection_set_text(self._inner, other)
-            return text2cstring(result[0]) if result is not None else None
+            return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
             result = intersection_set_set(self._inner, other._inner)
             return TextSet(_inner=result) if result is not None else None

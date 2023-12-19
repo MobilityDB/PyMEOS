@@ -224,7 +224,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             tpoint_value_at_timestamp
         """
         return gserialized_to_shapely_point(
-            tpoint_value_at_timestamp(
+            tpoint_value_at_timestamptz(
                 self._inner, datetime_to_timestamptz(timestamp), True
             )[0],
             precision,

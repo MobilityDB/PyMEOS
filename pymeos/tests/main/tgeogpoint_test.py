@@ -436,7 +436,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
+        assert temporal == TGeogPoint.from_hexwkb(temporal.as_hexwkb())
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1905,7 +1905,7 @@ class TestTGeogPointModifications(TestTGeogPoint):
             (
                 tpi,
                 TGeogPointInst("Point(1 1)@2019-09-02"),
-                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}"),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
             ),
             (
                 tpds,

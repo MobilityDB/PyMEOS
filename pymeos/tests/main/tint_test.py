@@ -78,9 +78,9 @@ class TestTIntConstructors(TestTInt):
             ),
             (TsTzSpan("[2019-09-01, 2019-09-02]"), TIntSeq, TInterpolation.STEPWISE),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TIntSeqSet,
-                    TInterpolation.STEPWISE,
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TIntSeqSet,
+                TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -348,7 +348,7 @@ class TestTIntOutputs(TestTInt):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_as_hexwkb(self, temporal, expected):
-        assert temporal.as_hexwkb() == expected
+        assert temporal == TInt.from_hexwkb(temporal.as_hexwkb())
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1121,7 +1121,7 @@ class TestTIntTransformations(TestTInt):
                 tiss,
                 3,
                 TIntSeqSet(
-                    "{[1@2019-09-01, 4@2019-09-02]," "[1@2019-09-03, 1@2019-09-05]}"
+                    "{[1@2019-09-01, 4@2019-09-02], [1@2019-09-03, 1@2019-09-05]}"
                 ),
             ),
         ],
@@ -1149,7 +1149,7 @@ class TestTIntTransformations(TestTInt):
                 2,
                 3,
                 TIntSeqSet(
-                    "{[3@2019-09-01, 6@2019-09-02]," "[3@2019-09-03, 3@2019-09-05]}"
+                    "{[3@2019-09-01, 6@2019-09-02], [3@2019-09-03, 3@2019-09-05]}"
                 ),
             ),
             (
@@ -1157,7 +1157,7 @@ class TestTIntTransformations(TestTInt):
                 -2,
                 3,
                 TIntSeqSet(
-                    "{[-1@2019-09-01, 2@2019-09-02]," "[-1@2019-09-03, -1@2019-09-05]}"
+                    "{[-1@2019-09-01, 2@2019-09-02], [-1@2019-09-03, -1@2019-09-05]}"
                 ),
             ),
         ],
@@ -1464,7 +1464,7 @@ class TestTIntModifications(TestTInt):
     @pytest.mark.parametrize(
         "temporal, instant, expected",
         [
-            (tii, TIntInst("1@2019-09-02"), TIntSeq("{1@2019-09-01, 1@2019-09-02}")),
+            (tii, TIntInst("1@2019-09-02"), TIntSeq("[1@2019-09-01, 1@2019-09-02]")),
             (
                 tids,
                 TIntInst("1@2019-09-03"),

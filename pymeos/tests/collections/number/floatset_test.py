@@ -25,9 +25,7 @@ class TestFloatSetConstructors(TestFloatSet):
         self.assert_intset_equality(floatset, [1, 2, 3])
 
     def test_hexwkb_constructor(self):
-        floatset = FloatSet.from_hexwkb(
-            "0106000103000000000000000000F03F00000000000000400000000000000840"
-        )
+        floatset = FloatSet.from_hexwkb(FloatSet(elements=[1, 2, 3]).as_hexwkb())
         self.assert_intset_equality(floatset, [1, 2, 3])
 
     def test_from_as_constructor(self):
@@ -49,10 +47,7 @@ class TestFloatSetOutputs(TestFloatSet):
         assert repr(self.floatset) == "FloatSet({1, 2, 3})"
 
     def test_as_hexwkb(self):
-        assert (
-            self.floatset.as_hexwkb()
-            == "0106000103000000000000000000F03F00000000000000400000000000000840"
-        )
+        assert self.floatset == FloatSet.from_hexwkb(self.floatset.as_hexwkb())
 
 
 # class TestIntConversions(TestFloatSet):

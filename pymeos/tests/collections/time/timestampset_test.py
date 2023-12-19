@@ -58,7 +58,13 @@ class TestTimestampSetConstructors(TestTimestampSet):
 
     def test_hexwkb_constructor(self):
         ts_set = TsTzSet.from_hexwkb(
-            "012000010300000000A01E4E713402000000F66B853402000060CD8999340200"
+            TsTzSet(
+                elements=[
+                    datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc),
+                    datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc),
+                    datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc),
+                ]
+            ).as_hexwkb()
         )
         self.assert_tstzset_equality(
             ts_set,
@@ -94,10 +100,7 @@ class TestTimestampSetOutputs(TestTimestampSet):
         )
 
     def test_as_hexwkb(self):
-        assert (
-            self.ts_set.as_hexwkb()
-            == "012000010300000000A01E4E713402000000F66B853402000060CD8999340200"
-        )
+        assert self.ts_set == TsTzSet.from_hexwkb(self.ts_set.as_hexwkb())
 
 
 class TestTimestampConversions(TestTimestampSet):
@@ -156,9 +159,7 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
     timestamp = datetime(year=2020, month=1, day=1)
     tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}")
 
-    @pytest.mark.parametrize(
-        "other, expected", [(tstzset, False)], ids=["tstzset"]
-    )
+    @pytest.mark.parametrize("other, expected", [(tstzset, False)], ids=["tstzset"])
     def test_is_contained_in(self, other, expected):
         assert self.ts_set.is_contained_in(other) == expected
 
@@ -337,9 +338,7 @@ class TestTimestampSetFunctionsFunctions(TestTimestampSet):
         self.assert_tstzset_equality(scaled, result)
 
     def test_shift_scale(self):
-        shifted_scaled = self.tstzset.shift_scale(
-            timedelta(days=4), timedelta(hours=3)
-        )
+        shifted_scaled = self.tstzset.shift_scale(timedelta(days=4), timedelta(hours=3))
         self.assert_tstzset_equality(
             shifted_scaled,
             [
