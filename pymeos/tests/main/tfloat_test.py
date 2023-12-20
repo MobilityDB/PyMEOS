@@ -408,122 +408,122 @@ class TestTFloatOutputs(TestTFloat):
             (
                 tfi,
                 "{\n"
-                '   "type": "MovingFloat",\n'
-                '   "bbox": [\n'
-                "     1.5,\n"
-                "     1.5\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-01T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     1.5\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00"\n'
-                "   ],\n"
-                '   "interpolation": "None"\n'
-                " }",
+                '  "type": "MovingFloat",\n'
+                '  "bbox": [\n'
+                "    1.5,\n"
+                "    1.5\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    1.5\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00"\n'
+                "  ],\n"
+                '  "interpolation": "None"\n'
+                "}",
             ),
             (
                 tfds,
                 "{\n"
-                '   "type": "MovingFloat",\n'
-                '   "bbox": [\n'
-                "     1.5,\n"
-                "     2.5\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     1.5,\n"
-                "     2.5\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Discrete"\n'
-                " }",
+                '  "type": "MovingFloat",\n'
+                '  "bbox": [\n'
+                "    1.5,\n"
+                "    2.5\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    1.5,\n"
+                "    2.5\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Discrete"\n'
+                "}",
             ),
             (
                 tfs,
                 "{\n"
-                '   "type": "MovingFloat",\n'
-                '   "bbox": [\n'
-                "     1.5,\n"
-                "     2.5\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     1.5,\n"
-                "     2.5\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Linear"\n'
-                " }",
+                '  "type": "MovingFloat",\n'
+                '  "bbox": [\n'
+                "    1.5,\n"
+                "    2.5\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    1.5,\n"
+                "    2.5\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
             (
                 tfss,
                 "{\n"
-                '   "type": "MovingFloat",\n'
-                '   "bbox": [\n'
-                "     1.5,\n"
-                "     2.5\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-05T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "sequences": [\n'
-                "     {\n"
-                '       "values": [\n'
-                "         1.5,\n"
-                "         2.5\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-01T00:00:00+00",\n'
-                '         "2019-09-02T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     },\n"
-                "     {\n"
-                '       "values": [\n'
-                "         1.5,\n"
-                "         1.5\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-03T00:00:00+00",\n'
-                '         "2019-09-05T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     }\n"
-                "   ],\n"
-                '   "interpolation": "Linear"\n'
-                " }",
+                '  "type": "MovingFloat",\n'
+                '  "bbox": [\n'
+                "    1.5,\n"
+                "    2.5\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "sequences": [\n'
+                "    {\n"
+                '      "values": [\n'
+                "        1.5,\n"
+                "        2.5\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-01T00:00:00+00",\n'
+                '        "2019-09-02T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    },\n"
+                "    {\n"
+                '      "values": [\n'
+                "        1.5,\n"
+                "        1.5\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-03T00:00:00+00",\n'
+                '        "2019-09-05T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    }\n"
+                "  ],\n"
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

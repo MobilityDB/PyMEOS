@@ -444,173 +444,173 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpi,
                 "{\n"
-                '   "type": "MovingGeogPoint",\n'
-                '   "bbox": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ]\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-01T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "coordinates": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ]\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00"\n'
-                "   ],\n"
-                '   "interpolation": "None"\n'
-                " }",
+                '  "type": "MovingGeogPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00"\n'
+                "  ],\n"
+                '  "interpolation": "None"\n'
+                "}",
             ),
             (
                 tpds,
                 "{\n"
-                '   "type": "MovingGeogPoint",\n'
-                '   "bbox": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       2,\n"
-                "       2\n"
-                "     ]\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "coordinates": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       2,\n"
-                "       2\n"
-                "     ]\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Discrete"\n'
-                " }",
+                '  "type": "MovingGeogPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Discrete"\n'
+                "}",
             ),
             (
                 tps,
                 "{\n"
-                '   "type": "MovingGeogPoint",\n'
-                '   "bbox": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       2,\n"
-                "       2\n"
-                "     ]\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "coordinates": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       2,\n"
-                "       2\n"
-                "     ]\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Linear"\n'
-                " }",
+                '  "type": "MovingGeogPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
             (
                 tpss,
                 "{\n"
-                '   "type": "MovingGeogPoint",\n'
-                '   "bbox": [\n'
-                "     [\n"
-                "       1,\n"
-                "       1\n"
-                "     ],\n"
-                "     [\n"
-                "       2,\n"
-                "       2\n"
-                "     ]\n"
-                "   ],\n"
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-05T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "sequences": [\n'
-                "     {\n"
-                '       "coordinates": [\n'
-                "         [\n"
-                "           1,\n"
-                "           1\n"
-                "         ],\n"
-                "         [\n"
-                "           2,\n"
-                "           2\n"
-                "         ]\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-01T00:00:00+00",\n'
-                '         "2019-09-02T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     },\n"
-                "     {\n"
-                '       "coordinates": [\n'
-                "         [\n"
-                "           1,\n"
-                "           1\n"
-                "         ],\n"
-                "         [\n"
-                "           1,\n"
-                "           1\n"
-                "         ]\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-03T00:00:00+00",\n'
-                '         "2019-09-05T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     }\n"
-                "   ],\n"
-                '   "interpolation": "Linear"\n'
-                " }",
+                '  "type": "MovingGeogPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "sequences": [\n'
+                "    {\n"
+                '      "coordinates": [\n'
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ],\n"
+                "        [\n"
+                "          2,\n"
+                "          2\n"
+                "        ]\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-01T00:00:00+00",\n'
+                '        "2019-09-02T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    },\n"
+                "    {\n"
+                '      "coordinates": [\n'
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ],\n"
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ]\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-03T00:00:00+00",\n'
+                '        "2019-09-05T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    }\n"
+                "  ],\n"
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

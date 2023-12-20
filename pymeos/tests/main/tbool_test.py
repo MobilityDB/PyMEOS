@@ -353,106 +353,106 @@ class TestTBoolOutputs(TestTBool):
             (
                 tbi,
                 "{\n"
-                '   "type": "MovingBoolean",\n'
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-01T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     true\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00"\n'
-                "   ],\n"
-                '   "interpolation": "None"\n'
-                " }",
+                '  "type": "MovingBoolean",\n'
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    true\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00"\n'
+                "  ],\n"
+                '  "interpolation": "None"\n'
+                "}",
             ),
             (
                 tbds,
                 "{\n"
-                '   "type": "MovingBoolean",\n'
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     true,\n"
-                "     false\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Discrete"\n'
-                " }",
+                '  "type": "MovingBoolean",\n'
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    true,\n"
+                "    false\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Discrete"\n'
+                "}",
             ),
             (
                 tbs,
                 "{\n"
-                '   "type": "MovingBoolean",\n'
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-02T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "values": [\n'
-                "     true,\n"
-                "     false\n"
-                "   ],\n"
-                '   "datetimes": [\n'
-                '     "2019-09-01T00:00:00+00",\n'
-                '     "2019-09-02T00:00:00+00"\n'
-                "   ],\n"
-                '   "lower_inc": true,\n'
-                '   "upper_inc": true,\n'
-                '   "interpolation": "Step"\n'
-                " }",
+                '  "type": "MovingBoolean",\n'
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "values": [\n'
+                "    true,\n"
+                "    false\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Step"\n'
+                "}",
             ),
             (
                 tbss,
                 "{\n"
-                '   "type": "MovingBoolean",\n'
-                '   "tstzspan": {\n'
-                '     "begin": "2019-09-01T00:00:00+00",\n'
-                '     "end": "2019-09-05T00:00:00+00",\n'
-                '     "lower_inc": true,\n'
-                '     "upper_inc": true\n'
-                "   },\n"
-                '   "sequences": [\n'
-                "     {\n"
-                '       "values": [\n'
-                "         true,\n"
-                "         false\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-01T00:00:00+00",\n'
-                '         "2019-09-02T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     },\n"
-                "     {\n"
-                '       "values": [\n'
-                "         true,\n"
-                "         true\n"
-                "       ],\n"
-                '       "datetimes": [\n'
-                '         "2019-09-03T00:00:00+00",\n'
-                '         "2019-09-05T00:00:00+00"\n'
-                "       ],\n"
-                '       "lower_inc": true,\n'
-                '       "upper_inc": true\n'
-                "     }\n"
-                "   ],\n"
-                '   "interpolation": "Step"\n'
-                " }",
+                '  "type": "MovingBoolean",\n'
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "sequences": [\n'
+                "    {\n"
+                '      "values": [\n'
+                "        true,\n"
+                "        false\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-01T00:00:00+00",\n'
+                '        "2019-09-02T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    },\n"
+                "    {\n"
+                '      "values": [\n'
+                "        true,\n"
+                "        true\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-03T00:00:00+00",\n'
+                '        "2019-09-05T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    }\n"
+                "  ],\n"
+                '  "interpolation": "Step"\n'
+                "}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
