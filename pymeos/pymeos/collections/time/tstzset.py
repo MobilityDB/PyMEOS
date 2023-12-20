@@ -314,7 +314,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
 
         if isinstance(container, Temporal):
             return self.is_contained_in(container.time())
-        elif isinstance(container, Box):
+        elif isinstance(container, get_args(Box)):
             return self.is_contained_in(container.to_tstzspan())
         else:
             return super().is_contained_in(container)
@@ -409,7 +409,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
             )
         elif isinstance(other, Temporal):
             return self.to_spanset().overlaps(other)
-        elif isinstance(other, Box):
+        elif isinstance(other, get_args(Box)):
             return self.to_span().overlaps(other)
         else:
             return super().overlaps(other)

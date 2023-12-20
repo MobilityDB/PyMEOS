@@ -281,7 +281,7 @@ class TsTzSpan(Span[datetime], TsTzCollection):
 
         if isinstance(container, Temporal):
             return self.is_contained_in(container.tstzspan())
-        elif isinstance(container, Box):
+        elif isinstance(container, get_args(Box)):
             return self.is_contained_in(container.to_tstzspan())
         else:
             return super().is_contained_in(container)
