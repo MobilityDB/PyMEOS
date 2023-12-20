@@ -32,7 +32,7 @@ jobs:
         cd MobilityDB/build
         cmake .. -DMEOS=on
         make -j
-        make install
+        sudo make install
     - name: Install python dependencies
       run: |
         python -m pip install --upgrade pip
