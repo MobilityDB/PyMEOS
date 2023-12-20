@@ -27,9 +27,11 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install MEOS
       run: |
-        git clone --branch develop https://github.com/MobilityDB/MobilityDB
-        mkdir MobilityDB/build
-        cd MobilityDB/build
+        git clone https://github.com/estebanzimanyi/MobilityDB
+        cd MobilityDB
+        git checkout 3025da62c65d919e5fd813ae1c1dc54d4784dd58
+        mkdir build
+        cd build
         cmake .. -DMEOS=on
         make -j
         sudo make install
@@ -47,8 +49,6 @@ jobs:
         cd ..
     - name: Test PyMEOS with pytest
       run: |
-        ls /usr/local/lib
-        echo $LD_LIBRARY_PATH
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
         cd pymeos
         pytest
