@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v3
     - uses: awalsh128/cache-apt-pkgs-action@latest
       with:
-        packages: build-essential cmake postgresql-server-dev-15 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
+        packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
         version: 1.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
