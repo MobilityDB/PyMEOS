@@ -27,11 +27,9 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install MEOS
       run: |
-        git clone https://github.com/estebanzimanyi/MobilityDB
-        cd MobilityDB
-        git checkout 3025da62c65d919e5fd813ae1c1dc54d4784dd58
-        mkdir build
-        cd build
+        git clone --branch temporal https://github.com/Diviloper/MobilityDB
+        mkdir MobilityDB/build
+        cd MobilityDB/build
         cmake .. -DMEOS=on
         make -j
         sudo make install
