@@ -17,13 +17,16 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - uses: awalsh128/cache-apt-pkgs-action@latest
+      with:
+        packages: build-essential cmake postgresql-server-dev-15 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
+        version: 1.0
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install MEOS
       run: |
-        apt install build-essential cmake postgresql-server-dev-15 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
         git clone --branch develop https://github.com/MobilityDB/MobilityDB
         mkdir MobilityDB/build
         cd MobilityDB/build
