@@ -12,19 +12,23 @@ Installation from PyPI
 
 PyMEOS and PyMEOS CFFI are available as binary distributions (wheel) for Linux platforms on
 `PyPI <https://pypi.org/project/pymeos/>`__. The distributions include the most recent version of MEOS available at the
-time of the PyMEOS release. Install the binary wheel with pip as follows::
+time of the PyMEOS release. Install the binary wheel with pip as follows:
+
+.. code-block:: console
 
     $ pip install pymeos
 
-
 .. warning::
-   Versions up to 1.1.2 of PyMEOS (0.0.8 of PyMEOS CFFI) should not be used. Instead,
-    use version 1.1.3 (1.1.0 for PyMEOS CFFI) which
-   is currently in pre-release mode. To use it, you have to use the ``--pre`` flag of
-   ``pìp``. To avoid installing pre-release versions of the dependencies, install
-   ``pymeos`` normally and then update it using the following command:
+    Stable and pre-release versions
 
-   ``pip install --pre --force-reinstall --no-deps pymeos pymeos_cffi``
+    Versions up to 1.1.2 of PyMEOS (0.0.8 of PyMEOS CFFI) should not be used. Instead,
+    use version 1.1.3 (1.1.0 for PyMEOS CFFI) which is currently in pre-release mode.
+
+    To use it, you have to use the ``--pre`` flag of ``pìp``. To avoid installing
+    pre-release versions of the dependencies, install ``pymeos`` normally and then
+    update it using the following command:
+
+    ``pip install --pre --force-reinstall --no-deps pymeos pymeos_cffi``
 
 
 Installation using conda (incoming, not available yet)
