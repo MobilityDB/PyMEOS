@@ -43,7 +43,7 @@ distributions using ``pip``:
 
     ``pip install --pre --force-reinstall --no-deps pymeos pymeos_cffi``
 
-See the `installation documentation <https://pymeos.readthedocs.io/en/latest/src/installation.html>`__
+See the `installation documentation <./src/installation.html>`__
 for more details and advanced installation instructions.
 
 .. toctree::
