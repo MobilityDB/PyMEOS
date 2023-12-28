@@ -6,7 +6,7 @@ from typing import Optional, Union, overload, TYPE_CHECKING, get_args
 from dateutil.parser import parse
 from pymeos_cffi import *
 
-from .tstzcollection import TsTzCollection
+from .timecollection import TimeCollection
 from ..base.span import Span
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .tstzset import TsTzSet
 
 
-class TsTzSpan(Span[datetime], TsTzCollection):
+class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     """
     Class for representing sets of contiguous timestamps between a lower and
     an upper bound. The bounds may be inclusive or not.

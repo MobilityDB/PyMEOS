@@ -1,10 +1,13 @@
 from abc import ABC
-from datetime import datetime
+from datetime import date
+from typing import TypeVar
 
 from ..base.collection import Collection
 
+TimeClass = TypeVar("TimeClass", bound=date)
 
-class TsTzCollection(Collection[datetime], ABC):
+
+class TimeCollection(Collection[TimeClass], ABC):
     def is_before(self, other) -> bool:
         return self.is_left(other)
 

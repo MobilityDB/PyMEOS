@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 from pymeos_cffi import *
 
-from .tstzcollection import TsTzCollection
+from .timecollection import TimeCollection
 
 if TYPE_CHECKING:
     from ...temporal import Temporal
@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 from ..base.spanset import SpanSet
 
 
-class TsTzSpanSet(SpanSet[datetime], TsTzCollection):
+class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
     """
     Class for representing lists of disjoint tstzspans.
 

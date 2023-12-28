@@ -6,7 +6,7 @@ from typing import Optional, List, Union, TYPE_CHECKING, overload, get_args
 from dateutil.parser import parse
 from pymeos_cffi import *
 
-from .tstzcollection import TsTzCollection
+from .timecollection import TimeCollection
 from ..base import Set
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ...boxes import Box
 
 
-class TsTzSet(Set[datetime], TsTzCollection):
+class TsTzSet(Set[datetime], TimeCollection[datetime]):
     """
     Class for representing lists of distinct timestamp values.
 
