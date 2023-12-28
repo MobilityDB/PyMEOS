@@ -18,8 +18,9 @@ import sys
 sys.path.insert(0, os.path.abspath('../pymeos_cffi'))
 sys.path.insert(0, os.path.abspath('../pymeos'))
 
-from pymeos import pymeos
-release = pymeos.__version__
+from pymeos.pymeos import __version__ as pv
+
+release = pv
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -31,7 +32,8 @@ extensions = [
 nb_execution_mode = "off"
 
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_build', '**.ipynb_checkpoints']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_build',
+                    '**.ipynb_checkpoints']
 autodoc_member_order = 'bysource'
 
 # -- Intersphinx config --------
