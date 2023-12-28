@@ -9,7 +9,6 @@
 project = 'PyMEOS'
 copyright = '2023, Víctor Diví'
 author = 'Víctor Diví'
-release = '1.1.3b3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -18,6 +17,9 @@ import sys
 
 sys.path.insert(0, os.path.abspath('../pymeos_cffi'))
 sys.path.insert(0, os.path.abspath('../pymeos'))
+
+from pymeos import pymeos
+release = pymeos.__version__
 
 extensions = [
     'sphinx.ext.autodoc',
