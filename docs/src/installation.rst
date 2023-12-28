@@ -19,12 +19,10 @@ time of the PyMEOS release. Install the binary wheel with pip as follows:
     $ pip install pymeos
 
 .. warning::
-    Stable and pre-release versions
-
     Versions up to 1.1.2 of PyMEOS (0.0.8 of PyMEOS CFFI) should not be used. Instead,
     use version 1.1.3 (1.1.0 for PyMEOS CFFI) which is currently in pre-release mode.
 
-    To use it, you have to use the ``--pre`` flag of ``pìp``. To avoid installing
+    To use it, you have to use the ``--pre`` flag of ``pip``. To avoid installing
     pre-release versions of the dependencies, install ``pymeos`` normally and then
     update it using the following command:
 
