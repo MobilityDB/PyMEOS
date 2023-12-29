@@ -1,11 +1,17 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import Union
 
 from .tstzspan import TsTzSpan
 from .tstzspanset import TsTzSpanSet
 from .tstzset import TsTzSet
 
-Time = Union[datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
+Time = Union[
+    datetime,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
+    date,
+]
 """
 Union type that includes all Time types in PyMEOS:  
 
