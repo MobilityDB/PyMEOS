@@ -666,9 +666,9 @@ class TBox:
         MEOS Functions:
             tbox_round
         """
-        new_inner = tbox_copy(self._inner)
-        tbox_round(new_inner, max_decimals)
-        return TBox(_inner=new_inner)
+        if not self._is_float():
+            return TBox(_inner=tbox_copy(self._inner))
+        return TBox(_inner=tbox_round(self._inner, max_decimals))
 
     # ------------------------- Set Operations --------------------------------
     def union(self, other: TBox, strict: Optional[bool] = True) -> TBox:

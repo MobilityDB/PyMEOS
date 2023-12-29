@@ -808,7 +808,7 @@ class TestTBoxTransformations(TestTBox):
                 TBox(
                     "TBOXFLOAT XT([1.123456789,2.123456789],[2019-09-01, 2019-09-02])"
                 ),
-                TBox("TBOXFLOAT XT([1.12,2.12],[2019-09-01, 2019-09-03])"),
+                TBox("TBOXFLOAT XT([1.12,2.12],[2019-09-01, 2019-09-02])"),
             ),
             (
                 TBox("TBOXINT X([1,2])"),
@@ -816,13 +816,13 @@ class TestTBoxTransformations(TestTBox):
             ),
             (
                 TBox("TBOXINT XT([1,2],[2019-09-01, 2019-09-02])"),
-                TBox("TBOXINT XT([1,2],[2019-09-01, 2019-09-03])"),
+                TBox("TBOXINT XT([1,2],[2019-09-01, 2019-09-02])"),
             ),
         ],
         ids=["TBoxFloat X", "TBoxFloat XT", "TBoxInt X", "TBoxInt XT"],
     )
     def test_round(self, tbox, expected):
-        assert tbox.round(max_decimals=2)
+        assert tbox.round(max_decimals=2) == expected
 
 
 class TestTBoxTopologicalFunctions(TestTBox):
