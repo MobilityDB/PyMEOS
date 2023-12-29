@@ -453,7 +453,7 @@ class Temporal(
         MEOS Functions:
             temporal_start_timestamps
         """
-        return timestamptz_to_datetime(temporal_start_timestamp(self._inner))
+        return timestamptz_to_datetime(temporal_start_timestamptz(self._inner))
 
     def end_timestamp(self) -> datetime:
         """
@@ -462,16 +462,16 @@ class Temporal(
         MEOS Functions:
             temporal_end_timestamps
         """
-        return timestamptz_to_datetime(temporal_end_timestamp(self._inner))
+        return timestamptz_to_datetime(temporal_end_timestamptz(self._inner))
 
     def timestamp_n(self, n: int) -> datetime:
         """
         Returns the n-th timestamp in `self`. (0-based)
 
         MEOS Functions:
-            temporal_timestamp_n
+            temporal_timestamptz_n
         """
-        return timestamptz_to_datetime(temporal_timestamp_n(self._inner, n + 1))
+        return timestamptz_to_datetime(temporal_timestamptz_n(self._inner, n + 1))
 
     def timestamps(self) -> List[datetime]:
         """
@@ -1251,7 +1251,7 @@ class Temporal(
         """
         if self.end_timestamp() == self.start_timestamp():
             return [self]
-        st = temporal_start_timestamp(self._inner)
+        st = temporal_start_timestamptz(self._inner)
         dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
         fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory

@@ -517,10 +517,10 @@ def pg_to_date(date_txt: str, fmt: str) -> "DateADT":
     return result if result != _ffi.NULL else None
 
 
-def pg_to_timestamp(date_txt: str, fmt: str) -> "TimestampTz":
+def pg_to_timestamptz(date_txt: str, fmt: str) -> "TimestampTz":
     date_txt_converted = cstring2text(date_txt)
     fmt_converted = cstring2text(fmt)
-    result = _lib.pg_to_timestamp(date_txt_converted, fmt_converted)
+    result = _lib.pg_to_timestamptz(date_txt_converted, fmt_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1668,7 +1668,7 @@ def span_width(s: "const Span *") -> "double":
     return result if result != _ffi.NULL else None
 
 
-def spanset_end_span(ss: "const SpanSet *") -> "Span *":
+def spanset_end_span(ss: "const SpanSet *") -> "const Span *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.spanset_end_span(ss_converted)
     _check_error()
@@ -1711,7 +1711,7 @@ def spanset_span(ss: "const SpanSet *") -> "Span *":
     return result if result != _ffi.NULL else None
 
 
-def spanset_span_n(ss: "const SpanSet *", i: int) -> "Span *":
+def spanset_span_n(ss: "const SpanSet *", i: int) -> "const Span *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.spanset_span_n(ss_converted, i)
     _check_error()
@@ -1725,7 +1725,7 @@ def spanset_spans(ss: "const SpanSet *") -> "const Span **":
     return result if result != _ffi.NULL else None
 
 
-def spanset_start_span(ss: "const SpanSet *") -> "Span *":
+def spanset_start_span(ss: "const SpanSet *") -> "const Span *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.spanset_start_span(ss_converted)
     _check_error()
@@ -1845,9 +1845,9 @@ def tstzspanset_duration(ss: "const SpanSet *", boundspan: bool) -> "Interval *"
     return result if result != _ffi.NULL else None
 
 
-def tstzspanset_end_timestamp(ss: "const SpanSet *") -> "TimestampTz":
+def tstzspanset_end_timestamptz(ss: "const SpanSet *") -> "TimestampTz":
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.tstzspanset_end_timestamp(ss_converted)
+    result = _lib.tstzspanset_end_timestamptz(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1866,17 +1866,17 @@ def tstzspanset_num_timestamps(ss: "const SpanSet *") -> "int":
     return result if result != _ffi.NULL else None
 
 
-def tstzspanset_start_timestamp(ss: "const SpanSet *") -> "TimestampTz":
+def tstzspanset_start_timestamptz(ss: "const SpanSet *") -> "TimestampTz":
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.tstzspanset_start_timestamp(ss_converted)
+    result = _lib.tstzspanset_start_timestamptz(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def tstzspanset_timestamp_n(ss: "const SpanSet *", n: int) -> int:
+def tstzspanset_timestamptz_n(ss: "const SpanSet *", n: int) -> int:
     ss_converted = _ffi.cast("const SpanSet *", ss)
     out_result = _ffi.new("TimestampTz *")
-    result = _lib.tstzspanset_timestamp_n(ss_converted, n, out_result)
+    result = _lib.tstzspanset_timestamptz_n(ss_converted, n, out_result)
     _check_error()
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
@@ -5475,6 +5475,46 @@ def tbox_xmin_inc(box: "const TBox *") -> "bool":
     return None
 
 
+def tboxfloat_xmax(box: "const TBox *") -> "double":
+    box_converted = _ffi.cast("const TBox *", box)
+    out_result = _ffi.new("double *")
+    result = _lib.tboxfloat_xmax(box_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tboxfloat_xmin(box: "const TBox *") -> "double":
+    box_converted = _ffi.cast("const TBox *", box)
+    out_result = _ffi.new("double *")
+    result = _lib.tboxfloat_xmin(box_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tboxint_xmax(box: "const TBox *") -> "int":
+    box_converted = _ffi.cast("const TBox *", box)
+    out_result = _ffi.new("int *")
+    result = _lib.tboxint_xmax(box_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
+def tboxint_xmin(box: "const TBox *") -> "int":
+    box_converted = _ffi.cast("const TBox *", box)
+    out_result = _ffi.new("int *")
+    result = _lib.tboxint_xmin(box_converted, out_result)
+    _check_error()
+    if result:
+        return out_result[0] if out_result[0] != _ffi.NULL else None
+    return None
+
+
 def stbox_expand_space(box: "const STBox *", d: float) -> "STBox *":
     box_converted = _ffi.cast("const STBox *", box)
     result = _lib.stbox_expand_space(box_converted, d)
@@ -6547,9 +6587,9 @@ def temporal_end_sequence(temp: "const Temporal *") -> "TSequence *":
     return result if result != _ffi.NULL else None
 
 
-def temporal_end_timestamp(temp: "const Temporal *") -> "TimestampTz":
+def temporal_end_timestamptz(temp: "const Temporal *") -> "TimestampTz":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.temporal_end_timestamp(temp_converted)
+    result = _lib.temporal_end_timestamptz(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -6656,9 +6696,9 @@ def temporal_start_sequence(temp: "const Temporal *") -> "TSequence *":
     return result if result != _ffi.NULL else None
 
 
-def temporal_start_timestamp(temp: "const Temporal *") -> "TimestampTz":
+def temporal_start_timestamptz(temp: "const Temporal *") -> "TimestampTz":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.temporal_start_timestamp(temp_converted)
+    result = _lib.temporal_start_timestamptz(temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -6688,10 +6728,10 @@ def temporal_time(temp: "const Temporal *") -> "SpanSet *":
     return result if result != _ffi.NULL else None
 
 
-def temporal_timestamp_n(temp: "const Temporal *", n: int) -> int:
+def temporal_timestamptz_n(temp: "const Temporal *", n: int) -> int:
     temp_converted = _ffi.cast("const Temporal *", temp)
     out_result = _ffi.new("TimestampTz *")
-    result = _lib.temporal_timestamp_n(temp_converted, n, out_result)
+    result = _lib.temporal_timestamptz_n(temp_converted, n, out_result)
     _check_error()
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
@@ -6894,7 +6934,7 @@ def temporal_shift_time(
     return result if result != _ffi.NULL else None
 
 
-def temporal_to_tinstant(temp: "const Temporal *") -> "Temporal *":
+def temporal_to_tinstant(temp: "const Temporal *") -> "TInstant *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.temporal_to_tinstant(temp_converted)
     _check_error()
@@ -6903,7 +6943,7 @@ def temporal_to_tinstant(temp: "const Temporal *") -> "Temporal *":
 
 def temporal_to_tsequence(
     temp: "const Temporal *", interp: "interpType"
-) -> "Temporal *":
+) -> "TSequence *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     interp_converted = _ffi.cast("interpType", interp)
     result = _lib.temporal_to_tsequence(temp_converted, interp_converted)
@@ -6913,7 +6953,7 @@ def temporal_to_tsequence(
 
 def temporal_to_tsequenceset(
     temp: "const Temporal *", interp: "interpType"
-) -> "Temporal *":
+) -> "TSequenceSet *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     interp_converted = _ffi.cast("interpType", interp)
     result = _lib.temporal_to_tsequenceset(temp_converted, interp_converted)
@@ -8050,6 +8090,1252 @@ def tne_ttext_text(temp: "const Temporal *", txt: str) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def adjacent_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adjacent_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adjacent_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adjacent_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.adjacent_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.adjacent_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.adjacent_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.adjacent_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.adjacent_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.adjacent_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.adjacent_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def adjacent_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.adjacent_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contained_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.contained_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.contained_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.contained_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contained_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.contained_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contained_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contained_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contained_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.contains_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contains_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.contains_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.contains_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contains_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.contains_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.contains_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.contains_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overlaps_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overlaps_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overlaps_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overlaps_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overlaps_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overlaps_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.overlaps_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overlaps_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overlaps_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overlaps_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overlaps_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overlaps_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.same_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.same_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.same_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.same_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.same_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.same_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.same_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def same_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.same_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def above_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.above_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def above_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.above_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def above_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.above_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.after_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.after_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.after_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.after_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.after_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.after_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.after_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.after_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def after_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.after_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def back_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.back_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def back_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.back_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def back_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.back_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.before_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.before_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.before_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.before_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.before_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.before_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.before_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.before_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def before_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.before_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def below_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.below_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def below_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.below_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def below_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.below_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def front_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.front_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def front_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.front_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def front_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.front_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.left_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.left_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.left_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.left_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.left_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.left_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.left_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def left_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.left_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overabove_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overabove_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overabove_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overabove_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overabove_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overabove_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overafter_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overafter_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overafter_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overafter_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.overafter_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overafter_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overafter_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overafter_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overafter_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overback_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overback_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overback_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overback_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overback_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overback_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overbefore_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overbefore_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_temporal_tstzspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overbefore_temporal_tstzspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_temporal_temporal(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overbefore_temporal_temporal(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.overbefore_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overbefore_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overbefore_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overbefore_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_tstzspan_temporal(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overbefore_tstzspan_temporal(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbelow_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overbelow_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbelow_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overbelow_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbelow_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overbelow_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overfront_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overfront_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overfront_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overfront_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overfront_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overfront_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overleft_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overleft_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overleft_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overleft_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.overleft_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overleft_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overleft_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overleft_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overleft_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overright_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overright_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.overright_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.overright_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.overright_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overright_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.overright_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overright_tpoint_tpoint(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.overright_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_numspan_tnumber(s: "const Span *", temp: "const Temporal *") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.right_numspan_tnumber(s_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_stbox_tpoint(box: "const STBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const STBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.right_stbox_tpoint(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tbox_tnumber(box: "const TBox *", temp: "const Temporal *") -> "bool":
+    box_converted = _ffi.cast("const TBox *", box)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.right_tbox_tnumber(box_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tnumber_numspan(temp: "const Temporal *", s: "const Span *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.right_tnumber_numspan(temp_converted, s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.right_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.right_tnumber_tnumber(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tpoint_stbox(temp: "const Temporal *", box: "const STBox *") -> "bool":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const STBox *", box)
+    result = _lib.right_tpoint_stbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def right_tpoint_tpoint(temp1: "const Temporal *", temp2: "const Temporal *") -> "bool":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.right_tpoint_tpoint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tand_bool_tbool(b: bool, temp: "const Temporal *") -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tand_bool_tbool(b, temp_converted)
@@ -8684,9 +9970,9 @@ def geo_expand_space(gs: "const GSERIALIZED *", d: float) -> "STBox *":
     return result if result != _ffi.NULL else None
 
 
-def geo_to_tpoint(gs: "const GSERIALIZED *") -> "Temporal *":
+def geomeas_to_tpoint(gs: "const GSERIALIZED *") -> "Temporal *":
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
-    result = _lib.geo_to_tpoint(gs_converted)
+    result = _lib.geomeas_to_tpoint(gs_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -8772,13 +10058,13 @@ def tpoint_set_srid(temp: "const Temporal *", srid: int) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def tpoint_to_geo_meas(
+def tpoint_tfloat_to_geomeas(
     tpoint: "const Temporal *", measure: "const Temporal *", segmentize: bool
 ) -> "GSERIALIZED **":
     tpoint_converted = _ffi.cast("const Temporal *", tpoint)
     measure_converted = _ffi.cast("const Temporal *", measure)
     out_result = _ffi.new("GSERIALIZED **")
-    result = _lib.tpoint_to_geo_meas(
+    result = _lib.tpoint_tfloat_to_geomeas(
         tpoint_converted, measure_converted, segmentize, out_result
     )
     _check_error()
@@ -9288,6 +10574,37 @@ def tstzspan_bucket_list(
     return result if result != _ffi.NULL else None, count[0]
 
 
+def stbox_tile(
+    point: "GSERIALIZED *",
+    t: int,
+    xsize: float,
+    ysize: float,
+    zsize: float,
+    duration: "Interval *",
+    sorigin: "GSERIALIZED *",
+    torigin: int,
+    hast: bool,
+) -> "STBox *":
+    point_converted = _ffi.cast("GSERIALIZED *", point)
+    t_converted = _ffi.cast("TimestampTz", t)
+    duration_converted = _ffi.cast("Interval *", duration)
+    sorigin_converted = _ffi.cast("GSERIALIZED *", sorigin)
+    torigin_converted = _ffi.cast("TimestampTz", torigin)
+    result = _lib.stbox_tile(
+        point_converted,
+        t_converted,
+        xsize,
+        ysize,
+        zsize,
+        duration_converted,
+        sorigin_converted,
+        torigin_converted,
+        hast,
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def stbox_tile_list(
     bounds: "const STBox *",
     xsize: float,
@@ -9551,17 +10868,69 @@ def tpoint_space_time_split(
     )
 
 
-def meostype_name(type: "meosType") -> str:
-    type_converted = _ffi.cast("meosType", type)
-    result = _lib.meostype_name(type_converted)
+def temptype_subtype(subtype: "tempSubtype") -> "bool":
+    subtype_converted = _ffi.cast("tempSubtype", subtype)
+    result = _lib.temptype_subtype(subtype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temptype_subtype_all(subtype: "tempSubtype") -> "bool":
+    subtype_converted = _ffi.cast("tempSubtype", subtype)
+    result = _lib.temptype_subtype_all(subtype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tempsubtype_name(subtype: "tempSubtype") -> str:
+    subtype_converted = _ffi.cast("tempSubtype", subtype)
+    result = _lib.tempsubtype_name(subtype_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def tempsubtype_from_string(string: str, subtype: "int16 *") -> "bool":
+    string_converted = string.encode("utf-8")
+    subtype_converted = _ffi.cast("int16 *", subtype)
+    result = _lib.tempsubtype_from_string(string_converted, subtype_converted)
+    _check_error()
     return result if result != _ffi.NULL else None
 
 
 def meosoper_name(oper: "meosOper") -> str:
     oper_converted = _ffi.cast("meosOper", oper)
     result = _lib.meosoper_name(oper_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def meosoper_from_string(name: str) -> "meosOper":
+    name_converted = name.encode("utf-8")
+    result = _lib.meosoper_from_string(name_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def interptype_name(interp: "interpType") -> str:
+    interp_converted = _ffi.cast("interpType", interp)
+    result = _lib.interptype_name(interp_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def interptype_from_string(interp_str: str) -> "interpType":
+    interp_str_converted = interp_str.encode("utf-8")
+    result = _lib.interptype_from_string(interp_str_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def meostype_name(type: "meosType") -> str:
+    type_converted = _ffi.cast("meosType", type)
+    result = _lib.meostype_name(type_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
     return result if result != _ffi.NULL else None
@@ -10310,9 +11679,23 @@ def set_values(s: "const Set *") -> "Datum *":
     return result if result != _ffi.NULL else None
 
 
+def spanset_lower(ss: "const SpanSet *") -> "Datum":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.spanset_lower(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def spanset_mem_size(ss: "const SpanSet *") -> "int":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.spanset_mem_size(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_upper(ss: "const SpanSet *") -> "Datum":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.spanset_upper(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -11430,13 +12813,24 @@ def tstzset_set_tbox(s: "const Set *", box: "TBox *") -> None:
 
 
 def tbox_shift_scale_value(
-    box: "const TBox *", shift: "Datum", width: "Datum", hasshift: bool, haswidth: bool
+    box: "const TBox *",
+    shift: "Datum",
+    width: "Datum",
+    basetype: "meosType",
+    hasshift: bool,
+    haswidth: bool,
 ) -> "TBox *":
     box_converted = _ffi.cast("const TBox *", box)
     shift_converted = _ffi.cast("Datum", shift)
     width_converted = _ffi.cast("Datum", width)
+    basetype_converted = _ffi.cast("meosType", basetype)
     result = _lib.tbox_shift_scale_value(
-        box_converted, shift_converted, width_converted, hasshift, haswidth
+        box_converted,
+        shift_converted,
+        width_converted,
+        basetype_converted,
+        hasshift,
+        haswidth,
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -11772,12 +13166,12 @@ def tgeompointseqset_in(string: str) -> "TSequenceSet *":
 
 
 def tinstant_as_mfjson(
-    inst: "const TInstant *", precision: int, with_bbox: bool, srs: str
+    inst: "const TInstant *", with_bbox: bool, precision: int, srs: str
 ) -> str:
     inst_converted = _ffi.cast("const TInstant *", inst)
     srs_converted = srs.encode("utf-8")
     result = _lib.tinstant_as_mfjson(
-        inst_converted, precision, with_bbox, srs_converted
+        inst_converted, with_bbox, precision, srs_converted
     )
     _check_error()
     result = _ffi.string(result).decode("utf-8")
@@ -11928,12 +13322,12 @@ def tpointseqset_as_mfjson(
 
 
 def tsequence_as_mfjson(
-    seq: "const TSequence *", precision: int, with_bbox: bool, srs: str
+    seq: "const TSequence *", with_bbox: bool, precision: int, srs: str
 ) -> str:
     seq_converted = _ffi.cast("const TSequence *", seq)
     srs_converted = srs.encode("utf-8")
     result = _lib.tsequence_as_mfjson(
-        seq_converted, precision, with_bbox, srs_converted
+        seq_converted, with_bbox, precision, srs_converted
     )
     _check_error()
     result = _ffi.string(result).decode("utf-8")
@@ -11977,12 +13371,12 @@ def tsequence_out(seq: "const TSequence *", maxdd: int) -> str:
 
 
 def tsequenceset_as_mfjson(
-    ss: "const TSequenceSet *", precision: int, with_bbox: bool, srs: str
+    ss: "const TSequenceSet *", with_bbox: bool, precision: int, srs: str
 ) -> str:
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
     srs_converted = srs.encode("utf-8")
     result = _lib.tsequenceset_as_mfjson(
-        ss_converted, precision, with_bbox, srs_converted
+        ss_converted, with_bbox, precision, srs_converted
     )
     _check_error()
     result = _ffi.string(result).decode("utf-8")
@@ -12569,9 +13963,9 @@ def tsequence_duration(seq: "const TSequence *") -> "Interval *":
     return result if result != _ffi.NULL else None
 
 
-def tsequence_end_timestamp(seq: "const TSequence *") -> "TimestampTz":
+def tsequence_end_timestamptz(seq: "const TSequence *") -> "TimestampTz":
     seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.tsequence_end_timestamp(seq_converted)
+    result = _lib.tsequence_end_timestamptz(seq_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12655,9 +14049,9 @@ def tsequenceset_expand_bbox(ss: "TSequenceSet *", seq: "const TSequence *") -> 
     _check_error()
 
 
-def tsequence_start_timestamp(seq: "const TSequence *") -> "TimestampTz":
+def tsequence_start_timestamptz(seq: "const TSequence *") -> "TimestampTz":
     seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.tsequence_start_timestamp(seq_converted)
+    result = _lib.tsequence_start_timestamptz(seq_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12707,9 +14101,9 @@ def tsequenceset_duration(ss: "const TSequenceSet *", boundspan: bool) -> "Inter
     return result if result != _ffi.NULL else None
 
 
-def tsequenceset_end_timestamp(ss: "const TSequenceSet *") -> "TimestampTz":
+def tsequenceset_end_timestamptz(ss: "const TSequenceSet *") -> "TimestampTz":
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    result = _lib.tsequenceset_end_timestamp(ss_converted)
+    result = _lib.tsequenceset_end_timestamptz(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12806,9 +14200,9 @@ def tsequenceset_set_bbox(ss: "const TSequenceSet *", box: "void *") -> None:
     _check_error()
 
 
-def tsequenceset_start_timestamp(ss: "const TSequenceSet *") -> "TimestampTz":
+def tsequenceset_start_timestamptz(ss: "const TSequenceSet *") -> "TimestampTz":
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    result = _lib.tsequenceset_start_timestamp(ss_converted)
+    result = _lib.tsequenceset_start_timestamptz(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12827,10 +14221,10 @@ def tsequenceset_timespan(ss: "const TSequenceSet *") -> "Interval *":
     return result if result != _ffi.NULL else None
 
 
-def tsequenceset_timestamp_n(ss: "const TSequenceSet *", n: int) -> int:
+def tsequenceset_timestamptz_n(ss: "const TSequenceSet *", n: int) -> int:
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
     out_result = _ffi.new("TimestampTz *")
-    result = _lib.tsequenceset_timestamp_n(ss_converted, n, out_result)
+    result = _lib.tsequenceset_timestamptz_n(ss_converted, n, out_result)
     _check_error()
     if result:
         return out_result[0] if out_result[0] != _ffi.NULL else None
@@ -13598,11 +14992,11 @@ def tsequence_restrict_value(
 
 
 def tsequence_restrict_values(
-    seq: "const TSequence *", set: "const Set *", atfunc: bool
+    seq: "const TSequence *", s: "const Set *", atfunc: bool
 ) -> "TSequenceSet *":
     seq_converted = _ffi.cast("const TSequence *", seq)
-    set_converted = _ffi.cast("const Set *", set)
-    result = _lib.tsequence_restrict_values(seq_converted, set_converted, atfunc)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.tsequence_restrict_values(seq_converted, s_converted, atfunc)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -13667,11 +15061,11 @@ def tsequenceset_restrict_value(
 
 
 def tsequenceset_restrict_values(
-    ss: "const TSequenceSet *", set: "const Set *", atfunc: bool
+    ss: "const TSequenceSet *", s: "const Set *", atfunc: bool
 ) -> "TSequenceSet *":
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    set_converted = _ffi.cast("const Set *", set)
-    result = _lib.tsequenceset_restrict_values(ss_converted, set_converted, atfunc)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.tsequenceset_restrict_values(ss_converted, s_converted, atfunc)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -14366,6 +15760,225 @@ def tsequence_compact(seq: "const TSequence *") -> "TSequence *":
 def tsequenceset_compact(ss: "const TSequenceSet *") -> "TSequenceSet *":
     ss_converted = _ffi.cast("const TSequenceSet *", ss)
     result = _lib.tsequenceset_compact(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbool_tand_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tbool_tand_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbool_tor_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tbool_tor_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_tagg_finalfn(state: "SkipList *") -> "Temporal *":
+    state_converted = _ffi.cast("SkipList *", state)
+    result = _lib.temporal_tagg_finalfn(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_tcount_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.temporal_tcount_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tmax_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tfloat_tmax_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tmin_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tfloat_tmin_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_tsum_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tfloat_tsum_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_wmax_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tfloat_wmax_transfn(
+        state_converted, temp_converted, interval_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_wmin_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tfloat_wmin_transfn(
+        state_converted, temp_converted, interval_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_wsum_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tfloat_wsum_transfn(
+        state_converted, temp_converted, interval_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_tmin_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tint_tmin_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_tmax_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tint_tmax_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_tsum_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tint_tsum_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_wmax_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tint_wmax_transfn(state_converted, temp_converted, interval_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_wmin_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tint_wmin_transfn(state_converted, temp_converted, interval_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_wsum_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tint_wsum_transfn(state_converted, temp_converted, interval_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_tavg_finalfn(state: "SkipList *") -> "Temporal *":
+    state_converted = _ffi.cast("SkipList *", state)
+    result = _lib.tnumber_tavg_finalfn(state_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_tavg_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tnumber_tavg_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tnumber_wavg_transfn(
+    state: "SkipList *", temp: "const Temporal *", interval: "const Interval *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state)
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    interval_converted = _ffi.cast("const Interval *", interval)
+    result = _lib.tnumber_wavg_transfn(
+        state_converted, temp_converted, interval_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttext_tmin_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ttext_tmin_transfn(state_converted, temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttext_tmax_transfn(
+    state: "Optional['SkipList *']", temp: "const Temporal *"
+) -> "SkipList *":
+    state_converted = _ffi.cast("SkipList *", state) if state is not None else _ffi.NULL
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ttext_tmax_transfn(state_converted, temp_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

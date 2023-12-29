@@ -129,9 +129,9 @@ class TsTzSpanSet(SpanSet[datetime], TsTzCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            tstzspanset_start_timestamp
+            tstzspanset_start_timestamptz
         """
-        return timestamptz_to_datetime(tstzspanset_start_timestamp(self._inner))
+        return timestamptz_to_datetime(tstzspanset_start_timestamptz(self._inner))
 
     def end_timestamp(self) -> datetime:
         """
@@ -140,9 +140,9 @@ class TsTzSpanSet(SpanSet[datetime], TsTzCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            tstzspanset_end_timestamp
+            tstzspanset_end_timestamptz
         """
-        return timestamptz_to_datetime(tstzspanset_end_timestamp(self._inner))
+        return timestamptz_to_datetime(tstzspanset_end_timestamptz(self._inner))
 
     def timestamp_n(self, n: int) -> datetime:
         """
@@ -151,11 +151,11 @@ class TsTzSpanSet(SpanSet[datetime], TsTzCollection):
             A :class:`datetime` instance
 
         MEOS Functions:
-            spanset_timestamp_n
+            tstzspanset_timestamptz_n
         """
         if n < 0 or n >= self.num_timestamps():
             raise IndexError(f"Index {n} out of bounds")
-        return timestamptz_to_datetime(tstzspanset_timestamp_n(self._inner, n + 1))
+        return timestamptz_to_datetime(tstzspanset_timestamptz_n(self._inner, n + 1))
 
     def timestamps(self) -> List[datetime]:
         """
