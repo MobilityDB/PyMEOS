@@ -1,7 +1,7 @@
 import os
 import logging
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
@@ -52,14 +52,22 @@ def get_address(value: "Any") -> "Any *":
     return _ffi.addressof(value)
 
 
-def datetime_to_timestamptz(dt: datetime) -> int:
+def datetime_to_timestamptz(dt: datetime) -> "TimestampTz":
     return _lib.pg_timestamptz_in(
         dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1
     )
 
 
-def timestamptz_to_datetime(ts: int) -> datetime:
+def timestamptz_to_datetime(ts: "TimestampTz") -> datetime:
     return parse(pg_timestamptz_out(ts))
+
+
+def date_to_date_adt(dt: date) -> "DateADT":
+    return _lib.pg_date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
+
+
+def date_adt_to_date(ts: "DateADT") -> date:
+    return parse(pg_date_out(ts)).date()
 
 
 def timedelta_to_interval(td: timedelta) -> Any:
