@@ -1,7 +1,7 @@
 import os
 import logging
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Any, Tuple, Optional, List, Union
 
 import _meos_cffi
@@ -52,14 +52,22 @@ def get_address(value: "Any") -> "Any *":
     return _ffi.addressof(value)
 
 
-def datetime_to_timestamptz(dt: datetime) -> int:
+def datetime_to_timestamptz(dt: datetime) -> "TimestampTz":
     return _lib.pg_timestamptz_in(
         dt.strftime("%Y-%m-%d %H:%M:%S%z").encode("utf-8"), -1
     )
 
 
-def timestamptz_to_datetime(ts: int) -> datetime:
+def timestamptz_to_datetime(ts: "TimestampTz") -> datetime:
     return parse(pg_timestamptz_out(ts))
+
+
+def date_to_date_adt(dt: date) -> "DateADT":
+    return _lib.pg_date_in(dt.strftime("%Y-%m-%d").encode("utf-8"))
+
+
+def date_adt_to_date(ts: "DateADT") -> date:
+    return parse(pg_date_out(ts)).date()
 
 
 def timedelta_to_interval(td: timedelta) -> Any:
@@ -4437,6 +4445,14 @@ def distance_set_timestamptz(s: "const Set *", t: int) -> "double":
     return result if result != _ffi.NULL else None
 
 
+def distance_set_date(s: "const Set *", d: "DateADT") -> "double":
+    s_converted = _ffi.cast("const Set *", s)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.distance_set_date(s_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def distance_span_bigint(s: "const Span *", i: int) -> "double":
     s_converted = _ffi.cast("const Span *", s)
     i_converted = _ffi.cast("int64", i)
@@ -4475,6 +4491,14 @@ def distance_span_timestamptz(s: "const Span *", t: int) -> "double":
     return result if result != _ffi.NULL else None
 
 
+def distance_span_date(s: "const Span *", d: "DateADT") -> "double":
+    s_converted = _ffi.cast("const Span *", s)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.distance_span_date(s_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def distance_spanset_bigint(ss: "const SpanSet *", i: int) -> "double":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     i_converted = _ffi.cast("int64", i)
@@ -4501,6 +4525,14 @@ def distance_spanset_timestamptz(ss: "const SpanSet *", t: int) -> "double":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.distance_spanset_timestamptz(ss_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def distance_spanset_date(ss: "const SpanSet *", d: "DateADT") -> "double":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.distance_spanset_date(ss_converted, d_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
