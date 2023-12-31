@@ -1408,19 +1408,32 @@ class TGeomPoint(
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: datetime) -> TGeomPointInst:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: datetime, interpolation: None = None
+    ) -> TGeomPointInst:
         ...
 
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
+        value: shpb.BaseGeometry, base: TsTzSet, interpolation: None = None
     ) -> TGeomPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeomPointSeqSet:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TGeomPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: shpb.BaseGeometry,
+        base: TsTzSpanSet,
+        interpolation: TInterpolation = None,
+    ) -> TGeomPointSeqSet:
         ...
 
     @staticmethod
@@ -1448,16 +1461,16 @@ class TGeomPoint(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TGeomPointSeq(
-                _inner=tpointseq_from_base_tstzset(gs, base._inner)
-            )
+            return TGeomPointSeq(_inner=tpointseq_from_base_tstzset(gs, base._inner))
         elif isinstance(base, TsTzSpan):
             return TGeomPointSeq(
                 _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
         elif isinstance(base, TsTzSpanSet):
             return TGeomPointSeqSet(
-                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(
+                    gs, base._inner, interpolation
+                )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
@@ -1690,19 +1703,32 @@ class TGeogPoint(
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: datetime) -> TGeogPointInst:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: datetime, interpolation: TInterpolation = None
+    ) -> TGeogPointInst:
         ...
 
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
+        value: shpb.BaseGeometry, base: TsTzSet, interpolation: TInterpolation = None
     ) -> TGeogPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeogPointSeqSet:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TGeogPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: shpb.BaseGeometry,
+        base: TsTzSpanSet,
+        interpolation: TInterpolation = None,
+    ) -> TGeogPointSeqSet:
         ...
 
     @staticmethod
@@ -1730,16 +1756,16 @@ class TGeogPoint(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TGeogPointSeq(
-                _inner=tpointseq_from_base_tstzset(gs, base._inner)
-            )
+            return TGeogPointSeq(_inner=tpointseq_from_base_tstzset(gs, base._inner))
         elif isinstance(base, TsTzSpan):
             return TGeogPointSeq(
                 _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
         elif isinstance(base, TsTzSpanSet):
             return TGeogPointSeqSet(
-                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(
+                    gs, base._inner, interpolation
+                )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 

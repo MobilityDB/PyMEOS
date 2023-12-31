@@ -54,17 +54,30 @@ class TFloat(
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: datetime) -> TFloatInst:
+    def from_base_time(
+        value: float, base: datetime, interpolation: None = None
+    ) -> TFloatInst:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: Union[TsTzSet, TsTzSpan]) -> TFloatSeq:
+    def from_base_time(
+        value: float, base: TsTzSet, interpolation: None = None
+    ) -> TFloatSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: TsTzSpanSet) -> TFloatSeqSet:
+    def from_base_time(
+        value: float, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TFloatSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: float, base: TsTzSpanSet, interpolation: TInterpolation = None
+    ) -> TFloatSeqSet:
         ...
 
     @staticmethod
@@ -92,9 +105,7 @@ class TFloat(
                 _inner=tfloatinst_make(value, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TFloatSeq(
-                _inner=tfloatseq_from_base_tstzset(value, base._inner)
-            )
+            return TFloatSeq(_inner=tfloatseq_from_base_tstzset(value, base._inner))
         elif isinstance(base, TsTzSpan):
             return TFloatSeq(
                 _inner=tfloatseq_from_base_tstzspan(value, base._inner, interpolation)
