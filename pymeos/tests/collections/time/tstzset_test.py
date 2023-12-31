@@ -8,16 +8,11 @@ from pymeos import (
     TsTzSpan,
     TsTzSpanSet,
     TsTzSet,
-    TFloatInst,
-    TFloatSeq,
-    STBox,
-    TFloatSeqSet,
-    TBox,
 )
 from tests.conftest import TestPyMEOS
 
 
-class TestTimestampSet(TestPyMEOS):
+class TestTsTzSet(TestPyMEOS):
     ts_set = TsTzSet(
         "{2019-09-01 00:00:00+0, 2019-09-02 00:00:00+0, 2019-09-03 00:00:00+0}"
     )
@@ -28,7 +23,7 @@ class TestTimestampSet(TestPyMEOS):
         assert ts_set.elements() == timestamps
 
 
-class TestTimestampSetConstructors(TestTimestampSet):
+class TestTsTzSetConstructors(TestTsTzSet):
     def test_string_constructor(self):
         self.assert_tstzset_equality(
             self.ts_set,
@@ -86,7 +81,7 @@ class TestTimestampSetConstructors(TestTimestampSet):
         assert self.ts_set is not ts_set_copy
 
 
-class TestTimestampSetOutputs(TestTimestampSet):
+class TestTsTzSetOutputs(TestTsTzSet):
     def test_str(self):
         assert (
             str(self.ts_set)
@@ -103,21 +98,21 @@ class TestTimestampSetOutputs(TestTimestampSet):
         assert self.ts_set == TsTzSet.from_hexwkb(self.ts_set.as_hexwkb())
 
 
-class TestTimestampConversions(TestTimestampSet):
+class TestTimestampConversions(TestTsTzSet):
     def test_to_tstzspanset(self):
-        assert self.ts_set.to_tstzspanset() == TsTzSpanSet(
+        assert self.ts_set.to_spanset() == TsTzSpanSet(
             "{[2019-09-01 00:00:00+00, 2019-09-01 00:00:00+00], "
             "[2019-09-02 00:00:00+00, 2019-09-02 00:00:00+00], "
             "[2019-09-03 00:00:00+00, 2019-09-03 00:00:00+00]}"
         )
 
 
-class TestTimestampSetAccessors(TestTimestampSet):
+class TestTsTzSetAccessors(TestTsTzSet):
     def test_duration(self):
         assert self.ts_set.duration() == timedelta(days=2)
 
     def test_tstzspan(self):
-        assert self.ts_set.to_tstzspan() == TsTzSpan(
+        assert self.ts_set.to_span() == TsTzSpan(
             "[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]"
         )
 
@@ -155,7 +150,7 @@ class TestTimestampSetAccessors(TestTimestampSet):
         assert hash(self.ts_set) == 527267058
 
 
-class TestTimestampSetPositionFunctions(TestTimestampSet):
+class TestTsTzSetPositionFunctions(TestTsTzSet):
     timestamp = datetime(year=2020, month=1, day=1)
     tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}")
 
@@ -205,7 +200,7 @@ class TestTimestampSetPositionFunctions(TestTimestampSet):
         self.ts_set.distance(other)
 
 
-class TestTimestampSetSetFunctions(TestTimestampSet):
+class TestTsTzSetSetFunctions(TestTsTzSet):
     timestamp = datetime(year=2020, month=1, day=1)
     tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}")
     tstzspan = TsTzSpan("(2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0)")
@@ -241,7 +236,7 @@ class TestTimestampSetSetFunctions(TestTimestampSet):
         self.tstzset - other
 
 
-class TestTimestampSetComparisons(TestTimestampSet):
+class TestTsTzSetComparisons(TestTsTzSet):
     tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-31 00:00:00+0}")
     other = TsTzSet("{2020-01-02 00:00:00+0, 2020-03-31 00:00:00+0}")
 
@@ -264,7 +259,7 @@ class TestTimestampSetComparisons(TestTimestampSet):
         _ = self.tstzset >= self.other
 
 
-class TestTimestampSetFunctionsFunctions(TestTimestampSet):
+class TestTsTzSetFunctionsFunctions(TestTsTzSet):
     tstzset = TsTzSet(
         "{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}"
     )
@@ -349,7 +344,7 @@ class TestTimestampSetFunctionsFunctions(TestTimestampSet):
         )
 
 
-class TestTimestampSetMiscFunctions(TestTimestampSet):
+class TestTsTzSetMiscFunctions(TestTsTzSet):
     tstzset = TsTzSet(
         "{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}"
     )
