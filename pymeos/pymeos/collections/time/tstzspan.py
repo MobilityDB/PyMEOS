@@ -80,18 +80,6 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
 
         return TsTzSpanSet(_inner=super().to_spanset())
 
-    def to_tstzspanset(self) -> TsTzSpanSet:
-        """
-        Returns a tstzspan set containing ``self``.
-
-        Returns:
-            A new :class:`TsTzSpanSet` instance
-
-        MEOS Functions:
-            span_to_spanset
-        """
-        return self.to_spanset()
-
     # ------------------------- Accessors -------------------------------------
     def lower(self) -> datetime:
         """

@@ -546,10 +546,10 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`TsTzSpanSet` instance.
+            A :class:`SpanSet` instance.
 
         MEOS Functions:
-        union_tstzspan_timestamp, union_spanset_span, union_span_span
+        union_spanset_span, union_span_span
         """
         from .spanset import SpanSet
 

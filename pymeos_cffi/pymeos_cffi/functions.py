@@ -1401,6 +1401,20 @@ def datespan_duration(s: "const Span *") -> "Interval *":
     return result if result != _ffi.NULL else None
 
 
+def datespan_lower(s: "const Span *") -> "DateADT":
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.datespan_lower(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datespan_upper(s: "const Span *") -> "DateADT":
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.datespan_upper(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def datespanset_duration(ss: "const SpanSet *", boundspan: bool) -> "Interval *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.datespanset_duration(ss_converted, boundspan)
@@ -3273,6 +3287,14 @@ def contains_span_timestamptz(s: "const Span *", t: int) -> "bool":
     return result if result != _ffi.NULL else None
 
 
+def contains_span_date(s: "const Span *", d: "DateADT") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.contains_span_date(s_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def contains_spanset_bigint(ss: "const SpanSet *", i: int) -> "bool":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     i_converted = _ffi.cast("int64", i)
@@ -3315,6 +3337,14 @@ def contains_spanset_timestamptz(ss: "const SpanSet *", t: int) -> "bool":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.contains_spanset_timestamptz(ss_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def contains_spanset_date(ss: "const SpanSet *", d: "DateADT") -> "bool":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.contains_spanset_date(ss_converted, d_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3755,10 +3785,26 @@ def overafter_span_timestamptz(s: "const Span *", t: int) -> "bool":
     return result if result != _ffi.NULL else None
 
 
+def overafter_span_date(s: "const Span *", d: "DateADT") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.overafter_span_date(s_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overafter_spanset_timestamptz(ss: "const SpanSet *", t: int) -> "bool":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.overafter_spanset_timestamptz(ss_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overafter_spanset_date(ss: "const SpanSet *", d: "DateADT") -> "bool":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.overafter_spanset_date(ss_converted, d_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -3811,10 +3857,26 @@ def overbefore_span_timestamptz(s: "const Span *", t: int) -> "bool":
     return result if result != _ffi.NULL else None
 
 
+def overbefore_span_date(s: "const Span *", d: "DateADT") -> "bool":
+    s_converted = _ffi.cast("const Span *", s)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.overbefore_span_date(s_converted, d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def overbefore_spanset_timestamptz(ss: "const SpanSet *", t: int) -> "bool":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.overbefore_spanset_timestamptz(ss_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def overbefore_spanset_date(ss: "const SpanSet *", d: "DateADT") -> "bool":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    d_converted = _ffi.cast("DateADT", d)
+    result = _lib.overbefore_spanset_date(ss_converted, d_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

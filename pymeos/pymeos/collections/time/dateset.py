@@ -286,6 +286,8 @@ class DateSet(Set[date], TimeCollection[date]):
         )
         return DateSet(_inner=tss)
 
+    # ------------------------- Topological Operations ------------------------
+
     def contains(self, content: Union[date, datetime, DateSet]) -> bool:
         """
         Returns whether ``self`` temporally contains ``content``.
