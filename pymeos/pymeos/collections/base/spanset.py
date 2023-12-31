@@ -450,6 +450,7 @@ class SpanSet(Collection[T], ABC):
             A :class:`float` instance
 
         MEOS Functions:
+            distance_spanset_span, distance_spanset_spanset
         """
         from .span import Span
 

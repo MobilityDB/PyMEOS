@@ -22,7 +22,7 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
     """
     Class for representing lists of disjoint tstzspans.
 
-    ``TsTzSpanSet`` objects can be created with a single argument of type string
+    :class:``TsTzSpanSet`` objects can be created with a single argument of type string
     as in MobilityDB.
 
         >>> TsTzSpanSet(string='{[2019-09-08 00:00:00+01, 2019-09-10 00:00:00+01], [2019-09-11 00:00:00+01, 2019-09-12 00:00:00+01]}')
@@ -169,17 +169,6 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         ts, count = tstzspanset_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    def num_tstzspans(self) -> int:
-        """
-        Returns the number of tstzspans in ``self``.
-        Returns:
-            An :class:`int`
-
-        MEOS Functions:
-            spanset_num_spans
-        """
-        return self.num_spans()
-
     def start_span(self) -> TsTzSpan:
         """
         Returns the first tstzspan in ``self``.
@@ -192,17 +181,6 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         from .tstzspan import TsTzSpan
 
         return TsTzSpan(_inner=super().start_span())
-
-    def start_tstzspan(self) -> TsTzSpan:
-        """
-        Returns the first tstzspan in ``self``.
-        Returns:
-            A :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            spanset_start_span
-        """
-        return self.start_span()
 
     def end_span(self) -> TsTzSpan:
         """
@@ -217,17 +195,6 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
 
         return TsTzSpan(_inner=super().end_span())
 
-    def end_tstzspan(self) -> TsTzSpan:
-        """
-        Returns the last tstzspan in ``self``.
-        Returns:
-            A :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            spanset_end_span
-        """
-        return self.end_span()
-
     def span_n(self, n: int) -> TsTzSpan:
         """
         Returns the n-th tstzspan in ``self``.
@@ -240,17 +207,6 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         from .tstzspan import TsTzSpan
 
         return TsTzSpan(_inner=super().span_n(n))
-
-    def tstzspan_n(self, n: int) -> TsTzSpan:
-        """
-        Returns the n-th tstzspan in ``self``.
-        Returns:
-            A :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            spanset_span_n
-        """
-        return self.span_n(n)
 
     def spans(self) -> List[TsTzSpan]:
         """
@@ -266,21 +222,10 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         ps = super().spans()
         return [TsTzSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
-    def tstzspans(self) -> List[TsTzSpan]:
-        """
-        Returns the list of tstzspans in ``self``.
-        Returns:
-            A :class:`list[TsTzSpan]` instance
-
-        MEOS Functions:
-            spanset_spans
-        """
-        return self.spans()
-
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: timedelta) -> TsTzSpanSet:
         """
-        Returns a new tstzspanset that is the result of shifting ``self`` by
+        Returns a new :class:`TsTzSpanSet` that is the result of shifting ``self`` by
         ``delta``
 
         Examples:
@@ -291,7 +236,7 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             delta: :class:`datetime.timedelta` instance to shift
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A new :class:`TsTzSpanSet` instance
 
         MEOS Functions:
             tstzspanset_shift_scale
