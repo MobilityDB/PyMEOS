@@ -32,7 +32,9 @@ class BoxPlotter:
                 tbox.to_floatspan(), *args, axes=axes, **kwargs
             )
         if not tbox.has_x:
-            return TimePlotter.plot_tstzspan(tbox.to_tstzspan(), *args, axes=axes, **kwargs)
+            return TimePlotter.plot_tstzspan(
+                tbox.to_tstzspan(), *args, axes=axes, **kwargs
+            )
         return BoxPlotter._plot_box(
             tbox.tmin(),
             tbox.tmax(),

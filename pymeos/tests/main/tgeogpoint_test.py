@@ -97,11 +97,15 @@ class TestTGeogPointConstructors(TestTGeogPoint):
                 TGeogPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeogPointSeq, TInterpolation.LINEAR),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TGeogPointSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpan("[2019-09-01, 2019-09-02]"),
+                TGeogPointSeq,
+                TInterpolation.LINEAR,
+            ),
+            (
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TGeogPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -2276,8 +2280,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert (
+            TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        )
+        assert (
+            TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        )
 
 
 class TestTGeogPointEverSpatialOperations(TestTGeogPoint):

@@ -71,9 +71,9 @@ class TestTBoolConstructors(TestTBool):
             ),
             (TsTzSpan("[2019-09-01, 2019-09-02]"), TBoolSeq, TInterpolation.STEPWISE),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TBoolSeqSet,
-                    TInterpolation.STEPWISE,
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TBoolSeqSet,
+                TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1739,7 +1739,8 @@ class TestTBoolRestrictors(TestTBool):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TBool.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+            TBool.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
+            == temporal
         )
 
     @pytest.mark.parametrize(

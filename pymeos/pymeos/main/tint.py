@@ -85,7 +85,9 @@ class TInt(
         elif isinstance(base, TsTzSpan):
             return TIntSeq(_inner=tintseq_from_base_tstzspan(value, base._inner))
         elif isinstance(base, TsTzSpanSet):
-            return TIntSeqSet(_inner=tintseqset_from_base_tstzspanset(value, base._inner))
+            return TIntSeqSet(
+                _inner=tintseqset_from_base_tstzspanset(value, base._inner)
+            )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
     # ------------------------- Output ----------------------------------------

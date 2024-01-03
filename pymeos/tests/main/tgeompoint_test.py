@@ -90,11 +90,15 @@ class TestTGeomPointConstructors(TestTGeomPoint):
                 TGeomPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeomPointSeq, TInterpolation.LINEAR),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TGeomPointSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpan("[2019-09-01, 2019-09-02]"),
+                TGeomPointSeq,
+                TInterpolation.LINEAR,
+            ),
+            (
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TGeomPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -2412,8 +2416,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert (
+            TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        )
+        assert (
+            TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        )
 
 
 class TestTGeomPointTopologicalFunctions(TestTGeomPoint):

@@ -34,9 +34,7 @@ TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class Temporal(
-    Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatable, ABC
-):
+class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatable, ABC):
     """
     Abstract class for representing temporal values of any subtype.
     """
@@ -820,7 +818,9 @@ class Temporal(
             temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamptz(self._inner, datetime_to_timestamptz(other))
+            result = temporal_at_timestamptz(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, TsTzSet):
             result = temporal_at_tstzset(self._inner, other._inner)
         elif isinstance(other, TsTzSpan):

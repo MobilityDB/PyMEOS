@@ -80,9 +80,9 @@ class TestTFloatConstructors(TestTFloat):
             ),
             (TsTzSpan("[2019-09-01, 2019-09-02]"), TFloatSeq, TInterpolation.LINEAR),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TFloatSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TFloatSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],

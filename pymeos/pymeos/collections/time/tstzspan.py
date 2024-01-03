@@ -563,9 +563,7 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
         ...
 
     @overload
-    def intersection(
-        self, other: Union[TsTzSet, TsTzSpanSet]
-    ) -> Optional[TsTzSpanSet]:
+    def intersection(self, other: Union[TsTzSet, TsTzSpanSet]) -> Optional[TsTzSpanSet]:
         ...
 
     def intersection(self, other: Time) -> Optional[Time]:

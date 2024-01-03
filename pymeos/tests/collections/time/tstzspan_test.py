@@ -89,11 +89,13 @@ class TestTsTzSpanConstructors(TestTsTzSpan):
         ids=["string", "datetime", "mixed"],
     )
     def test_constructor_bounds(self, input_lower, input_upper, lower, upper):
-        tstzspan = TsTzSpan(lower=lower, upper=upper)
+        tstzspan = TsTzSpan(lower=input_lower, upper=input_upper)
         self.assert_tstzspan_equality(tstzspan, lower, upper)
 
     def test_constructor_bound_inclusivity_defaults(self):
-        tstzspan = TsTzSpan(lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0")
+        tstzspan = TsTzSpan(
+            lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0"
+        )
         self.assert_tstzspan_equality(tstzspan, lower_inc=True, upper_inc=False)
 
     @pytest.mark.parametrize(
@@ -158,7 +160,9 @@ class TestTsTzSpanAccessors(TestTsTzSpan):
 
     def test_upper(self):
         assert self.tstzspan.upper() == datetime(2019, 9, 10, tzinfo=timezone.utc)
-        assert self.tstzspan2.upper() == datetime(2019, 9, 10, 2, 3, tzinfo=timezone.utc)
+        assert self.tstzspan2.upper() == datetime(
+            2019, 9, 10, 2, 3, tzinfo=timezone.utc
+        )
 
     def test_lower_inc(self):
         assert not self.tstzspan.lower_inc()
@@ -256,7 +260,9 @@ class TestTsTzSpanTransformations(TestTsTzSpan):
         self.assert_tstzspan_equality(scaled, *result)
 
     def test_shift_scale(self):
-        shifted_scaled = self.tstzspan.shift_scale(timedelta(days=4), timedelta(hours=4))
+        shifted_scaled = self.tstzspan.shift_scale(
+            timedelta(days=4), timedelta(hours=4)
+        )
         self.assert_tstzspan_equality(
             shifted_scaled,
             datetime(2019, 9, 12, 0, tzinfo=timezone.utc),

@@ -13,3 +13,5 @@ docs/_build
 *.pyc
 
 sandbox.py
+
+coverage.xml
