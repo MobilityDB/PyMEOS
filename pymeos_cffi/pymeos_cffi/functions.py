@@ -1040,9 +1040,9 @@ def bigintspan_make(lower: int, upper: int, lower_inc: bool, upper_inc: bool) ->
     return result if result != _ffi.NULL else None
 
 
-def dateset_make(values: 'const DateADT *', count: int) -> 'Set *':
-    values_converted = _ffi.cast('const DateADT *', values)
-    result = _lib.dateset_make(values_converted, count)
+def dateset_make(values: 'List[const DateADT]') -> 'Set *':
+    values_converted = _ffi.new('const DateADT []', values)
+    result = _lib.dateset_make(values_converted, len(values))
     _check_error()
     return result if result != _ffi.NULL else None
 

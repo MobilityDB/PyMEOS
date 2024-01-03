@@ -275,8 +275,7 @@ class Set(Collection[T], ABC):
             True if contained, False otherwise
 
         MEOS Functions:
-            contained_span_span, contained_span_spanset, contained_set_set,
-            contained_spanset_spanset
+            contained_set_set
         """
         if isinstance(container, Set):
             return contained_set_set(self._inner, container._inner)

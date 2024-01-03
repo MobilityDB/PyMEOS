@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, Union, Optional, overload
 
 from dateutil.parser import parse
 from pymeos_cffi import (
+    adjacent_span_date,
     datespan_in,
     date_to_date_adt,
     pg_date_in,
@@ -260,7 +261,27 @@ class DateSpan(Span[date], TimeCollection[date]):
         return DateSpan(_inner=modified)
 
     # ------------------------- Topological Operations ------------------------
-    def contains(self, content: Union[TimeDate]) -> bool:
+    
+    def is_adjacent(self, other: Union[date, DateSpan, DateSpanSet]) -> bool:
+        """
+        Returns whether ``self`` is adjacent to ``other``. That is, they share
+        a bound but only one of them contains it.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            True if adjacent, False otherwise
+
+        MEOS Functions:
+            adjacent_span_span, adjacent_span_spanset, adjacent_span_date
+        """
+        if isinstance(other, date):
+            return adjacent_span_date(self._inner, date_to_date_adt(other))
+        else:
+            return super().is_adjacent(other)
+        
+    def contains(self, content: TimeDate) -> bool:
         """
         Returns whether ``self`` temporally contains ``content``.
 
@@ -287,7 +308,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         else:
             return super().contains(content)
 
-    def overlaps(self, other: Union[TimeDate]) -> bool:
+    def overlaps(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` temporally overlaps ``other``. That is, both
         share at least an instant
@@ -316,7 +337,7 @@ class DateSpan(Span[date], TimeCollection[date]):
             return super().overlaps(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[TimeDate]) -> bool:
+    def is_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -344,7 +365,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same time).
@@ -372,7 +393,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[TimeDate]) -> bool:
+    def is_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``. That is, ``self``
         starts after ``other`` ends.
@@ -399,7 +420,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         else:
             return super().is_right(other)
 
-    def is_over_or_right(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same time).
@@ -428,7 +449,7 @@ class DateSpan(Span[date], TimeCollection[date]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[TimeDate]) -> timedelta:
+    def distance(self, other: TimeDate) -> timedelta:
         """
         Returns the temporal distance between ``self`` and ``other``.
 

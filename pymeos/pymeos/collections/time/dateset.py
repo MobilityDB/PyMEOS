@@ -10,7 +10,6 @@ from pymeos_cffi import (
     date_to_date_adt,
     dateset_make,
     dateset_out,
-    date_to_tstzspan,
     dateset_start_value,
     date_adt_to_date,
     dateset_end_value,
@@ -103,40 +102,27 @@ class DateSet(Set[date], TimeCollection[date]):
 
         return DateSpanSet(_inner=super().to_spanset())
 
-    def to_tstzspanset(self) -> TsTzSpanSet:
-        """
-        Returns a TsTzSpanSet that contains a TsTzSpan for each Timestamp in
-        ``self``.
+    # TODO Add back if function is actually implemented
+    # def to_tstzspanset(self) -> TsTzSpanSet:
+    #     """
+    #     Returns a TsTzSpanSet that contains a TsTzSpan for each Timestamp in
+    #     ``self``.
 
-        Returns:
-            A new :class:`TsTzSpanSet` instance
+    #     Returns:
+    #         A new :class:`TsTzSpanSet` instance
 
-        MEOS Functions:
-            set_to_spanset
-        """
-        from .tstzspanset import TsTzSpanSet
-        from .tstzspan import TsTzSpan
+    #     MEOS Functions:
+    #         set_to_spanset
+    #     """
+    #     from .tstzspanset import TsTzSpanSet
+    #     from .tstzspan import TsTzSpan
 
-        return TsTzSpanSet(
-            span_list=[
-                TsTzSpan(_inner=date_to_tstzspan(date_to_date_adt(d)))
-                for d in self.elements()
-            ]
-        )
-
-    def to_span(self) -> DateSpan:
-        """
-        Returns a :class:`DateSpan` that encompasses ``self``.
-
-        Returns:
-            A new :class:`DateSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        from .datespan import DateSpan
-
-        return DateSpan(_inner=super().to_span())
+    #     return TsTzSpanSet(
+    #         span_list=[
+    #             TsTzSpan(_inner=date_to_tstzspan(date_to_date_adt(d)))
+    #             for d in self.elements()
+    #         ]
+    #     )
 
     # ------------------------- Accessors -------------------------------------
     def duration(self) -> timedelta:
@@ -150,7 +136,7 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             tstzspan_duration
         """
-        return self.to_tstzspanset().duration(ignore_gaps=True)
+        return self.to_span().duration()
 
     def start_element(self) -> date:
         """
@@ -363,7 +349,7 @@ class DateSet(Set[date], TimeCollection[date]):
             overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
         """
 
-        if isinstance(other, datetime):
+        if isinstance(other, date):
             return contains_set_date(self._inner, date_to_date_adt(other))
         elif isinstance(other, DateSpan):
             return self.to_span().is_adjacent(other)
@@ -373,7 +359,7 @@ class DateSet(Set[date], TimeCollection[date]):
             return super().overlaps(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[TimeDate]) -> bool:
+    def is_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -405,7 +391,7 @@ class DateSet(Set[date], TimeCollection[date]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same time).
@@ -436,7 +422,7 @@ class DateSet(Set[date], TimeCollection[date]):
         else:
             return super().is_over_or_left(other)
 
-    def is_over_or_right(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same time).
@@ -467,7 +453,7 @@ class DateSet(Set[date], TimeCollection[date]):
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[TimeDate]) -> bool:
+    def is_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``. That is, the
         first timestamp in ``self`` is after ``other``.
@@ -499,7 +485,7 @@ class DateSet(Set[date], TimeCollection[date]):
             return super().is_over_or_left(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[TimeDate]) -> timedelta:
+    def distance(self, other: TimeDate) -> timedelta:
         """
         Returns the temporal distance between ``self`` and ``other``.
 
@@ -536,7 +522,7 @@ class DateSet(Set[date], TimeCollection[date]):
     ) -> Optional[DateSpanSet]:
         ...
 
-    def intersection(self, other: Union[TimeDate]) -> Optional[TimeDate]:
+    def intersection(self, other: TimeDate) -> Optional[TimeDate]:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 
@@ -574,7 +560,7 @@ class DateSet(Set[date], TimeCollection[date]):
     def minus(self, other: Union[DateSpan, DateSpanSet]) -> Optional[DateSpanSet]:
         ...
 
-    def minus(self, other: Union[TimeDate]) -> Optional[TimeDate]:
+    def minus(self, other: TimeDate) -> Optional[TimeDate]:
         """
         Returns the temporal difference of ``self`` and ``other``.
 
@@ -630,7 +616,7 @@ class DateSet(Set[date], TimeCollection[date]):
     def union(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet:
         ...
 
-    def union(self, other: Union[TimeDate]) -> Union[DateSpanSet, DateSet]:
+    def union(self, other: TimeDate) -> Union[DateSpanSet, DateSet]:
         """
         Returns the temporal union of ``self`` and ``other``.
 
@@ -664,4 +650,4 @@ class DateSet(Set[date], TimeCollection[date]):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
 
-        return TimePlotter.plot_tstzspanset(self.to_tstzspanset(), *args, **kwargs)
+        return TimePlotter.plot_tstzspanset(self.to_spanset().to_tstzspanset(), *args, **kwargs)
