@@ -1,8 +1,8 @@
 .idea
 .vscode
 
-.micromamba/
-d/**
+.micromamba
+d
 
 build
 dist
