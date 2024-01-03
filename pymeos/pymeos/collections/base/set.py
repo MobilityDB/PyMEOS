@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List
+from typing import Optional, Union, List, overload
 from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
 
 from pymeos_cffi import *
@@ -11,6 +11,9 @@ from .collection import Collection
 if TYPE_CHECKING:
     from .spanset import SpanSet
     from .span import Span
+
+    from ..number import IntSet, IntSpan, IntSpanSet, FloatSet, FloatSpan, FloatSpanSet
+    from ..time import DateSet, DateSpan, DateSpanSet, TsTzSet, TsTzSpan, TsTzSpanSet
 
 T = TypeVar("T")
 Self = TypeVar("Self", bound="Set[Any]")
@@ -75,7 +78,9 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_from_wkb
         """
-        return cls(_inner=set_from_wkb(wkb))
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection(set_from_wkb(wkb))
 
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
@@ -90,11 +95,13 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_from_hexwkb
         """
-        return cls(_inner=(set_from_hexwkb(hexwkb)))
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection((set_from_hexwkb(hexwkb)))
 
     # ------------------------- Output ----------------------------------------
     @abstractmethod
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Return the string representation of the content of ``self``.
 
@@ -103,7 +110,7 @@ class Set(Collection[T], ABC):
         """
         raise NotImplementedError()
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Return the string representation of ``self``.
 
@@ -138,20 +145,22 @@ class Set(Collection[T], ABC):
         return set_as_hexwkb(self._inner, -1)[0]
 
     # ------------------------- Conversions -----------------------------------
-    @abstractmethod
-    def to_spanset(self) -> SpanSet:
-        """
-        Returns a SpanSet that contains a Span for each element in ``self``.
+    @overload
+    def to_span(self: Type[IntSet]) -> IntSpan:
+        ...
 
-        Returns:
-            A new :class:`SpanSet` instance
+    @overload
+    def to_span(self: Type[FloatSet]) -> FloatSpan:
+        ...
 
-        MEOS Functions:
-            set_to_spanset
-        """
-        return set_to_spanset(self._inner)
+    @overload
+    def to_span(self: Type[TsTzSet]) -> TsTzSpan:
+        ...
 
-    @abstractmethod
+    @overload
+    def to_span(self: Type[DateSet]) -> DateSpan:
+        ...
+
     def to_span(self) -> Span:
         """
         Returns a span that encompasses ``self``.
@@ -162,7 +171,23 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_span
         """
-        return set_span(self._inner)
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection(set_span(self._inner))
+
+    def to_spanset(self) -> SpanSet:
+        """
+        Returns a SpanSet that contains a Span for each element in ``self``.
+
+        Returns:
+            A new :class:`SpanSet` instance
+
+        MEOS Functions:
+            set_to_spanset
+        """
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection(set_to_spanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
 

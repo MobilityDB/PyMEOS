@@ -100,7 +100,7 @@ class FloatSet(Set[float]):
         MEOS Functions:
             set_span
         """
-        return FloatSpan(_inner=super().to_span())
+        return super().to_span()
 
     def to_intset(self) -> IntSet:
         """

@@ -63,35 +63,6 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
         return tstzset_out(self._inner)
 
     # ------------------------- Conversions -----------------------------------
-    def to_spanset(self) -> TsTzSpanSet:
-        """
-        Returns a TsTzSpanSet that contains a TsTzSpan for each Timestamp in
-        ``self``.
-
-        Returns:
-            A new :class:`TsTzSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-        from .tstzspanset import TsTzSpanSet
-
-        return TsTzSpanSet(_inner=super().to_spanset())
-
-    def to_span(self) -> TsTzSpan:
-        """
-        Returns a tstzspan that encompasses ``self``.
-
-        Returns:
-            A new :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        from .tstzspan import TsTzSpan
-
-        return TsTzSpan(_inner=super().to_span())
-
     # ------------------------- Accessors -------------------------------------
     def duration(self) -> timedelta:
         """
