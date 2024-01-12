@@ -159,9 +159,9 @@ class TBox:
         elif isinstance(value, float):
             result = float_to_tbox(value)
         elif isinstance(value, IntSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         elif isinstance(value, FloatSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
         return TBox(_inner=result)
@@ -185,11 +185,11 @@ class TBox:
         if isinstance(time, datetime):
             result = timestamptz_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TsTzSet):
-            result = tstzset_to_tbox(time._inner)
+            result = set_to_tbox(time._inner)
         elif isinstance(time, TsTzSpan):
-            result = tstzspan_to_tbox(time._inner)
+            result = span_to_tbox(time._inner)
         elif isinstance(time, TsTzSpanSet):
-            result = tstzspanset_to_tbox(time._inner)
+            result = spanset_to_tbox(time._inner)
         else:
             raise TypeError(f"Operation not supported with type {time.__class__}")
         return TBox(_inner=result)
