@@ -261,7 +261,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         return DateSpan(_inner=modified)
 
     # ------------------------- Topological Operations ------------------------
-    
+
     def is_adjacent(self, other: Union[date, DateSpan, DateSpanSet]) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
@@ -280,7 +280,7 @@ class DateSpan(Span[date], TimeCollection[date]):
             return adjacent_span_date(self._inner, date_to_date_adt(other))
         else:
             return super().is_adjacent(other)
-        
+
     def contains(self, content: TimeDate) -> bool:
         """
         Returns whether ``self`` temporally contains ``content``.

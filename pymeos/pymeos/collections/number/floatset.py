@@ -77,31 +77,6 @@ class FloatSet(Set[float]):
 
     # ------------------------- Conversions -----------------------------------
 
-    def to_spanset(self) -> FloatSpanSet:
-        """
-        Returns a SpanSet that contains a Span for each element in ``self``.
-
-        Returns:
-            A new :class:`FloatSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-
-        return FloatSpanSet(_inner=super().to_spanset())
-
-    def to_span(self) -> FloatSpan:
-        """
-        Returns a span that encompasses ``self``.
-
-        Returns:
-            A new :class:`FloatSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        return super().to_span()
-
     def to_intset(self) -> IntSet:
         """
         Converts ``self`` to an :class:`IntSet` instance.

@@ -175,6 +175,22 @@ class Set(Collection[T], ABC):
 
         return _CollectionFactory.create_collection(set_span(self._inner))
 
+    @overload
+    def to_spanset(self: Type[IntSet]) -> IntSpanSet:
+        ...
+
+    @overload
+    def to_spanset(self: Type[FloatSet]) -> FloatSpanSet:
+        ...
+
+    @overload
+    def to_spanset(self: Type[TsTzSet]) -> TsTzSpanSet:
+        ...
+
+    @overload
+    def to_spanset(self: Type[DateSet]) -> DateSpanSet:
+        ...
+
     def to_spanset(self) -> SpanSet:
         """
         Returns a SpanSet that contains a Span for each element in ``self``.

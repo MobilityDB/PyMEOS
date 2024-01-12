@@ -47,12 +47,10 @@ class TestDateSetConstructors(TestDateSet):
 
 class TestDateSetOutputs(TestDateSet):
     def test_str(self):
-        assert str(self.date_set) == '{2019-09-25, 2019-09-26, 2019-09-27}'
+        assert str(self.date_set) == "{2019-09-25, 2019-09-26, 2019-09-27}"
 
     def test_repr(self):
-        assert (
-            repr(self.date_set) == 'DateSet({2019-09-25, 2019-09-26, 2019-09-27})'
-        )
+        assert repr(self.date_set) == "DateSet({2019-09-25, 2019-09-26, 2019-09-27})"
 
     def test_as_hexwkb(self):
         assert self.date_set == DateSet.from_hexwkb(self.date_set.as_hexwkb())
@@ -60,14 +58,18 @@ class TestDateSetOutputs(TestDateSet):
 
 class TestCollectionConversions(TestDateSet):
     def test_to_span(self):
-        assert self.date_set.to_span() == DateSpan("[2019-09-01, 2019-09-03]")
+        assert self.date_set.to_span() == DateSpan("[2019-09-25, 2019-09-27]")
 
     def test_to_spanset(self):
-        assert self.date_set.to_spanset() == DateSpanSet(
-            "{[2019-09-01, 2019-09-01], "
-            "[2019-09-02, 2019-09-02], "
-            "[2019-09-03, 2019-09-03]}"
+        expected = DateSpanSet(
+            "{[2019-09-25, 2019-09-25], "
+            "[2019-09-26, 2019-09-26], "
+            "[2019-09-27, 2019-09-27]}"
         )
+
+        spanset = self.date_set.to_spanset()
+        
+        assert spanset == expected
 
 
 class TestDateSetAccessors(TestDateSet):

@@ -87,20 +87,6 @@ class DateSet(Set[date], TimeCollection[date]):
         return dateset_out(self._inner)
 
     # ------------------------- Conversions -----------------------------------
-    def to_spanset(self) -> DateSpanSet:
-        """
-        Returns a :class:`DateSpanSet` that contains a :class:`DateSpan` for each
-        date in ``self``.
-
-        Returns:
-            A new :class:`DateSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-        from .datespanset import DateSpanSet
-
-        return DateSpanSet(_inner=super().to_spanset())
 
     # TODO Add back if function is actually implemented
     # def to_tstzspanset(self) -> TsTzSpanSet:
@@ -650,4 +636,6 @@ class DateSet(Set[date], TimeCollection[date]):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
 
-        return TimePlotter.plot_tstzspanset(self.to_spanset().to_tstzspanset(), *args, **kwargs)
+        return TimePlotter.plot_tstzspanset(
+            self.to_spanset().to_tstzspanset(), *args, **kwargs
+        )
