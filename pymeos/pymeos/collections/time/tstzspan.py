@@ -119,18 +119,6 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
         """
         return interval_to_timedelta(tstzspan_duration(self._inner))
 
-    def duration_in_seconds(self) -> float:
-        """
-        Returns the duration of the tstzspan.
-
-        Returns:
-            Returns a `float` representing the duration of the tstzspan in seconds
-
-        MEOS Functions:
-            span_width
-        """
-        return self.width()
-
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: timedelta) -> TsTzSpan:
         """

@@ -198,18 +198,6 @@ class Span(Collection[T], ABC):
         """
         return span_upper_inc(self._inner)
 
-    def width(self) -> float:
-        """
-        Returns the duration of the tstzspan.
-
-        Returns:
-            Returns a `float` representing the duration of the tstzspan in seconds
-
-        MEOS Functions:
-            span_width
-        """
-        return span_width(self._inner)
-
     def __hash__(self) -> int:
         """
         Return the hash representation of ``self``.

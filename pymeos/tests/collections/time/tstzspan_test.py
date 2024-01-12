@@ -176,10 +176,6 @@ class TestTsTzSpanAccessors(TestTsTzSpan):
         assert self.tstzspan.duration() == timedelta(days=2)
         assert self.tstzspan2.duration() == timedelta(days=2)
 
-    def test_duration_in_seconds(self):
-        assert self.tstzspan.duration_in_seconds() == 172800
-        assert self.tstzspan2.duration_in_seconds() == 172800
-
     def test_hash(self):
         assert hash(self.tstzspan)
 

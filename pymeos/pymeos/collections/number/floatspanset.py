@@ -5,7 +5,7 @@ from typing import Union, overload, Optional, TYPE_CHECKING, List
 from pymeos_cffi import (
     floatspanset_in,
     floatspanset_out,
-    spanset_width,
+    floatspanset_width,
     floatspanset_shift_scale,
     adjacent_spanset_float,
     contains_spanset_float,
@@ -120,9 +120,9 @@ class FloatSpanSet(SpanSet[float]):
             A `float` representing the duration of the spanset
 
         MEOS Functions:
-            spanset_width
+            floatspanset_width
         """
-        return spanset_width(self._inner, ignore_gaps)
+        return floatspanset_width(self._inner, ignore_gaps)
 
     def start_span(self) -> FloatSpan:
         """

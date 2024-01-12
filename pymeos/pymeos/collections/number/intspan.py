@@ -9,7 +9,7 @@ from pymeos_cffi import (
     intspan_shift_scale,
     contains_span_int,
     adjacent_span_int,
-    span_width,
+    intspan_width,
     int_to_span,
     span_eq,
     left_span_int,
@@ -142,9 +142,9 @@ class IntSpan(Span[int]):
             Returns a `float` representing the width of the span
 
         MEOS Functions:
-            span_width
+            intspan_width
         """
-        return span_width(self._inner)
+        return intspan_width(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: int) -> IntSpan:

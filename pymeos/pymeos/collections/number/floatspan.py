@@ -27,7 +27,7 @@ from pymeos_cffi import (
     union_spanset_span,
     floatspan_out,
     floatspan_make,
-    span_width,
+    floatspan_width,
     floatspan_to_intspan,
 )
 
@@ -143,9 +143,9 @@ class FloatSpan(Span[float]):
             Returns a `float` representing the width of the span
 
         MEOS Functions:
-            span_width
+            floatspan_width
         """
-        return span_width(self._inner)
+        return floatspan_width(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: float) -> FloatSpan:
