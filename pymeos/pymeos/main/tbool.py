@@ -153,7 +153,7 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
         )
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_eq(self, value: bool) -> bool:
+    def always_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -164,11 +164,16 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_always_eq
+            always_eq_tbool_bool, always_eq_temporal_temporal
         """
-        return tbool_always_eq(self._inner, value)
+        if isinstance(value, bool):
+            return always_eq_tbool_bool(self._inner, value) > 0
+        elif isinstance(value, TBool):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_eq(self, value: bool) -> bool:
+    def ever_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -179,11 +184,16 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_ever_eq
+            ever_eq_tbool_bool, ever_eq_temporal_temporal
         """
-        return tbool_ever_eq(self._inner, value)
+        if isinstance(value, bool):
+            return ever_eq_tbool_bool(self._inner, value) > 0
+        elif isinstance(value, TBool):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_eq(self, value: bool) -> bool:
+    def never_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -194,9 +204,9 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_ever_eq
+            ever_eq_tbool_bool, ever_eq_temporal_temporal
         """
-        return not tbool_ever_eq(self._inner, value)
+        return not self.ever_eq(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[bool, TBool]) -> TBool:

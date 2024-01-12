@@ -246,7 +246,7 @@ class TInt(
         )
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_less(self, value: int) -> bool:
+    def always_less(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -258,11 +258,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_lt
+            always_lt_tint_int, always_lt_temporal_temporal
         """
-        return tint_always_lt(self._inner, value)
+        if isinstance(value, int):
+            return always_lt_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: int) -> bool:
+    def always_less_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -275,11 +280,16 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_always_le
+            always_le_tint_int, always_le_temporal_temporal
         """
-        return tint_always_le(self._inner, value)
+        if isinstance(value, int):
+            return always_le_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_equal(self, value: int) -> bool:
+    def always_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always equal to `value`.
 
@@ -291,11 +301,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_eq
+            always_eq_tint_int, always_eq_temporal_temporal
         """
-        return tint_always_eq(self._inner, value)
+        if isinstance(value, int):
+            return always_eq_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_not_equal(self, value: int) -> bool:
+    def always_not_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always not equal to `value`.
 
@@ -307,11 +322,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_eq
+            always_ne_tint_int, always_ne_temporal_temporal
         """
-        return not tint_ever_eq(self._inner, value)
+        if isinstance(value, int):
+            return always_ne_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: int) -> bool:
+    def always_greater_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -324,11 +344,16 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_ever_lt
+            always_ge_tint_int, always_ge_temporal_temporal
         """
-        return not tint_ever_lt(self._inner, value)
+        if isinstance(value, int):
+            return always_ge_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: int) -> bool:
+    def always_greater(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always greater than `value`.
 
@@ -340,11 +365,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_le
+            always_gt_tint_int, always_gt_temporal_temporal
         """
-        return not tint_ever_le(self._inner, value)
+        if isinstance(value, int):
+            return always_gt_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return always_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: int) -> bool:
+    def ever_less(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -356,11 +386,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_lt
+            ever_lt_tint_int, ever_lt_temporal_temporal
         """
-        return tint_ever_lt(self._inner, value)
+        if isinstance(value, int):
+            return ever_lt_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: int) -> bool:
+    def ever_less_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -373,11 +408,16 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_ever_le
+            ever_le_tint_int, ever_le_temporal_temporal
         """
-        return tint_ever_le(self._inner, value)
+        if isinstance(value, int):
+            return ever_le_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: int) -> bool:
+    def ever_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever equal to `value`.
 
@@ -389,11 +429,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_eq
+            ever_eq_tint_int, ever_eq_temporal_temporal
         """
-        return tint_ever_eq(self._inner, value)
+        if isinstance(value, int):
+            return ever_eq_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: int) -> bool:
+    def ever_not_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever not equal to `value`.
 
@@ -405,11 +450,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_eq
+            ever_ne_tint_int, ever_ne_temporal_temporal
         """
-        return not tint_always_eq(self._inner, value)
+        if isinstance(value, int):
+            return ever_ne_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: int) -> bool:
+    def ever_greater_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -422,11 +472,16 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_always_lt
+            ever_ge_tint_int, ever_ge_temporal_temporal
         """
-        return not tint_always_lt(self._inner, value)
+        if isinstance(value, int):
+            return ever_ge_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: int) -> bool:
+    def ever_greater(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are ever greater than `value`.
 
@@ -438,11 +493,16 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_le
+            ever_gt_tint_int, ever_gt_temporal_temporal
         """
-        return not tint_always_le(self._inner, value)
+        if isinstance(value, int):
+            return ever_gt_tint_int(self._inner, value) > 0
+        elif isinstance(value, TInt):
+            return ever_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_less(self, value: int) -> bool:
+    def never_less(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -454,11 +514,11 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_lt
+            ever_lt_tint_int, ever_lt_temporal_temporal
         """
-        return not tint_ever_lt(self._inner, value)
+        return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: int) -> bool:
+    def never_less_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -471,11 +531,11 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_ever_le
+            ever_le_tint_int, ever_le_temporal_temporal
         """
-        return not tint_ever_le(self._inner, value)
+        return not self.ever_less_or_equal(value)
 
-    def never_equal(self, value: int) -> bool:
+    def never_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never equal to `value`.
 
@@ -487,11 +547,11 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_ever_eq
+            ever_eq_tint_int, ever_eq_temporal_temporal
         """
-        return not tint_ever_eq(self._inner, value)
+        return not self.ever_equal(value)
 
-    def never_not_equal(self, value: int) -> bool:
+    def never_not_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never not equal to `value`.
 
@@ -503,11 +563,11 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_eq
+            ever_ne_tint_int, ever_ne_temporal_temporal
         """
-        return tint_always_eq(self._inner, value)
+        return not self.ever_not_equal(value)
 
-    def never_greater_or_equal(self, value: int) -> bool:
+    def never_greater_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -520,11 +580,11 @@ class TInt(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tint_always_lt
+            ever_ge_tint_int, ever_ge_temporal_temporal
         """
-        return tint_always_lt(self._inner, value)
+        return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: int) -> bool:
+    def never_greater(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -536,9 +596,9 @@ class TInt(
             `False` otherwise.
 
         MEOS Functions:
-            tint_always_le
+            ever_gt_tint_int, ever_gt_temporal_temporal
         """
-        return tint_always_le(self._inner, value)
+        return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[int, TInt]) -> TBool:
