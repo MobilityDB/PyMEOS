@@ -1,13 +1,25 @@
 from datetime import datetime
 from typing import Union
 
-from pymeos_cffi import *
+from pymeos_cffi import (
+    timestamptz_tcount_transfn,
+    datetime_to_timestamptz,
+    tstzset_tcount_transfn,
+    temporal_tcount_transfn,
+    tstzspan_tcount_transfn,
+    tstzspanset_tcount_transfn,
+    temporal_extent_transfn,
+    timestamptz_extent_transfn,
+    set_extent_transfn,
+    span_extent_transfn,
+    spanset_extent_transfn,
+)
 
 from .aggregator import BaseAggregator
 from ..boxes import Box
+from ..collections import Time, TsTzSet, TsTzSpan, TsTzSpanSet
 from ..main import TIntSeq, TIntSeqSet
 from ..temporal import Temporal, TInterpolation
-from ..collections import Time, TsTzSet, TsTzSpan, TsTzSpanSet
 
 
 class TemporalInstantCountAggregator(
@@ -27,7 +39,7 @@ class TemporalInstantCountAggregator(
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, datetime):
-            state = timestamp_tcount_transfn(state, datetime_to_timestamptz(temporal))
+            state = timestamptz_tcount_transfn(state, datetime_to_timestamptz(temporal))
         elif isinstance(temporal, TsTzSet):
             state = tstzset_tcount_transfn(state, temporal._inner)
         elif (
@@ -85,7 +97,7 @@ class TemporalExtentAggregator(BaseAggregator[Union[Time, Temporal], TsTzSpan]):
         if isinstance(temporal, Temporal):
             state = temporal_extent_transfn(state, temporal._inner)
         elif isinstance(temporal, datetime):
-            state = timestamp_extent_transfn(state, datetime_to_timestamptz(temporal))
+            state = timestamptz_extent_transfn(state, datetime_to_timestamptz(temporal))
         elif isinstance(temporal, TsTzSet):
             state = set_extent_transfn(state, temporal._inner)
         elif isinstance(temporal, TsTzSpan):
