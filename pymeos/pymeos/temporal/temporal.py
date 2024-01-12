@@ -650,7 +650,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation)
+        seq = temporal_to_tsequence(self._inner, interpolation.to_string())
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -660,7 +660,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation)
+        ss = temporal_to_tsequenceset(self._inner, interpolation.to_string())
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
