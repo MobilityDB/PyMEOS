@@ -29,6 +29,7 @@ from pymeos_cffi import (
     minus_date_set,
     union_set_date,
     union_set_set,
+    distance_dateset_dateset,
 )
 
 from .timecollection import TimeCollection
@@ -334,6 +335,8 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             overlaps_set_set, overlaps_span_span, overlaps_spanset_spanset
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             return contains_set_date(self._inner, date_to_date_adt(other))
@@ -367,6 +370,8 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             before_set_date, left_span_span
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             return before_set_date(self._inner, date_to_date_adt(other))
@@ -399,6 +404,9 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             overbefore_set_date, overleft_span_span, overleft_span_spanset
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
+
         if isinstance(other, date):
             return overbefore_set_date(self._inner, date_to_date_adt(other))
         elif isinstance(other, DateSpan):
@@ -430,6 +438,9 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             overafter_set_date, overright_span_span, overright_span_spanset
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
+
         if isinstance(other, date):
             return overafter_set_date(self._inner, date_to_date_adt(other))
         elif isinstance(other, DateSpan):
@@ -461,6 +472,9 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             after_set_date, right_span_span, right_span_spanset
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
+
         if isinstance(other, date):
             return after_set_date(self._inner, date_to_date_adt(other))
         elif isinstance(other, DateSpan):
@@ -482,24 +496,31 @@ class DateSet(Set[date], TimeCollection[date]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_set_timestamptz, distance_set_set,
-            distance_span_span, distance_spanset_span
+            distance_set_date, distance_dateset_dateset,
+            distance_datespanset_datespan, distance_datespanset_datespanset
         """
+        from .datespan import DateSpan
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             return timedelta(
-                seconds=distance_set_date(self._inner, date_to_date_adt(other))
+                days=distance_set_date(self._inner, date_to_date_adt(other))
             )
+        elif isinstance(other, DateSet):
+            return timedelta(
+                days=distance_dateset_dateset(self._inner, other._inner)
+            )
+        elif isinstance(other, DateSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, DateSpanSet):
+            return self.to_spanset().distance(other)
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
-    @overload
-    def intersection(self, other: date) -> Optional[date]:
-        ...
 
     @overload
-    def intersection(self, other: DateSet) -> Optional[DateSet]:
+    def intersection(self, other: Union[date, DateSet]) -> Optional[DateSet]:
         ...
 
     @overload
@@ -527,7 +548,7 @@ class DateSet(Set[date], TimeCollection[date]):
 
         if isinstance(other, date):
             result = intersection_set_date(self._inner, date_to_date_adt(other))
-            return date_adt_to_date(result) if result is not None else None
+            return DateSet(_inner=result) if result is not None else None
         elif isinstance(other, DateSet):
             result = intersection_set_set(self._inner, other._inner)
             return DateSet(_inner=result) if result is not None else None

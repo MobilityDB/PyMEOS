@@ -647,6 +647,8 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             distance_tstzspanset_tstzspan, distance_tstzspanset_tstzspanset,
             distance_spanset_timestamptz, distance_tstzspanset_tstzset
         """
+        from .tstzset import TsTzSet
+        from .tstzspan import TsTzSpan
         from ...temporal import Temporal
         from ...boxes import Box
 
@@ -656,12 +658,22 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
+        elif isinstance(other, TsTzSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, TsTzSpan):
+            return timedelta(
+                seconds=distance_tstzspanset_tstzspan(self._inner, other._inner)
+            )
+        elif isinstance(other, TsTzSpanSet):
+            return timedelta(
+                seconds=distance_tstzspanset_tstzspanset(self._inner, other._inner)
+            )
         if isinstance(other, Temporal):
             return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):
             return self.distance(other.to_tstzspan())
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload

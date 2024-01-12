@@ -4,6 +4,10 @@ from datetime import timedelta, date
 from typing import Optional, Union, List, overload
 from typing import TYPE_CHECKING
 
+from _meos_cffi.lib import (
+    distance_datespanset_datespan,
+    distance_datespanset_datespanset,
+)
 from pymeos_cffi import (
     datespanset_in,
     datespan_in,
@@ -506,7 +510,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
             return super().is_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[TimeDate]) -> timedelta:
+    def distance(self, other: TimeDate) -> timedelta:
         """
         Returns the temporal distance between ``self`` and ``other``.
 
@@ -517,15 +521,28 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_spanset_span, distance_spanset_spanset, distance_spanset_date
+            distance_spanset_date, distance_datespanset_datespan,
+            distance_datespanset_datespanset
         """
+        from .dateset import DateSet
+        from .datespan import DateSpan
 
         if isinstance(other, date):
             return timedelta(
-                seconds=distance_spanset_date(self._inner, date_to_date_adt(other))
+                days=distance_spanset_date(self._inner, date_to_date_adt(other))
+            )
+        elif isinstance(other, DateSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, DateSpan):
+            return timedelta(
+                days=distance_datespanset_datespan(self._inner, other._inner)
+            )
+        elif isinstance(other, DateSpanSet):
+            return timedelta(
+                days=distance_datespanset_datespanset(self._inner, other._inner)
             )
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
 

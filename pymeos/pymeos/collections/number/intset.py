@@ -24,6 +24,7 @@ from pymeos_cffi import (
     intset_shift_scale,
     minus_int_set,
     distance_set_int,
+    distance_intset_intset,
 )
 
 from .intspan import IntSpan
@@ -391,8 +392,30 @@ class IntSet(Set[int]):
 
     # ------------------------- Distance Operations ---------------------------
 
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            A :class:`int` instance
+
+        MEOS Functions:
+            distance_set_int, distance_intset_intset, distance_intspanset_intspan,
+            distance_intspanset_intspanset
+        """
+        from .intspan import IntSpan
+        from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             return distance_set_int(self._inner, other)
+        elif isinstance(other, IntSet):
+            return distance_intset_intset(self._inner, other._inner)
+        elif isinstance(other, IntSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, IntSpanSet):
+            return self.to_spanset().distance(other)
         else:
             return super().distance(other)

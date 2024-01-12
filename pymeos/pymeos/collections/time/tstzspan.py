@@ -523,8 +523,11 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_span_span, distance_spanset_span, distance_span_timestamptz
+            distance_span_timestamptz, distance_tstzspan_tstzspan,
+            distance_tstzspanset_tstzspan
         """
+        from .tstzset import TsTzSet
+        from .tstzspanset import TsTzSpanSet
         from ...temporal import Temporal
         from ...boxes import Box
 
@@ -534,12 +537,22 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
+        elif isinstance(other, TsTzSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, TsTzSpan):
+            return timedelta(
+                seconds=distance_tstzspan_tstzspan(self._inner, other._inner)
+            )
+        elif isinstance(other, TsTzSpanSet):
+            return timedelta(
+                seconds=distance_tstzspanset_tstzspan(other._inner, self._inner)
+            )
         elif isinstance(other, Temporal):
             return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):
             return self.distance(other.to_tstzspan())
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload

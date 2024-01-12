@@ -20,11 +20,14 @@ from pymeos_cffi import (
     union_spanset_float,
     minus_spanset_float,
     floatspanset_to_intspanset,
+    distance_floatspanset_floatspan,
+    distance_floatspanset_floatspanset,
 )
 
-from pymeos.collections import SpanSet
+from ..base import SpanSet
 
 if TYPE_CHECKING:
+    from .floatset import FloatSet
     from .floatspan import FloatSpan
     from .intspanset import IntSpanSet
 
@@ -372,7 +375,9 @@ class FloatSpanSet(SpanSet[float]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, FloatSpan, FloatSpanSet]) -> float:
+    def distance(
+        self, other: Union[int, float, FloatSet, FloatSpan, FloatSpanSet]
+    ) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -380,14 +385,26 @@ class FloatSpanSet(SpanSet[float]):
             other: object to compare with
 
         Returns:
-            A float value
+            A :class:`float` value
 
         MEOS Functions:
-            distance_spanset_span, distance_spanset_spanset,
-            distance_spanset_float
+        distance_spanset_float, distance_floatspanset_floatspan,
+        distance_floatspanset_floatspanset
+
         """
+        from .floatset import FloatSet
+        from .floatspan import FloatSpan
+
         if isinstance(other, int):
+            return distance_spanset_float(self._inner, float(other))
+        elif isinstance(other, float):
             return distance_spanset_float(self._inner, other)
+        elif isinstance(other, FloatSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, FloatSpan):
+            return distance_floatspanset_floatspan(self._inner, other._inner)
+        elif isinstance(other, FloatSpanSet):
+            return distance_floatspanset_floatspanset(other._inner, self._inner)
         else:
             return super().distance(other)
 

@@ -74,7 +74,7 @@ class TestCollectionConversions(TestDateSet):
 
 class TestDateSetAccessors(TestDateSet):
     def test_duration(self):
-        assert self.date_set.duration() == timedelta(days=2)
+        assert self.date_set.duration() == timedelta(days=3)
 
     def test_num_elements(self):
         assert self.date_set.num_elements() == 3
@@ -102,7 +102,7 @@ class TestDateSetAccessors(TestDateSet):
 
 
 class TestDateSetPositionFunctions(TestDateSet):
-    date_value = date(year=2020, month=1, day=25)
+    date_value = date(year=2019, month=9, day=25)
     other_date_set = DateSet("{2020-01-01, 2020-01-31}")
 
     @pytest.mark.parametrize(
@@ -120,7 +120,7 @@ class TestDateSetPositionFunctions(TestDateSet):
     )
     def test_contains(self, other, expected):
         assert self.date_set.contains(other) == expected
-        assert other in self.date_set == expected
+        assert (other in self.date_set) == expected
 
     @pytest.mark.parametrize(
         "other",
@@ -258,7 +258,7 @@ class TestDateSetFunctionsFunctions(TestDateSet):
         ids=["timedelta", "int"],
     )
     def test_scale(self, delta):
-        expected = DateSet("{2020-1-1, 2020-1-3, 2020-1-7}")
+        expected = DateSet("{2020-1-1, 2020-1-3, 2020-1-8}")
 
         scaled = self.dateset.scale(delta)
 

@@ -44,7 +44,7 @@ class SpanSet(Collection[T], ABC):
             self._inner = self.__class__._parse_function(string)
         else:
             spans = [self.__class__._parse_value_function(p) for p in span_list]
-            self._inner = spanset_make(spans, normalize)
+            self._inner = spanset_make(spans, normalize, True)
 
     def __copy__(self: Self) -> Self:
         """
@@ -439,7 +439,7 @@ class SpanSet(Collection[T], ABC):
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other) -> float:
+    def distance(self, other):
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -447,19 +447,9 @@ class SpanSet(Collection[T], ABC):
             other: object to compare with
 
         Returns:
-            A :class:`float` instance
-
-        MEOS Functions:
-            distance_spanset_span, distance_spanset_spanset
+            The distance metric in the appropriate format depending on the subclass.
         """
-        from .span import Span
-
-        if isinstance(other, Span):
-            return distance_spanset_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return distance_spanset_spanset(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Set Operations --------------------------------
     @abstractmethod

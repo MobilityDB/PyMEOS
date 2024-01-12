@@ -29,11 +29,14 @@ from pymeos_cffi import (
     intspan_make,
     distance_span_int,
     intspan_to_floatspan,
+    distance_intspan_intspan,
+    distance_intspanset_intspan,
 )
 
-from .. import Span
+from ..base import Span
 
 if TYPE_CHECKING:
+    from .intset import IntSet
     from .intspanset import IntSpanSet
     from .floatspan import FloatSpan
 
@@ -336,7 +339,7 @@ class IntSpan(Span[int]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -344,13 +347,22 @@ class IntSpan(Span[int]):
             other: object to compare with
 
         Returns:
-            A float value
+            A :class:`int` value
 
         MEOS Functions:
-            distance_span_span, distance_span_spanset, distance_span_int,
+            distance_span_int, distance_intspanset_intspan, distance_intspanset_intspan,
         """
+        from .intset import IntSet
+        from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             return distance_span_int(self._inner, other)
+        elif isinstance(other, IntSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, IntSpan):
+            return distance_intspan_intspan(self._inner, other._inner)
+        elif isinstance(other, IntSpanSet):
+            return distance_intspanset_intspan(other._inner, self._inner)
         else:
             return super().distance(other)
 

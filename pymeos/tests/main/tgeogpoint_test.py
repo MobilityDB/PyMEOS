@@ -1,22 +1,19 @@
 from copy import copy
-from operator import not_
 from datetime import datetime, timezone, timedelta
+from operator import not_
 
-import pytest
 import numpy as np
-from shapely import Point, LineString
+import pytest
 import shapely.geometry
+from shapely import Point, LineString
 
 from pymeos import (
-    TBool,
     TBoolInst,
     TBoolSeq,
     TBoolSeqSet,
-    TFloat,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
-    TGeomPoint,
     TGeomPointInst,
     TGeomPointSeq,
     TGeomPointSeqSet,

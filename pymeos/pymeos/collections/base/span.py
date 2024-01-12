@@ -437,7 +437,7 @@ class Span(Collection[T], ABC):
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other) -> float:
+    def distance(self, other):
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -445,19 +445,9 @@ class Span(Collection[T], ABC):
             other:  object to compare with
 
         Returns:
-            A :class:`flat` instance
-
-        MEOS Functions:
-            distance_span_span, distance_spanset_span
+            The distance metric in the appropriate format depending on the subclass.
         """
-        from .spanset import SpanSet
-
-        if isinstance(other, Span):
-            return distance_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return distance_spanset_span(other._inner, self._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Set Operations --------------------------------
     @abstractmethod

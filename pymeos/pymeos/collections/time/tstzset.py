@@ -528,9 +528,11 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_set_timestamptz, distance_set_set,
-            distance_span_span, distance_spanset_span
+            distance_set_timestamptz, distance_tstzset_tstzset,
+            distance_tstzspanset_tstzspan, distance_tstzspanset_tstzspanset
         """
+        from .tstzspan import TsTzSpan
+        from .tstzspanset import TsTzSpanSet
         from ...temporal import Temporal
         from ...boxes import Box
 
@@ -540,12 +542,20 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
+        elif isinstance(other, TsTzSet):
+            return timedelta(
+                seconds=distance_tstzset_tstzset(self._inner, other._inner)
+            )
+        elif isinstance(other, TsTzSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, TsTzSpanSet):
+            return self.to_spanset().distance(other)
         elif isinstance(other, Temporal):
             return self.to_span().distance(other)
         elif isinstance(other, get_args(Box)):
             return self.to_span().distance(other)
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload
