@@ -12233,6 +12233,35 @@ def tfloat_value_time_split(
     )
 
 
+def tpoint_space_split(
+    temp: "Temporal *",
+    xsize: "float",
+    ysize: "float",
+    zsize: "float",
+    sorigin: "GSERIALIZED *",
+    bitmatrix: bool,
+) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'int']":
+    temp_converted = _ffi.cast("Temporal *", temp)
+    xsize_converted = _ffi.cast("float", xsize)
+    ysize_converted = _ffi.cast("float", ysize)
+    zsize_converted = _ffi.cast("float", zsize)
+    sorigin_converted = _ffi.cast("GSERIALIZED *", sorigin)
+    space_buckets = _ffi.new("GSERIALIZED ***")
+    count = _ffi.new("int *")
+    result = _lib.tpoint_space_split(
+        temp_converted,
+        xsize_converted,
+        ysize_converted,
+        zsize_converted,
+        sorigin_converted,
+        bitmatrix,
+        space_buckets,
+        count,
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None, space_buckets[0], count[0]
+
+
 def tfloatbox_tile(
     value: float,
     t: int,

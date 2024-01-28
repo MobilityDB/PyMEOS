@@ -1525,6 +1525,7 @@ __all__ = [
     "temporal_time_split",
     "tfloat_value_split",
     "tfloat_value_time_split",
+    "tpoint_space_split",
     "tfloatbox_tile",
     "tfloatbox_tile_list",
     "timestamptz_bucket",
