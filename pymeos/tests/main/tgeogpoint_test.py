@@ -445,7 +445,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpi,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -477,7 +477,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpds,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -516,7 +516,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tps,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -555,7 +555,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpss,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
