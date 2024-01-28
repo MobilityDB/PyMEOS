@@ -5,6 +5,7 @@ from datetime import datetime, timezone, timedelta
 import pytest
 import math
 import numpy as np
+from pymeos_cffi import MeosInvalidArgValueError
 from shapely import Point, LineString, Polygon, MultiPoint, GeometryCollection
 
 from pymeos import (
@@ -1117,8 +1118,6 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, None),
-            (tpds, None),
             (
                 tps,
                 TFloatSeq(
@@ -1137,10 +1136,22 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
                 / 24,
             ),
         ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+        ids=["Sequence", "SequenceSet"],
     )
     def test_speed(self, temporal, expected):
         assert temporal.speed() == expected
+
+    @pytest.mark.parametrize(
+        "temporal, expected",
+        [
+            tpi,
+            tpds
+        ],
+        ids=["Instant", "Discrete Sequence"],
+    )
+    def test_speed(self, temporal, expected):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.speed()
 
     @pytest.mark.parametrize(
         "temporal, expected",

@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from operator import not_
 
 import pytest
+from pymeos_cffi import MeosInvalidArgValueError
 
 from pymeos import (
     TBoolInst,
@@ -2036,8 +2037,6 @@ class TestTFloatMathematicalOperations(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, None),
-            (tfds, None),
             (tfs, TFloatSeq("Interp=Step;[-1@2019-09-01, -1@2019-09-02]")),
             (
                 tfss,
@@ -2046,13 +2045,22 @@ class TestTFloatMathematicalOperations(TestTFloat):
                 ),
             ),
         ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+        ids=["Sequence", "SequenceSet"],
     )
     def test_derivative(self, temporal, expected):
-        if expected is None:
-            assert temporal.derivative() is None
-        else:
-            assert temporal.derivative() * 3600 * 24 == expected
+        assert temporal.derivative() * 3600 * 24 == expected
+
+    @pytest.mark.parametrize(
+        "temporal",
+        [
+            tfi,
+            tfds
+        ],
+        ids=["Instant", "Discrete Sequence"],
+    )
+    def test_derivative_without_linear_interpolation_raises(self, temporal):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.derivative()
 
 
 class TestTFloatRestrictors(TestTFloat):

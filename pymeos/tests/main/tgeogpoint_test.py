@@ -5,6 +5,7 @@ from operator import not_
 import numpy as np
 import pytest
 import shapely.geometry
+from pymeos_cffi import MeosInvalidArgValueError
 from shapely import Point, LineString
 
 from pymeos import (
@@ -1088,8 +1089,6 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, None),
-            (tpds, None),
             (tps, TFloatSeq("Interp=Step;[1.8157@2019-09-01, 1.8157@2019-09-02]")),
             (
                 tpss,
@@ -1099,13 +1098,22 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
                 ),
             ),
         ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+        ids=["Sequence", "SequenceSet"],
     )
     def test_speed(self, temporal, expected):
         if expected is None:
             assert temporal.speed() is None
         else:
             assert temporal.speed().round(4) == expected
+
+    @pytest.mark.parametrize(
+        "temporal",
+        [tpi, tpds],
+        ids=["Instant", "Discrete Sequence"],
+    )
+    def test_speed_without_linear_interpolation_throws(self, temporal):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.speed()
 
     @pytest.mark.parametrize(
         "temporal, expected",
