@@ -1143,10 +1143,7 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
 
     @pytest.mark.parametrize(
         "temporal",
-        [
-            tpi,
-            tpds
-        ],
+        [tpi, tpds],
         ids=["Instant", "Discrete Sequence"],
     )
     def test_speed(self, temporal):

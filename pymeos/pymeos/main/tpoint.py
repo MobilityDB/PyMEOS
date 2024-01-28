@@ -1101,7 +1101,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             result = shortestline_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
-        return gserialized_to_shapely_geometry(result[0], 10)
+        return gserialized_to_shapely_geometry(result, 10)
 
     # ------------------------- Tiling Operations -----------------------------
     def tile(
