@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, TYPE_CHECKING, Set, overload
+from typing import Optional, Union, List, TYPE_CHECKING, Set, overload, TypeVar, Type
 
 from pymeos_cffi import *
 
@@ -14,6 +14,9 @@ if TYPE_CHECKING:
     from ..boxes import TBox
     from .tfloat import TFloat
     from .tbool import TBool
+
+
+Self = TypeVar("Self", bound="TInt")
 
 
 class TInt(
@@ -89,6 +92,24 @@ class TInt(
                 _inner=tintseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tint_from_mfjson
+        """
+
+        result = tint_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):

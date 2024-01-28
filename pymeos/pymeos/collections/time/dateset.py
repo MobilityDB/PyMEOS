@@ -157,7 +157,7 @@ class DateSet(Set[date], TimeCollection[date]):
             dateset_value_n
         """
         super().element_n(n)
-        return date_adt_to_date(dateset_value_n(self._inner, n + 1))
+        return date_adt_to_date(dateset_value_n(self._inner, n + 1)[0])
 
     def elements(self) -> List[date]:
         """

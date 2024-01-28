@@ -4,8 +4,8 @@ from typing import Optional, Union, List
 
 from pymeos_cffi import *
 
-from ..main import TNumber
 from ..collections import *
+from ..main import TNumber, TInt, TFloat
 
 
 class TBox:
@@ -1081,9 +1081,14 @@ class TBox:
             nad_tbox_tbox
         """
         if isinstance(other, TBox):
-            return nad_tbox_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return nad_tnumber_tbox(other._inner, self._inner)
+            if self._is_float():
+                return nad_tboxfloat_tboxfloat(self._inner, other._inner)
+            else:
+                return nad_tboxint_tboxint(self._inner, other._inner)
+        elif isinstance(other, TInt):
+            return nad_tint_tbox(other._inner, self._inner)
+        elif isinstance(other, TFloat):
+            return nad_tfloat_tbox(other._inner, self._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 

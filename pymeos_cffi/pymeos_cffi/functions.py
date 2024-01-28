@@ -503,11 +503,44 @@ def text_copy(txt: str) -> str:
     return result if result != _ffi.NULL else None
 
 
+def text_initcap(txt: str) -> str:
+    txt_converted = cstring2text(txt)
+    result = _lib.text_initcap(txt_converted)
+    _check_error()
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
+def text_lower(txt: str) -> str:
+    txt_converted = cstring2text(txt)
+    result = _lib.text_lower(txt_converted)
+    _check_error()
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
 def text_out(txt: str) -> str:
     txt_converted = cstring2text(txt)
     result = _lib.text_out(txt_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def text_upper(txt: str) -> str:
+    txt_converted = cstring2text(txt)
+    result = _lib.text_upper(txt_converted)
+    _check_error()
+    result = text2cstring(result)
+    return result if result != _ffi.NULL else None
+
+
+def textcat_text_text(txt1: str, txt2: str) -> str:
+    txt1_converted = cstring2text(txt1)
+    txt2_converted = cstring2text(txt2)
+    result = _lib.textcat_text_text(txt1_converted, txt2_converted)
+    _check_error()
+    result = text2cstring(result)
     return result if result != _ffi.NULL else None
 
 
@@ -2047,6 +2080,20 @@ def datespanset_shift_scale(
     return result if result != _ffi.NULL else None
 
 
+def floatset_degrees(s: "const Set *", normalize: bool) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_degrees(s_converted, normalize)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatset_radians(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_radians(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def floatset_round(s: "const Set *", maxdd: int) -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.floatset_round(s_converted, maxdd)
@@ -2112,6 +2159,48 @@ def geoset_set_srid(s: "const Set *", srid: int) -> "Set *":
     return result if result != _ffi.NULL else None
 
 
+def geoset_transform(s: "const Set *", srid: int) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.geoset_transform(s_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def geoset_transform_pipeline(
+    s: "const Set *", pipelinestr: str, srid: int, is_forward: bool
+) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    pipelinestr_converted = pipelinestr.encode("utf-8")
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.geoset_transform_pipeline(
+        s_converted, pipelinestr_converted, srid_converted, is_forward
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def point_transform(gs: "const GSERIALIZED *", srid: int) -> "GSERIALIZED *":
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.point_transform(gs_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def point_transform_pipeline(
+    gs: "const GSERIALIZED *", pipelinestr: str, srid: int, is_forward: bool
+) -> "GSERIALIZED *":
+    gs_converted = _ffi.cast("const GSERIALIZED *", gs)
+    pipelinestr_converted = pipelinestr.encode("utf-8")
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.point_transform_pipeline(
+        gs_converted, pipelinestr_converted, srid_converted, is_forward
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def intset_shift_scale(
     s: "const Set *", shift: int, width: int, hasshift: bool, haswidth: bool
 ) -> "Set *":
@@ -2139,6 +2228,13 @@ def intspanset_shift_scale(
     return result if result != _ffi.NULL else None
 
 
+def textset_initcap(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.textset_initcap(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def textset_lower(s: "const Set *") -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.textset_lower(s_converted)
@@ -2149,6 +2245,22 @@ def textset_lower(s: "const Set *") -> "Set *":
 def textset_upper(s: "const Set *") -> "Set *":
     s_converted = _ffi.cast("const Set *", s)
     result = _lib.textset_upper(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def textcat_textset_text(s: "const Set *", txt: str) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    txt_converted = cstring2text(txt)
+    result = _lib.textcat_textset_text(s_converted, txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def textcat_text_textset(txt: str, s: "const Set *") -> "Set *":
+    txt_converted = cstring2text(txt)
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.textcat_text_textset(txt_converted, s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -5602,13 +5714,6 @@ def stbox_to_tstzspan(box: "const STBox *") -> "Span *":
     return result if result != _ffi.NULL else None
 
 
-def tstzspanset_to_tbox(ss: "const SpanSet *") -> "TBox *":
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.tstzspanset_to_tbox(ss_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tbox_to_intspan(box: "const TBox *") -> "Span *":
     box_converted = _ffi.cast("const TBox *", box)
     result = _lib.tbox_to_intspan(box_converted)
@@ -6007,6 +6112,27 @@ def stbox_shift_scale_time(
     )
     result = _lib.stbox_shift_scale_time(
         box_converted, shift_converted, duration_converted
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_transform(box: "const STBox *", srid: int) -> "STBox *":
+    box_converted = _ffi.cast("const STBox *", box)
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.stbox_transform(box_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def stbox_transform_pipeline(
+    box: "const STBox *", pipelinestr: str, srid: int, is_forward: bool
+) -> "STBox *":
+    box_converted = _ffi.cast("const STBox *", box)
+    pipelinestr_converted = pipelinestr.encode("utf-8")
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.stbox_transform_pipeline(
+        box_converted, pipelinestr_converted, srid_converted, is_forward
     )
     _check_error()
     return result if result != _ffi.NULL else None
@@ -6509,6 +6635,96 @@ def tbool_in(string: str) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def tint_in(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tint_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_in(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tfloat_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttext_in(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.ttext_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompoint_in(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tgeompoint_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpoint_in(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tgeogpoint_in(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tbool_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tbool_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tint_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tint_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tfloat_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def ttext_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.ttext_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeompoint_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tgeompoint_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tgeogpoint_from_mfjson(string: str) -> "Temporal *":
+    string_converted = string.encode("utf-8")
+    result = _lib.tgeogpoint_from_mfjson(string_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def temporal_from_wkb(wkb: bytes) -> "Temporal *":
+    wkb_converted = _ffi.new("uint8_t []", wkb)
+    result = _lib.temporal_from_wkb(wkb_converted, len(wkb))
+    return result if result != _ffi.NULL else None
+
+
+def temporal_from_hexwkb(hexwkb: str) -> "Temporal *":
+    hexwkb_converted = hexwkb.encode("utf-8")
+    result = _lib.temporal_from_hexwkb(hexwkb_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tbool_out(temp: "const Temporal *") -> str:
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tbool_out(temp_converted)
@@ -6517,16 +6733,52 @@ def tbool_out(temp: "const Temporal *") -> str:
     return result if result != _ffi.NULL else None
 
 
-def temporal_as_hexwkb(
-    temp: "const Temporal *", variant: int
-) -> "Tuple[str, 'size_t *']":
+def tint_out(temp: "const Temporal *") -> str:
     temp_converted = _ffi.cast("const Temporal *", temp)
-    variant_converted = _ffi.cast("uint8_t", variant)
-    size_out = _ffi.new("size_t *")
-    result = _lib.temporal_as_hexwkb(temp_converted, variant_converted, size_out)
+    result = _lib.tint_out(temp_converted)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None, size_out[0]
+    return result if result != _ffi.NULL else None
+
+
+def tfloat_out(temp: "const Temporal *", maxdd: int) -> str:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tfloat_out(temp_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def ttext_out(temp: "const Temporal *") -> str:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ttext_out(temp_converted)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_out(temp: "const Temporal *", maxdd: int) -> str:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpoint_out(temp_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_as_text(temp: "const Temporal *", maxdd: int) -> str:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpoint_as_text(temp_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_as_ewkt(temp: "const Temporal *", maxdd: int) -> str:
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.tpoint_as_ewkt(temp_converted, maxdd)
+    _check_error()
+    result = _ffi.string(result).decode("utf-8")
+    return result if result != _ffi.NULL else None
 
 
 def temporal_as_mfjson(
@@ -6558,107 +6810,16 @@ def temporal_as_wkb(temp: "const Temporal *", variant: int) -> bytes:
     return result_converted
 
 
-def temporal_from_hexwkb(hexwkb: str) -> "Temporal *":
-    hexwkb_converted = hexwkb.encode("utf-8")
-    result = _lib.temporal_from_hexwkb(hexwkb_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def temporal_from_mfjson(mfjson: str) -> "Temporal *":
-    mfjson_converted = mfjson.encode("utf-8")
-    result = _lib.temporal_from_mfjson(mfjson_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def temporal_from_wkb(wkb: bytes) -> "Temporal *":
-    wkb_converted = _ffi.new("uint8_t []", wkb)
-    result = _lib.temporal_from_wkb(wkb_converted, len(wkb))
-    return result if result != _ffi.NULL else None
-
-
-def tfloat_in(string: str) -> "Temporal *":
-    string_converted = string.encode("utf-8")
-    result = _lib.tfloat_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tfloat_out(temp: "const Temporal *", maxdd: int) -> str:
+def temporal_as_hexwkb(
+    temp: "const Temporal *", variant: int
+) -> "Tuple[str, 'size_t *']":
     temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.tfloat_out(temp_converted, maxdd)
+    variant_converted = _ffi.cast("uint8_t", variant)
+    size_out = _ffi.new("size_t *")
+    result = _lib.temporal_as_hexwkb(temp_converted, variant_converted, size_out)
     _check_error()
     result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def tgeogpoint_in(string: str) -> "Temporal *":
-    string_converted = string.encode("utf-8")
-    result = _lib.tgeogpoint_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tgeompoint_in(string: str) -> "Temporal *":
-    string_converted = string.encode("utf-8")
-    result = _lib.tgeompoint_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tint_in(string: str) -> "Temporal *":
-    string_converted = string.encode("utf-8")
-    result = _lib.tint_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tint_out(temp: "const Temporal *") -> str:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.tint_out(temp_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_as_ewkt(temp: "const Temporal *", maxdd: int) -> str:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.tpoint_as_ewkt(temp_converted, maxdd)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_as_text(temp: "const Temporal *", maxdd: int) -> str:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.tpoint_as_text(temp_converted, maxdd)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def tpoint_out(temp: "const Temporal *", maxdd: int) -> str:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.tpoint_out(temp_converted, maxdd)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
-
-
-def ttext_in(string: str) -> "Temporal *":
-    string_converted = string.encode("utf-8")
-    result = _lib.ttext_in(string_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def ttext_out(temp: "const Temporal *") -> str:
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.ttext_out(temp_converted)
-    _check_error()
-    result = _ffi.string(result).decode("utf-8")
-    return result if result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None, size_out[0]
 
 
 def tbool_from_base_temp(b: bool, temp: "const Temporal *") -> "Temporal *":
@@ -7547,6 +7708,27 @@ def tint_shift_value(temp: "const Temporal *", shift: int) -> "Temporal *":
 def tpoint_round(temp: "const Temporal *", maxdd: int) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tpoint_round(temp_converted, maxdd)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_transform(temp: "const Temporal *", srid: int) -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.tpoint_transform(temp_converted, srid_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tpoint_transform_pipeline(
+    temp: "const Temporal *", pipelinestr: str, srid: int, is_forward: bool
+) -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    pipelinestr_converted = pipelinestr.encode("utf-8")
+    srid_converted = _ffi.cast("int32", srid)
+    result = _lib.tpoint_transform_pipeline(
+        temp_converted, pipelinestr_converted, srid_converted, is_forward
+    )
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -10770,6 +10952,13 @@ def ttext_lower(temp: "const Temporal *") -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def ttext_initcap(temp: "const Temporal *") -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.ttext_initcap(temp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def distance_tfloat_float(temp: "const Temporal *", d: float) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.distance_tfloat_float(temp_converted, d)
@@ -10830,10 +11019,33 @@ def nad_stbox_stbox(box1: "const STBox *", box2: "const STBox *") -> "double":
     return result if result != _ffi.NULL else None
 
 
-def nad_tbox_tbox(box1: "const TBox *", box2: "const TBox *") -> "double":
+def nad_tint_int(temp: "const Temporal *", i: int) -> "int":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    result = _lib.nad_tint_int(temp_converted, i)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tint_tbox(temp: "const Temporal *", box: "const TBox *") -> "int":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.nad_tint_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "int":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.nad_tint_tint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tboxint_tboxint(box1: "const TBox *", box2: "const TBox *") -> "int":
     box1_converted = _ffi.cast("const TBox *", box1)
     box2_converted = _ffi.cast("const TBox *", box2)
-    result = _lib.nad_tbox_tbox(box1_converted, box2_converted)
+    result = _lib.nad_tboxint_tboxint(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -10853,25 +11065,18 @@ def nad_tfloat_tfloat(temp1: "const Temporal *", temp2: "const Temporal *") -> "
     return result if result != _ffi.NULL else None
 
 
-def nad_tint_int(temp: "const Temporal *", i: int) -> "int":
-    temp_converted = _ffi.cast("const Temporal *", temp)
-    result = _lib.nad_tint_int(temp_converted, i)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def nad_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "int":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.nad_tint_tint(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def nad_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "double":
+def nad_tfloat_tbox(temp: "const Temporal *", box: "const TBox *") -> "double":
     temp_converted = _ffi.cast("const Temporal *", temp)
     box_converted = _ffi.cast("const TBox *", box)
-    result = _lib.nad_tnumber_tbox(temp_converted, box_converted)
+    result = _lib.nad_tfloat_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tboxfloat_tboxfloat(box1: "const TBox *", box2: "const TBox *") -> "double":
+    box1_converted = _ffi.cast("const TBox *", box1)
+    box2_converted = _ffi.cast("const TBox *", box2)
+    result = _lib.nad_tboxfloat_tboxfloat(box1_converted, box2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12645,6 +12850,21 @@ def ensure_tnumber_tgeo_type(type: "meosType") -> "bool":
     return result if result != _ffi.NULL else None
 
 
+def datum_degrees(d: "Datum", normalize: "Datum") -> "Datum":
+    d_converted = _ffi.cast("Datum", d)
+    normalize_converted = _ffi.cast("Datum", normalize)
+    result = _lib.datum_degrees(d_converted, normalize_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def datum_radians(d: "Datum") -> "Datum":
+    d_converted = _ffi.cast("Datum", d)
+    result = _lib.datum_radians(d_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def datum_hash(d: "Datum", basetype: "meosType") -> "uint32":
     d_converted = _ffi.cast("Datum", d)
     basetype_converted = _ffi.cast("meosType", basetype)
@@ -12828,6 +13048,13 @@ def spanset_make_free(
     return result if result != _ffi.NULL else None
 
 
+def dateset_tstzset(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.dateset_tstzset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def datespan_tstzspan(s: "const Span *") -> "Span *":
     s_converted = _ffi.cast("const Span *", s)
     result = _lib.datespan_tstzspan(s_converted)
@@ -12842,16 +13069,9 @@ def datespanset_tstzspanset(ss: "const SpanSet *") -> "SpanSet *":
     return result if result != _ffi.NULL else None
 
 
-def intspan_floatspan(s: "const Span *") -> "Span *":
-    s_converted = _ffi.cast("const Span *", s)
-    result = _lib.intspan_floatspan(s_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def intspanset_floatspanset(ss: "const SpanSet *") -> "SpanSet *":
-    ss_converted = _ffi.cast("const SpanSet *", ss)
-    result = _lib.intspanset_floatspanset(ss_converted)
+def floatset_intset(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_intset(s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12866,6 +13086,27 @@ def floatspan_intspan(s: "const Span *") -> "Span *":
 def floatspanset_intspanset(ss: "const SpanSet *") -> "SpanSet *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.floatspanset_intspanset(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intset_floatset(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.intset_floatset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspan_floatspan(s: "const Span *") -> "Span *":
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.intspan_floatspan(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def intspanset_floatspanset(ss: "const SpanSet *") -> "SpanSet *":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.intspanset_floatspanset(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12887,6 +13128,13 @@ def set_spanset(s: "const Set *") -> "SpanSet *":
 def span_spanset(s: "const Span *") -> "SpanSet *":
     s_converted = _ffi.cast("const Span *", s)
     result = _lib.span_spanset(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tstzset_dateset(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.tstzset_dateset(s_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -13045,13 +13293,39 @@ def datespan_set_tstzspan(s1: "const Span *", s2: "Span *") -> None:
     _check_error()
 
 
-def floatspan_rnd(span: "const Span *", size: "Datum") -> "Span *":
-    span_converted = _ffi.cast("const Span *", span)
-    size_converted = _ffi.cast("Datum", size)
-    out_result = _ffi.new("Span *")
-    _lib.floatspan_rnd(span_converted, size_converted, out_result)
+def floatset_deg(s: "const Set *", normalize: bool) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_deg(s_converted, normalize)
     _check_error()
-    return out_result if out_result != _ffi.NULL else None
+    return result if result != _ffi.NULL else None
+
+
+def floatset_rad(s: "const Set *") -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_rad(s_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatset_rnd(s: "const Set *", size: int) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    result = _lib.floatset_rnd(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspan_rnd(s: "const Span *", size: int) -> "Span *":
+    s_converted = _ffi.cast("const Span *", s)
+    result = _lib.floatspan_rnd(s_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def floatspanset_rnd(ss: "const SpanSet *", size: int) -> "SpanSet *":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
+    result = _lib.floatspanset_rnd(ss_converted, size)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def floatspan_set_intspan(s1: "const Span *", s2: "Span *") -> None:
@@ -13125,9 +13399,17 @@ def span_expand(s1: "const Span *", s2: "Span *") -> None:
     _check_error()
 
 
-def spanset_compact(ss: "SpanSet *") -> "SpanSet *":
-    ss_converted = _ffi.cast("SpanSet *", ss)
+def spanset_compact(ss: "const SpanSet *") -> "SpanSet *":
+    ss_converted = _ffi.cast("const SpanSet *", ss)
     result = _lib.spanset_compact(ss_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def textcat_textset_text_int(s: "const Set *", txt: str, invert: bool) -> "Set *":
+    s_converted = _ffi.cast("const Set *", s)
+    txt_converted = cstring2text(txt)
+    result = _lib.textcat_textset_text_int(s_converted, txt_converted, invert)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -13137,6 +13419,54 @@ def tstzspan_set_datespan(s1: "const Span *", s2: "Span *") -> None:
     s2_converted = _ffi.cast("Span *", s2)
     _lib.tstzspan_set_datespan(s1_converted, s2_converted)
     _check_error()
+
+
+def set_cmp_int(s1: "const Set *", s2: "const Set *") -> "int":
+    s1_converted = _ffi.cast("const Set *", s1)
+    s2_converted = _ffi.cast("const Set *", s2)
+    result = _lib.set_cmp_int(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def set_eq_int(s1: "const Set *", s2: "const Set *") -> "bool":
+    s1_converted = _ffi.cast("const Set *", s1)
+    s2_converted = _ffi.cast("const Set *", s2)
+    result = _lib.set_eq_int(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_cmp_int(s1: "const Span *", s2: "const Span *") -> "int":
+    s1_converted = _ffi.cast("const Span *", s1)
+    s2_converted = _ffi.cast("const Span *", s2)
+    result = _lib.span_cmp_int(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def span_eq_int(s1: "const Span *", s2: "const Span *") -> "bool":
+    s1_converted = _ffi.cast("const Span *", s1)
+    s2_converted = _ffi.cast("const Span *", s2)
+    result = _lib.span_eq_int(s1_converted, s2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_cmp_int(ss1: "const SpanSet *", ss2: "const SpanSet *") -> "int":
+    ss1_converted = _ffi.cast("const SpanSet *", ss1)
+    ss2_converted = _ffi.cast("const SpanSet *", ss2)
+    result = _lib.spanset_cmp_int(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def spanset_eq_int(ss1: "const SpanSet *", ss2: "const SpanSet *") -> "bool":
+    ss1_converted = _ffi.cast("const SpanSet *", ss1)
+    ss2_converted = _ffi.cast("const SpanSet *", ss2)
+    result = _lib.spanset_eq_int(ss1_converted, ss2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
 
 
 def adj_span_span(s1: "const Span *", s2: "const Span *") -> "bool":
@@ -14662,6 +14992,14 @@ def ttextseqset_in(string: str) -> "TSequenceSet *":
     return result if result != _ffi.NULL else None
 
 
+def temporal_from_mfjson(mfjson: str, temptype: "meosType") -> "Temporal *":
+    mfjson_converted = mfjson.encode("utf-8")
+    temptype_converted = _ffi.cast("meosType", temptype)
+    result = _lib.temporal_from_mfjson(mfjson_converted, temptype_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def temporal_cp(temp: "const Temporal *") -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.temporal_cp(temp_converted)
@@ -14694,6 +15032,15 @@ def tinstant_make(value: "Datum", temptype: "meosType", t: int) -> "TInstant *":
     temptype_converted = _ffi.cast("meosType", temptype)
     t_converted = _ffi.cast("TimestampTz", t)
     result = _lib.tinstant_make(value_converted, temptype_converted, t_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tinstant_make_free(value: "Datum", temptype: "meosType", t: int) -> "TInstant *":
+    value_converted = _ffi.cast("Datum", value)
+    temptype_converted = _ffi.cast("meosType", temptype)
+    t_converted = _ffi.cast("TimestampTz", t)
+    result = _lib.tinstant_make_free(value_converted, temptype_converted, t_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -14993,13 +15340,6 @@ def tinstant_set_bbox(inst: "const TInstant *", box: "void *") -> None:
     inst_converted = _ffi.cast("const TInstant *", inst)
     box_converted = _ffi.cast("void *", box)
     _lib.tinstant_set_bbox(inst_converted, box_converted)
-    _check_error()
-
-
-def tinstant_set_tstzspan(inst: "const TInstant *", s: "Span *") -> None:
-    inst_converted = _ffi.cast("const TInstant *", inst)
-    s_converted = _ffi.cast("Span *", s)
-    _lib.tinstant_set_tstzspan(inst_converted, s_converted)
     _check_error()
 
 
@@ -15424,6 +15764,16 @@ def tinstant_to_tsequence(
     return result if result != _ffi.NULL else None
 
 
+def tinstant_to_tsequence_free(
+    inst: "TInstant *", interp: "interpType"
+) -> "TSequence *":
+    inst_converted = _ffi.cast("TInstant *", inst)
+    interp_converted = _ffi.cast("interpType", interp)
+    result = _lib.tinstant_to_tsequence_free(inst_converted, interp_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tinstant_to_tsequenceset(
     inst: "const TInstant *", interp: "interpType"
 ) -> "TSequenceSet *":
@@ -15548,6 +15898,13 @@ def tsequence_to_tinstant(seq: "const TSequence *") -> "TInstant *":
 def tsequence_to_tsequenceset(seq: "const TSequence *") -> "TSequenceSet *":
     seq_converted = _ffi.cast("const TSequence *", seq)
     result = _lib.tsequence_to_tsequenceset(seq_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tsequence_to_tsequenceset_free(seq: "TSequence *") -> "TSequenceSet *":
+    seq_converted = _ffi.cast("TSequence *", seq)
+    result = _lib.tsequence_to_tsequenceset_free(seq_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -16980,29 +17337,44 @@ def tnumberseqset_delta_value(ss: "const TSequenceSet *") -> "TSequenceSet *":
     return result if result != _ffi.NULL else None
 
 
-def distance_tnumber_number(
-    temp: "const Temporal *", value: "Datum", valuetype: "meosType", restype: "meosType"
-) -> "Temporal *":
+def distance_tnumber_number(temp: "const Temporal *", value: "Datum") -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     value_converted = _ffi.cast("Datum", value)
-    valuetype_converted = _ffi.cast("meosType", valuetype)
-    restype_converted = _ffi.cast("meosType", restype)
-    result = _lib.distance_tnumber_number(
-        temp_converted, value_converted, valuetype_converted, restype_converted
-    )
+    result = _lib.distance_tnumber_number(temp_converted, value_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
 
-def nad_tnumber_number(
-    temp: "const Temporal *", value: "Datum", basetype: "meosType"
-) -> "double":
+def nad_tbox_tbox(box1: "const TBox *", box2: "const TBox *") -> "Datum":
+    box1_converted = _ffi.cast("const TBox *", box1)
+    box2_converted = _ffi.cast("const TBox *", box2)
+    result = _lib.nad_tbox_tbox(box1_converted, box2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tnumber_number(temp: "const Temporal *", value: "Datum") -> "Datum":
     temp_converted = _ffi.cast("const Temporal *", temp)
     value_converted = _ffi.cast("Datum", value)
-    basetype_converted = _ffi.cast("meosType", basetype)
-    result = _lib.nad_tnumber_number(
-        temp_converted, value_converted, basetype_converted
-    )
+    result = _lib.nad_tnumber_number(temp_converted, value_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tnumber_tbox(temp: "const Temporal *", box: "const TBox *") -> "Datum":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    box_converted = _ffi.cast("const TBox *", box)
+    result = _lib.nad_tnumber_tbox(temp_converted, box_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def nad_tnumber_tnumber(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Datum":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.nad_tnumber_tnumber(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, TYPE_CHECKING, Set, overload
+from typing import Optional, List, Union, TYPE_CHECKING, Set, overload, Type, TypeVar
 
 from pymeos_cffi import *
 
@@ -14,6 +14,9 @@ if TYPE_CHECKING:
     from ..boxes import TBox
     from .tint import TInt
     from .tbool import TBool
+
+
+Self = TypeVar("Self", bound="TFloat")
 
 
 class TFloat(
@@ -117,6 +120,24 @@ class TFloat(
                 )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tfloat_from_mfjson
+        """
+
+        result = tfloat_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):

@@ -1472,6 +1472,24 @@ class TGeomPoint(
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tgeompoint_from_mfjson
+        """
+
+        result = tgeompoint_from_mfjson(mfjson)
+        return Temporal._factory(result)
+
     # ------------------------- Conversions ----------------------------------
     def to_geographic(self) -> TGeogPoint:
         """
@@ -1784,6 +1802,24 @@ class TGeogPoint(
                 )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tgeogpoint_from_mfjson
+        """
+
+        result = tgeogpoint_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Conversions ----------------------------------
     def to_geometric(self) -> TGeomPoint:

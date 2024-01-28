@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Set, overload
+from typing import Optional, Union, List, Set, overload, Type, TypeVar
 
 from pymeos_cffi import *
 
 from ..collections import *
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+
+Self = TypeVar("Self", bound="TBool")
 
 
 class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC):
@@ -86,6 +88,24 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
                 _inner=tboolseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tbool_from_mfjson
+        """
+
+        result = tbool_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):

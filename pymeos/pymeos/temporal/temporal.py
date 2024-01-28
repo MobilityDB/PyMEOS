@@ -97,6 +97,20 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         pass
 
     @classmethod
+    @abstractmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+        """
+        pass
+
+    @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
         """
         Returns a temporal object from WKB bytes.
@@ -128,23 +142,6 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_from_hexwkb
         """
         result = temporal_from_hexwkb(hexwkb)
-        return Temporal._factory(result)
-
-    @classmethod
-    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
-        """
-        Returns a temporal object from a MF-JSON string.
-
-        Args:
-            mfjson: The MF-JSON string.
-
-        Returns:
-            A temporal object from a MF-JSON string.
-
-        MEOS Functions:
-            temporal_from_mfjson
-        """
-        result = temporal_from_mfjson(mfjson)
         return Temporal._factory(result)
 
     @classmethod

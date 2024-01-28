@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
+from typing import Optional, Union, List, Set, overload, TYPE_CHECKING, TypeVar, Type
 
 from pymeos_cffi import *
 
@@ -11,6 +11,9 @@ from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceS
 
 if TYPE_CHECKING:
     from .tbool import TBool
+
+
+Self = TypeVar("Self", bound="TText")
 
 
 class TText(
@@ -91,6 +94,24 @@ class TText(
                 _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            ttext_from_mfjson
+        """
+
+        result = ttext_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self) -> str:
