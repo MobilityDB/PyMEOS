@@ -3182,8 +3182,8 @@ class TestTFloatEverAlwaysComparisons(TestTFloat):
     )
     def test_ever_less_always_greater_or_equal(self, temporal, argument, expected):
         assert temporal.ever_less(argument) == expected
-        assert temporal.always_greater_or_equal(argument) == not_(expected)
-        assert temporal.never_less(argument) == not_(expected)
+        assert temporal.always_greater_or_equal(argument) == (not expected)
+        assert temporal.never_less(argument) == (not expected)
 
     @pytest.mark.parametrize(
         "temporal, argument, expected",
