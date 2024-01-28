@@ -1142,14 +1142,14 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
         assert temporal.speed() == expected
 
     @pytest.mark.parametrize(
-        "temporal, expected",
+        "temporal",
         [
             tpi,
             tpds
         ],
         ids=["Instant", "Discrete Sequence"],
     )
-    def test_speed(self, temporal, expected):
+    def test_speed(self, temporal):
         with pytest.raises(MeosInvalidArgValueError):
             temporal.speed()
 
