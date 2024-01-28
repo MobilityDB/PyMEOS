@@ -633,12 +633,14 @@ class TInt(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tint_int, teq_temporal_temporal
+            teq_tint_int, teq_tint_tint
         """
         if isinstance(other, int):
             result = teq_tint_int(self._inner, other)
+        elif isinstance(other, TInt):
+            result = teq_tint_tint(self._inner, other._inner)
         else:
-            return super().temporal_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[int, TInt]) -> TBool:
@@ -652,12 +654,14 @@ class TInt(
             A :class:`TBool` with the result of the temporal not equal relation.
 
         MEOS Functions:
-            tne_tint_int, tne_temporal_temporal
+            tne_tint_int, tne_tint_tint
         """
         if isinstance(other, int):
             result = tne_tint_int(self._inner, other)
+        elif isinstance(other, TInt):
+            result = tne_tint_tint(self._inner, other._inner)
         else:
-            return super().temporal_not_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def temporal_less(self, other: Union[int, TInt]) -> TBool:

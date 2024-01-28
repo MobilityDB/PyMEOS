@@ -611,12 +611,14 @@ class TText(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_ttext_text, teq_temporal_temporal
+            teq_ttext_text, teq_ttext_ttext
         """
         if isinstance(other, str):
             result = teq_ttext_text(self._inner, other)
+        elif isinstance(other, TText):
+            result = teq_ttext_ttext(self._inner, other._inner)
         else:
-            return super().temporal_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
@@ -630,12 +632,14 @@ class TText(
             A :class:`TBool` with the result of the temporal not equal relation.
 
         MEOS Functions:
-            tne_ttext_text, tne_temporal_temporal
+            tne_ttext_text, tne_ttext_ttext
         """
         if isinstance(other, str):
             result = tne_ttext_text(self._inner, other)
+        elif isinstance(other, TText):
+            result = tne_ttext_ttext(self._inner, other._inner)
         else:
-            return super().temporal_not_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def temporal_less(self, other: Union[str, TText]) -> TBool:

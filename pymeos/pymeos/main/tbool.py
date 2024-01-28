@@ -240,12 +240,14 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tbool_tbool, teq_temporal_temporal
+            teq_tbool_tbool, teq_tbool_bool
         """
         if isinstance(other, bool):
             result = teq_tbool_bool(self._inner, other)
+        elif isinstance(other, TBool):
+            result = teq_tbool_tbool(self._inner, other._inner)
         else:
-            return super().temporal_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[bool, TBool]) -> TBool:
@@ -259,12 +261,14 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tbool_tbool, tne_temporal_temporal
+            tne_tbool_tbool, tne_tbool_bool
         """
         if isinstance(other, bool):
             result = tne_tbool_bool(self._inner, other)
+        elif isinstance(other, TBool):
+            result = tne_tbool_tbool(self._inner, other._inner)
         else:
-            return super().temporal_not_equal(other)
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------

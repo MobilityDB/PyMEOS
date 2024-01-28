@@ -9050,6 +9050,16 @@ def teq_tbool_bool(temp: "const Temporal *", b: bool) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def teq_tbool_tbool(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.teq_tbool_tbool(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def teq_temporal_temporal(
     temp1: "const Temporal *", temp2: "const Temporal *"
 ) -> "Temporal *":
@@ -9071,6 +9081,16 @@ def teq_text_ttext(txt: str, temp: "const Temporal *") -> "Temporal *":
 def teq_tfloat_float(temp: "const Temporal *", d: float) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.teq_tfloat_float(temp_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def teq_tfloat_tfloat(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.teq_tfloat_tfloat(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9102,10 +9122,28 @@ def teq_tint_int(temp: "const Temporal *", i: int) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def teq_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.teq_tint_tint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def teq_ttext_text(temp: "const Temporal *", txt: str) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     txt_converted = cstring2text(txt)
     result = _lib.teq_ttext_text(temp_converted, txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def teq_ttext_ttext(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.teq_ttext_ttext(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9364,6 +9402,16 @@ def tne_tbool_bool(temp: "const Temporal *", b: bool) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def tne_tbool_tbool(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tne_tbool_tbool(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tne_temporal_temporal(
     temp1: "const Temporal *", temp2: "const Temporal *"
 ) -> "Temporal *":
@@ -9385,6 +9433,16 @@ def tne_text_ttext(txt: str, temp: "const Temporal *") -> "Temporal *":
 def tne_tfloat_float(temp: "const Temporal *", d: float) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     result = _lib.tne_tfloat_float(temp_converted, d)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tne_tfloat_tfloat(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tne_tfloat_tfloat(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9416,10 +9474,28 @@ def tne_tint_int(temp: "const Temporal *", i: int) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
+def tne_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tne_tint_tint(temp1_converted, temp2_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tne_ttext_text(temp: "const Temporal *", txt: str) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     txt_converted = cstring2text(txt)
     result = _lib.tne_ttext_text(temp_converted, txt_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def tne_ttext_ttext(
+    temp1: "const Temporal *", temp2: "const Temporal *"
+) -> "Temporal *":
+    temp1_converted = _ffi.cast("const Temporal *", temp1)
+    temp2_converted = _ffi.cast("const Temporal *", temp2)
+    result = _lib.tne_ttext_ttext(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
