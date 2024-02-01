@@ -9050,16 +9050,6 @@ def teq_tbool_bool(temp: "const Temporal *", b: bool) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def teq_tbool_tbool(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.teq_tbool_tbool(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def teq_temporal_temporal(
     temp1: "const Temporal *", temp2: "const Temporal *"
 ) -> "Temporal *":
@@ -9085,32 +9075,12 @@ def teq_tfloat_float(temp: "const Temporal *", d: float) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def teq_tfloat_tfloat(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.teq_tfloat_tfloat(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def teq_tpoint_point(
     temp: "const Temporal *", gs: "const GSERIALIZED *"
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.teq_tpoint_point(temp_converted, gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def teq_tpoint_tpoint(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.teq_tpoint_tpoint(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9122,28 +9092,10 @@ def teq_tint_int(temp: "const Temporal *", i: int) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def teq_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.teq_tint_tint(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def teq_ttext_text(temp: "const Temporal *", txt: str) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     txt_converted = cstring2text(txt)
     result = _lib.teq_ttext_text(temp_converted, txt_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def teq_ttext_ttext(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.teq_ttext_ttext(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9402,16 +9354,6 @@ def tne_tbool_bool(temp: "const Temporal *", b: bool) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def tne_tbool_tbool(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.tne_tbool_tbool(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tne_temporal_temporal(
     temp1: "const Temporal *", temp2: "const Temporal *"
 ) -> "Temporal *":
@@ -9437,32 +9379,12 @@ def tne_tfloat_float(temp: "const Temporal *", d: float) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def tne_tfloat_tfloat(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.tne_tfloat_tfloat(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tne_tpoint_point(
     temp: "const Temporal *", gs: "const GSERIALIZED *"
 ) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     gs_converted = _ffi.cast("const GSERIALIZED *", gs)
     result = _lib.tne_tpoint_point(temp_converted, gs_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tne_tpoint_tpoint(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.tne_tpoint_tpoint(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -9474,28 +9396,10 @@ def tne_tint_int(temp: "const Temporal *", i: int) -> "Temporal *":
     return result if result != _ffi.NULL else None
 
 
-def tne_tint_tint(temp1: "const Temporal *", temp2: "const Temporal *") -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.tne_tint_tint(temp1_converted, temp2_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
 def tne_ttext_text(temp: "const Temporal *", txt: str) -> "Temporal *":
     temp_converted = _ffi.cast("const Temporal *", temp)
     txt_converted = cstring2text(txt)
     result = _lib.tne_ttext_text(temp_converted, txt_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tne_ttext_ttext(
-    temp1: "const Temporal *", temp2: "const Temporal *"
-) -> "Temporal *":
-    temp1_converted = _ffi.cast("const Temporal *", temp1)
-    temp2_converted = _ffi.cast("const Temporal *", temp2)
-    result = _lib.tne_ttext_ttext(temp1_converted, temp2_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -12395,6 +12299,35 @@ def tintbox_tile_list(
     )
     _check_error()
     return result if result != _ffi.NULL else None, count[0]
+
+
+def tpoint_space_split(
+    temp: "Temporal *",
+    xsize: "float",
+    ysize: "float",
+    zsize: "float",
+    sorigin: "GSERIALIZED *",
+    bitmatrix: bool,
+) -> "Tuple['Temporal **', 'GSERIALIZED ***', 'int']":
+    temp_converted = _ffi.cast("Temporal *", temp)
+    xsize_converted = _ffi.cast("float", xsize)
+    ysize_converted = _ffi.cast("float", ysize)
+    zsize_converted = _ffi.cast("float", zsize)
+    sorigin_converted = _ffi.cast("GSERIALIZED *", sorigin)
+    space_buckets = _ffi.new("GSERIALIZED ***")
+    count = _ffi.new("int *")
+    result = _lib.tpoint_space_split(
+        temp_converted,
+        xsize_converted,
+        ysize_converted,
+        zsize_converted,
+        sorigin_converted,
+        bitmatrix,
+        space_buckets,
+        count,
+    )
+    _check_error()
+    return result if result != _ffi.NULL else None, space_buckets[0], count[0]
 
 
 def tpoint_space_time_split(

@@ -1677,41 +1677,36 @@ extern Temporal *teq_float_tfloat(double d, const Temporal *temp);
 extern Temporal *teq_int_tint(int i, const Temporal *temp);
 extern Temporal *teq_point_tpoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *teq_tbool_bool(const Temporal *temp, bool b);
-extern Temporal *teq_tbool_tbool(const Temporal *temp1, const Temporal *temp2);
-/* extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *teq_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *teq_tfloat_float(const Temporal *temp, double d);
-extern Temporal *teq_tfloat_tfloat(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_tpoint_point(const Temporal *temp, const GSERIALIZED *gs);
-extern Temporal *teq_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_tint_int(const Temporal *temp, int i);
-extern Temporal *teq_tint_tint(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *teq_ttext_text(const Temporal *temp, const text *txt);
-extern Temporal *teq_ttext_ttext(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tge_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tge_int_tint(int i, const Temporal *temp);
-/* extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tge_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tge_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tge_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tge_tint_int(const Temporal *temp, int i);
 extern Temporal *tge_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tgt_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tgt_int_tint(int i, const Temporal *temp);
-/* extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tgt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tgt_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tgt_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tgt_tint_int(const Temporal *temp, int i);
 extern Temporal *tgt_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tle_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tle_int_tint(int i, const Temporal *temp);
-/* extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tle_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tle_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tle_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tle_tint_int(const Temporal *temp, int i);
 extern Temporal *tle_ttext_text(const Temporal *temp, const text *txt);
 extern Temporal *tlt_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tlt_int_tint(int i, const Temporal *temp);
-/* extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tlt_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tlt_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tlt_tfloat_float(const Temporal *temp, double d);
 extern Temporal *tlt_tint_int(const Temporal *temp, int i);
@@ -1721,17 +1716,12 @@ extern Temporal *tne_float_tfloat(double d, const Temporal *temp);
 extern Temporal *tne_int_tint(int i, const Temporal *temp);
 extern Temporal *tne_point_tpoint(const GSERIALIZED *gs, const Temporal *temp);
 extern Temporal *tne_tbool_bool(const Temporal *temp, bool b);
-extern Temporal *tne_tbool_tbool(const Temporal *temp1, const Temporal *temp2);
-/* extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);  (undefined) */
+extern Temporal *tne_temporal_temporal(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_text_ttext(const text *txt, const Temporal *temp);
 extern Temporal *tne_tfloat_float(const Temporal *temp, double d);
-extern Temporal *tne_tfloat_tfloat(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_tpoint_point(const Temporal *temp, const GSERIALIZED *gs);
-extern Temporal *tne_tpoint_tpoint(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_tint_int(const Temporal *temp, int i);
-extern Temporal *tne_tint_tint(const Temporal *temp1, const Temporal *temp2);
 extern Temporal *tne_ttext_text(const Temporal *temp, const text *txt);
-extern Temporal *tne_ttext_ttext(const Temporal *temp1, const Temporal *temp2);
 
 extern bool adjacent_numspan_tnumber(const Span *s, const Temporal *temp);
 extern bool adjacent_stbox_tpoint(const STBox *box, const Temporal *temp);
@@ -2063,6 +2053,7 @@ extern Temporal **tint_value_split(Temporal *temp, int size, int origin, int **v
 extern Temporal **tint_value_time_split(Temporal *temp, int size, Interval *duration, int vorigin, TimestampTz torigin, int **value_buckets, TimestampTz **time_buckets, int *count);
 extern TBox *tintbox_tile(int value, TimestampTz t, int vsize, Interval *duration, int vorigin, TimestampTz torigin);
 extern TBox *tintbox_tile_list(const TBox *box, int xsize, const Interval *duration, int xorigin, TimestampTz torigin, int *count);
+/* extern Temporal **tpoint_space_split(Temporal *temp, float xsize, float ysize, float zsize, GSERIALIZED *sorigin, bool bitmatrix, GSERIALIZED ***space_buckets, int *count);  (repeated) */
 extern Temporal **tpoint_space_time_split(Temporal *temp, float xsize, float ysize, float zsize, Interval *duration, GSERIALIZED *sorigin, TimestampTz torigin, bool bitmatrix, GSERIALIZED ***space_buckets, TimestampTz **time_buckets, int *count);
 extern Span *tstzspan_bucket_list(const Span *bounds, const Interval *duration, TimestampTz origin, int *count);
 

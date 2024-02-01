@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import TypeVar, TYPE_CHECKING
 
 from pymeos_cffi import (
@@ -19,8 +18,7 @@ if TYPE_CHECKING:
     from ..temporal import Temporal
 
 
-class TTemporallyEquatable(ABC):
-    @abstractmethod
+class TTemporallyEquatable:
     def temporal_equal(self: Self, other: Temporal) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
@@ -34,9 +32,9 @@ class TTemporallyEquatable(ABC):
         MEOS Functions:
             teq_temporal_temporal
         """
-        pass
+        result = teq_temporal_temporal(self._inner, other._inner)
+        return self._factory(result)
 
-    @abstractmethod
     def temporal_not_equal(self: Self, other: Temporal) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
@@ -50,7 +48,8 @@ class TTemporallyEquatable(ABC):
         MEOS Functions:
             tne_temporal_temporal
         """
-        pass
+        result = tne_temporal_temporal(self._inner, other._inner)
+        return self._factory(result)
 
 
 class TTemporallyComparable:

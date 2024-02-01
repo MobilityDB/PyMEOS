@@ -1645,15 +1645,13 @@ class TGeomPoint(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tpoint_point, teq_tpoint_tpoint
+            teq_tpoint_point, teq_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other)
             result = teq_tpoint_point(self._inner, gs)
-        elif isinstance(other, TGeomPoint):
-            result = teq_tpoint_tpoint(self._inner, other._inner)
         else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+            return super().temporal_equal(other)
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[shp.Point, TGeomPoint]) -> TBool:
@@ -1667,15 +1665,13 @@ class TGeomPoint(
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tpoint_point, tne_tpoint_tpoint
+            tne_tpoint_point, tne_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other)
             result = tne_tpoint_point(self._inner, gs)
-        elif isinstance(other, TGeomPoint):
-            result = tne_tpoint_tpoint(self._inner, other._inner)
         else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+            return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
     # ------------------------- Database Operations ---------------------------
@@ -1966,15 +1962,13 @@ class TGeogPoint(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tpoint_point, teq_tpoint_tpoint
+            teq_tpoint_point, teq_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geography_to_gserialized(other)
             result = teq_tpoint_point(self._inner, gs)
-        elif isinstance(other, TGeogPoint):
-            result = teq_tpoint_tpoint(self._inner, other._inner)
         else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+            return super().temporal_equal(other)
         return Temporal._factory(result)
 
     def temporal_not_equal(self, other: Union[shp.Point, TGeogPoint]) -> TBool:
@@ -1988,15 +1982,13 @@ class TGeogPoint(
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tpoint_point, tne_tpoint_tpoint
+            tne_tpoint_point, tne_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geography_to_gserialized(other)
             result = tne_tpoint_point(self._inner, gs)
-        elif isinstance(other, TGeogPoint):
-            result = tne_tpoint_tpoint(self._inner, other._inner)
         else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+            return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
     # ------------------------- Database Operations ---------------------------
