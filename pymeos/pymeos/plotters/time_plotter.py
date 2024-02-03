@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import Union
 
 from matplotlib import pyplot as plt
 
 from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
+from ..collections.time.dateset import DateSet
 
 
 class TimePlotter:
@@ -42,7 +44,7 @@ class TimePlotter:
             List with the plotted elements.
         """
         base = axes or plt.gca()
-        stamps = tstzset.timestamps()
+        stamps = tstzset.elements()
         plot = base.axvline(stamps[0], *args, **kwargs)
         kwargs.pop("label", None)
         plots = [plot]

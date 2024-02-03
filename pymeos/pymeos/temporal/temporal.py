@@ -34,9 +34,7 @@ TSS = TypeVar("TSS", bound="TSequenceSet[Any]")
 Self = TypeVar("Self", bound="Temporal[Any]")
 
 
-class Temporal(
-    Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatable, ABC
-):
+class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatable, ABC):
     """
     Abstract class for representing temporal values of any subtype.
     """
@@ -99,6 +97,20 @@ class Temporal(
         pass
 
     @classmethod
+    @abstractmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+        """
+        pass
+
+    @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
         """
         Returns a temporal object from WKB bytes.
@@ -130,23 +142,6 @@ class Temporal(
             temporal_from_hexwkb
         """
         result = temporal_from_hexwkb(hexwkb)
-        return Temporal._factory(result)
-
-    @classmethod
-    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
-        """
-        Returns a temporal object from a MF-JSON string.
-
-        Args:
-            mfjson: The MF-JSON string.
-
-        Returns:
-            A temporal object from a MF-JSON string.
-
-        MEOS Functions:
-            temporal_from_mfjson
-        """
-        result = temporal_from_mfjson(mfjson)
         return Temporal._factory(result)
 
     @classmethod
@@ -652,7 +647,7 @@ class Temporal(
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation)
+        seq = temporal_to_tsequence(self._inner, interpolation.to_string())
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -662,7 +657,7 @@ class Temporal(
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation)
+        ss = temporal_to_tsequenceset(self._inner, interpolation.to_string())
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -820,7 +815,9 @@ class Temporal(
             temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamptz(self._inner, datetime_to_timestamptz(other))
+            result = temporal_at_timestamptz(
+                self._inner, datetime_to_timestamptz(other)
+            )
         elif isinstance(other, TsTzSet):
             result = temporal_at_tstzset(self._inner, other._inner)
         elif isinstance(other, TsTzSpan):

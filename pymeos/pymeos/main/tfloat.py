@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, TYPE_CHECKING, Set, overload
+from typing import Optional, List, Union, TYPE_CHECKING, Set, overload, Type, TypeVar
 
 from pymeos_cffi import *
 
@@ -14,6 +14,9 @@ if TYPE_CHECKING:
     from ..boxes import TBox
     from .tint import TInt
     from .tbool import TBool
+
+
+Self = TypeVar("Self", bound="TFloat")
 
 
 class TFloat(
@@ -54,17 +57,30 @@ class TFloat(
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: datetime) -> TFloatInst:
+    def from_base_time(
+        value: float, base: datetime, interpolation: None = None
+    ) -> TFloatInst:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: Union[TsTzSet, TsTzSpan]) -> TFloatSeq:
+    def from_base_time(
+        value: float, base: TsTzSet, interpolation: None = None
+    ) -> TFloatSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: float, base: TsTzSpanSet) -> TFloatSeqSet:
+    def from_base_time(
+        value: float, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TFloatSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: float, base: TsTzSpanSet, interpolation: TInterpolation = None
+    ) -> TFloatSeqSet:
         ...
 
     @staticmethod
@@ -92,9 +108,7 @@ class TFloat(
                 _inner=tfloatinst_make(value, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TFloatSeq(
-                _inner=tfloatseq_from_base_tstzset(value, base._inner)
-            )
+            return TFloatSeq(_inner=tfloatseq_from_base_tstzset(value, base._inner))
         elif isinstance(base, TsTzSpan):
             return TFloatSeq(
                 _inner=tfloatseq_from_base_tstzspan(value, base._inner, interpolation)
@@ -106,6 +120,24 @@ class TFloat(
                 )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tfloat_from_mfjson
+        """
+
+        result = tfloat_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):
@@ -261,39 +293,7 @@ class TFloat(
         return tfloat_max_value(self._inner)
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: float) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: :class:`float` to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            tfloat_always_eq
-        """
-        return tfloat_always_eq(self._inner, value)
-
-    def always_not_equal(self, value: float) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: :class:`float` to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            tfloat_ever_eq
-        """
-        return not tfloat_ever_eq(self._inner, value)
-
-    def always_less(self, value: float) -> bool:
+    def always_less(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -305,11 +305,16 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_lt
+            always_lt_tfloat_float, always_lt_temporal_temporal
         """
-        return tfloat_always_lt(self._inner, value)
+        if isinstance(value, float):
+            return always_lt_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: float) -> bool:
+    def always_less_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -322,11 +327,58 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_le
+            always_le_tfloat_float, always_le_temporal_temporal
         """
-        return tfloat_always_le(self._inner, value)
+        if isinstance(value, float):
+            return always_le_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: float) -> bool:
+    def always_equal(self, value: Union[float, TFloat]) -> bool:
+        """
+        Returns whether the values of `self` are always equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            always_eq_tfloat_float, always_eq_temporal_temporal
+        """
+        if isinstance(value, float):
+            return always_eq_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def always_not_equal(self, value: Union[float, TFloat]) -> bool:
+        """
+        Returns whether the values of `self` are always not equal to `value`.
+
+        Args:
+            value: :class:`float` to compare.
+
+        Returns:
+            `True` if the values of `self` are always not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            always_ne_tfloat_float, always_ne_temporal_temporal
+        """
+        if isinstance(value, float):
+            return always_ne_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def always_greater_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -339,11 +391,16 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_lt
+            always_ge_tfloat_float, always_ge_temporal_temporal
         """
-        return not tfloat_ever_lt(self._inner, value)
+        if isinstance(value, float):
+            return always_ge_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: float) -> bool:
+    def always_greater(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are always greater than `value`.
 
@@ -355,11 +412,16 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_le
+            always_gt_tfloat_float, always_gt_temporal_temporal
         """
-        return not tfloat_ever_le(self._inner, value)
+        if isinstance(value, float):
+            return always_gt_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return always_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: float) -> bool:
+    def ever_less(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -371,11 +433,16 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_lt
+            ever_lt_tfloat_float, ever_lt_temporal_temporal
         """
-        return tfloat_ever_lt(self._inner, value)
+        if isinstance(value, float):
+            return ever_lt_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: float) -> bool:
+    def ever_less_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -388,11 +455,16 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_le
+            ever_le_tfloat_float, ever_le_temporal_temporal
         """
-        return tfloat_ever_le(self._inner, value)
+        if isinstance(value, float):
+            return ever_le_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: float) -> bool:
+    def ever_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever equal to `value`.
 
@@ -404,11 +476,16 @@ class TFloat(
             otherwise.
 
         MEOS Functions:
-            tfloat_ever_eq
+            ever_eq_tfloat_float, ever_eq_temporal_temporal
         """
-        return tfloat_ever_eq(self._inner, value)
+        if isinstance(value, float):
+            return ever_eq_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: float) -> bool:
+    def ever_not_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever not equal to `value`.
 
@@ -420,11 +497,16 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_eq
+            ever_ne_tfloat_float, ever_ne_temporal_temporal
         """
-        return not tfloat_always_eq(self._inner, value)
+        if isinstance(value, float):
+            return ever_ne_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: float) -> bool:
+    def ever_greater_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -437,11 +519,16 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_lt
+            ever_ge_tfloat_float, ever_ge_temporal_temporal
         """
-        return not tfloat_always_lt(self._inner, value)
+        if isinstance(value, float):
+            return ever_ge_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: float) -> bool:
+    def ever_greater(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are ever greater than `value`.
 
@@ -453,43 +540,16 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_le
+            ever_gt_tfloat_float, ever_gt_temporal_temporal
         """
-        return not tfloat_always_le(self._inner, value)
+        if isinstance(value, float):
+            return ever_gt_tfloat_float(self._inner, value) > 0
+        elif isinstance(value, TFloat):
+            return ever_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_equal(self, value: float) -> bool:
-        """
-        Returns whether the values of `self` are never equal to `value`.
-
-        Args:
-            value: :class:`float` value to compare.
-
-        Returns:
-            `True` if the values of `self` are never equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            tfloat_ever_eq
-        """
-        return not tfloat_ever_eq(self._inner, value)
-
-    def never_not_equal(self, value: float) -> bool:
-        """
-        Returns whether the values of `self` are never not equal to `value`.
-
-        Args:
-            value: :class:`float` value to compare.
-
-        Returns:
-            `True` if the values of `self` are never not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            tfloat_always_eq
-        """
-        return tfloat_always_eq(self._inner, value)
-
-    def never_less(self, value: float) -> bool:
+    def never_less(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -501,11 +561,11 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_lt
+            ever_lt_tfloat_float, ever_lt_temporal_temporal
         """
-        return not tfloat_ever_lt(self._inner, value)
+        return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: float) -> bool:
+    def never_less_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -518,11 +578,43 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_ever_le
+            ever_le_tfloat_float, ever_le_temporal_temporal
         """
-        return not tfloat_ever_le(self._inner, value)
+        return not self.ever_less_or_equal(value)
 
-    def never_greater_or_equal(self, value: float) -> bool:
+    def never_equal(self, value: Union[float, TFloat]) -> bool:
+        """
+        Returns whether the values of `self` are never equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            ever_eq_tfloat_float, ever_eq_temporal_temporal
+        """
+        return not self.ever_equal(value)
+
+    def never_not_equal(self, value: Union[float, TFloat]) -> bool:
+        """
+        Returns whether the values of `self` are never not equal to `value`.
+
+        Args:
+            value: :class:`float` value to compare.
+
+        Returns:
+            `True` if the values of `self` are never not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            ever_ne_tfloat_float, ever_ne_temporal_temporal
+        """
+        return not self.ever_not_equal(value)
+
+    def never_greater_or_equal(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -535,11 +627,11 @@ class TFloat(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_lt
+            ever_ge_tfloat_float, ever_ge_temporal_temporal
         """
-        return tfloat_always_lt(self._inner, value)
+        return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: float) -> bool:
+    def never_greater(self, value: Union[float, TFloat]) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -551,9 +643,9 @@ class TFloat(
             `False` otherwise.
 
         MEOS Functions:
-            tfloat_always_le
+            ever_gt_tfloat_float, ever_gt_temporal_temporal
         """
-        return tfloat_always_le(self._inner, value)
+        return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[int, float, TFloat]) -> TBool:

@@ -6,7 +6,7 @@ from typing import Optional, Union, overload, TYPE_CHECKING, get_args
 from dateutil.parser import parse
 from pymeos_cffi import *
 
-from .tstzcollection import TsTzCollection
+from .timecollection import TimeCollection
 from ..base.span import Span
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from .tstzset import TsTzSet
 
 
-class TsTzSpan(Span[datetime], TsTzCollection):
+class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     """
     Class for representing sets of contiguous timestamps between a lower and
     an upper bound. The bounds may be inclusive or not.
@@ -80,18 +80,6 @@ class TsTzSpan(Span[datetime], TsTzCollection):
 
         return TsTzSpanSet(_inner=super().to_spanset())
 
-    def to_tstzspanset(self) -> TsTzSpanSet:
-        """
-        Returns a tstzspan set containing ``self``.
-
-        Returns:
-            A new :class:`TsTzSpanSet` instance
-
-        MEOS Functions:
-            span_to_spanset
-        """
-        return self.to_spanset()
-
     # ------------------------- Accessors -------------------------------------
     def lower(self) -> datetime:
         """
@@ -130,18 +118,6 @@ class TsTzSpan(Span[datetime], TsTzCollection):
             tstzspan_duration
         """
         return interval_to_timedelta(tstzspan_duration(self._inner))
-
-    def duration_in_seconds(self) -> float:
-        """
-        Returns the duration of the tstzspan.
-
-        Returns:
-            Returns a `float` representing the duration of the tstzspan in seconds
-
-        MEOS Functions:
-            span_width
-        """
-        return self.width()
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: timedelta) -> TsTzSpan:
@@ -547,8 +523,11 @@ class TsTzSpan(Span[datetime], TsTzCollection):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_span_span, distance_spanset_span, distance_span_timestamptz
+            distance_span_timestamptz, distance_tstzspan_tstzspan,
+            distance_tstzspanset_tstzspan
         """
+        from .tstzset import TsTzSet
+        from .tstzspanset import TsTzSpanSet
         from ...temporal import Temporal
         from ...boxes import Box
 
@@ -558,12 +537,22 @@ class TsTzSpan(Span[datetime], TsTzCollection):
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
+        elif isinstance(other, TsTzSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, TsTzSpan):
+            return timedelta(
+                seconds=distance_tstzspan_tstzspan(self._inner, other._inner)
+            )
+        elif isinstance(other, TsTzSpanSet):
+            return timedelta(
+                seconds=distance_tstzspanset_tstzspan(other._inner, self._inner)
+            )
         elif isinstance(other, Temporal):
             return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):
             return self.distance(other.to_tstzspan())
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload
@@ -575,9 +564,7 @@ class TsTzSpan(Span[datetime], TsTzCollection):
         ...
 
     @overload
-    def intersection(
-        self, other: Union[TsTzSet, TsTzSpanSet]
-    ) -> Optional[TsTzSpanSet]:
+    def intersection(self, other: Union[TsTzSet, TsTzSpanSet]) -> Optional[TsTzSpanSet]:
         ...
 
     def intersection(self, other: Time) -> Optional[Time]:

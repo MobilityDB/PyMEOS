@@ -24,6 +24,7 @@ from pymeos_cffi import (
     intset_shift_scale,
     minus_int_set,
     distance_set_int,
+    distance_intset_intset,
 )
 
 from .intspan import IntSpan
@@ -36,18 +37,17 @@ if TYPE_CHECKING:
 
 class IntSet(Set[int]):
     """
-    Class for representing a set of text values.
+    Class for representing a set of integer values.
 
-    ``TextSet`` objects can be created with a single argument of type string as
+    ``IntSet`` objects can be created with a single argument of type string as
     in MobilityDB.
 
         >>> IntSet(string='{1, 3, 56}')
 
-    Another possibility is to create a ``TextSet`` object from a list of
+    Another possibility is to create a ``IntSet`` object from a list of
     strings or integers.
 
         >>> IntSet(elements=[1, '2', 3, '56'])
-
 
     """
 
@@ -76,31 +76,6 @@ class IntSet(Set[int]):
         return intset_out(self._inner)
 
     # ------------------------- Conversions -----------------------------------
-
-    def to_spanset(self) -> IntSpanSet:
-        """
-        Returns a SpanSet that contains a Span for each element in ``self``.
-
-        Returns:
-            A new :class:`IntSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-
-        return IntSpanSet(_inner=super().to_spanset())
-
-    def to_span(self) -> IntSpan:
-        """
-        Returns a span that encompasses ``self``.
-
-        Returns:
-            A new :class:`IntSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        return IntSpan(_inner=super().to_span())
 
     def to_floatset(self) -> FloatSet:
         """
@@ -417,8 +392,30 @@ class IntSet(Set[int]):
 
     # ------------------------- Distance Operations ---------------------------
 
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            A :class:`int` instance
+
+        MEOS Functions:
+            distance_set_int, distance_intset_intset, distance_intspanset_intspan,
+            distance_intspanset_intspanset
+        """
+        from .intspan import IntSpan
+        from .intspanset import IntSpanSet
+
         if isinstance(other, int):
             return distance_set_int(self._inner, other)
+        elif isinstance(other, IntSet):
+            return distance_intset_intset(self._inner, other._inner)
+        elif isinstance(other, IntSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, IntSpanSet):
+            return self.to_spanset().distance(other)
         else:
             return super().distance(other)

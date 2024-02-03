@@ -1,22 +1,20 @@
 from copy import copy
-from operator import not_
 from datetime import datetime, timezone, timedelta
+from operator import not_
 
-import pytest
 import numpy as np
-from shapely import Point, LineString
+import pytest
 import shapely.geometry
+from pymeos_cffi import MeosInvalidArgValueError
+from shapely import Point, LineString
 
 from pymeos import (
-    TBool,
     TBoolInst,
     TBoolSeq,
     TBoolSeqSet,
-    TFloat,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
-    TGeomPoint,
     TGeomPointInst,
     TGeomPointSeq,
     TGeomPointSeqSet,
@@ -97,11 +95,15 @@ class TestTGeogPointConstructors(TestTGeogPoint):
                 TGeogPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeogPointSeq, TInterpolation.LINEAR),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TGeogPointSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpan("[2019-09-01, 2019-09-02]"),
+                TGeogPointSeq,
+                TInterpolation.LINEAR,
+            ),
+            (
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TGeogPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -444,7 +446,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpi,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -476,7 +478,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpds,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -515,7 +517,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tps,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -554,7 +556,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
             (
                 tpss,
                 "{\n"
-                '  "type": "MovingGeogPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -1087,8 +1089,6 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, None),
-            (tpds, None),
             (tps, TFloatSeq("Interp=Step;[1.8157@2019-09-01, 1.8157@2019-09-02]")),
             (
                 tpss,
@@ -1098,13 +1098,22 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
                 ),
             ),
         ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+        ids=["Sequence", "SequenceSet"],
     )
     def test_speed(self, temporal, expected):
         if expected is None:
             assert temporal.speed() is None
         else:
             assert temporal.speed().round(4) == expected
+
+    @pytest.mark.parametrize(
+        "temporal",
+        [tpi, tpds],
+        ids=["Instant", "Discrete Sequence"],
+    )
+    def test_speed_without_linear_interpolation_throws(self, temporal):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.speed()
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -2276,8 +2285,12 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert (
+            TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        )
+        assert (
+            TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        )
 
 
 class TestTGeogPointEverSpatialOperations(TestTGeogPoint):

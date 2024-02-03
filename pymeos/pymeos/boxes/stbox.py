@@ -250,7 +250,7 @@ class STBox:
         else:
             raise TypeError(
                 f"Operation not supported with types "
-                "{geometry.__class__} and {time.__class__}"
+                f"{geometry.__class__} and {time.__class__}"
             )
         return STBox(_inner=result)
 

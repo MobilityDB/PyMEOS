@@ -120,9 +120,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             gserialized_as_geojson
         """
-        return gserialized_as_geojson(
-            tpoint_trajectory(self._inner), option, precision, srs
-        )
+        return geo_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
@@ -1103,7 +1101,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             result = shortestline_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
-        return gserialized_to_shapely_geometry(result[0], 10)
+        return gserialized_to_shapely_geometry(result, 10)
 
     # ------------------------- Tiling Operations -----------------------------
     def tile(
@@ -1408,19 +1406,32 @@ class TGeomPoint(
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: datetime) -> TGeomPointInst:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: datetime, interpolation: None = None
+    ) -> TGeomPointInst:
         ...
 
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
+        value: shpb.BaseGeometry, base: TsTzSet, interpolation: None = None
     ) -> TGeomPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeomPointSeqSet:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TGeomPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: shpb.BaseGeometry,
+        base: TsTzSpanSet,
+        interpolation: TInterpolation = None,
+    ) -> TGeomPointSeqSet:
         ...
 
     @staticmethod
@@ -1448,18 +1459,36 @@ class TGeomPoint(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TGeomPointSeq(
-                _inner=tpointseq_from_base_tstzset(gs, base._inner)
-            )
+            return TGeomPointSeq(_inner=tpointseq_from_base_tstzset(gs, base._inner))
         elif isinstance(base, TsTzSpan):
             return TGeomPointSeq(
                 _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
         elif isinstance(base, TsTzSpanSet):
             return TGeomPointSeqSet(
-                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(
+                    gs, base._inner, interpolation
+                )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tgeompoint_from_mfjson
+        """
+
+        result = tgeompoint_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Conversions ----------------------------------
     def to_geographic(self) -> TGeogPoint:
@@ -1490,7 +1519,7 @@ class TGeomPoint(
         return gpd.GeoDataFrame(data, crs=self.srid()).set_index(keys=["time"])
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: shpb.BaseGeometry) -> bool:
+    def always_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -1501,12 +1530,17 @@ class TGeomPoint(
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            always_eq_tpoint_point, always_eq_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return tpoint_always_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(value)
+            return always_eq_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeomPoint):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def always_not_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is always different to `value`.
 
@@ -1517,12 +1551,17 @@ class TGeomPoint(
             True if `self` is always different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            always_ne_tpoint_point, always_ne_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return not tpoint_ever_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(value)
+            return always_ne_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeomPoint):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: shpb.BaseGeometry) -> bool:
+    def ever_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -1533,12 +1572,17 @@ class TGeomPoint(
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            ever_eq_tpoint_point, ever_eq_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return tpoint_ever_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(value)
+            return ever_eq_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeomPoint):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def ever_not_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is ever different to `value`.
 
@@ -1549,12 +1593,17 @@ class TGeomPoint(
             True if `self` is ever different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            ever_ne_tpoint_point, ever_ne_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return not tpoint_always_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geometry_to_gserialized(value)
+            return ever_ne_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeomPoint):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_equal(self, value: shpb.BaseGeometry) -> bool:
+    def never_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -1565,12 +1614,11 @@ class TGeomPoint(
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            ever_eq_tpoint_point, ever_eq_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return not tpoint_ever_eq(self._inner, gs)
+        return not self.ever_equal(value)
 
-    def never_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def never_not_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
         """
         Returns whether `self` is never different to `value`.
 
@@ -1581,10 +1629,9 @@ class TGeomPoint(
             True if `self` is never different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            ever_ne_tpoint_point, ever_ne_temporal_temporal
         """
-        gs = geometry_to_gserialized(value)
-        return tpoint_always_eq(self._inner, gs)
+        return not self.ever_not_equal(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[shp.Point, TGeomPoint]) -> TBool:
@@ -1690,19 +1737,32 @@ class TGeogPoint(
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: datetime) -> TGeogPointInst:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: datetime, interpolation: TInterpolation = None
+    ) -> TGeogPointInst:
         ...
 
     @staticmethod
     @overload
     def from_base_time(
-        value: shpb.BaseGeometry, base: Union[TsTzSet, TsTzSpan]
+        value: shpb.BaseGeometry, base: TsTzSet, interpolation: TInterpolation = None
     ) -> TGeogPointSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: shpb.BaseGeometry, base: TsTzSpanSet) -> TGeogPointSeqSet:
+    def from_base_time(
+        value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
+    ) -> TGeogPointSeq:
+        ...
+
+    @staticmethod
+    @overload
+    def from_base_time(
+        value: shpb.BaseGeometry,
+        base: TsTzSpanSet,
+        interpolation: TInterpolation = None,
+    ) -> TGeogPointSeqSet:
         ...
 
     @staticmethod
@@ -1730,18 +1790,36 @@ class TGeogPoint(
                 _inner=tpointinst_make(gs, datetime_to_timestamptz(base))
             )
         elif isinstance(base, TsTzSet):
-            return TGeogPointSeq(
-                _inner=tpointseq_from_base_tstzset(gs, base._inner)
-            )
+            return TGeogPointSeq(_inner=tpointseq_from_base_tstzset(gs, base._inner))
         elif isinstance(base, TsTzSpan):
             return TGeogPointSeq(
                 _inner=tpointseq_from_base_tstzspan(gs, base._inner, interpolation)
             )
         elif isinstance(base, TsTzSpanSet):
             return TGeogPointSeqSet(
-                _inner=tpointseqset_from_base_tstzspanset(gs, base._inner, interpolation)
+                _inner=tpointseqset_from_base_tstzspanset(
+                    gs, base._inner, interpolation
+                )
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tgeogpoint_from_mfjson
+        """
+
+        result = tgeogpoint_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Conversions ----------------------------------
     def to_geometric(self) -> TGeomPoint:
@@ -1758,7 +1836,7 @@ class TGeogPoint(
         return Temporal._factory(result)
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: shpb.BaseGeometry) -> bool:
+    def always_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -1769,12 +1847,17 @@ class TGeogPoint(
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            always_eq_tpoint_point, always_eq_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return tpoint_always_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geography_to_gserialized(value)
+            return always_eq_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeogPoint):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def always_not_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is always different to `value`.
 
@@ -1785,12 +1868,17 @@ class TGeogPoint(
             True if `self` is always different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            always_ne_tpoint_point, always_ne_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return not tpoint_ever_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geography_to_gserialized(value)
+            return always_ne_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeogPoint):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: shpb.BaseGeometry) -> bool:
+    def ever_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -1801,12 +1889,17 @@ class TGeogPoint(
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            ever_eq_tpoint_point, ever_eq_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return tpoint_ever_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geography_to_gserialized(value)
+            return ever_eq_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeogPoint):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def ever_not_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is ever different to `value`.
 
@@ -1817,12 +1910,17 @@ class TGeogPoint(
             True if `self` is ever different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            ever_ne_tpoint_point, ever_ne_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return not tpoint_always_eq(self._inner, gs)
+        if isinstance(value, shpb.BaseGeometry):
+            gs = geography_to_gserialized(value)
+            return ever_ne_tpoint_point(self._inner, gs) > 0
+        elif isinstance(value, TGeogPoint):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_equal(self, value: shpb.BaseGeometry) -> bool:
+    def never_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -1833,12 +1931,11 @@ class TGeogPoint(
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_ever_eq
+            ever_eq_tpoint_point, ever_eq_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return not tpoint_ever_eq(self._inner, gs)
+        return not self.ever_equal(value)
 
-    def never_not_equal(self, value: shpb.BaseGeometry) -> bool:
+    def never_not_equal(self, value: Union[shpb.BaseGeometry, TGeogPoint]) -> bool:
         """
         Returns whether `self` is never different to `value`.
 
@@ -1849,10 +1946,9 @@ class TGeogPoint(
             True if `self` is never different to `value`, False otherwise.
 
         MEOS Functions:
-            tpoint_always_eq
+            ever_ne_tpoint_point, ever_ne_temporal_temporal
         """
-        gs = geography_to_gserialized(value)
-        return tpoint_always_eq(self._inner, gs)
+        return not self.ever_not_equal(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[shp.Point, TGeogPoint]) -> TBool:

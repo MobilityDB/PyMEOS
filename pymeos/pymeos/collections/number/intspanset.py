@@ -5,7 +5,7 @@ from typing import Union, overload, Optional, TYPE_CHECKING, List
 from pymeos_cffi import (
     intspanset_in,
     intspanset_out,
-    spanset_width,
+    intspanset_width,
     intspanset_shift_scale,
     adjacent_spanset_int,
     contains_spanset_int,
@@ -20,11 +20,14 @@ from pymeos_cffi import (
     union_spanset_int,
     minus_spanset_int,
     intspanset_to_floatspanset,
+    distance_intspanset_intspan,
+    distance_intspanset_intspanset,
 )
 
-from pymeos.collections import SpanSet
+from ..base import SpanSet
 
 if TYPE_CHECKING:
+    from .intset import IntSet
     from .intspan import IntSpan
     from .floatspanset import FloatSpanSet
 
@@ -118,9 +121,9 @@ class IntSpanSet(SpanSet[int]):
             A `float` representing the duration of the spanset
 
         MEOS Functions:
-            spanset_width
+            intspanset_width
         """
-        return spanset_width(self._inner, ignore_gaps)
+        return intspanset_width(self._inner, ignore_gaps)
 
     def start_span(self) -> IntSpan:
         """
@@ -370,7 +373,7 @@ class IntSpanSet(SpanSet[int]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -381,11 +384,20 @@ class IntSpanSet(SpanSet[int]):
             A float value
 
         MEOS Functions:
-            distance_spanset_span, distance_spanset_spanset,
-            distance_spanset_int
+            distance_spanset_int, distance_intspanset_intspan,
+            distance_intspanset_intspanset
         """
+        from .intset import IntSet
+        from .intspan import IntSpan
+
         if isinstance(other, int):
             return distance_spanset_int(self._inner, other)
+        elif isinstance(other, IntSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, IntSpan):
+            return distance_intspanset_intspan(self._inner, other._inner)
+        elif isinstance(other, IntSpanSet):
+            return distance_intspanset_intspanset(other._inner, self._inner)
         else:
             return super().distance(other)
 

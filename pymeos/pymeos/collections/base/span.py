@@ -198,18 +198,6 @@ class Span(Collection[T], ABC):
         """
         return span_upper_inc(self._inner)
 
-    def width(self) -> float:
-        """
-        Returns the duration of the tstzspan.
-
-        Returns:
-            Returns a `float` representing the duration of the tstzspan in seconds
-
-        MEOS Functions:
-            span_width
-        """
-        return span_width(self._inner)
-
     def __hash__(self) -> int:
         """
         Return the hash representation of ``self``.
@@ -449,7 +437,7 @@ class Span(Collection[T], ABC):
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other) -> float:
+    def distance(self, other):
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -457,19 +445,9 @@ class Span(Collection[T], ABC):
             other:  object to compare with
 
         Returns:
-            A :class:`flat` instance
-
-        MEOS Functions:
-            distance_span_span, distance_spanset_span
+            The distance metric in the appropriate format depending on the subclass.
         """
-        from .spanset import SpanSet
-
-        if isinstance(other, Span):
-            return distance_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return distance_spanset_span(other._inner, self._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Set Operations --------------------------------
     @abstractmethod
@@ -546,10 +524,10 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`TsTzSpanSet` instance.
+            A :class:`SpanSet` instance.
 
         MEOS Functions:
-        union_tstzspan_timestamp, union_spanset_span, union_span_span
+        union_spanset_span, union_span_span
         """
         from .spanset import SpanSet
 

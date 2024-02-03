@@ -27,13 +27,16 @@ from pymeos_cffi import (
     union_spanset_span,
     floatspan_out,
     floatspan_make,
-    span_width,
+    floatspan_width,
     floatspan_to_intspan,
+    distance_floatspan_floatspan,
+    distance_floatspanset_floatspan,
 )
 
-from .. import Span
+from ..base import Span
 
 if TYPE_CHECKING:
+    from .floatset import FloatSet
     from .floatspanset import FloatSpanSet
     from .intspan import IntSpan
 
@@ -143,9 +146,9 @@ class FloatSpan(Span[float]):
             Returns a `float` representing the width of the span
 
         MEOS Functions:
-            span_width
+            floatspan_width
         """
-        return span_width(self._inner)
+        return floatspan_width(self._inner)
 
     # ------------------------- Transformations -------------------------------
     def shift(self, delta: float) -> FloatSpan:
@@ -340,7 +343,9 @@ class FloatSpan(Span[float]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, float, FloatSpan, FloatSpanSet]) -> float:
+    def distance(
+        self, other: Union[int, float, FloatSet, FloatSpan, FloatSpanSet]
+    ) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -351,10 +356,22 @@ class FloatSpan(Span[float]):
             A float value
 
         MEOS Functions:
-            distance_span_span, distance_span_spanset, distance_span_float,
+            distance_span_float, distance_floatspan_floatspan,
+            distance_floatspanset_floatspan,
         """
-        if isinstance(other, int) or isinstance(other, float):
+        from .floatset import FloatSet
+        from .floatspanset import FloatSpanSet
+
+        if isinstance(other, int):
             return distance_span_float(self._inner, float(other))
+        elif isinstance(other, float):
+            return distance_span_float(self._inner, other)
+        elif isinstance(other, FloatSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, FloatSpan):
+            return distance_floatspan_floatspan(self._inner, other._inner)
+        elif isinstance(other, FloatSpanSet):
+            return distance_floatspanset_floatspan(other._inner, self._inner)
         else:
             return super().distance(other)
 

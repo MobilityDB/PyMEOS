@@ -14,6 +14,20 @@ class TInterpolation(IntEnum):
     STEPWISE = InterpolationType.STEP
     LINEAR = InterpolationType.LINEAR
 
+    def to_string(self) -> str:
+        """
+        Returns a string representation of the interpolation type.
+        """
+
+        if self == InterpolationType.NONE:
+            return "None"
+        elif self == InterpolationType.DISCRETE:
+            return "Discrete"
+        elif self == InterpolationType.STEP:
+            return "Step"
+        elif self == InterpolationType.LINEAR:
+            return "Linear"
+
     @staticmethod
     def from_string(source: str, none: bool = True) -> TInterpolation:
         """

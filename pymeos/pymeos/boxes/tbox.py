@@ -4,8 +4,8 @@ from typing import Optional, Union, List
 
 from pymeos_cffi import *
 
-from ..main import TNumber
 from ..collections import *
+from ..main import TNumber, TInt, TFloat
 
 
 class TBox:
@@ -159,9 +159,9 @@ class TBox:
         elif isinstance(value, float):
             result = float_to_tbox(value)
         elif isinstance(value, IntSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         elif isinstance(value, FloatSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
         return TBox(_inner=result)
@@ -185,11 +185,11 @@ class TBox:
         if isinstance(time, datetime):
             result = timestamptz_to_tbox(datetime_to_timestamptz(time))
         elif isinstance(time, TsTzSet):
-            result = tstzset_to_tbox(time._inner)
+            result = set_to_tbox(time._inner)
         elif isinstance(time, TsTzSpan):
-            result = tstzspan_to_tbox(time._inner)
+            result = span_to_tbox(time._inner)
         elif isinstance(time, TsTzSpanSet):
-            result = tstzspanset_to_tbox(time._inner)
+            result = spanset_to_tbox(time._inner)
         else:
             raise TypeError(f"Operation not supported with type {time.__class__}")
         return TBox(_inner=result)
@@ -1081,9 +1081,14 @@ class TBox:
             nad_tbox_tbox
         """
         if isinstance(other, TBox):
-            return nad_tbox_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return nad_tnumber_tbox(other._inner, self._inner)
+            if self._is_float():
+                return nad_tboxfloat_tboxfloat(self._inner, other._inner)
+            else:
+                return nad_tboxint_tboxint(self._inner, other._inner)
+        elif isinstance(other, TInt):
+            return nad_tint_tbox(other._inner, self._inner)
+        elif isinstance(other, TFloat):
+            return nad_tfloat_tbox(other._inner, self._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 

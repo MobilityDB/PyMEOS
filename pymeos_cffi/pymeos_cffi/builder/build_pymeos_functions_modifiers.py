@@ -103,7 +103,7 @@ def spanset_make_modifier(function: str) -> str:
     )
 
 
-def gserialized_from_lwgeom_modifier(function: str) -> str:
+def geo_from_lwgeom_modifier(function: str) -> str:
     return function.replace(", size: 'size_t *'", "").replace(
         "_ffi.cast('size_t *', size)", "_ffi.NULL"
     )

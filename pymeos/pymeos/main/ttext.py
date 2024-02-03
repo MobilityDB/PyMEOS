@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
+from typing import Optional, Union, List, Set, overload, TYPE_CHECKING, TypeVar, Type
 
 from pymeos_cffi import *
 
@@ -11,6 +11,9 @@ from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceS
 
 if TYPE_CHECKING:
     from .tbool import TBool
+
+
+Self = TypeVar("Self", bound="TText")
 
 
 class TText(
@@ -91,6 +94,24 @@ class TText(
                 _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
             )
         raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            ttext_from_mfjson
+        """
+
+        result = ttext_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self) -> str:
@@ -224,39 +245,7 @@ class TText(
         return text2cstring(result[0])
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ttext_always_eq
-        """
-        return ttext_always_eq(self._inner, value)
-
-    def always_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return not ttext_always_eq(self._inner, value)
-
-    def always_less(self, value: str) -> bool:
+    def always_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -268,11 +257,16 @@ class TText(
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            always_lt_ttext_text, always_lt_temporal_temporal
         """
-        return ttext_always_lt(self._inner, value)
+        if isinstance(value, str):
+            return always_lt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: str) -> bool:
+    def always_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -285,27 +279,58 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            always_le_ttext_text, always_le_temporal_temporal
         """
-        return ttext_always_le(self._inner, value)
+        if isinstance(value, str):
+            return always_le_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: str) -> bool:
+    def always_equal(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are always greater than `value`.
+        Returns whether the values of `self` are always equal to `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are always greater than `value`,
+            `True` if the values of `self` are always equal to `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            always_eq_ttext_text, always_eq_temporal_temporal
         """
-        return not ttext_ever_le(self._inner, value)
+        if isinstance(value, str):
+            return always_eq_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: str) -> bool:
+    def always_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are always not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are always not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            always_ne_ttext_text, always_ne_temporal_temporal
+        """
+        if isinstance(value, str):
+            return always_ne_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def always_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -318,43 +343,37 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            always_ge_ttext_text, always_ge_temporal_temporal
         """
-        return not ttext_ever_lt(self._inner, value)
+        if isinstance(value, str):
+            return always_ge_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: str) -> bool:
+    def always_greater(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are ever equal to `value`.
+        Returns whether the values of `self` are always greater than `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are ever equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return ttext_ever_eq(self._inner, value)
-
-    def ever_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are ever not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are ever not equal to `value`,
+            `True` if the values of `self` are always greater than `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_eq
+            always_gt_ttext_text, always_gt_temporal_temporal
         """
-        return not ttext_ever_eq(self._inner, value)
+        if isinstance(value, str):
+            return always_gt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: str) -> bool:
+    def ever_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -366,11 +385,16 @@ class TText(
             otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            ever_lt_ttext_text, ever_lt_temporal_temporal
         """
-        return ttext_ever_lt(self._inner, value)
+        if isinstance(value, str):
+            return ever_lt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: str) -> bool:
+    def ever_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -383,27 +407,58 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            ever_le_ttext_text, ever_le_temporal_temporal
         """
-        return ttext_ever_le(self._inner, value)
+        if isinstance(value, str):
+            return ever_le_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: str) -> bool:
+    def ever_equal(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are ever greater than `value`.
+        Returns whether the values of `self` are ever equal to `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are ever greater than `value`,
+            `True` if the values of `self` are ever equal to `value`, `False`
+            otherwise.
+
+        MEOS Functions:
+            ever_eq_ttext_text, ever_eq_temporal_temporal
+        """
+        if isinstance(value, str):
+            return ever_eq_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def ever_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are ever not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are ever not equal to `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            ever_ne_ttext_text, ever_ne_temporal_temporal
         """
-        return not ttext_always_le(self._inner, value)
+        if isinstance(value, str):
+            return ever_ne_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: str) -> bool:
+    def ever_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -416,43 +471,37 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            ever_ge_ttext_text, ever_ge_temporal_temporal
         """
-        return not ttext_always_lt(self._inner, value)
+        if isinstance(value, str):
+            return ever_ge_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_equal(self, value: str) -> bool:
+    def ever_greater(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are never equal to `value`.
+        Returns whether the values of `self` are ever greater than `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are never equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return not ttext_ever_eq(self._inner, value)
-
-    def never_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are never not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are never not equal to `value`,
+            `True` if the values of `self` are ever greater than `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_eq
+            ever_gt_ttext_text, ever_gt_temporal_temporal
         """
-        return ttext_always_eq(self._inner, value)
+        if isinstance(value, str):
+            return ever_gt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_less(self, value: str) -> bool:
+    def never_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -464,11 +513,11 @@ class TText(
             otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            ever_lt_ttext_text, ever_lt_temporal_temporal
         """
-        return not ttext_ever_lt(self._inner, value)
+        return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: str) -> bool:
+    def never_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -481,11 +530,43 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            ever_le_ttext_text, ever_le_temporal_temporal
         """
-        return not ttext_ever_le(self._inner, value)
+        return not self.ever_less_or_equal(value)
 
-    def never_greater_or_equal(self, value: str) -> bool:
+    def never_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are never equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are never equal to `value`, `False`
+            otherwise.
+
+        MEOS Functions:
+            ever_eq_ttext_text, ever_eq_temporal_temporal
+        """
+        return not self.ever_equal(value)
+
+    def never_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are never not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are never not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            ever_ne_ttext_text, ever_ne_temporal_temporal
+        """
+        return not self.ever_not_equal(value)
+
+    def never_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -498,11 +579,11 @@ class TText(
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            ever_ge_ttext_text, ever_ge_temporal_temporal
         """
-        return ttext_always_lt(self._inner, value)
+        return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: str) -> bool:
+    def never_greater(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -514,9 +595,9 @@ class TText(
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            ever_gt_ttext_text, ever_gt_temporal_temporal
         """
-        return ttext_always_le(self._inner, value)
+        return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[str, TText]) -> TBool:

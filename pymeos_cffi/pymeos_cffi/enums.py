@@ -5,6 +5,12 @@ from enum import IntEnum
 class MeosType(IntEnum):
     T_UNKNOWN = _lib.T_UNKNOWN
     T_BOOL = _lib.T_BOOL
+    T_DATE = _lib.T_DATE
+    T_DATEMULTIRANGE = _lib.T_DATEMULTIRANGE
+    T_DATERANGE = _lib.T_DATERANGE
+    T_DATESET = _lib.T_DATESET
+    T_DATESPAN = _lib.T_DATESPAN
+    T_DATESPANSET = _lib.T_DATESPANSET
     T_DOUBLE2 = _lib.T_DOUBLE2
     T_DOUBLE3 = _lib.T_DOUBLE3
     T_DOUBLE4 = _lib.T_DOUBLE4
@@ -13,8 +19,8 @@ class MeosType(IntEnum):
     T_FLOATSPAN = _lib.T_FLOATSPAN
     T_FLOATSPANSET = _lib.T_FLOATSPANSET
     T_INT4 = _lib.T_INT4
-    T_INT4RANGE = _lib.T_INT4RANGE
     T_INT4MULTIRANGE = _lib.T_INT4MULTIRANGE
+    T_INT4RANGE = _lib.T_INT4RANGE
     T_INTSET = _lib.T_INTSET
     T_INTSPAN = _lib.T_INTSPAN
     T_INTSPANSET = _lib.T_INTSPANSET

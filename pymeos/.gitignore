@@ -1,9 +1,17 @@
 .idea
+.vscode
+
+.micromamba
+d
+
 build
 dist
 docs/_build
 
 *.egg-info
 .pytest_cache
+*.pyc
 
 sandbox.py
+
+coverage.xml

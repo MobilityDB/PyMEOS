@@ -6,7 +6,7 @@ from typing import Optional, List, Union, TYPE_CHECKING, overload, get_args
 from dateutil.parser import parse
 from pymeos_cffi import *
 
-from .tstzcollection import TsTzCollection
+from .timecollection import TimeCollection
 from ..base import Set
 
 if TYPE_CHECKING:
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from ...boxes import Box
 
 
-class TsTzSet(Set[datetime], TsTzCollection):
+class TsTzSet(Set[datetime], TimeCollection[datetime]):
     """
     Class for representing lists of distinct timestamp values.
 
@@ -63,60 +63,6 @@ class TsTzSet(Set[datetime], TsTzCollection):
         return tstzset_out(self._inner)
 
     # ------------------------- Conversions -----------------------------------
-    def to_spanset(self) -> TsTzSpanSet:
-        """
-        Returns a TsTzSpanSet that contains a TsTzSpan for each Timestamp in
-        ``self``.
-
-        Returns:
-            A new :class:`TsTzSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-        from .tstzspanset import TsTzSpanSet
-
-        return TsTzSpanSet(_inner=super().to_spanset())
-
-    def to_tstzspanset(self) -> TsTzSpanSet:
-        """
-        Returns a TsTzSpanSet that contains a TsTzSpan for each Timestamp in
-        ``self``.
-
-        Returns:
-            A new :class:`TsTzSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-        return self.to_spanset()
-
-    def to_span(self) -> TsTzSpan:
-        """
-        Returns a tstzspan that encompasses ``self``.
-
-        Returns:
-            A new :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        from .tstzspan import TsTzSpan
-
-        return TsTzSpan(_inner=super().to_span())
-
-    def to_tstzspan(self) -> TsTzSpan:
-        """
-        Returns a tstzspan that encompasses ``self``.
-
-        Returns:
-            A new :class:`TsTzSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        return self.to_span()
-
     # ------------------------- Accessors -------------------------------------
     def duration(self) -> timedelta:
         """
@@ -281,7 +227,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
         if isinstance(other, Temporal):
             return self.is_adjacent(other.time())
         elif isinstance(other, get_args(Box)):
-            return self.is_adjacent(other.to_tstzspan())
+            return self.is_adjacent(other.to_span())
         else:
             super().is_adjacent(other)
 
@@ -315,7 +261,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
         if isinstance(container, Temporal):
             return self.is_contained_in(container.time())
         elif isinstance(container, get_args(Box)):
-            return self.is_contained_in(container.to_tstzspan())
+            return self.is_contained_in(container.to_span())
         else:
             return super().is_contained_in(container)
 
@@ -404,9 +350,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return contains_set_timestamptz(
-                self._inner, datetime_to_timestamptz(other)
-            )
+            return contains_set_timestamptz(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, Temporal):
             return self.to_spanset().overlaps(other)
         elif isinstance(other, get_args(Box)):
@@ -428,7 +372,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
         See Also:
             :meth:`TsTzSpan.is_same`
         """
-        return self.to_tstzspan().is_same(other)
+        return self.to_span().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Time, Temporal, Box]) -> bool:
@@ -457,13 +401,11 @@ class TsTzSet(Set[datetime], TsTzCollection):
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return after_timestamptz_set(
-                datetime_to_timestamptz(other), self._inner
-            )
+            return after_timestamptz_set(datetime_to_timestamptz(other), self._inner)
         elif isinstance(other, Temporal):
-            return self.to_tstzspan().is_left(other)
+            return self.to_span().is_left(other)
         elif isinstance(other, get_args(Box)):
-            return self.to_tstzspan().is_left(other)
+            return self.to_span().is_left(other)
         else:
             return super().is_left(other)
 
@@ -497,9 +439,9 @@ class TsTzSet(Set[datetime], TsTzCollection):
                 datetime_to_timestamptz(other), self._inner
             )
         elif isinstance(other, Temporal):
-            return self.to_tstzspan().is_over_or_left(other)
+            return self.to_span().is_over_or_left(other)
         elif isinstance(other, get_args(Box)):
-            return self.to_tstzspan().is_over_or_left(other.to_tstzspan())
+            return self.to_span().is_over_or_left(other.to_span())
         else:
             return super().is_over_or_left(other)
 
@@ -533,9 +475,9 @@ class TsTzSet(Set[datetime], TsTzCollection):
                 datetime_to_timestamptz(other), self._inner
             )
         elif isinstance(other, Temporal):
-            return self.to_tstzspan().is_over_or_right(other)
+            return self.to_span().is_over_or_right(other)
         elif isinstance(other, get_args(Box)):
-            return self.to_tstzspan().is_over_or_right(other)
+            return self.to_span().is_over_or_right(other)
         else:
             return super().is_over_or_right(other)
 
@@ -566,13 +508,11 @@ class TsTzSet(Set[datetime], TsTzCollection):
         from ...boxes import Box
 
         if isinstance(other, datetime):
-            return before_timestamptz_set(
-                datetime_to_timestamptz(other), self._inner
-            )
+            return before_timestamptz_set(datetime_to_timestamptz(other), self._inner)
         elif isinstance(other, Temporal):
-            return self.to_tstzspan().is_right(other)
+            return self.to_span().is_right(other)
         elif isinstance(other, get_args(Box)):
-            return self.to_tstzspan().is_right(other)
+            return self.to_span().is_right(other)
         else:
             return super().is_right(other)
 
@@ -588,9 +528,11 @@ class TsTzSet(Set[datetime], TsTzCollection):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_set_timestamptz, distance_set_set,
-            distance_span_span, distance_spanset_span
+            distance_set_timestamptz, distance_tstzset_tstzset,
+            distance_tstzspanset_tstzspan, distance_tstzspanset_tstzspanset
         """
+        from .tstzspan import TsTzSpan
+        from .tstzspanset import TsTzSpanSet
         from ...temporal import Temporal
         from ...boxes import Box
 
@@ -600,12 +542,20 @@ class TsTzSet(Set[datetime], TsTzCollection):
                     self._inner, datetime_to_timestamptz(other)
                 )
             )
+        elif isinstance(other, TsTzSet):
+            return timedelta(
+                seconds=distance_tstzset_tstzset(self._inner, other._inner)
+            )
+        elif isinstance(other, TsTzSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, TsTzSpanSet):
+            return self.to_spanset().distance(other)
         elif isinstance(other, Temporal):
-            return self.to_tstzspan().distance(other)
+            return self.to_span().distance(other)
         elif isinstance(other, get_args(Box)):
-            return self.to_tstzspan().distance(other)
+            return self.to_span().distance(other)
         else:
-            return timedelta(seconds=super().distance(other))
+            return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload
@@ -648,13 +598,13 @@ class TsTzSet(Set[datetime], TsTzCollection):
             result = intersection_set_set(self._inner, other._inner)
             return TsTzSet(_inner=result) if result is not None else None
         elif isinstance(other, TsTzSpan):
-            return self.to_tstzspanset().intersection(other)
+            return self.to_spanset().intersection(other)
         elif isinstance(other, TsTzSpanSet):
-            return self.to_tstzspanset().intersection(other)
+            return self.to_spanset().intersection(other)
         elif isinstance(other, Temporal):
             return self.intersection(other.time())
         elif isinstance(other, get_args(Box)):
-            return self.intersection(other.to_tstzspan())
+            return self.intersection(other.to_span())
         else:
             return super().intersection(other)
 
@@ -686,21 +636,19 @@ class TsTzSet(Set[datetime], TsTzCollection):
         from .tstzspanset import TsTzSpanSet
 
         if isinstance(other, datetime):
-            result = minus_set_timestamptz(
-                self._inner, datetime_to_timestamptz(other)
-            )
+            result = minus_set_timestamptz(self._inner, datetime_to_timestamptz(other))
             return TsTzSet(_inner=result) if result is not None else None
         elif isinstance(other, TsTzSet):
             result = minus_set_set(self._inner, other._inner)
             return TsTzSet(_inner=result) if result is not None else None
         elif isinstance(other, TsTzSpan):
-            return self.to_tstzspanset().minus(other)
+            return self.to_spanset().minus(other)
         elif isinstance(other, TsTzSpanSet):
-            return self.to_tstzspanset().minus(other)
+            return self.to_spanset().minus(other)
         elif isinstance(other, Temporal):
             return self.minus(other.time())
         elif isinstance(other, get_args(Box)):
-            return self.minus(other.to_tstzspan())
+            return self.minus(other.to_span())
         else:
             return super().minus(other)
 
@@ -732,9 +680,7 @@ class TsTzSet(Set[datetime], TsTzCollection):
     def union(self, other: Union[TsTzSpan, TsTzSpanSet, Temporal, Box]) -> TsTzSpanSet:
         ...
 
-    def union(
-        self, other: Union[Time, Temporal, Box]
-    ) -> Union[TsTzSpanSet, TsTzSet]:
+    def union(self, other: Union[Time, Temporal, Box]) -> Union[TsTzSpanSet, TsTzSet]:
         """
         Returns the temporal union of ``self`` and ``other``.
 
@@ -760,13 +706,13 @@ class TsTzSet(Set[datetime], TsTzCollection):
         elif isinstance(other, TsTzSet):
             return TsTzSet(_inner=union_set_set(self._inner, other._inner))
         elif isinstance(other, TsTzSpan):
-            return self.to_tstzspanset().union(other)
+            return self.to_spanset().union(other)
         elif isinstance(other, TsTzSpanSet):
-            return self.to_tstzspanset().union(other)
+            return self.to_spanset().union(other)
         elif isinstance(other, Temporal):
             return self.union(other.time())
         elif isinstance(other, get_args(Box)):
-            return self.union(other.to_tstzspan())
+            return self.union(other.to_span())
         else:
             return super().union(other)
 

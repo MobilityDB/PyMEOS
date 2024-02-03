@@ -5,6 +5,7 @@ from datetime import datetime, timezone, timedelta
 import pytest
 import math
 import numpy as np
+from pymeos_cffi import MeosInvalidArgValueError
 from shapely import Point, LineString, Polygon, MultiPoint, GeometryCollection
 
 from pymeos import (
@@ -90,11 +91,15 @@ class TestTGeomPointConstructors(TestTGeomPoint):
                 TGeomPointSeq,
                 TInterpolation.DISCRETE,
             ),
-            (TsTzSpan("[2019-09-01, 2019-09-02]"), TGeomPointSeq, TInterpolation.LINEAR),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TGeomPointSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpan("[2019-09-01, 2019-09-02]"),
+                TGeomPointSeq,
+                TInterpolation.LINEAR,
+            ),
+            (
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TGeomPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -458,7 +463,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (
                 tpi,
                 "{\n"
-                '  "type": "MovingGeomPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -490,7 +495,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (
                 tpds,
                 "{\n"
-                '  "type": "MovingGeomPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -529,7 +534,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (
                 tps,
                 "{\n"
-                '  "type": "MovingGeomPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -568,7 +573,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
             (
                 tpss,
                 "{\n"
-                '  "type": "MovingGeomPoint",\n'
+                '  "type": "MovingPoint",\n'
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -1113,8 +1118,6 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, None),
-            (tpds, None),
             (
                 tps,
                 TFloatSeq(
@@ -1133,10 +1136,19 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
                 / 24,
             ),
         ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+        ids=["Sequence", "SequenceSet"],
     )
     def test_speed(self, temporal, expected):
         assert temporal.speed() == expected
+
+    @pytest.mark.parametrize(
+        "temporal",
+        [tpi, tpds],
+        ids=["Instant", "Discrete Sequence"],
+    )
+    def test_speed(self, temporal):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.speed()
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -2412,8 +2424,12 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_at_minus_min_max(self, temporal):
-        assert TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        assert (
+            TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
+        )
+        assert (
+            TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+        )
 
 
 class TestTGeomPointTopologicalFunctions(TestTGeomPoint):

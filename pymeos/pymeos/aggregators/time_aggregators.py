@@ -1,7 +1,14 @@
 from datetime import datetime
 from typing import Union
 
-from pymeos_cffi import *
+from pymeos_cffi import (
+    timestamptz_union_transfn,
+    datetime_to_timestamptz,
+    set_union_transfn,
+    set_union_finalfn,
+    union_spanset_span,
+    union_spanset_spanset,
+)
 
 from .aggregator import BaseAggregator
 from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
@@ -21,7 +28,7 @@ class TimeInstantaneousUnionAggregator(
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, datetime):
-            state = timestamp_union_transfn(state, datetime_to_timestamptz(temporal))
+            state = timestamptz_union_transfn(state, datetime_to_timestamptz(temporal))
         elif isinstance(temporal, TsTzSet):
             state = set_union_transfn(state, temporal._inner)
         else:

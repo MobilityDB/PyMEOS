@@ -76,9 +76,9 @@ class TestTTextConstructors(TestTText):
             ),
             (TsTzSpan("[2019-09-01, 2019-09-02]"), TTextSeq, TInterpolation.STEPWISE),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TTextSeqSet,
-                    TInterpolation.STEPWISE,
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TTextSeqSet,
+                TInterpolation.STEPWISE,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1710,7 +1710,8 @@ class TestTTextRestrictors(TestTText):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-            TText.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
+            TText.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
+            == temporal
         )
 
     @pytest.mark.parametrize(
