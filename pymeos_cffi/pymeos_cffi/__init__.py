@@ -2,7 +2,7 @@ from .functions import *
 from .enums import *
 from .errors import *
 
-__version__ = "1.1.0b6"
+__version__ = "1.1.0rc1"
 __all__ = [
     # Exceptions
     "MeosException",
@@ -1515,7 +1515,6 @@ __all__ = [
     "temporal_time_split",
     "tfloat_value_split",
     "tfloat_value_time_split",
-    "tpoint_space_split",
     "tfloatbox_tile",
     "tfloatbox_tile_list",
     "timestamptz_bucket",
