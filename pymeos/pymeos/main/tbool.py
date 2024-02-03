@@ -166,7 +166,7 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
             The value at the given timestamp.
 
         MEOS Function:
-            tbool_value_at_timestamp
+            tbool_value_at_timestamptz
         """
         return tbool_value_at_timestamptz(
             self._inner, datetime_to_timestamptz(timestamp), True

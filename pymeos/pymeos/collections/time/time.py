@@ -33,7 +33,7 @@ TimeDate = Union[
 """
 Union type that includes all Time types related to dates in PyMEOS:  
 
-- :class:`~datetime.date` for timestamps  
+- :class:`~datetime.date` for dates  
 - :class:`~pymeos.time.dateset.DateSet` for sets of dates  
 - :class:`~pymeos.time.datespan.DateSpan` for spans of dates  
 - :class:`~pymeos.time.datespanset.DateSpanSet` for sets of spans of dates  
