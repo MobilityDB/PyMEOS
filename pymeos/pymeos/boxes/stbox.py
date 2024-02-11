@@ -41,10 +41,10 @@ class STBox:
     _mobilitydb_name = "stbox"
 
     def _get_box(
-        self,
-        other: Union[shp.BaseGeometry, STBox, Temporal, Time],
-        allow_space_only: bool = True,
-        allow_time_only: bool = False,
+            self,
+            other: Union[shp.BaseGeometry, STBox, Temporal, Time],
+            allow_space_only: bool = True,
+            allow_time_only: bool = False,
     ) -> STBox:
         if allow_space_only and isinstance(other, shp.BaseGeometry):
             other_box = geo_to_stbox(geo_to_gserialized(other, self.geodetic()))
@@ -68,31 +68,31 @@ class STBox:
 
     # ------------------------- Constructors ----------------------------------
     def __init__(
-        self,
-        string: Optional[str] = None,
-        *,
-        xmin: Optional[Union[str, float]] = None,
-        xmax: Optional[Union[str, float]] = None,
-        ymin: Optional[Union[str, float]] = None,
-        ymax: Optional[Union[str, float]] = None,
-        zmin: Optional[Union[str, float]] = None,
-        zmax: Optional[Union[str, float]] = None,
-        tmin: Optional[Union[str, datetime]] = None,
-        tmax: Optional[Union[str, datetime]] = None,
-        tmin_inc: bool = True,
-        tmax_inc: bool = True,
-        geodetic: bool = False,
-        srid: Optional[int] = None,
-        _inner=None,
+            self,
+            string: Optional[str] = None,
+            *,
+            xmin: Optional[Union[str, float]] = None,
+            xmax: Optional[Union[str, float]] = None,
+            ymin: Optional[Union[str, float]] = None,
+            ymax: Optional[Union[str, float]] = None,
+            zmin: Optional[Union[str, float]] = None,
+            zmax: Optional[Union[str, float]] = None,
+            tmin: Optional[Union[str, datetime]] = None,
+            tmax: Optional[Union[str, datetime]] = None,
+            tmin_inc: bool = True,
+            tmax_inc: bool = True,
+            geodetic: bool = False,
+            srid: Optional[int] = None,
+            _inner=None,
     ):
         assert (_inner is not None) or (string is not None) != (
-            (
-                xmin is not None
-                and xmax is not None
-                and ymin is not None
-                and ymax is not None
-            )
-            or (tmin is not None and tmax is not None)
+                (
+                        xmin is not None
+                        and xmax is not None
+                        and ymin is not None
+                        and ymax is not None
+                )
+                or (tmin is not None and tmax is not None)
         ), (
             "Either string must be not None or at least a bound pair (xmin/max"
             " and ymin/max, or tmin/max) must be not None"
@@ -106,10 +106,10 @@ class STBox:
             tstzspan = None
             hast = tmin is not None and tmax is not None
             hasx = (
-                xmin is not None
-                and xmax is not None
-                and ymin is not None
-                and ymax is not None
+                    xmin is not None
+                    and xmax is not None
+                    and ymin is not None
+                    and ymax is not None
             )
             hasz = zmin is not None and zmax is not None
             if hast:
@@ -224,9 +224,9 @@ class STBox:
 
     @staticmethod
     def from_geometry_time(
-        geometry: shp.BaseGeometry,
-        time: Union[datetime, TsTzSpan],
-        geodetic: bool = False,
+            geometry: shp.BaseGeometry,
+            time: Union[datetime, TsTzSpan],
+            geodetic: bool = False,
     ) -> STBox:
         """
         Returns a `STBox` from a space and time dimension.
@@ -272,9 +272,9 @@ class STBox:
 
     @staticmethod
     def from_expanding_bounding_box(
-        value: Union[shp.BaseGeometry, TPoint, STBox],
-        expansion: float,
-        geodetic: Optional[bool] = False,
+            value: Union[shp.BaseGeometry, TPoint, STBox],
+            expansion: float,
+            geodetic: Optional[bool] = False,
     ) -> STBox:
         """
         Returns a `STBox` from a `shp.BaseGeometry`, `TPoint` or `STBox` instance,
@@ -661,7 +661,7 @@ class STBox:
         return self.shift_scale_time(duration=duration)
 
     def shift_scale_time(
-        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
+            self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
     ) -> STBox:
         """
         Returns a new `STBox` with the time dimension shifted by `shift` and
@@ -681,7 +681,7 @@ class STBox:
             :meth:`TsTzSpan.shift_scale`
         """
         assert (
-            shift is not None or duration is not None
+                shift is not None or duration is not None
         ), "shift and scale deltas must not be both None"
         result = stbox_shift_scale_time(
             self._inner,
@@ -706,6 +706,22 @@ class STBox:
         new_inner = stbox_copy(self._inner)
         stbox_round(new_inner, max_decimals)
         return STBox(_inner=new_inner)
+
+    def transform(self, srid: int) -> STBox:
+        """
+        Returns a new :class:`STBox` transformed to another SRID
+
+        Args:
+            srid: The desired SRID
+
+        Returns:
+             A new :class:`STBox` instance
+
+         MEOS Functions:
+            stbox_transform
+        """
+        result = stbox_transform(self._inner, srid)
+        return STBox(_inner=result)
 
     # ------------------------- Set Operations --------------------------------
     def union(self, other: STBox, strict: Optional[bool] = False) -> STBox:
@@ -776,7 +792,7 @@ class STBox:
 
     # ------------------------- Topological Operations ------------------------
     def is_adjacent(
-        self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]
+            self, other: Union[shp.BaseGeometry, STBox, Temporal, Time]
     ) -> bool:
         """
         Returns whether ``self`` and `other` are adjacent. Two spatiotemporal
@@ -799,7 +815,7 @@ class STBox:
         )
 
     def is_contained_in(
-        self, container: Union[shp.BaseGeometry, STBox, Temporal, Time]
+            self, container: Union[shp.BaseGeometry, STBox, Temporal, Time]
     ) -> bool:
         """
         Returns whether ``self`` is contained in `container`. Note that for
@@ -1161,7 +1177,7 @@ class STBox:
 
     # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(
-        self, other: Union[shp.BaseGeometry, STBox, TPoint]
+            self, other: Union[shp.BaseGeometry, STBox, TPoint]
     ) -> float:
         """
         Returns the distance between the nearest points of ``self`` and `other`.
@@ -1261,11 +1277,11 @@ class STBox:
             ]
 
     def tile(
-        self,
-        size: Optional[float] = None,
-        duration: Optional[Union[timedelta, str]] = None,
-        origin: Optional[shp.BaseGeometry] = None,
-        start: Union[datetime, str, None] = None,
+            self,
+            size: Optional[float] = None,
+            duration: Optional[Union[timedelta, str]] = None,
+            origin: Optional[shp.BaseGeometry] = None,
+            start: Union[datetime, str, None] = None,
     ) -> List[STBox]:
         """
         Returns a list of `STBox` instances representing the tiles of
@@ -1290,12 +1306,12 @@ class STBox:
             stbox_tile_list
         """
         sz = size or (
-            max(
-                self.xmax() - self.xmin(),
-                self.ymax() - self.ymin(),
-                (self.zmax() - self.zmin() if self.has_z() else 0),
-            )
-            + 1
+                max(
+                    self.xmax() - self.xmin(),
+                    self.ymax() - self.ymin(),
+                    (self.zmax() - self.zmin() if self.has_z() else 0),
+                )
+                + 1
         )
         dt = (
             timedelta_to_interval(duration)

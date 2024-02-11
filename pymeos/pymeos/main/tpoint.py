@@ -465,9 +465,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             tpoint_make_simple
         """
         result, count = tpoint_make_simple(self._inner)
-        from ..factory import _TemporalFactory
-
-        return [_TemporalFactory.create_temporal(result[i]) for i in range(count)]
+        return [Temporal._factory(result[i]) for i in range(count)]
 
     def expand(self, other: Union[int, float]) -> STBox:
         """
@@ -488,6 +486,22 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         result = tpoint_expand_space(self._inner, float(other))
         return STBox(_inner=result)
+
+    def transform(self: Self, srid: int) -> Self:
+        """
+        Returns a new :class:`TPoint` of the same subclass of ``self`` transformed to another SRID
+
+        Args:
+            srid: The desired SRID
+
+        Returns:
+             A new :class:`TPoint` instance
+
+         MEOS Functions:
+            tpoint_transform
+        """
+        result = tpoint_transform(self._inner, srid)
+        return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Union[shpb.BaseGeometry, GeoSet, STBox, Time]) -> TG:
