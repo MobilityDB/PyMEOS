@@ -346,6 +346,23 @@ extern double lwpoint_get_m(const LWPOINT *point);
 extern int lwgeom_has_z(const LWGEOM *geom);
 extern int lwgeom_has_m(const LWGEOM *geom);
 
+struct PJconsts;
+typedef struct PJconsts PJ;
+
+typedef struct LWPROJ
+{
+    PJ* pj;
+
+    
+    bool pipeline_is_forward;
+
+    
+    uint8_t source_is_latlong;
+    
+    double source_semi_major_metre;
+    double source_semi_minor_metre;
+} LWPROJ;
+
               
 
 typedef struct
@@ -1511,6 +1528,8 @@ extern Temporal *tint_shift_value(const Temporal *temp, int shift);
 extern Temporal *tpoint_round(const Temporal *temp, int maxdd);
 extern Temporal *tpoint_transform(const Temporal *temp, int32 srid);
 extern Temporal *tpoint_transform_pipeline(const Temporal *temp, char *pipelinestr, int32 srid, bool is_forward);
+extern Temporal *tpoint_transform_pj(const Temporal *temp, int32 srid, const LWPROJ* pj);
+extern LWPROJ *lwproj_transform(int32 srid_from, int32 srid_to);
 extern Temporal **tpointarr_round(const Temporal **temp, int count, int maxdd);
 
 extern Temporal *temporal_append_tinstant(Temporal *temp, const TInstant *inst, double maxdist, Interval *maxt, bool expand);

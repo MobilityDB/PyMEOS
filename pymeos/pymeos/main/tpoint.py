@@ -51,6 +51,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
     Abstract class for temporal points.
     """
 
+    _projection_cache: dict[tuple[int, int], 'LWPROJ'] = {}
+
     # ------------------------- Constructors ----------------------------------
     def __init__(self, _inner) -> None:
         super().__init__()
@@ -500,7 +502,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
          MEOS Functions:
             tpoint_transform
         """
-        result = tpoint_transform(self._inner, srid)
+        if (self.srid(), srid) not in self._projection_cache:
+            self._projection_cache[(self.srid(), srid)] = lwproj_transform(self.srid(), srid)
+        result = tpoint_transform_pj(self._inner, srid, self._projection_cache[(self.srid(), srid)])
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------

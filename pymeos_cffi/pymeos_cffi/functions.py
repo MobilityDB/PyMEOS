@@ -7733,6 +7733,25 @@ def tpoint_transform_pipeline(
     return result if result != _ffi.NULL else None
 
 
+def tpoint_transform_pj(
+    temp: "const Temporal *", srid: int, pj: "const LWPROJ*"
+) -> "Temporal *":
+    temp_converted = _ffi.cast("const Temporal *", temp)
+    srid_converted = _ffi.cast("int32", srid)
+    pj_converted = _ffi.cast("const LWPROJ*", pj)
+    result = _lib.tpoint_transform_pj(temp_converted, srid_converted, pj_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
+def lwproj_transform(srid_from: int, srid_to: int) -> "LWPROJ *":
+    srid_from_converted = _ffi.cast("int32", srid_from)
+    srid_to_converted = _ffi.cast("int32", srid_to)
+    result = _lib.lwproj_transform(srid_from_converted, srid_to_converted)
+    _check_error()
+    return result if result != _ffi.NULL else None
+
+
 def tpointarr_round(temp: "const Temporal **", count: int, maxdd: int) -> "Temporal **":
     temp_converted = [_ffi.cast("const Temporal *", x) for x in temp]
     result = _lib.tpointarr_round(temp_converted, count, maxdd)

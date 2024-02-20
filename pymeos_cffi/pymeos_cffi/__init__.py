@@ -2,7 +2,7 @@ from .functions import *
 from .enums import *
 from .errors import *
 
-__version__ = "1.1.0rc1"
+__version__ = "1.1.0rc2"
 __all__ = [
     # Exceptions
     "MeosException",
@@ -1003,6 +1003,8 @@ __all__ = [
     "tpoint_round",
     "tpoint_transform",
     "tpoint_transform_pipeline",
+    "tpoint_transform_pj",
+    "lwproj_transform",
     "tpointarr_round",
     "temporal_append_tinstant",
     "temporal_append_tsequence",
