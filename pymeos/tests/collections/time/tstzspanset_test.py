@@ -6,6 +6,7 @@ import pytest
 
 from pymeos import (
     TsTzSpan,
+    TsTzSet,
     TsTzSpanSet,
     TFloatInst,
     TFloatSeq,
@@ -123,12 +124,14 @@ class TestTsTzSpanSetAccessors(TestTsTzSpanSet):
         )
 
     def test_timestamps(self):
-        assert self.tstzspanset.timestamps() == [
-            datetime(2019, 9, 1, tzinfo=timezone.utc),
-            datetime(2019, 9, 2, tzinfo=timezone.utc),
-            datetime(2019, 9, 3, tzinfo=timezone.utc),
-            datetime(2019, 9, 4, tzinfo=timezone.utc),
-        ]
+        assert self.tstzspanset.timestamps() == TsTzSet(
+            elements=[
+                datetime(2019, 9, 1, tzinfo=timezone.utc),
+                datetime(2019, 9, 2, tzinfo=timezone.utc),
+                datetime(2019, 9, 3, tzinfo=timezone.utc),
+                datetime(2019, 9, 4, tzinfo=timezone.utc),
+            ]
+        )
 
     def test_num_tstzspans(self):
         assert self.tstzspanset.num_spans() == 2

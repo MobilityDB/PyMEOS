@@ -68,7 +68,7 @@ class TestCollectionConversions(TestDateSet):
         )
 
         spanset = self.date_set.to_spanset()
-        
+
         assert spanset == expected
 
 

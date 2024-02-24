@@ -157,7 +157,7 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             raise IndexError(f"Index {n} out of bounds")
         return timestamptz_to_datetime(tstzspanset_timestamptz_n(self._inner, n + 1))
 
-    def timestamps(self) -> List[datetime]:
+    def timestamps(self) -> TsTzSet:
         """
         Returns the list of distinct timestamps in ``self``.
         Returns:
@@ -166,8 +166,9 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         MEOS Functions:
             spanset_timestamptzs
         """
-        ts, count = tstzspanset_timestamps(self._inner)
-        return [timestamptz_to_datetime(ts[i]) for i in range(count)]
+        from .tstzset import TsTzSet
+
+        return TsTzSet(_inner=tstzspanset_timestamps(self._inner))
 
     def start_span(self) -> TsTzSpan:
         """
