@@ -101,9 +101,3 @@ def spanset_make_modifier(function: str) -> str:
         .replace("_ffi.cast('Span *', spans)", "_ffi.new('Span []', spans)")
         .replace(", count", ", len(spans)")
     )
-
-
-def geo_from_lwgeom_modifier(function: str) -> str:
-    return function.replace(", size: 'size_t *'", "").replace(
-        "_ffi.cast('size_t *', size)", "_ffi.NULL"
-    )

@@ -110,7 +110,7 @@ def gserialized_to_shapely_point(
 ) -> spg.Point:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
-    srid = lwgeom_get_srid(geom)
+    srid = geo_get_srid(geom)
     if srid > 0:
         geometry = set_srid(geometry, srid)
     return geometry
@@ -121,7 +121,7 @@ def gserialized_to_shapely_geometry(
 ) -> BaseGeometry:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
-    srid = lwgeom_get_srid(geom)
+    srid = geo_get_srid(geom)
     if srid > 0:
         geometry = set_srid(geometry, srid)
     return geometry

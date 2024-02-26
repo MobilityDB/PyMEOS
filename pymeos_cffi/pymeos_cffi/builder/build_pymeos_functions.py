@@ -69,7 +69,6 @@ function_modifiers = {
     "meos_finalize": remove_error_check_modifier,
     "cstring2text": cstring2text_modifier,
     "text2cstring": text2cstring_modifier,
-    "geo_from_lwgeom": geo_from_lwgeom_modifier,
     "spanset_make": spanset_make_modifier,
     "temporal_from_wkb": from_wkb_modifier("temporal_from_wkb", "Temporal"),
     "set_from_wkb": from_wkb_modifier("set_from_wkb", "Set"),

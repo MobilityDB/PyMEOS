@@ -331,20 +331,7 @@ typedef struct
 }
 LWTIN;
 
-extern LWPOINT *lwpoint_make(int32_t srid, int hasz, int hasm, const POINT4D *p);
-
-extern LWGEOM *lwgeom_from_gserialized(const GSERIALIZED *g);
-/* extern GSERIALIZED *geo_from_lwgeom(LWGEOM *geom, size_t *size);  (undefined) */
-
-extern int32_t lwgeom_get_srid(const LWGEOM *geom);
-
-extern double lwpoint_get_x(const LWPOINT *point);
-extern double lwpoint_get_y(const LWPOINT *point);
-extern double lwpoint_get_z(const LWPOINT *point);
-extern double lwpoint_get_m(const LWPOINT *point);
-
-extern int lwgeom_has_z(const LWGEOM *geom);
-extern int lwgeom_has_m(const LWGEOM *geom);
+extern int32 geo_get_srid(const GSERIALIZED *g);
 
 struct PJconsts;
 typedef struct PJconsts PJ;
@@ -736,7 +723,7 @@ extern Interval *datespan_duration(const Span *s);
 extern DateADT datespan_lower(const Span *s);
 extern DateADT datespan_upper(const Span *s);
 extern bool datespanset_date_n(const SpanSet *ss, int n, DateADT *result);
-extern DateADT *datespanset_dates(const SpanSet *ss, int *count);
+extern Set *datespanset_dates(const SpanSet *ss);
 extern Interval *datespanset_duration(const SpanSet *ss, bool boundspan);
 extern DateADT datespanset_end_date(const SpanSet *ss);
 extern int datespanset_num_dates(const SpanSet *ss);
@@ -801,7 +788,7 @@ extern TimestampTz tstzspanset_lower(const SpanSet *ss);
 extern int tstzspanset_num_timestamps(const SpanSet *ss);
 extern TimestampTz tstzspanset_start_timestamptz(const SpanSet *ss);
 extern bool tstzspanset_timestamptz_n(const SpanSet *ss, int n, TimestampTz *result);
-extern TimestampTz *tstzspanset_timestamps(const SpanSet *ss, int *count);
+extern Set *tstzspanset_timestamps(const SpanSet *ss);
 extern TimestampTz tstzspanset_upper(const SpanSet *ss);
 
 extern Set *bigintset_shift_scale(const Set *s, int64 shift, int64 width, bool hasshift, bool haswidth);
@@ -2900,12 +2887,6 @@ extern GSERIALIZED *tpointseqset_twcentroid(const TSequenceSet *ss);
 extern void skiplist_free(SkipList *list);
 extern Temporal *temporal_app_tinst_transfn(Temporal *state, const TInstant *inst, double maxdist, Interval *maxt);
 extern Temporal *temporal_app_tseq_transfn(Temporal *state, const TSequence *seq);
-/* extern double tnumberseq_integral(const TSequence *seq);  (repeated) */
-/* extern double tnumberseq_twavg(const TSequence *seq);  (repeated) */
-/* extern double tnumberseqset_integral(const TSequenceSet *ss);  (repeated) */
-/* extern double tnumberseqset_twavg(const TSequenceSet *ss);  (repeated) */
-/* extern GSERIALIZED *tpointseq_twcentroid(const TSequence *seq);  (repeated) */
-/* extern GSERIALIZED *tpointseqset_twcentroid(const TSequenceSet *ss);  (repeated) */
 
 extern Temporal **tnumber_value_split(const Temporal *temp, Datum size, Datum origin, Datum **buckets, int *count);
 extern TBox *tbox_tile(Datum value, TimestampTz t, Datum vsize, Interval *duration, Datum vorigin, TimestampTz torigin, meosType basetype);

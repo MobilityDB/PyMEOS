@@ -110,7 +110,7 @@ def gserialized_to_shapely_point(
 ) -> spg.Point:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
-    srid = lwgeom_get_srid(geom)
+    srid = geo_get_srid(geom)
     if srid > 0:
         geometry = set_srid(geometry, srid)
     return geometry
@@ -121,7 +121,7 @@ def gserialized_to_shapely_geometry(
 ) -> BaseGeometry:
     text = geo_as_text(geom, precision)
     geometry = wkt.loads(text)
-    srid = lwgeom_get_srid(geom)
+    srid = geo_get_srid(geom)
     if srid > 0:
         geometry = set_srid(geometry, srid)
     return geometry
@@ -142,76 +142,9 @@ def as_tsequenceset(temporal: "Temporal *") -> "TSequenceSet *":
 # -----------------------------------------------------------------------------
 # ----------------------End of manually-defined functions----------------------
 # -----------------------------------------------------------------------------
-def lwpoint_make(
-    srid: "int32_t", hasz: int, hasm: int, p: "const POINT4D *"
-) -> "LWPOINT *":
-    srid_converted = _ffi.cast("int32_t", srid)
-    p_converted = _ffi.cast("const POINT4D *", p)
-    result = _lib.lwpoint_make(srid_converted, hasz, hasm, p_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwgeom_from_gserialized(g: "const GSERIALIZED *") -> "LWGEOM *":
+def geo_get_srid(g: "const GSERIALIZED *") -> "int32":
     g_converted = _ffi.cast("const GSERIALIZED *", g)
-    result = _lib.lwgeom_from_gserialized(g_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def geo_from_lwgeom(geom: "LWGEOM *") -> "GSERIALIZED *":
-    geom_converted = _ffi.cast("LWGEOM *", geom)
-    size_converted = _ffi.NULL
-    result = _lib.geo_from_lwgeom(geom_converted, size_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwgeom_get_srid(geom: "const LWGEOM *") -> "int32_t":
-    geom_converted = _ffi.cast("const LWGEOM *", geom)
-    result = _lib.lwgeom_get_srid(geom_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwpoint_get_x(point: "const LWPOINT *") -> "double":
-    point_converted = _ffi.cast("const LWPOINT *", point)
-    result = _lib.lwpoint_get_x(point_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwpoint_get_y(point: "const LWPOINT *") -> "double":
-    point_converted = _ffi.cast("const LWPOINT *", point)
-    result = _lib.lwpoint_get_y(point_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwpoint_get_z(point: "const LWPOINT *") -> "double":
-    point_converted = _ffi.cast("const LWPOINT *", point)
-    result = _lib.lwpoint_get_z(point_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwpoint_get_m(point: "const LWPOINT *") -> "double":
-    point_converted = _ffi.cast("const LWPOINT *", point)
-    result = _lib.lwpoint_get_m(point_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwgeom_has_z(geom: "const LWGEOM *") -> "int":
-    geom_converted = _ffi.cast("const LWGEOM *", geom)
-    result = _lib.lwgeom_has_z(geom_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def lwgeom_has_m(geom: "const LWGEOM *") -> "int":
-    geom_converted = _ffi.cast("const LWGEOM *", geom)
-    result = _lib.lwgeom_has_m(geom_converted)
+    result = _lib.geo_get_srid(g_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
@@ -1518,12 +1451,11 @@ def datespanset_date_n(ss: "const SpanSet *", n: int) -> "DateADT *":
     return None
 
 
-def datespanset_dates(ss: "const SpanSet *") -> "Tuple['DateADT *', 'int']":
+def datespanset_dates(ss: "const SpanSet *") -> "Set *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    count = _ffi.new("int *")
-    result = _lib.datespanset_dates(ss_converted, count)
+    result = _lib.datespanset_dates(ss_converted)
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None
 
 
 def datespanset_duration(ss: "const SpanSet *", boundspan: bool) -> "Interval *":
@@ -1997,12 +1929,11 @@ def tstzspanset_timestamptz_n(ss: "const SpanSet *", n: int) -> int:
     return None
 
 
-def tstzspanset_timestamps(ss: "const SpanSet *") -> "Tuple['TimestampTz *', 'int']":
+def tstzspanset_timestamps(ss: "const SpanSet *") -> "Set *":
     ss_converted = _ffi.cast("const SpanSet *", ss)
-    count = _ffi.new("int *")
-    result = _lib.tstzspanset_timestamps(ss_converted, count)
+    result = _lib.tstzspanset_timestamps(ss_converted)
     _check_error()
-    return result if result != _ffi.NULL else None, count[0]
+    return result if result != _ffi.NULL else None
 
 
 def tstzspanset_upper(ss: "const SpanSet *") -> "TimestampTz":
@@ -17697,48 +17628,6 @@ def temporal_app_tseq_transfn(
     state_converted = _ffi.cast("Temporal *", state)
     seq_converted = _ffi.cast("const TSequence *", seq)
     result = _lib.temporal_app_tseq_transfn(state_converted, seq_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tnumberseq_integral(seq: "const TSequence *") -> "double":
-    seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.tnumberseq_integral(seq_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tnumberseq_twavg(seq: "const TSequence *") -> "double":
-    seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.tnumberseq_twavg(seq_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tnumberseqset_integral(ss: "const TSequenceSet *") -> "double":
-    ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    result = _lib.tnumberseqset_integral(ss_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tnumberseqset_twavg(ss: "const TSequenceSet *") -> "double":
-    ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    result = _lib.tnumberseqset_twavg(ss_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpointseq_twcentroid(seq: "const TSequence *") -> "GSERIALIZED *":
-    seq_converted = _ffi.cast("const TSequence *", seq)
-    result = _lib.tpointseq_twcentroid(seq_converted)
-    _check_error()
-    return result if result != _ffi.NULL else None
-
-
-def tpointseqset_twcentroid(ss: "const TSequenceSet *") -> "GSERIALIZED *":
-    ss_converted = _ffi.cast("const TSequenceSet *", ss)
-    result = _lib.tpointseqset_twcentroid(ss_converted)
     _check_error()
     return result if result != _ffi.NULL else None
 
