@@ -9,7 +9,7 @@
 project = 'PyMEOS'
 copyright = '2023, Víctor Diví'
 author = 'Víctor Diví'
-release = '1.1.3.rc1'
+release = '1.1.3.rc2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
