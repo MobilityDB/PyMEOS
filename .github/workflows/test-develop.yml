@@ -27,7 +27,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Install MEOS
         run: |
-          git clone --branch develop https://github.com/Diviloper/MobilityDB
+          git clone --branch develop https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           cmake .. -DMEOS=on
