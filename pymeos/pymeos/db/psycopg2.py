@@ -9,6 +9,7 @@ class MobilityDB:
     Helper class to register MobilityDB classes to a psycopg2 connection and their automatic conversion to
     PyMEOS classes.
     """
+
     @classmethod
     def connect(cls, *args, **kwargs) -> psycopg2.extensions.connection:
         """
@@ -46,6 +47,8 @@ class MobilityDB:
 
         # Add MobilityDB types to PostgreSQL adapter and specify the reader function for each type.
         for cl in db_objects:
-            cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
+            cursor.execute(f"SELECT NULL::{cl._mobilitydb_name}")
             oid = cursor.description[0][1]
-            extensions.register_type(extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor))
+            extensions.register_type(
+                extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor)
+            )

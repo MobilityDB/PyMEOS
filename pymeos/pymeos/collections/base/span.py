@@ -11,8 +11,8 @@ from .collection import Collection
 if TYPE_CHECKING:
     from .spanset import SpanSet
 
-T = TypeVar('T')
-Self = TypeVar('Self', bound='Span[Any]')
+T = TypeVar("T")
+Self = TypeVar("Self", bound="Span[Any]")
 
 
 class Span(Collection[T], ABC):
@@ -20,23 +20,27 @@ class Span(Collection[T], ABC):
     Base class for all span classes.
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _parse_function: Callable[[str], 'CData'] = None
+    _parse_function: Callable[[str], "CData"] = None
     _parse_value_function: Callable[[Union[str, T]], Any] = None
-    _make_function: Callable[[Any, Any, bool, bool], 'CData'] = None
+    _make_function: Callable[[Any, Any, bool, bool], "CData"] = None
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *,
-                 lower: Optional[Union[str, T]] = None,
-                 upper: Optional[Union[str, T]] = None,
-                 lower_inc: Optional[bool] = True,
-                 upper_inc: Optional[bool] = False,
-                 _inner=None):
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        lower: Optional[Union[str, T]] = None,
+        upper: Optional[Union[str, T]] = None,
+        lower_inc: Optional[bool] = True,
+        upper_inc: Optional[bool] = False,
+        _inner=None,
+    ):
         super().__init__()
-        assert (_inner is not None) or ((string is not None) != \
-                                        (lower is not None and upper is not None)), \
-            "Either string must be not None or both lower and upper must be not"
+        assert (_inner is not None) or (
+            (string is not None) != (lower is not None and upper is not None)
+        ), "Either string must be not None or both lower and upper must be not"
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
@@ -44,8 +48,9 @@ class Span(Collection[T], ABC):
         else:
             lower_converted = self.__class__._parse_value_function(lower)
             upper_converted = self.__class__._parse_value_function(upper)
-            self._inner = self.__class__._make_function(lower_converted,
-                                                        upper_converted, lower_inc, upper_inc)
+            self._inner = self.__class__._make_function(
+                lower_converted, upper_converted, lower_inc, upper_inc
+            )
 
     def __copy__(self: Self) -> Self:
         """
@@ -63,13 +68,13 @@ class Span(Collection[T], ABC):
     @classmethod
     def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
         """
-        Returns a `Period` from its WKB representation.
+        Returns a `TsTzSpan` from its WKB representation.
 
         Args:
             wkb: The WKB string.
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             span_from_wkb
@@ -79,13 +84,13 @@ class Span(Collection[T], ABC):
     @classmethod
     def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
         """
-        Returns a `Period` from its WKB representation in hex-encoded ASCII.
+        Returns a `TsTzSpan` from its WKB representation in hex-encoded ASCII.
 
         Args:
             hexwkb: WKB representation in hex-encoded ASCII
 
         Returns:
-            A new :class:`Period` instance
+            A new :class:`TsTzSpan` instance
 
         MEOS Functions:
             span_from_hexwkb
@@ -111,8 +116,7 @@ class Span(Collection[T], ABC):
         Returns:
             A new :class:`str` instance
         """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        return f"{self.__class__.__name__}" f"({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -143,10 +147,10 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def to_spanset(self) -> SpanSet:
         """
-        Returns a period set containing ``self``.
+        Returns a tstzspan set containing ``self``.
 
         Returns:
-            A new :class:`PeriodSet` instance
+            A new :class:`TsTzSpanSet` instance
 
         MEOS Functions:
             span_to_spanset
@@ -157,23 +161,23 @@ class Span(Collection[T], ABC):
     @abstractmethod
     def lower(self) -> T:
         """
-        Returns the lower bound of a period
+        Returns the lower bound of a tstzspan
         """
         return NotImplementedError()
 
     @abstractmethod
     def upper(self) -> T:
         """
-        Returns the upper bound of a period
+        Returns the upper bound of a tstzspan
         """
         return NotImplementedError()
 
     def lower_inc(self) -> bool:
         """
-        Returns whether the lower bound of the period is inclusive or not
+        Returns whether the lower bound of the tstzspan is inclusive or not
 
         Returns:
-            True if the lower bound of the period is inclusive and False
+            True if the lower bound of the tstzspan is inclusive and False
             otherwise
 
         MEOS Functions:
@@ -183,28 +187,16 @@ class Span(Collection[T], ABC):
 
     def upper_inc(self) -> bool:
         """
-        Returns whether the upper bound of the period is inclusive or not
+        Returns whether the upper bound of the tstzspan is inclusive or not
 
         Returns:
-            True if the upper bound of the period is inclusive and False 
+            True if the upper bound of the tstzspan is inclusive and False
             otherwise
 
         MEOS Functions:
             span_upper_inc
         """
         return span_upper_inc(self._inner)
-
-    def width(self) -> float:
-        """
-        Returns the duration of the period.
-
-        Returns:
-            Returns a `float` representing the duration of the period in seconds
-
-        MEOS Functions:
-            span_width
-        """
-        return span_width(self._inner)
 
     def __hash__(self) -> int:
         """
@@ -235,12 +227,13 @@ class Span(Collection[T], ABC):
             adjacent_span_span, adjacent_span_spanset,
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return adjacent_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return adjacent_spanset_span(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_contained_in(self, container) -> bool:
         """
@@ -253,15 +246,16 @@ class Span(Collection[T], ABC):
             True if contained, False otherwise
 
         MEOS Functions:
-            contained_span_span, contained_span_spanset, contained_period_temporal
+            contained_span_span, contained_span_spanset, contained_tstzspan_temporal
         """
         from .spanset import SpanSet
+
         if isinstance(container, Span):
             return contained_span_span(self._inner, container._inner)
         elif isinstance(container, SpanSet):
             return contained_span_spanset(self._inner, container._inner)
         else:
-            raise TypeError(f'Operation not supported with type {container.__class__}')
+            raise TypeError(f"Operation not supported with type {container.__class__}")
 
     def contains(self, content) -> bool:
         """
@@ -274,16 +268,17 @@ class Span(Collection[T], ABC):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_span_span, contains_span_spanset, contains_period_timestamp,
-            contains_period_timestampset, contains_period_temporal
+            contains_span_span, contains_span_spanset, contains_tstzspan_timestamp,
+            contains_tstzspan_tstzset, contains_tstzspan_temporal
         """
         from .spanset import SpanSet
+
         if isinstance(content, Span):
             return contains_span_span(self._inner, content._inner)
         elif isinstance(content, SpanSet):
             return contains_span_spanset(self._inner, content._inner)
         else:
-            raise TypeError(f'Operation not supported with type {content.__class__}')
+            raise TypeError(f"Operation not supported with type {content.__class__}")
 
     def __contains__(self, item):
         """
@@ -296,8 +291,8 @@ class Span(Collection[T], ABC):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_span_span, contains_span_spanset, contains_period_timestamp,
-            contains_period_timestampset, contains_period_temporal
+            contains_span_span, contains_span_spanset, contains_tstzspan_timestamp,
+            contains_tstzspan_tstzset, contains_tstzspan_temporal
         """
         return self.contains(item)
 
@@ -316,16 +311,17 @@ class Span(Collection[T], ABC):
             overlaps_span_span, overlaps_span_spanset
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return overlaps_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overlaps_spanset_span(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_same(self, other) -> bool:
         """
-        Returns whether ``self`` and the bounding period of ``other`` is the
+        Returns whether ``self`` and the bounding tstzspan of ``other`` is the
         same.
 
         Args:
@@ -335,15 +331,16 @@ class Span(Collection[T], ABC):
             True if equal, False otherwise
 
         MEOS Functions:
-            same_period_temporal
+            same_tstzspan_temporal
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return span_eq(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return span_eq(self._inner, spanset_span(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other) -> bool:
@@ -361,12 +358,13 @@ class Span(Collection[T], ABC):
             left_span_span, left_span_spanset
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return left_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return left_span_spanset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_left(self, other) -> bool:
         """
@@ -383,12 +381,13 @@ class Span(Collection[T], ABC):
             overleft_span_span, overleft_span_spanset
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return overleft_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overleft_span_spanset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_right(self, other) -> bool:
         """
@@ -402,16 +401,17 @@ class Span(Collection[T], ABC):
             True if overlapping or after, False otherwise
 
         MEOS Functions:
-            overright_span_span, overright_span_spanset, overafter_period_timestamp,
-            overafter_period_timestampset, overafter_period_temporal
+            overright_span_span, overright_span_spanset, overafter_tstzspan_timestamp,
+            overafter_tstzspan_tstzset, overafter_tstzspan_temporal
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return overright_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return overright_span_spanset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_right(self, other) -> bool:
         """
@@ -428,15 +428,16 @@ class Span(Collection[T], ABC):
             right_span_span, right_span_spanset
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return right_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return right_span_spanset(self._inner, other._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other) -> float:
+    def distance(self, other):
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -444,18 +445,9 @@ class Span(Collection[T], ABC):
             other:  object to compare with
 
         Returns:
-            A :class:`flat` instance
-
-        MEOS Functions:
-            distance_span_span, distance_spanset_span
+            The distance metric in the appropriate format depending on the subclass.
         """
-        from .spanset import SpanSet
-        if isinstance(other, Span):
-            return distance_span_span(self._inner, other._inner)
-        elif isinstance(other, SpanSet):
-            return distance_spanset_span(other._inner, self._inner)
-        else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Set Operations --------------------------------
     @abstractmethod
@@ -471,15 +463,16 @@ class Span(Collection[T], ABC):
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
-            intersection_period_timestamp
+            intersection_tstzspan_timestamp
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return intersection_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return intersection_spanset_span(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __mul__(self, other):
         """
@@ -493,7 +486,7 @@ class Span(Collection[T], ABC):
 
         MEOS Functions:
             intersection_span_span, intersection_spanset_span,
-            intersection_period_timestamp
+            intersection_tstzspan_timestamp
         """
         return self.intersection(other)
 
@@ -508,7 +501,7 @@ class Span(Collection[T], ABC):
         Returns:
             A :class:`SpanSet` instance.
         """
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __sub__(self, other):
         """
@@ -531,18 +524,19 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`PeriodSet` instance.
+            A :class:`SpanSet` instance.
 
         MEOS Functions:
-        union_period_timestamp, union_spanset_span, union_span_span
+        union_spanset_span, union_span_span
         """
         from .spanset import SpanSet
+
         if isinstance(other, Span):
             return union_span_span(self._inner, other._inner)
         elif isinstance(other, SpanSet):
             return union_spanset_span(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __add__(self, other):
         """
@@ -552,10 +546,10 @@ class Span(Collection[T], ABC):
             other: temporal object to merge with
 
         Returns:
-            A :class:`PeriodSet` instance.
+            A :class:`TsTzSpanSet` instance.
 
         MEOS Functions:
-        union_period_timestamp, union_spanset_span, union_span_span
+        union_tstzspan_timestamp, union_spanset_span, union_span_span
         """
         return self.union(other)
 
@@ -609,7 +603,7 @@ class Span(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return span_lt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __le__(self, other):
         """
@@ -626,7 +620,7 @@ class Span(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return span_le(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __gt__(self, other):
         """
@@ -643,7 +637,7 @@ class Span(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return span_gt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __ge__(self, other):
         """
@@ -660,4 +654,4 @@ class Span(Collection[T], ABC):
         """
         if isinstance(other, self.__class__):
             return span_ge(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")

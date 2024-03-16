@@ -12,7 +12,14 @@ class TemporalSequencePlotter:
     """
 
     @staticmethod
-    def plot(sequence: Union[TSequence, List[TInstant]], *args, axes=None, show_markers=True, show_grid=True, **kwargs):
+    def plot(
+        sequence: Union[TSequence, List[TInstant]],
+        *args,
+        axes=None,
+        show_markers=True,
+        show_grid=True,
+        **kwargs,
+    ):
         """
         Plot a :class:`TSequence` or a list of :class:`TInstant` on the given axes. The actual plot function is chosen
         based on the interpolation of the sequence.
@@ -36,7 +43,7 @@ class TemporalSequencePlotter:
         elif sequence.interpolation() == TInterpolation.LINEAR:
             plot_func = base.plot
         elif sequence.interpolation() == TInterpolation.STEPWISE:
-            plot_func = partial(base.step, where='post')
+            plot_func = partial(base.step, where="post")
         else:
             plot_func = base.scatter
             show_markers = False
@@ -53,15 +60,31 @@ class TemporalSequencePlotter:
 
         if show_markers:
             color = plots[0][0].get_color()
-            plots.append(base.scatter(x[0], y[0], s=40, marker='o',
-                                      facecolors=color if sequence.lower_inc() else 'none',
-                                      edgecolors=color, zorder=2 if sequence.lower_inc() else 3))
-            plots.append(base.scatter(x[-1], y[-1], s=40, marker='o',
-                                      facecolors=color if sequence.upper_inc() else 'none',
-                                      edgecolors=color, zorder=2 if sequence.upper_inc() else 3))
+            plots.append(
+                base.scatter(
+                    x[0],
+                    y[0],
+                    s=40,
+                    marker="o",
+                    facecolors=color if sequence.lower_inc() else "none",
+                    edgecolors=color,
+                    zorder=2 if sequence.lower_inc() else 3,
+                )
+            )
+            plots.append(
+                base.scatter(
+                    x[-1],
+                    y[-1],
+                    s=40,
+                    marker="o",
+                    facecolors=color if sequence.upper_inc() else "none",
+                    edgecolors=color,
+                    zorder=2 if sequence.upper_inc() else 3,
+                )
+            )
 
         if isinstance(y[0], bool):
-            plt.yticks([1.0, 0.0], ['True', 'False'])
+            plt.yticks([1.0, 0.0], ["True", "False"])
             plt.ylim(-0.25, 1.25)
 
         base.tick_params(axis="x", rotation=45)

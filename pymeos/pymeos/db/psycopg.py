@@ -57,7 +57,7 @@ class MobilityDB:
         """
         cursor = connection.cursor()
         for cl in db_objects:
-            cursor.execute(f'SELECT NULL::{cl._mobilitydb_name}')
+            cursor.execute(f"SELECT NULL::{cl._mobilitydb_name}")
             oid = cursor.description[0][1]
             connection.adapters.register_loader(oid, _pymeos_loader_factory(cl))
             connection.adapters.register_dumper(cl, _PymeosDumper)

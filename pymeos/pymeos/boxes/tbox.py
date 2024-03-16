@@ -4,8 +4,8 @@ from typing import Optional, Union, List
 
 from pymeos_cffi import *
 
-from ..main import TNumber
 from ..collections import *
+from ..main import TNumber, TInt, TFloat
 
 
 class TBox:
@@ -21,8 +21,8 @@ class TBox:
         >>> TBox('TBOX T([2020-06-01, 2020-06-05])')
 
     Another possibility is to provide the ``xmin``/``xmax`` (of type str or
-    int/float) and ``tmin``/``tmax`` (of type str or datetime) named parameters, 
-    and optionally indicate whether the bounds are inclusive or exclusive (by 
+    int/float) and ``tmin``/``tmax`` (of type str or datetime) named parameters,
+    and optionally indicate whether the bounds are inclusive or exclusive (by
     default, lower bounds are inclusive and upper bounds are exclusive):
 
         >>> TBox(xmin=0, xmax=10, tmin='2020-06-01', tmax='2020-06-0')
@@ -30,57 +30,67 @@ class TBox:
         >>> TBox(xmin='0', xmax='10', tmin=parse('2020-06-01'), tmax=parse('2020-06-0'))
 
     Note that you can create a TBox with only the numerical or the temporal
-    dimension. In these cases, it will be equivalent to a 
-    :class:`~pymeos.time.period.Period` (if it only has temporal dimension) or
+    dimension. In these cases, it will be equivalent to a
+    :class:`~pymeos.time.tstzspan.TsTzSpan` (if it only has temporal dimension) or
     to a :class:`FloatSpan` (if it only has the numeric dimension).
     """
-    __slots__ = ['_inner']
 
-    _mobilitydb_name = 'tbox'
+    __slots__ = ["_inner"]
 
-    def _inner_period(self):
+    _mobilitydb_name = "tbox"
+
+    def _inner_tstzspan(self):
         from pymeos_cffi.functions import _ffi
-        return _ffi.addressof(self._inner.period)
+
+        return _ffi.addressof(self._inner.tstzspan)
 
     def _inner_span(self):
         from pymeos_cffi.functions import _ffi
+
         return _ffi.addressof(self._inner.span)
 
     def _is_float(self) -> bool:
-        return self._inner.span.basetype == 5
+        return self._inner.span.spantype == MeosType.T_FLOATSPAN
 
     # ------------------------- Constructors ----------------------------------
-    def __init__(self, string: Optional[str] = None, *,
-                 xmin: Optional[Union[str, int, float]] = None,
-                 xmax: Optional[Union[str, int, float]] = None,
-                 tmin: Optional[Union[str, datetime]] = None,
-                 tmax: Optional[Union[str, datetime]] = None,
-                 xmin_inc: bool = True,
-                 xmax_inc: bool = False,
-                 tmin_inc: bool = True,
-                 tmax_inc: bool = False,
-                 _inner=None):
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        xmin: Optional[Union[str, int, float]] = None,
+        xmax: Optional[Union[str, int, float]] = None,
+        tmin: Optional[Union[str, datetime]] = None,
+        tmax: Optional[Union[str, datetime]] = None,
+        xmin_inc: bool = True,
+        xmax_inc: bool = False,
+        tmin_inc: bool = True,
+        tmax_inc: bool = False,
+        _inner=None,
+    ):
         assert (_inner is not None) or (string is not None) != (
-                (xmin is not None and xmax is not None) or
-                (tmin is not None and tmax is not None)), \
-            "Either string must be not None or at least a bound pair (xmin/max or tmin/max) must be not None"
+            (xmin is not None and xmax is not None)
+            or (tmin is not None and tmax is not None)
+        ), (
+            "Either string must be not None or at least a bound pair (xmin/max or "
+            "tmin/max) must be not None"
+        )
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = tbox_in(string)
         else:
             span = None
-            period = None
+            tstzspan = None
             if xmin is not None and xmax is not None:
                 if isinstance(xmin, int) and isinstance(xmax, int):
                     span = intspan_make(xmin, xmax, xmin_inc, xmax_inc)
                 else:
-                    span = floatspan_make(float(xmin), float(xmax), xmin_inc,
-                                          xmax_inc)
+                    span = floatspan_make(float(xmin), float(xmax), xmin_inc, xmax_inc)
             if tmin is not None and tmax is not None:
-                period = Period(lower=tmin, upper=tmax, lower_inc=tmin_inc,
-                                upper_inc=tmax_inc)._inner
-            self._inner = tbox_make(span, period)
+                tstzspan = TsTzSpan(
+                    lower=tmin, upper=tmax, lower_inc=tmin_inc, upper_inc=tmax_inc
+                )._inner
+            self._inner = tbox_make(span, tstzspan)
 
     def __copy__(self) -> TBox:
         """
@@ -149,11 +159,11 @@ class TBox:
         elif isinstance(value, float):
             result = float_to_tbox(value)
         elif isinstance(value, IntSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         elif isinstance(value, FloatSpan):
-            result = numspan_to_tbox(value._inner)
+            result = span_to_tbox(value._inner)
         else:
-            raise TypeError(f'Operation not supported with type {value.__class__}')
+            raise TypeError(f"Operation not supported with type {value.__class__}")
         return TBox(_inner=result)
 
     @staticmethod
@@ -169,24 +179,25 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            timestamp_to_tbox, timestampset_to_tbox, period_to_tbox,
-            periodset_to_tbox
+            timestamptz_to_tbox, tstzset_to_tbox, tstzspan_to_tbox,
+            tstzspanset_to_tbox
         """
         if isinstance(time, datetime):
-            result = timestamp_to_tbox(datetime_to_timestamptz(time))
-        elif isinstance(time, TimestampSet):
-            result = timestampset_to_tbox(time._inner)
-        elif isinstance(time, Period):
-            result = period_to_tbox(time._inner)
-        elif isinstance(time, PeriodSet):
-            result = periodset_to_tbox(time._inner)
+            result = timestamptz_to_tbox(datetime_to_timestamptz(time))
+        elif isinstance(time, TsTzSet):
+            result = set_to_tbox(time._inner)
+        elif isinstance(time, TsTzSpan):
+            result = span_to_tbox(time._inner)
+        elif isinstance(time, TsTzSpanSet):
+            result = spanset_to_tbox(time._inner)
         else:
-            raise TypeError(f'Operation not supported with type {time.__class__}')
+            raise TypeError(f"Operation not supported with type {time.__class__}")
         return TBox(_inner=result)
 
     @staticmethod
-    def from_value_time(value: Union[int, float, IntSpan, FloatSpan],
-                        time: Union[datetime, Period]) -> TBox:
+    def from_value_time(
+        value: Union[int, float, IntSpan, FloatSpan], time: Union[datetime, TsTzSpan]
+    ) -> TBox:
         """
         Returns a `TBox` from a numerical and a temporal object.
 
@@ -198,32 +209,34 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            int_timestamp_to_tbox, int_period_to_tbox, 
-            float_timestamp_to_tbox, float_period_to_tbox,
-            span_timestamp_to_tbox, span_period_to_tbox
+            int_timestamptz_to_tbox, int_tstzspan_to_tbox,
+            float_timestamptz_to_tbox, float_tstzspan_to_tbox,
+            span_timestamptz_to_tbox, span_tstzspan_to_tbox
         """
         if isinstance(value, int) and isinstance(time, datetime):
-            result = int_timestamp_to_tbox(value,
-                                           datetime_to_timestamptz(time))
-        elif isinstance(value, int) and isinstance(time, Period):
-            result = int_period_to_tbox(value, time._inner)
+            result = int_timestamptz_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, int) and isinstance(time, TsTzSpan):
+            result = int_tstzspan_to_tbox(value, time._inner)
         elif isinstance(value, float) and isinstance(time, datetime):
-            result = float_timestamp_to_tbox(value,
-                                             datetime_to_timestamptz(time))
-        elif isinstance(value, float) and isinstance(time, Period):
-            result = float_period_to_tbox(value, time._inner)
+            result = float_timestamptz_to_tbox(value, datetime_to_timestamptz(time))
+        elif isinstance(value, float) and isinstance(time, TsTzSpan):
+            result = float_tstzspan_to_tbox(value, time._inner)
         elif isinstance(value, IntSpan) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(value._inner,
-                                            datetime_to_timestamptz(time))
-        elif isinstance(value, IntSpan) and isinstance(time, Period):
-            result = span_period_to_tbox(value._inner, time._inner)
+            result = numspan_timestamptz_to_tbox(
+                value._inner, datetime_to_timestamptz(time)
+            )
+        elif isinstance(value, IntSpan) and isinstance(time, TsTzSpan):
+            result = numspan_tstzspan_to_tbox(value._inner, time._inner)
         elif isinstance(value, FloatSpan) and isinstance(time, datetime):
-            result = span_timestamp_to_tbox(value._inner,
-                                            datetime_to_timestamptz(time))
-        elif isinstance(value, FloatSpan) and isinstance(time, Period):
-            result = span_period_to_tbox(value._inner, time._inner)
+            result = numspan_timestamptz_to_tbox(
+                value._inner, datetime_to_timestamptz(time)
+            )
+        elif isinstance(value, FloatSpan) and isinstance(time, TsTzSpan):
+            result = numspan_tstzspan_to_tbox(value._inner, time._inner)
         else:
-            raise TypeError(f'Operation not supported with types {value.__class__} and {time.__class__}')
+            raise TypeError(
+                f"Operation not supported with types {value.__class__} and {time.__class__}"
+            )
         return TBox(_inner=result)
 
     @staticmethod
@@ -265,8 +278,7 @@ class TBox:
         MEOS Functions:
             tbox_out
         """
-        return (f'{self.__class__.__name__}'
-                f'({self})')
+        return f"{self.__class__.__name__}" f"({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -305,19 +317,20 @@ class TBox:
             tbox_to_floatspan
         """
         from ..collections import FloatSpan
+
         return FloatSpan(_inner=tbox_to_floatspan(self._inner))
 
-    def to_period(self) -> Period:
+    def to_tstzspan(self) -> TsTzSpan:
         """
         Returns the temporal span of ``self``.
 
         Returns:
-            A new :class:`~pymeos.time.period.Period` instance
+            A new :class:`~pymeos.time.tstzspan.TsTzSpan` instance
 
         MEOS Functions:
-            tbox_to_period
+            tbox_to_tstzspan
         """
-        return Period(_inner=tbox_to_period(self._inner))
+        return TsTzSpan(_inner=tbox_to_tstzspan(self._inner))
 
     # ------------------------- Accessors -------------------------------------
     def has_x(self) -> bool:
@@ -397,7 +410,7 @@ class TBox:
         Returns the temporal lower bound of ``self``.
 
         Returns:
-            The temporal lower bound of the `TBox` as a 
+            The temporal lower bound of the `TBox` as a
             :class:`~datetime.datetime`
 
         MEOS Functions:
@@ -425,7 +438,7 @@ class TBox:
         Returns the temporal upper bound of ``self``.
 
         Returns:
-            The temporal upper bound of the `TBox` as a 
+            The temporal upper bound of the `TBox` as a
             :class:`~datetime.datetime`
 
         MEOS Functions:
@@ -465,11 +478,14 @@ class TBox:
             tbox_expand_value, tbox_expand_time
         """
         if isinstance(other, int) or isinstance(other, float):
-            result = tbox_expand_value(self._inner, float(other))
+            if self._is_float():
+                result = tbox_expand_float(self._inner, float(other))
+            else:
+                result = tbox_expand_int(self._inner, int(other))
         elif isinstance(other, timedelta):
             result = tbox_expand_time(self._inner, timedelta_to_interval(other))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return TBox(_inner=result)
 
     def shift_value(self, delta: Union[int, float]) -> TBox:
@@ -501,10 +517,10 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.shift`
+            :meth:`TsTzSpan.shift`
         """
         return self.shift_scale_time(shift=delta)
 
@@ -537,15 +553,18 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.scale`
+            :meth:`TsTzSpan.scale`
         """
         return self.shift_scale_time(duration=duration)
 
-    def shift_scale_value(self, shift: Optional[Union[int, float]] = None,
-                          width: Optional[Union[int, float]] = None) -> TBox:
+    def shift_scale_value(
+        self,
+        shift: Optional[Union[int, float]] = None,
+        width: Optional[Union[int, float]] = None,
+    ) -> TBox:
         """
         Returns a new TBox with the value span shifted by `shift` and
         width `width`.
@@ -568,26 +587,38 @@ class TBox:
         See Also:
             :meth:`Span.shift_scale`
         """
-        assert shift is not None or width is not None, \
-            'shift and width deltas must not be both None'
+        assert (
+            shift is not None or width is not None
+        ), "shift and width deltas must not be both None"
         hasshift = shift is not None
         haswidth = width is not None
-        if (shift is None or isinstance(shift, int)) and \
-                (width is None or isinstance(width, int)):
-            result = tbox_shift_scale_int(self._inner,
-                                          shift if shift else 0, width if width else 0,
-                                          hasshift, haswidth)
-        elif (shift is None or isinstance(shift, float)) and \
-                (width is None or isinstance(width, float)):
-            result = tbox_shift_scale_float(self._inner,
-                                            shift if shift else 0.0, width if width else 0.0,
-                                            hasshift, haswidth)
+        if (shift is None or isinstance(shift, int)) and (
+            width is None or isinstance(width, int)
+        ):
+            result = tbox_shift_scale_int(
+                self._inner,
+                shift if shift else 0,
+                width if width else 0,
+                hasshift,
+                haswidth,
+            )
+        elif (shift is None or isinstance(shift, float)) and (
+            width is None or isinstance(width, float)
+        ):
+            result = tbox_shift_scale_float(
+                self._inner,
+                shift if shift else 0.0,
+                width if width else 0.0,
+                hasshift,
+                haswidth,
+            )
         else:
-            raise TypeError(f'Operation not supported with type {self.__class__}')
+            raise TypeError(f"Operation not supported with type {self.__class__}")
         return TBox(_inner=result)
 
-    def shift_scale_time(self, shift: Optional[timedelta] = None,
-                         duration: Optional[timedelta] = None) -> TBox:
+    def shift_scale_time(
+        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
+    ) -> TBox:
         """
         Returns a new TBox with the temporal span shifted by `shift` and
         duration `duration`.
@@ -607,17 +638,18 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            period_shift_scale
+            tstzspan_shift_scale
 
         See Also:
-            :meth:`Period.shift_scale`
+            :meth:`TsTzSpan.shift_scale`
         """
-        assert shift is not None or duration is not None, \
-            'shift and duration deltas must not be both None'
+        assert (
+            shift is not None or duration is not None
+        ), "shift and duration deltas must not be both None"
         result = tbox_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None
+            timedelta_to_interval(duration) if duration else None,
         )
         return TBox(_inner=result)
 
@@ -634,9 +666,9 @@ class TBox:
         MEOS Functions:
             tbox_round
         """
-        new_inner = tbox_copy(self._inner)
-        tbox_round(new_inner, max_decimals)
-        return TBox(_inner=new_inner)
+        if not self._is_float():
+            return TBox(_inner=tbox_copy(self._inner))
+        return TBox(_inner=tbox_round(self._inner, max_decimals))
 
     # ------------------------- Set Operations --------------------------------
     def union(self, other: TBox, strict: Optional[bool] = True) -> TBox:
@@ -706,8 +738,9 @@ class TBox:
         return self.intersection(other)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self,
-                    other: Union[int, float, IntSpan, FloatSpan, TBox, TNumber]) -> bool:
+    def is_adjacent(
+        self, other: Union[int, float, IntSpan, FloatSpan, TBox, TNumber]
+    ) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
         only the temporal or numerical bound and only one of them contains it.
@@ -730,15 +763,13 @@ class TBox:
             adjacent_tbox_tbox, tnumber_to_tbox
         """
         if isinstance(other, int):
-            return adjacent_span_span(self._inner_span(),
-                                      float_to_floatspan(float(other)))
+            return adjacent_span_span(self._inner_span(), float_to_span(float(other)))
         elif isinstance(other, float):
-            return adjacent_span_span(self._inner_span(),
-                                      float_to_floatspan(other))
+            return adjacent_span_span(self._inner_span(), float_to_span(other))
         elif isinstance(other, IntSpan):
             from pymeos_cffi.functions import _ffi
-            return adjacent_span_span(_ffi.addressof(self._inner, 'span'),
-                                      other._inner)
+
+            return adjacent_span_span(_ffi.addressof(self._inner, "span"), other._inner)
         elif isinstance(other, FloatSpan):
             return adjacent_span_span(self._inner.span, other._inner)
         elif isinstance(other, TBox):
@@ -746,7 +777,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return adjacent_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_contained_in(self, container: Union[TBox, TNumber]) -> bool:
         """
@@ -772,10 +803,9 @@ class TBox:
         if isinstance(container, TBox):
             return contained_tbox_tbox(self._inner, container._inner)
         elif isinstance(container, TNumber):
-            return contained_tbox_tbox(self._inner,
-                                       tnumber_to_tbox(container._inner))
+            return contained_tbox_tbox(self._inner, tnumber_to_tbox(container._inner))
         else:
-            raise TypeError(f'Operation not supported with type {container.__class__}')
+            raise TypeError(f"Operation not supported with type {container.__class__}")
 
     def contains(self, content: Union[TBox, TNumber]) -> bool:
         """
@@ -801,10 +831,9 @@ class TBox:
         if isinstance(content, TBox):
             return contains_tbox_tbox(self._inner, content._inner)
         elif isinstance(content, TNumber):
-            return contains_tbox_tbox(self._inner,
-                                      tnumber_to_tbox(content._inner))
+            return contains_tbox_tbox(self._inner, tnumber_to_tbox(content._inner))
         else:
-            raise TypeError(f'Operation not supported with type {content.__class__}')
+            raise TypeError(f"Operation not supported with type {content.__class__}")
 
     def __contains__(self, item):
         """
@@ -846,10 +875,9 @@ class TBox:
         if isinstance(other, TBox):
             return overlaps_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overlaps_tbox_tbox(self._inner,
-                                      tnumber_to_tbox(other._inner))
+            return overlaps_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_same(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -870,7 +898,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return same_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[TBox, TNumber]) -> bool:
@@ -891,7 +919,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return left_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_left(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -912,7 +940,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return overleft_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_right(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -932,7 +960,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return right_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_right(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -951,10 +979,9 @@ class TBox:
         if isinstance(other, TBox):
             return overright_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overright_tbox_tbox(self._inner,
-                                       tnumber_to_tbox(other._inner))
+            return overright_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_before(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -974,7 +1001,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return before_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_before(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -993,10 +1020,9 @@ class TBox:
         if isinstance(other, TBox):
             return overbefore_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overbefore_tbox_tbox(self._inner,
-                                        tnumber_to_tbox(other._inner))
+            return overbefore_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_after(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -1016,7 +1042,7 @@ class TBox:
         elif isinstance(other, TNumber):
             return after_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def is_over_or_after(self, other: Union[TBox, TNumber]) -> bool:
         """
@@ -1035,10 +1061,9 @@ class TBox:
         if isinstance(other, TBox):
             return overafter_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TNumber):
-            return overafter_tbox_tbox(self._inner,
-                                       tnumber_to_tbox(other._inner))
+            return overafter_tbox_tbox(self._inner, tnumber_to_tbox(other._inner))
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Distance Operations ---------------------------
     def nearest_approach_distance(self, other: Union[TBox, TNumber]) -> float:
@@ -1056,18 +1081,27 @@ class TBox:
             nad_tbox_tbox
         """
         if isinstance(other, TBox):
-            return nad_tbox_tbox(self._inner, other._inner)
-        elif isinstance(other, TNumber):
-            return nad_tnumber_tbox(other._inner, self._inner)
+            if self._is_float():
+                return nad_tboxfloat_tboxfloat(self._inner, other._inner)
+            else:
+                return nad_tboxint_tboxint(self._inner, other._inner)
+        elif isinstance(other, TInt):
+            return nad_tint_tbox(other._inner, self._inner)
+        elif isinstance(other, TFloat):
+            return nad_tfloat_tbox(other._inner, self._inner)
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Splitting --------------------------------------
-    def tile(self, size: float, duration: Union[timedelta, str],
-             origin: float = 0.0, start: Union[datetime, str, None] = None) -> \
-            List[TBox]:
+    def tile(
+        self,
+        size: float,
+        duration: Union[timedelta, str],
+        origin: float = 0.0,
+        start: Union[datetime, str, None] = None,
+    ) -> List[TBox]:
         """
-        Returns 2d matrix of TBoxes resulting of tiling ``self``.
+        Returns a list of TBoxes resulting from tiling ``self``.
 
         Args:
             size: size of the numeric dimension of the tiles
@@ -1077,43 +1111,30 @@ class TBox:
                 start time used by default is Monday, January 3, 2000.
 
         Returns:
-            An array of :class:`TBox` instances.
+            A list of :class:`TBox` instances.
 
         MEOS Functions:
             tintbox_tile_list, tfloabox_tile_list
         """
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) \
+        dt = (
+            timedelta_to_interval(duration)
+            if isinstance(duration, timedelta)
             else pg_interval_in(duration, -1)
-        st = datetime_to_timestamptz(start) if isinstance(start, datetime) \
-            else pg_timestamptz_in(start, -1) if isinstance(start, str) \
-            else pg_timestamptz_in('2000-01-03', -1)
+        )
+        st = (
+            datetime_to_timestamptz(start)
+            if isinstance(start, datetime)
+            else pg_timestamptz_in(start, -1)
+            if isinstance(start, str)
+            else pg_timestamptz_in("2000-01-03", -1)
+        )
         if self._is_float():
             tiles, count = tfloatbox_tile_list(self._inner, size, dt, origin, st)
         else:
-            tiles, count = tintbox_tile_list(self._inner, int(size), dt, int(origin), st)
+            tiles, count = tintbox_tile_list(
+                self._inner, int(size), dt, int(origin), st
+            )
         return [TBox(_inner=tiles + c) for c in range(count)]
-
-    # def tile_flat(self, size: float, duration: Union[timedelta, str],
-    #               origin: float = 0.0,
-    #               start: Union[datetime, str, None] = None) -> List[TBox]:
-    #     """
-    #     Returns an array of TBoxes resulting of tiling ``self``.
-    #
-    #     Args:
-    #         size: size of the numeric dimension of the tiles
-    #         duration: size of the temporal dimenstion of the tiles
-    #         origin: origin of the numeric dimension of the tiles
-    #         start: origin of the temporal dimension of the tiles. If None, the
-    #             start time used by default is Monday, January 3, 2000.
-    #
-    #     Returns:
-    #         An array of :class:`TBox` instances.
-    #
-    #     MEOS Functions:
-    #         tbox_tile_list
-    #     """
-    #     tiles = self.tile(size, duration, origin, start)
-    #     return [box for row in tiles for box in row]
 
     # ------------------------- Comparisons -----------------------------------
     def __eq__(self, other):
@@ -1166,7 +1187,7 @@ class TBox:
         """
         if isinstance(other, self.__class__):
             return tbox_lt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __le__(self, other):
         """
@@ -1184,7 +1205,7 @@ class TBox:
         """
         if isinstance(other, self.__class__):
             return tbox_le(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __gt__(self, other):
         """
@@ -1202,7 +1223,7 @@ class TBox:
         """
         if isinstance(other, self.__class__):
             return tbox_gt(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __ge__(self, other):
         """
@@ -1220,7 +1241,7 @@ class TBox:
         """
         if isinstance(other, self.__class__):
             return tbox_ge(self._inner, other._inner)
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     # ------------------------- Plot Operations -------------------------------
     def plot(self, *args, **kwargs):
@@ -1231,6 +1252,7 @@ class TBox:
             :func:`~pymeos.plotters.box_plotter.BoxPlotter.plot_tbox`
         """
         from ..plotters import BoxPlotter
+
         return BoxPlotter.plot_tbox(self, *args, **kwargs)
 
     # ------------------------- Database Operations ---------------------------

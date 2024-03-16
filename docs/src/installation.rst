@@ -12,12 +12,25 @@ Installation from PyPI
 
 PyMEOS and PyMEOS CFFI are available as binary distributions (wheel) for Linux platforms on
 `PyPI <https://pypi.org/project/pymeos/>`__. The distributions include the most recent version of MEOS available at the
-time of the PyMEOS release. Install the binary wheel with pip as follows::
+time of the PyMEOS release. Install the binary wheel with pip as follows:
+
+.. code-block:: console
 
     $ pip install pymeos
 
+.. warning::
+    Versions up to 1.1.2 of PyMEOS (0.0.8 of PyMEOS CFFI) should not be used. Instead,
+    use version 1.1.3 (1.1.0 for PyMEOS CFFI) which is currently in pre-release mode.
+
+    To use it, you have to use the ``--pre`` flag of ``pip``. To avoid installing
+    pre-release versions of the dependencies, install ``pymeos`` normally and then
+    update it using the following command:
+
+    ``pip install --pre --force-reinstall --no-deps pymeos pymeos_cffi``
+
+
 Installation using conda (incoming, not available yet)
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyMEOS is available on the conda-forge channel. Install as follows::
 
@@ -25,7 +38,7 @@ PyMEOS is available on the conda-forge channel. Install as follows::
 
 
 Installation from source with custom MEOS library
-------------------------------------------------
+-------------------------------------------------
 
 If you want to use a specific MEOS version or a MEOS distribution that is
 already present on your system, you can compile the PyMEOS packages from source yourself,
@@ -44,11 +57,17 @@ Then, install PyMEOS CFFI from source::
 
 
 Updating the PyMEOS CFFI wrapper for custom MEOS library
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If your MEOS library API doesn't match the one used by the PyMEOS CFFI wrapper, it will crash. You can fix this
 by updating the header file used by PyMEOS CFFI to match your MEOS version. To do so, you will need to recompile it
 using the builder scripts provided in the ``pymeos_cffi`` package.
+
+.. warning::
+    While you can easily update ``pymeos_cffi``, you won't be able to do it so easily
+    with ``pymeos``. If you want to use the ``pymeos`` library with your custom
+    ``pymeos_cffi``, you should make sure that the part of the API used by ``pymeos``
+    hasn't changed, or you'll get an import error when using ``pymeos``.
 
 First, you will need to get the source code of PyMEOS CFFI. You can do so by downloading the source distribution
 from PyPI, or by cloning the repository from GitHub::
@@ -78,3 +97,4 @@ This will update the ``functions.py`` file that contains all the python function
 Finally, you can install the updated PyMEOS CFFI package::
 
     $ pip install .
+

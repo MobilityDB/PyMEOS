@@ -1,21 +1,22 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
-from typing import Optional, Union, List, Set, overload
+from typing import Optional, Union, List, Set, overload, Type, TypeVar
 
 from pymeos_cffi import *
 
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+
+Self = TypeVar("Self", bound="TBool")
 
 
-class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC):
+class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC):
     """
     Base class for temporal boolean.
     """
 
-    _mobilitydb_name = 'tbool'
+    _mobilitydb_name = "tbool"
 
     BaseClass = bool
     _parse_function = tbool_in
@@ -50,13 +51,12 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: Union[TimestampSet, Period]) -> \
-            TBoolSeq:
+    def from_base_time(value: bool, base: Union[TsTzSet, TsTzSpan]) -> TBoolSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: PeriodSet) -> TBoolSeqSet:
+    def from_base_time(value: bool, base: TsTzSpanSet) -> TBoolSeqSet:
         ...
 
     @staticmethod
@@ -72,22 +72,40 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             A new temporal boolean.
 
         MEOS Functions:
-            tboolinst_make, tboolseq_from_base_timestampset,
-            tboolseq_from_base_period, tboolseqset_from_base_periodset
+            tboolinst_make, tboolseq_from_base_tstzset,
+            tboolseq_from_base_tstzspan, tboolseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
-            return TBoolInst(_inner=tboolinst_make(value,
-                                                   datetime_to_timestamptz(base)))
-        elif isinstance(base, TimestampSet):
-            return TBoolSeq(_inner=tboolseq_from_base_timestampset(value,
-                                                                   base._inner))
-        elif isinstance(base, Period):
-            return TBoolSeq(_inner=tboolseq_from_base_period(value,
-                                                             base._inner))
-        elif isinstance(base, PeriodSet):
-            return TBoolSeqSet(_inner=tboolseqset_from_base_periodset(value,
-                                                                      base._inner))
-        raise TypeError(f'Operation not supported with type {base.__class__}')
+            return TBoolInst(
+                _inner=tboolinst_make(value, datetime_to_timestamptz(base))
+            )
+        elif isinstance(base, TsTzSet):
+            return TBoolSeq(_inner=tboolseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TBoolSeq(_inner=tboolseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
+            return TBoolSeqSet(
+                _inner=tboolseqset_from_base_tstzspanset(value, base._inner)
+            )
+        raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            tbool_from_mfjson
+        """
+
+        result = tbool_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -148,13 +166,14 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             The value at the given timestamp.
 
         MEOS Function:
-            tbool_value_at_timestamp
+            tbool_value_at_timestamptz
         """
-        return tbool_value_at_timestamp(self._inner,
-                                        datetime_to_timestamptz(timestamp), True)
+        return tbool_value_at_timestamptz(
+            self._inner, datetime_to_timestamptz(timestamp), True
+        )
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_eq(self, value: bool) -> bool:
+    def always_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is always equal to `value`.
 
@@ -165,11 +184,16 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_always_eq
+            always_eq_tbool_bool, always_eq_temporal_temporal
         """
-        return tbool_always_eq(self._inner, value)
+        if isinstance(value, bool):
+            return always_eq_tbool_bool(self._inner, value) > 0
+        elif isinstance(value, TBool):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_eq(self, value: bool) -> bool:
+    def ever_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is ever equal to `value`.
 
@@ -180,11 +204,16 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_ever_eq
+            ever_eq_tbool_bool, ever_eq_temporal_temporal
         """
-        return tbool_ever_eq(self._inner, value)
+        if isinstance(value, bool):
+            return ever_eq_tbool_bool(self._inner, value) > 0
+        elif isinstance(value, TBool):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_eq(self, value: bool) -> bool:
+    def never_eq(self, value: Union[bool, TBool]) -> bool:
         """
         Returns whether `self` is never equal to `value`.
 
@@ -195,12 +224,12 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Function:
-            tbool_ever_eq
+            ever_eq_tbool_bool, ever_eq_temporal_temporal
         """
-        return not tbool_ever_eq(self._inner, value)
+        return not self.ever_eq(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[bool, Temporal]) -> TBool:
+    def temporal_equal(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -219,7 +248,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[bool, Temporal]) -> TBool:
+    def temporal_not_equal(self, other: Union[bool, TBool]) -> TBool:
         """
         Returns the temporal inequality relation between `self` and `other`.
 
@@ -251,8 +280,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
             A new temporal boolean.
 
         MEOS Functions:
-            tbool_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            tbool_at_value, temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, bool):
             result = tbool_at_value(self._inner, other)
@@ -264,7 +293,7 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         Returns a new temporal boolean with the values of `self` restricted to
         the complement of the time or value
-         `other`.
+        `other`.
 
         Args:
             other: Time or value to restrict to the complement of.
@@ -274,8 +303,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
 
         MEOS Functions:
             tbool_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            temporal_minus_tstzset, temporal_minus_tstzspan,
+            temporal_minus_tstzspanset
         """
         if isinstance(other, bool):
             result = tbool_minus_value(self._inner, other)
@@ -301,9 +330,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         if isinstance(other, bool):
             return self.__class__(_inner=tand_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
-            return self.__class__(_inner=tand_tbool_tbool(self._inner,
-                                                          other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            return self.__class__(_inner=tand_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __and__(self, other):
         """
@@ -336,9 +364,8 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         if isinstance(other, bool):
             return self.__class__(_inner=tor_tbool_bool(self._inner, other))
         elif isinstance(other, TBool):
-            return self.__class__(_inner=tor_tbool_tbool(self._inner,
-                                                         other._inner))
-        raise TypeError(f'Operation not supported with type {other.__class__}')
+            return self.__class__(_inner=tor_tbool_tbool(self._inner, other._inner))
+        raise TypeError(f"Operation not supported with type {other.__class__}")
 
     def __or__(self, other):
         """
@@ -391,31 +418,31 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         return self.temporal_not()
 
-    def when_true(self) -> Optional[PeriodSet]:
+    def when_true(self) -> Optional[TsTzSpanSet]:
         """
-        Returns a period set with the periods where `self` is True.
+        Returns a tstzspan set with the tstzspans where `self` is True.
 
         Returns:
-            A :class:`PeriodSet` with the periods where `self` is True.
+            A :class:`TsTzSpanSet` with the tstzspans where `self` is True.
 
         MEOS Function:
             tbool_when_true
         """
         result = tbool_when_true(self._inner)
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
-    def when_false(self) -> Optional[PeriodSet]:
+    def when_false(self) -> Optional[TsTzSpanSet]:
         """
-        Returns a period set with the periods where `self` is False.
+        Returns a tstzspan set with the tstzspans where `self` is False.
 
         Returns:
-            A :class:`PeriodSet` with the periods where `self` is False.
+            A :class:`TsTzSpanSet` with the tstzspans where `self` is False.
 
         MEOS Function:
             tbool_when_true, tnot_tbool
         """
         result = tbool_when_true(tnot_tbool(self._inner))
-        return PeriodSet(_inner=result) if result is not None else None
+        return TsTzSpanSet(_inner=result) if result is not None else None
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod
@@ -427,59 +454,86 @@ class TBool(Temporal[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], ABC
         """
         if not value:
             return None
-        if value[0] != '{' and value[0] != '[' and value[0] != '(':
+        if value[0] != "{" and value[0] != "[" and value[0] != "(":
             return TBoolInst(string=value)
-        elif value[0] == '[' or value[0] == '(':
+        elif value[0] == "[" or value[0] == "(":
             return TBoolSeq(string=value)
-        elif value[0] == '{':
-            if value[1] == '[' or value[1] == '(':
+        elif value[0] == "{":
+            if value[1] == "[" or value[1] == "(":
                 return TBoolSeqSet(string=value)
             else:
                 return TBoolSeq(string=value)
         raise Exception("ERROR: Could not parse temporal boolean value")
 
 
-class TBoolInst(TInstant[bool, 'TBool', 'TBoolInst', 'TBoolSeq', 'TBoolSeqSet'], TBool):
+class TBoolInst(TInstant[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool):
     """
     Class for representing temporal boolean values at a single instant.
     """
+
     _make_function = tboolinst_make
     _cast_function = bool
 
-    def __init__(self, string: Optional[str] = None, *,
-                 value: Optional[Union[str, bool]] = None,
-                 timestamp: Optional[Union[str, datetime]] = None, _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp,
-                         _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        value: Optional[Union[str, bool]] = None,
+        timestamp: Optional[Union[str, datetime]] = None,
+        _inner=None,
+    ):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TBoolSeq(TSequence[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-'TBoolSeqSet'], TBool):
+class TBoolSeq(TSequence[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool):
     """
-    Class for representing temporal boolean values over a period of time.
+    Class for representing temporal boolean values over a tstzspan of time.
     """
+
     ComponentClass = TBoolInst
 
-    def __init__(self, string: Optional[str] = None, *,
-                 instant_list: Optional[List[Union[str, TBoolInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list,
-                         lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        instant_list: Optional[List[Union[str, TBoolInst]]] = None,
+        lower_inc: bool = True,
+        upper_inc: bool = False,
+        interpolation: TInterpolation = TInterpolation.STEPWISE,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            instant_list=instant_list,
+            lower_inc=lower_inc,
+            upper_inc=upper_inc,
+            interpolation=interpolation,
+            normalize=normalize,
+            _inner=_inner,
+        )
 
 
-class TBoolSeqSet(TSequenceSet[bool, 'TBool', 'TBoolInst', 'TBoolSeq',
-'TBoolSeqSet'], TBool):
+class TBoolSeqSet(
+    TSequenceSet[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], TBool
+):
     """
-    Class for representing temporal boolean values over a period of time with gaps.
+    Class for representing temporal boolean values over a tstzspan of time with gaps.
     """
+
     ComponentClass = TBoolSeq
 
-    def __init__(self, string: Optional[str] = None, *,
-                 sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        sequence_list: Optional[List[Union[str, TBoolSeq]]] = None,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            sequence_list=sequence_list,
+            normalize=normalize,
+            _inner=_inner,
+        )

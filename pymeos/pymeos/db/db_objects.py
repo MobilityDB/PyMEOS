@@ -1,15 +1,48 @@
-from pymeos import TBool, TInt, TFloat, TText, TGeomPoint, TGeogPoint, TBox, STBox, TimestampSet, Period, PeriodSet, \
-    GeometrySet, GeographySet, TextSet, IntSet, IntSpan, IntSpanSet, FloatSpan, FloatSet, FloatSpanSet
+from pymeos import (
+    TBool,
+    TInt,
+    TFloat,
+    TText,
+    TGeomPoint,
+    TGeogPoint,
+    TBox,
+    STBox,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
+    GeometrySet,
+    GeographySet,
+    TextSet,
+    IntSet,
+    IntSpan,
+    IntSpanSet,
+    FloatSpan,
+    FloatSet,
+    FloatSpanSet,
+)
 
 db_objects = [
     # Temporal
-    TBool, TInt, TFloat, TText, TGeomPoint, TGeogPoint,
+    TBool,
+    TInt,
+    TFloat,
+    TText,
+    TGeomPoint,
+    TGeogPoint,
     # Boxes
-    TBox, STBox,
+    TBox,
+    STBox,
     # Collections
-    TimestampSet, Period, PeriodSet,
-    GeometrySet, GeographySet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
+    GeometrySet,
+    GeographySet,
     TextSet,
-    IntSet, IntSpan, IntSpanSet,
-    FloatSet, FloatSpan, FloatSpanSet
+    IntSet,
+    IntSpan,
+    IntSpanSet,
+    FloatSet,
+    FloatSpan,
+    FloatSpanSet,
 ]

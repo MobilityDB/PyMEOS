@@ -7,14 +7,14 @@ py-modules = []
 
 [project]
 name = 'pymeos_cffi'
-version = '1.1.0-beta.1'
+dynamic = ['version']
 authors = [
     { name = 'Victor Divi', email = 'vdiviloper@gmail.com' }
 ]
 description = 'PyMEOS wrapper for the MEOS C Library.'
 classifiers = [
     'License :: OSI Approved :: PostgreSQL License',
-    'Development Status :: 3 - Alpha',
+    'Development Status :: 4 - Beta',
     'Intended Audience :: Developers',
     'Intended Audience :: Science/Research',
     'Programming Language :: C',
@@ -43,3 +43,6 @@ dependencies = [
 [project.urls]
 'Homepage' = 'https://github.com/MobilityDB/PyMEOS'
 'Bug Tracker' = 'https://github.com/MobilityDB/PyMEOS/issues'
+
+[tool.setuptools.dynamic]
+version = { attr = "pymeos_cffi.__version__" }

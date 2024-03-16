@@ -9,7 +9,7 @@
 project = 'PyMEOS'
 copyright = '2023, Víctor Diví'
 author = 'Víctor Diví'
-release = '1.1.3b1'
+release = '1.1.3.rc2'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -23,10 +23,14 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
+    'myst_nb',
 ]
 
+nb_execution_mode = "off"
+
 templates_path = ['_templates']
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '_build',
+                    '**.ipynb_checkpoints']
 autodoc_member_order = 'bysource'
 
 # -- Intersphinx config --------

@@ -1,4 +1,9 @@
 .idea
+.vscode
+
+.micromamba
+d
+
 .eggs
 build
 dist
@@ -6,6 +11,7 @@ dist
 *.egg-info
 
 *.c
+*.pyc
 *.o
 *.so
 

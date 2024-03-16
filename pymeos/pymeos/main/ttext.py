@@ -1,20 +1,27 @@
 from __future__ import annotations
 
 from abc import ABC
-from functools import reduce
-from typing import Optional, Union, List, Set, overload, TYPE_CHECKING
+from typing import Optional, Union, List, Set, overload, TYPE_CHECKING, TypeVar, Type
 
 from pymeos_cffi import *
 
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 from ..collections import *
+from ..mixins import TTemporallyComparable
+from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
     from .tbool import TBool
 
 
-class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC):
-    _mobilitydb_name = 'ttext'
+Self = TypeVar("Self", bound="TText")
+
+
+class TText(
+    Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"],
+    TTemporallyComparable,
+    ABC,
+):
+    _mobilitydb_name = "ttext"
 
     BaseClass = str
 
@@ -50,13 +57,12 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TimestampSet, Period]) -> \
-            TTextSeq:
+    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq:
         ...
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: PeriodSet) -> TTextSeqSet:
+    def from_base_time(value: str, base: TsTzSpanSet) -> TTextSeqSet:
         ...
 
     @staticmethod
@@ -72,22 +78,40 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttextinst_make, ttextseq_from_base_timestampset,
-            ttextseq_from_base_period, ttextseqset_from_base_periodset
+            ttextinst_make, ttextseq_from_base_tstzset,
+            ttextseq_from_base_tstzspan, ttextseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
-            return TTextInst(_inner=ttextinst_make(value,
-                                                   datetime_to_timestamptz(base)))
-        elif isinstance(base, TimestampSet):
-            return TTextSeq(_inner=ttextseq_from_base_timestampset(value,
-                                                                   base._inner))
-        elif isinstance(base, Period):
-            return TTextSeq(_inner=ttextseq_from_base_period(value,
-                                                             base._inner))
-        elif isinstance(base, PeriodSet):
-            return TTextSeqSet(_inner=ttextseqset_from_base_periodset(value,
-                                                                      base._inner))
-        raise TypeError(f'Operation not supported with type {base.__class__}')
+            return TTextInst(
+                _inner=ttextinst_make(value, datetime_to_timestamptz(base))
+            )
+        elif isinstance(base, TsTzSet):
+            return TTextSeq(_inner=ttextseq_from_base_tstzset(value, base._inner))
+        elif isinstance(base, TsTzSpan):
+            return TTextSeq(_inner=ttextseq_from_base_tstzspan(value, base._inner))
+        elif isinstance(base, TsTzSpanSet):
+            return TTextSeqSet(
+                _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
+            )
+        raise TypeError(f"Operation not supported with type {base.__class__}")
+
+    @classmethod
+    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+        """
+        Returns a temporal object from a MF-JSON string.
+
+        Args:
+            mfjson: The MF-JSON string.
+
+        Returns:
+            A temporal object from a MF-JSON string.
+
+        MEOS Functions:
+            ttext_from_mfjson
+        """
+
+        result = ttext_from_mfjson(mfjson)
+        return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
     def __str__(self) -> str:
@@ -215,44 +239,13 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         MEOS Functions:
             ttext_value_at_timestamp
         """
-        result = ttext_value_at_timestamp(self._inner,
-                                          datetime_to_timestamptz(timestamp), True)
+        result = ttext_value_at_timestamptz(
+            self._inner, datetime_to_timestamptz(timestamp), True
+        )
         return text2cstring(result[0])
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ttext_always_eq
-        """
-        return ttext_always_eq(self._inner, value)
-
-    def always_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return not ttext_always_eq(self._inner, value)
-
-    def always_less(self, value: str) -> bool:
+    def always_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -264,11 +257,16 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            always_lt_ttext_text, always_lt_temporal_temporal
         """
-        return ttext_always_lt(self._inner, value)
+        if isinstance(value, str):
+            return always_lt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: str) -> bool:
+    def always_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -281,27 +279,58 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            always_le_ttext_text, always_le_temporal_temporal
         """
-        return ttext_always_le(self._inner, value)
+        if isinstance(value, str):
+            return always_le_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: str) -> bool:
+    def always_equal(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are always greater than `value`.
+        Returns whether the values of `self` are always equal to `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are always greater than `value`,
+            `True` if the values of `self` are always equal to `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            always_eq_ttext_text, always_eq_temporal_temporal
         """
-        return not ttext_ever_le(self._inner, value)
+        if isinstance(value, str):
+            return always_eq_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: str) -> bool:
+    def always_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are always not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are always not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            always_ne_ttext_text, always_ne_temporal_temporal
+        """
+        if isinstance(value, str):
+            return always_ne_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def always_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -314,43 +343,37 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            always_ge_ttext_text, always_ge_temporal_temporal
         """
-        return not ttext_ever_lt(self._inner, value)
+        if isinstance(value, str):
+            return always_ge_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: str) -> bool:
+    def always_greater(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are ever equal to `value`.
+        Returns whether the values of `self` are always greater than `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are ever equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return ttext_ever_eq(self._inner, value)
-
-    def ever_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are ever not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are ever not equal to `value`,
+            `True` if the values of `self` are always greater than `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_eq
+            always_gt_ttext_text, always_gt_temporal_temporal
         """
-        return not ttext_ever_eq(self._inner, value)
+        if isinstance(value, str):
+            return always_gt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return always_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: str) -> bool:
+    def ever_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -362,11 +385,16 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            ever_lt_ttext_text, ever_lt_temporal_temporal
         """
-        return ttext_ever_lt(self._inner, value)
+        if isinstance(value, str):
+            return ever_lt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_lt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: str) -> bool:
+    def ever_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -379,27 +407,58 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            ever_le_ttext_text, ever_le_temporal_temporal
         """
-        return ttext_ever_le(self._inner, value)
+        if isinstance(value, str):
+            return ever_le_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_le_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: str) -> bool:
+    def ever_equal(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are ever greater than `value`.
+        Returns whether the values of `self` are ever equal to `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are ever greater than `value`,
+            `True` if the values of `self` are ever equal to `value`, `False`
+            otherwise.
+
+        MEOS Functions:
+            ever_eq_ttext_text, ever_eq_temporal_temporal
+        """
+        if isinstance(value, str):
+            return ever_eq_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
+
+    def ever_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are ever not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are ever not equal to `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            ever_ne_ttext_text, ever_ne_temporal_temporal
         """
-        return not ttext_always_le(self._inner, value)
+        if isinstance(value, str):
+            return ever_ne_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: str) -> bool:
+    def ever_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -412,43 +471,37 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            ever_ge_ttext_text, ever_ge_temporal_temporal
         """
-        return not ttext_always_lt(self._inner, value)
+        if isinstance(value, str):
+            return ever_ge_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_ge_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_equal(self, value: str) -> bool:
+    def ever_greater(self, value: Union[str, TText]) -> bool:
         """
-        Returns whether the values of `self` are never equal to `value`.
+        Returns whether the values of `self` are ever greater than `value`.
 
         Args:
             value: String value to compare.
 
         Returns:
-            `True` if the values of `self` are never equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ttext_ever_eq
-        """
-        return not ttext_ever_eq(self._inner, value)
-
-    def never_not_equal(self, value: str) -> bool:
-        """
-        Returns whether the values of `self` are never not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are never not equal to `value`,
+            `True` if the values of `self` are ever greater than `value`,
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_eq
+            ever_gt_ttext_text, ever_gt_temporal_temporal
         """
-        return ttext_always_eq(self._inner, value)
+        if isinstance(value, str):
+            return ever_gt_ttext_text(self._inner, value) > 0
+        elif isinstance(value, TText):
+            return ever_gt_temporal_temporal(self._inner, value._inner) > 0
+        else:
+            raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_less(self, value: str) -> bool:
+    def never_less(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -460,11 +513,11 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             otherwise.
 
         MEOS Functions:
-            ttext_ever_lt
+            ever_lt_ttext_text, ever_lt_temporal_temporal
         """
-        return not ttext_ever_lt(self._inner, value)
+        return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: str) -> bool:
+    def never_less_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -477,11 +530,43 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_ever_le
+            ever_le_ttext_text, ever_le_temporal_temporal
         """
-        return not ttext_ever_le(self._inner, value)
+        return not self.ever_less_or_equal(value)
 
-    def never_greater_or_equal(self, value: str) -> bool:
+    def never_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are never equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are never equal to `value`, `False`
+            otherwise.
+
+        MEOS Functions:
+            ever_eq_ttext_text, ever_eq_temporal_temporal
+        """
+        return not self.ever_equal(value)
+
+    def never_not_equal(self, value: Union[str, TText]) -> bool:
+        """
+        Returns whether the values of `self` are never not equal to `value`.
+
+        Args:
+            value: String value to compare.
+
+        Returns:
+            `True` if the values of `self` are never not equal to `value`,
+            `False` otherwise.
+
+        MEOS Functions:
+            ever_ne_ttext_text, ever_ne_temporal_temporal
+        """
+        return not self.ever_not_equal(value)
+
+    def never_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -494,11 +579,11 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `value`, `False` otherwise.
 
         MEOS Functions:
-            ttext_always_lt
+            ever_ge_ttext_text, ever_ge_temporal_temporal
         """
-        return ttext_always_lt(self._inner, value)
+        return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: str) -> bool:
+    def never_greater(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -510,12 +595,12 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             `False` otherwise.
 
         MEOS Functions:
-            ttext_always_le
+            ever_gt_ttext_text, ever_gt_temporal_temporal
         """
-        return ttext_always_le(self._inner, value)
+        return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -534,7 +619,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -553,7 +638,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[str, Temporal]) -> TBool:
+    def temporal_less(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -572,7 +657,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_less_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -592,7 +677,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -612,7 +697,7 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[str, Temporal]) -> Temporal:
+    def temporal_greater_or_equal(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and
         `other`.
@@ -634,8 +719,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[str, List[str], datetime, TimestampSet, Period,
-    PeriodSet]) -> TText:
+    def at(
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
+    ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the time or value `other`.
@@ -647,8 +733,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             A new temporal string.
 
         MEOS Functions:
-            ttext_at_value, temporal_at_timestamp, temporal_at_timestampset,
-            temporal_at_period, temporal_at_periodset
+            ttext_at_value, temporal_at_timestamp, temporal_at_tstzset,
+            temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_at_value(self._inner, other)
@@ -658,8 +744,9 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(self, other: Union[str, List[str], datetime, TimestampSet,
-    Period, PeriodSet]) -> TText:
+    def minus(
+        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
+    ) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the complement of the time or value `other`.
@@ -672,8 +759,8 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
 
         MEOS Functions:
             ttext_minus_value, temporal_minus_timestamp,
-            temporal_minus_timestampset, temporal_minus_period,
-            temporal_minus_periodset
+            temporal_minus_tstzset, temporal_minus_tstzspan,
+            temporal_minus_tstzspanset
         """
         if isinstance(other, str):
             result = ttext_minus_value(self._inner, other)
@@ -702,15 +789,19 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
 
         """
         if isinstance(other, str):
-            result = textcat_ttext_text(self._inner, other) \
-                if not other_before \
+            result = (
+                textcat_ttext_text(self._inner, other)
+                if not other_before
                 else textcat_text_ttext(other, self._inner)
+            )
         elif isinstance(other, TText):
-            result = textcat_ttext_ttext(self._inner, other._inner) \
-                if not other_before \
+            result = (
+                textcat_ttext_ttext(self._inner, other._inner)
+                if not other_before
                 else textcat_ttext_ttext(other._inner, self._inner)
+            )
         else:
-            raise TypeError(f'Operation not supported with type {other.__class__}')
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return self.__class__(_inner=result)
 
     def __add__(self, other):
@@ -755,61 +846,86 @@ class TText(Temporal[str, 'TText', 'TTextInst', 'TTextSeq', 'TTextSeqSet'], ABC)
         """
         if not value:
             return None
-        if value[0] != '{' and value[0] != '[' and value[0] != '(':
+        if value[0] != "{" and value[0] != "[" and value[0] != "(":
             return TTextInst(string=value)
-        elif value[0] == '[' or value[0] == '(':
+        elif value[0] == "[" or value[0] == "(":
             return TTextSeq(string=value)
-        elif value[0] == '{':
-            if value[1] == '[' or value[1] == '(':
+        elif value[0] == "{":
+            if value[1] == "[" or value[1] == "(":
                 return TTextSeqSet(string=value)
             else:
                 return TTextSeq(string=value)
         raise Exception("ERROR: Could not parse temporal text value")
 
 
-class TTextInst(TInstant[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextInst(TInstant[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
     Class for representing temporal strings at a single instant.
     """
+
     _make_function = ttextinst_make
     _cast_function = str
 
-    def __init__(self, string: Optional[str] = None, *,
-                 value: Optional[str] = None,
-                 timestamp: Optional[Union[str, datetime]] = None,
-                 _inner=None):
-        super().__init__(string=string, value=value, timestamp=timestamp,
-                         _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        value: Optional[str] = None,
+        timestamp: Optional[Union[str, datetime]] = None,
+        _inner=None,
+    ):
+        super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
 
 
-class TTextSeq(TSequence[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
-    Class for representing temporal strings over a period of time.
+    Class for representing temporal strings over a tstzspan of time.
     """
+
     ComponentClass = TTextInst
 
-    def __init__(self, string: Optional[str] = None, *,
-                 instant_list: Optional[List[Union[str, TTextInst]]] = None,
-                 lower_inc: bool = True, upper_inc: bool = False,
-                 interpolation: TInterpolation = TInterpolation.STEPWISE,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, instant_list=instant_list,
-                         lower_inc=lower_inc, upper_inc=upper_inc,
-                         interpolation=interpolation,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        instant_list: Optional[List[Union[str, TTextInst]]] = None,
+        lower_inc: bool = True,
+        upper_inc: bool = False,
+        interpolation: TInterpolation = TInterpolation.STEPWISE,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            instant_list=instant_list,
+            lower_inc=lower_inc,
+            upper_inc=upper_inc,
+            interpolation=interpolation,
+            normalize=normalize,
+            _inner=_inner,
+        )
 
 
-class TTextSeqSet(TSequenceSet[str, 'TText', 'TTextInst', 'TTextSeq',
-'TTextSeqSet'], TText):
+class TTextSeqSet(
+    TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText
+):
     """
-    Class for representing temporal strings over a period of time with gaps.
+    Class for representing temporal strings over a tstzspan of time with gaps.
     """
+
     ComponentClass = TTextSeq
 
-    def __init__(self, string: Optional[str] = None, *,
-                 sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
-                 normalize: bool = True, _inner=None):
-        super().__init__(string=string, sequence_list=sequence_list,
-                         normalize=normalize, _inner=_inner)
+    def __init__(
+        self,
+        string: Optional[str] = None,
+        *,
+        sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
+        normalize: bool = True,
+        _inner=None,
+    ):
+        super().__init__(
+            string=string,
+            sequence_list=sequence_list,
+            normalize=normalize,
+            _inner=_inner,
+        )

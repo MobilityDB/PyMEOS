@@ -2,12 +2,30 @@ from __future__ import annotations
 
 from typing import List, Union, overload, Optional, TYPE_CHECKING
 
-from pymeos_cffi import intset_in, intset_make, intset_out, intset_start_value, \
-    intset_end_value, intset_value_n, intset_values, contains_intset_int, \
-    intersection_intset_int, intersection_set_set, minus_intset_int, \
-    left_intset_int, overleft_intset_int, right_intset_int, overright_intset_int, \
-    minus_set_set, union_set_set, union_intset_int, intset_shift_scale, \
-    minus_int_intset, distance_intset_int
+from pymeos_cffi import (
+    intset_in,
+    intset_make,
+    intset_out,
+    intset_start_value,
+    intset_end_value,
+    intset_value_n,
+    intset_values,
+    contains_set_int,
+    intersection_set_int,
+    intersection_set_set,
+    minus_set_int,
+    left_set_int,
+    overleft_set_int,
+    right_set_int,
+    overright_set_int,
+    minus_set_set,
+    union_set_set,
+    union_set_int,
+    intset_shift_scale,
+    minus_int_set,
+    distance_set_int,
+    distance_intset_intset,
+)
 
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
@@ -19,24 +37,23 @@ if TYPE_CHECKING:
 
 class IntSet(Set[int]):
     """
-    Class for representing a set of text values.
+    Class for representing a set of integer values.
 
-    ``TextSet`` objects can be created with a single argument of type string as
+    ``IntSet`` objects can be created with a single argument of type string as
     in MobilityDB.
 
         >>> IntSet(string='{1, 3, 56}')
 
-    Another possibility is to create a ``TextSet`` object from a list of
+    Another possibility is to create a ``IntSet`` object from a list of
     strings or integers.
 
         >>> IntSet(elements=[1, '2', 3, '56'])
 
-
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'intset'
+    _mobilitydb_name = "intset"
 
     _parse_function = intset_in
     _parse_value_function = int
@@ -60,31 +77,6 @@ class IntSet(Set[int]):
 
     # ------------------------- Conversions -----------------------------------
 
-    def to_spanset(self) -> IntSpanSet:
-        """
-        Returns a SpanSet that contains a Span for each element in ``self``.
-
-        Returns:
-            A new :class:`IntSpanSet` instance
-
-        MEOS Functions:
-            set_to_spanset
-        """
-
-        return IntSpanSet(_inner=super().to_spanset())
-
-    def to_span(self) -> IntSpan:
-        """
-        Returns a span that encompasses ``self``.
-
-        Returns:
-            A new :class:`IntSpan` instance
-
-        MEOS Functions:
-            set_span
-        """
-        return IntSpan(_inner=super().to_span())
-
     def to_floatset(self) -> FloatSet:
         """
         Converts ``self`` to a :class:`FloatSet` instance.
@@ -93,6 +85,7 @@ class IntSet(Set[int]):
             A new :class:`FloatSet` instance
         """
         from .floatset import FloatSet
+
         return FloatSet(elements=[float(x) for x in self.elements()])
 
     # ------------------------- Accessors -------------------------------------
@@ -200,8 +193,10 @@ class IntSet(Set[int]):
             intset_shift_scale
         """
         return IntSet(
-            _inner=intset_shift_scale(self._inner, delta, width,
-                                      delta is not None, width is not None))
+            _inner=intset_shift_scale(
+                self._inner, delta, width, delta is not None, width is not None
+            )
+        )
 
     # ------------------------- Topological Operations --------------------------------
 
@@ -216,10 +211,10 @@ class IntSet(Set[int]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_intset_int
+            contains_set_set, contains_set_int
         """
         if isinstance(content, int):
-            return contains_intset_int(self._inner, content)
+            return contains_set_int(self._inner, content)
         else:
             return super().contains(content)
 
@@ -237,10 +232,10 @@ class IntSet(Set[int]):
             True if left, False otherwise
 
         MEOS Functions:
-            left_set_set, left_intset_int
+            left_set_set, left_set_int
         """
         if isinstance(content, int):
-            return left_intset_int(self._inner, content)
+            return left_set_int(self._inner, content)
         else:
             return super().is_left(content)
 
@@ -256,10 +251,10 @@ class IntSet(Set[int]):
             True if is over or left, False otherwise
 
         MEOS Functions:
-            overleft_set_set, overleft_intset_int
+            overleft_set_set, overleft_set_int
         """
         if isinstance(content, int):
-            return overleft_intset_int(self._inner, content)
+            return overleft_set_int(self._inner, content)
         else:
             return super().is_over_or_left(content)
 
@@ -275,10 +270,10 @@ class IntSet(Set[int]):
             True if right, False otherwise
 
         MEOS Functions:
-            right_set_set, right_intset_int
+            right_set_set, right_set_int
         """
         if isinstance(content, int):
-            return right_intset_int(self._inner, content)
+            return right_set_int(self._inner, content)
         else:
             return super().is_right(content)
 
@@ -294,10 +289,10 @@ class IntSet(Set[int]):
             True if is over or right, False otherwise
 
         MEOS Functions:
-            overright_set_set, overright_intset_int
+            overright_set_set, overright_set_int
         """
         if isinstance(content, int):
-            return overright_intset_int(self._inner, content)
+            return overright_set_int(self._inner, content)
         else:
             return super().is_over_or_right(content)
 
@@ -323,10 +318,10 @@ class IntSet(Set[int]):
             intersection is empty.
 
         MEOS Functions:
-            intersection_set_set, intersection_intset_int
+            intersection_set_set, intersection_set_int
         """
         if isinstance(other, int):
-            return intersection_intset_int(self._inner, other)
+            return intersection_set_int(self._inner, other)
         elif isinstance(other, IntSet):
             result = intersection_set_set(self._inner, other._inner)
             return IntSet(_inner=result) if result is not None else None
@@ -344,10 +339,10 @@ class IntSet(Set[int]):
             A :class:`IntSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_set_set, minus_intset_int
+            minus_set_set, minus_set_int
         """
         if isinstance(other, int):
-            result = minus_intset_int(self._inner, other)
+            result = minus_set_int(self._inner, other)
             return IntSet(_inner=result) if result is not None else None
         elif isinstance(other, IntSet):
             result = minus_set_set(self._inner, other._inner)
@@ -366,12 +361,12 @@ class IntSet(Set[int]):
             A :class:`int` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_int_intset
+            minus_int_set
 
         See Also:
             :meth:`minus`
         """
-        return minus_int_intset(other, self._inner)
+        return minus_int_set(other, self._inner)
 
     def union(self, other: Union[IntSet, int]) -> IntSet:
         """
@@ -384,10 +379,10 @@ class IntSet(Set[int]):
             A :class:`IntSet` instance.
 
         MEOS Functions:
-            union_set_set, union_intset_int
+            union_set_set, union_set_int
         """
         if isinstance(other, int):
-            result = union_intset_int(self._inner, other)
+            result = union_set_int(self._inner, other)
             return IntSet(_inner=result) if result is not None else None
         elif isinstance(other, IntSet):
             result = union_set_set(self._inner, other._inner)
@@ -397,8 +392,30 @@ class IntSet(Set[int]):
 
     # ------------------------- Distance Operations ---------------------------
 
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> float:
+    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+        """
+        Returns the distance between ``self`` and ``other``.
+
+        Args:
+            other: object to compare with
+
+        Returns:
+            A :class:`int` instance
+
+        MEOS Functions:
+            distance_set_int, distance_intset_intset, distance_intspanset_intspan,
+            distance_intspanset_intspanset
+        """
+        from .intspan import IntSpan
+        from .intspanset import IntSpanSet
+
         if isinstance(other, int):
-            return distance_intset_int(self._inner, other)
+            return distance_set_int(self._inner, other)
+        elif isinstance(other, IntSet):
+            return distance_intset_intset(self._inner, other._inner)
+        elif isinstance(other, IntSpan):
+            return self.to_spanset().distance(other)
+        elif isinstance(other, IntSpanSet):
+            return self.to_spanset().distance(other)
         else:
             return super().distance(other)

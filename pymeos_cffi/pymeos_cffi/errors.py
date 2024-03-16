@@ -1,4 +1,8 @@
+import logging
 from _meos_cffi import lib as _lib
+from .enums import ErrorLevel
+
+logger = logging.getLogger("pymeos_cffi")
 
 
 class MeosException(Exception):
@@ -10,111 +14,132 @@ class MeosException(Exception):
         self.code = code
 
     def __str__(self):
-        return f'{self.__class__.__name__} ({self.code}): {self.message}'
+        return f"{self.__class__.__name__} ({self.code}): {self.message}"
 
 
 class MeosInternalError(MeosException):
     """Superclass for internal errors."""
+
     pass
 
 
 class MeosArgumentError(MeosException):
     """Superclass for invalid argument errors."""
+
     pass
 
 
-class MeosIoError(MeosException):
+class MeosIoError(MeosException, IOError):
     """Unspecified internal error."""
+
     pass
 
 
-class MeosInternalTypeError(MeosInternalError):
+class MeosInternalTypeError(MeosInternalError, TypeError):
     """Internal type error."""
+
     pass
 
 
-class MeosValueOutOfRangeError(MeosInternalError):
+class MeosValueOutOfRangeError(MeosInternalError, IndexError):
     """Internal out of range error."""
+
     pass
 
 
-class MeosDivisionByZeroError(MeosInternalError):
+class MeosDivisionByZeroError(MeosInternalError, ZeroDivisionError):
     """Internal division by zero error."""
+
     pass
 
 
-class MeosMemoryAllocError(MeosInternalError):
+class MeosMemoryAllocError(MeosInternalError, MemoryError):
     """Internal malloc error."""
+
     pass
 
 
 class MeosAggregationError(MeosInternalError):
     """Internal aggregation error."""
+
     pass
 
 
 class MeosDirectoryError(MeosInternalError):
     """Internal directory error."""
+
     pass
 
 
 class MeosFileError(MeosInternalError):
     """Internal file error."""
+
     pass
 
 
 class MeosInvalidArgError(MeosArgumentError):
     """Invalid argument."""
+
     pass
 
 
-class MeosInvalidArgTypeError(MeosArgumentError):
+class MeosInvalidArgTypeError(MeosArgumentError, TypeError):
     """Invalid argument type."""
+
     pass
 
 
-class MeosInvalidArgValueError(MeosArgumentError):
+class MeosInvalidArgValueError(MeosArgumentError, ValueError):
     """Invalid argument value."""
+
     pass
 
 
 class MeosMfJsonInputError(MeosIoError):
     """MFJSON input error."""
+
     pass
 
 
 class MeosMfJsonOutputError(MeosIoError):
     """MFJSON output error."""
+
     pass
 
 
 class MeosTextInputError(MeosIoError):
     """Text input error."""
+
     pass
 
 
 class MeosTextOutputError(MeosIoError):
     """Text output error."""
+
     pass
 
 
 class MeosWkbInputError(MeosIoError):
     """WKB input error."""
+
     pass
 
 
 class MeosWkbOutputError(MeosIoError):
     """WKB output error."""
+
     pass
 
 
 class MeosGeoJsonInputError(MeosIoError):
     """GEOJSON input error."""
+
     pass
 
 
 class MeosGeoJsonOutputError(MeosIoError):
     """GEOJSON output error."""
+
     pass
 
 
@@ -141,6 +166,16 @@ _exception_map = {
 }
 
 
-def raise_meos_exception(level: int, code: int, message: str):
+def report_meos_exception(level: int, code: int, message: str):
     exception_class = _exception_map.get(code, MeosException)
-    raise exception_class(code, message)
+    exception = exception_class(code, message)
+    if level == ErrorLevel.NOTICE:
+        logger.info("MEOS NOTICE: ", exc_info=exception)
+    elif level == ErrorLevel.WARNING:
+        logger.warning("MEOS WARNING: ", exc_info=exception)
+    elif level == ErrorLevel.ERROR:
+        logger.error("MEOS ERROR: ", exc_info=exception)
+        raise exception
+    else:
+        logger.error(f"Error raised with unknown level {level}: {exception}")
+        raise exception

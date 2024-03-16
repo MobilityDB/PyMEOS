@@ -7,18 +7,27 @@ from .time_aggregators import *
 
 __all__ = [
     # General
-    'TemporalInstantCountAggregator', 'TemporalPeriodCountAggregator', 'TemporalExtentAggregator',
+    "TemporalInstantCountAggregator",
+    "TemporalPeriodCountAggregator",
+    "TemporalExtentAggregator",
     # Bool
-    'TemporalAndAggregator', 'TemporalOrAggregator',
+    "TemporalAndAggregator",
+    "TemporalOrAggregator",
     # Number
-    'TemporalAverageAggregator',
-    'TemporalNumberExtentAggregator',
-    'TemporalIntMaxAggregator', 'TemporalIntMinAggregator', 'TemporalIntSumAggregator',
-    'TemporalFloatMaxAggregator', 'TemporalFloatMinAggregator', 'TemporalFloatSumAggregator',
+    "TemporalAverageAggregator",
+    "TemporalNumberExtentAggregator",
+    "TemporalIntMaxAggregator",
+    "TemporalIntMinAggregator",
+    "TemporalIntSumAggregator",
+    "TemporalFloatMaxAggregator",
+    "TemporalFloatMinAggregator",
+    "TemporalFloatSumAggregator",
     # Text
-    'TemporalTextMaxAggregator', 'TemporalTextMinAggregator',
+    "TemporalTextMaxAggregator",
+    "TemporalTextMinAggregator",
     # Point
-    'TemporalPointExtentAggregator',
+    "TemporalPointExtentAggregator",
     # Time
-    'TimeInstantaneousUnionAggregator', 'TimeContinuousUnionAggregator',
+    "TimeInstantaneousUnionAggregator",
+    "TimeContinuousUnionAggregator",
 ]

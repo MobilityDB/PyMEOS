@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Type
 
-T = TypeVar('T')
-Self = TypeVar('Self', bound='Set[Any]')
+T = TypeVar("T")
+Self = TypeVar("Self")
 
 
 class Collection(Generic[T], ABC):
@@ -29,10 +29,6 @@ class Collection(Generic[T], ABC):
     def overlaps(self, other) -> bool:
         raise NotImplementedError()
 
-    # @abstractmethod
-    # def is_same(self, other) -> bool:
-    # raise NotImplementedError()
-
     # ------------------------- Position Operations ---------------------------
     @abstractmethod
     def is_left(self, other) -> bool:
@@ -54,9 +50,9 @@ class Collection(Generic[T], ABC):
 
     # ------------------------- Database Operations ---------------------------
     @classmethod
-    def read_from_cursor(cls, value, _=None):
+    def read_from_cursor(cls: Type[Self], value, _=None):
         """
-        Reads a :class:`STBox` from a database cursor. Used when automatically
+        Reads a :class:`Collection` from a database cursor. Used when automatically
         loading objects from the database.
         Users should use the class constructor instead.
         """

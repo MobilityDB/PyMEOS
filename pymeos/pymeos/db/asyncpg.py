@@ -39,4 +39,6 @@ class MobilityDB:
             connection: An :class:`asyncpg.connection.Connection` to register the classes to.
         """
         for cl in db_objects:
-            await connection.set_type_codec(cl._mobilitydb_name, encoder=str, decoder=cl.read_from_cursor)
+            await connection.set_type_codec(
+                cl._mobilitydb_name, encoder=str, decoder=cl.read_from_cursor
+            )

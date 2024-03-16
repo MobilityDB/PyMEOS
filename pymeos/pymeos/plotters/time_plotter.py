@@ -1,8 +1,10 @@
 from datetime import datetime
+from typing import Union
 
 from matplotlib import pyplot as plt
 
-from ..collections import TimestampSet, Period, PeriodSet
+from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
+from ..collections.time.dateset import DateSet
 
 
 class TimePlotter:
@@ -28,12 +30,12 @@ class TimePlotter:
         return base.axvline(timestamp, *args, **kwargs)
 
     @staticmethod
-    def plot_timestampset(timestampset: TimestampSet, *args, axes=None, **kwargs):
+    def plot_tstzset(tstzset: TsTzSet, *args, axes=None, **kwargs):
         """
-        Plot a :class:`TimestampSet` on the given axes as a vertical line for each timestamp.
+        Plot a :class:`TsTzSet` on the given axes as a vertical line for each timestamp.
 
         Params:
-            timestampset: The :class:`TimestampSet` to plot.
+            tstzset: The :class:`TsTzSet` to plot.
             axes: The axes to plot on. If None, the current axes are used.
             *args: Additional arguments to pass to the plot function.
             **kwargs: Additional keyword arguments to pass to the plot function.
@@ -42,22 +44,22 @@ class TimePlotter:
             List with the plotted elements.
         """
         base = axes or plt.gca()
-        stamps = timestampset.timestamps()
+        stamps = tstzset.elements()
         plot = base.axvline(stamps[0], *args, **kwargs)
-        kwargs.pop('label', None)
+        kwargs.pop("label", None)
         plots = [plot]
         for stamp in stamps[1:]:
             plots.append(base.axvline(stamp, *args, color=plot.get_color(), **kwargs))
         return plots
 
     @staticmethod
-    def plot_period(period: Period, *args, axes=None, **kwargs):
+    def plot_tstzspan(tstzspan: TsTzSpan, *args, axes=None, **kwargs):
         """
-        Plot a :class:`Period` on the given axes as two vertical lines filled in between. The lines will be
-        dashed if the period is open.
+        Plot a :class:`TsTzSpan` on the given axes as two vertical lines filled in between. The lines will be
+        dashed if the tstzspan is open.
 
         Params:
-            period: The :class:`Period` to plot.
+            tstzspan: The :class:`TsTzSpan` to plot.
             axes: The axes to plot on. If None, the current axes are used.
             *args: Additional arguments to pass to the plot function.
             **kwargs: Additional keyword arguments to pass to the plot function.
@@ -66,19 +68,29 @@ class TimePlotter:
             List with the plotted elements.
         """
         base = axes or plt.gca()
-        ll = base.axvline(period.lower(), *args, linestyle='-' if period.lower_inc() else '--', **kwargs)
-        kwargs.pop('label', None)
-        ul = base.axvline(period.upper(), *args, linestyle='-' if period.upper_inc() else '--', **kwargs)
-        s = base.axvspan(period.lower(), period.upper(), *args, alpha=0.3, **kwargs)
+        ll = base.axvline(
+            tstzspan.lower(),
+            *args,
+            linestyle="-" if tstzspan.lower_inc() else "--",
+            **kwargs,
+        )
+        kwargs.pop("label", None)
+        ul = base.axvline(
+            tstzspan.upper(),
+            *args,
+            linestyle="-" if tstzspan.upper_inc() else "--",
+            **kwargs,
+        )
+        s = base.axvspan(tstzspan.lower(), tstzspan.upper(), *args, alpha=0.3, **kwargs)
         return [ll, ul, s]
 
     @staticmethod
-    def plot_periodset(periodset: PeriodSet, *args, axes=None, **kwargs):
+    def plot_tstzspanset(tstzspanset: TsTzSpanSet, *args, axes=None, **kwargs):
         """
-        Plot a :class:`PeriodSet` on the given axes as a vertical line for each timestamp.
+        Plot a :class:`TsTzSpanSet` on the given axes as a vertical line for each timestamp.
 
         Params:
-            periodset: The :class:`PeriodSet` to plot.
+            tstzspanset: The :class:`TsTzSpanSet` to plot.
             *args: Additional arguments to pass to the plot function.
             axes: The axes to plot on. If None, the current axes are used.
 
@@ -86,14 +98,14 @@ class TimePlotter:
             List with the plotted elements.
 
         See also:
-            :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_period`
+            :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_tstzspan`
         """
-        periods = periodset.periods()
-        line = TimePlotter.plot_period(periods[0], *args, axes=axes, **kwargs)
-        kwargs.pop('label', None)
+        tstzspans = tstzspanset.tstzspans()
+        line = TimePlotter.plot_tstzspan(tstzspans[0], *args, axes=axes, **kwargs)
+        kwargs.pop("label", None)
         lines = [line]
-        if 'color' not in kwargs:
-            kwargs['color'] = line[0].get_color()
-        for p in periods[1:]:
-            lines.append(TimePlotter.plot_period(p, *args, axes=axes, **kwargs))
+        if "color" not in kwargs:
+            kwargs["color"] = line[0].get_color()
+        for p in tstzspans[1:]:
+            lines.append(TimePlotter.plot_tstzspan(p, *args, axes=axes, **kwargs))
         return lines

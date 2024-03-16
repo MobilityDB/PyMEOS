@@ -4,19 +4,40 @@ from abc import ABC
 from typing import List, overload, Optional, Union, TypeVar
 
 import shapely as shp
-from pymeos_cffi import geoset_start_value, gserialized_to_shapely_geometry, geoset_end_value, geoset_value_n, \
-    geoset_values, intersection_geoset_geo, minus_geoset_geo, union_geoset_geo, geoset_as_ewkt, geoset_as_text, \
-    geoset_out, geoset_make, geoset_srid, geoset_round, minus_geo_geoset, geomset_in, geogset_in, pgis_geometry_in, \
-    geometry_to_gserialized, pgis_geography_in, geography_to_gserialized, intersection_set_set, minus_set_set, \
-    union_set_set
+from pymeos_cffi import (
+    geoset_start_value,
+    gserialized_to_shapely_geometry,
+    geoset_end_value,
+    geoset_value_n,
+    geoset_values,
+    intersection_set_geo,
+    minus_set_geo,
+    union_set_geo,
+    geoset_as_ewkt,
+    geoset_as_text,
+    geoset_out,
+    geoset_make,
+    geoset_srid,
+    geoset_round,
+    minus_geo_set,
+    geomset_in,
+    geogset_in,
+    pgis_geometry_in,
+    geometry_to_gserialized,
+    pgis_geography_in,
+    geography_to_gserialized,
+    intersection_set_set,
+    minus_set_set,
+    union_set_set,
+)
 
 from ..base import Set
 
-Self = TypeVar('Self', bound='GeoSet')
+Self = TypeVar("Self", bound="GeoSet")
 
 
 class GeoSet(Set[shp.Geometry], ABC):
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
     _make_function = geoset_make
 
@@ -142,7 +163,10 @@ class GeoSet(Set[shp.Geometry], ABC):
             geoset_values
         """
         elems = geoset_values(self._inner)
-        return [gserialized_to_shapely_geometry(elems[i]) for i in range(self.num_elements())]
+        return [
+            gserialized_to_shapely_geometry(elems[i])
+            for i in range(self.num_elements())
+        ]
 
     def srid(self) -> int:
         """
@@ -191,11 +215,12 @@ class GeoSet(Set[shp.Geometry], ABC):
             An object of the same type as ``other`` or ``None`` if the intersection is empty.
 
         MEOS Functions:
-            intersection_geoset_geo, intersection_set_set
+            intersection_set_geo, intersection_set_set
         """
         if isinstance(other, shp.Geometry):
             return gserialized_to_shapely_geometry(
-                intersection_geoset_geo(self._inner, geometry_to_gserialized(other))[0])
+                intersection_set_geo(self._inner, geometry_to_gserialized(other))[0]
+            )
         elif isinstance(other, GeoSet):
             result = intersection_set_set(self._inner, other._inner)
             return GeoSet(_inner=result) if result is not None else None
@@ -213,13 +238,13 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`GeoSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_geoset_geo, minus_set_set
+            minus_set_geo, minus_set_set
 
         See Also:
             :meth:`subtract_from`
         """
         if isinstance(other, shp.Geometry):
-            result = minus_geoset_geo(self._inner, geometry_to_gserialized(other))
+            result = minus_set_geo(self._inner, geometry_to_gserialized(other))
             return GeoSet(_inner=result) if result is not None else None
         elif isinstance(other, GeoSet):
             result = minus_set_set(self._inner, other._inner)
@@ -238,13 +263,15 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`Geometry` instance.
 
         MEOS Functions:
-            minus_geo_geoset
+            minus_geo_set
 
         See Also:
             :meth:`minus`
         """
-        result = minus_geo_geoset(geometry_to_gserialized(other), self._inner)
-        return gserialized_to_shapely_geometry(result[0]) if result is not None else None
+        result = minus_geo_set(geometry_to_gserialized(other), self._inner)
+        return (
+            gserialized_to_shapely_geometry(result[0]) if result is not None else None
+        )
 
     def union(self, other: Union[GeoSet, shp.Geometry]) -> GeoSet:
         """
@@ -257,10 +284,10 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`GeoSet` instance.
 
         MEOS Functions:
-            union_geoset_geo, union_set_set
+            union_set_geo, union_set_set
         """
         if isinstance(other, shp.Geometry):
-            result = union_geoset_geo(self._inner, geometry_to_gserialized(other))
+            result = union_set_geo(self._inner, geometry_to_gserialized(other))
             return GeoSet(_inner=result) if result is not None else None
         elif isinstance(other, GeoSet):
             result = union_set_set(self._inner, other._inner)
@@ -287,14 +314,22 @@ class GeoSet(Set[shp.Geometry], ABC):
 
 
 class GeometrySet(GeoSet):
-    _mobilitydb_name = 'geomset'
+    _mobilitydb_name = "geomset"
 
     _parse_function = geomset_in
-    _parse_value_function = lambda x: pgis_geometry_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x)
+    _parse_value_function = (
+        lambda x: pgis_geometry_in(x, -1)
+        if isinstance(x, str)
+        else geometry_to_gserialized(x)
+    )
 
 
 class GeographySet(GeoSet):
-    _mobilitydb_name = 'geogset'
+    _mobilitydb_name = "geogset"
 
     _parse_function = geogset_in
-    _parse_value_function = lambda x: pgis_geography_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)
+    _parse_value_function = (
+        lambda x: pgis_geography_in(x, -1)
+        if isinstance(x, str)
+        else geography_to_gserialized(x)
+    )

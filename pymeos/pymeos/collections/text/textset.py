@@ -23,9 +23,9 @@ class TextSet(Set[str]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'textset'
+    _mobilitydb_name = "textset"
 
     _parse_function = textset_in
     _parse_value_function = lambda x: x
@@ -123,13 +123,12 @@ class TextSet(Set[str]):
             True if contains, False otherwise
 
         MEOS Functions:
-            contains_set_set, contains_textset_text
+            contains_set_set, contains_set_text
         """
         if isinstance(content, str):
-            return contains_textset_text(self._inner, content)
+            return contains_set_text(self._inner, content)
         else:
             return super().contains(content)
-
 
     # ------------------------- Transformations --------------------------------
     def lowercase(self):
@@ -177,11 +176,11 @@ class TextSet(Set[str]):
             An object of the same type as ``other`` or ``None`` if the intersection is empty.
 
         MEOS Functions:
-            intersection_textset_text, intersection_set_set
+            intersection_set_text, intersection_set_set
         """
         if isinstance(other, str):
-            result = intersection_textset_text(self._inner, other)
-            return text2cstring(result[0]) if result is not None else None
+            result = intersection_set_text(self._inner, other)
+            return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
             result = intersection_set_set(self._inner, other._inner)
             return TextSet(_inner=result) if result is not None else None
@@ -199,10 +198,10 @@ class TextSet(Set[str]):
             A :class:`TextSet` instance or ``None`` if the difference is empty.
 
         MEOS Functions:
-            minus_textset_text, minus_set_set
+            minus_set_text, minus_set_set
         """
         if isinstance(other, str):
-            result = minus_textset_text(self._inner, other)
+            result = minus_set_text(self._inner, other)
             return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
             result = minus_set_set(self._inner, other._inner)
@@ -221,12 +220,12 @@ class TextSet(Set[str]):
             A :class:`str` instance.
 
         MEOS Functions:
-            minus_geo_geoset
+            minus_geo_set
 
         See Also:
             :meth:`minus`
         """
-        result = minus_text_textset(other, self._inner)
+        result = minus_text_set(other, self._inner)
         return text2cstring(result[0]) if result is not None else None
 
     def union(self, other: Union[TextSet, str]) -> TextSet:
@@ -240,10 +239,10 @@ class TextSet(Set[str]):
             A :class:`TextSet` instance.
 
         MEOS Functions:
-            union_textset_text, union_set_set
+            union_set_text, union_set_set
         """
         if isinstance(other, str):
-            result = union_textset_text(self._inner, other)
+            result = union_set_text(self._inner, other)
             return TextSet(_inner=result) if result is not None else None
         elif isinstance(other, TextSet):
             result = union_set_set(self._inner, other._inner)

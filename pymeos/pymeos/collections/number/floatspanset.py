@@ -2,16 +2,32 @@ from __future__ import annotations
 
 from typing import Union, overload, Optional, TYPE_CHECKING, List
 
-from pymeos_cffi import floatspanset_in, floatspanset_out, spanset_width, \
-    floatspanset_shift_scale, adjacent_floatspanset_float, contains_floatspanset_float, \
-    spanset_eq, float_to_floatspanset, left_floatspanset_float, \
-    overleft_floatspanset_float, right_floatspanset_float, overright_floatspanset_float, \
-    distance_floatspanset_float, intersection_floatspanset_float, \
-    union_floatspanset_float, minus_floatspanset_float, floatspanset_intspanset
+from pymeos_cffi import (
+    floatspanset_in,
+    floatspanset_out,
+    floatspanset_width,
+    floatspanset_shift_scale,
+    adjacent_spanset_float,
+    contains_spanset_float,
+    spanset_eq,
+    float_to_spanset,
+    left_spanset_float,
+    overleft_spanset_float,
+    right_spanset_float,
+    overright_spanset_float,
+    distance_spanset_float,
+    intersection_spanset_float,
+    union_spanset_float,
+    minus_spanset_float,
+    floatspanset_to_intspanset,
+    distance_floatspanset_floatspan,
+    distance_floatspanset_floatspanset,
+)
 
-from pymeos.collections import SpanSet
+from ..base import SpanSet
 
 if TYPE_CHECKING:
+    from .floatset import FloatSet
     from .floatspan import FloatSpan
     from .intspanset import IntSpanSet
 
@@ -34,12 +50,16 @@ class FloatSpanSet(SpanSet[float]):
 
     """
 
-    __slots__ = ['_inner']
+    __slots__ = ["_inner"]
 
-    _mobilitydb_name = 'floatspanset'
+    _mobilitydb_name = "floatspanset"
 
     _parse_function = floatspanset_in
-    _parse_value_function = lambda span: floatspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
+    _parse_value_function = (
+        lambda span: floatspanset_in(span)[0]
+        if isinstance(span, str)
+        else span._inner[0]
+    )
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):
@@ -67,6 +87,7 @@ class FloatSpanSet(SpanSet[float]):
             spanset_span
         """
         from .floatspan import FloatSpan
+
         return FloatSpan(_inner=super().to_span())
 
     def to_intspanset(self) -> IntSpanSet:
@@ -77,10 +98,11 @@ class FloatSpanSet(SpanSet[float]):
             A new :class:`IntSpanSet` instance
 
         MEOS Functions:
-            floatspanset_intspanset
+            floatspanset_to_intspanset
         """
         from .intspanset import IntSpanSet
-        return IntSpanSet(_inner=floatspanset_intspanset(self._inner))
+
+        return IntSpanSet(_inner=floatspanset_to_intspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
 
@@ -101,9 +123,9 @@ class FloatSpanSet(SpanSet[float]):
             A `float` representing the duration of the spanset
 
         MEOS Functions:
-            spanset_width
+            floatspanset_width
         """
-        return spanset_width(self._inner, ignore_gaps)
+        return floatspanset_width(self._inner, ignore_gaps)
 
     def start_span(self) -> FloatSpan:
         """
@@ -115,6 +137,7 @@ class FloatSpanSet(SpanSet[float]):
             spanset_start_span
         """
         from .floatspan import FloatSpan
+
         return FloatSpan(_inner=super().start_span())
 
     def end_span(self) -> FloatSpan:
@@ -127,6 +150,7 @@ class FloatSpanSet(SpanSet[float]):
             spanset_end_span
         """
         from .floatspan import FloatSpan
+
         return FloatSpan(_inner=super().end_span())
 
     def span_n(self, n: int) -> FloatSpan:
@@ -139,6 +163,7 @@ class FloatSpanSet(SpanSet[float]):
             spanset_span_n
         """
         from .floatspan import FloatSpan
+
         return FloatSpan(_inner=super().span_n(n))
 
     def spans(self) -> List[FloatSpan]:
@@ -151,6 +176,7 @@ class FloatSpanSet(SpanSet[float]):
             spanset_spans
         """
         from .floatspan import FloatSpan
+
         ps = super().spans()
         return [FloatSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
@@ -205,8 +231,9 @@ class FloatSpanSet(SpanSet[float]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = floatspanset_shift_scale(self._inner, d, w, delta is not None,
-                                            width is not None)
+        modified = floatspanset_shift_scale(
+            self._inner, d, w, delta is not None, width is not None
+        )
         return FloatSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
@@ -224,10 +251,10 @@ class FloatSpanSet(SpanSet[float]):
 
         MEOS Functions:
             adjacent_spanset_span, adjacent_spanset_spanset,
-            adjacent_floatspanset_float
+            adjacent_spanset_float
         """
         if isinstance(other, int):
-            return adjacent_floatspanset_float(self._inner, other)
+            return adjacent_spanset_float(self._inner, other)
         else:
             return super().is_adjacent(other)
 
@@ -243,16 +270,16 @@ class FloatSpanSet(SpanSet[float]):
 
         MEOS Functions:
             contains_spanset_span, contains_spanset_spanset,
-            contains_floatspanset_float
+            contains_spanset_float
         """
         if isinstance(content, int):
-            return contains_floatspanset_float(self._inner, content)
+            return contains_spanset_float(self._inner, content)
         else:
             return super().contains(content)
 
     def is_same(self, other: Union[int, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` and the bounding period of ``other`` is the
+        Returns whether ``self`` and the bounding tstzspan of ``other`` is the
         same.
 
         Args:
@@ -262,17 +289,17 @@ class FloatSpanSet(SpanSet[float]):
             True if equal, False otherwise
 
         MEOS Functions:
-            same_period_temporal
+            same_tstzspan_temporal
         """
         if isinstance(other, int):
-            return spanset_eq(self._inner, float_to_floatspanset(other))
+            return spanset_eq(self._inner, float_to_spanset(other))
         else:
             return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[int, FloatSpan, FloatSpanSet]) -> bool:
         """
-        Returns whether ``self`` is strictly left of ``other``. That is, 
+        Returns whether ``self`` is strictly left of ``other``. That is,
         ``self`` ends before ``other`` starts.
 
         Args:
@@ -282,10 +309,10 @@ class FloatSpanSet(SpanSet[float]):
             True if left, False otherwise
 
         MEOS Functions:
-            left_span_span, left_span_spanset, left_floatspan_float
+            left_span_span, left_span_spanset, left_span_float
         """
         if isinstance(other, int):
-            return left_floatspanset_float(self._inner, other)
+            return left_spanset_float(self._inner, other)
         else:
             return super().is_left(other)
 
@@ -301,10 +328,10 @@ class FloatSpanSet(SpanSet[float]):
             True if before, False otherwise
 
         MEOS Functions:
-            overleft_span_span, overleft_span_spanset, overleft_floatspan_float
+            overleft_span_span, overleft_span_spanset, overleft_span_float
         """
         if isinstance(other, int):
-            return overleft_floatspanset_float(self._inner, other)
+            return overleft_spanset_float(self._inner, other)
         else:
             return super().is_over_or_left(other)
 
@@ -320,10 +347,10 @@ class FloatSpanSet(SpanSet[float]):
             True if right, False otherwise
 
         MEOS Functions:
-            right_span_span, right_span_spanset, right_floatspan_float
+            right_span_span, right_span_spanset, right_span_float
         """
         if isinstance(other, int):
-            return right_floatspanset_float(self._inner, other)
+            return right_spanset_float(self._inner, other)
         else:
             return super().is_right(other)
 
@@ -340,15 +367,17 @@ class FloatSpanSet(SpanSet[float]):
 
         MEOS Functions:
             overright_spanset_span, overright_spanset_spanset,
-            overright_floatspanset_float
+            overright_spanset_float
         """
         if isinstance(other, int):
-            return overright_floatspanset_float(self._inner, other)
+            return overright_spanset_float(self._inner, other)
         else:
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, FloatSpan, FloatSpanSet]) -> float:
+    def distance(
+        self, other: Union[int, float, FloatSet, FloatSpan, FloatSpanSet]
+    ) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -356,14 +385,26 @@ class FloatSpanSet(SpanSet[float]):
             other: object to compare with
 
         Returns:
-            A float value
+            A :class:`float` value
 
         MEOS Functions:
-            distance_spanset_span, distance_spanset_spanset,
-            distance_floatspanset_float
+        distance_spanset_float, distance_floatspanset_floatspan,
+        distance_floatspanset_floatspanset
+
         """
+        from .floatset import FloatSet
+        from .floatspan import FloatSpan
+
         if isinstance(other, int):
-            return distance_floatspanset_float(self._inner, other)
+            return distance_spanset_float(self._inner, float(other))
+        elif isinstance(other, float):
+            return distance_spanset_float(self._inner, other)
+        elif isinstance(other, FloatSet):
+            return self.distance(other.to_spanset())
+        elif isinstance(other, FloatSpan):
+            return distance_floatspanset_floatspan(self._inner, other._inner)
+        elif isinstance(other, FloatSpanSet):
+            return distance_floatspanset_floatspanset(other._inner, self._inner)
         else:
             return super().distance(other)
 
@@ -392,11 +433,11 @@ class FloatSpanSet(SpanSet[float]):
             on ``other``.
 
         MEOS Functions:
-            intersection_floatspanset_float, intersection_spanset_spanset,
+            intersection_spanset_float, intersection_spanset_spanset,
             intersection_spanset_span
         """
         if isinstance(other, int) or isinstance(other, float):
-            result = intersection_floatspanset_float(self._inner, float(other))
+            result = intersection_spanset_float(self._inner, float(other))
         else:
             result = super().intersection(other)
         return FloatSpanSet(_inner=result) if result is not None else None
@@ -412,7 +453,7 @@ class FloatSpanSet(SpanSet[float]):
             A :class:`Time` instance. The actual class depends on ``other``.
 
         MEOS Functions:
-            intersection_floatspanset_float, intersection_spanset_spanset,
+            intersection_spanset_float, intersection_spanset_spanset,
             intersection_spanset_span
         """
         return self.intersection(other)
@@ -428,10 +469,10 @@ class FloatSpanSet(SpanSet[float]):
             A :class:`FloatSpanSet` instance.
 
         MEOS Functions:
-            minus_spanset_span, minus_spanset_spanset, minus_floatspanset_float
+            minus_spanset_span, minus_spanset_spanset, minus_spanset_float
         """
         if isinstance(other, int) or isinstance(other, float):
-            result = minus_floatspanset_float(self._inner, float(other))
+            result = minus_spanset_float(self._inner, float(other))
         else:
             result = super().minus(other)
         return FloatSpanSet(_inner=result) if result is not None else None
@@ -448,7 +489,7 @@ class FloatSpanSet(SpanSet[float]):
 
         MEOS Functions:
             minus_spanset_span, minus_spanset_spanset,
-            minus_floatspanset_float
+            minus_spanset_float
         """
         return self.minus(other)
 
@@ -463,11 +504,11 @@ class FloatSpanSet(SpanSet[float]):
             A :class:`FloatSpanSet` instance.
 
         MEOS Functions:
-            union_floatspanset_float, union_spanset_spanset,
+            union_spanset_float, union_spanset_spanset,
             union_spanset_span
         """
         if isinstance(other, int) or isinstance(other, float):
-            result = union_floatspanset_float(self._inner, float(other))
+            result = union_spanset_float(self._inner, float(other))
         else:
             result = super().union(other)
         return FloatSpanSet(_inner=result) if result is not None else None
@@ -483,7 +524,7 @@ class FloatSpanSet(SpanSet[float]):
             A :class:`FloatSpanSet` instance.
 
         MEOS Functions:
-            union_floatspanset_float, union_spanset_spanset,
+            union_spanset_float, union_spanset_spanset,
             union_spanset_span
         """
         return self.union(other)
