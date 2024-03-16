@@ -583,10 +583,10 @@ extern char *pg_timestamptz_out(TimestampTz t);
 extern char *text2cstring(const text *txt);
 extern int text_cmp(const text *txt1, const text *txt2);
 extern text *text_copy(const text *txt);
-/* extern text *text_initcap(const text *txt);  (undefined) */
-/* extern text *text_lower(const text *txt);  (undefined) */
+extern text *text_initcap(const text *txt);
+extern text *text_lower(const text *txt);
 extern char *text_out(const text *txt);
-/* extern text *text_upper(const text *txt);  (undefined) */
+extern text *text_upper(const text *txt);
 extern text *textcat_text_text(const text *txt1, const text *txt2);
 extern DateADT timestamptz_to_date(TimestampTz t);
 
@@ -603,7 +603,7 @@ extern GSERIALIZED *geography_from_hexewkb(const char *wkt);
 extern GSERIALIZED *geography_from_text(char *wkt, int srid);
 extern GSERIALIZED *geometry_from_hexewkb(const char *wkt);
 extern GSERIALIZED *geometry_from_text(char *wkt, int srid);
-extern GSERIALIZED *pgis_geography_in(char *str, int32 geog_typmod);
+extern GSERIALIZED *pgis_geography_in(char *str, int32 typmod);
 extern GSERIALIZED *pgis_geometry_in(char *str, int32 typmod);
 
 extern Set *bigintset_in(const char *str);
@@ -2584,7 +2584,11 @@ extern TSequenceSet *tsequenceset_make_free(TSequence **sequences, int count, bo
 
 extern void temporal_set_tstzspan(const Temporal *temp, Span *s);
 extern void tinstant_set_tstzspan(const TInstant *inst, Span *s);
+extern void tnumber_set_tbox(const Temporal *temp, TBox *box);
 extern Span *tnumber_span(const Temporal *temp);
+extern void tnumberinst_set_tbox(const TInstant *inst, TBox *box);
+extern void tnumberseq_set_tbox(const TSequence *seq, TBox *box);
+extern void tnumberseqset_set_tbox(const TSequenceSet *ss, TBox *box);
 extern void tsequence_set_tstzspan(const TSequence *seq, Span *s);
 extern void tsequenceset_set_tstzspan(const TSequenceSet *ss, Span *s);
 
@@ -2704,6 +2708,10 @@ extern TSequenceSet *tsequenceset_insert(const TSequenceSet *ss1, const TSequenc
 extern TSequenceSet *tsequenceset_merge(const TSequenceSet *ss1, const TSequenceSet *ss2);
 extern TSequenceSet *tsequenceset_merge_array(const TSequenceSet **seqsets, int count);
 
+extern void tspatial_set_stbox(const Temporal *temp, STBox *box);
+extern void tpointinst_set_stbox(const TInstant *inst, STBox *box);
+extern void tspatialseq_set_stbox(const TSequence *seq, STBox *box);
+extern void tspatialseqset_set_stbox(const TSequenceSet *ss, STBox *box);
 /* extern void tsequence_expand_bbox(TSequence *seq, const TInstant *inst);  (repeated) */
 /* extern void tsequence_set_bbox(const TSequence *seq, void *box);  (repeated) */
 extern void tsequenceset_expand_bbox(TSequenceSet *ss, const TSequence *seq);
