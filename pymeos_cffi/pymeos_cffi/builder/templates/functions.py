@@ -1,15 +1,14 @@
-import os
 import logging
-
 from datetime import datetime, timedelta, date
-from typing import Any, Tuple, Optional, List, Union
+from typing import Any, Tuple, Optional, List
 
 import _meos_cffi
-from .errors import report_meos_exception
 import shapely.geometry as spg
 from dateutil.parser import parse
 from shapely import wkt, get_srid, set_srid
 from shapely.geometry.base import BaseGeometry
+
+from .errors import report_meos_exception
 
 _ffi = _meos_cffi.ffi
 _lib = _meos_cffi.lib
