@@ -2,7 +2,7 @@ FROM pymeos/meos:latest
 WORKDIR MobilityDB
 
 RUN git fetch \
-    && git checkout develop \
+    && git checkout master \
     && git pull
 
 
