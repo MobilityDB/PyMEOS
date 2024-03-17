@@ -184,6 +184,7 @@ nullable_parameters = {
     ("tpoint_at_geom_time", "tstzspan"),
     ("tpoint_minus_geom_time", "zspan"),
     ("tpoint_minus_geom_time", "tstzspan"),
+    ("stbox_make", "s"),
 }
 
 

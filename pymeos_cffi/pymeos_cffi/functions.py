@@ -5533,10 +5533,10 @@ def stbox_make(
     ymax: float,
     zmin: float,
     zmax: float,
-    s: "const Span *",
+    s: "Optional['const Span *']",
 ) -> "STBox *":
     srid_converted = _ffi.cast("int32", srid)
-    s_converted = _ffi.cast("const Span *", s)
+    s_converted = _ffi.cast("const Span *", s) if s is not None else _ffi.NULL
     result = _lib.stbox_make(
         hasx,
         hasz,
