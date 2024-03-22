@@ -1,7 +1,7 @@
 .. PyMEOS documentation master file, created by
-   sphinx-quickstart on Thu Oct  5 18:26:38 2023.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+sphinx-quickstart on Thu Oct  5 18:26:38 2023.
+You can adapt this file completely to your liking, but it should at least
+contain the root `toctree` directive.
 
 =======
 PyMEOS
@@ -35,6 +35,10 @@ distributions using ``pip``:
 
 See the `installation documentation <./src/installation.html>`__
 for more details and advanced installation instructions.
+
+Examples
+==================
+A couple of examples showcasing the capabilities of PyMEOS can be found int the `examples section <./src/examples.html>`__.
 
 .. toctree::
    :caption: User Guide
