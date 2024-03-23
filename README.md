@@ -49,3 +49,7 @@ print(f'Speeds: {speed}')
 # Call finish at the end of your code
 pymeos_finalize()
 ````
+
+# Documentation
+
+Visit our [ReadTheDocs page](https://pymeos.readthedocs.io/en/latest/) for a more complete and detailed documentation, including an installation manual and several examples.
