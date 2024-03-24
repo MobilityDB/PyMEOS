@@ -1,3 +1,5 @@
+import sys
+
 from cffi import FFI
 
 ffibuilder = FFI()
@@ -7,11 +9,21 @@ with open("./pymeos_cffi/builder/meos.h", "r") as f:
 
 ffibuilder.cdef(content)
 
+
+def get_library_dirs():
+    if sys.platform == "linux":
+        return ["/usr/local/lib"]
+    elif sys.platform == "darwin":
+        return ["/opt/homebrew/lib"]
+    else:
+        raise NotImplementedError("Unsupported platform")
+
+
 ffibuilder.set_source(
     "_meos_cffi",
     '#include "meos.h"\n' '#include "meos_catalog.h"\n' '#include "meos_internal.h"',
     libraries=["meos"],
-    library_dirs=["/usr/local/lib"],
+    library_dirs=get_library_dirs(),
 )  # library name, for the linker
 
 if __name__ == "__main__":  # not when running with setuptools

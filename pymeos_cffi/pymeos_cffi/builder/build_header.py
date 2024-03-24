@@ -101,4 +101,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(*sys.argv[1:])
     else:
-        main("/usr/local/include", "/usr/local/lib/libmeos.so")
+        if sys.platform == "linux":
+            main("/usr/local/include", "/usr/local/lib/libmeos.so")
+        elif sys.platform == "darwin":
+            main("/opt/homebrew/include", "/opt/homebrew/lib/libmeos.so")
