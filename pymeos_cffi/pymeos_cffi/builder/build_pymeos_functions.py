@@ -524,10 +524,16 @@ def build_function_string(
     )
     # If the function didn't return anything, just add the function call to the base
     if return_type.return_type == "None":
-        function_string = f"{base}" f"    _lib.{function_name}({inner_params})"
+        function_string = (
+            f"{base}"
+            f"    {'_' if sys.platform == 'darwin' else ''}_lib.{function_name}({inner_params})"
+        )
     # Otherwise, store the result in a variable
     else:
-        function_string = f"{base}" f"    result = _lib.{function_name}({inner_params})"
+        function_string = (
+            f"{base}"
+            f"    result = {'_' if sys.platform == 'darwin' else ''}_lib.{function_name}({inner_params})"
+        )
 
     # Add error handling
     function_string += f"\n    _check_error()"

@@ -9,7 +9,6 @@ from typing import Set, Tuple
 def get_defined_functions(library_path):
     result = subprocess.check_output(["nm", "-g", library_path])
     output = result.decode("utf-8")
-    print(output)
     lines = output.splitlines()
     defined = {line.split(" ")[-1] for line in lines if " T " in line}
     return defined
@@ -21,7 +20,9 @@ def remove_undefined_functions(content, so_path):
 
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
-        if function in defined or (sys.platform == "darwin" and ("_" + function) in defined):
+        if function in defined or (
+            sys.platform == "darwin" and ("_" + function) in defined
+        ):
             for t in undefined_types:
                 if t in m.group(0):
                     print(f"Removing function due to undefined type {t}: {function}")
@@ -38,7 +39,7 @@ def remove_undefined_functions(content, so_path):
 
 
 def remove_repeated_functions(
-        content: str, seen_functions: set
+    content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
     def remove_if_repeated(m):
         function = m.group(0).replace("\n", "").strip()
@@ -106,7 +107,7 @@ if __name__ == "__main__":
         if sys.platform == "linux":
             main("/usr/local/include", "/usr/local/lib/libmeos.so")
         elif sys.platform == "darwin":
-            if platform.processor() == 'arm':
+            if platform.processor() == "arm":
                 main("/opt/homebrew/include", "/opt/homebrew/lib/libmeos.dylib")
             else:
                 main("/usr/local/include", "/usr/local/lib/libmeos.dylib")
