@@ -32,6 +32,10 @@ jobs:
             python-version: "3.8"
           - os: macos-14
             python-version: "3.9"
+        include:
+          - ld_path: "/usr/local/lib"
+          - os: macos-14
+            ld_path: "/opt/homebrew/lib"
 
     steps:
       - name: Checkout
@@ -109,6 +113,6 @@ jobs:
 
       - name: Test PyMEOS with pytest
         run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd pymeos
           pytest
