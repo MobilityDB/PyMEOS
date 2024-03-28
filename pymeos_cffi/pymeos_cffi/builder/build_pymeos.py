@@ -1,3 +1,4 @@
+import platform
 import sys
 
 from cffi import FFI
@@ -14,7 +15,10 @@ def get_library_dirs():
     if sys.platform == "linux":
         return ["/usr/local/lib"]
     elif sys.platform == "darwin":
-        return ["/opt/homebrew/lib"]
+        if platform.processor() == "arm":
+            return ["/opt/homebrew/lib"]
+        else:
+            return ["/usr/local/lib"]
     else:
         raise NotImplementedError("Unsupported platform")
 
