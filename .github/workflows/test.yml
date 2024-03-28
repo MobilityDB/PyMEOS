@@ -91,6 +91,7 @@ jobs:
           sed -i '' '392s;.*;&\nprintf("Hey 1")\; ;' ./meos/src/general/tnumber_mathfuncs_meos.c
           sed -i '' '165s;.*;&\nprintf("Hey 2")\; ;' ./meos/src/general/tnumber_mathfuncs.c
           sed -i '' '343s;.*;&\nprintf("Hey 3")\; ;' ./meos/src/general/type_util.c
+          cat ./meos/src/general/tnumber_mathfuncs_meos.c
 
       - name: Install MEOS
         run: |
