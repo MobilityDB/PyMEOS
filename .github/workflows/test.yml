@@ -1,10 +1,10 @@
-name: Test Develop
+name: Test PyMEOS
 
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "develop", "master" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "master" ]
 
 jobs:
   build:
@@ -16,18 +16,24 @@ jobs:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - uses: awalsh128/cache-apt-pkgs-action@latest
         with:
           packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
           version: 1.0
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
       - name: Install MEOS
+        env:
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
-          git clone --branch develop https://github.com/MobilityDB/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           cmake .. -DMEOS=on
