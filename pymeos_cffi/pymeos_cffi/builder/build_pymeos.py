@@ -12,8 +12,6 @@ ffibuilder.cdef(content)
 
 
 def get_library_dirs():
-    print(sys.platform)
-    print(platform.processor())
     if sys.platform == "linux":
         return ["/usr/local/lib"]
     elif sys.platform == "darwin":
