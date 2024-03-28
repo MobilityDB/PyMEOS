@@ -7,7 +7,7 @@ from typing import Set, Tuple
 
 
 def get_defined_functions(library_path):
-    result = subprocess.check_output(["nm", "-gD", library_path])
+    result = subprocess.check_output(["nm", "-g", library_path])
     output = result.decode("utf-8")
     lines = output.splitlines()
     defined = {line.split(" ")[-1] for line in lines if " T " in line}
