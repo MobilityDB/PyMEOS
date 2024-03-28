@@ -27,6 +27,14 @@ jobs:
           packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
           version: 1.0
 
+      - name: Update brew
+        if: ${{ matrix.os }} == "macos-13"
+        # Necessary to avoid issue with macOS runners. See
+        # https://github.com/actions/runner-images/issues/4020
+        run: |
+          brew reinstall python@3 || brew link --overwrite python@3
+          brew update
+
       - name: Get dependencies from homebrew (cache)
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
