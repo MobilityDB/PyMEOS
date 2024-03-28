@@ -526,13 +526,13 @@ def build_function_string(
     if return_type.return_type == "None":
         function_string = (
             f"{base}"
-            f"    {'_' if sys.platform == 'darwin' else ''}_lib.{function_name}({inner_params})"
+            f"    _lib.{'_' if sys.platform == 'darwin' else ''}{function_name}({inner_params})"
         )
     # Otherwise, store the result in a variable
     else:
         function_string = (
             f"{base}"
-            f"    result = {'_' if sys.platform == 'darwin' else ''}_lib.{function_name}({inner_params})"
+            f"    result = _lib.{'_' if sys.platform == 'darwin' else ''}{function_name}({inner_params})"
         )
 
     # Add error handling
