@@ -31,7 +31,7 @@ jobs:
 
       - name: Install MEOS
         env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
         run: |
           git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
