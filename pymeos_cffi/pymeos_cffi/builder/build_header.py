@@ -9,6 +9,7 @@ from typing import Set, Tuple
 def get_defined_functions(library_path):
     result = subprocess.check_output(["nm", "-g", library_path])
     output = result.decode("utf-8")
+    print(output)
     lines = output.splitlines()
     defined = {line.split(" ")[-1] for line in lines if " T " in line}
     return defined
@@ -21,7 +22,7 @@ def remove_undefined_functions(content, so_path):
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
         if function in defined or (
-                sys.platform == "darwin" and ("_" + function) in defined
+            sys.platform == "darwin" and ("_" + function) in defined
         ):
             for t in undefined_types:
                 if t in m.group(0):
@@ -39,7 +40,7 @@ def remove_undefined_functions(content, so_path):
 
 
 def remove_repeated_functions(
-        content: str, seen_functions: set
+    content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
     def remove_if_repeated(m):
         function = m.group(0).replace("\n", "").strip()
@@ -54,17 +55,6 @@ def remove_repeated_functions(
         r"^extern .*?;", remove_if_repeated, content, flags=re.RegexFlag.MULTILINE
     )
     return content, seen_functions
-
-
-def add_underscore_prefix(content: str) -> str:
-    def add_underscore(m):
-        function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
-        return m.group(0).replace(function, "_" + function)
-
-    content = re.sub(
-        r"extern .*?;", add_underscore, content, flags=re.RegexFlag.MULTILINE
-    )
-    return content
 
 
 def main(include_dir, so_path=None, destination_path="pymeos_cffi/builder/meos.h"):
@@ -100,10 +90,6 @@ def main(include_dir, so_path=None, destination_path="pymeos_cffi/builder/meos.h
                 content = remove_undefined_functions(content, so_path)
 
             content, functions = remove_repeated_functions(content, functions)
-
-            if sys.platform == "darwin":
-                # In macOS, functions are prefixed with an underscore
-                content = add_underscore_prefix(content)
 
         global_content += f"//-------------------- {file_name} --------------------\n"
         global_content += content

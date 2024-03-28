@@ -266,9 +266,6 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
         for match in matches:
             named = match.groupdict()
             function = named["function"]
-            if sys.platform == "darwin":
-                # In macOS, functions are prefixed with an underscore
-                function = function.lstrip("_")
             inner_return_type = named["returnType"]
             if function in skipped_functions:
                 continue
@@ -527,16 +524,10 @@ def build_function_string(
     )
     # If the function didn't return anything, just add the function call to the base
     if return_type.return_type == "None":
-        function_string = (
-            f"{base}"
-            f"    _lib.{'_' if sys.platform == 'darwin' else ''}{function_name}({inner_params})"
-        )
+        function_string = f"{base}" f"    _lib.{function_name}({inner_params})"
     # Otherwise, store the result in a variable
     else:
-        function_string = (
-            f"{base}"
-            f"    result = _lib.{'_' if sys.platform == 'darwin' else ''}{function_name}({inner_params})"
-        )
+        function_string = f"{base}" f"    result = _lib.{function_name}({inner_params})"
 
     # Add error handling
     function_string += f"\n    _check_error()"
