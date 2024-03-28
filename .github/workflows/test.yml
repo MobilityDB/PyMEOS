@@ -114,5 +114,6 @@ jobs:
       - name: Test PyMEOS with pytest
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd pymeos
           pytest
