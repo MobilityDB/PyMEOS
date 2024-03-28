@@ -33,7 +33,7 @@ jobs:
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           cmake .. -DMEOS=on
