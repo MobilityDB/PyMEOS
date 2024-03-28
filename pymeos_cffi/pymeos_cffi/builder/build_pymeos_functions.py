@@ -266,6 +266,9 @@ def main(header_path="pymeos_cffi/builder/meos.h"):
         for match in matches:
             named = match.groupdict()
             function = named["function"]
+            if sys.platform == "darwin":
+                # In macOS, functions are prefixed with an underscore
+                function = function.lstrip("_")
             inner_return_type = named["returnType"]
             if function in skipped_functions:
                 continue
