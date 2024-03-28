@@ -22,14 +22,14 @@ jobs:
 
       - name: Get dependencies from apt (cache)
         uses: awalsh128/cache-apt-pkgs-action@latest
-        if: ${{ env.RUNNER_OS }} == 'Linux'
+        if: runner.os == 'Linux'
         with:
           packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
           version: 1.0
 
       - name: Get dependencies from homebrew (cache)
         uses: tecolicom/actions-use-homebrew-tools@v1
-        if: ${{ env.RUNNER_OS }} == 'macOS'
+        if: runner.os == 'macOS'
         with:
           tools: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
 
