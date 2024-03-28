@@ -9,7 +9,6 @@ from typing import Set, Tuple
 def get_defined_functions(library_path):
     result = subprocess.check_output(["nm", "-g", library_path])
     output = result.decode("utf-8")
-    print(output)
     lines = output.splitlines()
     defined = {line.split(" ")[-1] for line in lines if " T " in line}
     return defined
@@ -21,7 +20,7 @@ def remove_undefined_functions(content, so_path):
 
     def remove_if_not_defined(m):
         function = m.group(0).split("(")[0].strip().split(" ")[-1].strip("*")
-        if function in defined:
+        if function in defined or (sys.platform == "darwin" and ("_" + function) in defined):
             for t in undefined_types:
                 if t in m.group(0):
                     print(f"Removing function due to undefined type {t}: {function}")
