@@ -63,12 +63,6 @@ jobs:
         with:
           tools: cmake libpq proj json-c gsl geos
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-          cache: "pip"
-
       - name: Fetch MEOS sources
         env:
           BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
@@ -96,6 +90,12 @@ jobs:
           cmake .. -DMEOS=on
           make -j
           sudo make install
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
 
       - name: Install python dependencies
         run: |
