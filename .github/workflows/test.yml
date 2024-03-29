@@ -92,6 +92,7 @@ jobs:
           cd MobilityDB
           sed -i "" "s,#define HAVE_X86_64_POPCNTQ 1,//#define HAVE_X86_64_POPCNTQ 1,g" ./meos/postgres/pg_config.h
           sed -i "" "s,/* #undef USE_ARMV8_CRC32C */,#define USE_ARMV8_CRC32C 1,g" ./meos/postgres/pg_config.h
+          sed -i "" "s,#define USE_FLOAT8_BYVAL 1,#define USE_FLOAT8_BYVAL 0,g" ./meos/postgres/pg_config.h
 
       - name: Install MEOS
         run: |
