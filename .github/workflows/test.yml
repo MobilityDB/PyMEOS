@@ -73,7 +73,7 @@ jobs:
         env:
           BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/Diviloper/MobilityDB
 
       - name: Patch MEOS for macOS
         if: runner.os == 'macOS'
