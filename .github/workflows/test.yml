@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: Test PyMEOS for Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    name: Test PyMEOS - Python ${{ matrix.python-version }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -81,10 +81,6 @@ jobs:
           cd MobilityDB
           sed -i "" "s,#define HAVE_STRCHRNUL 1,//#define HAVE_STRCHRNUL 1,g" ./meos/postgres/pg_config.h
           sed -i "" "s,#define HAVE__GET_CPUID 1,//#define HAVE__GET_CPUID 1,g" ./meos/postgres/pg_config.h
-          sed -i '' '392s;.*;&\nfprintf(stderr, "Hey 1\\n")\; ;' ./meos/src/general/tnumber_mathfuncs_meos.c
-          sed -i '' '165s;.*;&\nfprintf(stderr, "Hey 2\\n")\; ;' ./meos/src/general/tnumber_mathfuncs.c
-          sed -i '' '343s;.*;&\nfprintf(stderr, "Hey 3 Type: %d (Float: %d)\\n", type, T_FLOAT8)\; ;' ./meos/src/general/type_util.c
-          sed -i '' '351s;.*;&\nfprintf(stderr, "Hey 4 %f\\n", DatumGetFloat8(r))\; ;' ./meos/src/general/type_util.c
 
       - name: Patch MEOS for arm macOS
         if: matrix.os == 'macos-14'
@@ -92,7 +88,6 @@ jobs:
           cd MobilityDB
           sed -i "" "s,#define HAVE_X86_64_POPCNTQ 1,//#define HAVE_X86_64_POPCNTQ 1,g" ./meos/postgres/pg_config.h
           sed -i "" "s,/* #undef USE_ARMV8_CRC32C */,#define USE_ARMV8_CRC32C 1,g" ./meos/postgres/pg_config.h
-          sed -i "" "s,#define USE_FLOAT8_BYVAL 1,#define USE_FLOAT8_BYVAL 0,g" ./meos/postgres/pg_config.h
 
       - name: Install MEOS
         run: |
@@ -120,8 +115,4 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd pymeos
-          python -c "from pymeos import *"
-          python -c "from pymeos import *; pymeos_initialize()"
-          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeqSet(\"Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02], [0@2019-09-03, 0@2019-09-05]}\"))"
-          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeqSet(\"Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02], [0@2019-09-03, 0@2019-09-05]}\") / 2)"
           pytest
