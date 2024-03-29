@@ -119,6 +119,8 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd pymeos
-          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeqSet(\"Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02], [0@2019-09-03, 0@2019-09-05]}\") + 2)"
+          python -c "from pymeos import *"
+          python -c "from pymeos import *; pymeos_initialize()"
+          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeqSet(\"Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02], [0@2019-09-03, 0@2019-09-05]}\"))"
           python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeqSet(\"Interp=Step;{[1.4142135623730951@2019-09-01, 1.4142135623730951@2019-09-02], [0@2019-09-03, 0@2019-09-05]}\") / 2)"
           pytest
