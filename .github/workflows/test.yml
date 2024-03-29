@@ -90,7 +90,7 @@ jobs:
           sed -i "" "s,/* #undef USE_ARMV8_CRC32C */,#define USE_ARMV8_CRC32C 1,g" ./meos/postgres/pg_config.h
           sed -i '' '392s;.*;&\nfprintf(stderr, "Hey 1\\n")\; ;' ./meos/src/general/tnumber_mathfuncs_meos.c
           sed -i '' '165s;.*;&\nfprintf(stderr, "Hey 2\\n")\; ;' ./meos/src/general/tnumber_mathfuncs.c
-          sed -i '' '343s;.*;&\nfprintf(stderr, "Hey 3 %d\\n", type)\; ;' ./meos/src/general/type_util.c
+          sed -i '' '343s;.*;&\nfprintf(stderr, "Hey 3 Type: %d (Float: %d)\\n", type, T_FLOAT8)\; ;' ./meos/src/general/type_util.c
           sed -i '' '351s;.*;&\nfprintf(stderr, "Hey 4 %f\\n", DatumGetFloat8(r))\; ;' ./meos/src/general/type_util.c
           cat ./meos/src/general/tnumber_mathfuncs_meos.c
 
