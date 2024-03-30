@@ -1,4 +1,2 @@
 .idea
-Pipfile.lock
-*-checkpoint.ipynb
 docs/_build
