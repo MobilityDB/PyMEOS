@@ -92,6 +92,13 @@ jobs:
           make -j
           sudo make install
 
+      - name: Run MEOS example
+        if: matrix.os == 'macos-14'
+        run: |
+          cd MobilityDB/meos/examples
+          clang -Wall -g -I/opt/homebrew/include -o arithmetic arithmetic.c -L/opt/homebrew/lib -lmeos
+          ./arithmetic
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
@@ -110,6 +117,11 @@ jobs:
           python ./pymeos_cffi/builder/build_header.py
           python ./pymeos_cffi/builder/build_pymeos_functions.py
           pip install .
+
+      - name: Run PyMEOS example
+        run: |
+          cd pymeos_cffi
+          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeq(\"[1@2020-03-01, 10@2020-03-10]\") / 2)"
 
       - name: Test PyMEOS with pytest
         run: |
