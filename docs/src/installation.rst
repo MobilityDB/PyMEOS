@@ -19,12 +19,12 @@ time of the PyMEOS release. Install the binary wheel with pip as follows:
     $ pip install pymeos
 
 
-Installation using conda (incoming, not available yet)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Installation using conda
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 PyMEOS is available on the conda-forge channel. Install as follows::
 
-    $ conda install pymeos --channel conda-forge
+    $ conda install conda-forge::pymeos
 
 
 Installation from source with custom MEOS library
