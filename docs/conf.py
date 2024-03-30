@@ -47,3 +47,23 @@ intersphinx_mapping = {
 
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
+
+import requests
+
+
+def download_file(url, dest_path):
+    response = requests.get(url, stream=True)
+    response.raise_for_status()  # Ensure we got a successful response
+
+    with open(dest_path, 'wb') as file:
+        for chunk in response.iter_content(chunk_size=8192):
+            file.write(chunk)
+
+
+prefix = "https://raw.githubusercontent.com/MobilityDB/PyMEOS-Examples/main/"
+download_file(
+    f"{prefix}PyMEOS_Examples/AIS.ipynb",
+    "src/examples/AIS.ipynb")
+download_file(
+    f"{prefix}PyMEOS_Examples/BerlinMOD.ipynb",
+    "src/examples/BerlinMOD.ipynb")
