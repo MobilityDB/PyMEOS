@@ -9,12 +9,11 @@ temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)
 
 PyMEOS is a library built on top of MEOS that provides all of its functionality wrapped in a set of Python classes.
 
-This repository contains 3 subprojects:
+This repository contains 2 subprojects:
 
 - [PyMEOS CFFI](./pymeos_cffi): wrapper of the MEOS C Library built using CFFI.
 - [PyMEOS](./pymeos): library that exposes the set of classes that should be used by the developer. Built on top of
   PyMEOS CFFI.
-- [PyMEOS Examples](./pymeos_examples): set of example programs using PyMEOS.
 
 # Usage
 
@@ -49,6 +48,8 @@ print(f'Speeds: {speed}')
 # Call finish at the end of your code
 pymeos_finalize()
 ````
+
+For more examples, see [PyMEOS Examples repository](https://github.com/MobilityDB/PyMEOS-Examples)
 
 # Documentation
 
