@@ -95,6 +95,7 @@ jobs:
       - name: Run MEOS example
         if: matrix.os == 'macos-14'
         run: |
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd MobilityDB/meos/examples
           clang -Wall -g -I/opt/homebrew/include -o arithmetic arithmetic.c -L/opt/homebrew/lib -lmeos
           ./arithmetic
@@ -120,6 +121,7 @@ jobs:
 
       - name: Run PyMEOS example
         run: |
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           cd pymeos_cffi
           python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeq(\"[1@2020-03-01, 10@2020-03-10]\") / 2)"
 
