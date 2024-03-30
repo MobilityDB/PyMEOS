@@ -1,4 +1,5 @@
 import os.path
+import platform
 import re
 import subprocess
 import sys
@@ -36,7 +37,7 @@ def remove_undefined_functions(content, so_path):
 
 
 def remove_repeated_functions(
-    content: str, seen_functions: set
+        content: str, seen_functions: set
 ) -> Tuple[str, Set[str]]:
     def remove_if_repeated(m):
         function = m.group(0).replace("\n", "").strip()
@@ -101,4 +102,10 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         main(*sys.argv[1:])
     else:
-        main("/usr/local/include", "/usr/local/lib/libmeos.so")
+        if sys.platform == "linux":
+            main("/usr/local/include", "/usr/local/lib/libmeos.so")
+        elif sys.platform == "darwin":
+            if platform.processor() == 'arm':
+                main("/opt/homebrew/include", "/opt/homebrew/lib/libmeos.dylib")
+            else:
+                main("/usr/local/include", "/usr/local/lib/libmeos.dylib")
