@@ -66,9 +66,10 @@ jobs:
 
       - name: Fetch MEOS sources
         env:
-          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+#          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+          BRANCH_NAME: lifting
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/Diviloper/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
 
       - name: Patch MEOS for macOS
         if: runner.os == 'macOS'
