@@ -122,8 +122,9 @@ jobs:
 
       - name: Run PyMEOS example
         run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
-          cd pymeos_cffi
+          cd pymeos
           python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeq(\"[1@2020-03-01, 10@2020-03-10]\") / 2)"
 
       - name: Test PyMEOS with pytest
