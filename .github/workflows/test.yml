@@ -22,8 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
-#        os: [ ubuntu-latest, macos-13, macos-14 ]
-        os: [ macos-14 ]
+        os: [ ubuntu-latest, macos-13, macos-14 ]
         exclude:
           # Necessary due to issue with macOS runners. See
           # https://github.com/actions/setup-python/issues/808
@@ -71,19 +70,6 @@ jobs:
         run: |
           git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/Diviloper/MobilityDB
 
-      - name: Patch MEOS for macOS
-        if: runner.os == 'macOS' && false
-        run: |
-          cd MobilityDB
-          sed -i "" "s,#define HAVE_STRCHRNUL 1,//#define HAVE_STRCHRNUL 1,g" ./meos/postgres/pg_config.h.in
-          sed -i "" "s,#define HAVE__GET_CPUID 1,//#define HAVE__GET_CPUID 1,g" ./meos/postgres/pg_config.h.in
-
-      - name: Patch MEOS for arm macOS
-        if: matrix.os == 'macos-14'
-        run: |
-          cd MobilityDB
-          sed -i "" "s,/* #undef USE_ARMV8_CRC32C */,#define USE_ARMV8_CRC32C 1,g" ./meos/postgres/pg_config.h.in
-
       - name: Install MEOS
         run: |
           mkdir MobilityDB/build
@@ -91,14 +77,6 @@ jobs:
           cmake .. -DMEOS=on
           make -j
           sudo make install
-
-      - name: Run MEOS example
-        if: matrix.os == 'macos-14'
-        run: |
-          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
-          cd MobilityDB/meos/examples
-          clang -Wall -g -I/opt/homebrew/include -o arithmetic arithmetic.c -L/opt/homebrew/lib -lmeos
-          ./arithmetic
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -118,13 +96,6 @@ jobs:
           python ./pymeos_cffi/builder/build_header.py
           python ./pymeos_cffi/builder/build_pymeos_functions.py
           pip install .
-
-      - name: Run PyMEOS example
-        run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
-          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
-          cd pymeos
-          python -c "from pymeos import *; pymeos_initialize(); print(TFloatSeq(\"[1@2020-03-01, 10@2020-03-10]\") / 2)"
 
       - name: Test PyMEOS with pytest
         run: |
