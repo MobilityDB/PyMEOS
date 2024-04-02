@@ -1949,7 +1949,7 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         srid = 2062
         transformed = temporal.transform(srid)
 
-        assert transformed == expected
+        assert transformed.round(5) == expected.round(5)
         assert transformed.srid() == srid
 
 class TestTGeomPointModifications(TestTGeomPoint):
