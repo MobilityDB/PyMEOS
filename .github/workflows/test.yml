@@ -66,20 +66,20 @@ jobs:
 
       - name: Fetch MEOS sources
         env:
-          BRANCH_NAME: lifting
+          BRANCH_NAME: pg_config_cmake
 #          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/estebanzimanyi/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/Diviloper/MobilityDB
 
       - name: Patch MEOS for macOS
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' and false
         run: |
           cd MobilityDB
           sed -i "" "s,#define HAVE_STRCHRNUL 1,//#define HAVE_STRCHRNUL 1,g" ./meos/postgres/pg_config.h
           sed -i "" "s,#define HAVE__GET_CPUID 1,//#define HAVE__GET_CPUID 1,g" ./meos/postgres/pg_config.h
 
       - name: Patch MEOS for arm macOS
-        if: matrix.os == 'macos-14'
+        if: matrix.os == 'macos-14' and false
         run: |
           cd MobilityDB
           sed -i "" "s,#define HAVE_X86_64_POPCNTQ 1,//#define HAVE_X86_64_POPCNTQ 1,g" ./meos/postgres/pg_config.h
