@@ -79,10 +79,9 @@ jobs:
           sed -i "" "s,#define HAVE__GET_CPUID 1,//#define HAVE__GET_CPUID 1,g" ./meos/postgres/pg_config.h
 
       - name: Patch MEOS for arm macOS
-        if: matrix.os == 'macos-14' && false
+        if: matrix.os == 'macos-14'
         run: |
           cd MobilityDB
-          sed -i "" "s,#define HAVE_X86_64_POPCNTQ 1,//#define HAVE_X86_64_POPCNTQ 1,g" ./meos/postgres/pg_config.h
           sed -i "" "s,/* #undef USE_ARMV8_CRC32C */,#define USE_ARMV8_CRC32C 1,g" ./meos/postgres/pg_config.h
 
       - name: Install MEOS
