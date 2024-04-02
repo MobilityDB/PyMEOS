@@ -1904,6 +1904,53 @@ class TestTGeomPointTransformations(TestTGeomPoint):
     def test_expand(self, temporal, expected):
         assert temporal.expand(2) == expected
 
+    @pytest.mark.parametrize(
+        "temporal, expected",
+        [
+            (
+                    TGeomPointInst("SRID=4326;Point(2.05455 41.62840)@2019-09-01"),
+                    TGeomPointInst(
+                        "SRID=2062;Point(1077794.3091235077 796037.0089003219)@2019-09-01"),
+            ),
+            (
+                    TGeomPointSeq(
+                        "SRID=4326;{Point(2.05455 41.62840)@2019-09-01,"
+                        "Point(1.63164 41.41622)@2019-09-02}"
+                    ),
+                    TGeomPointSeq(
+                        "SRID=2062;{Point(1077794.3091235077 796037.0089003219)@2019-09-01,Point(1044050.9767668848 770349.6009306419)@2019-09-02}"
+                    ),
+            ),
+            (
+                    TGeomPointSeq(
+                        "SRID=4326;[Point(2.05455 41.62840)@2019-09-01,"
+                        "Point(1.63164 41.41622)@2019-09-02]"
+                    ),
+                    TGeomPointSeq(
+                        "SRID=2062;[Point(1077794.3091235077 796037.0089003219)@2019-09-01,Point(1044050.9767668848 770349.6009306419)@2019-09-02]"
+                    ),
+            ),
+            (
+                    TGeomPointSeqSet(
+                        "SRID=4326;{[Point(2.05455 41.62840)@2019-09-01,"
+                        "Point(1.63164 41.41622)@2019-09-02],"
+                        "[Point(1.74064 41.48158)@2019-09-03,"
+                        "Point(2.54287 41.70331)@2019-09-05]}"
+                    ),
+                    TGeomPointSeq(
+                        "SRID=2062;{[Point(1077794.3091235077 796037.0089003219)@2019-09-01,Point(1044050.9767668848 770349.6009306419)@2019-09-02],"
+                        "[Point(1052698.1755408798 778137.4310070301)@2019-09-03,Point(1117783.9536644723 807058.9808454381)@2019-09-05]}"
+                    ),
+            ),
+        ],
+        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+    )
+    def test_transform(self, temporal, expected):
+        srid = 2062
+        transformed = temporal.transform(srid)
+
+        assert transformed == expected
+        assert transformed.srid() == srid
 
 class TestTGeomPointModifications(TestTGeomPoint):
     tpi = TGeomPointInst("Point(1 1)@2019-09-01")
