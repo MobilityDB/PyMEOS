@@ -2390,23 +2390,6 @@ class TestTGeogPointEverSpatialOperations(TestTGeogPoint):
             == expected
         )
 
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, True),
-            (tpds, True),
-            (tps, True),
-            (tpss, True),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_temporal_ever_disjoint(self, temporal, expected):
-        assert temporal.is_ever_disjoint(Point(3, 3)) == expected
-        assert (
-            temporal.is_ever_disjoint(TGeogPointInst("Point(3 3)@2019-09-01"))
-            == expected
-        )
-
 
 class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):
     tpi = TGeogPointInst("Point(1 1)@2019-09-01")

@@ -51,7 +51,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
     Abstract class for temporal points.
     """
 
-    _projection_cache: dict[tuple[int, int], 'LWPROJ'] = {}
+    _projection_cache: dict[tuple[int, int], "LWPROJ"] = {}
 
     # ------------------------- Constructors ----------------------------------
     def __init__(self, _inner) -> None:
@@ -502,9 +502,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
          MEOS Functions:
             tpoint_transform
         """
-        if (self.srid(), srid) not in self._projection_cache:
-            self._projection_cache[(self.srid(), srid)] = lwproj_transform(self.srid(), srid)
-        result = tpoint_transform_pj(self._inner, srid, self._projection_cache[(self.srid(), srid)])
+        srids = (self.srid(), srid)
+        if srids not in self._projection_cache:
+            self._projection_cache[srids] = lwproj_transform(*srids)
+        result = tpoint_transform_pj(self._inner, srid, self._projection_cache[srids])
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
@@ -774,7 +775,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             raise TypeError(f"Operation not supported with type {container.__class__}")
         return result == 1
 
-    def is_ever_disjoint(self, other: Union[shpb.BaseGeometry, TPoint, STBox]) -> bool:
+    def is_ever_disjoint(self, other: TPoint) -> bool:
         """
         Returns whether the temporal point is ever disjoint from `other`.
 
@@ -789,12 +790,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         from ..boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = edisjoint_tpoint_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            result = edisjoint_tpoint_geo(self._inner, stbox_to_geo(other._inner))
-        elif isinstance(other, TPoint):
+        if isinstance(other, TPoint):
             result = edisjoint_tpoint_tpoint(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
@@ -1650,6 +1646,34 @@ class TGeomPoint(
             ever_ne_tpoint_point, ever_ne_temporal_temporal
         """
         return not self.ever_not_equal(value)
+
+    def is_ever_disjoint(
+        self, other: Union[shpb.BaseGeometry, TGeomPoint, STBox]
+    ) -> bool:
+        """
+        Returns whether the temporal point is ever disjoint from `other`.
+
+        Args:
+            other: An object to check for disjointness with.
+
+        Returns:
+            A :class:`bool` indicating whether the temporal point is ever disjoint from `other`.
+
+        MEOS Functions:
+            edisjoint_tpoint_geo, edisjoint_tpoint_tpoint
+        """
+        from ..boxes import STBox
+
+        if isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            result = edisjoint_tpoint_geo(self._inner, gs)
+        elif isinstance(other, STBox):
+            result = edisjoint_tpoint_geo(self._inner, stbox_to_geo(other._inner))
+        elif isinstance(other, TGeomPoint):
+            result = edisjoint_tpoint_tpoint(self._inner, other._inner)
+        else:
+            raise TypeError(f"Operation not supported with type {other.__class__}")
+        return result == 1
 
     # ------------------------- Temporal Comparisons --------------------------
     def temporal_equal(self, other: Union[shp.Point, TGeomPoint]) -> TBool:
