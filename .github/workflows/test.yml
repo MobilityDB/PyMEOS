@@ -65,10 +65,10 @@ jobs:
 
       - name: Fetch MEOS sources
         env:
-          BRANCH_NAME: test_pymeos
+          BRANCH_NAME: pg_config
 #          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/Diviloper/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/mschoema/MobilityDB
 
       - name: Install MEOS
         run: |
