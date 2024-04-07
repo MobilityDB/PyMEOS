@@ -54,29 +54,27 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         "source, type, interpolation",
         [
             (
-                    TGeogPointInst("Point(1.5 1.5)@2019-09-01"),
-                    TGeogPointInst,
-                    TInterpolation.NONE,
+                TGeogPointInst("Point(1.5 1.5)@2019-09-01"),
+                TGeogPointInst,
+                TInterpolation.NONE,
             ),
             (
-                    TGeogPointSeq(
-                        "{Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02}"),
-                    TGeogPointSeq,
-                    TInterpolation.DISCRETE,
+                TGeogPointSeq("{Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02}"),
+                TGeogPointSeq,
+                TInterpolation.DISCRETE,
             ),
             (
-                    TGeogPointSeq(
-                        "[Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02]"),
-                    TGeogPointSeq,
-                    TInterpolation.LINEAR,
+                TGeogPointSeq("[Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02]"),
+                TGeogPointSeq,
+                TInterpolation.LINEAR,
             ),
             (
-                    TGeogPointSeqSet(
-                        "{[Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02],"
-                        "[Point(1.5 1.5)@2019-09-03, Point(1.5 1.5)@2019-09-05]}"
-                    ),
-                    TGeogPointSeqSet,
-                    TInterpolation.LINEAR,
+                TGeogPointSeqSet(
+                    "{[Point(1.5 1.5)@2019-09-01, Point(2.5 2.5)@2019-09-02],"
+                    "[Point(1.5 1.5)@2019-09-03, Point(1.5 1.5)@2019-09-05]}"
+                ),
+                TGeogPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -93,19 +91,19 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         [
             (datetime(2000, 1, 1), TGeogPointInst, TInterpolation.NONE),
             (
-                    TsTzSet("{2019-09-01, 2019-09-02}"),
-                    TGeogPointSeq,
-                    TInterpolation.DISCRETE,
+                TsTzSet("{2019-09-01, 2019-09-02}"),
+                TGeogPointSeq,
+                TInterpolation.DISCRETE,
             ),
             (
-                    TsTzSpan("[2019-09-01, 2019-09-02]"),
-                    TGeogPointSeq,
-                    TInterpolation.LINEAR,
+                TsTzSpan("[2019-09-01, 2019-09-02]"),
+                TGeogPointSeq,
+                TInterpolation.LINEAR,
             ),
             (
-                    TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
-                    TGeogPointSeqSet,
-                    TInterpolation.LINEAR,
+                TsTzSpanSet("{[2019-09-01, 2019-09-02],[2019-09-03, 2019-09-05]}"),
+                TGeogPointSeqSet,
+                TInterpolation.LINEAR,
             ),
         ],
         ids=["Instant", "Sequence", "Discrete Sequence", "SequenceSet"],
@@ -121,29 +119,29 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         "source, type, interpolation, expected",
         [
             (
-                    "Point(1 1)@2019-09-01",
-                    TGeogPointInst,
-                    TInterpolation.NONE,
-                    "POINT(1 1)@2019-09-01 00:00:00+00",
+                "Point(1 1)@2019-09-01",
+                TGeogPointInst,
+                TInterpolation.NONE,
+                "POINT(1 1)@2019-09-01 00:00:00+00",
             ),
             (
-                    "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}",
-                    TGeogPointSeq,
-                    TInterpolation.DISCRETE,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
+                "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}",
+                TGeogPointSeq,
+                TInterpolation.DISCRETE,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
             ),
             (
-                    "[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]",
-                    TGeogPointSeq,
-                    TInterpolation.LINEAR,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
+                "[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]",
+                TGeogPointSeq,
+                TInterpolation.LINEAR,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
             ),
             (
-                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}",
-                    TGeogPointSeqSet,
-                    TInterpolation.LINEAR,
-                    "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
-                    "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
+                "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}",
+                TGeogPointSeqSet,
+                TInterpolation.LINEAR,
+                "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
+                "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -158,16 +156,16 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         "source, type, expected",
         [
             (
-                    "[Point(1 1)@2019-09-01, Point(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05]",
-                    TGeogPointSeq,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00]",
+                "[Point(1 1)@2019-09-01, Point(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05]",
+                TGeogPointSeq,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00]",
             ),
             (
-                    "{[Point(1 1)@2019-09-01, POINT(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05],"
-                    "[Point(1 1)@2019-09-07, Point(1 1)@2019-09-08, Point(1 1)@2019-09-09]}",
-                    TGeogPointSeqSet,
-                    "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00], "
-                    "[POINT(1 1)@2019-09-07 00:00:00+00, POINT(1 1)@2019-09-09 00:00:00+00]}",
+                "{[Point(1 1)@2019-09-01, POINT(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05],"
+                "[Point(1 1)@2019-09-07, Point(1 1)@2019-09-08, Point(1 1)@2019-09-09]}",
+                TGeogPointSeqSet,
+                "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00], "
+                "[POINT(1 1)@2019-09-07 00:00:00+00, POINT(1 1)@2019-09-09 00:00:00+00]}",
             ),
         ],
         ids=["Sequence", "SequenceSet"],
@@ -195,78 +193,78 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         "list, interpolation, normalize, expected",
         [
             (
-                    ["Point(1 1)@2019-09-01", "Point(2 2)@2019-09-03"],
-                    TInterpolation.DISCRETE,
-                    False,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
+                ["Point(1 1)@2019-09-01", "Point(2 2)@2019-09-03"],
+                TInterpolation.DISCRETE,
+                False,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
             ),
             (
-                    ["Point(1 1)@2019-09-01", "Point(2 2)@2019-09-03"],
-                    TInterpolation.LINEAR,
-                    False,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                ["Point(1 1)@2019-09-01", "Point(2 2)@2019-09-03"],
+                TInterpolation.LINEAR,
+                False,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
             (
-                    [
-                        TGeogPointInst("Point(1 1)@2019-09-01"),
-                        TGeogPointInst("Point(2 2)@2019-09-03"),
-                    ],
-                    TInterpolation.DISCRETE,
-                    False,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
+                [
+                    TGeogPointInst("Point(1 1)@2019-09-01"),
+                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                ],
+                TInterpolation.DISCRETE,
+                False,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
             ),
             (
-                    [
-                        TGeogPointInst("Point(1 1)@2019-09-01"),
-                        TGeogPointInst("Point(2 2)@2019-09-03"),
-                    ],
-                    TInterpolation.LINEAR,
-                    False,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                [
+                    TGeogPointInst("Point(1 1)@2019-09-01"),
+                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                ],
+                TInterpolation.LINEAR,
+                False,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
             (
-                    ["Point(1 1)@2019-09-01", TGeogPointInst("Point(2 2)@2019-09-03")],
-                    TInterpolation.DISCRETE,
-                    False,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
+                ["Point(1 1)@2019-09-01", TGeogPointInst("Point(2 2)@2019-09-03")],
+                TInterpolation.DISCRETE,
+                False,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00}",
             ),
             (
-                    ["Point(1 1)@2019-09-01", TGeogPointInst("Point(2 2)@2019-09-03")],
-                    TInterpolation.LINEAR,
-                    False,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                ["Point(1 1)@2019-09-01", TGeogPointInst("Point(2 2)@2019-09-03")],
+                TInterpolation.LINEAR,
+                False,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
             (
-                    [
-                        "Point(1 1)@2019-09-01",
-                        "Point(1.499885736561676 1.500057091479197)@2019-09-02",
-                        "Point(2 2)@2019-09-03",
-                    ],
-                    TInterpolation.LINEAR,
-                    True,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                [
+                    "Point(1 1)@2019-09-01",
+                    "Point(1.499885736561676 1.500057091479197)@2019-09-02",
+                    "Point(2 2)@2019-09-03",
+                ],
+                TInterpolation.LINEAR,
+                True,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
             (
-                    [
-                        TGeogPointInst("Point(1 1)@2019-09-01"),
-                        TGeogPointInst(
-                            "Point(1.499885736561676 1.500057091479197)@2019-09-02"
-                        ),
-                        TGeogPointInst("Point(2 2)@2019-09-03"),
-                    ],
-                    TInterpolation.LINEAR,
-                    True,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                [
+                    TGeogPointInst("Point(1 1)@2019-09-01"),
+                    TGeogPointInst(
+                        "Point(1.499885736561676 1.500057091479197)@2019-09-02"
+                    ),
+                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                ],
+                TInterpolation.LINEAR,
+                True,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
             (
-                    [
-                        "Point(1 1)@2019-09-01",
-                        "Point(1.499885736561676 1.500057091479197)@2019-09-02",
-                        TGeogPointInst("Point(2 2)@2019-09-03"),
-                    ],
-                    TInterpolation.LINEAR,
-                    True,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                [
+                    "Point(1 1)@2019-09-01",
+                    "Point(1.499885736561676 1.500057091479197)@2019-09-02",
+                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                ],
+                TInterpolation.LINEAR,
+                True,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
             ),
         ],
         ids=[
@@ -282,7 +280,7 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         ],
     )
     def test_instant_list_sequence_constructor(
-            self, list, interpolation, normalize, expected
+        self, list, interpolation, normalize, expected
     ):
         tps = TGeogPointSeq(
             instant_list=list,
@@ -352,17 +350,17 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         [
             (tpi, "POINT(1 1)@2019-09-01 00:00:00+00"),
             (
-                    tpds,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
+                tpds,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
             ),
             (
-                    tps,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
+                tps,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
             ),
             (
-                    tpss,
-                    "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
-                    "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
+                tpss,
+                "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
+                "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -375,17 +373,17 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         [
             (tpi, "TGeogPointInst(POINT(1 1)@2019-09-01 00:00:00+00)"),
             (
-                    tpds,
-                    "TGeogPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})",
+                tpds,
+                "TGeogPointSeq({POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00})",
             ),
             (
-                    tps,
-                    "TGeogPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])",
+                tps,
+                "TGeogPointSeq([POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00])",
             ),
             (
-                    tpss,
-                    "TGeogPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
-                    "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})",
+                tpss,
+                "TGeogPointSeqSet({[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
+                "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]})",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -398,17 +396,17 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         [
             (tpi, "POINT(1 1)@2019-09-01 00:00:00+00"),
             (
-                    tpds,
-                    "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
+                tpds,
+                "{POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00}",
             ),
             (
-                    tps,
-                    "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
+                tps,
+                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00]",
             ),
             (
-                    tpss,
-                    "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
-                    "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
+                tpss,
+                "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
+                "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -421,20 +419,20 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         [
             (tpi, "01290061E6100000000000000000F03F000000000000F03F00A01E4E71340200"),
             (
-                    tpds,
-                    "01290066E61000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
-                    "000000000000004000000000000000400000F66B85340200",
+                tpds,
+                "01290066E61000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
+                "000000000000004000000000000000400000F66B85340200",
             ),
             (
-                    tps,
-                    "0129006EE61000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
-                    "000000000000004000000000000000400000F66B85340200",
+                tps,
+                "0129006EE61000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
+                "000000000000004000000000000000400000F66B85340200",
             ),
             (
-                    tpss,
-                    "0129006FE6100000020000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
-                    "000000000000004000000000000000400000F66B853402000200000003000000000000F03F000000000"
-                    "000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200",
+                tpss,
+                "0129006FE6100000020000000200000003000000000000F03F000000000000F03F00A01E4E71340200"
+                "000000000000004000000000000000400000F66B853402000200000003000000000000F03F000000000"
+                "000F03F0060CD8999340200000000000000F03F000000000000F03F00207CC5C1340200",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -446,175 +444,175 @@ class TestTGeogPointOutputs(TestTGeogPoint):
         "temporal, expected",
         [
             (
-                    tpi,
-                    "{\n"
-                    '  "type": "MovingPoint",\n'
-                    '  "bbox": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "period": {\n'
-                    '    "begin": "2019-09-01T00:00:00+00",\n'
-                    '    "end": "2019-09-01T00:00:00+00",\n'
-                    '    "lower_inc": true,\n'
-                    '    "upper_inc": true\n'
-                    "  },\n"
-                    '  "coordinates": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "datetimes": [\n'
-                    '    "2019-09-01T00:00:00+00"\n'
-                    "  ],\n"
-                    '  "interpolation": "None"\n'
-                    "}",
+                tpi,
+                "{\n"
+                '  "type": "MovingPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00"\n'
+                "  ],\n"
+                '  "interpolation": "None"\n'
+                "}",
             ),
             (
-                    tpds,
-                    "{\n"
-                    '  "type": "MovingPoint",\n'
-                    '  "bbox": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      2,\n"
-                    "      2\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "period": {\n'
-                    '    "begin": "2019-09-01T00:00:00+00",\n'
-                    '    "end": "2019-09-02T00:00:00+00",\n'
-                    '    "lower_inc": true,\n'
-                    '    "upper_inc": true\n'
-                    "  },\n"
-                    '  "coordinates": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      2,\n"
-                    "      2\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "datetimes": [\n'
-                    '    "2019-09-01T00:00:00+00",\n'
-                    '    "2019-09-02T00:00:00+00"\n'
-                    "  ],\n"
-                    '  "lower_inc": true,\n'
-                    '  "upper_inc": true,\n'
-                    '  "interpolation": "Discrete"\n'
-                    "}",
+                tpds,
+                "{\n"
+                '  "type": "MovingPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Discrete"\n'
+                "}",
             ),
             (
-                    tps,
-                    "{\n"
-                    '  "type": "MovingPoint",\n'
-                    '  "bbox": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      2,\n"
-                    "      2\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "period": {\n'
-                    '    "begin": "2019-09-01T00:00:00+00",\n'
-                    '    "end": "2019-09-02T00:00:00+00",\n'
-                    '    "lower_inc": true,\n'
-                    '    "upper_inc": true\n'
-                    "  },\n"
-                    '  "coordinates": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      2,\n"
-                    "      2\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "datetimes": [\n'
-                    '    "2019-09-01T00:00:00+00",\n'
-                    '    "2019-09-02T00:00:00+00"\n'
-                    "  ],\n"
-                    '  "lower_inc": true,\n'
-                    '  "upper_inc": true,\n'
-                    '  "interpolation": "Linear"\n'
-                    "}",
+                tps,
+                "{\n"
+                '  "type": "MovingPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "coordinates": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "datetimes": [\n'
+                '    "2019-09-01T00:00:00+00",\n'
+                '    "2019-09-02T00:00:00+00"\n'
+                "  ],\n"
+                '  "lower_inc": true,\n'
+                '  "upper_inc": true,\n'
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
             (
-                    tpss,
-                    "{\n"
-                    '  "type": "MovingPoint",\n'
-                    '  "bbox": [\n'
-                    "    [\n"
-                    "      1,\n"
-                    "      1\n"
-                    "    ],\n"
-                    "    [\n"
-                    "      2,\n"
-                    "      2\n"
-                    "    ]\n"
-                    "  ],\n"
-                    '  "period": {\n'
-                    '    "begin": "2019-09-01T00:00:00+00",\n'
-                    '    "end": "2019-09-05T00:00:00+00",\n'
-                    '    "lower_inc": true,\n'
-                    '    "upper_inc": true\n'
-                    "  },\n"
-                    '  "sequences": [\n'
-                    "    {\n"
-                    '      "coordinates": [\n'
-                    "        [\n"
-                    "          1,\n"
-                    "          1\n"
-                    "        ],\n"
-                    "        [\n"
-                    "          2,\n"
-                    "          2\n"
-                    "        ]\n"
-                    "      ],\n"
-                    '      "datetimes": [\n'
-                    '        "2019-09-01T00:00:00+00",\n'
-                    '        "2019-09-02T00:00:00+00"\n'
-                    "      ],\n"
-                    '      "lower_inc": true,\n'
-                    '      "upper_inc": true\n'
-                    "    },\n"
-                    "    {\n"
-                    '      "coordinates": [\n'
-                    "        [\n"
-                    "          1,\n"
-                    "          1\n"
-                    "        ],\n"
-                    "        [\n"
-                    "          1,\n"
-                    "          1\n"
-                    "        ]\n"
-                    "      ],\n"
-                    '      "datetimes": [\n'
-                    '        "2019-09-03T00:00:00+00",\n'
-                    '        "2019-09-05T00:00:00+00"\n'
-                    "      ],\n"
-                    '      "lower_inc": true,\n'
-                    '      "upper_inc": true\n'
-                    "    }\n"
-                    "  ],\n"
-                    '  "interpolation": "Linear"\n'
-                    "}",
+                tpss,
+                "{\n"
+                '  "type": "MovingPoint",\n'
+                '  "bbox": [\n'
+                "    [\n"
+                "      1,\n"
+                "      1\n"
+                "    ],\n"
+                "    [\n"
+                "      2,\n"
+                "      2\n"
+                "    ]\n"
+                "  ],\n"
+                '  "period": {\n'
+                '    "begin": "2019-09-01T00:00:00+00",\n'
+                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "lower_inc": true,\n'
+                '    "upper_inc": true\n'
+                "  },\n"
+                '  "sequences": [\n'
+                "    {\n"
+                '      "coordinates": [\n'
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ],\n"
+                "        [\n"
+                "          2,\n"
+                "          2\n"
+                "        ]\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-01T00:00:00+00",\n'
+                '        "2019-09-02T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    },\n"
+                "    {\n"
+                '      "coordinates": [\n'
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ],\n"
+                "        [\n"
+                "          1,\n"
+                "          1\n"
+                "        ]\n"
+                "      ],\n"
+                '      "datetimes": [\n'
+                '        "2019-09-03T00:00:00+00",\n'
+                '        "2019-09-05T00:00:00+00"\n'
+                "      ],\n"
+                '      "lower_inc": true,\n'
+                '      "upper_inc": true\n'
+                "    }\n"
+                "  ],\n"
+                '  "interpolation": "Linear"\n'
+                "}",
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -872,13 +870,13 @@ class TestTGeogPointAccessors(TestTGeogPoint):
             (tpds, [tpi, TGeogPointInst("Point(2 2)@2019-09-02")]),
             (tps, [tpi, TGeogPointInst("Point(2 2)@2019-09-02")]),
             (
-                    tpss,
-                    [
-                        tpi,
-                        TGeogPointInst("Point(2 2)@2019-09-02"),
-                        TGeogPointInst("Point(1 1)@2019-09-03"),
-                        TGeogPointInst("Point(1 1)@2019-09-05"),
-                    ],
+                tpss,
+                [
+                    tpi,
+                    TGeogPointInst("Point(2 2)@2019-09-02"),
+                    TGeogPointInst("Point(1 1)@2019-09-03"),
+                    TGeogPointInst("Point(1 1)@2019-09-05"),
+                ],
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -943,27 +941,27 @@ class TestTGeogPointAccessors(TestTGeogPoint):
         [
             (tpi, [datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)]),
             (
-                    tpds,
-                    [
-                        datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                        datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
-                    ],
+                tpds,
+                [
+                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
+                ],
             ),
             (
-                    tps,
-                    [
-                        datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                        datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
-                    ],
+                tps,
+                [
+                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
+                ],
             ),
             (
-                    tpss,
-                    [
-                        datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                        datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
-                        datetime(year=2019, month=9, day=3, tzinfo=timezone.utc),
-                        datetime(year=2019, month=9, day=5, tzinfo=timezone.utc),
-                    ],
+                tpss,
+                [
+                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=2, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=3, tzinfo=timezone.utc),
+                    datetime(year=2019, month=9, day=5, tzinfo=timezone.utc),
+                ],
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -975,19 +973,19 @@ class TestTGeogPointAccessors(TestTGeogPoint):
         "temporal, expected",
         [
             (
-                    tpds,
-                    [
-                        TGeogPointSeq("[Point(1 1)@2019-09-01]"),
-                        TGeogPointSeq("[Point(2 2)@2019-09-02]"),
-                    ],
+                tpds,
+                [
+                    TGeogPointSeq("[Point(1 1)@2019-09-01]"),
+                    TGeogPointSeq("[Point(2 2)@2019-09-02]"),
+                ],
             ),
             (tps, [TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]")]),
             (
-                    tpss,
-                    [
-                        TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
-                        TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
-                    ],
+                tpss,
+                [
+                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                ],
             ),
         ],
         ids=["Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1076,11 +1074,11 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
             (tpds, TFloatSeq("{0@2019-09-01, 0@2019-09-02}")),
             (tps, TFloatSeq("[0@2019-09-01, 156876.1494@2019-09-02]")),
             (
-                    tpss,
-                    TFloatSeqSet(
-                        "{[0@2019-09-01, 156876.1494@2019-09-02],"
-                        "[156876.1494@2019-09-03, 156876.1494@2019-09-05]}"
-                    ),
+                tpss,
+                TFloatSeqSet(
+                    "{[0@2019-09-01, 156876.1494@2019-09-02],"
+                    "[156876.1494@2019-09-03, 156876.1494@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1093,11 +1091,11 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
         [
             (tps, TFloatSeq("Interp=Step;[1.8157@2019-09-01, 1.8157@2019-09-02]")),
             (
-                    tpss,
-                    TFloatSeqSet(
-                        "Interp=Step;{[1.8157@2019-09-01, 1.8157@2019-09-02],"
-                        "[0@2019-09-03, 0@2019-09-05]}"
-                    ),
+                tpss,
+                TFloatSeqSet(
+                    "Interp=Step;{[1.8157@2019-09-01, 1.8157@2019-09-02],"
+                    "[0@2019-09-03, 0@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Sequence", "SequenceSet"],
@@ -1124,10 +1122,10 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
             (tpds, TFloatSeq("{1@2019-09-01, 2@2019-09-02}")),
             (tps, TFloatSeq("[1@2019-09-01, 2@2019-09-02]")),
             (
-                    tpss,
-                    TFloatSeqSet(
-                        "{[1@2019-09-01, 2@2019-09-02]," "[1@2019-09-03, 1@2019-09-05]}"
-                    ),
+                tpss,
+                TFloatSeqSet(
+                    "{[1@2019-09-01, 2@2019-09-02]," "[1@2019-09-03, 1@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1143,10 +1141,10 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
             (tpds3d, TFloatSeq("{1@2019-09-01, 2@2019-09-02}")),
             (tps3d, TFloatSeq("[1@2019-09-01, 2@2019-09-02]")),
             (
-                    tpss3d,
-                    TFloatSeqSet(
-                        "{[1@2019-09-01, 2@2019-09-02]," "[1@2019-09-03, 1@2019-09-05]}"
-                    ),
+                tpss3d,
+                TFloatSeqSet(
+                    "{[1@2019-09-01, 2@2019-09-02]," "[1@2019-09-03, 1@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1202,11 +1200,11 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
             (tpds, []),
             (tps, [STBox("GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])")]),
             (
-                    tpss,
-                    [
-                        STBox("GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])"),
-                        STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-03, 2019-09-05])"),
-                    ],
+                tpss,
+                [
+                    STBox("GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])"),
+                    STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-03, 2019-09-05])"),
+                ],
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1234,19 +1232,19 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
             (tpds, TFloatSeq("{0.7846@2019-09-01,0.7846@2019-09-02}")),
             (tps, TFloatSeq("[0.7846@2019-09-01,0.7846@2019-09-02]")),
             (
-                    tpss,
-                    TFloatSeqSet(
-                        "{[0.7846@2019-09-01,0.7846@2019-09-02],"
-                        "[0.7846@2019-09-03,0.7846@2019-09-05]}"
-                    ),
+                tpss,
+                TFloatSeqSet(
+                    "{[0.7846@2019-09-01,0.7846@2019-09-02],"
+                    "[0.7846@2019-09-03,0.7846@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_bearing(self, temporal, expected):
         assert (
-                temporal.bearing(shapely.set_srid(shapely.Point(3, 3), 4326)).round(4)
-                == expected
+            temporal.bearing(shapely.set_srid(shapely.Point(3, 3), 4326)).round(4)
+            == expected
         )
 
     @pytest.mark.parametrize(
@@ -1315,16 +1313,24 @@ class TestTGeogPointConversions(TestTGeogPoint):
         "temporal, expected",
         [
             (tpi, TGeomPointInst("SRID=4326;Point(1 1)@2019-09-01")),
-            (tpds,
-             TGeomPointSeq("SRID=4326;{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}")),
-            (tps,
-             TGeomPointSeq("SRID=4326;[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]")),
             (
-                    tpss,
-                    TGeomPointSeqSet(
-                        "SRID=4326;{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpds,
+                TGeomPointSeq(
+                    "SRID=4326;{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"
+                ),
+            ),
+            (
+                tps,
+                TGeomPointSeq(
+                    "SRID=4326;[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"
+                ),
+            ),
+            (
+                tpss,
+                TGeomPointSeqSet(
+                    "SRID=4326;{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1373,25 +1379,24 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         "temporal, interpolation, expected",
         [
             (
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01]"),
+                TGeogPointInst("Point(1 1)@2019-09-01"),
+                TInterpolation.LINEAR,
+                TGeogPointSeq("[Point(1 1)@2019-09-01]"),
             ),
             (
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
-                    TInterpolation.DISCRETE,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                TInterpolation.DISCRETE,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                TInterpolation.LINEAR,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TInterpolation.LINEAR,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1405,28 +1410,24 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         "temporal, interpolation, expected",
         [
             (
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet("{[Point(1 1)@2019-09-01]}"),
+                TGeogPointInst("Point(1 1)@2019-09-01"),
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01]}"),
             ),
             (
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"),
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"),
             ),
             (
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1443,58 +1444,57 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (tpds, TInterpolation.DISCRETE, tpds),
             (tps_d, TInterpolation.DISCRETE, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
-                    tpss_d,
-                    TInterpolation.DISCRETE,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01,Point(2 2)@2019-09-03}"),
+                tpss_d,
+                TInterpolation.DISCRETE,
+                TGeogPointSeq("{Point(1 1)@2019-09-01,Point(2 2)@2019-09-03}"),
             ),
             (
-                    tpi,
-                    TInterpolation.STEPWISE,
-                    TGeogPointSeq("Interp=Step;[Point(1 1)@2019-09-01]"),
+                tpi,
+                TInterpolation.STEPWISE,
+                TGeogPointSeq("Interp=Step;[Point(1 1)@2019-09-01]"),
             ),
             (
-                    tpds,
-                    TInterpolation.STEPWISE,
-                    TGeogPointSeqSet(
-                        "Interp=Step;{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"
-                    ),
+                tpds,
+                TInterpolation.STEPWISE,
+                TGeogPointSeqSet(
+                    "Interp=Step;{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"
+                ),
             ),
             (
-                    tps_s,
-                    TInterpolation.STEPWISE,
-                    TGeogPointSeq(
-                        "Interp=Step;[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"
-                    ),
+                tps_s,
+                TInterpolation.STEPWISE,
+                TGeogPointSeq(
+                    "Interp=Step;[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"
+                ),
             ),
             (
-                    tpss_s,
-                    TInterpolation.STEPWISE,
-                    TGeogPointSeqSet(
-                        "Interp=Step;{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
-                        "[Point(2 2)@2019-09-03, Point(2 2)@2019-09-05]}"
-                    ),
+                tpss_s,
+                TInterpolation.STEPWISE,
+                TGeogPointSeqSet(
+                    "Interp=Step;{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(2 2)@2019-09-03, Point(2 2)@2019-09-05]}"
+                ),
             ),
             (tpi, TInterpolation.LINEAR, TGeogPointSeq("[Point(1 1)@2019-09-01]")),
             (
-                    tpds,
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"),
+                tpds,
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01], [Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tps_l,
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02), [Point(2 2)@2019-09-02]}"
-                    ),
+                tps_l,
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02), [Point(2 2)@2019-09-02]}"
+                ),
             ),
             (
-                    tpss_l,
-                    TInterpolation.LINEAR,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02),"
-                        "[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss_l,
+                TInterpolation.LINEAR,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02),"
+                    "[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -1522,87 +1522,87 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (tpi, timedelta(days=-4), TGeogPointInst("Point(1 1)@2019-08-28")),
             (tpi, timedelta(hours=2), TGeogPointInst("Point(1 1)@2019-09-01 02:00:00")),
             (
-                    tpi,
-                    timedelta(hours=-2),
-                    TGeogPointInst("Point(1 1)@2019-08-31 22:00:00"),
+                tpi,
+                timedelta(hours=-2),
+                TGeogPointInst("Point(1 1)@2019-08-31 22:00:00"),
             ),
             (
-                    tpds,
-                    timedelta(days=4),
-                    TGeogPointSeq("{Point(1 1)@2019-09-05, Point(2 2)@2019-09-06}"),
+                tpds,
+                timedelta(days=4),
+                TGeogPointSeq("{Point(1 1)@2019-09-05, Point(2 2)@2019-09-06}"),
             ),
             (
-                    tpds,
-                    timedelta(days=-4),
-                    TGeogPointSeq("{Point(1 1)@2019-08-28, Point(2 2)@2019-08-29}"),
+                tpds,
+                timedelta(days=-4),
+                TGeogPointSeq("{Point(1 1)@2019-08-28, Point(2 2)@2019-08-29}"),
             ),
             (
-                    tpds,
-                    timedelta(hours=2),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00}"
-                    ),
+                tpds,
+                timedelta(hours=2),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00}"
+                ),
             ),
             (
-                    tpds,
-                    timedelta(hours=-2),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00}"
-                    ),
+                tpds,
+                timedelta(hours=-2),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00}"
+                ),
             ),
             (
-                    tps,
-                    timedelta(days=4),
-                    TGeogPointSeq("[Point(1 1)@2019-09-05, Point(2 2)@2019-09-06]"),
+                tps,
+                timedelta(days=4),
+                TGeogPointSeq("[Point(1 1)@2019-09-05, Point(2 2)@2019-09-06]"),
             ),
             (
-                    tps,
-                    timedelta(days=-4),
-                    TGeogPointSeq("[Point(1 1)@2019-08-28, Point(2 2)@2019-08-29]"),
+                tps,
+                timedelta(days=-4),
+                TGeogPointSeq("[Point(1 1)@2019-08-28, Point(2 2)@2019-08-29]"),
             ),
             (
-                    tps,
-                    timedelta(hours=2),
-                    TGeogPointSeq(
-                        "[Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00]"
-                    ),
+                tps,
+                timedelta(hours=2),
+                TGeogPointSeq(
+                    "[Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00]"
+                ),
             ),
             (
-                    tps,
-                    timedelta(hours=-2),
-                    TGeogPointSeq(
-                        "[Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00]"
-                    ),
+                tps,
+                timedelta(hours=-2),
+                TGeogPointSeq(
+                    "[Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00]"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(days=4),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-05, Point(2 2)@2019-09-06],[Point(1 1)@2019-09-07, Point(1 1)@2019-09-09]}"
-                    ),
+                tpss,
+                timedelta(days=4),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-05, Point(2 2)@2019-09-06],[Point(1 1)@2019-09-07, Point(1 1)@2019-09-09]}"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(days=-4),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-08-28, Point(2 2)@2019-08-29],[Point(1 1)@2019-08-30, Point(1 1)@2019-09-01]}"
-                    ),
+                tpss,
+                timedelta(days=-4),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-08-28, Point(2 2)@2019-08-29],[Point(1 1)@2019-08-30, Point(1 1)@2019-09-01]}"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(hours=2),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00],"
-                        "[Point(1 1)@2019-09-03 02:00:00, Point(1 1)@2019-09-05 02:00:00]}"
-                    ),
+                tpss,
+                timedelta(hours=2),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01 02:00:00, Point(2 2)@2019-09-02 02:00:00],"
+                    "[Point(1 1)@2019-09-03 02:00:00, Point(1 1)@2019-09-05 02:00:00]}"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(hours=-2),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00],"
-                        "[Point(1 1)@2019-09-02 22:00:00, Point(1 1)@2019-09-04 22:00:00]}"
-                    ),
+                tpss,
+                timedelta(hours=-2),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-08-31 22:00:00, Point(2 2)@2019-09-01 22:00:00],"
+                    "[Point(1 1)@2019-09-02 22:00:00, Point(1 1)@2019-09-04 22:00:00]}"
+                ),
             ),
         ],
         ids=[
@@ -1633,43 +1633,43 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (tpi, timedelta(days=4), TGeogPointInst("Point(1 1)@2019-09-01")),
             (tpi, timedelta(hours=2), TGeogPointInst("Point(1 1)@2019-09-01")),
             (
-                    tpds,
-                    timedelta(days=4),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-05}"),
+                tpds,
+                timedelta(days=4),
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-05}"),
             ),
             (
-                    tpds,
-                    timedelta(hours=2),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 02:00:00}"
-                    ),
+                tpds,
+                timedelta(hours=2),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 02:00:00}"
+                ),
             ),
             (
-                    tps,
-                    timedelta(days=4),
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-05]"),
+                tps,
+                timedelta(days=4),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-05]"),
             ),
             (
-                    tps,
-                    timedelta(hours=2),
-                    TGeogPointSeq(
-                        "[Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 02:00:00]"
-                    ),
+                tps,
+                timedelta(hours=2),
+                TGeogPointSeq(
+                    "[Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 02:00:00]"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(days=4),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                timedelta(days=4),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(hours=2),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 00:30:00],"
-                        "[Point(1 1)@2019-09-01 01:00:00, Point(1 1)@2019-09-01 02:00:00]}"
-                    ),
+                tpss,
+                timedelta(hours=2),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01 00:00:00, Point(2 2)@2019-09-01 00:30:00],"
+                    "[Point(1 1)@2019-09-01 01:00:00, Point(1 1)@2019-09-01 02:00:00]}"
+                ),
             ),
         ],
         ids=[
@@ -1701,31 +1701,31 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (tpi, timedelta(hours=12), TGeogPointInst("Point(1 1)@2019-09-01")),
             (tpds, timedelta(days=4), TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
-                    tpds,
-                    timedelta(hours=12),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                tpds,
+                timedelta(hours=12),
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (tps, timedelta(days=4), TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
-                    tps,
-                    timedelta(hours=12),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02}"
-                    ),
+                tps,
+                timedelta(hours=12),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02}"
+                ),
             ),
             (
-                    tpss,
-                    timedelta(days=4),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01,Point(1 1)@2019-09-05}"),
+                tpss,
+                timedelta(days=4),
+                TGeogPointSeq("{Point(1 1)@2019-09-01,Point(1 1)@2019-09-05}"),
             ),
             (
-                    tpss,
-                    timedelta(hours=12),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00,"
-                        "Point(2 2)@2019-09-02, Point(1 1)@2019-09-03, Point(1 1)@2019-09-03 12:00:00, "
-                        "Point(1 1)@2019-09-04, Point(1 1)@2019-09-04 12:00:00, Point(1 1)@2019-09-05}"
-                    ),
+                tpss,
+                timedelta(hours=12),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00,"
+                    "Point(2 2)@2019-09-02, Point(1 1)@2019-09-03, Point(1 1)@2019-09-03 12:00:00, "
+                    "Point(1 1)@2019-09-04, Point(1 1)@2019-09-04 12:00:00, Point(1 1)@2019-09-05}"
+                ),
             ),
         ],
         ids=[
@@ -1749,9 +1749,9 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (tps, timedelta(hours=12), None),
             (tpss, timedelta(days=4), None),
             (
-                    tpss,
-                    timedelta(hours=12),
-                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                tpss,
+                timedelta(hours=12),
+                TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
             ),
         ],
         ids=[
@@ -1768,44 +1768,101 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         "temporal, expected",
         [
             (
-                    TGeogPointInst("Point(1.123456789 1.123456789)@2019-09-01"),
-                    TGeogPointInst("Point(1.12 1.12)@2019-09-01"),
+                TGeogPointInst("Point(1.123456789 1.123456789)@2019-09-01"),
+                TGeogPointInst("Point(1.12 1.12)@2019-09-01"),
             ),
             (
-                    TGeogPointSeq(
-                        "{Point(1.123456789 1.123456789)@2019-09-01,"
-                        "Point(2.123456789 2.123456789)@2019-09-02}"
-                    ),
-                    TGeogPointSeq(
-                        "{Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02}"
-                    ),
+                TGeogPointSeq(
+                    "{Point(1.123456789 1.123456789)@2019-09-01,"
+                    "Point(2.123456789 2.123456789)@2019-09-02}"
+                ),
+                TGeogPointSeq(
+                    "{Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02}"
+                ),
             ),
             (
-                    TGeogPointSeq(
-                        "[Point(1.123456789 1.123456789)@2019-09-01,"
-                        "Point(2.123456789 2.123456789)@2019-09-02]"
-                    ),
-                    TGeogPointSeq(
-                        "[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02]"
-                    ),
+                TGeogPointSeq(
+                    "[Point(1.123456789 1.123456789)@2019-09-01,"
+                    "Point(2.123456789 2.123456789)@2019-09-02]"
+                ),
+                TGeogPointSeq(
+                    "[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02]"
+                ),
             ),
             (
-                    TGeogPointSeqSet(
-                        "{[Point(1.123456789 1.123456789)@2019-09-01,"
-                        "Point(2.123456789 2.123456789)@2019-09-02],"
-                        "[Point(1.123456789 1.123456789)@2019-09-03,"
-                        "Point(1.123456789 1.123456789)@2019-09-05]}"
-                    ),
-                    TGeogPointSeq(
-                        "{[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02],"
-                        "[Point(1.12 1.12)@2019-09-03,Point(1.12 1.12)@2019-09-05]}"
-                    ),
+                TGeogPointSeqSet(
+                    "{[Point(1.123456789 1.123456789)@2019-09-01,"
+                    "Point(2.123456789 2.123456789)@2019-09-02],"
+                    "[Point(1.123456789 1.123456789)@2019-09-03,"
+                    "Point(1.123456789 1.123456789)@2019-09-05]}"
+                ),
+                TGeogPointSeq(
+                    "{[Point(1.12 1.12)@2019-09-01,Point(2.12 2.12)@2019-09-02],"
+                    "[Point(1.12 1.12)@2019-09-03,Point(1.12 1.12)@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_round(self, temporal, expected):
-        assert temporal.round(max_decimals=2)
+        assert temporal.round(max_decimals=2) == expected
+
+    @pytest.mark.parametrize(
+        "temporal, expected",
+        [
+            (
+                TGeogPointInst("Point(42.84979 42.38153)@2019-09-01"),
+                TGeogPointInst(
+                    "SRID=8426;"
+                    "Point(42.84979 42.38153)@2019-09-01"
+                ),
+            ),
+            (
+                TGeogPointSeq(
+                    "{Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02}"
+                ),
+                TGeogPointSeq(
+                    "SRID=8426;"
+                    "{Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02}"
+                ),
+            ),
+            (
+                TGeogPointSeq(
+                    "[Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02]"
+                ),
+                TGeogPointSeq(
+                    "SRID=8426;"
+                    "[Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02]"
+                ),
+            ),
+            (
+                TGeogPointSeqSet(
+                    "{[Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02],"
+                    "[Point(42.28948 41.83545)@2019-09-03,"
+                    "Point(44.24505 41.53187)@2019-09-05]}"
+                ),
+                TGeogPointSeq(
+                    "SRID=8426;"
+                    "{[Point(42.84979 42.38153)@2019-09-01,"
+                    "Point(44.31646 41.77403)@2019-09-02],"
+                    "[Point(42.28948 41.83545)@2019-09-03,"
+                    "Point(44.24505 41.53187)@2019-09-05]}"
+                ),
+            ),
+        ],
+        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
+    )
+    def test_transform(self, temporal, expected):
+        srid = 8426
+        transformed = temporal.transform(srid)
+
+        assert transformed.round(5) == expected.round(5)
+        assert transformed.srid() == srid
 
 
 class TestTGeogPointModifications(TestTGeogPoint):
@@ -1820,30 +1877,30 @@ class TestTGeogPointModifications(TestTGeogPoint):
         "temporal, sequence, expected",
         [
             (
-                    tpi,
-                    TGeogPointSeq("{Point(1 1)@2019-09-03}"),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}"),
+                tpi,
+                TGeogPointSeq("{Point(1 1)@2019-09-03}"),
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}"),
             ),
             (
-                    tpds,
-                    TGeogPointSeq("{Point(1 1)@2019-09-03}"),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
-                    ),
+                tpds,
+                TGeogPointSeq("{Point(1 1)@2019-09-03}"),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
+                ),
             ),
             (
-                    tps,
-                    TGeogPointSeq("[Point(1 1)@2019-09-03]"),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]}"
-                    ),
+                tps,
+                TGeogPointSeq("[Point(1 1)@2019-09-03]"),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]}"
+                ),
             ),
             (
-                    tpss,
-                    TGeogPointSeq("[Point(1 1)@2019-09-06]"),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
-                    ),
+                tpss,
+                TGeogPointSeq("[Point(1 1)@2019-09-06]"),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1855,28 +1912,28 @@ class TestTGeogPointModifications(TestTGeogPoint):
         "temporal, instant, expected",
         [
             (
-                    tpi,
-                    TGeogPointInst("Point(2 2)@2019-09-01"),
-                    TGeogPointInst("Point(2 2)@2019-09-01"),
+                tpi,
+                TGeogPointInst("Point(2 2)@2019-09-01"),
+                TGeogPointInst("Point(2 2)@2019-09-01"),
             ),
             (
-                    tpds,
-                    TGeogPointInst("Point(2 2)@2019-09-01"),
-                    TGeogPointSeq("{Point(2 2)@2019-09-01, Point(2 2)@2019-09-02}"),
+                tpds,
+                TGeogPointInst("Point(2 2)@2019-09-01"),
+                TGeogPointSeq("{Point(2 2)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
-                    tps,
-                    TGeogPointInst("Point(2 2)@2019-09-01"),
-                    TGeogPointSeqSet(
-                        "{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"
-                    ),
+                tps,
+                TGeogPointInst("Point(2 2)@2019-09-01"),
+                TGeogPointSeqSet(
+                    "{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"
+                ),
             ),
             (
-                    tpss,
-                    TGeogPointInst("Point(2 2)@2019-09-01"),
-                    TGeogPointSeqSet(
-                        "{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                TGeogPointInst("Point(2 2)@2019-09-01"),
+                TGeogPointSeqSet(
+                    "{[Point(2 2)@2019-09-01], (Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1890,22 +1947,21 @@ class TestTGeogPointModifications(TestTGeogPoint):
             (tpi, datetime(year=2019, month=9, day=1, tzinfo=timezone.utc), None),
             (tpi, datetime(year=2019, month=9, day=2, tzinfo=timezone.utc), tpi),
             (
-                    tpds,
-                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                    TGeogPointSeq("{Point(2 2)@2019-09-02}"),
+                tpds,
+                datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TGeogPointSeq("{Point(2 2)@2019-09-02}"),
             ),
             (
-                    tps,
-                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tps,
+                datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tpss,
-                    datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
+                TGeogPointSeqSet(
+                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -1923,30 +1979,30 @@ class TestTGeogPointModifications(TestTGeogPoint):
         "temporal, instant, expected",
         [
             (
-                    tpi,
-                    TGeogPointInst("Point(1 1)@2019-09-02"),
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
+                tpi,
+                TGeogPointInst("Point(1 1)@2019-09-02"),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
             ),
             (
-                    tpds,
-                    TGeogPointInst("Point(1 1)@2019-09-03"),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
-                    ),
+                tpds,
+                TGeogPointInst("Point(1 1)@2019-09-03"),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
+                ),
             ),
             (
-                    tps,
-                    TGeogPointInst("Point(1 1)@2019-09-03"),
-                    TGeogPointSeq(
-                        "[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]"
-                    ),
+                tps,
+                TGeogPointInst("Point(1 1)@2019-09-03"),
+                TGeogPointSeq(
+                    "[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03]"
+                ),
             ),
             (
-                    tpss,
-                    TGeogPointInst("Point(1 1)@2019-09-06"),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-06]}"
-                    ),
+                tpss,
+                TGeogPointInst("Point(1 1)@2019-09-06"),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-06]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1958,25 +2014,25 @@ class TestTGeogPointModifications(TestTGeogPoint):
         "temporal, sequence, expected",
         [
             (
-                    tpds,
-                    TGeogPointSeq("{Point(1 1)@2019-09-03}"),
-                    TGeogPointSeq(
-                        "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
-                    ),
+                tpds,
+                TGeogPointSeq("{Point(1 1)@2019-09-03}"),
+                TGeogPointSeq(
+                    "{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02, Point(1 1)@2019-09-03}"
+                ),
             ),
             (
-                    tps,
-                    TGeogPointSeq("[Point(1 1)@2019-09-03]"),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03]}"
-                    ),
+                tps,
+                TGeogPointSeq("[Point(1 1)@2019-09-03]"),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02], [Point(1 1)@2019-09-03]}"
+                ),
             ),
             (
-                    tpss,
-                    TGeogPointSeq("[Point(1 1)@2019-09-06]"),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
-                    ),
+                tpss,
+                TGeogPointSeq("[Point(1 1)@2019-09-06]"),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
+                ),
             ),
         ],
         ids=["Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2006,86 +2062,85 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             (tpi, tstzspan, TGeogPointInst("Point(1 1)@2019-09-01")),
             (tpi, tstzspan_set, TGeogPointInst("Point(1 1)@2019-09-01")),
             (
-                    tpi,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
+                tpi,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointInst("Point(1 1)@2019-09-01"),
             ),
             (tpi, shapely.set_srid(shapely.Point(2, 2), 4326), None),
             (tpds, timestamp, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (tpds, timestamp_set, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
-                    tpds,
-                    tstzspan,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                tpds,
+                tstzspan,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
-                    tpds,
-                    tstzspan_set,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
+                tpds,
+                tstzspan_set,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01}"),
+                tpds,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeq("{Point(1 1)@2019-09-01}"),
             ),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeq("{Point(2 2)@2019-09-02}"),
+                tpds,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeq("{Point(2 2)@2019-09-02}"),
             ),
             (tps, timestamp, TGeogPointSeq("[Point(1 1)@2019-09-01]")),
             (tps, timestamp_set, TGeogPointSeq("{Point(1 1)@2019-09-01}")),
             (
-                    tps,
-                    tstzspan,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                tps,
+                tstzspan,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
-                    tps,
-                    tstzspan_set,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                tps,
+                tstzspan_set,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeq("[Point(1 1)@2019-09-01]"),
+                tps,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeq("[Point(1 1)@2019-09-01]"),
             ),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeq("[Point(2 2)@2019-09-02]"),
+                tps,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeq("[Point(2 2)@2019-09-02]"),
             ),
             (tpss, timestamp, TGeogPointSeqSet("[Point(1 1)@2019-09-01]")),
             (
-                    tpss,
-                    timestamp_set,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}"),
+                tpss,
+                timestamp_set,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-03}"),
             ),
             (
-                    tpss,
-                    tstzspan,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tpss,
+                tstzspan,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tpss,
-                    tstzspan_set,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                tstzspan_set,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}"
+                ),
             ),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeqSet("{[Point(2 2)@2019-09-02]}"),
+                tpss,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeqSet("{[Point(2 2)@2019-09-02]}"),
             ),
         ],
         ids=[
@@ -2127,83 +2182,77 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
             (tpi, tstzspan_set, None),
             (tpi, shapely.set_srid(shapely.Point(1, 1), 4326), None),
             (
-                    tpi,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
+                tpi,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointInst("Point(1 1)@2019-09-01"),
             ),
             (tpds, timestamp, TGeogPointSeq("{Point(2 2)@2019-09-02}")),
             (tpds, timestamp_set, TGeogPointSeq("{Point(2 2)@2019-09-02}")),
             (tpds, tstzspan, None),
             (tpds, tstzspan_set, None),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeq("{Point(2 2)@2019-09-02}"),
+                tpds,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeq("{Point(2 2)@2019-09-02}"),
             ),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeq("{Point(1 1)@2019-09-01}"),
+                tpds,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeq("{Point(1 1)@2019-09-01}"),
             ),
             (
-                    tps,
-                    timestamp,
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tps,
+                timestamp,
+                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tps,
-                    timestamp_set,
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tps,
+                timestamp_set,
+                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (tps, tstzspan, None),
             (tps, tstzspan_set, None),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tps,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)}"),
+                tps,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02)}"),
             ),
             (
-                    tpss,
-                    timestamp,
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                timestamp,
+                TGeogPointSeqSet(
+                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
             (
-                    tpss,
-                    timestamp_set,
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],(Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                timestamp_set,
+                TGeogPointSeqSet(
+                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],(Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
             (
-                    tpss,
-                    tstzspan,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
+                tpss,
+                tstzspan,
+                TGeogPointSeqSet("{[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
             (tpss, tstzspan_set, None),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TGeogPointSeqSet(
-                        "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                tpss,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
             ),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -2293,9 +2342,8 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     )
     def test_at_minus(self, temporal, restrictor):
         assert (
-                TGeogPoint.from_merge(temporal.at(restrictor),
-                                      temporal.minus(restrictor))
-                == temporal
+            TGeogPoint.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
+            == temporal
         )
 
     @pytest.mark.parametrize(
@@ -2305,12 +2353,10 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
     )
     def test_at_minus_min_max(self, temporal):
         assert (
-                TGeogPoint.from_merge(temporal.at_min(),
-                                      temporal.minus_min()) == temporal
+            TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
         )
         assert (
-                TGeogPoint.from_merge(temporal.at_max(),
-                                      temporal.minus_max()) == temporal
+            TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
         )
 
 
@@ -2335,31 +2381,13 @@ class TestTGeogPointEverSpatialOperations(TestTGeogPoint):
     def test_temporal_ever_contained_withindist_intersects(self, temporal, expected):
         assert temporal.is_ever_within_distance(Point(1, 1), 1) == expected
         assert (
-                temporal.is_ever_within_distance(
-                    TGeogPointInst("Point(1 1)@2019-09-01"), 1)
-                == expected
+            temporal.is_ever_within_distance(TGeogPointInst("Point(1 1)@2019-09-01"), 1)
+            == expected
         )
         assert temporal.ever_intersects(Point(1, 1)) == expected
         assert (
-                temporal.ever_intersects(TGeogPointInst("Point(1 1)@2019-09-01"))
-                == expected
-        )
-
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, True),
-            (tpds, True),
-            (tps, True),
-            (tpss, True),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_temporal_ever_disjoint(self, temporal, expected):
-        assert temporal.is_ever_disjoint(Point(3, 3)) == expected
-        assert (
-                temporal.is_ever_disjoint(TGeogPointInst("Point(3 3)@2019-09-01"))
-                == expected
+            temporal.ever_intersects(TGeogPointInst("Point(1 1)@2019-09-01"))
+            == expected
         )
 
 
@@ -2377,17 +2405,17 @@ class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):
             (tpi, TBoolInst("True@2019-09-01")),
             (tpds, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
             (
-                    tps,
-                    TBoolSeqSet(
-                        "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"
-                    ),
+                tps,
+                TBoolSeqSet(
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"
+                ),
             ),
             (
-                    tpss,
-                    TBoolSeqSet(
-                        "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],"
-                        "[True@2019-09-03, True@2019-09-05]}"
-                    ),
+                tpss,
+                TBoolSeqSet(
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],"
+                    "[True@2019-09-03, True@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2404,11 +2432,11 @@ class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):
             (tpds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
             (tps, TBoolSeqSet("[False@2019-09-01, False@2019-09-02]")),
             (
-                    tpss,
-                    TBoolSeqSet(
-                        "{[False@2019-09-01, False@2019-09-02],"
-                        "[False@2019-09-03, False@2019-09-05]}"
-                    ),
+                tpss,
+                TBoolSeqSet(
+                    "{[False@2019-09-01, False@2019-09-02],"
+                    "[False@2019-09-03, False@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2423,38 +2451,38 @@ class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):
             (tpds, Point(1, 1), TBoolSeq("{True@2019-09-01, True@2019-09-02}")),
             (tps, Point(1, 1), TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}")),
             (
-                    tpss,
-                    Point(1, 1),
-                    TBoolSeqSet(
-                        "{[True@2019-09-01, True@2019-09-02],"
-                        "[True@2019-09-03, True@2019-09-05]}"
-                    ),
+                tpss,
+                Point(1, 1),
+                TBoolSeqSet(
+                    "{[True@2019-09-01, True@2019-09-02],"
+                    "[True@2019-09-03, True@2019-09-05]}"
+                ),
             ),
             (
-                    tpi,
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
-                    TBoolInst("True@2019-09-01"),
+                tpi,
+                TGeogPointInst("Point(1 1)@2019-09-01"),
+                TBoolInst("True@2019-09-01"),
             ),
             (
-                    tpds,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}"),
-                    TBoolSeq("{True@2019-09-01, False@2019-09-02}"),
+                tpds,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}"),
+                TBoolSeq("{True@2019-09-01, False@2019-09-02}"),
             ),
             (
-                    tps,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
-                    TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}"),
+                tps,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
+                TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}"),
             ),
             (
-                    tpss,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
-                    TBoolSeqSet(
-                        "{[True@2019-09-01, True@2019-09-02],"
-                        "[True@2019-09-03, True@2019-09-05]}"
-                    ),
+                tpss,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
+                TBoolSeqSet(
+                    "{[True@2019-09-01, True@2019-09-02],"
+                    "[True@2019-09-03, True@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -2487,53 +2515,53 @@ class TestTGeogPointDistanceOperations(TestTGeogPoint):
             (tpds, Point(1, 1), TFloatSeq("{0@2019-09-01, 156876.149@2019-09-02}")),
             (tps, Point(1, 1), TFloatSeq("[0@2019-09-01, 156876.149@2019-09-02]")),
             (
-                    tpss,
-                    Point(1, 1),
-                    TFloatSeqSet(
-                        "{[0@2019-09-01, 156876.149@2019-09-02],"
-                        "[0@2019-09-03, 0@2019-09-05]}"
-                    ),
+                tpss,
+                Point(1, 1),
+                TFloatSeqSet(
+                    "{[0@2019-09-01, 156876.149@2019-09-02],"
+                    "[0@2019-09-03, 0@2019-09-05]}"
+                ),
             ),
             (tpi, STBox("GEODSTBOX X((1,1),(1,1))"), TFloatInst("0@2019-09-01")),
             (
-                    tpds,
-                    STBox("GEODSTBOX X((1,1),(1,1))"),
-                    TFloatSeq("{0@2019-09-01, 156876.149@2019-09-02}"),
+                tpds,
+                STBox("GEODSTBOX X((1,1),(1,1))"),
+                TFloatSeq("{0@2019-09-01, 156876.149@2019-09-02}"),
             ),
             (
-                    tps,
-                    STBox("GEODSTBOX X((1,1),(1,1))"),
-                    TFloatSeq("[0@2019-09-01, 156876.149@2019-09-02]"),
+                tps,
+                STBox("GEODSTBOX X((1,1),(1,1))"),
+                TFloatSeq("[0@2019-09-01, 156876.149@2019-09-02]"),
             ),
             (
-                    tpss,
-                    STBox("GEODSTBOX X((1,1),(1,1))"),
-                    TFloatSeqSet(
-                        "{[0@2019-09-01, 156876.149@2019-09-02],"
-                        "[0@2019-09-03, 0@2019-09-05]}"
-                    ),
+                tpss,
+                STBox("GEODSTBOX X((1,1),(1,1))"),
+                TFloatSeqSet(
+                    "{[0@2019-09-01, 156876.149@2019-09-02],"
+                    "[0@2019-09-03, 0@2019-09-05]}"
+                ),
             ),
             (tpi, TGeogPointInst("Point(1 1)@2019-09-01"), TFloatInst("0@2019-09-01")),
             (
-                    tpds,
-                    TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}"),
-                    TFloatSeq("{0@2019-09-01, 156876.149@2019-09-02}"),
+                tpds,
+                TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}"),
+                TFloatSeq("{0@2019-09-01, 156876.149@2019-09-02}"),
             ),
             (
-                    tps,
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
-                    TFloatSeq("[0@2019-09-01, 156876.149@2019-09-02]"),
+                tps,
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]"),
+                TFloatSeq("[0@2019-09-01, 156876.149@2019-09-02]"),
             ),
             (
-                    tpss,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
-                    TFloatSeqSet(
-                        "{[0@2019-09-01, 156876.149@2019-09-02],"
-                        "[0@2019-09-03, 0@2019-09-05]}"
-                    ),
+                tpss,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
+                TFloatSeqSet(
+                    "{[0@2019-09-01, 156876.149@2019-09-02],"
+                    "[0@2019-09-03, 0@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -2566,11 +2594,11 @@ class TestTGeogPointDistanceOperations(TestTGeogPoint):
             (tpds, TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}")),
             (tps, TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]")),
             (
-                    tpss,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -2600,11 +2628,11 @@ class TestTGeogPointDistanceOperations(TestTGeogPoint):
             (tpds, TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}")),
             (tps, TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]")),
             (
-                    tpss,
-                    TGeogPointSeqSet(
-                        "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
-                        "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                    ),
+                tpss,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
@@ -2686,11 +2714,11 @@ class TestTGeogPointSplitOperations(TestTGeogPoint):
             (tpds, [TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}")]),
             (tps, [TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]")]),
             (
-                    tpss,
-                    [
-                        TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                        TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
-                    ],
+                tpss,
+                [
+                    TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
+                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                ],
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2703,29 +2731,29 @@ class TestTGeogPointSplitOperations(TestTGeogPoint):
         [
             (tpi, [TGeogPointInst("Point(1 1)@2019-09-01")]),
             (
-                    tpds,
-                    [
-                        TGeogPointSeq("{Point(1 1)@2019-09-01}"),
-                        TGeogPointSeq("{Point(2 2)@2019-09-02}"),
-                    ],
+                tpds,
+                [
+                    TGeogPointSeq("{Point(1 1)@2019-09-01}"),
+                    TGeogPointSeq("{Point(2 2)@2019-09-02}"),
+                ],
             ),
             (
-                    tps,
-                    [
-                        TGeogPointSeq(
-                            "[Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00+00)"
-                        ),
-                        TGeogPointSeq(
-                            "[Point(1.5 1.5)@2019-09-01 12:00:00+00, Point(2 2)@2019-09-02]"
-                        ),
-                    ],
+                tps,
+                [
+                    TGeogPointSeq(
+                        "[Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00+00)"
+                    ),
+                    TGeogPointSeq(
+                        "[Point(1.5 1.5)@2019-09-01 12:00:00+00, Point(2 2)@2019-09-02]"
+                    ),
+                ],
             ),
             (
-                    tpss,
-                    [
-                        TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                        TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
-                    ],
+                tpss,
+                [
+                    TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
+                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                ],
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2843,18 +2871,18 @@ class TestTGeogPointTemporalComparisons(TestTGeogPoint):
             (tpi, TBoolInst("False@2019-09-01")),
             (tpds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
             (
-                    tps,
-                    TBoolSeqSet(
-                        "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
-                        "(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
-                    ),
+                tps,
+                TBoolSeqSet(
+                    "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
+                    "(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
+                ),
             ),
             (
-                    tpss,
-                    TBoolSeqSet(
-                        "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
-                        "(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}"
-                    ),
+                tpss,
+                TBoolSeqSet(
+                    "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
+                    "(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2867,50 +2895,50 @@ class TestTGeogPointTemporalComparisons(TestTGeogPoint):
         "temporal, argument, expected",
         [
             (
-                    tpi,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TBoolInst("True@2019-09-01"),
+                tpi,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TBoolInst("True@2019-09-01"),
             ),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TBoolSeq("{True@2019-09-01, False@2019-09-02}"),
+                tpds,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TBoolSeq("{True@2019-09-01, False@2019-09-02}"),
             ),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TBoolSeqSet(
-                        "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"
-                    ),
+                tps,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TBoolSeqSet(
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"
+                ),
             ),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(1, 1), 4326),
-                    TBoolSeqSet(
-                        "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
-                    ),
+                tpss,
+                shapely.set_srid(shapely.Point(1, 1), 4326),
+                TBoolSeqSet(
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
+                ),
             ),
             (
-                    tpi,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TBoolInst("False@2019-09-01"),
+                tpi,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TBoolInst("False@2019-09-01"),
             ),
             (
-                    tpds,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TBoolSeq("{False@2019-09-01, True@2019-09-02}"),
+                tpds,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TBoolSeq("{False@2019-09-01, True@2019-09-02}"),
             ),
             (
-                    tps,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TBoolSeq("[False@2019-09-01, True@2019-09-02]"),
+                tps,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TBoolSeq("[False@2019-09-01, True@2019-09-02]"),
             ),
             (
-                    tpss,
-                    shapely.set_srid(shapely.Point(2, 2), 4326),
-                    TBoolSeqSet(
-                        "{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"
-                    ),
+                tpss,
+                shapely.set_srid(shapely.Point(2, 2), 4326),
+                TBoolSeqSet(
+                    "{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"
+                ),
             ),
         ],
         ids=[
