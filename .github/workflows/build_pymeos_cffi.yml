@@ -13,7 +13,9 @@ jobs:
     name: Build PyMEOS CFFI source distribution
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         name: Install Python
         with:
@@ -22,6 +24,7 @@ jobs:
       - name: Check metadata
         working-directory: pymeos_cffi
         run: "python setup.py check"
+
       - name: Build sdist
         working-directory: pymeos_cffi
         run: |
@@ -45,6 +48,9 @@ jobs:
             ld_path: "/opt/homebrew/lib"
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Update brew
         if: matrix.os == 'macos-13'
         # Necessary to avoid issue with macOS runners. See
