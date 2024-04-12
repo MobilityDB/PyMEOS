@@ -9,7 +9,28 @@ on:
       - "pymeos-cffi-[0-9]+.[0-9]+.[0-9]+*"
 
 jobs:
-  build:
+  build_sdist:
+    name: Build PyMEOS CFFI source distribution
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        name: Install Python
+        with:
+          python-version: 3.8
+
+      - name: Check metadata
+        run: "python setup.py check"
+      - name: Build sdist
+        run: |
+          python setup.py sdist 
+          ls -l dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./dist/pymeos_cffi-*.tar.gz
+
+  build_wheels:
     name: Build PyMEOS CFFI for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -22,16 +43,6 @@ jobs:
             ld_path: "/opt/homebrew/lib"
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Get dependencies from apt (cache)
-        uses: awalsh128/cache-apt-pkgs-action@latest
-        if: runner.os == 'Linux'
-        with:
-          packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
-          version: 1.0
-
       - name: Update brew
         if: matrix.os == 'macos-13'
         # Necessary to avoid issue with macOS runners. See
@@ -48,10 +59,12 @@ jobs:
           tools: cmake libpq proj json-c gsl geos
 
       - name: Fetch MEOS sources
+        if: runner.os == 'macOS'
         run: |
           git clone --depth 1 https://github.com/MobilityDB/MobilityDB
 
       - name: Install MEOS
+        if: runner.os == 'macOS'
         run: |
           mkdir MobilityDB/build
           cd MobilityDB/build
@@ -59,8 +72,8 @@ jobs:
           make -j
           sudo make install
 
-      # Used to host cibuildwheel
-      - uses: actions/setup-python@v3
+      - name: Setup Python
+        uses: actions/setup-python@v5
 
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.17.0
@@ -71,8 +84,19 @@ jobs:
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
           python -m cibuildwheel --output-dir wheelhouse
-        # to supply options, put them in 'env', like:
         env:
+          CIBW_BEFORE_ALL_LINUX: "
+          yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+          yum -y update
+          yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel json-c-devel geos39-devel gsl-devel
+          git clone https://github.com/MobilityDB/MobilityDB
+          mkdir MobilityDB/build
+          cd MobilityDB/build
+          cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so
+          make -j
+          make install
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+          "
           CIBW_TEST_COMMAND: "from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()"
 
       - uses: actions/upload-artifact@v4
