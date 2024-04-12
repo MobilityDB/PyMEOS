@@ -28,6 +28,8 @@ jobs:
       - name: Build sdist
         working-directory: pymeos_cffi
         run: |
+          pwd
+          ls -l
           python setup.py sdist 
           ls -l dist
 
