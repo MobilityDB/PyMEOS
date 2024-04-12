@@ -1,3 +1,4 @@
+import os
 import platform
 import sys
 
@@ -12,27 +13,19 @@ ffibuilder.cdef(content)
 
 
 def get_library_dirs():
-    if sys.platform == "linux":
-        return ["/usr/local/lib"]
-    elif sys.platform == "darwin":
-        if platform.processor() == "arm":
-            return ["/opt/homebrew/lib"]
-        else:
-            return ["/usr/local/lib"]
-    else:
-        raise NotImplementedError("Unsupported platform")
+    paths = [
+        "/usr/local/lib",
+        "/opt/homebrew/lib"
+    ]
+    return [path for path in paths if os.path.exists(path)]
 
 
 def get_include_dirs():
-    if sys.platform == "linux":
-        return ["/usr/local/include"]
-    elif sys.platform == "darwin":
-        if platform.processor() == "arm":
-            return ["/opt/homebrew/include"]
-        else:
-            return ["/usr/local/include"]
-    else:
-        raise NotImplementedError("Unsupported platform")
+    paths = [
+        "/usr/local/include",
+        "/opt/homebrew/include"
+    ]
+    return [path for path in paths if os.path.exists(path)]
 
 
 ffibuilder.set_source(
@@ -42,9 +35,6 @@ ffibuilder.set_source(
     library_dirs=get_library_dirs(),
     include_dirs=get_include_dirs(),
 )  # library name, for the linker
-
-print(f"get_library_dirs: {get_library_dirs()}")
-print(f"get_include_dirs: {get_include_dirs()}")
 
 if __name__ == "__main__":  # not when running with setuptools
     ffibuilder.compile(verbose=True)
