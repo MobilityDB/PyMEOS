@@ -105,7 +105,7 @@ jobs:
           && make install
           && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
           "
-          CIBW_TEST_COMMAND: "from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()"
+          CIBW_TEST_COMMAND: "python -c \"from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()\""
 
       - uses: actions/upload-artifact@v4
         with:
