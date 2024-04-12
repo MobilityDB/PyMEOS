@@ -35,9 +35,10 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          path: ./dist/pymeos_cffi-*.tar.gz
+          path: ./pymeos_cffi/dist/pymeos_cffi-*.tar.gz
 
   build_wheels:
+    if: false
     name: Build PyMEOS CFFI for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
