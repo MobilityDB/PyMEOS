@@ -43,5 +43,8 @@ ffibuilder.set_source(
     include_dirs=get_include_dirs(),
 )  # library name, for the linker
 
+print(f"get_library_dirs: {get_library_dirs()}")
+print(f"get_include_dirs: {get_include_dirs()}")
+
 if __name__ == "__main__":  # not when running with setuptools
     ffibuilder.compile(verbose=True)
