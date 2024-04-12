@@ -21,16 +21,10 @@ jobs:
         with:
           python-version: 3.8
 
-      - name: Check metadata
-        working-directory: pymeos_cffi
-        run: "python setup.py check"
-
       - name: Build sdist
         working-directory: pymeos_cffi
         run: |
-          pwd
-          ls -l
-          python setup.py sdist 
+          python -m build -s
           ls -l dist
 
       - uses: actions/upload-artifact@v4
