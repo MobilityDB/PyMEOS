@@ -115,3 +115,51 @@ jobs:
         with:
           name: cibw-wheels-${{ matrix.os }}
           path: ./pymeos_cffi/wheelhouse/*.whl
+
+  test_wheels:
+    name: Test PyMEOS CFFI wheel - Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    needs: build_wheels
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        os: [ ubuntu-latest, macos-13, macos-14 ]
+        exclude:
+          # Necessary due to issue with macOS runners. See
+          # https://github.com/actions/setup-python/issues/808
+          # Can be removed once this PR is merged:
+          # https://github.com/actions/python-versions/pull/259
+          - os: macos-14
+            python-version: "3.8"
+          - os: macos-14
+            python-version: "3.9"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          name: cibw-wheels-${{ matrix.os }}
+          path: ./pymeos_cffi_wheels
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+
+      - name: Install PyMEOS dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -f ./pymeos_cffi_wheels pymeos_cffi
+          pip install -r pymeos/dev-requirements.txt
+
+      - name: Test PyMEOS with pytest
+        working-directory: pymeos
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
+          pytest
