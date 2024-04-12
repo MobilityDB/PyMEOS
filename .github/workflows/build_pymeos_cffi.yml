@@ -78,10 +78,6 @@ jobs:
           make -j
           sudo make install
 
-      - name: Set up QEMU
-        if: runner.os == 'Linux'
-        uses: docker/setup-qemu-action@v2
-
       - name: Setup Python
         uses: actions/setup-python@v5
 
