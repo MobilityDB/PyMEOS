@@ -160,3 +160,20 @@ jobs:
       - name: Test PyMEOS with pytest
         working-directory: pymeos
         run: pytest
+
+  upload_pypi:
+    name: Upload to PyPI
+    needs: [ test_wheels, build_sdist ]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: ./dist
+          merge-multiple: true
+
+      - uses: pypa/gh-action-pypi-publish@v1
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository_url: https://test.pypi.org/legacy/
+          skip_existing: true
