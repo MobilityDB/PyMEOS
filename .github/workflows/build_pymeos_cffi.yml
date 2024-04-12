@@ -67,7 +67,10 @@ jobs:
 
       - name: Build wheels
         working-directory: pymeos_cffi
-        run: python -m cibuildwheel --output-dir wheelhouse
+        run: |
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
+          python -m cibuildwheel --output-dir wheelhouse
         # to supply options, put them in 'env', like:
         env:
           CIBW_TEST_COMMAND: "from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()"
