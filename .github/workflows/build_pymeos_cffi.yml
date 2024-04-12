@@ -20,8 +20,10 @@ jobs:
           python-version: 3.8
 
       - name: Check metadata
+        working-directory: pymeos_cffi
         run: "python setup.py check"
       - name: Build sdist
+        working-directory: pymeos_cffi
         run: |
           python setup.py sdist 
           ls -l dist
@@ -101,5 +103,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}-${{ strategy.job-index }}
+          name: cibw-wheels-${{ matrix.os }}
           path: ./wheelhouse/*.whl
