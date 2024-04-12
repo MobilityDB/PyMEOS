@@ -38,7 +38,6 @@ jobs:
           path: ./pymeos_cffi/dist/pymeos_cffi-*.tar.gz
 
   build_wheels:
-    if: false
     name: Build PyMEOS CFFI for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -113,4 +112,4 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: cibw-wheels-${{ matrix.os }}
-          path: ./wheelhouse/*.whl
+          path: ./pymeos_cffi/wheelhouse/*.whl
