@@ -68,14 +68,10 @@ jobs:
         with:
           tools: cmake libpq proj json-c gsl geos
 
-      - name: Fetch MEOS sources
-        if: runner.os == 'macOS'
-        run: |
-          git clone --depth 1 https://github.com/MobilityDB/MobilityDB
-
       - name: Install MEOS
         if: runner.os == 'macOS'
         run: |
+          git clone --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
           cmake .. -DMEOS=on
@@ -96,6 +92,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse
         env:
           CIBW_SKIP: "pp*-manylinux*" # Disable PyPy builds on Linux since shapely has no built distributions for them
+          CIBW_ARCHS_LINUX: "x86_64 aarch64"
           CIBW_BEFORE_ALL_LINUX: "
           yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
           && yum -y update
