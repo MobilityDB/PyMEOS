@@ -123,8 +123,14 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: >
             yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
             yum -y update &&
-            yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel json-c-devel geos39-devel gsl-devel &&
-            git clone https://github.com/MobilityDB/MobilityDB &&
+            yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel geos39-devel gsl-devel &&
+            git clone --branch json-c-0.17 --depth 1 https://github.com/json-c/json-c &&
+            mkdir json-c-build &&
+            cd json-c-build &&
+            cmake ../json-c &&
+            make &&
+            make install &&            
+            git clone --depth 1 https://github.com/MobilityDB/MobilityDB &&
             mkdir MobilityDB/build &&
             cd MobilityDB/build &&
             cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
