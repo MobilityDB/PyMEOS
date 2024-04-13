@@ -1,10 +1,6 @@
 name: Build PyMEOS CFFI
 
 on:
-  push:
-    branches:
-      - build-actions
-      - fix-proj-pinning
   create:
     tags:
       - "pymeos-cffi-[0-9]+.[0-9]+.[0-9]+*"
@@ -200,7 +196,7 @@ jobs:
           path: ./dist
           merge-multiple: true
 
-      - uses: pypa/gh-action-pypi-publish@v1
+      - uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
