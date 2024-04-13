@@ -1,6 +1,4 @@
 import os
-import platform
-import sys
 
 from cffi import FFI
 
@@ -13,18 +11,12 @@ ffibuilder.cdef(content)
 
 
 def get_library_dirs():
-    paths = [
-        "/usr/local/lib",
-        "/opt/homebrew/lib"
-    ]
+    paths = ["/usr/local/lib", "/opt/homebrew/lib"]
     return [path for path in paths if os.path.exists(path)]
 
 
 def get_include_dirs():
-    paths = [
-        "/usr/local/include",
-        "/opt/homebrew/include"
-    ]
+    paths = ["/usr/local/include", "/opt/homebrew/include"]
     return [path for path in paths if os.path.exists(path)]
 
 
@@ -34,7 +26,7 @@ ffibuilder.set_source(
     libraries=["meos"],
     library_dirs=get_library_dirs(),
     include_dirs=get_include_dirs(),
-)  # library name, for the linker
+)
 
 if __name__ == "__main__":  # not when running with setuptools
     ffibuilder.compile(verbose=True)

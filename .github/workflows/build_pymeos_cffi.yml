@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - build-actions
+      - fix-proj-pinning
   create:
     tags:
       - "pymeos-cffi-[0-9]+.[0-9]+.[0-9]+*"
@@ -35,6 +36,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
+          name: pymeos_cffi-sdist
           path: ./pymeos_cffi/dist/pymeos_cffi-*.tar.gz
 
   build_wheels:
@@ -45,18 +47,9 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
-          - os: ubuntu-latest
-            ld_path: "/usr/local/lib"
-            proj_package: "proj81"
-            proj_dir: "/usr/proj81" # PROJ 8.1 latest available in manylinux2014 images
-          - os: macos-13
-            ld_path: "/usr/local/lib"
-            proj_package: "proj@9.4.0"
-            proj_dir: "/usr/local/Cellar/proj/9.4.0"
+          - ld_prefix: "/usr/local"
           - os: macos-14
-            ld_path: "/opt/homebrew/lib"
-            proj_package: "proj@9.4.0"
-            proj_dir: "opt/homebrew/Cellar/proj/9.4.0"
+            ld_prefix: "/opt/homebrew"
 
     steps:
       - name: Checkout
@@ -75,7 +68,15 @@ jobs:
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq ${{ matrix.proj_package }} json-c gsl geos
+          tools: cmake libpq proj json-c gsl geos
+
+      - name: Get PROJ version
+        id: proj_version
+        if: runner.os == 'macOS'
+        run: |
+          proj_version=$(brew list --versions proj)
+          proj_version=${proj_version#* }
+          echo "proj_version=$proj_version" >> $GITHUB_OUTPUT
 
       - name: Install MEOS
         if: runner.os == 'macOS'
@@ -93,12 +94,23 @@ jobs:
       - name: Install cibuildwheel
         run: python -m pip install cibuildwheel==2.17.0
 
+      - name: Set PROJ_DATA (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          PROJ_DATA=${{ matrix.ld_prefix }}/Cellar/proj/${{ steps.proj_version.outputs.proj_version }}/share/proj
+          echo "PROJ_DATA=$PROJ_DATA" >> $GITHUB_ENV
+
+      - name: Set PROJ_DATA (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          PROJ_DATA=/usr/proj81/share/proj
+          echo "PROJ_DATA=$PROJ_DATA" >> $GITHUB_ENV
+
       - name: Build wheels
         working-directory: pymeos_cffi
         run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
-          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
-          export PROJ_DATA=${{ matrix.proj_dir }}/share/proj
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export PACKAGE_DATA=1
           python -m cibuildwheel --output-dir wheelhouse
         env:
@@ -107,25 +119,23 @@ jobs:
           # Disable builds in linux architectures other than x86_64
           CIBW_SKIP: "pp*-manylinux* *musllinux*"
           CIBW_ARCHS_LINUX: "x86_64"
-          CIBW_BEFORE_ALL_LINUX: "
-          yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
-          && yum -y update
-          && yum -y install gcc gcc-c++ make cmake postgresql13-devel ${{ matrix.proj_package }}-devel json-c-devel geos39-devel gsl-devel
-          && export PROJ_DATA=${{ matrix.proj_dir }}/share/proj
-          && export PACKAGE_DATA=1
-          && git clone https://github.com/MobilityDB/MobilityDB
-          && mkdir MobilityDB/build
-          && cd MobilityDB/build
-          && cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=${{ matrix.proj_dir }}/include/ -DPROJ_LIBRARIES=${{ matrix.proj_dir }}/lib/libproj.so
-          && make -j
-          && make install
-          && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-          "
+          CIBW_ENVIRONMENT_PASS_LINUX: PACKAGE_DATA LD_LIBRARY_PATH PROJ_DATA
+          CIBW_BEFORE_ALL_LINUX: >
+            yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm &&
+            yum -y update &&
+            yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel json-c-devel geos39-devel gsl-devel &&
+            git clone https://github.com/MobilityDB/MobilityDB &&
+            mkdir MobilityDB/build &&
+            cd MobilityDB/build &&
+            cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so &&
+            make -j &&
+            make install
+
           CIBW_TEST_COMMAND: "python -c \"from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()\""
 
       - uses: actions/upload-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}
+          name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./pymeos_cffi/wheelhouse/*.whl
 
   test_wheels:
@@ -154,7 +164,7 @@ jobs:
       - name: Download wheels
         uses: actions/download-artifact@v4
         with:
-          name: cibw-wheels-${{ matrix.os }}
+          name: pymeos_cffi-wheels-${{ matrix.os }}
           path: ./pymeos_cffi_wheels
 
       - name: Set up Python ${{ matrix.python-version }}
