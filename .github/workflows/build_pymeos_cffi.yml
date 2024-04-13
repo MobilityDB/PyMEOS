@@ -45,9 +45,18 @@ jobs:
       matrix:
         os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
-          - ld_path: "/usr/local/lib"
+          - os: ubuntu-latest
+            ld_path: "/usr/local/lib"
+            proj_package: "proj81"
+            proj_dir: "/usr/proj81" # PROJ 8.1 latest available in manylinux2014 images
+          - os: macos-13
+            ld_path: "/usr/local/lib"
+            proj_package: "proj@9.4.0"
+            proj_dir: "/usr/local/Cellar/proj/9.4.0"
           - os: macos-14
             ld_path: "/opt/homebrew/lib"
+            proj_package: "proj@9.4.0"
+            proj_dir: "opt/homebrew/Cellar/proj/9.4.0"
 
     steps:
       - name: Checkout
@@ -66,7 +75,7 @@ jobs:
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq proj json-c gsl geos
+          tools: cmake libpq ${{ matrix.proj_package }} json-c gsl geos
 
       - name: Install MEOS
         if: runner.os == 'macOS'
@@ -89,6 +98,8 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
+          export PROJ_DATA=${{ matrix.proj_dir }}/share/proj
+          export PACKAGE_DATA=1
           python -m cibuildwheel --output-dir wheelhouse
         env:
           # Disable PyPy builds on Linux since shapely has no built distributions for them
@@ -99,11 +110,13 @@ jobs:
           CIBW_BEFORE_ALL_LINUX: "
           yum -y install https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
           && yum -y update
-          && yum -y install gcc gcc-c++ make cmake postgresql13-devel proj81-devel json-c-devel geos39-devel gsl-devel
+          && yum -y install gcc gcc-c++ make cmake postgresql13-devel ${{ matrix.proj_package }}-devel json-c-devel geos39-devel gsl-devel
+          && export PROJ_DATA=${{ matrix.proj_dir }}/share/proj
+          && export PACKAGE_DATA=1
           && git clone https://github.com/MobilityDB/MobilityDB
           && mkdir MobilityDB/build
           && cd MobilityDB/build
-          && cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=/usr/proj81/include/ -DPROJ_LIBRARIES=/usr/proj81/lib/libproj.so
+          && cmake .. -DMEOS=on -DGEOS_INCLUDE_DIR=/usr/geos39/include/ -DGEOS_LIBRARY=/usr/geos39/lib64/libgeos_c.so -DGEOS_CONFIG=/usr/geos39/bin/geos-config -DPROJ_INCLUDE_DIRS=${{ matrix.proj_dir }}/include/ -DPROJ_LIBRARIES=${{ matrix.proj_dir }}/lib/libproj.so
           && make -j
           && make install
           && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
