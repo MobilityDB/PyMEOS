@@ -100,11 +100,12 @@ jobs:
           PROJ_DATA=${{ matrix.ld_prefix }}/Cellar/proj/${{ steps.proj_version.outputs.proj_version }}/share/proj
           echo "PROJ_DATA=$PROJ_DATA" >> $GITHUB_ENV
 
-      - name: Set PROJ_DATA (Linux)
+      - name: Set PROJ_DATA and JSON-C path (Linux)
         if: runner.os == 'Linux'
         run: |
           PROJ_DATA=/usr/proj81/share/proj
           echo "PROJ_DATA=$PROJ_DATA" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib64" >> $GITHUB_ENV
 
       - name: Build wheels
         working-directory: pymeos_cffi
