@@ -44,10 +44,11 @@ def meos_initialize_modifier(_: str) -> str:
     return """def meos_initialize(tz_str: "Optional[str]") -> None:
     
     if "PROJ_DATA" not in os.environ and "PROJ_LIB" not in os.environ:
-        # Assume we are in a wheel and the PROJ data is in the package
         proj_dir = os.path.join(os.path.dirname(__file__), "proj_data")
-        os.environ["PROJ_DATA"] = proj_dir
-        os.environ["PROJ_LIB"] = proj_dir
+        if os.path.exists(proj_dir):
+            # Assume we are in a wheel and the PROJ data is in the package
+            os.environ["PROJ_DATA"] = proj_dir
+            os.environ["PROJ_LIB"] = proj_dir
     
     tz_str_converted = tz_str.encode('utf-8') if tz_str is not None else _ffi.NULL
     _lib.meos_initialize(tz_str_converted, _lib.py_error_handler)"""
