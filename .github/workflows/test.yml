@@ -32,6 +32,13 @@ jobs:
             python-version: "3.8"
           - os: macos-14
             python-version: "3.9"
+            # Disable PyPy tests on Linux since shapely is not available for them automatically
+          - os: ubuntu-latest
+            python-version: "pypy3.8"
+          - os: ubuntu-latest
+            python-version: "pypy3.9"
+          - os: ubuntu-latest
+            python-version: "pypy3.10"
         include:
           - ld_path: "/usr/local/lib"
           - os: macos-14
