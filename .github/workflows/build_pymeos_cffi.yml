@@ -39,7 +39,6 @@ jobs:
     name: Build PyMEOS CFFI for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
         os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
