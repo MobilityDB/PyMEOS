@@ -136,7 +136,8 @@ jobs:
             make -j &&
             make install
 
-          CIBW_TEST_COMMAND: "python -c \"from pymeos_cffi import meos_initialize, meos_finalize; meos_initialize('UTC'); meos_finalize()\""
+          # Skip tests since they will be thoroughly tested in the next job
+          CIBW_TEST_SKIP: "*"
 
       - uses: actions/upload-artifact@v4
         with:
@@ -150,7 +151,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12", "pypy3.8", "pypy3.9", "pypy3.10" ]
         os: [ ubuntu-latest, macos-13, macos-14 ]
         exclude:
           # Necessary due to issue with macOS runners. See
@@ -161,6 +162,13 @@ jobs:
             python-version: "3.8"
           - os: macos-14
             python-version: "3.9"
+            # Disable PyPy builds on Linux since shapely has no built distributions for them
+          - os: ubuntu-latest
+            python-version: "pypy3.8"
+          - os: ubuntu-latest
+            python-version: "pypy3.9"
+          - os: ubuntu-latest
+            python-version: "pypy3.10"
 
     steps:
       - name: Checkout
