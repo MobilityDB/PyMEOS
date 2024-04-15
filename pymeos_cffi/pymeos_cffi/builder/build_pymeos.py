@@ -1,5 +1,4 @@
-import platform
-import sys
+import os
 
 from cffi import FFI
 
@@ -12,15 +11,13 @@ ffibuilder.cdef(content)
 
 
 def get_library_dirs():
-    if sys.platform == "linux":
-        return ["/usr/local/lib"]
-    elif sys.platform == "darwin":
-        if platform.processor() == "arm":
-            return ["/opt/homebrew/lib"]
-        else:
-            return ["/usr/local/lib"]
-    else:
-        raise NotImplementedError("Unsupported platform")
+    paths = ["/usr/local/lib", "/opt/homebrew/lib"]
+    return [path for path in paths if os.path.exists(path)]
+
+
+def get_include_dirs():
+    paths = ["/usr/local/include", "/opt/homebrew/include"]
+    return [path for path in paths if os.path.exists(path)]
 
 
 ffibuilder.set_source(
@@ -28,7 +25,8 @@ ffibuilder.set_source(
     '#include "meos.h"\n' '#include "meos_catalog.h"\n' '#include "meos_internal.h"',
     libraries=["meos"],
     library_dirs=get_library_dirs(),
-)  # library name, for the linker
+    include_dirs=get_include_dirs(),
+)
 
 if __name__ == "__main__":  # not when running with setuptools
     ffibuilder.compile(verbose=True)
