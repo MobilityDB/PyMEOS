@@ -6,13 +6,15 @@ on:
     paths-ignore:
       - "docs/**"
       - ".readthedocs.yml"
-      - "README.md"
+      - "**/README.md"
+      - ".github/ISSUE_TEMPLATE/**"
   pull_request:
     branches: [ "develop", "master" ]
     paths-ignore:
       - "docs/**"
       - ".readthedocs.yml"
-      - "README.md"
+      - "**/README.md"
+      - ".github/ISSUE_TEMPLATE/**"
 
 jobs:
   test:
