@@ -22,11 +22,23 @@ Installing PyMEOS
 ==================
 
 We recommend installing PyMEOS using one of the available built
-distributions using ``pip``:
+distributions using ``pip`` or ``conda``:
+
+Using ``pip``:
 
 .. code-block:: console
 
-    $ pip install pymeos
+    pip install pymeos
+
+
+Using ``conda``:
+
+.. code-block:: console
+
+    conda config --add channels conda-forge
+    conda config --set channel_priority strict
+    conda install -c conda-forge pymeos
+
 
 See the `installation documentation <./src/installation.html>`__
 for more details and advanced installation instructions.
