@@ -19,6 +19,10 @@ This repository contains 2 subprojects:
 
 ## Installation
 
+You can install PyMEOS (`pymeos` and `pymeos-cffi`) using `pip`, `conda`, or from sources.
+
+### Using pip
+
 ````shell
 pip install pymeos
 ````
@@ -43,6 +47,11 @@ Then, you can install PyMEOS using the following command:
 ````shell
 conda install conda-forge::pymeos
 ````
+
+### Source installation
+
+For detailed instructions on how to install PyMEOS from sources, see
+the [installation page](https://pymeos.readthedocs.io/en/latest/src/installation.html#) in the PyMEOS Documentation.
 
 ## Sample code
 
@@ -69,8 +78,12 @@ print(f'Speeds: {speed}')
 # Call finish at the end of your code
 pymeos_finalize()
 ````
+````
+Output: [POINT(10 10)@2019-09-01 01:00:00+02, POINT(20 20)@2019-09-02 01:00:00+02, POINT(10 10)@2019-09-03 01:00:00+02]
+Speeds: Interp=Step;[17.84556057812839@2019-09-01 01:00:00+02, 17.84556057812839@2019-09-03 01:00:00+02]
+````
 
-For more examples, see [PyMEOS Examples repository](https://github.com/MobilityDB/PyMEOS-Examples)
+For more examples and use-cases, see [PyMEOS Examples repository](https://github.com/MobilityDB/PyMEOS-Examples)
 
 # Documentation
 
