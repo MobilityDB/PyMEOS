@@ -22,14 +22,31 @@ This repository contains 2 subprojects:
 ````shell
 pip install pymeos
 ````
-> PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is 
+
+> PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is
 > not available for PyMEOS CFFI for some OS/Architecture.  
-> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation) 
+> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation)
 > on how to proceed
+
+### Using conda
+
+PyMEOS is also available on the conda-forge channel. To install it, first add the conda-forge channel to your conda
+configuration:
+
+````shell
+conda config --add channels conda-forge
+conda config --set channel_priority strict
+````
+
+Then, you can install PyMEOS using the following command:
+
+````shell
+conda install conda-forge::pymeos
+````
 
 ## Sample code
 
->  **IMPORTANT** Before using any PyMEOS function, always call `pymeos_initialize`. Otherwise, the library will 
+> **IMPORTANT** Before using any PyMEOS function, always call `pymeos_initialize`. Otherwise, the library will
 > crash with a `Segmentation Fault` error. You should also always call `pymeos_finalize` at the end of your code.
 
 ````python
@@ -38,10 +55,14 @@ from pymeos import pymeos_initialize, pymeos_finalize, TGeogPointInst, TGeogPoin
 # Important: Always initialize MEOS library
 pymeos_initialize()
 
-sequence_from_string = TGeogPointSeq(string='[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]')
+sequence_from_string = TGeogPointSeq(
+    string='[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]')
 print(f'Output: {sequence_from_string}')
 
-sequence_from_points = TGeogPointSeq(instant_list=[TGeogPointInst(string='Point(10.0 10.0)@2019-09-01 00:00:00+01'), TGeogPointInst(string='Point(20.0 20.0)@2019-09-02 00:00:00+01'), TGeogPointInst(string='Point(10.0 10.0)@2019-09-03 00:00:00+01')], lower_inc=True, upper_inc=True)
+sequence_from_points = TGeogPointSeq(instant_list=[TGeogPointInst(string='Point(10.0 10.0)@2019-09-01 00:00:00+01'),
+                                                   TGeogPointInst(string='Point(20.0 20.0)@2019-09-02 00:00:00+01'),
+                                                   TGeogPointInst(string='Point(10.0 10.0)@2019-09-03 00:00:00+01')],
+                                     lower_inc=True, upper_inc=True)
 speed = sequence_from_points.speed()
 print(f'Speeds: {speed}')
 
@@ -53,4 +74,5 @@ For more examples, see [PyMEOS Examples repository](https://github.com/MobilityD
 
 # Documentation
 
-Visit our [ReadTheDocs page](https://pymeos.readthedocs.io/en/latest/) for a more complete and detailed documentation, including an installation manual and several examples.
+Visit our [ReadTheDocs page](https://pymeos.readthedocs.io/en/latest/) for a more complete and detailed documentation,
+including an installation manual and several examples.
