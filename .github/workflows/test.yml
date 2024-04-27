@@ -2,18 +2,18 @@ name: Test PyMEOS
 
 on:
   push:
-    branches: [ "develop", "master" ]
+    branches: [ "master", "stable-[0-9]+.[0-9]+" ]
     paths-ignore:
       - "docs/**"
       - ".readthedocs.yml"
-      - "**/README.md"
+      - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
   pull_request:
-    branches: [ "develop", "master" ]
+    branches: [ "master", "stable-[0-9]+.[0-9]+" ]
     paths-ignore:
       - "docs/**"
       - ".readthedocs.yml"
-      - "**/README.md"
+      - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
 
 jobs:
@@ -25,15 +25,6 @@ jobs:
       matrix:
         python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
         os: [ ubuntu-latest, macos-13, macos-14 ]
-        exclude:
-          # Necessary due to issue with macOS runners. See
-          # https://github.com/actions/setup-python/issues/808
-          # Can be removed once this PR is merged:
-          # https://github.com/actions/python-versions/pull/259
-          - os: macos-14
-            python-version: "3.8"
-          - os: macos-14
-            python-version: "3.9"
         include:
           - ld_path: "/usr/local/lib"
           - os: macos-14
@@ -85,15 +76,21 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
+      - name: Fetch PyMEOS CFFI sources
+        env:
+          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+        run: |
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
+
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r pymeos_cffi/dev-requirements.txt
-          pip install -r pymeos/dev-requirements.txt
+          pip install -r PyMEOS-CFFI/dev-requirements.txt
+          pip install -r dev-requirements.txt
 
       - name: Install pymeos_cffi
         run: |
-          cd pymeos_cffi
+          cd PyMEOS-CFFI
           python ./pymeos_cffi/builder/build_header.py
           python ./pymeos_cffi/builder/build_pymeos_functions.py
           pip install .
@@ -102,5 +99,4 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
-          cd pymeos
           pytest

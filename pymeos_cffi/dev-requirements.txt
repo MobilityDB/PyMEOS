@@ -1,4 +1,0 @@
-cffi
-python-dateutil
-shapely
-build

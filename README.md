@@ -9,11 +9,8 @@ temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)
 
 PyMEOS is a library built on top of MEOS that provides all of its functionality wrapped in a set of Python classes.
 
-This repository contains 2 subprojects:
-
-- [PyMEOS CFFI](./pymeos_cffi): wrapper of the MEOS C Library built using CFFI.
-- [PyMEOS](./pymeos): library that exposes the set of classes that should be used by the developer. Built on top of
-  PyMEOS CFFI.
+For the PyMEOS CFFI library, the middle layer between MEOS and PyMEOS, see
+the [PyMEOS CFFI repository](https://github.com/MobilityDB/PyMEOS-CFFI).
 
 # Usage
 
@@ -28,9 +25,7 @@ pip install pymeos
 ````
 
 > PyMEOS wheel should be compatible with any system, but it is possible that the pre-built distribution is
-> not available for PyMEOS CFFI for some OS/Architecture.  
-> If it is not available, see the [source installation notes on PyMEOS CFFI's readme](../pymeos_cffi#installation)
-> on how to proceed
+> not available for PyMEOS CFFI for some OS/Architecture.
 
 ### Using conda
 
@@ -78,6 +73,7 @@ print(f'Speeds: {speed}')
 # Call finish at the end of your code
 pymeos_finalize()
 ````
+
 ````
 Output: [POINT(10 10)@2019-09-01 01:00:00+02, POINT(20 20)@2019-09-02 01:00:00+02, POINT(10 10)@2019-09-03 01:00:00+02]
 Speeds: Interp=Step;[17.84556057812839@2019-09-01 01:00:00+02, 17.84556057812839@2019-09-03 01:00:00+02]
