@@ -293,8 +293,9 @@ class TestTTextConstructors(TestTText):
         [
             {"interpolation": TInterpolation.STEPWISE, "max_distance": 2},
             {"interpolation": TInterpolation.LINEAR},
+            {"interpolation": TInterpolation.DISCRETE},
         ],
-        ids=["Max Distance", "Linear Interpolation"],
+        ids=["Max Distance", "Linear Interpolation", "Discrete Interpolation"],
     )
     def test_gaps_constructor_with_invalid_parameters_raises(self, params):
         instants = [

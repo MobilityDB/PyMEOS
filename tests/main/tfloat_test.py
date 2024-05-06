@@ -390,6 +390,24 @@ class TestTFloatConstructors(TestTFloat):
         assert TFloatSeqSet.from_instants_with_gaps(*params) == result
 
     @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TFloatInst(value=1, timestamp="2000-01-01"),
+            TFloatInst(value=5, timestamp="2000-01-02"),
+            TFloatInst(value=6, timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TFloatSeqSet.from_instants_with_gaps(instants, **params)
+
+    @pytest.mark.parametrize(
         "temporal",
         [tfi, tfds, tfs, tfss, tfsts, tfstss],
         ids=[

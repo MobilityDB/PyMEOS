@@ -322,14 +322,25 @@ class TestTIntConstructors(TestTInt):
     def test_gaps_constructor(self, params, result):
         assert TIntSeqSet.from_instants_with_gaps(*params) == result
 
-    def test_gaps_constructor_with_invalid_parameters_raises(self):
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.LINEAR},
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Linear Interpolation",
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
         instants = [
             TIntInst(value=1, timestamp="2000-01-01"),
             TIntInst(value=5, timestamp="2000-01-02"),
             TIntInst(value=6, timestamp="2000-01-03"),
         ]
         with pytest.raises(MeosException):
-            TIntSeqSet.from_instants_with_gaps(instants, TInterpolation.LINEAR)
+            TIntSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",
