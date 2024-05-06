@@ -2,6 +2,7 @@ from copy import copy
 from datetime import datetime, timezone, timedelta
 
 import pytest
+from pymeos_cffi import MeosException
 
 from pymeos import (
     TBool,
@@ -251,6 +252,58 @@ class TestTTextConstructors(TestTText):
         )
         assert str(tts2) == expected
         assert tts2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        "params, result",
+        [
+            (
+                (
+                    [
+                        TTextInst("A@2000-01-01"),
+                        TTextInst("B@2000-01-02"),
+                        TTextInst("C@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                ),
+                TTextSeqSet("{[A@2000-01-01, B@2000-01-02, C@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TTextInst("A@2000-01-01"),
+                        TTextInst("B@2000-01-02"),
+                        TTextInst("C@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                ),
+                TTextSeqSet(
+                    "{[A@2000-01-01, B@2000-01-02], [C@2000-01-05]}"
+                ),
+            ),
+        ],
+        ids=["No Gaps", "With Gaps"],
+    )
+    def test_gaps_constructor(self, params, result):
+        assert TTextSeqSet.from_instants_with_gaps(*params) == result
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.STEPWISE, "max_distance": 2},
+            {"interpolation": TInterpolation.LINEAR},
+        ],
+        ids=["Max Distance", "Linear Interpolation"],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TTextInst(value="A", timestamp="2000-01-01"),
+            TTextInst(value="B", timestamp="2000-01-02"),
+            TTextInst(value="C", timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TTextSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",
