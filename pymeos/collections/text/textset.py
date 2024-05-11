@@ -158,12 +158,10 @@ class TextSet(Set[str]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: str) -> Optional[str]:
-        ...
+    def intersection(self, other: str) -> Optional[str]: ...
 
     @overload
-    def intersection(self, other: TextSet) -> Optional[TextSet]:
-        ...
+    def intersection(self, other: TextSet) -> Optional[TextSet]: ...
 
     def intersection(self, other):
         """

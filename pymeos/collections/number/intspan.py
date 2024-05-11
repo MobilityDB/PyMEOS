@@ -368,16 +368,13 @@ class IntSpan(Span[int]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: int) -> Optional[int]:
-        ...
+    def intersection(self, other: int) -> Optional[int]: ...
 
     @overload
-    def intersection(self, other: IntSpan) -> Optional[IntSpan]:
-        ...
+    def intersection(self, other: IntSpan) -> Optional[IntSpan]: ...
 
     @overload
-    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]:
-        ...
+    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]: ...
 
     def intersection(self, other):
         """

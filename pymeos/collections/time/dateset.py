@@ -67,8 +67,8 @@ class DateSet(Set[date], TimeCollection[date]):
     _mobilitydb_name = "dateset"
 
     _parse_function = dateset_in
-    _parse_value_function = (
-        lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
+    _parse_value_function = lambda x: (
+        pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     )
     _make_function = dateset_make
 
@@ -243,16 +243,12 @@ class DateSet(Set[date], TimeCollection[date]):
         shift = (
             shift.days
             if isinstance(shift, timedelta)
-            else int(shift)
-            if shift is not None
-            else 0
+            else int(shift) if shift is not None else 0
         )
         duration = (
             duration.days
             if isinstance(duration, timedelta)
-            else int(duration)
-            if duration is not None
-            else 0
+            else int(duration) if duration is not None else 0
         )
         tss = dateset_shift_scale(
             self._inner, shift, duration, shift != 0, duration != 0
@@ -507,9 +503,7 @@ class DateSet(Set[date], TimeCollection[date]):
                 days=distance_set_date(self._inner, date_to_date_adt(other))
             )
         elif isinstance(other, DateSet):
-            return timedelta(
-                days=distance_dateset_dateset(self._inner, other._inner)
-            )
+            return timedelta(days=distance_dateset_dateset(self._inner, other._inner))
         elif isinstance(other, DateSpan):
             return self.to_spanset().distance(other)
         elif isinstance(other, DateSpanSet):
@@ -520,14 +514,12 @@ class DateSet(Set[date], TimeCollection[date]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: Union[date, DateSet]) -> Optional[DateSet]:
-        ...
+    def intersection(self, other: Union[date, DateSet]) -> Optional[DateSet]: ...
 
     @overload
     def intersection(
         self, other: Union[DateSpan, DateSpanSet]
-    ) -> Optional[DateSpanSet]:
-        ...
+    ) -> Optional[DateSpanSet]: ...
 
     def intersection(self, other: TimeDate) -> Optional[TimeDate]:
         """
@@ -560,12 +552,10 @@ class DateSet(Set[date], TimeCollection[date]):
             return super().intersection(other)
 
     @overload
-    def minus(self, other: Union[date, DateSet]) -> Optional[DateSet]:
-        ...
+    def minus(self, other: Union[date, DateSet]) -> Optional[DateSet]: ...
 
     @overload
-    def minus(self, other: Union[DateSpan, DateSpanSet]) -> Optional[DateSpanSet]:
-        ...
+    def minus(self, other: Union[DateSpan, DateSpanSet]) -> Optional[DateSpanSet]: ...
 
     def minus(self, other: TimeDate) -> Optional[TimeDate]:
         """
@@ -616,12 +606,10 @@ class DateSet(Set[date], TimeCollection[date]):
         return date_adt_to_date(minus_date_set(date_to_date_adt(other), self._inner))
 
     @overload
-    def union(self, other: Union[date, DateSet]) -> DateSet:
-        ...
+    def union(self, other: Union[date, DateSet]) -> DateSet: ...
 
     @overload
-    def union(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet:
-        ...
+    def union(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet: ...
 
     def union(self, other: TimeDate) -> Union[DateSpanSet, DateSet]:
         """

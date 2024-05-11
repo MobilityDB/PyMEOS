@@ -377,16 +377,13 @@ class FloatSpan(Span[float]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: Union[int, float]) -> Optional[float]:
-        ...
+    def intersection(self, other: Union[int, float]) -> Optional[float]: ...
 
     @overload
-    def intersection(self, other: FloatSpan) -> Optional[FloatSpan]:
-        ...
+    def intersection(self, other: FloatSpan) -> Optional[FloatSpan]: ...
 
     @overload
-    def intersection(self, other: FloatSpanSet) -> Optional[FloatSpanSet]:
-        ...
+    def intersection(self, other: FloatSpanSet) -> Optional[FloatSpanSet]: ...
 
     def intersection(self, other):
         """
