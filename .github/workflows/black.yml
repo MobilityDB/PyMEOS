@@ -1,0 +1,27 @@
+name: Lint code with black
+
+on:
+  push:
+    branches: [ "master", "stable-[0-9]+.[0-9]+" ]
+  pull_request:
+    branches: [ "master", "stable-[0-9]+.[0-9]+" ]
+
+jobs:
+  lint:
+    name: Check code formatting with black
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Check files using the black formatter
+        uses: rickstaa/action-black@v1
+        id: action_black
+        with:
+          black_args: "."
+
+      - name: Annotate diff changes using reviewdog
+        if: steps.action_black.outputs.is_formatted == 'true'
+        uses: reviewdog/action-suggester@v1
+        with:
+          tool_name: blackfmt
