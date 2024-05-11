@@ -51,18 +51,15 @@ class TInt(
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: datetime) -> TIntInst:
-        ...
+    def from_base_time(value: int, base: datetime) -> TIntInst: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: Union[TsTzSet, TsTzSpan]) -> TIntSeq:
-        ...
+    def from_base_time(value: int, base: Union[TsTzSet, TsTzSpan]) -> TIntSeq: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: TsTzSpanSet) -> TIntSeqSet:
-        ...
+    def from_base_time(value: int, base: TsTzSpanSet) -> TIntSeqSet: ...
 
     @staticmethod
     def from_base_time(value: int, base: Time) -> TInt:

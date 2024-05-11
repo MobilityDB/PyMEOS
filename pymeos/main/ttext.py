@@ -52,18 +52,15 @@ class TText(
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: datetime) -> TTextInst:
-        ...
+    def from_base_time(value: str, base: datetime) -> TTextInst: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq:
-        ...
+    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: TsTzSpanSet) -> TTextSeqSet:
-        ...
+    def from_base_time(value: str, base: TsTzSpanSet) -> TTextSeqSet: ...
 
     @staticmethod
     def from_base_time(value: str, base: Time) -> TText:

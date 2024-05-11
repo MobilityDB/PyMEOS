@@ -299,12 +299,10 @@ class IntSet(Set[int]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: int) -> Optional[int]:
-        ...
+    def intersection(self, other: int) -> Optional[int]: ...
 
     @overload
-    def intersection(self, other: IntSet) -> Optional[IntSet]:
-        ...
+    def intersection(self, other: IntSet) -> Optional[IntSet]: ...
 
     def intersection(self, other):
         """

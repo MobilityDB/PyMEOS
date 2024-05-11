@@ -1124,9 +1124,11 @@ class TBox:
         st = (
             datetime_to_timestamptz(start)
             if isinstance(start, datetime)
-            else pg_timestamptz_in(start, -1)
-            if isinstance(start, str)
-            else pg_timestamptz_in("2000-01-03", -1)
+            else (
+                pg_timestamptz_in(start, -1)
+                if isinstance(start, str)
+                else pg_timestamptz_in("2000-01-03", -1)
+            )
         )
         if self._is_float():
             tiles, count = tfloatbox_tile_list(self._inner, size, dt, origin, st)
