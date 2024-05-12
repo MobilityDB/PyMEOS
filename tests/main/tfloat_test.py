@@ -272,7 +272,9 @@ class TestTFloatConstructors(TestTFloat):
                     TInterpolation.STEPWISE,
                     None,
                 ),
-                TFloatSeqSet("Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"),
+                TFloatSeqSet(
+                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"
+                ),
             ),
             (
                 (
@@ -312,7 +314,7 @@ class TestTFloatConstructors(TestTFloat):
                     ],
                     TInterpolation.STEPWISE,
                     timedelta(days=2),
-                    2.0
+                    2.0,
                 ),
                 TFloatSeqSet(
                     "Interp=Step;{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"
@@ -341,9 +343,7 @@ class TestTFloatConstructors(TestTFloat):
                     None,
                     2.0,
                 ),
-                TFloatSeqSet(
-                    "{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"
-                ),
+                TFloatSeqSet("{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"),
             ),
             (
                 (
@@ -355,9 +355,7 @@ class TestTFloatConstructors(TestTFloat):
                     TInterpolation.LINEAR,
                     timedelta(days=2),
                 ),
-                TFloatSeqSet(
-                    "{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"
-                ),
+                TFloatSeqSet("{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"),
             ),
             (
                 (
@@ -368,11 +366,9 @@ class TestTFloatConstructors(TestTFloat):
                     ],
                     TInterpolation.LINEAR,
                     timedelta(days=2),
-                    2.0
+                    2.0,
                 ),
-                TFloatSeqSet(
-                    "{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"
-                ),
+                TFloatSeqSet("{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"),
             ),
         ],
         ids=[

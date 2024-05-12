@@ -278,9 +278,7 @@ class TestTTextConstructors(TestTText):
                     TInterpolation.STEPWISE,
                     timedelta(days=2),
                 ),
-                TTextSeqSet(
-                    "{[A@2000-01-01, B@2000-01-02], [C@2000-01-05]}"
-                ),
+                TTextSeqSet("{[A@2000-01-01, B@2000-01-02], [C@2000-01-05]}"),
             ),
         ],
         ids=["No Gaps", "With Gaps"],
