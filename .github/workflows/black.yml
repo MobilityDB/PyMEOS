@@ -1,4 +1,4 @@
-name: Lint code with black
+name: Lint code with Black
 
 on:
   push:
@@ -8,20 +8,13 @@ on:
 
 jobs:
   lint:
-    name: Check code formatting with black
+    name: Lint code with Black
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - name: Check files using the black formatter
-        uses: rickstaa/action-black@v1
-        id: action_black
+      - name: Run Black
+        uses: psf/black@stable
         with:
-          black_args: "."
-
-      - name: Annotate diff changes using reviewdog
-        if: steps.action_black.outputs.is_formatted == 'true'
-        uses: reviewdog/action-suggester@v1
-        with:
-          tool_name: blackfmt
+          version: "~= 24.0"
