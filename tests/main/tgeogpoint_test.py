@@ -1196,8 +1196,8 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, []),
-            (tpds, []),
+            (tpi, [STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])")]),
+            (tpds, [STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])")]),
             (tps, [STBox("GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])")]),
             (
                 tpss,
@@ -1705,13 +1705,11 @@ class TestTGeogPointTransformations(TestTGeogPoint):
                 timedelta(hours=12),
                 TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
-            (tps, timedelta(days=4), TGeogPointSeq("{Point(1 1)@2019-09-01}")),
+            (tps, timedelta(days=4), TGeogPointSeq("[Point(1 1)@2019-09-01]")),
             (
                 tps,
                 timedelta(hours=12),
-                TGeogPointSeq(
-                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02}"
-                ),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
             ),
             (
                 tpss,
@@ -1721,10 +1719,9 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (
                 tpss,
                 timedelta(hours=12),
-                TGeogPointSeq(
-                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00,"
-                    "Point(2 2)@2019-09-02, Point(1 1)@2019-09-03, Point(1 1)@2019-09-03 12:00:00, "
-                    "Point(1 1)@2019-09-04, Point(1 1)@2019-09-04 12:00:00, Point(1 1)@2019-09-05}"
+                TGeogPointSeqSet(
+                    "{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02], "
+                    "[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}"
                 ),
             ),
         ],
@@ -2366,26 +2363,26 @@ class TestTGeogPointEverSpatialOperations(TestTGeogPoint):
     )
 
     @pytest.mark.parametrize(
-        "temporal, expected",
+        "temporal",
         [
-            (tpi, True),
-            (tpds, True),
-            (tps, True),
-            (tpss, True),
+            tpi,
+            tpds,
+            tps,
+            tpss,
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_ever_contained_withindist_intersects(self, temporal, expected):
-        assert temporal.is_ever_within_distance(Point(1, 1), 1) == expected
-        assert (
-            temporal.is_ever_within_distance(TGeogPointInst("Point(1 1)@2019-09-01"), 1)
-            == expected
+    def test_temporal_ever_withindist_intersects(self, temporal):
+        assert temporal.is_ever_within_distance(Point(1, 1), 1)
+        print("Hey")
+        assert temporal.is_ever_within_distance(
+            TGeogPointInst("Point(1 1)@2019-09-01"), 1
         )
-        assert temporal.ever_intersects(Point(1, 1)) == expected
-        assert (
-            temporal.ever_intersects(TGeogPointInst("Point(1 1)@2019-09-01"))
-            == expected
-        )
+        print("Hey")
+        assert temporal.ever_intersects(Point(1, 1))
+        print("Hey")
+        assert temporal.ever_intersects(TGeogPointInst("Point(1 1)@2019-09-01"))
+        print("Hey")
 
 
 class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):

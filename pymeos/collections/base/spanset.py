@@ -211,7 +211,7 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             spanset_spans
         """
-        return spanset_spans(self._inner)
+        return spanset_spanarr(self._inner)
 
     def __hash__(self) -> int:
         """

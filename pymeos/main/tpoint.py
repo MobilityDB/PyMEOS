@@ -331,7 +331,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         from ..boxes import STBox
 
-        result, count = tpoint_stboxes(self._inner)
+        result, count = tpoint_stboxes(self._inner, self.num_instants())
         return [STBox(_inner=result + i) for i in range(count)]
 
     def is_simple(self) -> bool:

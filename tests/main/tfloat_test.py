@@ -1482,20 +1482,19 @@ class TestTFloatTransformations(TestTFloat):
             (tfi, timedelta(hours=12), TFloatInst("1.5@2019-09-01")),
             (tfds, timedelta(days=4), TFloatSeq("{1.5@2019-09-01}")),
             (tfds, timedelta(hours=12), TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
-            (tfs, timedelta(days=4), TFloatSeq("{1.5@2019-09-01}")),
+            (tfs, timedelta(days=4), TFloatSeq("[1.5@2019-09-01]")),
             (
                 tfs,
                 timedelta(hours=12),
-                TFloatSeq("{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02}"),
+                TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]"),
             ),
             (tfss, timedelta(days=4), TFloatSeq("{1.5@2019-09-01,1.5@2019-09-05}")),
             (
                 tfss,
                 timedelta(hours=12),
-                TFloatSeq(
-                    "{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02,"
-                    "1.5@2019-09-03, 1.5@2019-09-03 12:00:00, 1.5@2019-09-04, "
-                    "1.5@2019-09-04 12:00:00, 1.5@2019-09-05}"
+                TFloatSeqSet(
+                    "{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], "
+                    "[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],
