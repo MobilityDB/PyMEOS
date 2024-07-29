@@ -1773,12 +1773,12 @@ class TestTGeomPointTransformations(TestTGeomPoint):
                 timedelta(hours=12),
                 TGeomPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}"),
             ),
-            (tps, timedelta(days=4), TGeomPointSeq("{Point(1 1)@2019-09-01}")),
+            (tps, timedelta(days=4), TGeomPointSeq("[Point(1 1)@2019-09-01]")),
             (
                 tps,
                 timedelta(hours=12),
                 TGeomPointSeq(
-                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02}"
+                    "[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"
                 ),
             ),
             (
@@ -1789,10 +1789,9 @@ class TestTGeomPointTransformations(TestTGeomPoint):
             (
                 tpss,
                 timedelta(hours=12),
-                TGeomPointSeq(
-                    "{Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00,"
-                    "Point(2 2)@2019-09-02, Point(1 1)@2019-09-03, Point(1 1)@2019-09-03 12:00:00, "
-                    "Point(1 1)@2019-09-04, Point(1 1)@2019-09-04 12:00:00, Point(1 1)@2019-09-05}"
+                TGeomPointSeqSet(
+                    "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00], "
+                    "[POINT(1 1)@2019-09-03 00:00:00+00, POINT(1 1)@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],
