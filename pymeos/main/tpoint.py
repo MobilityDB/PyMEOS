@@ -2089,7 +2089,11 @@ class TGeomPointInst(
                 p = f'POINT({" ".join(str(x) for x in point)})'
             else:
                 p = f"{point}"
-            full_str = f"SRID={srid};{p}@{timestamp}" if srid is not None else f"{p}@{timestamp}"
+            full_str = (
+                f"SRID={srid};{p}@{timestamp}"
+                if srid is not None
+                else f"{p}@{timestamp}"
+            )
             self._inner = tgeompoint_in(full_str)
 
 
@@ -2117,12 +2121,15 @@ class TGeogPointInst(
     ) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
-            p = (
-                f"POINT({point[0]} {point[1]})"
-                if isinstance(point, tuple)
-                else f"{point}"
+            if isinstance(point, tuple):
+                p = f'POINT({" ".join(str(x) for x in point)})'
+            else:
+                p = f"{point}"
+            full_str = (
+                f"SRID={srid};{p}@{timestamp}"
+                if srid is not None
+                else f"{p}@{timestamp}"
             )
-            full_str = f"SRID={srid};{p}@{timestamp}" if srid is not None else f"{p}@{timestamp}"
             self._inner = tgeogpoint_in(full_str)
 
 
