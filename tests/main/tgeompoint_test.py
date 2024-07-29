@@ -1949,9 +1949,6 @@ class TestTGeomPointTransformations(TestTGeomPoint):
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    @pytest.mark.skip(
-        reason="MEOS transform doesn't match https://epsg.io/. Skipped to avoid blocking until further investigated"
-    )
     def test_transform(self, temporal, expected):
         srid = 2062
         transformed = temporal.transform(srid)
