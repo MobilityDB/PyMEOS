@@ -1197,7 +1197,13 @@ class TestTGeogPointTPointAccessors(TestTGeogPoint):
         "temporal, expected",
         [
             (tpi, [STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])")]),
-            (tpds, [STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])")]),
+            (
+                tpds,
+                [
+                    STBox("GEODSTBOX XT(((1,1),(1,1)),[2019-09-01, 2019-09-01])"),
+                    STBox("GEODSTBOX XT(((2,2),(2,2)),[2019-09-02, 2019-09-02])"),
+                ],
+            ),
             (tps, [STBox("GEODSTBOX XT(((1,1),(2,2)),[2019-09-01, 2019-09-02])")]),
             (
                 tpss,
