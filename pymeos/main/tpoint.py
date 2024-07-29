@@ -2089,7 +2089,8 @@ class TGeomPointInst(
                 p = f'POINT({" ".join(str(x) for x in point)})'
             else:
                 p = f"{point}"
-            self._inner = tgeompoint_in(f"SRID={srid};{p}@{timestamp}")
+            full_str = f"SRID={srid};{p}@{timestamp}" if srid is not None else f"{p}@{timestamp}"
+            self._inner = tgeompoint_in(full_str)
 
 
 class TGeogPointInst(
@@ -2121,7 +2122,8 @@ class TGeogPointInst(
                 if isinstance(point, tuple)
                 else f"{point}"
             )
-            self._inner = tgeogpoint_in(f"SRID={srid};{p}@{timestamp}")
+            full_str = f"SRID={srid};{p}@{timestamp}" if srid is not None else f"{p}@{timestamp}"
+            self._inner = tgeogpoint_in(full_str)
 
 
 class TGeomPointSeq(
