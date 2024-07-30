@@ -59,29 +59,25 @@ class TFloat(
     @overload
     def from_base_time(
         value: float, base: datetime, interpolation: None = None
-    ) -> TFloatInst:
-        ...
+    ) -> TFloatInst: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: float, base: TsTzSet, interpolation: None = None
-    ) -> TFloatSeq:
-        ...
+    ) -> TFloatSeq: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: float, base: TsTzSpan, interpolation: TInterpolation = None
-    ) -> TFloatSeq:
-        ...
+    ) -> TFloatSeq: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: float, base: TsTzSpanSet, interpolation: TInterpolation = None
-    ) -> TFloatSeqSet:
-        ...
+    ) -> TFloatSeqSet: ...
 
     @staticmethod
     def from_base_time(

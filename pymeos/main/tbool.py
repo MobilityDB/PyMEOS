@@ -46,18 +46,15 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: datetime) -> TBoolInst:
-        ...
+    def from_base_time(value: bool, base: datetime) -> TBoolInst: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: Union[TsTzSet, TsTzSpan]) -> TBoolSeq:
-        ...
+    def from_base_time(value: bool, base: Union[TsTzSet, TsTzSpan]) -> TBoolSeq: ...
 
     @staticmethod
     @overload
-    def from_base_time(value: bool, base: TsTzSpanSet) -> TBoolSeqSet:
-        ...
+    def from_base_time(value: bool, base: TsTzSpanSet) -> TBoolSeqSet: ...
 
     @staticmethod
     def from_base_time(value: bool, base: Time) -> TBool:

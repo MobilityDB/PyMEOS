@@ -69,8 +69,8 @@ class DateSpan(Span[date], TimeCollection[date]):
     _mobilitydb_name = "datespan"
 
     _parse_function = datespan_in
-    _parse_value_function = (
-        lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
+    _parse_value_function = lambda x: (
+        pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     )
     _make_function = datespan_make
 
@@ -244,16 +244,12 @@ class DateSpan(Span[date], TimeCollection[date]):
         shift = (
             shift.days
             if isinstance(shift, timedelta)
-            else int(shift)
-            if shift is not None
-            else 0
+            else int(shift) if shift is not None else 0
         )
         duration = (
             duration.days
             if isinstance(duration, timedelta)
-            else int(duration)
-            if duration is not None
-            else 0
+            else int(duration) if duration is not None else 0
         )
 
         modified = datespan_shift_scale(
@@ -486,16 +482,15 @@ class DateSpan(Span[date], TimeCollection[date]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: date) -> Optional[date]:
-        ...
+    def intersection(self, other: date) -> Optional[date]: ...
 
     @overload
-    def intersection(self, other: DateSpan) -> Optional[DateSpan]:
-        ...
+    def intersection(self, other: DateSpan) -> Optional[DateSpan]: ...
 
     @overload
-    def intersection(self, other: Union[DateSet, DateSpanSet]) -> Optional[DateSpanSet]:
-        ...
+    def intersection(
+        self, other: Union[DateSet, DateSpanSet]
+    ) -> Optional[DateSpanSet]: ...
 
     def intersection(self, other: TimeDate) -> Optional[TimeDate]:
         """

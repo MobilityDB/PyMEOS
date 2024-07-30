@@ -197,12 +197,10 @@ class GeoSet(Set[shp.Geometry], ABC):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: shp.Geometry) -> Optional[shp.Geometry]:
-        ...
+    def intersection(self, other: shp.Geometry) -> Optional[shp.Geometry]: ...
 
     @overload
-    def intersection(self, other: GeoSet) -> Optional[GeoSet]:
-        ...
+    def intersection(self, other: GeoSet) -> Optional[GeoSet]: ...
 
     def intersection(self, other):
         """
@@ -317,10 +315,8 @@ class GeometrySet(GeoSet):
     _mobilitydb_name = "geomset"
 
     _parse_function = geomset_in
-    _parse_value_function = (
-        lambda x: pgis_geometry_in(x, -1)
-        if isinstance(x, str)
-        else geometry_to_gserialized(x)
+    _parse_value_function = lambda x: (
+        pgis_geometry_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x)
     )
 
 
@@ -328,8 +324,6 @@ class GeographySet(GeoSet):
     _mobilitydb_name = "geogset"
 
     _parse_function = geogset_in
-    _parse_value_function = (
-        lambda x: pgis_geography_in(x, -1)
-        if isinstance(x, str)
-        else geography_to_gserialized(x)
+    _parse_value_function = lambda x: (
+        pgis_geography_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)
     )

@@ -42,10 +42,8 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzspan"
 
     _parse_function = tstzspan_in
-    _parse_value_function = (
-        lambda x: pg_timestamptz_in(x, -1)
-        if isinstance(x, str)
-        else datetime_to_timestamptz(x)
+    _parse_value_function = lambda x: (
+        pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     )
     _make_function = tstzspan_make
 
@@ -556,16 +554,15 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: datetime) -> Optional[datetime]:
-        ...
+    def intersection(self, other: datetime) -> Optional[datetime]: ...
 
     @overload
-    def intersection(self, other: TsTzSpan) -> Optional[TsTzSpan]:
-        ...
+    def intersection(self, other: TsTzSpan) -> Optional[TsTzSpan]: ...
 
     @overload
-    def intersection(self, other: Union[TsTzSet, TsTzSpanSet]) -> Optional[TsTzSpanSet]:
-        ...
+    def intersection(
+        self, other: Union[TsTzSet, TsTzSpanSet]
+    ) -> Optional[TsTzSpanSet]: ...
 
     def intersection(self, other: Time) -> Optional[Time]:
         """

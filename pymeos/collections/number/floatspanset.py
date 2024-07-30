@@ -55,10 +55,8 @@ class FloatSpanSet(SpanSet[float]):
     _mobilitydb_name = "floatspanset"
 
     _parse_function = floatspanset_in
-    _parse_value_function = (
-        lambda span: floatspanset_in(span)[0]
-        if isinstance(span, str)
-        else span._inner[0]
+    _parse_value_function = lambda span: (
+        floatspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
     )
 
     # ------------------------- Output ----------------------------------------
@@ -410,16 +408,13 @@ class FloatSpanSet(SpanSet[float]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: Union[int, float]) -> Optional[float]:
-        ...
+    def intersection(self, other: Union[int, float]) -> Optional[float]: ...
 
     @overload
-    def intersection(self, other: FloatSpan) -> Optional[FloatSpanSet]:
-        ...
+    def intersection(self, other: FloatSpan) -> Optional[FloatSpanSet]: ...
 
     @overload
-    def intersection(self, other: FloatSpanSet) -> Optional[FloatSpanSet]:
-        ...
+    def intersection(self, other: FloatSpanSet) -> Optional[FloatSpanSet]: ...
 
     def intersection(self, other):
         """

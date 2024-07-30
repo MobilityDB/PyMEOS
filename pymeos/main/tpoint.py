@@ -1189,9 +1189,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         gs = (
             geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
-            else pgis_geography_in("Point(0 0 0)", -1)
-            if isinstance(self, TGeogPoint)
-            else pgis_geometry_in("Point(0 0 0)", -1)
+            else (
+                pgis_geography_in("Point(0 0 0)", -1)
+                if isinstance(self, TGeogPoint)
+                else pgis_geometry_in("Point(0 0 0)", -1)
+            )
         )
         fragments, values, count = tpoint_space_split(
             self._inner, xsize, ysz, zsz, gs, bitmatrix
@@ -1240,9 +1242,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         gs = (
             geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
-            else pgis_geography_in("Point(0 0 0)", -1)
-            if isinstance(self, TGeogPoint)
-            else pgis_geometry_in("Point(0 0 0)", -1)
+            else (
+                pgis_geography_in("Point(0 0 0)", -1)
+                if isinstance(self, TGeogPoint)
+                else pgis_geometry_in("Point(0 0 0)", -1)
+            )
         )
         if time_start is None:
             st = pg_timestamptz_in("2000-01-03", -1)
@@ -1422,22 +1426,19 @@ class TGeomPoint(
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: datetime, interpolation: None = None
-    ) -> TGeomPointInst:
-        ...
+    ) -> TGeomPointInst: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: TsTzSet, interpolation: None = None
-    ) -> TGeomPointSeq:
-        ...
+    ) -> TGeomPointSeq: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
-    ) -> TGeomPointSeq:
-        ...
+    ) -> TGeomPointSeq: ...
 
     @staticmethod
     @overload
@@ -1445,8 +1446,7 @@ class TGeomPoint(
         value: shpb.BaseGeometry,
         base: TsTzSpanSet,
         interpolation: TInterpolation = None,
-    ) -> TGeomPointSeqSet:
-        ...
+    ) -> TGeomPointSeqSet: ...
 
     @staticmethod
     def from_base_time(
@@ -1781,22 +1781,19 @@ class TGeogPoint(
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: datetime, interpolation: TInterpolation = None
-    ) -> TGeogPointInst:
-        ...
+    ) -> TGeogPointInst: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: TsTzSet, interpolation: TInterpolation = None
-    ) -> TGeogPointSeq:
-        ...
+    ) -> TGeogPointSeq: ...
 
     @staticmethod
     @overload
     def from_base_time(
         value: shpb.BaseGeometry, base: TsTzSpan, interpolation: TInterpolation = None
-    ) -> TGeogPointSeq:
-        ...
+    ) -> TGeogPointSeq: ...
 
     @staticmethod
     @overload
@@ -1804,8 +1801,7 @@ class TGeogPoint(
         value: shpb.BaseGeometry,
         base: TsTzSpanSet,
         interpolation: TInterpolation = None,
-    ) -> TGeogPointSeqSet:
-        ...
+    ) -> TGeogPointSeqSet: ...
 
     @staticmethod
     def from_base_time(

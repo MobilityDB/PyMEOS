@@ -67,10 +67,8 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
     _mobilitydb_name = "dateSpanSet"
 
     _parse_function = datespanset_in
-    _parse_value_function = (
-        lambda tstzspan: datespan_in(tstzspan)[0]
-        if isinstance(tstzspan, str)
-        else tstzspan._inner[0]
+    _parse_value_function = lambda tstzspan: (
+        datespan_in(tstzspan)[0] if isinstance(tstzspan, str) else tstzspan._inner[0]
     )
 
     # ------------------------- Output ----------------------------------------
@@ -323,16 +321,12 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         shift = (
             shift.days
             if isinstance(shift, timedelta)
-            else int(shift)
-            if shift is not None
-            else 0
+            else int(shift) if shift is not None else 0
         )
         duration = (
             duration.days
             if isinstance(duration, timedelta)
-            else int(duration)
-            if duration is not None
-            else 0
+            else int(duration) if duration is not None else 0
         )
 
         modified = datespanset_shift_scale(
@@ -547,12 +541,10 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: date) -> date:
-        ...
+    def intersection(self, other: date) -> date: ...
 
     @overload
-    def intersection(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet:
-        ...
+    def intersection(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet: ...
 
     def intersection(self, other: TimeDate) -> Union[date, DateSpanSet]:
         """
