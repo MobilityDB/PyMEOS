@@ -1123,20 +1123,19 @@ class TestTTextTransformations(TestTText):
             (tti, timedelta(hours=12), TTextInst("AAA@2019-09-01")),
             (ttds, timedelta(days=4), TTextSeq("{AAA@2019-09-01}")),
             (ttds, timedelta(hours=12), TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
-            (tts, timedelta(days=4), TTextSeq("{AAA@2019-09-01}")),
+            (tts, timedelta(days=4), TTextSeq("[AAA@2019-09-01]")),
             (
                 tts,
                 timedelta(hours=12),
-                TTextSeq("{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02}"),
+                TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]"),
             ),
             (ttss, timedelta(days=4), TTextSeq("{AAA@2019-09-01,AAA@2019-09-05}")),
             (
                 ttss,
                 timedelta(hours=12),
                 TTextSeq(
-                    "{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02,"
-                    "AAA@2019-09-03, AAA@2019-09-03 12:00:00, AAA@2019-09-04, "
-                    "AAA@2019-09-04 12:00:00, AAA@2019-09-05}"
+                    "{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], "
+                    "[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],

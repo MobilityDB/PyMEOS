@@ -331,7 +331,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         from ..boxes import STBox
 
-        result, count = tpoint_stboxes(self._inner)
+        result, count = tpoint_stboxes(self._inner, self.num_instants())
         return [STBox(_inner=result + i) for i in range(count)]
 
     def is_simple(self) -> bool:
@@ -1165,7 +1165,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         ysize: Optional[float] = None,
         zsize: Optional[float] = None,
         origin: Optional[shpb.BaseGeometry] = None,
-        bitmatrix: Optional[bool] = False,
+        bitmatrix: bool = False,
+        include_border: bool = True,
     ) -> List[Temporal]:
         """
         Splits `self` into fragments with respect to space buckets
@@ -1177,6 +1178,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             origin: The origin of the spatial tiling. If not provided, the
                 origin will be (0, 0, 0).
             bitmatrix: If True, use a bitmatrix to speed up the process.
+            include_border: If True, include the upper border in the box.
 
         Returns:
             A list of temporal points.
@@ -1196,7 +1198,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             )
         )
         fragments, values, count = tpoint_space_split(
-            self._inner, xsize, ysz, zsz, gs, bitmatrix
+            self._inner, xsize, ysz, zsz, gs, bitmatrix, include_border
         )
         from ..factory import _TemporalFactory
 
@@ -1210,7 +1212,8 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         zsize: Optional[float] = None,
         origin: Optional[shpb.BaseGeometry] = None,
         time_start: Optional[Union[str, datetime]] = None,
-        bitmatrix: Optional[bool] = False,
+        bitmatrix: bool = False,
+        include_border: bool = True,
     ) -> List[Temporal]:
         """
         Splits `self` into fragments with respect to space and tstzspan buckets.
@@ -1225,6 +1228,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             time_start: Start time of the first tstzspan bucket. If None, the
                 start time used by default is Monday, January 3, 2000.
             bitmatrix: If True, use a bitmatrix to speed up the process.
+            include_border: If True, include the upper border in the box.
 
         Returns:
             A list of temporal floats.
@@ -1257,7 +1261,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
                 else pg_timestamptz_in(time_start, -1)
             )
         fragments, points, times, count = tpoint_space_time_split(
-            self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix
+            self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix, include_border
         )
         return [Temporal._factory(fragments[i]) for i in range(count)]
 
@@ -2085,7 +2089,12 @@ class TGeomPointInst(
                 p = f'POINT({" ".join(str(x) for x in point)})'
             else:
                 p = f"{point}"
-            self._inner = tgeompoint_in(f"SRID={srid};{p}@{timestamp}")
+            full_str = (
+                f"SRID={srid};{p}@{timestamp}"
+                if srid is not None
+                else f"{p}@{timestamp}"
+            )
+            self._inner = tgeompoint_in(full_str)
 
 
 class TGeogPointInst(
@@ -2112,12 +2121,16 @@ class TGeogPointInst(
     ) -> None:
         super().__init__(string=string, value=point, timestamp=timestamp, _inner=_inner)
         if self._inner is None:
-            p = (
-                f"POINT({point[0]} {point[1]})"
-                if isinstance(point, tuple)
-                else f"{point}"
+            if isinstance(point, tuple):
+                p = f'POINT({" ".join(str(x) for x in point)})'
+            else:
+                p = f"{point}"
+            full_str = (
+                f"SRID={srid};{p}@{timestamp}"
+                if srid is not None
+                else f"{p}@{timestamp}"
             )
-            self._inner = tgeogpoint_in(f"SRID={srid};{p}@{timestamp}")
+            self._inner = tgeogpoint_in(full_str)
 
 
 class TGeomPointSeq(

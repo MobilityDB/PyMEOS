@@ -1109,22 +1109,21 @@ class TestTBoolTransformations(TestTBool):
                 timedelta(hours=12),
                 TBoolSeq("{True@2019-09-01, False@2019-09-02}"),
             ),
-            (tbs, timedelta(days=4), TBoolSeq("{True@2019-09-01}")),
+            (tbs, timedelta(days=4), TBoolSeq("[True@2019-09-01]")),
             (
                 tbs,
                 timedelta(hours=12),
                 TBoolSeq(
-                    "{True@2019-09-01, True@2019-09-01 12:00:00, False@2019-09-02}"
+                    "[True@2019-09-01, True@2019-09-01 12:00:00, False@2019-09-02]"
                 ),
             ),
             (tbss, timedelta(days=4), TBoolSeq("{True@2019-09-01,True@2019-09-05}")),
             (
                 tbss,
                 timedelta(hours=12),
-                TBoolSeq(
-                    "{True@2019-09-01, True@2019-09-01 12:00:00, False@2019-09-02,"
-                    "True@2019-09-03, True@2019-09-03 12:00:00, True@2019-09-04, "
-                    "True@2019-09-04 12:00:00, True@2019-09-05}"
+                TBoolSeqSet(
+                    "{[t@2019-09-01 00:00:00+00, f@2019-09-02 00:00:00+00],"
+                    " [t@2019-09-03 00:00:00+00, t@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],

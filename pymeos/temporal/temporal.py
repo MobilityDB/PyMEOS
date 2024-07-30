@@ -573,6 +573,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         self,
         duration: Union[str, timedelta],
         start: Optional[Union[str, datetime]] = None,
+        interpolation: Optional[TInterpolation] = None,
     ) -> TG:
         """
         Returns a new :class:`Temporal` downsampled with respect to ``duration``.
@@ -583,6 +584,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             start: A :class:`str` or :class:`datetime` with the start time of
                 the temporal tiles. If None, the start time used by default is
                 Monday, January 3, 2000.
+            interpolation: Interpolation of the resulting temporal object. If None,
+                defaults to the interpolation of ``self``.
         MEOS Functions:
             temporal_tsample
         """
@@ -596,7 +599,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             dt = timedelta_to_interval(duration)
         else:
             dt = pg_interval_in(duration, -1)
-        result = temporal_tsample(self._inner, dt, st)
+        if interpolation is None:
+            intrp = self.interpolation()
+        else:
+            intrp = interpolation
+        result = temporal_tsample(self._inner, dt, st, intrp)
         return Temporal._factory(result)
 
     def temporal_precision(
