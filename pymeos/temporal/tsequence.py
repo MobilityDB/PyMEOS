@@ -43,9 +43,11 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
             self._inner = as_tsequence(self.__class__._parse_function(string))
         else:
             self._instants = [
-                x._inner
-                if isinstance(x, self.ComponentClass)
-                else self.__class__._parse_function(x)
+                (
+                    x._inner
+                    if isinstance(x, self.ComponentClass)
+                    else self.__class__._parse_function(x)
+                )
                 for x in instant_list
             ]
             count = len(self._instants)

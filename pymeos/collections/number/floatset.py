@@ -301,12 +301,10 @@ class FloatSet(Set[float]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: float) -> Optional[float]:
-        ...
+    def intersection(self, other: float) -> Optional[float]: ...
 
     @overload
-    def intersection(self, other: FloatSet) -> Optional[FloatSet]:
-        ...
+    def intersection(self, other: FloatSet) -> Optional[FloatSet]: ...
 
     def intersection(self, other):
         """

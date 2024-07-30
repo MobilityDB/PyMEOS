@@ -40,10 +40,8 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzset"
 
     _parse_function = tstzset_in
-    _parse_value_function = (
-        lambda x: pg_timestamptz_in(x, -1)
-        if isinstance(x, str)
-        else datetime_to_timestamptz(x)
+    _parse_value_function = lambda x: (
+        pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     )
     _make_function = tstzset_make
 
@@ -559,18 +557,15 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: datetime) -> Optional[datetime]:
-        ...
+    def intersection(self, other: datetime) -> Optional[datetime]: ...
 
     @overload
-    def intersection(self, other: TsTzSet) -> Optional[TsTzSet]:
-        ...
+    def intersection(self, other: TsTzSet) -> Optional[TsTzSet]: ...
 
     @overload
     def intersection(
         self, other: Union[TsTzSpan, TsTzSpanSet, Temporal, Box]
-    ) -> Optional[TsTzSpanSet]:
-        ...
+    ) -> Optional[TsTzSpanSet]: ...
 
     def intersection(self, other: Union[Time, Temporal]) -> Optional[Time]:
         """
@@ -609,14 +604,12 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
             return super().intersection(other)
 
     @overload
-    def minus(self, other: Union[datetime, TsTzSet]) -> Optional[TsTzSet]:
-        ...
+    def minus(self, other: Union[datetime, TsTzSet]) -> Optional[TsTzSet]: ...
 
     @overload
     def minus(
         self, other: Union[TsTzSpan, TsTzSpanSet, Temporal, Box]
-    ) -> Optional[TsTzSpanSet]:
-        ...
+    ) -> Optional[TsTzSpanSet]: ...
 
     def minus(self, other: Union[Time, Temporal, Box]) -> Optional[Time]:
         """
@@ -673,12 +666,12 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
         )
 
     @overload
-    def union(self, other: Union[datetime, TsTzSet]) -> TsTzSet:
-        ...
+    def union(self, other: Union[datetime, TsTzSet]) -> TsTzSet: ...
 
     @overload
-    def union(self, other: Union[TsTzSpan, TsTzSpanSet, Temporal, Box]) -> TsTzSpanSet:
-        ...
+    def union(
+        self, other: Union[TsTzSpan, TsTzSpanSet, Temporal, Box]
+    ) -> TsTzSpanSet: ...
 
     def union(self, other: Union[Time, Temporal, Box]) -> Union[TsTzSpanSet, TsTzSet]:
         """

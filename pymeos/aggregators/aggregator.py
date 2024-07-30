@@ -244,9 +244,7 @@ class BaseGranularAggregator(Generic[SourceType, ResultType, IntervalType, Origi
         interval_converted = (
             timedelta_to_interval(interval)
             if isinstance(interval, timedelta)
-            else pg_interval_in(interval, -1)
-            if isinstance(interval, str)
-            else None
+            else pg_interval_in(interval, -1) if isinstance(interval, str) else None
         )
         origin_converted = (
             datetime_to_timestamptz(origin)

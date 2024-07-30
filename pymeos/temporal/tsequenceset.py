@@ -43,9 +43,11 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
             self._inner = as_tsequenceset(self.__class__._parse_function(string))
         else:
             sequences = [
-                x._inner
-                if isinstance(x, self.ComponentClass)
-                else self.__class__._parse_function(x)
+                (
+                    x._inner
+                    if isinstance(x, self.ComponentClass)
+                    else self.__class__._parse_function(x)
+                )
                 for x in sequence_list
             ]
             count = len(sequences)

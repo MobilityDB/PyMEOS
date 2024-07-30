@@ -1812,10 +1812,7 @@ class TestTGeogPointTransformations(TestTGeogPoint):
         [
             (
                 TGeogPointInst("Point(42.84979 42.38153)@2019-09-01"),
-                TGeogPointInst(
-                    "SRID=8426;"
-                    "Point(42.84979 42.38153)@2019-09-01"
-                ),
+                TGeogPointInst("SRID=8426;" "Point(42.84979 42.38153)@2019-09-01"),
             ),
             (
                 TGeogPointSeq(
