@@ -78,6 +78,7 @@ jobs:
           if [[ "$tag_version" != "$python_version" ]]; then
             echo "Tag Version ($tag_version) doesn't match Code Version ($python_version)"
             echo "::error title=Version mismatch::Tag Version ($tag_version) doesn't match Code Version ($python_version)"
+            exit 1
           fi
           
     
