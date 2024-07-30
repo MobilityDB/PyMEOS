@@ -61,6 +61,7 @@ jobs:
           is_rc=${{ steps.check_rc.outputs.is_rc }}
 
           if [ "$is_alpha" == "true" ] || [ "$is_beta" == "true" ] || [ "$is_rc" == "true" ]; then
+            echo "Releasing an prerelease version."
             echo "is_prerelease=true" >> "$GITHUB_OUTPUT"
           else
             echo "is_prerelease=false" >> "$GITHUB_OUTPUT"
