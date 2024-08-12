@@ -1336,7 +1336,7 @@ class STBox:
                 else pgis_geometry_in("Point(0 0 0)", -1)
             )
         )
-        tiles, count = stbox_tile_list(self._inner, sz, sz, sz, dt, gs, st)
+        tiles, count = stbox_space_time_tiles(self._inner, sz, sz, sz, dt, gs, st)
         return [STBox(_inner=tiles + i) for i in range(count)]
 
     # ------------------------- Comparisons -----------------------------------

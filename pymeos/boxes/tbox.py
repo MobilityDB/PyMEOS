@@ -1131,9 +1131,9 @@ class TBox:
             )
         )
         if self._is_float():
-            tiles, count = tfloatbox_tile_list(self._inner, size, dt, origin, st)
+            tiles, count = tfloatbox_value_time_tiles(self._inner, size, dt, origin, st)
         else:
-            tiles, count = tintbox_tile_list(
+            tiles, count = tintbox_value_time_tiles(
                 self._inner, int(size), dt, int(origin), st
             )
         return [TBox(_inner=tiles + c) for c in range(count)]
