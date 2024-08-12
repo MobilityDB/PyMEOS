@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, Any, TYPE_CHECKING, TypeVar, List
+from typing import Optional, Union, TypeVar, List
 
 from pymeos_cffi import *
 
