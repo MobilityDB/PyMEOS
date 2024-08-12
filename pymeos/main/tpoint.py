@@ -331,7 +331,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         from ..boxes import STBox
 
-        result, count = tpoint_stboxes(self._inner, self.num_instants())
+        result, count = tpoint_stboxes(self._inner)
         return [STBox(_inner=result + i) for i in range(count)]
 
     def is_simple(self) -> bool:
@@ -788,8 +788,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             edisjoint_tpoint_geo, edisjoint_tpoint_tpoint
         """
-        from ..boxes import STBox
-
         if isinstance(other, TPoint):
             result = edisjoint_tpoint_tpoint(self._inner, other._inner)
         else:
