@@ -41,6 +41,12 @@ jobs:
           packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
           version: 1.0
 
+      - name: Get dependencies from homebrew (cache)
+        uses: tecolicom/actions-use-homebrew-tools@v1
+        if: runner.os == 'macOS'
+        with:
+          tools: cmake libpq proj json-c gsl geos
+
       - name: Update brew
         if: matrix.os == 'macos-13'
         # Necessary to avoid issue with macOS runners. See
@@ -49,12 +55,6 @@ jobs:
           brew reinstall python@3.12 || brew link --overwrite python@3.12
           brew reinstall python@3.11 || brew link --overwrite python@3.11
           brew update
-
-      - name: Get dependencies from homebrew (cache)
-        uses: tecolicom/actions-use-homebrew-tools@v1
-        if: runner.os == 'macOS'
-        with:
-          tools: cmake libpq proj json-c gsl geos
 
       - name: Fetch MEOS sources
         env:
