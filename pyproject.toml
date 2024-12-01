@@ -33,7 +33,7 @@ license = { file = 'LICENSE' }
 
 requires-python = '>=3.8'
 dependencies = [
-    'pymeos-cffi >=1.1.0, <2',
+    'pymeos-cffi >=1.2.0, <2',
     'python-dateutil',
     'shapely>=2.0.0',
 ]
