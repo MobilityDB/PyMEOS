@@ -3,7 +3,7 @@ from datetime import datetime, timezone, timedelta
 from operator import not_
 
 import pytest
-from pymeos_cffi import MeosInvalidArgValueError
+from pymeos_cffi import MeosInvalidArgValueError, MeosException
 
 from pymeos import (
     TBoolInst,
@@ -258,6 +258,150 @@ class TestTFloatConstructors(TestTFloat):
         )
         assert str(tfs2) == expected
         assert tfs2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        "params, result",
+        [
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                ),
+                TFloatSeqSet(
+                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                    2.0,
+                ),
+                TFloatSeqSet(
+                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                ),
+                TFloatSeqSet(
+                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                    2.0,
+                ),
+                TFloatSeqSet(
+                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    None,
+                ),
+                TFloatSeqSet("{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    None,
+                    2.0,
+                ),
+                TFloatSeqSet("{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    timedelta(days=2),
+                ),
+                TFloatSeqSet("{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TFloatInst("1@2000-01-01"),
+                        TFloatInst("5@2000-01-02"),
+                        TFloatInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    timedelta(days=2),
+                    2.0,
+                ),
+                TFloatSeqSet("{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"),
+            ),
+        ],
+        ids=[
+            "No Gaps Stepwise",
+            "Value Gaps Stepwise",
+            "Time Gaps Stepwise",
+            "Value and Time Gaps Stepwise",
+            "No Gaps Linear",
+            "Value Gaps Linear",
+            "Time Gaps Linear",
+            "Value and Time Gaps Linear",
+        ],
+    )
+    def test_gaps_constructor(self, params, result):
+        assert TFloatSeqSet.from_instants_with_gaps(*params) == result
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TFloatInst(value=1, timestamp="2000-01-01"),
+            TFloatInst(value=5, timestamp="2000-01-02"),
+            TFloatInst(value=6, timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TFloatSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",
