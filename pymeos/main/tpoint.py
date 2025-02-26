@@ -1115,154 +1115,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return gserialized_to_shapely_geometry(result, 10)
 
-    # ------------------------- Tiling Operations -----------------------------
-    def tile(
-        self,
-        size: float,
-        duration: Optional[Union[timedelta, str]] = None,
-        origin: Optional[shpb.BaseGeometry] = None,
-        start: Union[datetime, str, None] = None,
-        remove_empty: Optional[bool] = False,
-    ) -> List[TG]:
-        """
-        Split the temporal point into segments following the tiling of the
-        bounding box.
-
-        Args:
-            size: The size of the spatial tiles. If `self` has a spatial
-                dimension and this argument is not provided, the tiling will be
-                only temporal.
-            duration: The duration of the temporal tiles. If `self` has a time
-                dimension and this argument is not provided, the tiling will be
-                only spatial.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided,
-                the start time used by default is Monday, January 3, 2000.
-            remove_empty: If True, remove the tiles that are empty.
-
-        Returns:
-            A list of :class:`TPoint` objects.
-
-        See Also:
-            :meth:`STBox.tile`
-        """
-        from ..boxes import STBox
-
-        bbox = STBox.from_tpoint(self)
-        tiles = bbox.tile(size, duration, origin, start)
-        if remove_empty:
-            return [x for x in (self.at(tile) for tile in tiles) if x]
-        else:
-            return [self.at(tile) for tile in tiles]
-
-    # ------------------------- Split Operations ------------------------------
-    def space_split(
-        self,
-        xsize: float,
-        ysize: Optional[float] = None,
-        zsize: Optional[float] = None,
-        origin: Optional[shpb.BaseGeometry] = None,
-        bitmatrix: bool = False,
-        include_border: bool = True,
-    ) -> List[Temporal]:
-        """
-        Splits `self` into fragments with respect to space buckets
-
-        Args:
-            xsize: Size of the x dimension.
-            ysize: Size of the y dimension.
-            zsize: Size of the z dimension.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            bitmatrix: If True, use a bitmatrix to speed up the process.
-            include_border: If True, include the upper border in the box.
-
-        Returns:
-            A list of temporal points.
-
-        MEOS Functions:
-            tpoint_value_split
-        """
-        ysz = ysize if ysize is not None else xsize
-        zsz = zsize if zsize is not None else xsize
-        gs = (
-            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
-            if origin is not None
-            else (
-                pgis_geography_in("Point(0 0 0)", -1)
-                if isinstance(self, TGeogPoint)
-                else pgis_geometry_in("Point(0 0 0)", -1)
-            )
-        )
-        fragments, values, count = tpoint_space_split(
-            self._inner, xsize, ysz, zsz, gs, bitmatrix, include_border
-        )
-        from ..factory import _TemporalFactory
-
-        return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
-
-    def space_time_split(
-        self,
-        xsize: float,
-        duration: Union[str, timedelta],
-        ysize: Optional[float] = None,
-        zsize: Optional[float] = None,
-        origin: Optional[shpb.BaseGeometry] = None,
-        time_start: Optional[Union[str, datetime]] = None,
-        bitmatrix: bool = False,
-        include_border: bool = True,
-    ) -> List[Temporal]:
-        """
-        Splits `self` into fragments with respect to space and tstzspan buckets.
-
-        Args:
-            xsize: Size of the x dimension.
-            ysize: Size of the y dimension.
-            zsize: Size of the z dimension.
-            duration: Duration of the tstzspan buckets.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            time_start: Start time of the first tstzspan bucket. If None, the
-                start time used by default is Monday, January 3, 2000.
-            bitmatrix: If True, use a bitmatrix to speed up the process.
-            include_border: If True, include the upper border in the box.
-
-        Returns:
-            A list of temporal floats.
-
-        MEOS Functions:
-            tfloat_value_time_split
-        """
-        ysz = ysize if ysize is not None else xsize
-        zsz = zsize if zsize is not None else xsize
-        dt = (
-            timedelta_to_interval(duration)
-            if isinstance(duration, timedelta)
-            else pg_interval_in(duration, -1)
-        )
-        gs = (
-            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
-            if origin is not None
-            else (
-                pgis_geography_in("Point(0 0 0)", -1)
-                if isinstance(self, TGeogPoint)
-                else pgis_geometry_in("Point(0 0 0)", -1)
-            )
-        )
-        if time_start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
-        else:
-            st = (
-                datetime_to_timestamptz(time_start)
-                if isinstance(time_start, datetime)
-                else pg_timestamptz_in(time_start, -1)
-            )
-        fragments, points, times, count = tpoint_space_time_split(
-            self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix, include_border
-        )
-        return [Temporal._factory(fragments[i]) for i in range(count)]
-
 
 class TPointInst(
     TInstant[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS, TSS], ABC
@@ -1533,6 +1385,154 @@ class TGeomPoint(
             "geometry": [i.value() for i in self.instants()],
         }
         return gpd.GeoDataFrame(data, crs=self.srid()).set_index(keys=["time"])
+
+    # ------------------------- Tiling Operations -----------------------------
+    def tile(
+        self,
+        size: float,
+        duration: Optional[Union[timedelta, str]] = None,
+        origin: Optional[shpb.BaseGeometry] = None,
+        start: Union[datetime, str, None] = None,
+        remove_empty: Optional[bool] = False,
+    ) -> List[TG]:
+        """
+        Split the temporal point into segments following the tiling of the
+        bounding box.
+
+        Args:
+            size: The size of the spatial tiles. If `self` has a spatial
+                dimension and this argument is not provided, the tiling will be
+                only temporal.
+            duration: The duration of the temporal tiles. If `self` has a time
+                dimension and this argument is not provided, the tiling will be
+                only spatial.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            start: The start time of the temporal tiling. If not provided,
+                the start time used by default is Monday, January 3, 2000.
+            remove_empty: If True, remove the tiles that are empty.
+
+        Returns:
+            A list of :class:`TPoint` objects.
+
+        See Also:
+            :meth:`STBox.tile`
+        """
+        from ..boxes import STBox
+
+        bbox = STBox.from_tpoint(self)
+        tiles = bbox.tile(size, duration, origin, start)
+        if remove_empty:
+            return [x for x in (self.at(tile) for tile in tiles) if x]
+        else:
+            return [self.at(tile) for tile in tiles]
+
+    # ------------------------- Split Operations ------------------------------
+    def space_split(
+        self,
+        xsize: float,
+        ysize: Optional[float] = None,
+        zsize: Optional[float] = None,
+        origin: Optional[shpb.BaseGeometry] = None,
+        bitmatrix: bool = False,
+        include_border: bool = True,
+    ) -> List[Temporal]:
+        """
+        Splits `self` into fragments with respect to space buckets
+
+        Args:
+            xsize: Size of the x dimension.
+            ysize: Size of the y dimension.
+            zsize: Size of the z dimension.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            bitmatrix: If True, use a bitmatrix to speed up the process.
+            include_border: If True, include the upper border in the box.
+
+        Returns:
+            A list of temporal points.
+
+        MEOS Functions:
+            tpoint_value_split
+        """
+        ysz = ysize if ysize is not None else xsize
+        zsz = zsize if zsize is not None else xsize
+        gs = (
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
+            if origin is not None
+            else (
+                pgis_geography_in("Point(0 0 0)", -1)
+                if isinstance(self, TGeogPoint)
+                else pgis_geometry_in("Point(0 0 0)", -1)
+            )
+        )
+        fragments, values, count = tpoint_space_split(
+            self._inner, xsize, ysz, zsz, gs, bitmatrix, include_border
+        )
+        from ..factory import _TemporalFactory
+
+        return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
+
+    def space_time_split(
+        self,
+        xsize: float,
+        duration: Union[str, timedelta],
+        ysize: Optional[float] = None,
+        zsize: Optional[float] = None,
+        origin: Optional[shpb.BaseGeometry] = None,
+        time_start: Optional[Union[str, datetime]] = None,
+        bitmatrix: bool = False,
+        include_border: bool = True,
+    ) -> List[Temporal]:
+        """
+        Splits `self` into fragments with respect to space and tstzspan buckets.
+
+        Args:
+            xsize: Size of the x dimension.
+            ysize: Size of the y dimension.
+            zsize: Size of the z dimension.
+            duration: Duration of the tstzspan buckets.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            time_start: Start time of the first tstzspan bucket. If None, the
+                start time used by default is Monday, January 3, 2000.
+            bitmatrix: If True, use a bitmatrix to speed up the process.
+            include_border: If True, include the upper border in the box.
+
+        Returns:
+            A list of temporal floats.
+
+        MEOS Functions:
+            tfloat_value_time_split
+        """
+        ysz = ysize if ysize is not None else xsize
+        zsz = zsize if zsize is not None else xsize
+        dt = (
+            timedelta_to_interval(duration)
+            if isinstance(duration, timedelta)
+            else pg_interval_in(duration, -1)
+        )
+        gs = (
+            geo_to_gserialized(origin, isinstance(self, TGeogPoint))
+            if origin is not None
+            else (
+                pgis_geography_in("Point(0 0 0)", -1)
+                if isinstance(self, TGeogPoint)
+                else pgis_geometry_in("Point(0 0 0)", -1)
+            )
+        )
+        if time_start is None:
+            st = pg_timestamptz_in("2000-01-03", -1)
+        else:
+            st = (
+                datetime_to_timestamptz(time_start)
+                if isinstance(time_start, datetime)
+                else pg_timestamptz_in(time_start, -1)
+            )
+        fragments, points, times, count = tpoint_space_time_split(
+            self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix, include_border
+        )
+        return [Temporal._factory(fragments[i]) for i in range(count)]
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_equal(self, value: Union[shpb.BaseGeometry, TGeomPoint]) -> bool:
