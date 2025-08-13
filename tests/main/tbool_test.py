@@ -16,6 +16,7 @@ from pymeos import (
     TsTzSpan,
     TsTzSpanSet,
 )
+from pymeos_cffi import MeosException
 from tests.conftest import TestPyMEOS
 
 
@@ -248,6 +249,63 @@ class TestTBoolConstructors(TestTBool):
         )
         assert str(tbs2) == expected
         assert tbs2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        "params, result",
+        [
+            (
+                (
+                    [
+                        TBoolInst("True@2000-01-01"),
+                        TBoolInst("False@2000-01-02"),
+                        TBoolInst("False@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                ),
+                TBoolSeqSet("{[True@2000-01-01, False@2000-01-02, False@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TBoolInst("True@2000-01-01"),
+                        TBoolInst("False@2000-01-02"),
+                        TBoolInst("False@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                ),
+                TBoolSeqSet(
+                    "{[True@2000-01-01, False@2000-01-02], [False@2000-01-05]}"
+                ),
+            ),
+        ],
+        ids=["No Gaps", "With Gaps"],
+    )
+    def test_gaps_constructor(self, params, result):
+        assert TBoolSeqSet.from_instants_with_gaps(*params) == result
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.STEPWISE, "max_distance": 2},
+            {"interpolation": TInterpolation.LINEAR},
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Max Distance",
+            "Linear Interpolation",
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TBoolInst(value=True, timestamp="2000-01-01"),
+            TBoolInst(value=False, timestamp="2000-01-02"),
+            TBoolInst(value=False, timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TBoolSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",

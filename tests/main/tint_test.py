@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 from operator import not_
 
 import pytest
+from pymeos_cffi import MeosException
 
 from pymeos import (
     TBoolInst,
@@ -250,6 +251,96 @@ class TestTIntConstructors(TestTInt):
         )
         assert str(tis2) == expected
         assert tis2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        "params, result",
+        [
+            (
+                (
+                    [
+                        TIntInst("1@2000-01-01"),
+                        TIntInst("5@2000-01-02"),
+                        TIntInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                ),
+                TIntSeqSet("Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TIntInst("1@2000-01-01"),
+                        TIntInst("5@2000-01-02"),
+                        TIntInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                    2.0,
+                ),
+                TIntSeqSet(
+                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TIntInst("1@2000-01-01"),
+                        TIntInst("5@2000-01-02"),
+                        TIntInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                ),
+                TIntSeqSet(
+                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TIntInst("1@2000-01-01"),
+                        TIntInst("5@2000-01-02"),
+                        TIntInst("6@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                    2.0,
+                ),
+                TIntSeqSet(
+                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"
+                ),
+            ),
+        ],
+        ids=[
+            "No Gaps Stepwise",
+            "Value Gaps Stepwise",
+            "Time Gaps Stepwise",
+            "Value and Time Gaps Stepwise",
+        ],
+    )
+    def test_gaps_constructor(self, params, result):
+        assert TIntSeqSet.from_instants_with_gaps(*params) == result
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.LINEAR},
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Linear Interpolation",
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TIntInst(value=1, timestamp="2000-01-01"),
+            TIntInst(value=5, timestamp="2000-01-02"),
+            TIntInst(value=6, timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TIntSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",
