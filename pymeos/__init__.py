@@ -29,7 +29,7 @@ from pymeos_cffi import (
     MeosGeoJsonOutputError,
 )
 
-__version__ = "1.1.4"
+__version__ = "1.1.5"
 __all__ = [
     # initialization
     "pymeos_initialize",
