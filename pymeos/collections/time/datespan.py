@@ -471,9 +471,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         elif isinstance(other, DateSet):
             return self.distance(other.to_spanset())
         elif isinstance(other, DateSpan):
-            return timedelta(
-                days=distance_datespan_datespan(self._inner, other._inner)
-            )
+            return timedelta(days=distance_datespan_datespan(self._inner, other._inner))
         elif isinstance(other, DateSpanSet):
             return timedelta(
                 days=distance_datespanset_datespan(self._inner, other._inner)
