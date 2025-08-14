@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Union, Optional, overload
 
-from _meos_cffi.lib import distance_datespanset_datespan
 from dateutil.parser import parse
 from pymeos_cffi import (
     adjacent_span_date,
@@ -27,6 +26,8 @@ from pymeos_cffi import (
     intersection_span_span,
     intersection_spanset_span,
     distance_span_date,
+    distance_datespan_datespan,
+    distance_datespanset_datespan,
     overafter_span_date,
     after_span_date,
     overbefore_span_date,
@@ -457,7 +458,7 @@ class DateSpan(Span[date], TimeCollection[date]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_span_date, distance_datespanset_datespan,
+            distance_span_date, distance_datespan_datespan,
             distance_datespanset_datespan
         """
         from .dateset import DateSet
@@ -471,7 +472,7 @@ class DateSpan(Span[date], TimeCollection[date]):
             return self.distance(other.to_spanset())
         elif isinstance(other, DateSpan):
             return timedelta(
-                days=distance_datespanset_datespan(self._inner, other._inner)
+                days=distance_datespan_datespan(self._inner, other._inner)
             )
         elif isinstance(other, DateSpanSet):
             return timedelta(
