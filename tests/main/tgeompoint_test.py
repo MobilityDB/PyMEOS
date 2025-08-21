@@ -30,6 +30,7 @@ from pymeos import (
     TsTzSpanSet,
     STBox,
 )
+
 from tests.conftest import TestPyMEOS
 
 
@@ -327,6 +328,18 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         other = copy(temporal)
         assert temporal == other
         assert temporal is not other
+
+    def test_from_arrays_constructor(self):
+        tg = TGeomPointSeq.from_arrays(
+            t=["2019-09-01", "2019-09-02", "2019-09-03"],
+            x=np.array([0.1, 0.2, 0.3]),
+            y=np.array([1, 2, 3]),
+            upper_inc=True,
+        )
+        assert tg == TGeomPointSeq(
+            "{POINT(0.1 1)@2019-09-01 00:00:00+00, POINT(0.2 2)@2019-09-02 00:00:00+00, POINT(0.3 3)@2019-09-03 00:00:00+00}",
+            upper_inc=True,
+        )
 
 
 class TestTGeomPointOutputs(TestTGeomPoint):
