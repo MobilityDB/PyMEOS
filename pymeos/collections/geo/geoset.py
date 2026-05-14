@@ -13,18 +13,17 @@ from pymeos_cffi import (
     intersection_set_geo,
     minus_set_geo,
     union_set_geo,
-    geoset_as_ewkt,
-    geoset_as_text,
-    geoset_out,
+    spatialset_as_ewkt,
+    spatialset_as_text,
     geoset_make,
-    geoset_srid,
-    geoset_round,
+    spatialset_srid,
+    set_round,
     minus_geo_set,
     geomset_in,
     geogset_in,
-    pgis_geometry_in,
+    geom_in,
     geometry_to_gserialized,
-    pgis_geography_in,
+    geog_in,
     geography_to_gserialized,
     intersection_set_set,
     minus_set_set,
@@ -53,9 +52,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             A new :class:`str` instance
 
         MEOS Functions:
-            geoset_out
+            spatialset_as_text
         """
-        return geoset_out(self._inner, max_decimals)
+        return spatialset_as_text(self._inner, max_decimals)
 
     def as_ewkt(self, max_decimals: int = 15) -> str:
         """
@@ -68,9 +67,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`str` instance.
 
         MEOS Functions:
-            geoset_as_ewkt
+            spatialset_as_ewkt
         """
-        return geoset_as_ewkt(self._inner, max_decimals)
+        return spatialset_as_ewkt(self._inner, max_decimals)
 
     def as_wkt(self, max_decimals: int = 15):
         """
@@ -83,9 +82,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`str` instance.
 
         MEOS Functions:
-            geoset_as_text
+            spatialset_as_text
         """
-        return geoset_as_text(self._inner, max_decimals)
+        return spatialset_as_text(self._inner, max_decimals)
 
     def as_text(self, max_decimals: int = 15):
         """
@@ -98,9 +97,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             A :class:`str` instance.
 
         MEOS Functions:
-            geoset_as_text
+            spatialset_as_text
         """
-        return geoset_as_text(self._inner, max_decimals)
+        return spatialset_as_text(self._inner, max_decimals)
 
     # ------------------------- Conversions -----------------------------------
 
@@ -176,9 +175,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             An integer
 
         MEOS Functions:
-            geoset_srid
+            spatialset_srid
         """
-        return geoset_srid(self._inner)
+        return spatialset_srid(self._inner)
 
     # ------------------------- Topological Operations --------------------------------
 
@@ -306,9 +305,9 @@ class GeoSet(Set[shp.Geometry], ABC):
             A new :class:`GeoSet` object of the same subtype of ``self``.
 
         MEOS Functions:
-            tpoint_roundgeoset_round
+            set_round
         """
-        return self.__class__(_inner=geoset_round(self._inner, max_decimals))
+        return self.__class__(_inner=set_round(self._inner, max_decimals))
 
 
 class GeometrySet(GeoSet):
@@ -316,7 +315,7 @@ class GeometrySet(GeoSet):
 
     _parse_function = geomset_in
     _parse_value_function = lambda x: (
-        pgis_geometry_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x)
+        geom_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x)
     )
 
 
@@ -325,5 +324,5 @@ class GeographySet(GeoSet):
 
     _parse_function = geogset_in
     _parse_value_function = lambda x: (
-        pgis_geography_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)
+        geog_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)
     )
