@@ -3180,8 +3180,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (
                 tfss,
                 TBoolSeqSet(
-                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],"
-                    "[True@2019-09-03, True@2019-09-05]}"
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
                 ),
             ),
         ],
