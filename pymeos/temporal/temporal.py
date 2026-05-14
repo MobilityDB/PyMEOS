@@ -654,7 +654,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation.to_string())
+        seq = temporal_to_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -664,7 +664,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation.to_string())
+        ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -699,8 +699,16 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
+        # The interp argument matters only when self is a TInstant being
+        # promoted to a TSequence; STEP works for every base type, while
+        # LINEAR is rejected by MEOS for discrete-only types like bool/text.
         new_inner = temporal_append_tinstant(
-            self._inner, instant._inner, max_dist, interv, False
+            self._inner,
+            instant._inner,
+            InterpolationType.STEP,
+            max_dist,
+            interv,
+            False,
         )
         return Temporal._factory(new_inner)
 
