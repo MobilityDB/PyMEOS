@@ -190,7 +190,7 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            pgis_geometry_in, geo_to_stbox
+            geom_in, geo_to_stbox
         """
         gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
@@ -1332,9 +1332,9 @@ class STBox:
             geo_to_gserialized(origin, self.geodetic())
             if origin is not None
             else (
-                pgis_geography_in("Point(0 0 0)", -1)
+                geog_in("Point(0 0 0)", -1)
                 if self.geodetic()
-                else pgis_geometry_in("Point(0 0 0)", -1)
+                else geom_in("Point(0 0 0)", -1)
             )
         )
         tiles, count = stbox_space_time_tiles(self._inner, sz, sz, sz, dt, gs, st)

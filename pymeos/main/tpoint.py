@@ -51,8 +51,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
     Abstract class for temporal points.
     """
 
-    _projection_cache: dict[tuple[int, int], "LWPROJ"] = {}
-
     # ------------------------- Constructors ----------------------------------
     def __init__(self, _inner) -> None:
         super().__init__()
@@ -73,7 +71,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tpoint_out
         """
-        return tpoint_as_text(self._inner, 15)
+        return tspatial_as_text(self._inner, 15)
 
     def as_wkt(self, precision: int = 15) -> str:
         """
@@ -88,7 +86,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tpoint_out
         """
-        return tpoint_as_text(self._inner, precision)
+        return tspatial_as_text(self._inner, precision)
 
     def as_ewkt(self, precision: int = 15) -> str:
         """
@@ -101,9 +99,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A new :class:`str` representing the temporal point  .
 
         MEOS Functions:
-            tpoint_as_ewkt
+            tspatial_as_ewkt
         """
-        return tpoint_as_ewkt(self._inner, precision)
+        return tspatial_as_ewkt(self._inner, precision)
 
     def as_geojson(
         self, option: int = 1, precision: int = 15, srs: Optional[str] = None
@@ -122,7 +120,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             gserialized_as_geojson
         """
-        return geo_as_geojson(tpoint_trajectory(self._inner), option, precision, srs)
+        return geo_as_geojson(tpoint_trajectory(self._inner, False), option, precision, srs)
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
@@ -139,7 +137,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             gserialized_to_shapely_geometry
         """
         return gserialized_to_shapely_geometry(
-            tpoint_trajectory(self._inner), precision
+            tpoint_trajectory(self._inner, False), precision
         )
 
     # ------------------------- Accessors -------------------------------------
@@ -177,9 +175,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`~shapely.geometry.Point` with the start value.
 
         MEOS Functions:
-            tpoint_start_value
+            tgeo_start_value
         """
-        return gserialized_to_shapely_point(tpoint_start_value(self._inner), precision)
+        return gserialized_to_shapely_point(tgeo_start_value(self._inner), precision)
 
     def end_value(self, precision: int = 15) -> shp.Point:
         """
@@ -189,9 +187,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`~shapely.geometry.Point` with the end value.
 
         MEOS Functions:
-            tpoint_end_value
+            tgeo_end_value
         """
-        return gserialized_to_shapely_point(tpoint_end_value(self._inner), precision)
+        return gserialized_to_shapely_point(tgeo_end_value(self._inner), precision)
 
     def value_set(self, precision: int = 15) -> Set[shp.Point]:
         """
@@ -202,9 +200,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`set` of :class:`~shapely.geometry.Point` with the values.
 
         MEOS Functions:
-            tpoint_values
+            tgeo_values
         """
-        values, count = tpoint_values(self._inner)
+        values, count = tgeo_values(self._inner)
         return {
             gserialized_to_shapely_point(values[i], precision) for i in range(count)
         }
@@ -224,7 +222,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             tpoint_value_at_timestamp
         """
         return gserialized_to_shapely_point(
-            tpoint_value_at_timestamptz(
+            tgeo_value_at_timestamptz(
                 self._inner, datetime_to_timestamptz(timestamp), True
             )[0],
             precision,
@@ -315,7 +313,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`bool` indicating whether the temporal point has a z coordinate.
 
         MEOS Functions:
-            tpoint_start_value
+            tgeo_start_value
         """
         return self.bounding_box().has_z()
 
@@ -327,11 +325,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`list` of :class:`STBox`es.
 
         MEOS Functions:
-            tpoint_stboxes
+            tgeo_stboxes
         """
         from ..boxes import STBox
 
-        result, count = tpoint_stboxes(self._inner)
+        result, count = tgeo_stboxes(self._inner)
         return [STBox(_inner=result + i) for i in range(count)]
 
     def is_simple(self) -> bool:
@@ -430,9 +428,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             An :class:`int` representing the SRID.
 
         MEOS Functions:
-            tpoint_srid
+            tspatial_srid
         """
-        return tpoint_srid(self._inner)
+        return tspatial_srid(self._inner)
 
     def set_srid(self: Self, srid: int) -> Self:
         """
@@ -440,7 +438,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
 
         """
-        return self.__class__(_inner=tpoint_set_srid(self._inner, srid))
+        return self.__class__(_inner=tspatial_set_srid(self._inner, srid))
 
     # ------------------------- Transformations -------------------------------
     def round(self, max_decimals: int = 0) -> TPoint:
@@ -451,9 +449,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tpoint_round
+            temporal_round
         """
-        result = tpoint_round(self._inner, max_decimals)
+        result = temporal_round(self._inner, max_decimals)
         return Temporal._factory(result)
 
     def make_simple(self) -> List[TPoint]:
@@ -482,11 +480,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            tpoint_expand_space
+            tspatial_to_stbox, stbox_expand_space
         """
         from ..boxes import STBox
 
-        result = tpoint_expand_space(self._inner, float(other))
+        box = tspatial_to_stbox(self._inner)
+        result = stbox_expand_space(box, float(other))
         return STBox(_inner=result)
 
     def transform(self: Self, srid: int) -> Self:
@@ -500,12 +499,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
              A new :class:`TPoint` instance
 
          MEOS Functions:
-            tpoint_transform
+            tspatial_transform
         """
-        srids = (self.srid(), srid)
-        if srids not in self._projection_cache:
-            self._projection_cache[srids] = lwproj_transform(*srids)
-        result = tpoint_transform_pj(self._inner, srid, self._projection_cache[srids])
+        result = tspatial_transform(self._inner, srid)
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
@@ -762,15 +758,15 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             A :class:`bool` indicating whether the temporal point is ever contained by `container`.
 
         MEOS Functions:
-            econtains_geo_tpoint
+            econtains_geo_tgeo
         """
         from ..boxes import STBox
 
         if isinstance(container, shpb.BaseGeometry):
             gs = geo_to_gserialized(container, isinstance(self, TGeogPoint))
-            result = econtains_geo_tpoint(gs, self._inner)
+            result = econtains_geo_tgeo(gs, self._inner)
         elif isinstance(container, STBox):
-            result = econtains_geo_tpoint(stbox_to_geo(container._inner), self._inner)
+            result = econtains_geo_tgeo(stbox_to_geo(container._inner), self._inner)
         else:
             raise TypeError(f"Operation not supported with type {container.__class__}")
         return result == 1
@@ -1104,13 +1100,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             and `other`.
 
         MEOS Functions:
-            shortestline_tpoint_geo, shortestline_tpoint_tpoint
+            shortestline_tgeo_geo, shortestline_tgeo_tgeo
         """
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = shortestline_tpoint_geo(self._inner, gs)
+            result = shortestline_tgeo_geo(self._inner, gs)
         elif isinstance(other, TPoint):
-            result = shortestline_tpoint_tpoint(self._inner, other._inner)
+            result = shortestline_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return gserialized_to_shapely_geometry(result, 10)
@@ -1190,12 +1186,12 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else (
-                pgis_geography_in("Point(0 0 0)", -1)
+                geog_in("Point(0 0 0)", -1)
                 if isinstance(self, TGeogPoint)
-                else pgis_geometry_in("Point(0 0 0)", -1)
+                else geom_in("Point(0 0 0)", -1)
             )
         )
-        fragments, values, count = tpoint_space_split(
+        fragments, values, count = tgeo_space_split(
             self._inner, xsize, ysz, zsz, gs, bitmatrix, include_border
         )
         from ..factory import _TemporalFactory
@@ -1245,9 +1241,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
             geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else (
-                pgis_geography_in("Point(0 0 0)", -1)
+                geog_in("Point(0 0 0)", -1)
                 if isinstance(self, TGeogPoint)
-                else pgis_geometry_in("Point(0 0 0)", -1)
+                else geom_in("Point(0 0 0)", -1)
             )
         )
         if time_start is None:
@@ -1258,7 +1254,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
                 if isinstance(time_start, datetime)
                 else pg_timestamptz_in(time_start, -1)
             )
-        fragments, points, times, count = tpoint_space_time_split(
+        fragments, points, times, count = tgeo_space_time_split(
             self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix, include_border
         )
         return [Temporal._factory(fragments[i]) for i in range(count)]
@@ -1515,9 +1511,9 @@ class TGeomPoint(
             A new :class:`TGeogPoint` object.
 
         MEOS Functions:
-            tgeompoint_to_tgeogpoint
+            tgeometry_to_tgeography
         """
-        result = tgeompoint_to_tgeogpoint(self._inner)
+        result = tgeometry_to_tgeography(self._inner)
         return Temporal._factory(result)
 
     def to_dataframe(self) -> GeoDataFrame:
@@ -1546,11 +1542,11 @@ class TGeomPoint(
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Functions:
-            always_eq_tpoint_point, always_eq_temporal_temporal
+            always_eq_tgeo_geo, always_eq_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geometry_to_gserialized(value)
-            return always_eq_tpoint_point(self._inner, gs) > 0
+            return always_eq_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeomPoint):
             return always_eq_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1567,11 +1563,11 @@ class TGeomPoint(
             True if `self` is always different to `value`, False otherwise.
 
         MEOS Functions:
-            always_ne_tpoint_point, always_ne_temporal_temporal
+            always_ne_tgeo_geo, always_ne_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geometry_to_gserialized(value)
-            return always_ne_tpoint_point(self._inner, gs) > 0
+            return always_ne_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeomPoint):
             return always_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1588,11 +1584,11 @@ class TGeomPoint(
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Functions:
-            ever_eq_tpoint_point, ever_eq_temporal_temporal
+            ever_eq_tgeo_geo, ever_eq_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geometry_to_gserialized(value)
-            return ever_eq_tpoint_point(self._inner, gs) > 0
+            return ever_eq_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeomPoint):
             return ever_eq_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1609,11 +1605,11 @@ class TGeomPoint(
             True if `self` is ever different to `value`, False otherwise.
 
         MEOS Functions:
-            ever_ne_tpoint_point, ever_ne_temporal_temporal
+            ever_ne_tgeo_geo, ever_ne_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geometry_to_gserialized(value)
-            return ever_ne_tpoint_point(self._inner, gs) > 0
+            return ever_ne_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeomPoint):
             return ever_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1630,7 +1626,7 @@ class TGeomPoint(
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Functions:
-            ever_eq_tpoint_point, ever_eq_temporal_temporal
+            ever_eq_tgeo_geo, ever_eq_temporal_temporal
         """
         return not self.ever_equal(value)
 
@@ -1645,7 +1641,7 @@ class TGeomPoint(
             True if `self` is never different to `value`, False otherwise.
 
         MEOS Functions:
-            ever_ne_tpoint_point, ever_ne_temporal_temporal
+            ever_ne_tgeo_geo, ever_ne_temporal_temporal
         """
         return not self.ever_not_equal(value)
 
@@ -1689,11 +1685,11 @@ class TGeomPoint(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tpoint_point, teq_temporal_temporal
+            teq_tgeo_geo, teq_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other)
-            result = teq_tpoint_point(self._inner, gs)
+            result = teq_tgeo_geo(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
@@ -1709,11 +1705,11 @@ class TGeomPoint(
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tpoint_point, tne_temporal_temporal
+            tne_tgeo_geo, tne_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geometry_to_gserialized(other)
-            result = tne_tpoint_point(self._inner, gs)
+            result = tne_tgeo_geo(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
@@ -1870,9 +1866,9 @@ class TGeogPoint(
             A new :class:`TGeomPoint` object.
 
         MEOS Functions:
-            tgeogpoint_to_tgeompoint
+            tgeography_to_tgeometry
         """
-        result = tgeogpoint_to_tgeompoint(self._inner)
+        result = tgeography_to_tgeometry(self._inner)
         return Temporal._factory(result)
 
     # ------------------------- Ever and Always Comparisons -------------------
@@ -1887,11 +1883,11 @@ class TGeogPoint(
             True if `self` is always equal to `value`, False otherwise.
 
         MEOS Functions:
-            always_eq_tpoint_point, always_eq_temporal_temporal
+            always_eq_tgeo_geo, always_eq_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geography_to_gserialized(value)
-            return always_eq_tpoint_point(self._inner, gs) > 0
+            return always_eq_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeogPoint):
             return always_eq_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1908,11 +1904,11 @@ class TGeogPoint(
             True if `self` is always different to `value`, False otherwise.
 
         MEOS Functions:
-            always_ne_tpoint_point, always_ne_temporal_temporal
+            always_ne_tgeo_geo, always_ne_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geography_to_gserialized(value)
-            return always_ne_tpoint_point(self._inner, gs) > 0
+            return always_ne_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeogPoint):
             return always_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1929,11 +1925,11 @@ class TGeogPoint(
             True if `self` is ever equal to `value`, False otherwise.
 
         MEOS Functions:
-            ever_eq_tpoint_point, ever_eq_temporal_temporal
+            ever_eq_tgeo_geo, ever_eq_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geography_to_gserialized(value)
-            return ever_eq_tpoint_point(self._inner, gs) > 0
+            return ever_eq_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeogPoint):
             return ever_eq_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1950,11 +1946,11 @@ class TGeogPoint(
             True if `self` is ever different to `value`, False otherwise.
 
         MEOS Functions:
-            ever_ne_tpoint_point, ever_ne_temporal_temporal
+            ever_ne_tgeo_geo, ever_ne_temporal_temporal
         """
         if isinstance(value, shpb.BaseGeometry):
             gs = geography_to_gserialized(value)
-            return ever_ne_tpoint_point(self._inner, gs) > 0
+            return ever_ne_tgeo_geo(self._inner, gs) > 0
         elif isinstance(value, TGeogPoint):
             return ever_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
@@ -1971,7 +1967,7 @@ class TGeogPoint(
             True if `self` is never equal to `value`, False otherwise.
 
         MEOS Functions:
-            ever_eq_tpoint_point, ever_eq_temporal_temporal
+            ever_eq_tgeo_geo, ever_eq_temporal_temporal
         """
         return not self.ever_equal(value)
 
@@ -1986,7 +1982,7 @@ class TGeogPoint(
             True if `self` is never different to `value`, False otherwise.
 
         MEOS Functions:
-            ever_ne_tpoint_point, ever_ne_temporal_temporal
+            ever_ne_tgeo_geo, ever_ne_temporal_temporal
         """
         return not self.ever_not_equal(value)
 
@@ -2002,11 +1998,11 @@ class TGeogPoint(
             A :class:`TBool` with the result of the temporal equality relation.
 
         MEOS Functions:
-            teq_tpoint_point, teq_temporal_temporal
+            teq_tgeo_geo, teq_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geography_to_gserialized(other)
-            result = teq_tpoint_point(self._inner, gs)
+            result = teq_tgeo_geo(self._inner, gs)
         else:
             return super().temporal_equal(other)
         return Temporal._factory(result)
@@ -2022,11 +2018,11 @@ class TGeogPoint(
             A :class:`TBool` with the result of the temporal inequality relation.
 
         MEOS Functions:
-            tne_tpoint_point, tne_temporal_temporal
+            tne_tgeo_geo, tne_temporal_temporal
         """
         if isinstance(other, shp.Point):
             gs = geography_to_gserialized(other)
-            result = tne_tpoint_point(self._inner, gs)
+            result = tne_tgeo_geo(self._inner, gs)
         else:
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
