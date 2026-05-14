@@ -56,12 +56,24 @@ jobs:
           brew reinstall python@3.11 || brew link --overwrite python@3.11
           brew update
 
-      - name: Fetch MEOS sources
-        env:
-          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
+      - name: Derive MEOS branch from package version
+        id: meos_branch
+        shell: bash
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB \
-            || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          pymeos_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos/__init__.py)
+          major_minor=$(echo "$pymeos_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
+          fi
+          echo "Package version $pymeos_version => MEOS branch $meos_branch"
+          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch MEOS sources
+        run: |
+          git clone --branch ${{ steps.meos_branch.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
 
       - name: Install MEOS
         run: |
