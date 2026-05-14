@@ -79,7 +79,9 @@ jobs:
         run: |
           mkdir MobilityDB/build
           cd MobilityDB/build
-          cmake .. -DMEOS=on -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
+          cmake .. -DMEOS=ON -DCBUFFER=ON -DPOSE=ON \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j
           sudo make install
 
