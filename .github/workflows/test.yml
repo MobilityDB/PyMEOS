@@ -58,9 +58,10 @@ jobs:
 
       - name: Fetch MEOS sources
         env:
-          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB \
+            || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/MobilityDB
 
       - name: Install MEOS
         run: |
@@ -78,9 +79,10 @@ jobs:
 
       - name: Fetch PyMEOS CFFI sources
         env:
-          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI \
+            || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
 
       - name: Install python dependencies
         run: |
