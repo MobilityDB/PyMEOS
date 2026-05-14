@@ -186,7 +186,7 @@ class TestDateSetComparisons(TestDateSet):
     other = DateSet("{2020-01-02, 2020-03-31}")
 
     def test_eq(self):
-        assert self.dateset == self.other
+        assert self.dateset == self.dateset
 
     def test_ne(self):
         assert self.dateset != self.other

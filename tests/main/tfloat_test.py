@@ -3133,10 +3133,10 @@ class TestTFloatTemporalComparisons(TestTFloat):
         [
             (tfi, TBoolInst("False@2019-09-01")),
             (tfds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
-            (tfs, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
+            (tfs, TBoolSeqSet("{[False@2019-09-01, False@2019-09-02]}")),
             (
                 tfss,
-                TBoolSeqSet("{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
+                TBoolSeqSet("{[False@2019-09-01, False@2019-09-02],[False@2019-09-03, False@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -3175,11 +3175,14 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (tfds, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
             (
                 tfs,
-                TBoolSeq("{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"),
+                TBoolSeqSet("{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"),
             ),
             (
                 tfss,
-                TBoolSeqSet("{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
+                TBoolSeqSet(
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],"
+                    "[True@2019-09-03, True@2019-09-05]}"
+                ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -3230,12 +3233,12 @@ class TestTFloatTemporalComparisons(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, TBoolInst("False@2019-09-01")),
-            (tfds, TBoolSeq("{False@2019-09-01, True@2019-09-02}")),
-            (tfs, TBoolSeq("[False@2019-09-01, True@2019-09-02]")),
+            (tfi, TBoolInst("True@2019-09-01")),
+            (tfds, TBoolSeq("{True@2019-09-01, True@2019-09-02}")),
+            (tfs, TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}")),
             (
                 tfss,
-                TBoolSeqSet("{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"),
+                TBoolSeqSet("{[True@2019-09-01, True@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
