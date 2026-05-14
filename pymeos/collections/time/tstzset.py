@@ -39,7 +39,7 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzset"
 
     _parse_function = tstzset_in
-    _parse_value_function = lambda x: (pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x))
+    _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     _make_function = tstzset_make
 
     # ------------------------- Constructors ----------------------------------

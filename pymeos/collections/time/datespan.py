@@ -69,7 +69,7 @@ class DateSpan(Span[date], TimeCollection[date]):
     _mobilitydb_name = "datespan"
 
     _parse_function = datespan_in
-    _parse_value_function = lambda x: (pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x))
+    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = datespan_make
 
     # ------------------------- Constructors ----------------------------------

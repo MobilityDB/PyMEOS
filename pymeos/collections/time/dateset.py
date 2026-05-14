@@ -63,7 +63,7 @@ class DateSet(Set[date], TimeCollection[date]):
     _mobilitydb_name = "dateset"
 
     _parse_function = dateset_in
-    _parse_value_function = lambda x: (pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x))
+    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = dateset_make
 
     # ------------------------- Constructors ----------------------------------

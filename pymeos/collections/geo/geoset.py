@@ -307,11 +307,11 @@ class GeometrySet(GeoSet):
     _mobilitydb_name = "geomset"
 
     _parse_function = geomset_in
-    _parse_value_function = lambda x: (geom_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x))
+    _parse_value_function = lambda x: geom_in(x, -1) if isinstance(x, str) else geometry_to_gserialized(x)
 
 
 class GeographySet(GeoSet):
     _mobilitydb_name = "geogset"
 
     _parse_function = geogset_in
-    _parse_value_function = lambda x: (geog_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x))
+    _parse_value_function = lambda x: geog_in(x, -1) if isinstance(x, str) else geography_to_gserialized(x)

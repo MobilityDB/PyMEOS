@@ -55,7 +55,7 @@ class IntSpanSet(SpanSet[int]):
     _mobilitydb_name = "intspanset"
 
     _parse_function = intspanset_in
-    _parse_value_function = lambda span: (intspanset_in(span)[0] if isinstance(span, str) else span._inner[0])
+    _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):

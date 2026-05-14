@@ -55,7 +55,7 @@ class FloatSpanSet(SpanSet[float]):
     _mobilitydb_name = "floatspanset"
 
     _parse_function = floatspanset_in
-    _parse_value_function = lambda span: (floatspanset_in(span)[0] if isinstance(span, str) else span._inner[0])
+    _parse_value_function = lambda span: floatspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):

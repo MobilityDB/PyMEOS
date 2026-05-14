@@ -41,7 +41,7 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzspan"
 
     _parse_function = tstzspan_in
-    _parse_value_function = lambda x: (pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x))
+    _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     _make_function = tstzspan_make
 
     # ------------------------- Constructors ----------------------------------
