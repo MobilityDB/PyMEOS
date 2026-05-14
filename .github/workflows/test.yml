@@ -23,12 +23,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [ "3.8", "3.9", "3.10", "3.11", "3.12" ]
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
         os: [ ubuntu-latest, macos-13, macos-14 ]
         include:
-          - ld_path: "/usr/local/lib"
+          - ld_prefix: "/usr/local"
           - os: macos-14
-            ld_path: "/opt/homebrew/lib"
+            ld_prefix: "/opt/homebrew"
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
         uses: awalsh128/cache-apt-pkgs-action@latest
         if: runner.os == 'Linux'
         with:
-          packages: build-essential cmake postgresql-server-dev-14 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
+          packages: build-essential cmake postgresql-server-dev-16 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
           version: 1.0
 
       - name: Get dependencies from homebrew (cache)
@@ -56,17 +56,30 @@ jobs:
           brew reinstall python@3.11 || brew link --overwrite python@3.11
           brew update
 
-      - name: Fetch MEOS sources
-        env:
-          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+      - name: Derive MEOS branch from package version
+        id: meos_branch
+        shell: bash
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          pymeos_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos/__init__.py)
+          major_minor=$(echo "$pymeos_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
+          fi
+          echo "Package version $pymeos_version => MEOS branch $meos_branch"
+          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Fetch MEOS sources
+        run: |
+          git clone --branch ${{ steps.meos_branch.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
 
       - name: Install MEOS
         run: |
           mkdir MobilityDB/build
           cd MobilityDB/build
-          cmake .. -DMEOS=on
+          cmake .. -DMEOS=on -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
           make -j
           sudo make install
 
@@ -78,9 +91,10 @@ jobs:
 
       - name: Fetch PyMEOS CFFI sources
         env:
-          BRANCH_NAME: ${{ github.base_ref || github.ref_name }}
+          BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
-          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
+          git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI \
+            || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
 
       - name: Install python dependencies
         run: |
@@ -97,6 +111,6 @@ jobs:
 
       - name: Test PyMEOS with pytest
         run: |
-          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_path }}
-          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_path }}
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           pytest
