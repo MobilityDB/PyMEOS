@@ -1,4 +1,6 @@
-from typing import Any, TypeVar
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import (
     temporal_eq,
@@ -9,7 +11,8 @@ from pymeos_cffi import (
     temporal_ne,
 )
 
-from ..temporal import Temporal
+if TYPE_CHECKING:
+    from ..temporal import Temporal
 
 Self = TypeVar("Self", bound="Temporal[Any]")
 

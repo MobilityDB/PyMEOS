@@ -3142,7 +3142,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_temporal_equal_int(self, temporal, expected):
-        assert temporal.temporal_equal_1(1) == expected
+        assert temporal.temporal_equal(1) == expected
 
     @pytest.mark.parametrize(
         "temporal, expected",

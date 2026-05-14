@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import timedelta
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import (
     temporal_simplify_dp,
@@ -9,7 +11,8 @@ from pymeos_cffi import (
     timedelta_to_interval,
 )
 
-from ..temporal import Temporal
+if TYPE_CHECKING:
+    from ..temporal import Temporal
 
 Self = TypeVar("Self", bound="Temporal[Any]")
 
