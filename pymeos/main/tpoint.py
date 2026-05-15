@@ -1064,6 +1064,35 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
+    def min_distance(self, other: Union[shpb.BaseGeometry, TPoint]) -> float:
+        """
+        Returns the minimum spatial distance between the temporal point and
+        `other`, ignoring time.
+
+        When `other` is a static geometry, this is equivalent to
+        :meth:`nearest_approach_distance` because the geometry has no time
+        dimension. When `other` is a temporal point, the result is the
+        minimum distance over every pair of points on the two trajectories,
+        regardless of whether the pair shares a timestamp.
+
+        Args:
+            other: An object to check the minimum spatial distance to.
+
+        Returns:
+            A :class:`float` indicating the minimum spatial distance between
+            the temporal point and `other`.
+
+        MEOS Functions:
+            nad_tgeo_geo, mindistance_tgeo_tgeo
+        """
+        if isinstance(other, shpb.BaseGeometry):
+            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
+            return nad_tgeo_geo(self._inner, gs)
+        elif isinstance(other, TPoint):
+            return mindistance_tgeo_tgeo(self._inner, other._inner, float("inf"))
+        else:
+            raise TypeError(f"Operation not supported with type {other.__class__}")
+
     def nearest_approach_instant(self, other: Union[shpb.BaseGeometry, TPoint]) -> TI:
         """
         Returns the nearest approach instant between the temporal point and `other`.
