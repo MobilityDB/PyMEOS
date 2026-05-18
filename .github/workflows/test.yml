@@ -111,6 +111,17 @@ jobs:
           python ./builder/build_pymeos_functions.py
           pip install .
 
+      - name: Portable bare-name parity gate
+        # Regenerate pymeos/portable.py from the MEOS just built+installed so
+        # the shipped module matches the binding under test, and hard-gate
+        # the canonical contract: 29/29 bare names backed, 0 unbacked, all
+        # six families, and the live pymeos_cffi backs every one (--cffi).
+        run: |
+          export MEOS_INCLUDE=${{ matrix.ld_prefix }}/include
+          export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
+          python tools/portable_aliases/generate.py --cffi --check
+
       - name: Test PyMEOS with pytest
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
