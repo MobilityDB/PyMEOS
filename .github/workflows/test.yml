@@ -111,6 +111,16 @@ jobs:
           python ./builder/build_pymeos_functions.py
           pip install .
 
+      - name: OO codegen coverage gate
+        # Hard-gate the meos-idl.json-driven OO method-family generator: it
+        # is offline (vendored catalog, no compiled MEOS), so the check is
+        # that every catalogued function is emitted or explicitly counted
+        # (zero unaccounted) and all six type families are covered. The
+        # pytest run below additionally asserts the committed Draft preview
+        # stays in lock-step with the generator and reuses real backings.
+        run: |
+          python tools/oo_codegen/codegen.py --check
+
       - name: Test PyMEOS with pytest
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
