@@ -176,6 +176,10 @@ class Method:
     # arg-kind token -> backing pymeos_cffi C function name
     overloads: dict[str, str] = field(default_factory=dict)
     c_names: list[str] = field(default_factory=list)
+    # backing C function name -> its IDL canonical param type list (used by
+    # the faithful-mixin emitter to detect the trailing `distance` arg and
+    # the restriction `*_stbox` border flag).
+    params: dict[str, list[str]] = field(default_factory=dict)
 
 
 @dataclass
@@ -225,6 +229,9 @@ def collect(idl: dict) -> tuple[dict[str, dict[str, Method]], Stats]:
         # so a reviewer sees every backing symbol.
         meth.overloads.setdefault(token or fam, cname)
         meth.c_names.append(cname)
+        meth.params[cname] = [
+            p.get("canonical", p.get("cType", "")) for p in entry["params"]
+        ]
         st.emitted_overloads += 1
         st.by_family[fam] += 1
     return fams, st
@@ -346,6 +353,255 @@ def emit(fams: dict[str, dict[str, Method]], out_dir: Path) -> None:
         (out_dir / f"{family}_methods.py").write_text("".join(body))
 
 
+# --- faithful wired-in mixin emission -----------------------------------
+#
+# The Draft `_preview/` above is a shape sketch.  The faithful emitter below
+# produces a mixin that is BEHAVIOURALLY identical to the hand-written
+# pymeos/main/<t>.py regular families -- same isinstance ladder, same
+# argument transforms, same result post-processing, same super()/raise
+# fallback -- so the existing pytest suite passes unchanged against it.  It
+# is modelled per type family; only families with a FAMILY_MODEL entry are
+# wired in (the staged migration is one family per PR).
+
+# Per-family binding: base scalar class, the family's own temporal class,
+# the import path of each, and the arg-token -> (isinstance type, call-arg
+# expression) map.  ``$o`` is the Python argument.  Tokens absent from a
+# family's map are reported (never silently dropped).
+FAMILY_MODEL = {
+    "cbuffer": {
+        "mixin_class": "TCbufferRegularMixin",
+        "base_class": "Cbuffer",
+        "base_import": "from ...collections.cbuffer import Cbuffer",
+        "temporal_class": "TCbuffer",
+        "temporal_import": "from ..tcbuffer import TCbuffer",
+        # The temporal operand's C-name token.  A faithful temporal-type
+        # mixin uses ONLY `<member>_<temporal_token>_<arg>` overloads (the
+        # temporal value is the left operand); the reversed `<member>_
+        # <base>_<temporal_token>` and base-class forms belong to the base
+        # scalar class, not here -- exactly as the hand-written code does.
+        "temporal_token": "tcbuffer",
+        "tokens": {
+            "cbuffer": ("Cbuffer", "$o._inner"),
+            "tcbuffer": ("TCbuffer", "$o._inner"),
+            "geo": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "geom": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+    },
+}
+
+# Result post-processing, derived verbatim from the hand-written oracle.
+_BOOL_GT0 = {"always_equal", "always_not_equal", "ever_equal", "ever_not_equal"}
+_BOOL_EQ1 = {
+    "is_ever_contains",
+    "is_ever_covers",
+    "is_ever_disjoint",
+    "is_ever_within_distance",
+    "ever_intersects",
+    "ever_touches",
+    "is_always_contains",
+    "is_always_covers",
+    "is_always_disjoint",
+    "is_always_within_distance",
+    "always_intersects",
+    "always_touches",
+}
+_SHAPELY = {"shortest_line"}
+_RAW = {"nearest_approach_distance"}
+# Members whose unmatched-type branch delegates to the generic base impl
+# (the rest raise TypeError, mirroring the hand-written code exactly).
+_SUPER_FALLBACK = {
+    "at",
+    "minus",
+    "temporal_equal",
+    "temporal_not_equal",
+    "temporal_less",
+    "temporal_less_or_equal",
+    "temporal_greater",
+    "temporal_greater_or_equal",
+}
+# Members that take a trailing ``distance`` argument.
+_WITHIN_DISTANCE = {
+    "is_ever_within_distance",
+    "is_always_within_distance",
+    "within_distance",
+}
+
+_ORDER = [
+    "geo",
+    "geom",
+    "cbuffer",
+    "tcbuffer",
+    "npoint",
+    "tnpoint",
+    "pose",
+    "tpose",
+    "rgeometry",
+    "trgeometry",
+    "stbox",
+]
+
+# oo_method_name -> the C-name member prefix (reverse of MEMBER_SPEC).
+_OO_TO_CPREFIX = {oo: pfx for pfx, (oo, _k) in MEMBER_SPEC.items()}
+
+
+def _faithful_overloads(oo_name: str, m: Method, ttok: str) -> dict[str, str]:
+    """Rebuild the dispatch table for a temporal-type mixin: keep only the
+    overloads whose C name is ``<member>_<ttok>_<arg>`` (or, for
+    restriction, ``<ttok>_(at|minus)_<arg>``) and key on ``<arg>``.  This
+    discards reversed-operand / base-class forms so the generated method
+    calls exactly the backing the hand-written method called."""
+    out: dict[str, str] = {}
+    if oo_name in ("at", "minus"):
+        pat = re.compile(rf"^{re.escape(ttok)}_{oo_name}_(.+)$")
+    else:
+        cpre = _OO_TO_CPREFIX[oo_name]
+        pat = re.compile(rf"^{re.escape(cpre)}_{re.escape(ttok)}_(.+)$")
+    for cn in m.c_names:
+        mm = pat.match(cn)
+        if mm:
+            out.setdefault(mm.group(1), cn)
+    return out
+
+
+_MIXIN_HEADER = '''\
+# Copyright (c) 2016-2026, Université libre de Bruxelles and PyMEOS
+# contributors. Licensed under the PostgreSQL License (see LICENSE).
+#
+# ============================================================================
+#  GENERATED by tools/oo_codegen/codegen.py -- DO NOT EDIT.
+#  Regenerate:
+#    python3 tools/oo_codegen/codegen.py --mixin {family} \\
+#        --mixin-out pymeos/main/_generated/{family}_methods.py
+# ============================================================================
+#
+# Wired into pymeos.main.{temporal_class} via {mixin_class}.  Every method
+# dispatches by argument type to the EXACT pymeos_cffi backing the
+# hand-written method used -- same native call, same transforms, same
+# result, never reimplemented: identical by construction.
+"""Generated regular OO methods for the {temporal_class} family."""
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+import shapely.geometry.base as shpb
+from pymeos_cffi import *
+
+from ...temporal import Temporal
+{base_import}
+
+if TYPE_CHECKING:
+    {temporal_import}
+
+
+class {mixin_class}:
+    """Generated regular families (comparison, spatial relationship,
+    distance, restriction) for :class:`{temporal_class}`."""
+'''
+
+
+def _result_return(oo_name: str) -> str:
+    if oo_name in _BOOL_GT0:
+        return "        return result > 0\n"
+    if oo_name in _BOOL_EQ1:
+        return "        return result == 1\n"
+    if oo_name in _RAW:
+        return "        return result\n"
+    if oo_name in _SHAPELY:
+        return "        return gserialized_to_shapely_geometry(result, 10)\n"
+    return "        return Temporal._factory(result)\n"
+
+
+def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
+    """Emit the behaviourally-faithful wired-in mixin for one modelled
+    family.  Raises if a regular overload's arg token has no model mapping
+    (so a coverage gap is loud, never silent)."""
+    model = FAMILY_MODEL[family]
+    tokens = model["tokens"]
+    ttok = model["temporal_token"]
+    out = [
+        _MIXIN_HEADER.format(
+            family=family,
+            mixin_class=model["mixin_class"],
+            temporal_class=model["temporal_class"],
+            base_import=model["base_import"],
+            temporal_import=model["temporal_import"],
+        )
+    ]
+
+    # Faithful dispatch tables (temporal operand first); reversed/base forms
+    # discarded.  Any arg token without a model mapping is loud, not silent.
+    faithful = {oo: _faithful_overloads(oo, m, ttok) for oo, m in methods.items()}
+    unmodelled = sorted(
+        {tok for tbl in faithful.values() for tok in tbl if tok not in tokens}
+    )
+    if unmodelled:
+        raise SystemExit(
+            f"[{family}] arg tokens with no FAMILY_MODEL mapping: "
+            f"{unmodelled} -- extend FAMILY_MODEL before wiring"
+        )
+
+    for oo_name in sorted(methods):
+        m = methods[oo_name]
+        ov = faithful[oo_name]
+        if not ov:
+            # No temporal-operand overload (member is base-class only);
+            # the hand-written class does not expose it either.
+            continue
+        has_dist = oo_name in _WITHIN_DISTANCE
+        sig = "self, other, distance" if has_dist else "self, other"
+        body: list[str] = []
+        # Lazy imports mirroring the hand-written idiom (self temporal type
+        # and STBox are imported inside the method to avoid import cycles).
+        needs_self = any(tokens[t][0] == model["temporal_class"] for t in ov)
+        needs_stbox = "stbox" in ov
+        if needs_self:
+            body.append(f"        {model['temporal_import']}\n")
+        if needs_stbox:
+            body.append(f"        {model['stbox_lazy']}\n")
+
+        branches = [t for t in _ORDER if t in ov]
+        for i, tok in enumerate(branches):
+            cfn = ov[tok]
+            pytype, argexpr = tokens[tok]
+            argexpr = argexpr.replace("$o", "other")
+            nparams = len(m.params.get(cfn, []))
+            call_args = ["self._inner", argexpr]
+            if has_dist:
+                call_args.append("distance")
+            elif oo_name in ("at", "minus") and tok == "stbox" and nparams == 3:
+                call_args.append("True")
+            kw = "if" if i == 0 else "elif"
+            body.append(
+                f"        {kw} isinstance(other, {pytype}):\n"
+                f"            result = {cfn}({', '.join(call_args)})\n"
+            )
+        if oo_name in _SUPER_FALLBACK:
+            body.append(
+                f"        else:\n" f"            return super().{oo_name}(other)\n"
+            )
+        else:
+            body.append(
+                "        else:\n"
+                "            raise TypeError(\n"
+                '                f"Operation not supported with type "\n'
+                '                f"{other.__class__}"\n'
+                "            )\n"
+            )
+        body.append(_result_return(oo_name))
+
+        meos_fns = ", ".join(sorted(set(m.c_names)))
+        out.append(
+            f"\n    def {oo_name}({sig}):\n"
+            f'        """Generated regular ``{oo_name}``.\n\n'
+            f"        MEOS Functions:\n"
+            f"            {meos_fns}\n"
+            f'        """\n' + "".join(body)
+        )
+    return "".join(out)
+
+
 # --- driver -------------------------------------------------------------
 
 
@@ -359,10 +615,41 @@ def main() -> int:
         help="exit non-zero if any in-scope function is neither "
         "emitted nor counted as an explicit exclusion",
     )
+    ap.add_argument(
+        "--mixin",
+        metavar="FAMILY",
+        help="emit the behaviourally-faithful wired-in mixin for one "
+        "modelled family instead of the Draft preview",
+    )
+    ap.add_argument(
+        "--mixin-out",
+        metavar="PATH",
+        help="destination for --mixin (default: stdout)",
+    )
     args = ap.parse_args()
 
     idl = json.loads(Path(args.idl).read_text())
     fams, st = collect(idl)
+
+    if args.mixin:
+        if args.mixin not in FAMILY_MODEL:
+            raise SystemExit(
+                f"--mixin {args.mixin!r}: no FAMILY_MODEL (modelled: "
+                f"{sorted(FAMILY_MODEL)})"
+            )
+        src = emit_faithful_mixin(args.mixin, fams[args.mixin])
+        if args.mixin_out:
+            Path(args.mixin_out).parent.mkdir(parents=True, exist_ok=True)
+            Path(args.mixin_out).write_text(src)
+            print(
+                f"[oo-codegen] wrote faithful mixin "
+                f"{FAMILY_MODEL[args.mixin]['mixin_class']} -> "
+                f"{args.mixin_out} ({len(fams[args.mixin])} methods)"
+            )
+        else:
+            print(src)
+        return 0
+
     emit(fams, Path(args.out))
 
     st.emitted_methods = sum(len(m) for m in fams.values())
