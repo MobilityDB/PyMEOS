@@ -3,3 +3,4 @@ shapely
 geopandas
 pytest
 ruff
+pyarrow
