@@ -407,6 +407,28 @@ FAMILY_MODEL = {
         },
         "stbox_lazy": "from ...boxes import STBox",
     },
+    "npoint": {
+        "mixin_class": "TNpointRegularMixin",
+        "base_class": "Npoint",
+        "base_import": "from ...collections.npoint import Npoint, NpointSet",
+        "temporal_class": "TNpoint",
+        "temporal_import": "from ..tnpoint import TNpoint",
+        "temporal_token": "tnpoint",
+        "tokens": {
+            "npoint": ("Npoint", "$o._inner"),
+            "tnpoint": ("TNpoint", "$o._inner"),
+            "npointset": ("NpointSet", "$o._inner"),
+            "geo": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "geom": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            # tnpoint distance spells its geometry overload `_tnpoint_point`
+            "point": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+        # tnpoint.shortest_line takes `precision: int = 15` (tcbuffer/tpose
+        # hardcode 10 with no param -> they omit this key, unaffected).
+        "shortest_line_precision": 15,
+    },
 }
 
 # Result post-processing, derived verbatim from the hand-written oracle.
@@ -454,6 +476,7 @@ _ORDER = [
     "tcbuffer",
     "npoint",
     "tnpoint",
+    "npointset",
     "pose",
     "tpose",
     "rgeometry",
@@ -520,7 +543,7 @@ class {mixin_class}:
 '''
 
 
-def _result_return(oo_name: str) -> str:
+def _result_return(oo_name: str, model: dict) -> str:
     if oo_name in _BOOL_GT0:
         return "        return result > 0\n"
     if oo_name in _BOOL_EQ1:
@@ -528,6 +551,13 @@ def _result_return(oo_name: str) -> str:
     if oo_name in _RAW:
         return "        return result\n"
     if oo_name in _SHAPELY:
+        # Some families' shortest_line takes a `precision` arg (e.g. tnpoint
+        # `precision: int = 15`); others hardcode 10 with no param. Driven
+        # by the family model so #90/#91 (no key) stay byte-identical.
+        if model.get("shortest_line_precision") is not None:
+            return (
+                "        return gserialized_to_shapely_geometry(" "result, precision)\n"
+            )
         return "        return gserialized_to_shapely_geometry(result, 10)\n"
     return "        return Temporal._factory(result)\n"
 
@@ -570,6 +600,10 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
             continue
         has_dist = oo_name in _WITHIN_DISTANCE
         sig = "self, other, distance" if has_dist else "self, other"
+        if oo_name in _SHAPELY and model.get("shortest_line_precision") is not None:
+            sig = (
+                f"self, other, precision: int = " f"{model['shortest_line_precision']}"
+            )
         body: list[str] = []
         # Lazy imports mirroring the hand-written idiom (self temporal type
         # and STBox are imported inside the method to avoid import cycles).
@@ -608,7 +642,7 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
                 '                f"{other.__class__}"\n'
                 "            )\n"
             )
-        body.append(_result_return(oo_name))
+        body.append(_result_return(oo_name, model))
 
         meos_fns = ", ".join(sorted(set(m.c_names)))
         out.append(
