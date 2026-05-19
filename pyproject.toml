@@ -59,6 +59,10 @@ pandas = [
     'geopandas'
 ]
 
+parquet = [
+    'pyarrow'
+]
+
 [project.urls]
 'Homepage' = 'https://github.com/MobilityDB/PyMEOS/pymeos'
 'Bug Tracker' = 'https://github.com/MobilityDB/PyMEOS/issues'
