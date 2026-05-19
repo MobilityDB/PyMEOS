@@ -13,6 +13,7 @@ from ..collections import *
 from ..collections.pose import Pose
 from ..mixins import TTemporallyComparable
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
+from ._generated.trgeometry_methods import TRgeometryRegularMixin
 
 if TYPE_CHECKING:
     from ..boxes import STBox
@@ -22,6 +23,7 @@ Self = TypeVar("Self", bound="TRgeometry")
 
 
 class TRgeometry(
+    TRgeometryRegularMixin,
     Temporal[
         shpb.BaseGeometry,
         "TRgeometry",
@@ -64,6 +66,27 @@ class TRgeometry(
         gs = geometry_to_gserialized(geometry)
         result = geo_tpose_to_trgeo(gs, tpose._inner)
         return Temporal._factory(result)
+
+    # MEOS does not export a value-based or MF-JSON constructor for the
+    # temporal rigid geometry. These overrides keep TRgeometry/Inst/Seq/
+    # SeqSet concrete and fail loudly instead of making the type
+    # uninstantiable; both are pending upstream MEOS work.
+    @staticmethod
+    def from_base_time(value: shpb.BaseGeometry, base: Time) -> TRgeometry:
+        """Pending upstream (MEOS trgeometry from-base not exported)."""
+        raise NotImplementedError(
+            "MEOS does not export a value-based constructor for the "
+            "temporal rigid geometry (trgeometry from-base); pending "
+            "upstream."
+        )
+
+    @classmethod
+    def from_mfjson(cls, mfjson: str) -> TRgeometry:
+        """Pending upstream (MEOS trgeometry MF-JSON not exported)."""
+        raise NotImplementedError(
+            "MEOS does not export MF-JSON input for the temporal rigid "
+            "geometry (trgeometry_from_mfjson); pending upstream."
+        )
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -491,98 +514,6 @@ class TRgeometry(
         return Temporal._factory(result)
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_equal(self, value: Union[shpb.BaseGeometry, TRgeometry]) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: :class:`~shapely.geometry.base.BaseGeometry` or
-                :class:`TRgeometry` to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_eq_trgeo_geo, always_eq_trgeo_trgeo
-        """
-        if isinstance(value, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(value)
-            return always_eq_trgeo_geo(self._inner, gs) > 0
-        elif isinstance(value, TRgeometry):
-            return always_eq_trgeo_trgeo(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def always_not_equal(self, value: Union[shpb.BaseGeometry, TRgeometry]) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: :class:`~shapely.geometry.base.BaseGeometry` or
-                :class:`TRgeometry` to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_ne_trgeo_geo, always_ne_trgeo_trgeo
-        """
-        if isinstance(value, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(value)
-            return always_ne_trgeo_geo(self._inner, gs) > 0
-        elif isinstance(value, TRgeometry):
-            return always_ne_trgeo_trgeo(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_equal(self, value: Union[shpb.BaseGeometry, TRgeometry]) -> bool:
-        """
-        Returns whether the values of `self` are ever equal to `value`.
-
-        Args:
-            value: :class:`~shapely.geometry.base.BaseGeometry` or
-                :class:`TRgeometry` to compare.
-
-        Returns:
-            `True` if the values of `self` are ever equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ever_eq_trgeo_geo, ever_eq_trgeo_trgeo
-        """
-        if isinstance(value, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(value)
-            return ever_eq_trgeo_geo(self._inner, gs) > 0
-        elif isinstance(value, TRgeometry):
-            return ever_eq_trgeo_trgeo(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_not_equal(self, value: Union[shpb.BaseGeometry, TRgeometry]) -> bool:
-        """
-        Returns whether the values of `self` are ever not equal to `value`.
-
-        Args:
-            value: :class:`~shapely.geometry.base.BaseGeometry` or
-                :class:`TRgeometry` to compare.
-
-        Returns:
-            `True` if the values of `self` are ever not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ever_ne_trgeo_geo, ever_ne_trgeo_trgeo
-        """
-        if isinstance(value, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(value)
-            return ever_ne_trgeo_geo(self._inner, gs) > 0
-        elif isinstance(value, TRgeometry):
-            return ever_ne_trgeo_trgeo(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
     def never_equal(self, value: Union[shpb.BaseGeometry, TRgeometry]) -> bool:
         """
         Returns whether the values of `self` are never equal to `value`.
@@ -616,50 +547,6 @@ class TRgeometry(
             ever_ne_trgeo_geo, ever_ne_trgeo_trgeo
         """
         return not self.ever_not_equal(value)
-
-    # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[shpb.BaseGeometry, TRgeometry]) -> TBool:
-        """
-        Returns the temporal equality relation between `self` and `other`.
-
-        Args:
-            other: A :class:`~shapely.geometry.base.BaseGeometry` or temporal
-                object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
-
-        MEOS Functions:
-            teq_trgeo_geo, teq_temporal_temporal
-        """
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            result = teq_trgeo_geo(self._inner, gs)
-        else:
-            return super().temporal_equal(other)
-        return Temporal._factory(result)
-
-    def temporal_not_equal(self, other: Union[shpb.BaseGeometry, TRgeometry]) -> TBool:
-        """
-        Returns the temporal not equal relation between `self` and `other`.
-
-        Args:
-            other: A :class:`~shapely.geometry.base.BaseGeometry` or temporal
-                object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal not equal
-            relation.
-
-        MEOS Functions:
-            tne_trgeo_geo, tne_temporal_temporal
-        """
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            result = tne_trgeo_geo(self._inner, gs)
-        else:
-            return super().temporal_not_equal(other)
-        return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
     def at(self, other: Time) -> TRgeometry:
@@ -757,9 +644,7 @@ class TRgeometry(
         elif isinstance(other, TsTzSpan):
             result = trgeo_delete_tstzspan(self._inner, other._inner, connect)
         elif isinstance(other, TsTzSpanSet):
-            result = trgeo_delete_tstzspanset(
-                self._inner, other._inner, connect
-            )
+            result = trgeo_delete_tstzspanset(self._inner, other._inner, connect)
         else:
             return super().delete(other, connect)
         return Temporal._factory(result)
@@ -797,116 +682,6 @@ class TRgeometry(
             self._inner, datetime_to_timestamptz(timestamp), strict
         )
         return Temporal._factory(result)
-
-    # ------------------------- Distance Operations ---------------------------
-    def distance(
-        self, other: Union[shpb.BaseGeometry, TPoint, TRgeometry]
-    ) -> TFloat:
-        """
-        Returns the temporal distance between `self` and `other`.
-
-        Args:
-            other: An object to check the distance to.
-
-        Returns:
-            A new :class:`TFloat` with the temporal distance.
-
-        MEOS Functions:
-            tdistance_trgeo_geo, tdistance_trgeo_tpoint, tdistance_trgeo_trgeo
-        """
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            result = tdistance_trgeo_geo(self._inner, gs)
-        elif isinstance(other, TPoint):
-            result = tdistance_trgeo_tpoint(self._inner, other._inner)
-        elif isinstance(other, TRgeometry):
-            result = tdistance_trgeo_trgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-        return Temporal._factory(result)
-
-    def nearest_approach_distance(
-        self, other: Union[shpb.BaseGeometry, STBox, TPoint, TRgeometry]
-    ) -> float:
-        """
-        Returns the nearest approach distance between `self` and `other`.
-
-        Args:
-            other: An object to check the nearest approach distance to.
-
-        Returns:
-            A :class:`float` with the nearest approach distance.
-
-        MEOS Functions:
-            nad_trgeo_geo, nad_trgeo_stbox, nad_trgeo_tpoint, nad_trgeo_trgeo
-        """
-        from ..boxes import STBox
-
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            return nad_trgeo_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return nad_trgeo_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return nad_trgeo_tpoint(self._inner, other._inner)
-        elif isinstance(other, TRgeometry):
-            return nad_trgeo_trgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-
-    def nearest_approach_instant(
-        self, other: Union[shpb.BaseGeometry, TPoint, TRgeometry]
-    ) -> TRgeometryInst:
-        """
-        Returns the nearest approach instant between `self` and `other`.
-
-        Args:
-            other: An object to check the nearest approach instant to.
-
-        Returns:
-            A new :class:`TRgeometryInst` with the nearest approach instant.
-
-        MEOS Functions:
-            nai_trgeo_geo, nai_trgeo_tpoint, nai_trgeo_trgeo
-        """
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            result = nai_trgeo_geo(self._inner, gs)
-        elif isinstance(other, TPoint):
-            result = nai_trgeo_tpoint(self._inner, other._inner)
-        elif isinstance(other, TRgeometry):
-            result = nai_trgeo_trgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-        return Temporal._factory(result)
-
-    def shortest_line(
-        self, other: Union[shpb.BaseGeometry, TPoint, TRgeometry]
-    ) -> shpb.BaseGeometry:
-        """
-        Returns the shortest line between `self` and `other`.
-
-        Args:
-            other: An object to check the shortest line to.
-
-        Returns:
-            A new :class:`~shapely.geometry.base.BaseGeometry` with the
-            shortest line.
-
-        MEOS Functions:
-            shortestline_trgeo_geo, shortestline_trgeo_tpoint,
-            shortestline_trgeo_trgeo
-        """
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geometry_to_gserialized(other)
-            result = shortestline_trgeo_geo(self._inner, gs)
-        elif isinstance(other, TPoint):
-            result = shortestline_trgeo_tpoint(self._inner, other._inner)
-        elif isinstance(other, TRgeometry):
-            result = shortestline_trgeo_trgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-        return gserialized_to_shapely_geometry(result, 10)
 
     # ------------------------- Database Operations ---------------------------
     @staticmethod

@@ -429,6 +429,30 @@ FAMILY_MODEL = {
         # hardcode 10 with no param -> they omit this key, unaffected).
         "shortest_line_precision": 15,
     },
+    "rgeo": {
+        "mixin_class": "TRgeometryRegularMixin",
+        "base_class": "TRgeometry",
+        # `tpoint` arg token needs TPoint at runtime (isinstance); no
+        # rgeometry base-value wrapper exists (base value is a shapely
+        # geometry), so the base import is TPoint.
+        "base_import": "from ..tpoint import TPoint",
+        "temporal_class": "TRgeometry",
+        "temporal_import": "from ..trgeometry import TRgeometry",
+        "temporal_token": "trgeo",
+        "tokens": {
+            # rgeo uses geometry_to_gserialized(g) (single arg), not the
+            # geo_to_gserialized(g, False) the other spatial families use.
+            "geo": ("shpb.BaseGeometry", "geometry_to_gserialized($o)"),
+            "trgeo": ("TRgeometry", "$o._inner"),
+            "tpoint": ("TPoint", "$o._inner"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+        # at/minus are NOT generated: rgeo restriction is the irregular
+        # `trgeo_restrict_<timetype>` + direction-bool pattern (no
+        # `trgeometry_at_*`/`_minus_*` in the catalog), so the generator
+        # never collects them and they correctly stay hand-written.
+    },
 }
 
 # Result post-processing, derived verbatim from the hand-written oracle.
@@ -472,6 +496,8 @@ _ORDER = [
     "geo",
     "geom",
     "point",
+    "tpoint",
+    "trgeo",
     "cbuffer",
     "tcbuffer",
     "npoint",
