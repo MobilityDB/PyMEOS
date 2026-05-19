@@ -389,6 +389,24 @@ FAMILY_MODEL = {
         },
         "stbox_lazy": "from ...boxes import STBox",
     },
+    "pose": {
+        "mixin_class": "TPoseRegularMixin",
+        "base_class": "Pose",
+        "base_import": "from ...collections.pose import Pose",
+        "temporal_class": "TPose",
+        "temporal_import": "from ..tpose import TPose",
+        "temporal_token": "tpose",
+        "tokens": {
+            "pose": ("Pose", "$o._inner"),
+            "tpose": ("TPose", "$o._inner"),
+            "geo": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "geom": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            # tpose distance spells its geometry overload `_tpose_point`
+            "point": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+    },
 }
 
 # Result post-processing, derived verbatim from the hand-written oracle.
@@ -431,6 +449,7 @@ _WITHIN_DISTANCE = {
 _ORDER = [
     "geo",
     "geom",
+    "point",
     "cbuffer",
     "tcbuffer",
     "npoint",
