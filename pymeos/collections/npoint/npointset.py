@@ -137,3 +137,31 @@ class NpointSet(Set[Npoint]):
         from ...factory import _CollectionFactory
 
         return _CollectionFactory.create_collection(npointset_routes(self._inner))
+
+    # ------------------------- Set Operations --------------------------------
+    # NpointSet shipped abstract in #88 (a pre-existing base-collection
+    # defect, unrelated to the OO codegen switch): the base ``Set`` declares
+    # contains/intersection/minus/subtract_from/union as abstract. These thin
+    # overrides delegate to the generic base implementation (the established
+    # pattern, e.g. ``GeoSet.contains``), making NpointSet concrete. Npoint-
+    # element-specific set overloads (intersection_set_npoint, ...) are a
+    # separate base-collection follow-up.
+    def contains(self, content: Union[NpointSet, Npoint]) -> bool:
+        """Returns whether ``self`` contains ``content``."""
+        return super().contains(content)
+
+    def intersection(self, other: NpointSet) -> Optional[NpointSet]:
+        """Returns the intersection of ``self`` and ``other``."""
+        return super().intersection(other)
+
+    def minus(self, other: NpointSet) -> Optional[NpointSet]:
+        """Returns the difference of ``self`` and ``other``."""
+        return super().minus(other)
+
+    def subtract_from(self, other: Npoint) -> Optional[Npoint]:
+        """Returns the difference of ``other`` and ``self``."""
+        return super().subtract_from(other)
+
+    def union(self, other: NpointSet) -> NpointSet:
+        """Returns the union of ``self`` and ``other``."""
+        return super().union(other)
