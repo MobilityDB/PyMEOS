@@ -2424,31 +2424,34 @@ class TestTGeogPointTemporalSpatialOperations(TestTGeogPoint):
         assert temporal.intersects(Point(1, 1)) == expected
         assert temporal.disjoint(Point(1, 1)) == ~expected
 
-    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    # `touches` is the genuine DE-9IM topological predicate (boundary
+    # intersection with disjoint interiors), implemented via the planar
+    # GEOS `relate`. Unlike `intersects`/`disjoint` (which are
+    # definitionally `dwithin(., ., 0)` and are supported geodetically),
+    # MEOS does not define `ttouches` for geodetic coordinates: it raises
+    # `Only planar coordinates supported`. Tracked upstream as
+    # MobilityDB#1087 (geodetic DE-9IM touches enhancement). This asserts
+    # the documented, intentional behaviour for geography (cf. the
+    # in-file `test_speed_without_linear_interpolation_throws` precedent).
     @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, TBoolInst("False@2019-09-01")),
-            (tpds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
-            (tps, TBoolSeqSet("[False@2019-09-01, False@2019-09-02]")),
-            (
-                tpss,
-                TBoolSeqSet(
-                    "{[False@2019-09-01, False@2019-09-02],"
-                    "[False@2019-09-03, False@2019-09-05]}"
-                ),
-            ),
-        ],
+        "temporal",
+        [tpi, tpds, tps, tpss],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_touches(self, temporal, expected):
-        assert temporal.touches(Point(1, 1)) == expected
+    def test_temporal_touches_geodetic_not_supported(self, temporal):
+        with pytest.raises(MeosInvalidArgValueError):
+            temporal.touches(Point(1, 1))
 
     @pytest.mark.parametrize(
         "temporal, argument, expected",
         [
             (tpi, Point(1, 1), TBoolInst("True@2019-09-01")),
-            (tpds, Point(1, 1), TBoolSeq("{True@2019-09-01, True@2019-09-02}")),
+            # Geodetic: at 2019-09-02 the point is POINT(2 2), whose
+            # geodesic distance to POINT(1 1) is ~156 876 m, far beyond
+            # the 2 m threshold -> False. The previous {True, True} was the
+            # planar answer (sqrt(2) <= 2) produced when geodetic dwithin
+            # was incorrectly computed with the planar kernel.
+            (tpds, Point(1, 1), TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
             (tps, Point(1, 1), TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}")),
             (
                 tpss,

@@ -85,6 +85,19 @@ jobs:
           make -j
           sudo make install
 
+      - name: Make spatial_ref_sys.csv reachable at the MEOS default path
+        # MEOS reads spatial_ref_sys.csv from the hard-coded default
+        # /usr/local/share/spatial_ref_sys.csv (source/non-wheel install).
+        # On runners whose install prefix is not /usr/local (e.g. macOS
+        # arm64 -> /opt/homebrew) the file is installed elsewhere, so
+        # geography SRID validation fails with "Only lon/lat coordinate
+        # systems are supported in geography". Mirror it to the default
+        # path when the prefix differs.
+        if: matrix.ld_prefix != '/usr/local'
+        run: |
+          sudo mkdir -p /usr/local/share
+          sudo cp "${{ matrix.ld_prefix }}/share/spatial_ref_sys.csv" /usr/local/share/spatial_ref_sys.csv
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:

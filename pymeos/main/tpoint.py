@@ -120,7 +120,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             gserialized_as_geojson
         """
-        return geo_as_geojson(tpoint_trajectory(self._inner, False), option, precision, srs)
+        return geo_as_geojson(
+            tpoint_trajectory(self._inner, False), option, precision, srs
+        )
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
@@ -951,9 +953,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
                 self._inner, stbox_to_geo(other._inner), distance, False, False
             )
         elif isinstance(other, TPoint):
-            result = tdwithin_tgeo_tgeo(
-                self._inner, other._inner, distance
-            )
+            result = tdwithin_tgeo_tgeo(self._inner, other._inner, distance)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
