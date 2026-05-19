@@ -1,0 +1,107 @@
+{
+ "objectModel": {
+  "dispatch": {
+   "_comment": "Canonical argument->backing dispatch for OO members whose hand-written editorial routing is NOT mechanically derivable from the C-name token model (the geo and temporal families). Transcribed verbatim from the PyMEOS cross-repo handoff RFC #94 (tools/oo_codegen/RFC-dispatch-metadata.md) section 3 \u2014 the source of truth, extracted from PyMEOS's working hand-written oracle; do not re-derive. argTransform is a closed named vocabulary (see docs/object-model.md#argtransform-vocabulary); geodeticFromSelf is the only runtime-self primitive. Consumed by every binding's faithful OO codegen so geo/temporal regenerate with equivalence by construction at the catalog level.",
+   "argTransformVocabulary": [
+    "geoToGserialized",
+    "stboxToGeo",
+    "scalarCast",
+    "scalarValue",
+    "innerPtr",
+    "geodeticFromSelf",
+    "coerce",
+    "via:super"
+   ],
+   "geo": {
+    "at": {
+     "dispatch": [
+      {
+       "py": "Point",
+       "fn": "tpoint_at_value",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "BaseGeometry",
+       "fn": "tpoint_at_geom",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "GeoSet",
+       "fn": "temporal_at_values"
+      },
+      {
+       "py": "STBox",
+       "fn": "tgeo_at_stbox",
+       "extraArgs": [
+        "true"
+       ]
+      }
+     ],
+     "fallback": "super",
+     "result": "temporal"
+    },
+    "distance": {
+     "dispatch": [
+      {
+       "py": "BaseGeometry",
+       "fn": "tdistance_tgeo_geo",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "STBox",
+       "fn": "tdistance_tgeo_geo",
+       "argTransform": "stboxToGeo"
+      },
+      {
+       "py": "TPoint",
+       "fn": "tdistance_tgeo_tgeo"
+      }
+     ],
+     "fallback": "raise",
+     "result": "temporal"
+    }
+   },
+   "temporal": {
+    "at": {
+     "dispatch": [
+      {
+       "py": "scalar",
+       "fn": "<t>_at_value",
+       "argTransform": "scalarCast"
+      },
+      {
+       "py": "IntSet",
+       "coerce": "to_floatset",
+       "via": "super"
+      },
+      {
+       "py": "IntSpan",
+       "coerce": "to_floatspan",
+       "via": "super"
+      }
+     ],
+     "fallback": "super",
+     "result": "temporal"
+    },
+    "always_equal": {
+     "dispatch": [
+      {
+       "py": "scalar",
+       "fn": "always_eq_<t>_<base>",
+       "argTransform": "scalarValue"
+      },
+      {
+       "py": "self",
+       "fn": "always_eq_temporal_temporal"
+      }
+     ],
+     "fallback": "raise",
+     "result": "bool_gt0"
+    }
+   }
+  }
+ }
+}
