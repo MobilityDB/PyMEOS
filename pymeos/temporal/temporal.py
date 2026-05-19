@@ -46,6 +46,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
     Class of the base type, for example, ``float`` for ``TFloat``
     """
 
+    _continuous = True
+    """
+    Whether the base type supports linear interpolation. ``True`` for the
+    continuous types (float, geo/geog point, cbuffer, npoint, pose,
+    rgeometry); overridden to ``False`` on the step-only types (int, bool,
+    text), for which MEOS rejects LINEAR interpolation. Mirrors the MEOS
+    ``temptype_supports_linear`` notion.
+    """
+
     ComponentClass = None
     """
     Class of the components, for example, 
@@ -699,13 +708,22 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
-        # The interp argument matters only when self is a TInstant being
-        # promoted to a TSequence; STEP works for every base type, while
-        # LINEAR is rejected by MEOS for discrete-only types like bool/text.
+        # MEOS 1.4 added an explicit `interp` argument to
+        # temporal_append_tinstant; it is consulted only when `self` is a
+        # TInstant being promoted to a TSequence (ignored otherwise). It
+        # must carry the base type's natural interpolation -- LINEAR for
+        # continuous types, STEP for the step-only ones (int/bool/text),
+        # for which MEOS rejects LINEAR -- exactly what MEOS 1.3 inferred
+        # internally from the temporal type before the argument existed.
+        interp = (
+            InterpolationType.LINEAR
+            if self._continuous
+            else InterpolationType.STEP
+        )
         new_inner = temporal_append_tinstant(
             self._inner,
             instant._inner,
-            InterpolationType.STEP,
+            interp,
             max_dist,
             interv,
             False,

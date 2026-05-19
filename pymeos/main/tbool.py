@@ -18,6 +18,8 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
 
     _mobilitydb_name = "tbool"
 
+    _continuous = False
+
     BaseClass = bool
     _parse_function = tbool_in
 

@@ -26,6 +26,8 @@ class TInt(
 ):
     _mobilitydb_name = "tint"
 
+    _continuous = False
+
     BaseClass = int
     _parse_function = tint_in
 
