@@ -716,9 +716,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         # for which MEOS rejects LINEAR -- exactly what MEOS 1.3 inferred
         # internally from the temporal type before the argument existed.
         interp = (
-            InterpolationType.LINEAR
-            if self._continuous
-            else InterpolationType.STEP
+            InterpolationType.LINEAR if self._continuous else InterpolationType.STEP
         )
         new_inner = temporal_append_tinstant(
             self._inner,
