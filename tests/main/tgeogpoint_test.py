@@ -2649,6 +2649,38 @@ class TestTGeogPointDistanceOperations(TestTGeogPoint):
             "SequenceSet TPoint",
         ],
     )
+    def test_min_distance(self, temporal, argument):
+        assert round(temporal.min_distance(argument), 3) == 0.0
+
+    @pytest.mark.parametrize(
+        "temporal, argument",
+        [
+            (tpi, Point(1, 1)),
+            (tpds, Point(1, 1)),
+            (tps, Point(1, 1)),
+            (tpss, Point(1, 1)),
+            (tpi, TGeogPointInst("Point(1 1)@2019-09-01")),
+            (tpds, TGeogPointSeq("{Point(1 1)@2019-09-01, Point(1 1)@2019-09-02}")),
+            (tps, TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02]")),
+            (
+                tpss,
+                TGeogPointSeqSet(
+                    "{[Point(1 1)@2019-09-01, Point(1 1)@2019-09-02],"
+                    "[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
+                ),
+            ),
+        ],
+        ids=[
+            "Instant Geo",
+            "Discrete Sequence Geo",
+            "Sequence Geo",
+            "SequenceSet Geo",
+            "Instant TPoint",
+            "Discrete Sequence TPoint",
+            "Sequence TPoint",
+            "SequenceSet TPoint",
+        ],
+    )
     def test_shortest_line(self, temporal, argument):
         assert temporal.shortest_line(argument) == LineString([(1, 1), (1, 1)])
 
