@@ -51,7 +51,7 @@ class STBox:
         elif isinstance(other, STBox):
             other_box = other._inner
         elif isinstance(other, TPoint):
-            other_box = tpoint_to_stbox(other._inner)
+            other_box = tspatial_to_stbox(other._inner)
         elif allow_time_only and isinstance(other, Temporal):
             other_box = tstzspan_to_stbox(temporal_to_tstzspan(other._inner))
         elif allow_time_only and isinstance(other, datetime):
@@ -190,7 +190,7 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            pgis_geometry_in, geo_to_stbox
+            geom_in, geo_to_stbox
         """
         gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
@@ -266,9 +266,9 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            tpoint_to_stbox
+            tspatial_to_stbox
         """
-        return STBox(_inner=tpoint_to_stbox(temporal._inner))
+        return STBox(_inner=tspatial_to_stbox(temporal._inner))
 
     @staticmethod
     def from_expanding_bounding_box(
@@ -290,17 +290,18 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            geo_expand_space, tpoint_expand_space, stbox_expand_space
+            geo_to_stbox, tspatial_to_stbox, stbox_expand_space
         """
         if isinstance(value, shp.BaseGeometry):
             gs = geo_to_gserialized(value, geodetic)
-            result = geo_expand_space(gs, expansion)
+            box = geo_to_stbox(gs)
         elif isinstance(value, TPoint):
-            result = tpoint_expand_space(value._inner, expansion)
+            box = tspatial_to_stbox(value._inner)
         elif isinstance(value, STBox):
-            result = stbox_expand_space(value._inner, expansion)
+            box = value._inner
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
+        result = stbox_expand_space(box, expansion)
         return STBox(_inner=result)
 
     # ------------------------- Output ----------------------------------------
@@ -939,7 +940,7 @@ class STBox:
             overlap, ``False`` otherwise.
 
         MEOS Functions:
-            overleft_stbox_stbox, tpoint_to_stbox
+            overleft_stbox_stbox, tspatial_to_stbox
         """
         return overleft_stbox_stbox(self._inner, self._get_box(other))
 
@@ -1198,7 +1199,7 @@ class STBox:
         elif isinstance(other, STBox):
             return nad_stbox_stbox(self._inner, other._inner)
         elif isinstance(other, TPoint):
-            return nad_tpoint_stbox(other._inner, self._inner)
+            return nad_tgeo_stbox(other._inner, self._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
@@ -1331,9 +1332,9 @@ class STBox:
             geo_to_gserialized(origin, self.geodetic())
             if origin is not None
             else (
-                pgis_geography_in("Point(0 0 0)", -1)
+                geog_in("Point(0 0 0)", -1)
                 if self.geodetic()
-                else pgis_geometry_in("Point(0 0 0)", -1)
+                else geom_in("Point(0 0 0)", -1)
             )
         )
         tiles, count = stbox_space_time_tiles(self._inner, sz, sz, sz, dt, gs, st)

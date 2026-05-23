@@ -877,9 +877,9 @@ class TFloat(
             A new :class:`TFloat` instance.
 
         MEOS Functions:
-            tfloat_derivative
+            temporal_derivative
         """
-        return Temporal._factory(tfloat_derivative(self._inner))
+        return Temporal._factory(temporal_derivative(self._inner))
 
     # ------------------------- Transformations ----------------------------------
     def to_degrees(self, normalize: bool = True) -> TFloat:
@@ -921,9 +921,9 @@ class TFloat(
             A new :class:`TFloat` instance.
 
         MEOS Functions:
-            tfloat_round
+            temporal_round
         """
-        return Temporal._factory(tfloat_round(self._inner, max_decimals))
+        return Temporal._factory(temporal_round(self._inner, max_decimals))
 
     # ------------------------- Split Operations ------------------------------
     def value_split(self, size: float, start: Optional[float] = 0) -> List[Temporal]:

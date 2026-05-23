@@ -44,7 +44,7 @@ class SpanSet(Collection[T], ABC):
             self._inner = self.__class__._parse_function(string)
         else:
             spans = [self.__class__._parse_value_function(p) for p in span_list]
-            self._inner = spanset_make(spans, normalize, True)
+            self._inner = spanset_make(spans)
 
     def __copy__(self: Self) -> Self:
         """

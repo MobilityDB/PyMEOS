@@ -23,6 +23,8 @@ class TText(
 ):
     _mobilitydb_name = "ttext"
 
+    _continuous = False
+
     BaseClass = str
 
     _parse_function = ttext_in

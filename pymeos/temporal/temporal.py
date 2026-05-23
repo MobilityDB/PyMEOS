@@ -46,6 +46,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
     Class of the base type, for example, ``float`` for ``TFloat``
     """
 
+    _continuous = True
+    """
+    Whether the base type supports linear interpolation. ``True`` for the
+    continuous types (float, geo/geog point, cbuffer, npoint, pose,
+    rgeometry); overridden to ``False`` on the step-only types (int, bool,
+    text), for which MEOS rejects LINEAR interpolation. Mirrors the MEOS
+    ``temptype_supports_linear`` notion.
+    """
+
     ComponentClass = None
     """
     Class of the components, for example, 
@@ -654,7 +663,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation.to_string())
+        seq = temporal_to_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -664,7 +673,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation.to_string())
+        ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -699,8 +708,23 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
+        # MEOS 1.4 added an explicit `interp` argument to
+        # temporal_append_tinstant; it is consulted only when `self` is a
+        # TInstant being promoted to a TSequence (ignored otherwise). It
+        # must carry the base type's natural interpolation -- LINEAR for
+        # continuous types, STEP for the step-only ones (int/bool/text),
+        # for which MEOS rejects LINEAR -- exactly what MEOS 1.3 inferred
+        # internally from the temporal type before the argument existed.
+        interp = (
+            InterpolationType.LINEAR if self._continuous else InterpolationType.STEP
+        )
         new_inner = temporal_append_tinstant(
-            self._inner, instant._inner, max_dist, interv, False
+            self._inner,
+            instant._inner,
+            interp,
+            max_dist,
+            interv,
+            False,
         )
         return Temporal._factory(new_inner)
 
