@@ -1,0 +1,46 @@
+# USER-APPROVED-PIN-WRITE — creating PyMEOS's first pin manifest (user 2026-06-25,
+#   per-binding generator policy rollout). New file in the PyMEOS repo, NOT a mutation
+#   of MobilityDB's pin tooling.
+#
+# PyMEOS pin — THE canonical, dependency-ordered fold manifest (per-binding policy).
+#
+# PyMEOS is the OO layer; it sits on **PyMEOS-CFFI** (the low-level FFI, a SEPARATE repo with
+# its own generator + its own manifest — stack #17->#18->#19 there). This manifest governs
+# the OO layer only. `main`/`master` (e90b35f) predates the meos-idl.json OO codegen, which
+# lives in the open stack below. (policy: generator-per-binding-canonical-policy)
+#
+# SCOPE: PyMEOS owns its OO generator IN-REPO at `tools/oo_codegen/codegen.py` (reads the
+# vendored `tools/oo_codegen/meos-idl.json` -> generated OO method-family mixins).
+#
+# Format:  <PR#> <branch>            # role.   '?' = membership/order UNCONFIRMED.
+# base = current origin/master. Verified ancestry (git merge-base, this turn): #95 (14 commits
+# over master) CONTAINS #88 + #89 (and the family-switch stack #90-#93 + #94 RFC). #87 separate.
+
+# ── WAVE 0 — 1.4 surface ──
+81    bump/meos-1.4                          # bump PyMEOS to MEOS 1.4 (the 1.4 base the codegen stack sits on)
+87    feat/portable-aliases                  # portable bare-name dialect (separate; NOT an ancestor of #95)
+
+# ── WAVE 1 — OO codegen frontier (the meos-idl.json switch) ──
+95    feat/oo-dispatch-consumer             # THE OO-codegen frontier: 14 commits over master.
+                                            #   CONTAINS #88 (extended temporal types: cbuffer/npoint/pose/rgeometry),
+                                            #   #89 (meos-idl.json-driven OO method-family codegen), the family-switch
+                                            #   stack #90 tcbuffer / #91 tpose / #92 tnpoint / #93 trgeometry, and
+                                            #   #94 (RFC: canonical dispatch metadata for 100% faithful OO codegen).
+
+# ── predecessors (contained in #95) ──
+88    feat/extended-temporal-types          # ANCESTOR of #95
+89    refactor/oo-codegen-meos-idl          # ANCESTOR of #95 (the generator)
+90    refactor/oo-codegen-tcbuffer-switch   # ANCESTOR of #95
+91    refactor/oo-codegen-tpose-switch      # ANCESTOR of #95
+92    refactor/oo-codegen-tnpoint-switch    # ANCESTOR of #95
+93    refactor/oo-codegen-trgeometry-switch # ANCESTOR of #95
+94    docs/rfc-dispatch-metadata            # ANCESTOR of #95 (the RFC doc)
+
+# ════════════════════════════════════════════════════════════════════════════════════
+# DISPOSITION (committer review): land the 1.4 base (#81), the aliases (#87), and the
+# OO-codegen frontier (#95, which carries #88-#94). MISC open PRs to triage separately
+# (not part of the codegen story): #82 (1.3 bump), #83 (min_distance), #84 (datalake
+# consumer), #85 (Black), #86 (cache-apt pin); external #56/#72/#77.
+# PAIRED LAYER: PyMEOS-CFFI needs its OWN manifest + GENERATION.md (stack #17->#18->#19;
+# generator = builder/ + the #18 meos-idl.json functions.py codegen).
+# ════════════════════════════════════════════════════════════════════════════════════
