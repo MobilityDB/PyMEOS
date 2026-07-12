@@ -1,35 +1,35 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from pymeos_cffi import (
+    contains_set_int,
+    distance_intset_intset,
+    distance_set_int,
+    intersection_set_int,
+    intersection_set_set,
+    intset_end_value,
     intset_in,
     intset_make,
     intset_out,
+    intset_shift_scale,
     intset_start_value,
-    intset_end_value,
     intset_value_n,
     intset_values,
-    contains_set_int,
-    intersection_set_int,
-    intersection_set_set,
-    minus_set_int,
     left_set_int,
-    overleft_set_int,
-    right_set_int,
-    overright_set_int,
-    minus_set_set,
-    union_set_set,
-    union_set_int,
-    intset_shift_scale,
     minus_int_set,
-    distance_set_int,
-    distance_intset_intset,
+    minus_set_int,
+    minus_set_set,
+    overleft_set_int,
+    overright_set_int,
+    right_set_int,
+    union_set_int,
+    union_set_set,
 )
 
+from ..base import Set
 from .intspan import IntSpan
 from .intspanset import IntSpanSet
-from ..base import Set
 
 if TYPE_CHECKING:
     from .floatset import FloatSet
@@ -130,7 +130,7 @@ class IntSet(Set[int]):
         super().element_n(n)
         return intset_value_n(self._inner, n + 1)
 
-    def elements(self) -> List[int]:
+    def elements(self) -> list[int]:
         """
         Returns the elements in ``self``.
 
@@ -176,7 +176,7 @@ class IntSet(Set[int]):
         """
         return self.shift_scale(None, width)
 
-    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSet:
+    def shift_scale(self, delta: int | None, width: int | None) -> IntSet:
         """
         Returns a new ``IntSet`` instance with all elements shifted by
         ``delta`` and scaled to so that the encompassing span has width
@@ -192,15 +192,11 @@ class IntSet(Set[int]):
         MEOS Functions:
             intset_shift_scale
         """
-        return IntSet(
-            _inner=intset_shift_scale(
-                self._inner, delta, width, delta is not None, width is not None
-            )
-        )
+        return IntSet(_inner=intset_shift_scale(self._inner, delta, width, delta is not None, width is not None))
 
     # ------------------------- Topological Operations --------------------------------
 
-    def contains(self, content: Union[IntSet, int]) -> bool:
+    def contains(self, content: IntSet | int) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -220,7 +216,7 @@ class IntSet(Set[int]):
 
     # ------------------------- Position Operations --------------------------------
 
-    def is_left(self, content: Union[IntSet, int]) -> bool:
+    def is_left(self, content: IntSet | int) -> bool:
         """
         Returns whether ``self`` is strictly to the left of ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -239,7 +235,7 @@ class IntSet(Set[int]):
         else:
             return super().is_left(content)
 
-    def is_over_or_left(self, content: Union[IntSet, int]) -> bool:
+    def is_over_or_left(self, content: IntSet | int) -> bool:
         """
         Returns whether ``self`` is to the left of ``other`` allowing overlap.
         That is, ``self`` ends before ``other`` ends (or at the same value).
@@ -258,7 +254,7 @@ class IntSet(Set[int]):
         else:
             return super().is_over_or_left(content)
 
-    def is_right(self, content: Union[IntSet, int]) -> bool:
+    def is_right(self, content: IntSet | int) -> bool:
         """
         Returns whether ``self`` is strictly to the right of ``other``. That is,
         ``self`` ends after ``other`` starts.
@@ -277,7 +273,7 @@ class IntSet(Set[int]):
         else:
             return super().is_right(content)
 
-    def is_over_or_right(self, content: Union[IntSet, int]) -> bool:
+    def is_over_or_right(self, content: IntSet | int) -> bool:
         """
         Returns whether ``self`` is to the right of ``other`` allowing overlap.
         That is, ``self`` starts before ``other`` ends (or at the same value).
@@ -299,10 +295,10 @@ class IntSet(Set[int]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: int) -> Optional[int]: ...
+    def intersection(self, other: int) -> int | None: ...
 
     @overload
-    def intersection(self, other: IntSet) -> Optional[IntSet]: ...
+    def intersection(self, other: IntSet) -> IntSet | None: ...
 
     def intersection(self, other):
         """
@@ -326,7 +322,7 @@ class IntSet(Set[int]):
         else:
             return super().intersection(other)
 
-    def minus(self, other: Union[IntSet, int]) -> Optional[IntSet]:
+    def minus(self, other: IntSet | int) -> IntSet | None:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -348,7 +344,7 @@ class IntSet(Set[int]):
         else:
             return super().minus(other)
 
-    def subtract_from(self, other: int) -> Optional[int]:
+    def subtract_from(self, other: int) -> int | None:
         """
         Returns the difference of ``other`` and ``self``.
 
@@ -366,7 +362,7 @@ class IntSet(Set[int]):
         """
         return minus_int_set(other, self._inner)
 
-    def union(self, other: Union[IntSet, int]) -> IntSet:
+    def union(self, other: IntSet | int) -> IntSet:
         """
         Returns the union of ``self`` and ``other``.
 
@@ -390,7 +386,7 @@ class IntSet(Set[int]):
 
     # ------------------------- Distance Operations ---------------------------
 
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+    def distance(self, other: int | IntSet | IntSpan | IntSpanSet) -> int:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -411,9 +407,7 @@ class IntSet(Set[int]):
             return distance_set_int(self._inner, other)
         elif isinstance(other, IntSet):
             return distance_intset_intset(self._inner, other._inner)
-        elif isinstance(other, IntSpan):
-            return self.to_spanset().distance(other)
-        elif isinstance(other, IntSpanSet):
+        elif isinstance(other, (IntSpan, IntSpanSet)):
             return self.to_spanset().distance(other)
         else:
             return super().distance(other)

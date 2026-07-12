@@ -1,0 +1,35 @@
+line-length = 120
+indent-width = 4
+
+target-version = "py310"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[lint]
+select = [
+  # pycodestyle
+  "E", "W",
+  # Pyflakes
+  "F",
+  # pyupgrade
+  "UP",
+  # flake8-bugbear
+  "B",
+  # flake8-simplify
+  "SIM",
+  # isort
+  "I",
+]
+ignore = [
+    "F405", "F403", # Allow star imports
+    "SIM108", # Don't turn if-else assignment to ternary
+    "SIM116", # Don't simplify long if-else chains
+    "E501", # Allow long lines for the moment
+    "E731", # Allow assigning lambda expressions
+    "UP038", # Alow instance checks with tuples instead of unions
+]
+[lint.per-file-ignores]
+"docs/conf.py" = ["E402"]

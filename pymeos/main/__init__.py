@@ -3,18 +3,18 @@ from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 from .tint import TInt, TIntInst, TIntSeq, TIntSeqSet
 from .tnumber import TNumber
 from .tpoint import (
-    TPoint,
-    TPointInst,
-    TPointSeq,
-    TPointSeqSet,
-    TGeomPoint,
-    TGeomPointInst,
-    TGeomPointSeq,
-    TGeomPointSeqSet,
     TGeogPoint,
     TGeogPointInst,
     TGeogPointSeq,
     TGeogPointSeqSet,
+    TGeomPoint,
+    TGeomPointInst,
+    TGeomPointSeq,
+    TGeomPointSeqSet,
+    TPoint,
+    TPointInst,
+    TPointSeq,
+    TPointSeqSet,
 )
 from .ttext import TText, TTextInst, TTextSeq, TTextSeqSet
 

@@ -1,22 +1,19 @@
 from datetime import datetime
-from typing import Union
 
 from pymeos_cffi import (
-    timestamptz_union_transfn,
     datetime_to_timestamptz,
-    set_union_transfn,
     set_union_finalfn,
+    set_union_transfn,
+    timestamptz_union_transfn,
     union_spanset_span,
     union_spanset_spanset,
 )
 
-from .aggregator import BaseAggregator
 from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
+from .aggregator import BaseAggregator
 
 
-class TimeInstantaneousUnionAggregator(
-    BaseAggregator[Union[datetime, TsTzSet], TsTzSet]
-):
+class TimeInstantaneousUnionAggregator(BaseAggregator[datetime | TsTzSet, TsTzSet]):
     """
     Temporal union of instantaneous time objects (:class:'~datetime.datetime' and
     :class:`~pymeos.time.tstzset.TsTzSet`).
@@ -41,9 +38,7 @@ class TimeInstantaneousUnionAggregator(
         return TsTzSet(_inner=result)
 
 
-class TimeContinuousUnionAggregator(
-    BaseAggregator[Union[TsTzSpan, TsTzSpanSet], TsTzSpanSet]
-):
+class TimeContinuousUnionAggregator(BaseAggregator[TsTzSpan | TsTzSpanSet, TsTzSpanSet]):
     """
     Temporal union of continuous time objects (:class:`~pymeos.time.tstzspan.TsTzSpan` and
     :class:`~pymeos.time.tstzspanset.TsTzSpanSet`).

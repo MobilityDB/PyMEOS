@@ -1,10 +1,8 @@
 from datetime import datetime
-from typing import Union
 
 from matplotlib import pyplot as plt
 
 from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
-from ..collections.time.dateset import DateSet
 
 
 class TimePlotter:

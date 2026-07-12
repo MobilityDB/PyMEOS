@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Any, TypeVar, Type
+from typing import Any, TypeVar
 
 from pymeos_cffi import *
 
@@ -25,29 +25,25 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Constructors ----------------------------------
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        instant_list: Optional[List[Union[str, Any]]] = None,
+        instant_list: list[str | Any] | None = None,
         lower_inc: bool = True,
         upper_inc: bool = False,
         interpolation: TInterpolation = TInterpolation.LINEAR,
         normalize: bool = True,
         _inner=None,
     ):
-        assert (_inner is not None) or (
-            (string is not None) != (instant_list is not None)
-        ), "Either string must be not None or instant_list must be not"
+        assert (_inner is not None) or ((string is not None) != (instant_list is not None)), (
+            "Either string must be not None or instant_list must be not"
+        )
         if _inner is not None:
             self._inner = as_tsequence(_inner)
         elif string is not None:
             self._inner = as_tsequence(self.__class__._parse_function(string))
         else:
             self._instants = [
-                (
-                    x._inner
-                    if isinstance(x, self.ComponentClass)
-                    else self.__class__._parse_function(x)
-                )
+                (x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x))
                 for x in instant_list
             ]
             count = len(self._instants)
@@ -62,8 +58,8 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     @classmethod
     def from_instants(
-        cls: Type[Self],
-        instant_list: Optional[List[Union[str, Any]]],
+        cls: type[Self],
+        instant_list: list[str | Any] | None,
         lower_inc: bool = True,
         upper_inc: bool = False,
         interpolation: TInterpolation = TInterpolation.LINEAR,

@@ -1,44 +1,44 @@
 from __future__ import annotations
 
-from typing import Union, overload, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from pymeos_cffi import (
-    intspan_in,
-    intspan_lower,
-    intspan_upper,
-    intspan_shift_scale,
-    contains_span_int,
     adjacent_span_int,
-    intspan_width,
+    contains_span_int,
+    distance_intspan_intspan,
+    distance_intspanset_intspan,
+    distance_span_int,
     int_to_span,
-    span_eq,
-    left_span_int,
-    overleft_span_int,
-    right_span_int,
-    overright_span_int,
     intersection_span_int,
     intersection_span_span,
     intersection_spanset_span,
+    intspan_in,
+    intspan_lower,
+    intspan_make,
+    intspan_out,
+    intspan_shift_scale,
+    intspan_to_floatspan,
+    intspan_upper,
+    intspan_width,
+    left_span_int,
     minus_span_int,
     minus_span_span,
     minus_spanset_span,
+    overleft_span_int,
+    overright_span_int,
+    right_span_int,
+    span_eq,
     union_span_int,
     union_span_span,
     union_spanset_span,
-    intspan_out,
-    intspan_make,
-    distance_span_int,
-    intspan_to_floatspan,
-    distance_intspan_intspan,
-    distance_intspanset_intspan,
 )
 
 from ..base import Span
 
 if TYPE_CHECKING:
+    from .floatspan import FloatSpan
     from .intset import IntSet
     from .intspanset import IntSpanSet
-    from .floatspan import FloatSpan
 
 
 class IntSpan(Span[int]):
@@ -181,7 +181,7 @@ class IntSpan(Span[int]):
         """
         return self.shift_scale(None, width)
 
-    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSpan:
+    def shift_scale(self, delta: int | None, width: int | None) -> IntSpan:
         """
         Return a new ``IntSpan`` with the lower and upper bounds shifted by
         ``delta`` and scaled so that the width is ``width``.
@@ -198,14 +198,12 @@ class IntSpan(Span[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspan_shift_scale(
-            self._inner, d, w, delta is not None, width is not None
-        )
+        modified = intspan_shift_scale(self._inner, d, w, delta is not None, width is not None)
         return IntSpan(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
 
-    def is_adjacent(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_adjacent(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
         a bound but only one of them contains it.
@@ -224,7 +222,7 @@ class IntSpan(Span[int]):
         else:
             return super().is_adjacent(other)
 
-    def contains(self, content: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def contains(self, content: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -242,7 +240,7 @@ class IntSpan(Span[int]):
         else:
             return super().contains(content)
 
-    def is_same(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_same(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` and the bounding tstzspan of ``other`` is the
         same.
@@ -262,7 +260,7 @@ class IntSpan(Span[int]):
             return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_left(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is strictly left ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -281,7 +279,7 @@ class IntSpan(Span[int]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_left(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is left ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same value).
@@ -300,7 +298,7 @@ class IntSpan(Span[int]):
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_right(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is strictly right ``other``. That is, ``self``
         starts after ``other`` ends.
@@ -319,7 +317,7 @@ class IntSpan(Span[int]):
         else:
             return super().is_right(other)
 
-    def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_right(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is right ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same value).
@@ -339,7 +337,7 @@ class IntSpan(Span[int]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+    def distance(self, other: int | IntSet | IntSpan | IntSpanSet) -> int:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -368,13 +366,13 @@ class IntSpan(Span[int]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: int) -> Optional[int]: ...
+    def intersection(self, other: int) -> int | None: ...
 
     @overload
-    def intersection(self, other: IntSpan) -> Optional[IntSpan]: ...
+    def intersection(self, other: IntSpan) -> IntSpan | None: ...
 
     @overload
-    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]: ...
+    def intersection(self, other: IntSpanSet) -> IntSpanSet | None: ...
 
     def intersection(self, other):
         """
@@ -404,7 +402,7 @@ class IntSpan(Span[int]):
         else:
             super().intersection(other)
 
-    def minus(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def minus(self, other: int | IntSpan | IntSpanSet) -> IntSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -429,7 +427,7 @@ class IntSpan(Span[int]):
             result = super().minus(other)
         return IntSpanSet(_inner=result) if result is not None else None
 
-    def union(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def union(self, other: int | IntSpan | IntSpanSet) -> IntSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 

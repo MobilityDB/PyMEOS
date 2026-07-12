@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union, List, overload
-from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING, Iterable
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any, TypeVar, overload
 
 from pymeos_cffi import *
 
 from .collection import Collection
 
 if TYPE_CHECKING:
-    from .spanset import SpanSet
-    from .span import Span
-
-    from ..number import IntSet, IntSpan, IntSpanSet, FloatSet, FloatSpan, FloatSpanSet
+    from ..number import FloatSet, FloatSpan, FloatSpanSet, IntSet, IntSpan, IntSpanSet
     from ..time import DateSet, DateSpan, DateSpanSet, TsTzSet, TsTzSpan, TsTzSpanSet
+    from .span import Span
+    from .spanset import SpanSet
 
 T = TypeVar("T")
 Self = TypeVar("Self", bound="Set[Any]")
@@ -26,30 +25,28 @@ class Set(Collection[T], ABC):
 
     __slots__ = ["_inner"]
 
-    _parse_function: Callable[[str], "CData"] = None
-    _parse_value_function: Callable[[Union[str, T]], Any] = None
-    _make_function: Callable[[Iterable[Any]], "CData"] = None
+    _parse_function: Callable[[str], CData] = None
+    _parse_value_function: Callable[[str | T], Any] = None
+    _make_function: Callable[[Iterable[Any]], CData] = None
 
     # ------------------------- Constructors ----------------------------------
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        elements: Optional[List[Union[str, T]]] = None,
+        elements: list[str | T] | None = None,
         _inner=None,
     ):
         super().__init__()
-        assert (_inner is not None) or (
-            (string is not None) != (elements is not None)
-        ), "Either string must be not None or elements must be not"
+        assert (_inner is not None) or ((string is not None) != (elements is not None)), (
+            "Either string must be not None or elements must be not"
+        )
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = self.__class__._parse_function(string)
         else:
-            parsed_elements = [
-                self.__class__._parse_value_function(ts) for ts in elements
-            ]
+            parsed_elements = [self.__class__._parse_value_function(ts) for ts in elements]
             self._inner = self.__class__._make_function(parsed_elements)
 
     def __copy__(self: Self) -> Self:
@@ -66,7 +63,7 @@ class Set(Collection[T], ABC):
         return self.__class__(_inner=inner_copy)
 
     @classmethod
-    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+    def from_wkb(cls: type[Self], wkb: bytes) -> Self:
         """
         Returns a `Set` from its WKB representation.
         Args:
@@ -83,7 +80,7 @@ class Set(Collection[T], ABC):
         return _CollectionFactory.create_collection(set_from_wkb(wkb))
 
     @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
+    def from_hexwkb(cls: type[Self], hexwkb: str) -> Self:
         """
         Returns a `Set` from its WKB representation in hex-encoded ASCII.
         Args:
@@ -97,7 +94,7 @@ class Set(Collection[T], ABC):
         """
         from ...factory import _CollectionFactory
 
-        return _CollectionFactory.create_collection((set_from_hexwkb(hexwkb)))
+        return _CollectionFactory.create_collection(set_from_hexwkb(hexwkb))
 
     # ------------------------- Output ----------------------------------------
     @abstractmethod
@@ -120,7 +117,7 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_out
         """
-        return f"{self.__class__.__name__}" f"({self})"
+        return f"{self.__class__.__name__}({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -146,16 +143,16 @@ class Set(Collection[T], ABC):
 
     # ------------------------- Conversions -----------------------------------
     @overload
-    def to_span(self: Type[IntSet]) -> IntSpan: ...
+    def to_span(self: type[IntSet]) -> IntSpan: ...
 
     @overload
-    def to_span(self: Type[FloatSet]) -> FloatSpan: ...
+    def to_span(self: type[FloatSet]) -> FloatSpan: ...
 
     @overload
-    def to_span(self: Type[TsTzSet]) -> TsTzSpan: ...
+    def to_span(self: type[TsTzSet]) -> TsTzSpan: ...
 
     @overload
-    def to_span(self: Type[DateSet]) -> DateSpan: ...
+    def to_span(self: type[DateSet]) -> DateSpan: ...
 
     def to_span(self) -> Span:
         """
@@ -172,16 +169,16 @@ class Set(Collection[T], ABC):
         return _CollectionFactory.create_collection(set_span(self._inner))
 
     @overload
-    def to_spanset(self: Type[IntSet]) -> IntSpanSet: ...
+    def to_spanset(self: type[IntSet]) -> IntSpanSet: ...
 
     @overload
-    def to_spanset(self: Type[FloatSet]) -> FloatSpanSet: ...
+    def to_spanset(self: type[FloatSet]) -> FloatSpanSet: ...
 
     @overload
-    def to_spanset(self: Type[TsTzSet]) -> TsTzSpanSet: ...
+    def to_spanset(self: type[TsTzSet]) -> TsTzSpanSet: ...
 
     @overload
-    def to_spanset(self: Type[DateSet]) -> DateSpanSet: ...
+    def to_spanset(self: type[DateSet]) -> DateSpanSet: ...
 
     def to_spanset(self) -> SpanSet:
         """
@@ -250,7 +247,7 @@ class Set(Collection[T], ABC):
             raise IndexError(f"Index {n} out of bounds")
 
     @abstractmethod
-    def elements(self) -> List[T]:
+    def elements(self) -> list[T]:
         """
         Returns the list of distinct elements in ``self``.
         Returns:

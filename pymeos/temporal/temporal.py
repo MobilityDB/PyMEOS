@@ -1,19 +1,20 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Union, TYPE_CHECKING, Set, Generic, TypeVar, Type
+from typing import TYPE_CHECKING, Generic, TypeVar
 
 from pymeos_cffi import *
 
-from .interpolation import TInterpolation
 from ..collections import *
 from ..mixins import TComparable, TTemporallyEquatable
+from .interpolation import TInterpolation
 
 if TYPE_CHECKING:
+    import pandas as pd
+
+    from ..boxes import Box
     from .tinstant import TInstant
     from .tsequence import TSequence
-    from ..boxes import Box
-    import pandas as pd
 
 
 def import_pandas():
@@ -48,10 +49,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
     ComponentClass = None
     """
-    Class of the components, for example, 
+    Class of the components, for example,
 
     1. ``TFloatInst`` for both ``TFloatInst`` and ``TFloatSeq``
     2. ``TFloatSeq`` for ``TFloatSeqSet``.
+    """
+
+    DefaultInterpolation: TInterpolation = TInterpolation.STEPWISE
+    """
+    Default interpolation of the class.
     """
 
     _parse_function = None
@@ -78,7 +84,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         pass
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}" f"({self})"
+        return f"{self.__class__.__name__}({self})"
 
     @staticmethod
     @abstractmethod
@@ -98,7 +104,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
     @classmethod
     @abstractmethod
-    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+    def from_mfjson(cls: type[Self], mfjson: str) -> Self:
         """
         Returns a temporal object from a MF-JSON string.
 
@@ -111,7 +117,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         pass
 
     @classmethod
-    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+    def from_wkb(cls: type[Self], wkb: bytes) -> Self:
         """
         Returns a temporal object from WKB bytes.
 
@@ -128,7 +134,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return Temporal._factory(result)
 
     @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
+    def from_hexwkb(cls: type[Self], hexwkb: str) -> Self:
         """
         Returns a temporal object from a hex-encoded WKB string.
 
@@ -145,7 +151,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return Temporal._factory(result)
 
     @classmethod
-    def from_merge(cls: Type[Self], *temporals: TG) -> Self:
+    def from_merge(cls: type[Self], *temporals: TG) -> Self:
         """
         Returns a temporal object that is the result of merging the given
         temporal objects.
@@ -165,7 +171,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return Temporal._factory(result)
 
     @classmethod
-    def from_merge_array(cls: Type[Self], temporals: List[TG]) -> Self:
+    def from_merge_array(cls: type[Self], temporals: list[TG]) -> Self:
         """
         Returns a temporal object that is the result of merging the given
         temporal objects.
@@ -197,7 +203,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         with_bbox: bool = True,
         flags: int = 3,
         precision: int = 6,
-        srs: Optional[str] = None,
+        srs: str | None = None,
     ) -> str:
         """
         Returns the temporal object as a MF-JSON string.
@@ -241,7 +247,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return temporal_as_hexwkb(self._inner, 4)[0]
 
     # ------------------------- Accessors -------------------------------------
-    def bounding_box(self) -> Union[TsTzSpan, Box]:
+    def bounding_box(self) -> TsTzSpan | Box:
         """
         Returns the bounding box of `self`.
 
@@ -264,13 +270,13 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return TInterpolation.from_string(val)
 
     @abstractmethod
-    def value_set(self) -> Set[TBase]:
+    def value_set(self) -> set[TBase]:
         """
         Returns the unique values in `self`.
         """
         pass
 
-    def values(self) -> List[TBase]:
+    def values(self) -> list[TBase]:
         """
         Returns the list of values taken by `self`.
         """
@@ -420,7 +426,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
         return _TemporalFactory.create_temporal(temporal_instant_n(self._inner, n + 1))
 
-    def instants(self) -> List[TI]:
+    def instants(self) -> list[TI]:
         """
         Returns the instants in `self`.
 
@@ -468,7 +474,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return timestamptz_to_datetime(temporal_timestamptz_n(self._inner, n + 1))
 
-    def timestamps(self) -> List[datetime]:
+    def timestamps(self) -> list[datetime]:
         """
         Returns the timestamps in `self`.
 
@@ -478,7 +484,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         ts, count = temporal_timestamps(self._inner)
         return [timestamptz_to_datetime(ts[i]) for i in range(count)]
 
-    def segments(self) -> List[TS]:
+    def segments(self) -> list[TS]:
         """
         Returns the temporal segments in `self`.
 
@@ -543,9 +549,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         scaled = temporal_scale_time(self._inner, timedelta_to_interval(duration))
         return Temporal._factory(scaled)
 
-    def shift_scale_time(
-        self, shift: Optional[timedelta] = None, duration: Optional[timedelta] = None
-    ) -> Self:
+    def shift_scale_time(self, shift: timedelta | None = None, duration: timedelta | None = None) -> Self:
         """
         Returns a new :class:`Temporal` with the time dimension shifted by
         ``shift`` and scaled so the temporal dimension has duration
@@ -559,9 +563,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_shift_scale_time
         """
-        assert (
-            shift is not None or duration is not None
-        ), "shift and duration must not be both None"
+        assert shift is not None or duration is not None, "shift and duration must not be both None"
         scaled = temporal_shift_scale_time(
             self._inner,
             timedelta_to_interval(shift) if shift else None,
@@ -571,9 +573,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
     def temporal_sample(
         self,
-        duration: Union[str, timedelta],
-        start: Optional[Union[str, datetime]] = None,
-        interpolation: Optional[TInterpolation] = None,
+        duration: str | timedelta,
+        start: str | datetime | None = None,
+        interpolation: TInterpolation | None = None,
     ) -> TG:
         """
         Returns a new :class:`Temporal` downsampled with respect to ``duration``.
@@ -608,8 +610,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
     def temporal_precision(
         self,
-        duration: Union[str, timedelta],
-        start: Optional[Union[str, datetime]] = None,
+        duration: str | timedelta,
+        start: str | datetime | None = None,
     ) -> TG:
         """
         Returns a new :class:`Temporal` with precision reduced to ``duration``.
@@ -654,7 +656,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation.to_string())
+        seq = temporal_to_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -664,7 +666,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation.to_string())
+        ss = temporal_to_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -680,8 +682,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
     def append_instant(
         self,
         instant: TInstant[TBase],
-        max_dist: Optional[float] = 0.0,
-        max_time: Optional[timedelta] = None,
+        max_dist: float | None = 0.0,
+        max_time: timedelta | None = None,
+        default_interpolation: TInterpolation = TInterpolation.NONE,
     ) -> TG:
         """
         Returns a new :class:`Temporal` object equal to `self` with `instant`
@@ -691,6 +694,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             instant: :class:`TInstant` to append
             max_dist: Maximum distance for defining a gap
             max_time: Maximum time for defining a gap
+            default_interpolation: Default interpolation to use when appending an instant to another instant. This is
+                                    only used when `self` is an instant and ignored otherwise.
 
         MEOS Functions:
             temporal_append_tinstant
@@ -699,9 +704,10 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             interv = None
         else:
             interv = timedelta_to_interval(max_time)
-        new_inner = temporal_append_tinstant(
-            self._inner, instant._inner, max_dist, interv, False
-        )
+        interpolation = self.interpolation()
+        if interpolation == TInterpolation.NONE:
+            interpolation = self.DefaultInterpolation
+        new_inner = temporal_append_tinstant(self._inner, instant._inner, interpolation, max_dist, interv, False)
         return Temporal._factory(new_inner)
 
     def append_sequence(self, sequence: TSequence[TBase]) -> TG:
@@ -718,9 +724,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         new_inner = temporal_append_tsequence(self._inner, sequence._inner, False)
         return Temporal._factory(new_inner)
 
-    def merge(
-        self, other: Union[type(None), Temporal[TBase], List[Temporal[TBase]]]
-    ) -> TG:
+    def merge(self, other: type(None) | Temporal[TBase] | list[Temporal[TBase]]) -> TG:
         """
         Returns a new :class:`Temporal` object that is the result of merging
         `self` with `other`.
@@ -733,9 +737,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         elif isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
-            new_temp = temporal_merge_array(
-                [self._inner, *(o._inner for o in other)], len(other) + 1
-            )
+            new_temp = temporal_merge_array([self._inner, *(o._inner for o in other)], len(other) + 1)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(new_temp)
@@ -790,9 +792,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_update
         """
         if isinstance(other, datetime):
-            new_inner = temporal_delete_timestamptz(
-                self._inner, datetime_to_timestamptz(other), connect
-            )
+            new_inner = temporal_delete_timestamptz(self._inner, datetime_to_timestamptz(other), connect)
         elif isinstance(other, TsTzSet):
             new_inner = temporal_delete_tstzset(self._inner, other._inner, connect)
         elif isinstance(other, TsTzSpan):
@@ -822,9 +822,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_at_tstzspan, temporal_at_tstzspanset
         """
         if isinstance(other, datetime):
-            result = temporal_at_timestamptz(
-                self._inner, datetime_to_timestamptz(other)
-            )
+            result = temporal_at_timestamptz(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TsTzSet):
             result = temporal_at_tstzset(self._inner, other._inner)
         elif isinstance(other, TsTzSpan):
@@ -883,9 +881,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         elif isinstance(other, TsTzSpanSet):
             result = temporal_minus_tstzspanset(self._inner, other._inner)
         elif isinstance(other, datetime):
-            result = temporal_minus_timestamptz(
-                self._inner, datetime_to_timestamptz(other)
-            )
+            result = temporal_minus_timestamptz(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TsTzSet):
             result = temporal_minus_tstzset(self._inner, other._inner)
         else:
@@ -921,7 +917,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return Temporal._factory(result)
 
     # ------------------------- Topological Operations ------------------------
-    def is_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_adjacent(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding box of `self` is adjacent to the bounding
         box of `other`. Temporal subclasses may override this method to provide
@@ -939,7 +935,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.bounding_box().is_adjacent(other)
 
-    def is_temporally_adjacent(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_temporally_adjacent(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` is temporally adjacent
         to the bounding tstzspan of `other`.
@@ -955,7 +951,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().is_adjacent(other)
 
-    def is_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
+    def is_contained_in(self, container: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` is contained in the
         bounding tstzspan of `container`. Temporal subclasses may override this
@@ -972,7 +968,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.bounding_box().is_contained_in(container)
 
-    def is_temporally_contained_in(self, container: Union[Time, Temporal, Box]) -> bool:
+    def is_temporally_contained_in(self, container: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` is contained in the
         bounding tstzspan of `container`.
@@ -988,7 +984,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().is_contained_in(container)
 
-    def contains(self, content: Union[Time, Temporal, Box]) -> bool:
+    def contains(self, content: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` contains the bounding
         tstzspan of `content`. Temporal subclasses may override this method to
@@ -1021,7 +1017,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.contains(item)
 
-    def temporally_contains(self, content: Union[Time, Temporal, Box]) -> bool:
+    def temporally_contains(self, content: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` contains the bounding
         tstzspan of `content`.
@@ -1037,7 +1033,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().contains(content)
 
-    def overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
+    def overlaps(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` overlaps the bounding
         tstzspan of `other`. Temporal subclasses may override this method to
@@ -1054,7 +1050,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.bounding_box().overlaps(other)
 
-    def temporally_overlaps(self, other: Union[Time, Temporal, Box]) -> bool:
+    def temporally_overlaps(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` overlaps the bounding
         tstzspan of `other`.
@@ -1070,7 +1066,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().overlaps(other)
 
-    def is_same(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_same(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether the bounding tstzspan of `self` is the same as the
         bounding tstzspan of `other`. Temporal subclasses may override this
@@ -1088,7 +1084,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return self.bounding_box().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_before(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_before(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether `self` is before `other`.
 
@@ -1103,7 +1099,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().is_before(other)
 
-    def is_over_or_before(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_over_or_before(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether `self` is before `other` allowing overlap. That is,
         `self` doesn't extend after `other`.
@@ -1119,7 +1115,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().is_over_or_before(other)
 
-    def is_after(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_after(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether `self` is after `other`.
 
@@ -1134,7 +1130,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return self.tstzspan().is_after(other)
 
-    def is_over_or_after(self, other: Union[Time, Temporal, Box]) -> bool:
+    def is_over_or_after(self, other: Time | Temporal | Box) -> bool:
         """
         Returns whether `self` is after `other` allowing overlap. That is,
         `self` doesn't extend before `other`.
@@ -1199,9 +1195,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
     # ------------------------- Split Operations ------------------------------
     def time_split(
         self,
-        duration: Union[str, timedelta],
-        start: Optional[Union[str, datetime]] = None,
-    ) -> List[TG]:
+        duration: str | timedelta,
+        start: str | datetime | None = None,
+    ) -> list[TG]:
         """
         Returns a list of temporal objects of the same subtype as `self` with
         the same values as `self` but split in temporal tiles of duration
@@ -1223,22 +1219,14 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         if start is None:
             st = pg_timestamptz_in("2000-01-03", -1)
         else:
-            st = (
-                datetime_to_timestamptz(start)
-                if isinstance(start, datetime)
-                else pg_timestamptz_in(start, -1)
-            )
-        dt = (
-            timedelta_to_interval(duration)
-            if isinstance(duration, timedelta)
-            else pg_interval_in(duration, -1)
-        )
+            st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
         fragments, times, count = temporal_time_split(self._inner, dt, st)
         from ..factory import _TemporalFactory
 
         return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
 
-    def time_split_n(self, n: int) -> List[TG]:
+    def time_split_n(self, n: int) -> list[TG]:
         """
         Returns a list of temporal objects of the same subtype as `self` with
         the same values as `self` but split in n temporal tiles of equal
@@ -1264,8 +1252,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
     def stops(
         self,
-        max_distance: Optional[float] = 0.0,
-        min_duration: Optional[timedelta] = timedelta(),
+        max_distance: float | None = 0.0,
+        min_duration: timedelta | None = None,
     ) -> TSS:
         """
         Return the subsequences where the objects stay within an area with a
@@ -1282,9 +1270,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_stops
         """
-        new_inner = temporal_stops(
-            self._inner, max_distance, timedelta_to_interval(min_duration)
-        )
+        min_duration = min_duration or timedelta()
+        new_inner = temporal_stops(self._inner, max_distance, timedelta_to_interval(min_duration))
         from ..factory import _TemporalFactory
 
         return _TemporalFactory.create_temporal(new_inner)

@@ -12,4 +12,4 @@ docs/_build
 sandbox.py
 sandbox.ipynb
 
-coverage.xml
+coverage.xml.venv/

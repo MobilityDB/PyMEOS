@@ -3,7 +3,6 @@ from copy import copy
 import pytest
 
 from pymeos import IntSpan, IntSpanSet
-
 from tests.conftest import TestPyMEOS
 
 
@@ -164,64 +163,44 @@ class TestIntSpanTopologicalPositionFunctions(TestIntSpan):
     intspan = IntSpan("(1, 20)")
     intspanset = IntSpanSet("{(1, 20), (31, 41)}")
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_adjacent(self, other):
         self.intspan.is_adjacent(other)
 
-    @pytest.mark.parametrize(
-        "other", [intspan, intspanset], ids=["intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [intspan, intspanset], ids=["intspan", "intspanset"])
     def test_is_contained_in(self, other):
         self.intspan.is_contained_in(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_contains(self, other):
         self.intspan.contains(other)
         _ = other in self.intspan
 
-    @pytest.mark.parametrize(
-        "other", [intspan, intspanset], ids=["intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [intspan, intspanset], ids=["intspan", "intspanset"])
     def test_overlaps(self, other):
         self.intspan.overlaps(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_same(self, other):
         self.intspan.is_same(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_left(self, other):
         self.intspan.is_left(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_over_or_left(self, other):
         self.intspan.is_over_or_left(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_right(self, other):
         self.intspan.is_right(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_is_over_or_right(self, other):
         self.intspan.is_over_or_right(other)
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_distance(self, other):
         self.intspan.distance(other)
 
@@ -231,23 +210,17 @@ class TestIntSpanSetFunctions(TestIntSpan):
     intspan = IntSpan("(1, 20)")
     intspanset = IntSpanSet("{(1, 20), (31, 41)}")
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_intersection(self, other):
         self.intspan.intersection(other)
         self.intspan * other
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_union(self, other):
         self.intspan.union(other)
         self.intspan + other
 
-    @pytest.mark.parametrize(
-        "other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"]
-    )
+    @pytest.mark.parametrize("other", [value, intspan, intspanset], ids=["value", "intspan", "intspanset"])
     def test_minus(self, other):
         self.intspan.minus(other)
         self.intspan - other

@@ -1,16 +1,16 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from pymeos import (
-    TsTzSpan,
-    TsTzSpanSet,
-    TBox,
     STBox,
+    TBox,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -93,9 +93,7 @@ class TestTsTzSpanConstructors(TestTsTzSpan):
         self.assert_tstzspan_equality(tstzspan, lower, upper)
 
     def test_constructor_bound_inclusivity_defaults(self):
-        tstzspan = TsTzSpan(
-            lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0"
-        )
+        tstzspan = TsTzSpan(lower="2019-09-08 00:00:00+0", upper="2019-09-10 00:00:00+0")
         self.assert_tstzspan_equality(tstzspan, lower_inc=True, upper_inc=False)
 
     @pytest.mark.parametrize(
@@ -134,10 +132,7 @@ class TestTsTzSpanOutputs(TestTsTzSpan):
         assert str(self.tstzspan) == "(2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00)"
 
     def test_repr(self):
-        assert (
-            repr(self.tstzspan)
-            == "TsTzSpan((2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00))"
-        )
+        assert repr(self.tstzspan) == "TsTzSpan((2019-09-08 00:00:00+00, 2019-09-10 00:00:00+00))"
 
     def test_hexwkb(self):
         assert self.tstzspan == TsTzSpan.from_hexwkb(self.tstzspan.as_hexwkb())
@@ -160,9 +155,7 @@ class TestTsTzSpanAccessors(TestTsTzSpan):
 
     def test_upper(self):
         assert self.tstzspan.upper() == datetime(2019, 9, 10, tzinfo=timezone.utc)
-        assert self.tstzspan2.upper() == datetime(
-            2019, 9, 10, 2, 3, tzinfo=timezone.utc
-        )
+        assert self.tstzspan2.upper() == datetime(2019, 9, 10, 2, 3, tzinfo=timezone.utc)
 
     def test_lower_inc(self):
         assert not self.tstzspan.lower_inc()
@@ -256,9 +249,7 @@ class TestTsTzSpanTransformations(TestTsTzSpan):
         self.assert_tstzspan_equality(scaled, *result)
 
     def test_shift_scale(self):
-        shifted_scaled = self.tstzspan.shift_scale(
-            timedelta(days=4), timedelta(hours=4)
-        )
+        shifted_scaled = self.tstzspan.shift_scale(timedelta(days=4), timedelta(hours=4))
         self.assert_tstzspan_equality(
             shifted_scaled,
             datetime(2019, 9, 12, 0, tzinfo=timezone.utc),
@@ -275,15 +266,9 @@ class TestTsTzSpanTopologicalPositionFunctions(TestTsTzSpan):
     )
     timestamp = datetime(year=2020, month=1, day=1)
     instant = TFloatInst("1.0@2020-01-01")
-    discrete_sequence = TFloatSeq(
-        "{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}"
-    )
-    stepwise_sequence = TFloatSeq(
-        "Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]"
-    )
-    continuous_sequence = TFloatSeq(
-        "(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]"
-    )
+    discrete_sequence = TFloatSeq("{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}")
+    stepwise_sequence = TFloatSeq("Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]")
+    continuous_sequence = TFloatSeq("(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]")
     sequence_set = TFloatSeqSet(
         "{(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31], "
         "(1.0@2021-01-01, 3.0@2021-01-10, 10.0@2021-01-20, 0.0@2021-01-31]}"

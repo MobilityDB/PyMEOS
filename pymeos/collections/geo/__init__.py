@@ -1,3 +1,3 @@
-from .geoset import GeoSet, GeometrySet, GeographySet
+from .geoset import GeographySet, GeometrySet, GeoSet
 
 __all__ = ["GeoSet", "GeometrySet", "GeographySet"]

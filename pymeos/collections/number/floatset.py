@@ -1,35 +1,35 @@
 from __future__ import annotations
 
-from typing import List, Union, overload, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, overload
 
 from pymeos_cffi import (
+    contains_set_float,
+    distance_floatset_floatset,
+    distance_set_float,
+    floatset_end_value,
     floatset_in,
     floatset_make,
     floatset_out,
+    floatset_shift_scale,
     floatset_start_value,
-    floatset_end_value,
     floatset_value_n,
     floatset_values,
-    contains_set_float,
     intersection_set_float,
     intersection_set_set,
     left_set_float,
-    overleft_set_float,
-    right_set_float,
-    overright_set_float,
+    minus_float_set,
     minus_set_float,
     minus_set_set,
-    union_set_set,
+    overleft_set_float,
+    overright_set_float,
+    right_set_float,
     union_set_float,
-    floatset_shift_scale,
-    minus_float_set,
-    distance_set_float,
-    distance_floatset_floatset,
+    union_set_set,
 )
 
+from ..base import Set
 from .floatspan import FloatSpan
 from .floatspanset import FloatSpanSet
-from ..base import Set
 
 if TYPE_CHECKING:
     from .intset import IntSet
@@ -131,7 +131,7 @@ class FloatSet(Set[float]):
         super().element_n(n)
         return floatset_value_n(self._inner, n + 1)
 
-    def elements(self) -> List[float]:
+    def elements(self) -> list[float]:
         """
         Returns the elements in ``self``.
 
@@ -177,9 +177,7 @@ class FloatSet(Set[float]):
         """
         return self.shift_scale(None, new_width)
 
-    def shift_scale(
-        self, delta: Optional[float], new_width: Optional[float]
-    ) -> FloatSet:
+    def shift_scale(self, delta: float | None, new_width: float | None) -> FloatSet:
         """
         Returns a new ``FloatSet`` instance with all elements shifted by ``delta`` and scaled to so that the
          encompassing span has width ``new_width``.
@@ -195,14 +193,12 @@ class FloatSet(Set[float]):
             floatset_shift_scale
         """
         return FloatSet(
-            _inner=floatset_shift_scale(
-                self._inner, delta, new_width, delta is not None, new_width is not None
-            )
+            _inner=floatset_shift_scale(self._inner, delta, new_width, delta is not None, new_width is not None)
         )
 
     # ------------------------- Topological Operations --------------------------------
 
-    def contains(self, content: Union[FloatSet, float]) -> bool:
+    def contains(self, content: FloatSet | float) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -222,7 +218,7 @@ class FloatSet(Set[float]):
 
     # ------------------------- Position Operations --------------------------------
 
-    def is_left(self, content: Union[FloatSet, float]) -> bool:
+    def is_left(self, content: FloatSet | float) -> bool:
         """
         Returns whether ``self`` is strictly to the left of ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -241,7 +237,7 @@ class FloatSet(Set[float]):
         else:
             return super().is_left(content)
 
-    def is_over_or_left(self, content: Union[FloatSet, float]) -> bool:
+    def is_over_or_left(self, content: FloatSet | float) -> bool:
         """
         Returns whether ``self`` is to the left of ``other`` allowing overlap.
         That is, ``self`` ends before ``other`` ends (or at the same value).
@@ -260,7 +256,7 @@ class FloatSet(Set[float]):
         else:
             return super().is_over_or_left(content)
 
-    def is_right(self, content: Union[FloatSet, float]) -> bool:
+    def is_right(self, content: FloatSet | float) -> bool:
         """
         Returns whether ``self`` is strictly to the left of ``other``. That is,
         ``self`` starts before ``other`` ends.
@@ -279,7 +275,7 @@ class FloatSet(Set[float]):
         else:
             return super().is_right(content)
 
-    def is_over_or_right(self, content: Union[FloatSet, float]) -> bool:
+    def is_over_or_right(self, content: FloatSet | float) -> bool:
         """
         Returns whether ``self`` is to the right of ``other`` allowing overlap.
         That is, ``self`` ends after ``other`` ends (or at the same value).
@@ -301,10 +297,10 @@ class FloatSet(Set[float]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: float) -> Optional[float]: ...
+    def intersection(self, other: float) -> float | None: ...
 
     @overload
-    def intersection(self, other: FloatSet) -> Optional[FloatSet]: ...
+    def intersection(self, other: FloatSet) -> FloatSet | None: ...
 
     def intersection(self, other):
         """
@@ -327,7 +323,7 @@ class FloatSet(Set[float]):
         else:
             return super().intersection(other)
 
-    def minus(self, other: Union[FloatSet, float]) -> Optional[FloatSet]:
+    def minus(self, other: FloatSet | float) -> FloatSet | None:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -349,7 +345,7 @@ class FloatSet(Set[float]):
         else:
             return super().minus(other)
 
-    def subtract_from(self, other: float) -> Optional[float]:
+    def subtract_from(self, other: float) -> float | None:
         """
         Returns the difference of ``other`` and ``self``.
 
@@ -367,7 +363,7 @@ class FloatSet(Set[float]):
         """
         return minus_float_set(other, self._inner)
 
-    def union(self, other: Union[FloatSet, float]) -> FloatSet:
+    def union(self, other: FloatSet | float) -> FloatSet:
         """
         Returns the union of ``self`` and ``other``.
 
@@ -391,9 +387,7 @@ class FloatSet(Set[float]):
 
     # ------------------------- Distance Operations ---------------------------
 
-    def distance(
-        self, other: Union[int, float, FloatSet, FloatSpan, FloatSpanSet]
-    ) -> float:
+    def distance(self, other: int | float | FloatSet | FloatSpan | FloatSpanSet) -> float:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -416,9 +410,7 @@ class FloatSet(Set[float]):
             return distance_set_float(self._inner, other)
         elif isinstance(other, FloatSet):
             return distance_floatset_floatset(self._inner, other._inner)
-        elif isinstance(other, FloatSpan):
-            return self.to_spanset().distance(other)
-        elif isinstance(other, FloatSpanSet):
+        elif isinstance(other, (FloatSpan, FloatSpanSet)):
             return self.to_spanset().distance(other)
         else:
             return super().distance(other)

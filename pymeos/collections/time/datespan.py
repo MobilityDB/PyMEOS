@@ -1,47 +1,47 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
-from typing import TYPE_CHECKING, Union, Optional, overload
+from typing import TYPE_CHECKING, overload
 
-from _meos_cffi.lib import distance_datespanset_datespan
-from dateutil.parser import parse
 from pymeos_cffi import (
     adjacent_span_date,
-    datespan_in,
+    after_span_date,
+    before_span_date,
+    contains_span_date,
+    date_adt_to_date,
     date_to_date_adt,
-    pg_date_in,
+    datespan_duration,
+    datespan_in,
+    datespan_lower,
     datespan_make,
     datespan_out,
-    datespan_to_tstzspan,
-    date_adt_to_date,
-    interval_to_timedelta,
-    datespan_duration,
-    datespan_upper,
-    datespan_lower,
     datespan_shift_scale,
-    union_span_date,
-    minus_span_date,
-    minus_span_span,
-    minus_span_spanset,
+    datespan_to_tstzspan,
+    datespan_upper,
+    distance_datespan_datespan,
+    distance_datespanset_datespan,
+    distance_span_date,
     intersection_span_date,
     intersection_span_span,
     intersection_spanset_span,
-    distance_span_date,
+    interval_to_timedelta,
+    minus_span_date,
+    minus_span_span,
+    minus_span_spanset,
     overafter_span_date,
-    after_span_date,
     overbefore_span_date,
-    before_span_date,
-    contains_span_date,
+    pg_date_in,
+    union_span_date,
 )
 
-from .timecollection import TimeCollection
 from ..base import Span
+from .timecollection import TimeCollection
 
 if TYPE_CHECKING:
     from .dateset import DateSet
     from .datespanset import DateSpanSet
-    from .tstzspan import TsTzSpan
     from .time import TimeDate
+    from .tstzspan import TsTzSpan
 
 
 class DateSpan(Span[date], TimeCollection[date]):
@@ -69,9 +69,7 @@ class DateSpan(Span[date], TimeCollection[date]):
     _mobilitydb_name = "datespan"
 
     _parse_function = datespan_in
-    _parse_value_function = lambda x: (
-        pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
-    )
+    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = datespan_make
 
     # ------------------------- Constructors ----------------------------------
@@ -172,7 +170,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         return self.width()
 
     # ------------------------- Transformations -------------------------------
-    def shift(self, delta: Union[timedelta, int]) -> DateSpan:
+    def shift(self, delta: timedelta | int) -> DateSpan:
         """
         Returns a new :class:`DateSpan` that is the result of shifting ``self`` by
         ``delta``.
@@ -192,7 +190,7 @@ class DateSpan(Span[date], TimeCollection[date]):
         """
         return self.shift_scale(shift=delta)
 
-    def scale(self, duration: Union[timedelta, int]) -> DateSpan:
+    def scale(self, duration: timedelta | int) -> DateSpan:
         """
         Returns a new :class:`DateSpan` that starts as ``self`` but has
         duration ``duration``.
@@ -215,8 +213,8 @@ class DateSpan(Span[date], TimeCollection[date]):
 
     def shift_scale(
         self,
-        shift: Union[int, timedelta, None] = None,
-        duration: Union[int, timedelta, None] = None,
+        shift: int | timedelta | None = None,
+        duration: int | timedelta | None = None,
     ) -> DateSpan:
         """
         Returns a new :class:`DateSpan` that starts at ``self`` shifted by ``shift`` and
@@ -237,29 +235,17 @@ class DateSpan(Span[date], TimeCollection[date]):
         MEOS Functions:
             datespan_shift_scale
         """
-        assert (
-            shift is not None or duration is not None
-        ), "shift and scale deltas must not be both None"
+        assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
 
-        shift = (
-            shift.days
-            if isinstance(shift, timedelta)
-            else int(shift) if shift is not None else 0
-        )
-        duration = (
-            duration.days
-            if isinstance(duration, timedelta)
-            else int(duration) if duration is not None else 0
-        )
+        shift = shift.days if isinstance(shift, timedelta) else int(shift) if shift is not None else 0
+        duration = duration.days if isinstance(duration, timedelta) else int(duration) if duration is not None else 0
 
-        modified = datespan_shift_scale(
-            self._inner, shift, duration, shift != 0, duration != 0
-        )
+        modified = datespan_shift_scale(self._inner, shift, duration, shift != 0, duration != 0)
         return DateSpan(_inner=modified)
 
     # ------------------------- Topological Operations ------------------------
 
-    def is_adjacent(self, other: Union[date, DateSpan, DateSpanSet]) -> bool:
+    def is_adjacent(self, other: date | DateSpan | DateSpanSet) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
         a bound but only one of them contains it.
@@ -457,42 +443,34 @@ class DateSpan(Span[date], TimeCollection[date]):
             A :class:`datetime.timedelta` instance
 
         MEOS Functions:
-            distance_span_date, distance_datespanset_datespan,
+            distance_span_date, distance_datespan_datespan,
             distance_datespanset_datespan
         """
         from .dateset import DateSet
         from .datespanset import DateSpanSet
 
         if isinstance(other, date):
-            return timedelta(
-                days=distance_span_date(self._inner, date_to_date_adt(other))
-            )
+            return timedelta(days=distance_span_date(self._inner, date_to_date_adt(other)))
         elif isinstance(other, DateSet):
             return self.distance(other.to_spanset())
         elif isinstance(other, DateSpan):
-            return timedelta(
-                days=distance_datespan_datespan(self._inner, other._inner)
-            )
+            return timedelta(days=distance_datespan_datespan(self._inner, other._inner))
         elif isinstance(other, DateSpanSet):
-            return timedelta(
-                days=distance_datespanset_datespan(self._inner, other._inner)
-            )
+            return timedelta(days=distance_datespanset_datespan(self._inner, other._inner))
         else:
             return super().distance(other)
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: date) -> Optional[date]: ...
+    def intersection(self, other: date) -> date | None: ...
 
     @overload
-    def intersection(self, other: DateSpan) -> Optional[DateSpan]: ...
+    def intersection(self, other: DateSpan) -> DateSpan | None: ...
 
     @overload
-    def intersection(
-        self, other: Union[DateSet, DateSpanSet]
-    ) -> Optional[DateSpanSet]: ...
+    def intersection(self, other: DateSet | DateSpanSet) -> DateSpanSet | None: ...
 
-    def intersection(self, other: TimeDate) -> Optional[TimeDate]:
+    def intersection(self, other: TimeDate) -> TimeDate | None:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 
@@ -506,8 +484,8 @@ class DateSpan(Span[date], TimeCollection[date]):
             intersection_span_span, intersection_spanset_span,
             intersection_span_date
         """
-        from .datespanset import DateSpanSet
         from .dateset import DateSet
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             result = intersection_span_date(self._inner, date_to_date_adt(other))
@@ -536,8 +514,8 @@ class DateSpan(Span[date], TimeCollection[date]):
         MEOS Functions:
             minus_span_date, minus_span_spanset, minus_span_span
         """
-        from .datespanset import DateSpanSet
         from .dateset import DateSet
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             result = minus_span_date(self._inner, date_to_date_adt(other))
@@ -564,16 +542,14 @@ class DateSpan(Span[date], TimeCollection[date]):
         MEOS Functions:
             union_span_date, union_spanset_span, union_span_span
         """
-        from .datespanset import DateSpanSet
         from .dateset import DateSet
+        from .datespanset import DateSpanSet
 
         if isinstance(other, date):
             result = union_span_date(self._inner, date_to_date_adt(other))
         elif isinstance(other, DateSet):
             result = super().union(other.to_spanset())
-        elif isinstance(other, DateSpan):
-            result = super().union(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             result = super().union(other)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")

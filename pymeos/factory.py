@@ -1,41 +1,41 @@
-from pymeos_cffi import MeosType, MeosTemporalSubtype
+from pymeos_cffi import MeosTemporalSubtype, MeosType
 
+from .collections import (
+    DateSet,
+    DateSpan,
+    DateSpanSet,
+    FloatSet,
+    FloatSpan,
+    FloatSpanSet,
+    GeographySet,
+    GeometrySet,
+    IntSet,
+    IntSpan,
+    IntSpanSet,
+    TextSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
+)
 from .main import (
     TBoolInst,
     TBoolSeq,
     TBoolSeqSet,
-    TIntInst,
-    TIntSeq,
-    TIntSeqSet,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
-    TTextInst,
-    TTextSeq,
-    TTextSeqSet,
-    TGeomPointInst,
-    TGeomPointSeq,
-    TGeomPointSeqSet,
     TGeogPointInst,
     TGeogPointSeq,
     TGeogPointSeqSet,
-)
-from .collections import (
-    GeometrySet,
-    GeographySet,
-    IntSet,
-    IntSpan,
-    IntSpanSet,
-    FloatSet,
-    FloatSpan,
-    FloatSpanSet,
-    TextSet,
-    DateSet,
-    DateSpan,
-    DateSpanSet,
-    TsTzSet,
-    TsTzSpan,
-    TsTzSpanSet,
+    TGeomPointInst,
+    TGeomPointSeq,
+    TGeomPointSeqSet,
+    TIntInst,
+    TIntSeq,
+    TIntSeqSet,
+    TTextInst,
+    TTextSeq,
+    TTextSeqSet,
 )
 
 
@@ -128,9 +128,5 @@ class _CollectionFactory:
             return None
 
         attributes = ["spansettype", "spantype", "settype"]
-        collection_type = next(
-            getattr(inner, attribute)
-            for attribute in attributes
-            if hasattr(inner, attribute)
-        )
+        collection_type = next(getattr(inner, attribute) for attribute in attributes if hasattr(inner, attribute))
         return _CollectionFactory._mapper[collection_type](_inner=inner)

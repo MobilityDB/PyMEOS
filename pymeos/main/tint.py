@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, TYPE_CHECKING, Set, overload, TypeVar, Type
+from typing import TYPE_CHECKING, TypeVar, overload
 
 from pymeos_cffi import *
 
-from .tnumber import TNumber
 from ..collections import *
 from ..mixins import TTemporallyComparable
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
+from .tnumber import TNumber
 
 if TYPE_CHECKING:
     from ..boxes import TBox
-    from .tfloat import TFloat
     from .tbool import TBool
+    from .tfloat import TFloat
 
 
 Self = TypeVar("Self", bound="TInt")
@@ -55,7 +55,7 @@ class TInt(
 
     @staticmethod
     @overload
-    def from_base_time(value: int, base: Union[TsTzSet, TsTzSpan]) -> TIntSeq: ...
+    def from_base_time(value: int, base: TsTzSet | TsTzSpan) -> TIntSeq: ...
 
     @staticmethod
     @overload
@@ -85,13 +85,11 @@ class TInt(
         elif isinstance(base, TsTzSpan):
             return TIntSeq(_inner=tintseq_from_base_tstzspan(value, base._inner))
         elif isinstance(base, TsTzSpanSet):
-            return TIntSeqSet(
-                _inner=tintseqset_from_base_tstzspanset(value, base._inner)
-            )
+            return TIntSeqSet(_inner=tintseqset_from_base_tstzspanset(value, base._inner))
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
     @classmethod
-    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+    def from_mfjson(cls: type[Self], mfjson: str) -> Self:
         """
         Returns a temporal object from a MF-JSON string.
 
@@ -209,7 +207,7 @@ class TInt(
         """
         return tint_end_value(self._inner)
 
-    def value_set(self) -> Set[int]:
+    def value_set(self) -> set[int]:
         """
         Returns the set of values of `self`.
 
@@ -259,12 +257,10 @@ class TInt(
         MEOS Functions:
             tint_value_at_timestamp
         """
-        return tint_value_at_timestamptz(
-            self._inner, datetime_to_timestamptz(timestamp), True
-        )
+        return tint_value_at_timestamptz(self._inner, datetime_to_timestamptz(timestamp), True)
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_less(self, value: Union[int, TInt]) -> bool:
+    def always_less(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -285,7 +281,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: Union[int, TInt]) -> bool:
+    def always_less_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -307,7 +303,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_equal(self, value: Union[int, TInt]) -> bool:
+    def always_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always equal to `value`.
 
@@ -328,7 +324,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_not_equal(self, value: Union[int, TInt]) -> bool:
+    def always_not_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always not equal to `value`.
 
@@ -349,7 +345,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: Union[int, TInt]) -> bool:
+    def always_greater_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -371,7 +367,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: Union[int, TInt]) -> bool:
+    def always_greater(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are always greater than `value`.
 
@@ -392,7 +388,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: Union[int, TInt]) -> bool:
+    def ever_less(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -413,7 +409,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: Union[int, TInt]) -> bool:
+    def ever_less_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -435,7 +431,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: Union[int, TInt]) -> bool:
+    def ever_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever equal to `value`.
 
@@ -456,7 +452,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: Union[int, TInt]) -> bool:
+    def ever_not_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever not equal to `value`.
 
@@ -477,7 +473,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: Union[int, TInt]) -> bool:
+    def ever_greater_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -499,7 +495,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: Union[int, TInt]) -> bool:
+    def ever_greater(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are ever greater than `value`.
 
@@ -520,7 +516,7 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_less(self, value: Union[int, TInt]) -> bool:
+    def never_less(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -536,7 +532,7 @@ class TInt(
         """
         return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: Union[int, TInt]) -> bool:
+    def never_less_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -553,7 +549,7 @@ class TInt(
         """
         return not self.ever_less_or_equal(value)
 
-    def never_equal(self, value: Union[int, TInt]) -> bool:
+    def never_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never equal to `value`.
 
@@ -569,7 +565,7 @@ class TInt(
         """
         return not self.ever_equal(value)
 
-    def never_not_equal(self, value: Union[int, TInt]) -> bool:
+    def never_not_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never not equal to `value`.
 
@@ -585,7 +581,7 @@ class TInt(
         """
         return not self.ever_not_equal(value)
 
-    def never_greater_or_equal(self, value: Union[int, TInt]) -> bool:
+    def never_greater_or_equal(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -602,7 +598,7 @@ class TInt(
         """
         return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: Union[int, TInt]) -> bool:
+    def never_greater(self, value: int | TInt) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -619,7 +615,7 @@ class TInt(
         return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[int, TInt]) -> TBool:
+    def temporal_equal(self, other: int | TInt) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -638,7 +634,7 @@ class TInt(
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[int, TInt]) -> TBool:
+    def temporal_not_equal(self, other: int | TInt) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -657,7 +653,7 @@ class TInt(
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[int, TInt]) -> TBool:
+    def temporal_less(self, other: int | TInt) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -676,7 +672,7 @@ class TInt(
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[int, TInt]) -> TBool:
+    def temporal_less_or_equal(self, other: int | TInt) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -696,7 +692,7 @@ class TInt(
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[int, TInt]) -> TBool:
+    def temporal_greater_or_equal(self, other: int | TInt) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and `other`.
 
@@ -716,7 +712,7 @@ class TInt(
             return super().temporal_greater_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[int, TInt]) -> TBool:
+    def temporal_greater(self, other: int | TInt) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -739,18 +735,7 @@ class TInt(
     # ------------------------- Restrictions ----------------------------------
     def at(
         self,
-        other: Union[
-            int,
-            float,
-            IntSet,
-            FloatSet,
-            IntSpan,
-            FloatSpan,
-            IntSpanSet,
-            FloatSpanSet,
-            TBox,
-            Time,
-        ],
+        other: int | float | IntSet | FloatSet | IntSpan | FloatSpan | IntSpanSet | FloatSpanSet | TBox | Time,
     ) -> TInt:
         """
         Returns a new temporal int with th  e values of `self` restricted to
@@ -767,7 +752,7 @@ class TInt(
             temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan,
             temporal_at_tstzspanset
         """
-        if isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, (int, float)):
             result = tint_at_value(self._inner, int(other))
         elif isinstance(other, FloatSet):
             return super().at(other.to_intset())
@@ -781,18 +766,7 @@ class TInt(
 
     def minus(
         self,
-        other: Union[
-            int,
-            float,
-            IntSet,
-            FloatSet,
-            IntSpan,
-            FloatSpan,
-            IntSpanSet,
-            FloatSpanSet,
-            TBox,
-            Time,
-        ],
+        other: int | float | IntSet | FloatSet | IntSpan | FloatSpan | IntSpanSet | FloatSpanSet | TBox | Time,
     ) -> TInt:
         """
         Returns a new temporal int with the values of `self` restricted to the
@@ -809,7 +783,7 @@ class TInt(
             temporal_minus_timestamp, temporal_minus_tstzset,
             temporal_minus_tstzspan, temporal_minus_tstzspanset
         """
-        if isinstance(other, int) or isinstance(other, float):
+        if isinstance(other, (int, float)):
             result = tint_minus_value(self._inner, int(other))
         elif isinstance(other, FloatSet):
             return super().minus(other.to_intset())
@@ -822,9 +796,7 @@ class TInt(
         return Temporal._factory(result)
 
     # ------------------------- Distance --------------------------------------
-    def nearest_approach_distance(
-        self, other: Union[int, float, TNumber, TBox]
-    ) -> float:
+    def nearest_approach_distance(self, other: int | float | TNumber | TBox) -> float:
         """
         Returns the nearest approach distance between `self` and `other`.
 
@@ -847,7 +819,7 @@ class TInt(
             return super().nearest_approach_distance(other)
 
     # ------------------------- Split Operations ------------------------------
-    def value_split(self, size: int, start: Optional[int] = 0) -> List[TInt]:
+    def value_split(self, size: int, start: int | None = 0) -> list[TInt]:
         """
         Splits `self` into fragments with respect to value buckets
 
@@ -867,10 +839,10 @@ class TInt(
     def value_time_split(
         self,
         value_size: int,
-        duration: Union[str, timedelta],
-        value_start: Optional[int] = 0,
-        time_start: Optional[Union[str, datetime]] = None,
-    ) -> List[TInt]:
+        duration: str | timedelta,
+        value_start: int | None = 0,
+        time_start: str | datetime | None = None,
+    ) -> list[TInt]:
         """
         Splits `self` into fragments with respect to value and tstzspan buckets.
 
@@ -896,14 +868,8 @@ class TInt(
                 if isinstance(time_start, datetime)
                 else pg_timestamptz_in(time_start, -1)
             )
-        dt = (
-            timedelta_to_interval(duration)
-            if isinstance(duration, timedelta)
-            else pg_interval_in(duration, -1)
-        )
-        tiles, _, _, count = tint_value_time_split(
-            self._inner, value_size, dt, value_start, st
-        )
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt, value_start, st)
         return [Temporal._factory(tiles[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------
@@ -938,10 +904,10 @@ class TIntInst(TInstant[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt)
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        value: Optional[Union[str, int]] = None,
-        timestamp: Optional[Union[str, datetime]] = None,
+        value: str | int | None = None,
+        timestamp: str | datetime | None = None,
         _inner=None,
     ):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
@@ -956,9 +922,9 @@ class TIntSeq(TSequence[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"], TInt)
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        instant_list: Optional[List[Union[str, TIntInst]]] = None,
+        instant_list: list[str | TIntInst] | None = None,
         lower_inc: bool = True,
         upper_inc: bool = False,
         interpolation: TInterpolation = TInterpolation.STEPWISE,
@@ -985,9 +951,9 @@ class TIntSeqSet(TSequenceSet[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"],
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        sequence_list: Optional[List[Union[str, TIntSeq]]] = None,
+        sequence_list: list[str | TIntSeq] | None = None,
         normalize: bool = True,
         _inner=None,
     ):

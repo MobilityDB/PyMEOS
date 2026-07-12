@@ -2,7 +2,7 @@ from typing import Any
 
 import psycopg
 from psycopg import connect
-from psycopg.adapt import Loader, Buffer, Dumper
+from psycopg.adapt import Buffer, Dumper, Loader
 
 from .db_objects import db_objects
 

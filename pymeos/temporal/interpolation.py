@@ -1,6 +1,8 @@
 from __future__ import annotations
-from pymeos_cffi import InterpolationType
+
 from enum import IntEnum
+
+from pymeos_cffi import InterpolationType
 
 
 class TInterpolation(IntEnum):
@@ -27,6 +29,8 @@ class TInterpolation(IntEnum):
             return "Step"
         elif self == InterpolationType.LINEAR:
             return "Linear"
+        else:
+            raise ValueError()
 
     @staticmethod
     def from_string(source: str, none: bool = True) -> TInterpolation:

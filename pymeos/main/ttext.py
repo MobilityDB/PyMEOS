@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, Union, List, Set, overload, TYPE_CHECKING, TypeVar, Type
+from typing import TYPE_CHECKING, TypeVar, overload
 
 from pymeos_cffi import *
 
 from ..collections import *
 from ..mixins import TTemporallyComparable
-from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
     from .tbool import TBool
@@ -56,7 +56,7 @@ class TText(
 
     @staticmethod
     @overload
-    def from_base_time(value: str, base: Union[TsTzSet, TsTzSpan]) -> TTextSeq: ...
+    def from_base_time(value: str, base: TsTzSet | TsTzSpan) -> TTextSeq: ...
 
     @staticmethod
     @overload
@@ -79,21 +79,17 @@ class TText(
             ttextseq_from_base_tstzspan, ttextseqset_from_base_tstzspanset
         """
         if isinstance(base, datetime):
-            return TTextInst(
-                _inner=ttextinst_make(value, datetime_to_timestamptz(base))
-            )
+            return TTextInst(_inner=ttextinst_make(value, datetime_to_timestamptz(base)))
         elif isinstance(base, TsTzSet):
             return TTextSeq(_inner=ttextseq_from_base_tstzset(value, base._inner))
         elif isinstance(base, TsTzSpan):
             return TTextSeq(_inner=ttextseq_from_base_tstzspan(value, base._inner))
         elif isinstance(base, TsTzSpanSet):
-            return TTextSeqSet(
-                _inner=ttextseqset_from_base_tstzspanset(value, base._inner)
-            )
+            return TTextSeqSet(_inner=ttextseqset_from_base_tstzspanset(value, base._inner))
         raise TypeError(f"Operation not supported with type {base.__class__}")
 
     @classmethod
-    def from_mfjson(cls: Type[Self], mfjson: str) -> Self:
+    def from_mfjson(cls: type[Self], mfjson: str) -> Self:
         """
         Returns a temporal object from a MF-JSON string.
 
@@ -136,7 +132,7 @@ class TText(
         return ttext_out(self._inner)
 
     # ------------------------- Accessors -------------------------------------
-    def value_set(self) -> Set[str]:
+    def value_set(self) -> set[str]:
         """
         Returns the set of unique values of the temporal string.
 
@@ -236,13 +232,11 @@ class TText(
         MEOS Functions:
             ttext_value_at_timestamp
         """
-        result = ttext_value_at_timestamptz(
-            self._inner, datetime_to_timestamptz(timestamp), True
-        )
+        result = ttext_value_at_timestamptz(self._inner, datetime_to_timestamptz(timestamp), True)
         return text2cstring(result[0])
 
     # ------------------------- Ever and Always Comparisons -------------------
-    def always_less(self, value: Union[str, TText]) -> bool:
+    def always_less(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always less than `value`.
 
@@ -263,7 +257,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_less_or_equal(self, value: Union[str, TText]) -> bool:
+    def always_less_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always less than or equal to
         `value`.
@@ -285,7 +279,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_equal(self, value: Union[str, TText]) -> bool:
+    def always_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always equal to `value`.
 
@@ -306,7 +300,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_not_equal(self, value: Union[str, TText]) -> bool:
+    def always_not_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always not equal to `value`.
 
@@ -327,7 +321,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater_or_equal(self, value: Union[str, TText]) -> bool:
+    def always_greater_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
         to `value`.
@@ -349,7 +343,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_greater(self, value: Union[str, TText]) -> bool:
+    def always_greater(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are always greater than `value`.
 
@@ -370,7 +364,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less(self, value: Union[str, TText]) -> bool:
+    def ever_less(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever less than `value`.
 
@@ -391,7 +385,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_less_or_equal(self, value: Union[str, TText]) -> bool:
+    def ever_less_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever less than or equal to
         `value`.
@@ -413,7 +407,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_equal(self, value: Union[str, TText]) -> bool:
+    def ever_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever equal to `value`.
 
@@ -434,7 +428,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_not_equal(self, value: Union[str, TText]) -> bool:
+    def ever_not_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever not equal to `value`.
 
@@ -455,7 +449,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater_or_equal(self, value: Union[str, TText]) -> bool:
+    def ever_greater_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever greater than or equal to
         `value`.
@@ -477,7 +471,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def ever_greater(self, value: Union[str, TText]) -> bool:
+    def ever_greater(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are ever greater than `value`.
 
@@ -498,7 +492,7 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def never_less(self, value: Union[str, TText]) -> bool:
+    def never_less(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never less than `value`.
 
@@ -514,7 +508,7 @@ class TText(
         """
         return not self.ever_less(value)
 
-    def never_less_or_equal(self, value: Union[str, TText]) -> bool:
+    def never_less_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never less than or equal to
         `value`.
@@ -531,7 +525,7 @@ class TText(
         """
         return not self.ever_less_or_equal(value)
 
-    def never_equal(self, value: Union[str, TText]) -> bool:
+    def never_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never equal to `value`.
 
@@ -547,7 +541,7 @@ class TText(
         """
         return not self.ever_equal(value)
 
-    def never_not_equal(self, value: Union[str, TText]) -> bool:
+    def never_not_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never not equal to `value`.
 
@@ -563,7 +557,7 @@ class TText(
         """
         return not self.ever_not_equal(value)
 
-    def never_greater_or_equal(self, value: Union[str, TText]) -> bool:
+    def never_greater_or_equal(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never greater than or equal to
         `value`.
@@ -580,7 +574,7 @@ class TText(
         """
         return not self.ever_greater_or_equal(value)
 
-    def never_greater(self, value: Union[str, TText]) -> bool:
+    def never_greater(self, value: str | TText) -> bool:
         """
         Returns whether the values of `self` are never greater than `value`.
 
@@ -597,7 +591,7 @@ class TText(
         return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[str, TText]) -> TBool:
+    def temporal_equal(self, other: str | TText) -> TBool:
         """
         Returns the temporal equality relation between `self` and `other`.
 
@@ -616,7 +610,7 @@ class TText(
             return super().temporal_equal(other)
         return Temporal._factory(result)
 
-    def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
+    def temporal_not_equal(self, other: str | TText) -> TBool:
         """
         Returns the temporal not equal relation between `self` and `other`.
 
@@ -635,7 +629,7 @@ class TText(
             return super().temporal_not_equal(other)
         return Temporal._factory(result)
 
-    def temporal_less(self, other: Union[str, TText]) -> TBool:
+    def temporal_less(self, other: str | TText) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
 
@@ -654,7 +648,7 @@ class TText(
             return super().temporal_less(other)
         return Temporal._factory(result)
 
-    def temporal_less_or_equal(self, other: Union[str, TText]) -> TBool:
+    def temporal_less_or_equal(self, other: str | TText) -> TBool:
         """
         Returns the temporal less or equal relation between `self` and `other`.
 
@@ -674,7 +668,7 @@ class TText(
             return super().temporal_less_or_equal(other)
         return Temporal._factory(result)
 
-    def temporal_greater(self, other: Union[str, TText]) -> TBool:
+    def temporal_greater(self, other: str | TText) -> TBool:
         """
         Returns the temporal greater than relation between `self` and `other`.
 
@@ -694,7 +688,7 @@ class TText(
             return super().temporal_greater(other)
         return Temporal._factory(result)
 
-    def temporal_greater_or_equal(self, other: Union[str, TText]) -> TBool:
+    def temporal_greater_or_equal(self, other: str | TText) -> TBool:
         """
         Returns the temporal greater or equal relation between `self` and
         `other`.
@@ -716,9 +710,7 @@ class TText(
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(
-        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
-    ) -> TText:
+    def at(self, other: str | list[str] | datetime | TsTzSet | TsTzSpan | TsTzSpanSet) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the time or value `other`.
@@ -741,9 +733,7 @@ class TText(
             return super().at(other)
         return Temporal._factory(result)
 
-    def minus(
-        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
-    ) -> TText:
+    def minus(self, other: str | list[str] | datetime | TsTzSet | TsTzSpan | TsTzSpanSet) -> TText:
         """
         Returns a new temporal string with the values of `self` restricted to
         the complement of the time or value `other`.
@@ -768,7 +758,7 @@ class TText(
         return Temporal._factory(result)
 
     # ------------------------- Text Operations ------------------------------
-    def concatenate(self, other: Union[str, TText], other_before: bool = False):
+    def concatenate(self, other: str | TText, other_before: bool = False):
         """
         Returns a new temporal string with the values of `self` concatenated
         with the values of `other`.
@@ -787,9 +777,7 @@ class TText(
         """
         if isinstance(other, str):
             result = (
-                textcat_ttext_text(self._inner, other)
-                if not other_before
-                else textcat_text_ttext(other, self._inner)
+                textcat_ttext_text(self._inner, other) if not other_before else textcat_text_ttext(other, self._inner)
             )
         elif isinstance(other, TText):
             result = (
@@ -865,10 +853,10 @@ class TTextInst(TInstant[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], 
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        value: Optional[str] = None,
-        timestamp: Optional[Union[str, datetime]] = None,
+        value: str | None = None,
+        timestamp: str | datetime | None = None,
         _inner=None,
     ):
         super().__init__(string=string, value=value, timestamp=timestamp, _inner=_inner)
@@ -883,9 +871,9 @@ class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], 
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        instant_list: Optional[List[Union[str, TTextInst]]] = None,
+        instant_list: list[str | TTextInst] | None = None,
         lower_inc: bool = True,
         upper_inc: bool = False,
         interpolation: TInterpolation = TInterpolation.STEPWISE,
@@ -903,9 +891,7 @@ class TTextSeq(TSequence[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], 
         )
 
 
-class TTextSeqSet(
-    TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText
-):
+class TTextSeqSet(TSequenceSet[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"], TText):
     """
     Class for representing temporal strings over a tstzspan of time with gaps.
     """
@@ -914,9 +900,9 @@ class TTextSeqSet(
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        sequence_list: Optional[List[Union[str, TTextSeq]]] = None,
+        sequence_list: list[str | TTextSeq] | None = None,
         normalize: bool = True,
         _inner=None,
     ):

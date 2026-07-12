@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type
+from typing import Generic, TypeVar
 
 T = TypeVar("T")
 Self = TypeVar("Self")
@@ -50,7 +50,7 @@ class Collection(Generic[T], ABC):
 
     # ------------------------- Database Operations ---------------------------
     @classmethod
-    def read_from_cursor(cls: Type[Self], value, _=None):
+    def read_from_cursor(cls: type[Self], value, _=None):
         """
         Reads a :class:`Collection` from a database cursor. Used when automatically
         loading objects from the database.

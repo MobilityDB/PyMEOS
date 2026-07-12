@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, overload, Union
+from typing import overload
 
 from pymeos_cffi import *
 
@@ -112,7 +112,7 @@ class TextSet(Set[str]):
 
     # ------------------------- Topological Operations --------------------------------
 
-    def contains(self, content: Union[TextSet, str]) -> bool:
+    def contains(self, content: TextSet | str) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -158,10 +158,10 @@ class TextSet(Set[str]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: str) -> Optional[str]: ...
+    def intersection(self, other: str) -> str | None: ...
 
     @overload
-    def intersection(self, other: TextSet) -> Optional[TextSet]: ...
+    def intersection(self, other: TextSet) -> TextSet | None: ...
 
     def intersection(self, other):
         """
@@ -185,7 +185,7 @@ class TextSet(Set[str]):
         else:
             return super().intersection(other)
 
-    def minus(self, other: Union[TextSet, str]) -> Optional[TextSet]:
+    def minus(self, other: TextSet | str) -> TextSet | None:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -207,7 +207,7 @@ class TextSet(Set[str]):
         else:
             return super().minus(other)
 
-    def subtract_from(self, other: str) -> Optional[str]:
+    def subtract_from(self, other: str) -> str | None:
         """
         Returns the difference of ``other`` and ``self``.
 
@@ -226,7 +226,7 @@ class TextSet(Set[str]):
         result = minus_text_set(other, self._inner)
         return text2cstring(result[0]) if result is not None else None
 
-    def union(self, other: Union[TextSet, str]) -> TextSet:
+    def union(self, other: TextSet | str) -> TextSet:
         """
         Returns the union of ``self`` and ``other``.
 

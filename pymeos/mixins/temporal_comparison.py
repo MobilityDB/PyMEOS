@@ -1,14 +1,14 @@
 from __future__ import annotations
 
-from typing import TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import (
     teq_temporal_temporal,
-    tne_temporal_temporal,
-    tlt_temporal_temporal,
-    tle_temporal_temporal,
-    tgt_temporal_temporal,
     tge_temporal_temporal,
+    tgt_temporal_temporal,
+    tle_temporal_temporal,
+    tlt_temporal_temporal,
+    tne_temporal_temporal,
 )
 
 Self = TypeVar("Self", bound="Temporal[Any]")

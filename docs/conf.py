@@ -70,6 +70,4 @@ def download_file(url, dest_path):
 
 prefix = "https://raw.githubusercontent.com/MobilityDB/PyMEOS-Examples/main/"
 download_file(f"{prefix}PyMEOS_Examples/AIS.ipynb", "src/examples/AIS.ipynb")
-download_file(
-    f"{prefix}PyMEOS_Examples/BerlinMOD.ipynb", "src/examples/BerlinMOD.ipynb"
-)
+download_file(f"{prefix}PyMEOS_Examples/BerlinMOD.ipynb", "src/examples/BerlinMOD.ipynb")

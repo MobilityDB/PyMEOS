@@ -1,21 +1,21 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from pymeos import (
-    TBox,
-    TsTzSet,
-    TsTzSpan,
-    TsTzSpanSet,
-    IntSpan,
     FloatSpan,
-    TIntInst,
-    TIntSeq,
-    TIntSeqSet,
+    IntSpan,
+    TBox,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
+    TIntInst,
+    TIntSeq,
+    TIntSeqSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -258,9 +258,7 @@ class TestTBoxConstructors(TestTBox):
                 "TBOXFLOAT XT([1.5, 2.5),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00))",
             ),
             (
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01,2.5@2019-09-02),[1.5@2019-09-03,1.5@2019-09-05)}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01,2.5@2019-09-02),[1.5@2019-09-03,1.5@2019-09-05)}"),
                 "TBOXFLOAT XT([1.5, 2.5),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00))",
             ),
         ],
@@ -280,17 +278,13 @@ class TestTBoxConstructors(TestTBox):
         assert isinstance(tb, TBox)
         assert str(tb) == expected
 
-    @pytest.mark.parametrize(
-        "tbox", [tbfx, tbt, tbfxt], ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"]
-    )
+    @pytest.mark.parametrize("tbox", [tbfx, tbt, tbfxt], ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"])
     def test_from_as_constructor(self, tbox):
         assert tbox == TBox(str(tbox))
         assert tbox == tbox.from_wkb(tbox.as_wkb())
         assert tbox == tbox.from_hexwkb(tbox.as_hexwkb())
 
-    @pytest.mark.parametrize(
-        "tbox", [tbfx, tbt, tbfxt], ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"]
-    )
+    @pytest.mark.parametrize("tbox", [tbfx, tbt, tbfxt], ids=["TBoxFloat X", "TBox T", "TBoxFloat XT"])
     def test_copy_constructor(self, tbox):
         other = copy(tbox)
         assert tbox == other
@@ -600,18 +594,12 @@ class TestTBoxTransformations(TestTBox):
             (
                 tbfxt,
                 timedelta(hours=2),
-                TBox(
-                    "TBOXFLOAT XT([1, 2],"
-                    "[2019-09-01 02:00:00+00, 2019-09-02 02:00:00+00])"
-                ),
+                TBox("TBOXFLOAT XT([1, 2],[2019-09-01 02:00:00+00, 2019-09-02 02:00:00+00])"),
             ),
             (
                 tbfxt,
                 timedelta(hours=-2),
-                TBox(
-                    "TBOXFLOAT XT([1, 2],"
-                    "[2019-08-31 22:00:00+00, 2019-09-01 22:00:00+00])"
-                ),
+                TBox("TBOXFLOAT XT([1, 2],[2019-08-31 22:00:00+00, 2019-09-01 22:00:00+00])"),
             ),
             (
                 tbixt,
@@ -626,18 +614,12 @@ class TestTBoxTransformations(TestTBox):
             (
                 tbixt,
                 timedelta(hours=2),
-                TBox(
-                    "TBOXINT XT([1, 3),"
-                    "[2019-09-01 02:00:00+00, 2019-09-02 02:00:00+00])"
-                ),
+                TBox("TBOXINT XT([1, 3),[2019-09-01 02:00:00+00, 2019-09-02 02:00:00+00])"),
             ),
             (
                 tbixt,
                 timedelta(hours=-2),
-                TBox(
-                    "TBOXINT XT([1, 3),"
-                    "[2019-08-31 22:00:00+00, 2019-09-01 22:00:00+00])"
-                ),
+                TBox("TBOXINT XT([1, 3),[2019-08-31 22:00:00+00, 2019-09-01 22:00:00+00])"),
             ),
         ],
         ids=[
@@ -679,32 +661,22 @@ class TestTBoxTransformations(TestTBox):
             (
                 tbfxt,
                 timedelta(days=4),
-                TBox(
-                    "TBOXFLOAT XT([1, 2],"
-                    "[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])"
-                ),
+                TBox("TBOXFLOAT XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])"),
             ),
             (
                 tbfxt,
                 timedelta(hours=2),
-                TBox(
-                    "TBOXFLOAT XT([1, 2],"
-                    "[2019-09-01 00:00:00+00, 2019-09-01 02:00:00+00])"
-                ),
+                TBox("TBOXFLOAT XT([1, 2],[2019-09-01 00:00:00+00, 2019-09-01 02:00:00+00])"),
             ),
             (
                 tbixt,
                 timedelta(days=4),
-                TBox(
-                    "TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])"
-                ),
+                TBox("TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-05 00:00:00+00])"),
             ),
             (
                 tbixt,
                 timedelta(hours=2),
-                TBox(
-                    "TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 02:00:00+00])"
-                ),
+                TBox("TBOXINT XT([1, 3),[2019-09-01 00:00:00+00, 2019-09-01 02:00:00+00])"),
             ),
         ],
         ids=[
@@ -805,9 +777,7 @@ class TestTBoxTransformations(TestTBox):
                 TBox("TBOXFLOAT X([1.12,2.12])"),
             ),
             (
-                TBox(
-                    "TBOXFLOAT XT([1.123456789,2.123456789],[2019-09-01, 2019-09-02])"
-                ),
+                TBox("TBOXFLOAT XT([1.123456789,2.123456789],[2019-09-01, 2019-09-02])"),
                 TBox("TBOXFLOAT XT([1.12,2.12],[2019-09-01, 2019-09-02])"),
             ),
             (

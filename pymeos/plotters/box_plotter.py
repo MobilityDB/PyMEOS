@@ -1,8 +1,8 @@
 from matplotlib import pyplot as plt
 
+from ..boxes import STBox, TBox
 from .range_plotter import SpanPlotter
 from .time_plotter import TimePlotter
-from ..boxes import TBox, STBox
 
 
 class BoxPlotter:
@@ -28,13 +28,9 @@ class BoxPlotter:
             :func:`~pymeos.plotters.time_plotter.TimePlotter.plot_tstzspan`
         """
         if not tbox.has_t:
-            return SpanPlotter.plot_span(
-                tbox.to_floatspan(), *args, axes=axes, **kwargs
-            )
+            return SpanPlotter.plot_span(tbox.to_floatspan(), *args, axes=axes, **kwargs)
         if not tbox.has_x:
-            return TimePlotter.plot_tstzspan(
-                tbox.to_tstzspan(), *args, axes=axes, **kwargs
-            )
+            return TimePlotter.plot_tstzspan(tbox.to_tstzspan(), *args, axes=axes, **kwargs)
         return BoxPlotter._plot_box(
             tbox.tmin(),
             tbox.tmax(),
@@ -161,9 +157,7 @@ class BoxPlotter:
         return_array = [plot]
 
         if draw_filling:
-            f = base.fill_between(
-                [xmin, xmax], [ymax, ymax], [ymin, ymin], *args, alpha=0.3, **kwargs
-            )
+            f = base.fill_between([xmin, xmax], [ymax, ymax], [ymin, ymin], *args, alpha=0.3, **kwargs)
             return_array.append(f)
 
         if rotate_xticks:

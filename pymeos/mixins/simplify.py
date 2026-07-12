@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 from datetime import timedelta
-from typing import TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import (
+    temporal_simplify_dp,
+    temporal_simplify_max_dist,
     temporal_simplify_min_dist,
     temporal_simplify_min_tdelta,
     timedelta_to_interval,
-    temporal_simplify_dp,
-    temporal_simplify_max_dist,
 )
+
+if TYPE_CHECKING:
+    from ..temporal import Temporal
 
 Self = TypeVar("Self", bound="Temporal[Any]")
 
@@ -46,9 +51,7 @@ class TSimplifiable:
         delta = timedelta_to_interval(distance)
         return self.__class__(_inner=temporal_simplify_min_tdelta(self._inner, delta))
 
-    def simplify_douglas_peucker(
-        self: Self, distance: float, synchronized: bool = False
-    ) -> Self:
+    def simplify_douglas_peucker(self: Self, distance: float, synchronized: bool = False) -> Self:
         """
         Simplifies a temporal value using the Douglas-Peucker line simplification
         algorithm.
@@ -64,13 +67,9 @@ class TSimplifiable:
         MEOS Functions:
             temporal_simplify_dp
         """
-        return self.__class__(
-            _inner=temporal_simplify_dp(self._inner, distance, synchronized)
-        )
+        return self.__class__(_inner=temporal_simplify_dp(self._inner, distance, synchronized))
 
-    def simplify_max_distance(
-        self: Self, distance: float, synchronized: bool = False
-    ) -> Self:
+    def simplify_max_distance(self: Self, distance: float, synchronized: bool = False) -> Self:
         """
         Simplifies a temporal value using a single-pass Douglas-Peucker line
         simplification algorithm.
@@ -86,6 +85,4 @@ class TSimplifiable:
         MEOS Functions:
             temporal_simplify_max_dist
         """
-        return self.__class__(
-            _inner=temporal_simplify_max_dist(self._inner, distance, synchronized)
-        )
+        return self.__class__(_inner=temporal_simplify_max_dist(self._inner, distance, synchronized))

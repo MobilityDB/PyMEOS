@@ -1,5 +1,5 @@
 import psycopg2
-from psycopg2 import extensions, connect
+from psycopg2 import connect, extensions
 
 from .db_objects import db_objects
 
@@ -49,6 +49,4 @@ class MobilityDB:
         for cl in db_objects:
             cursor.execute(f"SELECT NULL::{cl._mobilitydb_name}")
             oid = cursor.description[0][1]
-            extensions.register_type(
-                extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor)
-            )
+            extensions.register_type(extensions.new_type((oid,), cl._mobilitydb_name, cl.read_from_cursor))

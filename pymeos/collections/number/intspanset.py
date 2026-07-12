@@ -1,35 +1,35 @@
 from __future__ import annotations
 
-from typing import Union, overload, Optional, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, overload
 
 from pymeos_cffi import (
-    intspanset_in,
-    intspanset_out,
-    intspanset_width,
-    intspanset_shift_scale,
     adjacent_spanset_int,
     contains_spanset_int,
-    spanset_eq,
-    int_to_spanset,
-    left_spanset_int,
-    overleft_spanset_int,
-    right_spanset_int,
-    overright_spanset_int,
-    distance_spanset_int,
-    intersection_spanset_int,
-    union_spanset_int,
-    minus_spanset_int,
-    intspanset_to_floatspanset,
     distance_intspanset_intspan,
     distance_intspanset_intspanset,
+    distance_spanset_int,
+    int_to_spanset,
+    intersection_spanset_int,
+    intspanset_in,
+    intspanset_out,
+    intspanset_shift_scale,
+    intspanset_to_floatspanset,
+    intspanset_width,
+    left_spanset_int,
+    minus_spanset_int,
+    overleft_spanset_int,
+    overright_spanset_int,
+    right_spanset_int,
+    spanset_eq,
+    union_spanset_int,
 )
 
 from ..base import SpanSet
 
 if TYPE_CHECKING:
+    from .floatspanset import FloatSpanSet
     from .intset import IntSet
     from .intspan import IntSpan
-    from .floatspanset import FloatSpanSet
 
 
 class IntSpanSet(SpanSet[int]):
@@ -55,9 +55,7 @@ class IntSpanSet(SpanSet[int]):
     _mobilitydb_name = "intspanset"
 
     _parse_function = intspanset_in
-    _parse_value_function = lambda span: (
-        intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
-    )
+    _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
 
     # ------------------------- Output ----------------------------------------
     def __str__(self):
@@ -104,7 +102,7 @@ class IntSpanSet(SpanSet[int]):
 
     # ------------------------- Accessors -------------------------------------
 
-    def width(self, ignore_gaps: Optional[bool] = False) -> float:
+    def width(self, ignore_gaps: bool | None = False) -> float:
         """
         Returns the width of the spanset. By default, i.e., when the second
         argument is False, the function takes into account the gaps within,
@@ -164,7 +162,7 @@ class IntSpanSet(SpanSet[int]):
 
         return IntSpan(_inner=super().span_n(n))
 
-    def spans(self) -> List[IntSpan]:
+    def spans(self) -> list[IntSpan]:
         """
         Returns the list of spans in ``self``.
         Returns:
@@ -212,7 +210,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.shift_scale(None, width)
 
-    def shift_scale(self, delta: Optional[int], width: Optional[int]) -> IntSpanSet:
+    def shift_scale(self, delta: int | None, width: int | None) -> IntSpanSet:
         """
         Return a new ``IntSpanSet`` with the lower and upper bounds shifted by
         ``delta`` and scaled so that the width is ``width``.
@@ -229,14 +227,12 @@ class IntSpanSet(SpanSet[int]):
         """
         d = delta if delta is not None else 0
         w = width if width is not None else 0
-        modified = intspanset_shift_scale(
-            self._inner, d, w, delta is not None, width is not None
-        )
+        modified = intspanset_shift_scale(self._inner, d, w, delta is not None, width is not None)
         return IntSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations --------------------------------
 
-    def is_adjacent(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_adjacent(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is adjacent to ``other``. That is, they share
         a bound but only one of them contains it.
@@ -256,7 +252,7 @@ class IntSpanSet(SpanSet[int]):
         else:
             return super().is_adjacent(other)
 
-    def contains(self, content: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def contains(self, content: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` contains ``content``.
 
@@ -275,7 +271,7 @@ class IntSpanSet(SpanSet[int]):
         else:
             return super().contains(content)
 
-    def is_same(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_same(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` and the bounding tstzspan of ``other`` is the
         same.
@@ -295,7 +291,7 @@ class IntSpanSet(SpanSet[int]):
             return super().is_same(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_left(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is strictly left of ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -314,7 +310,7 @@ class IntSpanSet(SpanSet[int]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_left(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is left ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same value).
@@ -333,7 +329,7 @@ class IntSpanSet(SpanSet[int]):
         else:
             return super().is_over_or_left(other)
 
-    def is_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_right(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is strictly right ``other``. That is, ``self``
         starts after ``other`` ends.
@@ -352,7 +348,7 @@ class IntSpanSet(SpanSet[int]):
         else:
             return super().is_right(other)
 
-    def is_over_or_right(self, other: Union[int, IntSpan, IntSpanSet]) -> bool:
+    def is_over_or_right(self, other: int | IntSpan | IntSpanSet) -> bool:
         """
         Returns whether ``self`` is right ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same value).
@@ -373,7 +369,7 @@ class IntSpanSet(SpanSet[int]):
             return super().is_over_or_right(other)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[int, IntSet, IntSpan, IntSpanSet]) -> int:
+    def distance(self, other: int | IntSet | IntSpan | IntSpanSet) -> int:
         """
         Returns the distance between ``self`` and ``other``.
 
@@ -403,13 +399,13 @@ class IntSpanSet(SpanSet[int]):
 
     # ------------------------- Set Operations --------------------------------
     @overload
-    def intersection(self, other: int) -> Optional[int]: ...
+    def intersection(self, other: int) -> int | None: ...
 
     @overload
-    def intersection(self, other: IntSpan) -> Optional[IntSpanSet]: ...
+    def intersection(self, other: IntSpan) -> IntSpanSet | None: ...
 
     @overload
-    def intersection(self, other: IntSpanSet) -> Optional[IntSpanSet]: ...
+    def intersection(self, other: IntSpanSet) -> IntSpanSet | None: ...
 
     def intersection(self, other):
         """
@@ -448,7 +444,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.intersection(other)
 
-    def minus(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def minus(self, other: int | IntSpan | IntSpanSet) -> IntSpanSet:
         """
         Returns the difference of ``self`` and ``other``.
 
@@ -483,7 +479,7 @@ class IntSpanSet(SpanSet[int]):
         """
         return self.minus(other)
 
-    def union(self, other: Union[int, IntSpan, IntSpanSet]) -> IntSpanSet:
+    def union(self, other: int | IntSpan | IntSpanSet) -> IntSpanSet:
         """
         Returns the union of ``self`` and ``other``.
 
