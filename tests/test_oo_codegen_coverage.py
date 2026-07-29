@@ -150,5 +150,38 @@ class BackingValidity(unittest.TestCase):
         )
 
 
+class OoDispatchConsumer(unittest.TestCase):
+    """RFC #94 §5: the oo.dispatch consumer reproduces the A/B-proven
+    FAMILY_MODEL path BYTE-IDENTICALLY for every modelled family, so
+    geo/temporal plug into the same proven consumer via MEOS-API metadata."""
+
+    def test_roundtrip_byte_identical(self):
+        idl = _idl()
+        fams, _ = cg.collect(idl)
+        for fam in sorted(cg.FAMILY_MODEL):
+            direct = cg.emit_faithful_mixin(fam, fams[fam])
+            viacat = cg.emit_from_oo_dispatch(
+                fam, cg._serialize_family_dispatch(fam, fams[fam])
+            )
+            self.assertEqual(
+                direct,
+                viacat,
+                f"{fam}: oo.dispatch consumer diverges from proven path",
+            )
+
+    def test_extended_dispatch_matches_oracle(self):
+        """RFC #94 §7 keystone: geo + the 4 temporal concretes are not
+        derivable via FAMILY_MODEL, so they are driven by the verbatim
+        objectModel.dispatch metadata (MEOS-API #10). Prove the consumer
+        fed that metadata reproduces the hand-written oracle's dispatch
+        behaviour exactly -- the A/B gate that closes codegen to 6/6."""
+        ok, report, checked, miss = cg.verify_oo_dispatch_extended()
+        self.assertGreaterEqual(checked, 32, "expected >=32 editorial methods proven")
+        self.assertTrue(
+            ok,
+            f"{miss} extended-dispatch divergence(s):\n" + "\n".join(report),
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

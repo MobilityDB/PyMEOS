@@ -7,11 +7,16 @@ from pymeos_cffi import *
 
 from ..collections import *
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ._generated.tbool_methods import TBoolDispatchMixin
 
 Self = TypeVar("Self", bound="TBool")
 
 
-class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC):
+class TBool(
+    TBoolDispatchMixin,
+    Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"],
+    ABC,
+):
     """
     Base class for temporal boolean.
     """
@@ -226,89 +231,7 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
         return not self.ever_eq(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[bool, TBool]) -> TBool:
-        """
-        Returns the temporal equality relation between `self` and `other`.
-
-        Args:
-            other: A temporal or boolean object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
-
-        MEOS Functions:
-            teq_tbool_tbool, teq_temporal_temporal
-        """
-        if isinstance(other, bool):
-            result = teq_tbool_bool(self._inner, other)
-        else:
-            return super().temporal_equal(other)
-        return Temporal._factory(result)
-
-    def temporal_not_equal(self, other: Union[bool, TBool]) -> TBool:
-        """
-        Returns the temporal inequality relation between `self` and `other`.
-
-        Args:
-            other: A temporal or boolean object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal inequality relation.
-
-        MEOS Functions:
-            tne_tbool_tbool, tne_temporal_temporal
-        """
-        if isinstance(other, bool):
-            result = tne_tbool_bool(self._inner, other)
-        else:
-            return super().temporal_not_equal(other)
-        return Temporal._factory(result)
-
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[bool, Time]) -> TBool:
-        """
-        Returns a new temporal boolean with the values of `self` restricted to
-        the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to.
-
-        Returns:
-            A new temporal boolean.
-
-        MEOS Functions:
-            tbool_at_value, temporal_at_timestamp, temporal_at_tstzset,
-            temporal_at_tstzspan, temporal_at_tstzspanset
-        """
-        if isinstance(other, bool):
-            result = tbool_at_value(self._inner, other)
-        else:
-            return super().at(other)
-        return Temporal._factory(result)
-
-    def minus(self, other: Union[bool, Time]) -> TBool:
-        """
-        Returns a new temporal boolean with the values of `self` restricted to
-        the complement of the time or value
-        `other`.
-
-        Args:
-            other: Time or value to restrict to the complement of.
-
-        Returns:
-            A new temporal boolean.
-
-        MEOS Functions:
-            tbool_minus_value, temporal_minus_timestamp,
-            temporal_minus_tstzset, temporal_minus_tstzspan,
-            temporal_minus_tstzspanset
-        """
-        if isinstance(other, bool):
-            result = tbool_minus_value(self._inner, other)
-        else:
-            return super().minus(other)
-        return Temporal._factory(result)
-
     # ------------------------- Boolean Operations ----------------------------
     def temporal_and(self, other: Union[bool, TBool]) -> TBool:
         """

@@ -8,6 +8,7 @@ from pymeos_cffi import *
 from ..collections import *
 from ..mixins import TTemporallyComparable
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ._generated.ttext_methods import TTextDispatchMixin
 
 if TYPE_CHECKING:
     from .tbool import TBool
@@ -17,6 +18,7 @@ Self = TypeVar("Self", bound="TText")
 
 
 class TText(
+    TTextDispatchMixin,
     Temporal[str, "TText", "TTextInst", "TTextSeq", "TTextSeqSet"],
     TTemporallyComparable,
     ABC,
@@ -285,48 +287,6 @@ class TText(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_equal(self, value: Union[str, TText]) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_eq_ttext_text, always_eq_temporal_temporal
-        """
-        if isinstance(value, str):
-            return always_eq_ttext_text(self._inner, value) > 0
-        elif isinstance(value, TText):
-            return always_eq_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def always_not_equal(self, value: Union[str, TText]) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_ne_ttext_text, always_ne_temporal_temporal
-        """
-        if isinstance(value, str):
-            return always_ne_ttext_text(self._inner, value) > 0
-        elif isinstance(value, TText):
-            return always_ne_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
     def always_greater_or_equal(self, value: Union[str, TText]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
@@ -410,48 +370,6 @@ class TText(
             return ever_le_ttext_text(self._inner, value) > 0
         elif isinstance(value, TText):
             return ever_le_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_equal(self, value: Union[str, TText]) -> bool:
-        """
-        Returns whether the values of `self` are ever equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are ever equal to `value`, `False`
-            otherwise.
-
-        MEOS Functions:
-            ever_eq_ttext_text, ever_eq_temporal_temporal
-        """
-        if isinstance(value, str):
-            return ever_eq_ttext_text(self._inner, value) > 0
-        elif isinstance(value, TText):
-            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_not_equal(self, value: Union[str, TText]) -> bool:
-        """
-        Returns whether the values of `self` are ever not equal to `value`.
-
-        Args:
-            value: String value to compare.
-
-        Returns:
-            `True` if the values of `self` are ever not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ever_ne_ttext_text, ever_ne_temporal_temporal
-        """
-        if isinstance(value, str):
-            return ever_ne_ttext_text(self._inner, value) > 0
-        elif isinstance(value, TText):
-            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
@@ -597,44 +515,6 @@ class TText(
         return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[str, TText]) -> TBool:
-        """
-        Returns the temporal equality relation between `self` and `other`.
-
-        Args:
-            other: A string or temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
-
-        MEOS Functions:
-            teq_ttext_text, teq_temporal_temporal
-        """
-        if isinstance(other, str):
-            result = teq_ttext_text(self._inner, other)
-        else:
-            return super().temporal_equal(other)
-        return Temporal._factory(result)
-
-    def temporal_not_equal(self, other: Union[str, TText]) -> TBool:
-        """
-        Returns the temporal not equal relation between `self` and `other`.
-
-        Args:
-            other: A string or temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal not equal relation.
-
-        MEOS Functions:
-            tne_ttext_text, tne_temporal_temporal
-        """
-        if isinstance(other, str):
-            result = tne_ttext_text(self._inner, other)
-        else:
-            return super().temporal_not_equal(other)
-        return Temporal._factory(result)
-
     def temporal_less(self, other: Union[str, TText]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
@@ -716,57 +596,6 @@ class TText(
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(
-        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
-    ) -> TText:
-        """
-        Returns a new temporal string with the values of `self` restricted to
-        the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to.
-
-        Returns:
-            A new temporal string.
-
-        MEOS Functions:
-            ttext_at_value, temporal_at_timestamp, temporal_at_tstzset,
-            temporal_at_tstzspan, temporal_at_tstzspanset
-        """
-        if isinstance(other, str):
-            result = ttext_at_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], str):
-            result = temporal_at_values(self._inner, textset_make(other))
-        else:
-            return super().at(other)
-        return Temporal._factory(result)
-
-    def minus(
-        self, other: Union[str, List[str], datetime, TsTzSet, TsTzSpan, TsTzSpanSet]
-    ) -> TText:
-        """
-        Returns a new temporal string with the values of `self` restricted to
-        the complement of the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to the complement of.
-
-        Returns:
-            A new temporal string.
-
-        MEOS Functions:
-            ttext_minus_value, temporal_minus_timestamp,
-            temporal_minus_tstzset, temporal_minus_tstzspan,
-            temporal_minus_tstzspanset
-        """
-        if isinstance(other, str):
-            result = ttext_minus_value(self._inner, other)
-        elif isinstance(other, list) and isinstance(other[0], str):
-            result = temporal_minus_values(self._inner, textset_make(other))
-        else:
-            return super().minus(other)
-        return Temporal._factory(result)
-
     # ------------------------- Text Operations ------------------------------
     def concatenate(self, other: Union[str, TText], other_before: bool = False):
         """

@@ -46,6 +46,7 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 import re
 import sys
@@ -56,6 +57,14 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 IDL = HERE / "meos-idl.json"
 PREVIEW = HERE / "_preview"
+# RFC #94 §7 / MEOS-API #10 objectModel.dispatch keystone: the verbatim
+# extended dispatch metadata (geo + the 4 temporal concretes, the two
+# families not mechanically derivable from the signature catalog) and the
+# byte-for-byte hand-written oracle it must reproduce. Used by the
+# --verify-oo-dispatch-extended A/B gate (analogue of --verify-oo-
+# roundtrip for the non-derivable families).
+DISPATCH_EXT_FIXTURE = HERE / "_d1-dispatch-extended-fixture.json"
+ORACLE_EXT = HERE / "_oracle_extended_methods.py"
 
 # The six in-scope temporal type families, witnessed on the C function name
 # exactly as PyMEOS PR #87's tools/portable_aliases/generate.py does (kept
@@ -681,6 +690,489 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
     return "".join(out)
 
 
+# --- RFC #94 oo.dispatch consumer (Path B, PyMEOS side) -----------------
+#
+# Once MEOS-API enriches meta/meos-meta.json with the per-OO-member
+# `oo.<family>.<member>.dispatch` blocks (RFC tools/oo_codegen/
+# RFC-dispatch-metadata.md §3), this consumer emits the geo/temporal mixins
+# from that CANONICAL catalog -- equivalence by construction at the catalog
+# level, identical mechanism to the 4 FAMILY_MODEL-derived families.
+#
+# It is proven correct WITHOUT waiting for that metadata: serialising the 4
+# already-A/B-proven families (cbuffer/pose/npoint/rgeo) into the RFC
+# schema and feeding them back through this consumer reproduces their
+# committed mixins BYTE-IDENTICALLY (the --verify-oo-roundtrip gate). The
+# parallel MEOS-API session's geo/temporal blocks then plug into the same
+# proven consumer.
+
+# argTransform vocabulary -> PyMEOS idiom on `$o` (RFC §3 closed set).
+_PYMEOS_ARGT = {
+    "innerPtr": "$o._inner",
+    "geoToGserialized": "geo_to_gserialized($o, {geodetic})",
+    "geometryToGserialized": "geometry_to_gserialized($o)",
+    "stboxToGeo": "stbox_to_geo($o._inner)",
+    "scalarCast": "{cast}($o)",  # {cast} resolved per concrete base
+    "scalarValue": "$o",
+    "textsetMake": "textset_make($o)",
+}
+# RFC §7 `scalarType` -> the exact isinstance test for a py:"scalar" entry.
+_SCALAR_ISINSTANCE = {
+    "float": "float",
+    "int": "int",
+    "bool": "bool",
+    "str": "str",
+    "int|float": "(int, float)",
+}
+# Inverse, for serialising FAMILY_MODEL idioms back to the vocabulary so the
+# round-trip exercises the real vocab->idiom path.
+_ARGT_OF_IDIOM = {
+    "$o._inner": ("innerPtr", False),
+    "geo_to_gserialized($o, False)": ("geoToGserialized", False),
+    "geo_to_gserialized($o, isinstance(self, TGeogPoint))": (
+        "geoToGserialized",
+        True,
+    ),
+    "geometry_to_gserialized($o)": ("geometryToGserialized", False),
+    "stbox_to_geo($o._inner)": ("stboxToGeo", False),
+    "float($o)": ("scalarCast", False),
+    "$o": ("scalarValue", False),
+}
+
+
+def _serialize_family_dispatch(family: str, methods: dict) -> dict:
+    """Express a FAMILY_MODEL family's resolved dispatch as the RFC #94 §3
+    `oo.<family>` schema (abstract argTransform vocabulary).  This is the
+    canonical form the MEOS-API catalog will carry; here it is derived from
+    the proven path so the consumer can be round-trip-validated."""
+    model = FAMILY_MODEL[family]
+    tokens, ttok = model["tokens"], model["temporal_token"]
+    faithful = {oo: _faithful_overloads(oo, m, ttok) for oo, m in methods.items()}
+    oo_blocks: dict = {}
+    for oo_name in sorted(methods):
+        m, ov = methods[oo_name], faithful[oo_name]
+        if not ov:
+            continue
+        disp = []
+        for tok in (t for t in _ORDER if t in ov):
+            cfn = ov[tok]
+            pytype, argexpr = tokens[tok]
+            argt, geo_self = _ARGT_OF_IDIOM[argexpr]
+            entry = {"py": pytype, "fn": cfn, "argTransform": argt}
+            if geo_self:
+                entry["geodeticFromSelf"] = True
+            if (
+                oo_name in ("at", "minus")
+                and tok == "stbox"
+                and len(m.params.get(cfn, [])) == 3
+            ):
+                entry["extraArgs"] = ["True"]
+            disp.append(entry)
+        block = {
+            "dispatch": disp,
+            "fallback": "super" if oo_name in _SUPER_FALLBACK else "raise",
+            "result": (
+                "bool_gt0"
+                if oo_name in _BOOL_GT0
+                else (
+                    "bool_eq1"
+                    if oo_name in _BOOL_EQ1
+                    else (
+                        "scalar"
+                        if oo_name in _RAW
+                        else "shapely" if oo_name in _SHAPELY else "temporal"
+                    )
+                )
+            ),
+            "meosFns": sorted(set(m.c_names)),
+        }
+        if oo_name in _WITHIN_DISTANCE:
+            block["extraParam"] = "distance"
+        if oo_name in _SHAPELY and model.get("shortest_line_precision") is not None:
+            block["extraParam"] = f"precision: int = {model['shortest_line_precision']}"
+        oo_blocks[oo_name] = block
+    return oo_blocks
+
+
+# Real D1 (MEOS-API #10) blocks use ABSTRACT py names; map them to the
+# PyMEOS isinstance idiom.  Identity for any name not listed -> the 4-family
+# round-trip (concrete py names from FAMILY_MODEL) stays byte-identical.
+_DISPATCH_PY = {
+    "Point": "shp.Point",
+    "BaseGeometry": "shpb.BaseGeometry",
+    "GeoSet": "GeoSet",
+    "STBox": "STBox",
+    "TPoint": "TPoint",
+    "IntSet": "IntSet",
+    "IntSpan": "IntSpan",
+    "IntSpanSet": "IntSpanSet",
+    "FloatSet": "FloatSet",
+    "FloatSpan": "FloatSpan",
+    "FloatSpanSet": "FloatSpanSet",
+}
+_JSON_BOOL = {"true": "True", "false": "False"}
+# Header/import binding for families that exist only via objectModel.dispatch
+# (no FAMILY_MODEL).  Geo's mixin folds into TPoint (TGeomPoint/TGeogPoint
+# disambiguated at runtime by geodeticFromSelf).
+_DISPATCH_BINDING = {
+    "geo": {
+        "mixin_class": "TPointDispatchMixin",
+        "temporal_class": "TPoint",
+        "base_import": (
+            "import shapely.geometry as shp\n"
+            "import shapely.geometry.base as shpb\n"
+            "from ...collections import GeoSet"
+        ),
+        "temporal_import": "from ..tpoint import TPoint, TGeogPoint",
+        "stbox_lazy": "from ...boxes import STBox",
+    },
+}
+# Temporal scalar concrete types (per-concrete contract). `cast` resolves
+# scalarCast (`float()`/`int()` per the verbatim oracle; None where the
+# oracle passes the scalar uncast).
+for _tt, _cls, _base, _cast, _coll in (
+    ("tfloat", "TFloat", "float", "float", "IntSet, IntSpan, IntSpanSet"),
+    ("tint", "TInt", "int", "int", "FloatSet, FloatSpan, FloatSpanSet"),
+    ("tbool", "TBool", "bool", None, ""),
+    ("ttext", "TText", "str", None, ""),
+):
+    # Self temporal type is imported ONLY under TYPE_CHECKING (header) and
+    # lazily inside each method (emit_from_oo_dispatch), mirroring the proven
+    # FAMILY_MODEL template; a top-level self-import here would create an
+    # import cycle once the mixin is wired into the class module.
+    _imp = f"from ...collections import {_coll}" if _coll else ""
+    _DISPATCH_BINDING[_tt] = {
+        "mixin_class": f"{_cls}DispatchMixin",
+        "temporal_class": _cls,
+        "base_import": _imp,
+        "temporal_import": f"from ..{_tt} import {_cls}",
+        "stbox_lazy": "",  # temporal has no STBox branch
+        "cast": _cast,
+    }
+
+
+def emit_from_oo_dispatch(family: str, oo_blocks: dict) -> str:
+    """THE consumer: emit a faithful mixin from RFC #94 §3 / D1
+    `objectModel.dispatch.<family>` blocks (the canonical MEOS-API catalog
+    form).  Byte-identical to emit_faithful_mixin for the 4 proven families
+    (round-trip gate); also consumes the real abstract-`py` D1 blocks."""
+    model = FAMILY_MODEL.get(family) or _DISPATCH_BINDING[family]
+    out = [
+        _MIXIN_HEADER.format(
+            family=family,
+            mixin_class=model["mixin_class"],
+            temporal_class=model["temporal_class"],
+            base_import=model["base_import"],
+            temporal_import=model["temporal_import"],
+        )
+    ]
+    selfcls = model["temporal_class"]
+    for oo_name in sorted(oo_blocks):
+        blk = oo_blocks[oo_name]
+        disp = blk["dispatch"]
+        ep = blk.get("extraParam")
+        if ep == "distance":
+            sig = "self, other, distance"
+        elif ep:
+            sig = f"self, other, {ep}"
+        else:
+            sig = "self, other"
+        body: list[str] = []
+        if any(e["py"] in ("self", selfcls) for e in disp) or any(
+            e.get("geodeticFromSelf") for e in disp
+        ):
+            body.append(f"        {model['temporal_import']}\n")
+        if any(e["py"] == "STBox" for e in disp):
+            body.append(f"        {model['stbox_lazy']}\n")
+        cast = model.get("cast") or "float"
+        for i, e in enumerate(disp):
+            kw = "if" if i == 0 else "elif"
+            py = e["py"]
+            if py == "scalar":
+                cond = f"isinstance(other, {_SCALAR_ISINSTANCE[e['scalarType']]})"
+            elif py == "self":
+                cond = f"isinstance(other, {selfcls})"
+            elif py == "list[str]":
+                cond = "isinstance(other, list) and isinstance(other[0], str)"
+            else:
+                cond = f"isinstance(other, {_DISPATCH_PY.get(py, py)})"
+            if e.get("via") == "super":  # type-coercion entry, no fn
+                body.append(
+                    f"        {kw} {cond}:\n"
+                    f"            return super().{oo_name}"
+                    f"(other.{e['coerce']}())\n"
+                )
+                continue
+            idiom = _PYMEOS_ARGT[e.get("argTransform", "innerPtr")]
+            geod = (
+                "isinstance(self, TGeogPoint)" if e.get("geodeticFromSelf") else "False"
+            )
+            argexpr = (
+                idiom.replace("{geodetic}", geod)
+                .replace("{cast}", cast)
+                .replace("$o", "other")
+            )
+            call_args = ["self._inner", argexpr]
+            if ep == "distance":
+                call_args.append("distance")
+            for x in e.get("extraArgs", []):
+                call_args.append(_JSON_BOOL.get(x, x))
+            body.append(
+                f"        {kw} {cond}:\n"
+                f"            result = {e['fn']}({', '.join(call_args)})\n"
+            )
+        if blk["fallback"] == "super":
+            body.append(
+                f"        else:\n" f"            return super().{oo_name}(other)\n"
+            )
+        else:
+            body.append(
+                "        else:\n"
+                "            raise TypeError(\n"
+                '                f"Operation not supported with type "\n'
+                '                f"{other.__class__}"\n'
+                "            )\n"
+            )
+        rk = blk["result"]
+        body.append(
+            "        return result > 0\n"
+            if rk == "bool_gt0"
+            else (
+                "        return result == 1\n"
+                if rk == "bool_eq1"
+                else (
+                    "        return result\n"
+                    if rk == "scalar"
+                    else (
+                        "        return gserialized_to_shapely_geometry("
+                        "result, precision)\n"
+                        if rk == "shapely" and ep
+                        else (
+                            "        return gserialized_to_shapely_geometry("
+                            "result, 10)\n"
+                            if rk == "shapely"
+                            else "        return Temporal._factory(result)\n"
+                        )
+                    )
+                )
+            )
+        )
+        # Real D1 blocks carry only {dispatch,fallback,result}; derive the
+        # docstring fn list from the dispatch when meosFns is absent (the
+        # round-trip serialisation supplies meosFns -> byte-identical).
+        meos_fns = blk.get("meosFns") or sorted({e["fn"] for e in disp if "fn" in e})
+        out.append(
+            f"\n    def {oo_name}({sig}):\n"
+            f'        """Generated regular ``{oo_name}``.\n\n'
+            f"        MEOS Functions:\n"
+            f"            {', '.join(meos_fns)}\n"
+            f'        """\n' + "".join(body)
+        )
+    return "".join(out)
+
+
+# --- RFC #94 §7 keystone: A/B proof for the non-derivable families ------
+#
+# geo and temporal cannot be reproduced from the signature catalog via a
+# FAMILY_MODEL (RFC #94 §1), so --verify-oo-roundtrip cannot guard them.
+# Instead they are driven by the verbatim objectModel.dispatch metadata
+# (MEOS-API #10) and proven equivalent to the hand-written oracle by
+# *dispatch-skeleton* equality: each editorial method reduces to an
+# ordered list of (isinstance type-set, normalized action) branches plus
+# a terminal result wrap; the generated method and the oracle method must
+# reduce to the identical skeleton. Variable spellings (``value`` vs
+# ``other``), temp bindings (``gs = f(...); g(gs)`` vs inlined ``g(f(...))``)
+# and ``isinstance(x,A) or isinstance(x,B)`` vs ``isinstance(x,(A,B))`` are
+# normalized away -- only behaviour is compared.
+
+
+def _ab_norm_expr(node: ast.AST, param: str) -> str:
+    class _R(ast.NodeTransformer):
+        def visit_Name(self, n):  # noqa: N802
+            new = "$o" if n.id == param else n.id
+            return ast.copy_location(ast.Name(id=new, ctx=n.ctx), n)
+
+    return ast.unparse(_R().visit(ast.fix_missing_locations(node)))
+
+
+def _ab_isinstance(test: ast.AST, param: str):
+    """(frozenset of type-leaf names, sorted extra-guard tuple)."""
+    types, extra = set(), []
+
+    def walk(n):
+        if isinstance(n, ast.BoolOp):  # flatten `or` / `and` chains
+            for v in n.values:
+                walk(v)
+            return
+        if isinstance(n, ast.Call) and getattr(n.func, "id", None) == "isinstance":
+            tgt = n.args[0]
+            if isinstance(tgt, ast.Subscript):  # e.g. isinstance(other[0], str)
+                extra.append("idx0:" + _ab_norm_expr(n.args[1], param))
+                return
+            a = n.args[1]
+            if isinstance(a, ast.Tuple):
+                for el in a.elts:
+                    types.add(ast.unparse(el))
+            else:
+                types.add(ast.unparse(a))
+
+    walk(test)
+    return frozenset(types), tuple(sorted(extra))
+
+
+def _ab_inline_temps(stmts):
+    out, subst = [], {}
+    for s in stmts:
+        if (
+            isinstance(s, ast.Assign)
+            and len(s.targets) == 1
+            and isinstance(s.targets[0], ast.Name)
+            and s.targets[0].id != "result"
+        ):
+            subst[s.targets[0].id] = s.value
+            continue
+
+        class _R(ast.NodeTransformer):
+            def visit_Name(self, n):  # noqa: N802
+                return subst.get(n.id, n) if n.id in subst else n
+
+        out.append(_R().visit(s))
+    return out
+
+
+def _ab_action(stmts, param):
+    stmts = _ab_inline_temps(stmts)
+    for st in stmts:
+        if (
+            isinstance(st, ast.Assign)
+            and isinstance(st.targets[0], ast.Name)
+            and st.targets[0].id == "result"
+            and isinstance(st.value, ast.Call)
+        ):
+            c = st.value
+            return ("call", c.func.id, tuple(_ab_norm_expr(a, param) for a in c.args))
+    s = stmts[-1] if stmts else None
+    if isinstance(s, ast.Return):
+        v = s.value
+        if v is None:
+            return ("return_none",)
+        if (
+            isinstance(v, ast.Call)
+            and isinstance(v.func, ast.Attribute)
+            and isinstance(v.func.value, ast.Call)
+            and getattr(v.func.value.func, "id", None) == "super"
+        ):
+            return (
+                "super",
+                v.func.attr,
+                _ab_norm_expr(v.args[0], param) if v.args else None,
+            )
+        if isinstance(v, ast.Compare):  # return f(...) > 0
+            return (
+                "call_cmp",
+                v.left.func.id,
+                tuple(_ab_norm_expr(a, param) for a in v.left.args),
+                ast.unparse(v.ops[0]),
+                ast.unparse(v.comparators[0]),
+            )
+        if isinstance(v, ast.Call):  # return f(...)  (bare scalar)
+            return (
+                "call_ret",
+                v.func.id,
+                tuple(_ab_norm_expr(a, param) for a in v.args),
+            )
+    if isinstance(s, ast.Raise):
+        return (
+            "raise",
+            s.exc.func.id if isinstance(s.exc, ast.Call) else ast.unparse(s.exc),
+        )
+    return ("?", ast.dump(s) if s else None)
+
+
+def _ab_skeleton(fn: ast.FunctionDef):
+    param = fn.args.args[1].arg if len(fn.args.args) > 1 else "other"
+    body = [
+        s
+        for s in fn.body
+        if not (isinstance(s, ast.Expr) and isinstance(s.value, ast.Constant))
+        and not isinstance(s, (ast.Import, ast.ImportFrom))
+    ]
+    branches, terminal = [], None
+    node = body[0] if body else None
+    while isinstance(node, ast.If):
+        branches.append(
+            (*_ab_isinstance(node.test, param), _ab_action(node.body, param))
+        )
+        if node.orelse and len(node.orelse) == 1 and isinstance(node.orelse[0], ast.If):
+            node = node.orelse[0]
+        else:
+            if node.orelse:
+                branches.append(((), (), _ab_action(node.orelse, param)))
+            break
+    tail = [s for s in body if not isinstance(s, ast.If)]
+    if tail and isinstance(tail[-1], ast.Return):
+        v = tail[-1].value
+        if isinstance(v, ast.Call):
+            terminal = ("wrap", ast.unparse(v.func))
+        elif isinstance(v, ast.Compare):
+            terminal = ("cmp", ast.unparse(v.ops[0]), ast.unparse(v.comparators[0]))
+        elif isinstance(v, ast.Name):
+            terminal = ("bare",)
+    norm = []
+    for ts, ex, act in branches:
+        if act[0] == "call_cmp":
+            norm.append((ts, ex, ("call", act[1], act[2])))
+            terminal = terminal or ("cmp", act[3], act[4])
+        elif act[0] == "call_ret":
+            norm.append((ts, ex, ("call", act[1], act[2])))
+            terminal = terminal or ("bare",)
+        else:
+            norm.append((ts, ex, act))
+    return tuple(norm), terminal
+
+
+# editorial members per family (the methods carrying non-derivable
+# dispatch); geo's family-key for --mixin-from-dispatch is "geo", its
+# oracle class is _Oracle_tpoint.
+_AB_FAMILIES = {
+    "tfloat": "tfloat",
+    "tint": "tint",
+    "tbool": "tbool",
+    "ttext": "ttext",
+    "geo": "tpoint",
+}
+
+
+def verify_oo_dispatch_extended():
+    """Prove the metadata-driven consumer reproduces the verbatim oracle's
+    dispatch behaviour for geo + the 4 temporal concretes. Returns
+    ``(ok, report_lines, checked, mismatches)``."""
+    idl = json.loads(DISPATCH_EXT_FIXTURE.read_text())
+    disp = idl["objectModel"]["dispatch"]
+    oracle_mod = ast.parse(ORACLE_EXT.read_text())
+    oracle = {}
+    for cls in [n for n in oracle_mod.body if isinstance(n, ast.ClassDef)]:
+        oracle[cls.name] = {
+            f.name: f for f in cls.body if isinstance(f, ast.FunctionDef)
+        }
+    lines, checked, miss = [], 0, 0
+    for fam, ocls in _AB_FAMILIES.items():
+        oo = disp[fam] if fam == "geo" else disp["temporal"][fam]
+        gen = ast.parse(emit_from_oo_dispatch(fam, oo))
+        gmeth = {f.name: f for f in ast.walk(gen) if isinstance(f, ast.FunctionDef)}
+        ometh = oracle[f"_Oracle_{ocls}"]
+        for m in sorted(x for x in gmeth if x in ometh):
+            checked += 1
+            same = _ab_skeleton(ometh[m]) == _ab_skeleton(gmeth[m])
+            miss += not same
+            lines.append(
+                f"  {fam:<6}.{m:<24} " f"{'EQUIVALENT ✓' if same else 'DIVERGES ✗'}"
+            )
+            if not same:
+                lines.append(f"      oracle: {_ab_skeleton(ometh[m])}")
+                lines.append(f"      gen   : {_ab_skeleton(gmeth[m])}")
+    return miss == 0, lines, checked, miss
+
+
 # --- driver -------------------------------------------------------------
 
 
@@ -705,10 +1197,96 @@ def main() -> int:
         metavar="PATH",
         help="destination for --mixin (default: stdout)",
     )
+    ap.add_argument(
+        "--verify-oo-roundtrip",
+        action="store_true",
+        help="prove the RFC #94 oo.dispatch consumer correct: serialise "
+        "each proven FAMILY_MODEL family to the RFC schema and assert the "
+        "consumer reproduces emit_faithful_mixin BYTE-IDENTICALLY",
+    )
+    ap.add_argument(
+        "--mixin-from-dispatch",
+        metavar="FAMILY",
+        help="emit a mixin from an idl carrying oo.<FAMILY> dispatch "
+        "(the canonical MEOS-API path, RFC #94 §5)",
+    )
+    ap.add_argument(
+        "--verify-oo-dispatch-extended",
+        action="store_true",
+        help="prove the RFC #94 §7 keystone: the consumer fed the verbatim "
+        "objectModel.dispatch metadata (MEOS-API #10) reproduces the "
+        "hand-written oracle's dispatch behaviour for geo + the 4 temporal "
+        "concretes (the families not derivable via --verify-oo-roundtrip)",
+    )
     args = ap.parse_args()
 
+    if args.verify_oo_dispatch_extended:
+        ok, report, checked, miss = verify_oo_dispatch_extended()
+        print("\n".join(report))
+        print(
+            f"VERIFY-EXTENDED: {'PASS' if ok else 'FAIL'} - {checked} "
+            f"editorial methods across geo + tfloat/tint/tbool/ttext, "
+            f"{miss} divergence(s); consumer == verbatim oracle by "
+            "dispatch-skeleton equality (RFC #94 §7 keystone, codegen 6/6)"
+        )
+        return 0 if ok else 1
+
     idl = json.loads(Path(args.idl).read_text())
+
+    if args.mixin_from_dispatch:
+        fam = args.mixin_from_dispatch
+        # Real schema home is idl.objectModel.dispatch.<family> (MEOS-API
+        # #10 feat/object-model, parser/object_model.py); RFC #94 §3's
+        # top-level `oo` was illustrative. Fall back to `oo` for older
+        # fixtures. (Handled before collect(): a dispatch-only catalog
+        # need not carry `functions`.)
+        _disp = idl.get("objectModel", {}).get("dispatch", {})
+        # Temporal is per-concrete: dispatch.temporal.{tfloat,tint,tbool,ttext}
+        if fam in ("tfloat", "tint", "tbool", "ttext"):
+            oo = _disp.get("temporal", {}).get(fam)
+        else:
+            oo = _disp.get(fam) or idl.get("oo", {}).get(fam)
+        if not oo:
+            raise SystemExit(
+                f"--mixin-from-dispatch {fam!r}: idl carries no "
+                f"objectModel.dispatch.{fam} (pending the MEOS-API "
+                f"enrichment, RFC #94 / MEOS-API #10)"
+            )
+        src = emit_from_oo_dispatch(fam, oo)
+        if args.mixin_out:
+            Path(args.mixin_out).write_text(src)
+            print(f"[oo-codegen] wrote {fam} mixin from catalog oo.dispatch")
+        else:
+            print(src)
+        return 0
+
     fams, st = collect(idl)
+
+    if args.verify_oo_roundtrip:
+        ok = True
+        for fam in sorted(FAMILY_MODEL):
+            direct = emit_faithful_mixin(fam, fams[fam])
+            viacat = emit_from_oo_dispatch(
+                fam, _serialize_family_dispatch(fam, fams[fam])
+            )
+            same = direct == viacat
+            ok &= same
+            print(
+                f"  {fam:<8} oo.dispatch round-trip "
+                f"{'BYTE-IDENTICAL ✓' if same else 'DIFERS ✗'} "
+                f"({len(direct)}b)"
+            )
+        print(
+            "VERIFY: "
+            + (
+                "PASS - consumer == proven path for all "
+                f"{len(FAMILY_MODEL)} families; geo/temporal plug into the "
+                "same consumer via MEOS-API oo.dispatch"
+                if ok
+                else "FAIL - consumer diverges from the proven path"
+            )
+        )
+        return 0 if ok else 1
 
     if args.mixin:
         if args.mixin not in FAMILY_MODEL:

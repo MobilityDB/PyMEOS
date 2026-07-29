@@ -1,0 +1,571 @@
+{
+ "objectModel": {
+  "dispatch": {
+   "geo": {
+    "at": {
+     "dispatch": [
+      {
+       "py": "Point",
+       "fn": "tpoint_at_value",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "BaseGeometry",
+       "fn": "tpoint_at_geom",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "GeoSet",
+       "fn": "temporal_at_values"
+      },
+      {
+       "py": "STBox",
+       "fn": "tgeo_at_stbox",
+       "extraArgs": [
+        "true"
+       ]
+      }
+     ],
+     "fallback": "super",
+     "result": "temporal"
+    },
+    "distance": {
+     "dispatch": [
+      {
+       "py": "BaseGeometry",
+       "fn": "tdistance_tgeo_geo",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "STBox",
+       "fn": "tdistance_tgeo_geo",
+       "argTransform": "stboxToGeo"
+      },
+      {
+       "py": "TPoint",
+       "fn": "tdistance_tgeo_tgeo"
+      }
+     ],
+     "fallback": "raise",
+     "result": "temporal"
+    },
+    "minus": {
+     "fallback": "super",
+     "result": "temporal",
+     "dispatch": [
+      {
+       "py": "Point",
+       "fn": "tpoint_minus_value",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "BaseGeometry",
+       "fn": "tpoint_minus_geom",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "GeoSet",
+       "fn": "temporal_minus_values"
+      },
+      {
+       "py": "STBox",
+       "fn": "tgeo_minus_stbox",
+       "extraArgs": [
+        "true"
+       ]
+      }
+     ]
+    },
+    "nearest_approach_distance": {
+     "fallback": "raise",
+     "result": "scalar",
+     "dispatch": [
+      {
+       "py": "BaseGeometry",
+       "fn": "nad_tgeo_geo",
+       "argTransform": "geoToGserialized",
+       "geodeticFromSelf": true
+      },
+      {
+       "py": "STBox",
+       "fn": "nad_tgeo_stbox"
+      },
+      {
+       "py": "TPoint",
+       "fn": "nad_tgeo_tgeo"
+      }
+     ]
+    }
+   },
+   "temporal": {
+    "tfloat": {
+     "always_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "float",
+        "fn": "always_eq_tfloat_float",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_eq_temporal_temporal"
+       }
+      ]
+     },
+     "always_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "float",
+        "fn": "always_ne_tfloat_float",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_ne_temporal_temporal"
+       }
+      ]
+     },
+     "at": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "tfloat_at_value",
+        "argTransform": "scalarCast"
+       },
+       {
+        "py": "IntSet",
+        "coerce": "to_floatset",
+        "via": "super"
+       },
+       {
+        "py": "IntSpan",
+        "coerce": "to_floatspan",
+        "via": "super"
+       },
+       {
+        "py": "IntSpanSet",
+        "coerce": "to_floatspanset",
+        "via": "super"
+       }
+      ]
+     },
+     "ever_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "float",
+        "fn": "ever_eq_tfloat_float",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_eq_temporal_temporal"
+       }
+      ]
+     },
+     "ever_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "float",
+        "fn": "ever_ne_tfloat_float",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_ne_temporal_temporal"
+       }
+      ]
+     },
+     "minus": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "tfloat_minus_value",
+        "argTransform": "scalarCast"
+       },
+       {
+        "py": "IntSet",
+        "coerce": "to_floatset",
+        "via": "super"
+       },
+       {
+        "py": "IntSpan",
+        "coerce": "to_floatspan",
+        "via": "super"
+       },
+       {
+        "py": "IntSpanSet",
+        "coerce": "to_floatspanset",
+        "via": "super"
+       }
+      ]
+     },
+     "temporal_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "teq_tfloat_float",
+        "argTransform": "scalarCast"
+       }
+      ]
+     },
+     "temporal_not_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "tne_tfloat_float",
+        "argTransform": "scalarCast"
+       }
+      ]
+     }
+    },
+    "tint": {
+     "always_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "always_eq_tint_int",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_eq_temporal_temporal"
+       }
+      ]
+     },
+     "always_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "always_ne_tint_int",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_ne_temporal_temporal"
+       }
+      ]
+     },
+     "at": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "tint_at_value",
+        "argTransform": "scalarCast"
+       },
+       {
+        "py": "FloatSet",
+        "coerce": "to_intset",
+        "via": "super"
+       },
+       {
+        "py": "FloatSpan",
+        "coerce": "to_intspan",
+        "via": "super"
+       },
+       {
+        "py": "FloatSpanSet",
+        "coerce": "to_intspanset",
+        "via": "super"
+       }
+      ]
+     },
+     "ever_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "ever_eq_tint_int",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_eq_temporal_temporal"
+       }
+      ]
+     },
+     "ever_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "ever_ne_tint_int",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_ne_temporal_temporal"
+       }
+      ]
+     },
+     "minus": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int|float",
+        "fn": "tint_minus_value",
+        "argTransform": "scalarCast"
+       },
+       {
+        "py": "FloatSet",
+        "coerce": "to_intset",
+        "via": "super"
+       },
+       {
+        "py": "FloatSpan",
+        "coerce": "to_intspan",
+        "via": "super"
+       },
+       {
+        "py": "FloatSpanSet",
+        "coerce": "to_intspanset",
+        "via": "super"
+       }
+      ]
+     },
+     "temporal_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "teq_tint_int",
+        "argTransform": "scalarValue"
+       }
+      ]
+     },
+     "temporal_not_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "int",
+        "fn": "tne_tint_int",
+        "argTransform": "scalarValue"
+       }
+      ]
+     }
+    },
+    "tbool": {
+     "at": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "bool",
+        "fn": "tbool_at_value",
+        "argTransform": "scalarValue"
+       }
+      ]
+     },
+     "minus": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "bool",
+        "fn": "tbool_minus_value",
+        "argTransform": "scalarValue"
+       }
+      ]
+     },
+     "temporal_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "bool",
+        "fn": "teq_tbool_bool",
+        "argTransform": "scalarValue"
+       }
+      ]
+     },
+     "temporal_not_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "bool",
+        "fn": "tne_tbool_bool",
+        "argTransform": "scalarValue"
+       }
+      ]
+     }
+    },
+    "ttext": {
+     "always_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "always_eq_ttext_text",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_eq_temporal_temporal"
+       }
+      ]
+     },
+     "always_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "always_ne_ttext_text",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "always_ne_temporal_temporal"
+       }
+      ]
+     },
+     "at": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "ttext_at_value",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "list[str]",
+        "fn": "temporal_at_values",
+        "argTransform": "textsetMake"
+       }
+      ]
+     },
+     "ever_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "ever_eq_ttext_text",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_eq_temporal_temporal"
+       }
+      ]
+     },
+     "ever_not_equal": {
+      "fallback": "raise",
+      "result": "bool_gt0",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "ever_ne_ttext_text",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "self",
+        "fn": "ever_ne_temporal_temporal"
+       }
+      ]
+     },
+     "minus": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "ttext_minus_value",
+        "argTransform": "scalarValue"
+       },
+       {
+        "py": "list[str]",
+        "fn": "temporal_minus_values",
+        "argTransform": "textsetMake"
+       }
+      ]
+     },
+     "temporal_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "teq_ttext_text",
+        "argTransform": "scalarValue"
+       }
+      ]
+     },
+     "temporal_not_equal": {
+      "fallback": "super",
+      "result": "temporal",
+      "dispatch": [
+       {
+        "py": "scalar",
+        "scalarType": "str",
+        "fn": "tne_ttext_text",
+        "argTransform": "scalarValue"
+       }
+      ]
+     }
+    }
+   }
+  }
+ }
+}
