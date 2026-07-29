@@ -820,10 +820,9 @@ _DISPATCH_BINDING = {
         "base_import": (
             "import shapely.geometry as shp\n"
             "import shapely.geometry.base as shpb\n"
-            "from ...collections import GeoSet\n"
-            "from ..tpoint import TPoint, TGeogPoint"
+            "from ...collections import GeoSet"
         ),
-        "temporal_import": "from ..tpoint import TPoint",
+        "temporal_import": "from ..tpoint import TPoint, TGeogPoint",
         "stbox_lazy": "from ...boxes import STBox",
     },
 }
@@ -836,9 +835,11 @@ for _tt, _cls, _base, _cast, _coll in (
     ("tbool", "TBool", "bool", None, ""),
     ("ttext", "TText", "str", None, ""),
 ):
-    _imp = f"from ..{_tt} import {_cls}"
-    if _coll:
-        _imp = f"from ...collections import {_coll}\n" + _imp
+    # Self temporal type is imported ONLY under TYPE_CHECKING (header) and
+    # lazily inside each method (emit_from_oo_dispatch), mirroring the proven
+    # FAMILY_MODEL template; a top-level self-import here would create an
+    # import cycle once the mixin is wired into the class module.
+    _imp = f"from ...collections import {_coll}" if _coll else ""
     _DISPATCH_BINDING[_tt] = {
         "mixin_class": f"{_cls}DispatchMixin",
         "temporal_class": _cls,
@@ -876,7 +877,9 @@ def emit_from_oo_dispatch(family: str, oo_blocks: dict) -> str:
         else:
             sig = "self, other"
         body: list[str] = []
-        if any(e["py"] in ("self", selfcls) for e in disp):
+        if any(e["py"] in ("self", selfcls) for e in disp) or any(
+            e.get("geodeticFromSelf") for e in disp
+        ):
             body.append(f"        {model['temporal_import']}\n")
         if any(e["py"] == "STBox" for e in disp):
             body.append(f"        {model['stbox_lazy']}\n")

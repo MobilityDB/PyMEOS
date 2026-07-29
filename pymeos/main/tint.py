@@ -9,6 +9,7 @@ from .tnumber import TNumber
 from ..collections import *
 from ..mixins import TTemporallyComparable
 from ..temporal import TInterpolation, Temporal, TInstant, TSequence, TSequenceSet
+from ._generated.tint_methods import TIntDispatchMixin
 
 if TYPE_CHECKING:
     from ..boxes import TBox
@@ -20,6 +21,7 @@ Self = TypeVar("Self", bound="TInt")
 
 
 class TInt(
+    TIntDispatchMixin,
     TNumber[int, "TInt", "TIntInst", "TIntSeq", "TIntSeqSet"],
     TTemporallyComparable,
     ABC,
@@ -307,48 +309,6 @@ class TInt(
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
-    def always_equal(self, value: Union[int, TInt]) -> bool:
-        """
-        Returns whether the values of `self` are always equal to `value`.
-
-        Args:
-            value: :class:`int` to compare.
-
-        Returns:
-            `True` if the values of `self` are always equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_eq_tint_int, always_eq_temporal_temporal
-        """
-        if isinstance(value, int):
-            return always_eq_tint_int(self._inner, value) > 0
-        elif isinstance(value, TInt):
-            return always_eq_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def always_not_equal(self, value: Union[int, TInt]) -> bool:
-        """
-        Returns whether the values of `self` are always not equal to `value`.
-
-        Args:
-            value: :class:`int` to compare.
-
-        Returns:
-            `True` if the values of `self` are always not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            always_ne_tint_int, always_ne_temporal_temporal
-        """
-        if isinstance(value, int):
-            return always_ne_tint_int(self._inner, value) > 0
-        elif isinstance(value, TInt):
-            return always_ne_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
     def always_greater_or_equal(self, value: Union[int, TInt]) -> bool:
         """
         Returns whether the values of `self` are always greater than or equal
@@ -432,48 +392,6 @@ class TInt(
             return ever_le_tint_int(self._inner, value) > 0
         elif isinstance(value, TInt):
             return ever_le_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_equal(self, value: Union[int, TInt]) -> bool:
-        """
-        Returns whether the values of `self` are ever equal to `value`.
-
-        Args:
-            value: :class:`int` to compare.
-
-        Returns:
-            `True` if the values of `self` are ever equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ever_eq_tint_int, ever_eq_temporal_temporal
-        """
-        if isinstance(value, int):
-            return ever_eq_tint_int(self._inner, value) > 0
-        elif isinstance(value, TInt):
-            return ever_eq_temporal_temporal(self._inner, value._inner) > 0
-        else:
-            raise TypeError(f"Operation not supported with type {value.__class__}")
-
-    def ever_not_equal(self, value: Union[int, TInt]) -> bool:
-        """
-        Returns whether the values of `self` are ever not equal to `value`.
-
-        Args:
-            value: :class:`int` to compare.
-
-        Returns:
-            `True` if the values of `self` are ever not equal to `value`,
-            `False` otherwise.
-
-        MEOS Functions:
-            ever_ne_tint_int, ever_ne_temporal_temporal
-        """
-        if isinstance(value, int):
-            return ever_ne_tint_int(self._inner, value) > 0
-        elif isinstance(value, TInt):
-            return ever_ne_temporal_temporal(self._inner, value._inner) > 0
         else:
             raise TypeError(f"Operation not supported with type {value.__class__}")
 
@@ -619,44 +537,6 @@ class TInt(
         return not self.ever_greater(value)
 
     # ------------------------- Temporal Comparisons --------------------------
-    def temporal_equal(self, other: Union[int, TInt]) -> TBool:
-        """
-        Returns the temporal equality relation between `self` and `other`.
-
-        Args:
-            other: A :class:`int` or temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal equality relation.
-
-        MEOS Functions:
-            teq_tint_int, teq_temporal_temporal
-        """
-        if isinstance(other, int):
-            result = teq_tint_int(self._inner, other)
-        else:
-            return super().temporal_equal(other)
-        return Temporal._factory(result)
-
-    def temporal_not_equal(self, other: Union[int, TInt]) -> TBool:
-        """
-        Returns the temporal not equal relation between `self` and `other`.
-
-        Args:
-            other: A :class:`int` or temporal object to compare to `self`.
-
-        Returns:
-            A :class:`TBool` with the result of the temporal not equal relation.
-
-        MEOS Functions:
-            tne_tint_int, tne_temporal_temporal
-        """
-        if isinstance(other, int):
-            result = tne_tint_int(self._inner, other)
-        else:
-            return super().temporal_not_equal(other)
-        return Temporal._factory(result)
-
     def temporal_less(self, other: Union[int, TInt]) -> TBool:
         """
         Returns the temporal less than relation between `self` and `other`.
@@ -737,90 +617,6 @@ class TInt(
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(
-        self,
-        other: Union[
-            int,
-            float,
-            IntSet,
-            FloatSet,
-            IntSpan,
-            FloatSpan,
-            IntSpanSet,
-            FloatSpanSet,
-            TBox,
-            Time,
-        ],
-    ) -> TInt:
-        """
-        Returns a new temporal int with th  e values of `self` restricted to
-        the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to.
-
-        Returns:
-            A new temporal int.
-
-        MEOS Functions:
-            tint_at_value, temporal_at_values, tnumber_at_span, tnumber_at_spanset,
-            temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan,
-            temporal_at_tstzspanset
-        """
-        if isinstance(other, int) or isinstance(other, float):
-            result = tint_at_value(self._inner, int(other))
-        elif isinstance(other, FloatSet):
-            return super().at(other.to_intset())
-        elif isinstance(other, FloatSpan):
-            return super().at(other.to_intspan())
-        elif isinstance(other, FloatSpanSet):
-            return super().at(other.to_intspanset())
-        else:
-            return super().at(other)
-        return Temporal._factory(result)
-
-    def minus(
-        self,
-        other: Union[
-            int,
-            float,
-            IntSet,
-            FloatSet,
-            IntSpan,
-            FloatSpan,
-            IntSpanSet,
-            FloatSpanSet,
-            TBox,
-            Time,
-        ],
-    ) -> TInt:
-        """
-        Returns a new temporal int with the values of `self` restricted to the
-        complement of the time or value `other`.
-
-        Args:
-            other: Time or value to restrict to the complement of.
-
-        Returns:
-            A new temporal int.
-
-        MEOS Functions:
-            tint_minus_value, temporal_minus_values, tnumber_minus_span, tnumber_minus_spanset,
-            temporal_minus_timestamp, temporal_minus_tstzset,
-            temporal_minus_tstzspan, temporal_minus_tstzspanset
-        """
-        if isinstance(other, int) or isinstance(other, float):
-            result = tint_minus_value(self._inner, int(other))
-        elif isinstance(other, FloatSet):
-            return super().minus(other.to_intset())
-        elif isinstance(other, FloatSpan):
-            return super().minus(other.to_intspan())
-        elif isinstance(other, FloatSpanSet):
-            return super().minus(other.to_intspanset())
-        else:
-            return super().minus(other)
-        return Temporal._factory(result)
-
     # ------------------------- Distance --------------------------------------
     def nearest_approach_distance(
         self, other: Union[int, float, TNumber, TBox]

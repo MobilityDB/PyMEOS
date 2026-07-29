@@ -22,6 +22,7 @@ from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
 from ..collections import *
 from ..mixins import TSimplifiable
 from ..temporal import Temporal, TInstant, TSequence, TSequenceSet, TInterpolation
+from ._generated.geo_methods import TPointDispatchMixin
 
 if TYPE_CHECKING:
     from ..boxes import STBox, Box
@@ -46,7 +47,12 @@ Self = TypeVar("Self", bound="TPoint")
 TF = TypeVar("TF", bound="TFloat", covariant=True)
 
 
-class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
+class TPoint(
+    TPointDispatchMixin,
+    Temporal[shp.Point, TG, TI, TS, TSS],
+    TSimplifiable,
+    ABC,
+):
     """
     Abstract class for temporal points.
     """
@@ -120,7 +126,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             gserialized_as_geojson
         """
-        return geo_as_geojson(tpoint_trajectory(self._inner, False), option, precision, srs)
+        return geo_as_geojson(
+            tpoint_trajectory(self._inner, False), option, precision, srs
+        )
 
     def to_shapely_geometry(self, precision: int = 15) -> shpb.BaseGeometry:
         """
@@ -505,66 +513,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         return Temporal._factory(result)
 
     # ------------------------- Restrictions ----------------------------------
-    def at(self, other: Union[shpb.BaseGeometry, GeoSet, STBox, Time]) -> TG:
-        """
-        Returns a new temporal object with the values of `self` restricted to `other`.
-
-        Args:
-            other: An object to restrict the values of `self` to.
-
-        Returns:
-            A new :TPoint: with the values of `self` restricted to `other`.
-
-        MEOS Functions:
-            tpoint_at_value, tgeo_at_stbox, temporal_at_values,
-            temporal_at_timestamp, temporal_at_tstzset, temporal_at_tstzspan, temporal_at_tstzspanset
-        """
-        from ..boxes import STBox
-
-        if isinstance(other, shp.Point):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tpoint_at_value(self._inner, gs)
-        elif isinstance(other, shpb.BaseGeometry):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tpoint_at_geom(self._inner, gs)
-        elif isinstance(other, GeoSet):
-            result = temporal_at_values(self._inner, other._inner)
-        elif isinstance(other, STBox):
-            result = tgeo_at_stbox(self._inner, other._inner, True)
-        else:
-            return super().at(other)
-        return Temporal._factory(result)
-
-    def minus(self, other: Union[shpb.BaseGeometry, GeoSet, STBox, Time]) -> TG:
-        """
-        Returns a new temporal object with the values of `self` restricted to the complement of `other`.
-
-        Args:
-            other: An object to restrict the values of `self` to the complement of.
-
-        Returns:
-            A new :TPoint: with the values of `self` restricted to the complement of `other`.
-
-        MEOS Functions:
-            tpoint_minus_value, tgeo_minus_stbox, temporal_minus_values,
-            temporal_minus_timestamp, temporal_minus_tstzset, temporal_minus_tstzspan, temporal_minus_tstzspanset
-        """
-        from ..boxes import STBox
-
-        if isinstance(other, shp.Point):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tpoint_minus_value(self._inner, gs)
-        elif isinstance(other, shpb.BaseGeometry):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tpoint_minus_geom(self._inner, gs)
-        elif isinstance(other, GeoSet):
-            result = temporal_minus_values(self._inner, other._inner)
-        elif isinstance(other, STBox):
-            result = tgeo_minus_stbox(self._inner, other._inner, True)
-        else:
-            return super().minus(other)
-        return Temporal._factory(result)
-
     # ------------------------- Position Operations ---------------------------
     def is_left(self, other: Union[Temporal, Box]) -> bool:
         """
@@ -951,9 +899,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
                 self._inner, stbox_to_geo(other._inner), distance, False, False
             )
         elif isinstance(other, TPoint):
-            result = tdwithin_tgeo_tgeo(
-                self._inner, other._inner, distance
-            )
+            result = tdwithin_tgeo_tgeo(self._inner, other._inner, distance)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -1011,59 +957,6 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         return Temporal._factory(result)
 
     # ------------------------- Distance Operations ---------------------------
-    def distance(self, other: Union[shpb.BaseGeometry, TPoint, STBox]) -> TFloat:
-        """
-        Returns the temporal distance between the temporal point and `other`.
-
-        Args:
-            other: An object to check the distance to.
-
-        Returns:
-            A new :class:`TFloat` indicating the temporal distance between the temporal point and `other`.
-
-        MEOS Functions:
-            tdistance_tgeo_geo, tdistance_tgeo_tgeo
-        """
-        from ..boxes import STBox
-
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdistance_tgeo_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            result = tdistance_tgeo_geo(self._inner, stbox_to_geo(other._inner))
-        elif isinstance(other, TPoint):
-            result = tdistance_tgeo_tgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-        return Temporal._factory(result)
-
-    def nearest_approach_distance(
-        self, other: Union[shpb.BaseGeometry, STBox, TPoint]
-    ) -> float:
-        """
-        Returns the nearest approach distance between the temporal point and `other`.
-
-        Args:
-            other: An object to check the nearest approach distance to.
-
-        Returns:
-            A :class:`float` indicating the nearest approach distance between the temporal point and `other`.
-
-        MEOS Functions:
-            nad_tgeo_geo, nad_tgeo_stbox, nad_tgeo_tgeo
-        """
-        from ..boxes import STBox
-
-        if isinstance(other, shpb.BaseGeometry):
-            gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            return nad_tgeo_geo(self._inner, gs)
-        elif isinstance(other, STBox):
-            return nad_tgeo_stbox(self._inner, other._inner)
-        elif isinstance(other, TPoint):
-            return nad_tgeo_tgeo(self._inner, other._inner)
-        else:
-            raise TypeError(f"Operation not supported with type {other.__class__}")
-
     def nearest_approach_instant(self, other: Union[shpb.BaseGeometry, TPoint]) -> TI:
         """
         Returns the nearest approach instant between the temporal point and `other`.
