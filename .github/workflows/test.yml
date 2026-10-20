@@ -17,44 +17,19 @@ on:
       - ".github/ISSUE_TEMPLATE/**"
 
 jobs:
-  test:
-    name: Test PyMEOS - Python ${{ matrix.python-version }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
-        os: [ ubuntu-latest, macos-15-intel, macos-14 ]
-        include:
-          - ld_prefix: "/usr/local"
-          - os: macos-14
-            ld_prefix: "/opt/homebrew"
-
+  # Derive the MEOS catalog once from the MobilityDB branch the package version
+  # maps to, through the shared provision-meos action. PyMEOS-CFFI projects its
+  # cdef header from this catalog, so every test job builds the same surface.
+  # The catalog parses the headers a libmeos build installs, as PyMEOS-CFFI's
+  # pr_build does, so it declares no internal header the extension cannot include.
+  catalog:
+    name: Derive the MEOS catalog
+    runs-on: ubuntu-latest
+    outputs:
+      meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Get dependencies from apt (cache)
-        uses: awalsh128/cache-apt-pkgs-action@v1.4.3
-        if: runner.os == 'Linux'
-        with:
-          packages: build-essential cmake postgresql-server-dev-16 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
-          version: 1.1
-
-      - name: Get dependencies from homebrew (cache)
-        uses: tecolicom/actions-use-homebrew-tools@v1
-        if: runner.os == 'macOS'
-        with:
-          tools: cmake libpq proj json-c gsl geos
-
-      - name: Update brew
-        if: matrix.os == 'macos-15-intel'
-        # Necessary to avoid issue with macOS runners. See
-        # https://github.com/actions/runner-images/issues/4020
-        run: |
-          brew reinstall python@3.12 || brew link --overwrite python@3.12
-          brew reinstall python@3.11 || brew link --overwrite python@3.11
-          brew update
 
       - name: Derive MEOS branch from package version
         id: meos_branch
@@ -71,16 +46,70 @@ jobs:
           echo "Package version $pymeos_version => MEOS branch $meos_branch"
           echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch MEOS sources
-        run: |
-          git clone --branch ${{ steps.meos_branch.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
+      - name: Provision the MEOS catalog
+        id: provision
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: ${{ steps.meos_branch.outputs.meos_branch }}
+          build-libmeos: "true"
 
-      - name: Install MEOS
+      - name: Upload the catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-idl
+          path: ${{ steps.provision.outputs.catalog-path }}
+
+  test:
+    name: Test PyMEOS - Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    needs: catalog
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
+        os: [ ubuntu-latest, macos-15-intel, macos-14 ]
+        include:
+          - ld_prefix: "/usr/local"
+          - os: macos-14
+            ld_prefix: "/opt/homebrew"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # The CFFI cdef covers every optional MEOS family, so libmeos is built
+      # with all of them: on Linux by the provision-meos action, from the same
+      # MobilityDB branch as the catalog.
+      - name: Build and install the all-families MEOS (Linux)
+        if: runner.os == 'Linux'
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: ${{ needs.catalog.outputs.meos_branch }}
+          build-libmeos: "true"
+
+      - name: Get dependencies from homebrew (cache)
+        uses: tecolicom/actions-use-homebrew-tools@v1
+        if: runner.os == 'macOS'
+        with:
+          tools: cmake libpq proj json-c gsl geos h3 gdal
+
+      - name: Update brew
+        if: matrix.os == 'macos-15-intel'
+        # Necessary to avoid issue with macOS runners. See
+        # https://github.com/actions/runner-images/issues/4020
         run: |
+          brew reinstall python@3.12 || brew link --overwrite python@3.12
+          brew reinstall python@3.11 || brew link --overwrite python@3.11
+          brew update
+
+      - name: Build and install the all-families MEOS (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          git clone --branch ${{ needs.catalog.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
-          cmake .. -DMEOS=on -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
-          make -j
+          cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
+          make -j"$(sysctl -n hw.ncpu)"
           sudo make install
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -96,6 +125,12 @@ jobs:
           git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI \
             || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
 
+      - name: Download the catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: meos-idl
+          path: PyMEOS-CFFI/builder
+
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -103,9 +138,11 @@ jobs:
           pip install -r dev-requirements.txt
 
       - name: Install pymeos_cffi
+        shell: bash
         run: |
           cd PyMEOS-CFFI
-          python ./builder/build_header.py
+          python ./builder/build_header.py builder/meos-idl.json \
+            ${{ matrix.ld_prefix }}/lib/${{ runner.os == 'macOS' && 'libmeos.dylib' || 'libmeos.so' }} builder/meos.h
           python ./builder/build_pymeos_functions.py
           pip install .
 
