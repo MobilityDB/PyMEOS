@@ -29,7 +29,6 @@ ignore = [
     "SIM116", # Don't simplify long if-else chains
     "E501", # Allow long lines for the moment
     "E731", # Allow assigning lambda expressions
-    "UP038", # Alow instance checks with tuples instead of unions
 ]
 [lint.per-file-ignores]
 "docs/conf.py" = ["E402"]

@@ -59,15 +59,21 @@ from pymeos import pymeos_initialize, pymeos_finalize, TGeogPointInst, TGeogPoin
 pymeos_initialize()
 
 sequence_from_string = TGeogPointSeq(
-    string='[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]')
-print(f'Output: {sequence_from_string}')
+    string="[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]"
+)
+print(f"Output: {sequence_from_string}")
 
-sequence_from_points = TGeogPointSeq(instant_list=[TGeogPointInst(string='Point(10.0 10.0)@2019-09-01 00:00:00+01'),
-                                                   TGeogPointInst(string='Point(20.0 20.0)@2019-09-02 00:00:00+01'),
-                                                   TGeogPointInst(string='Point(10.0 10.0)@2019-09-03 00:00:00+01')],
-                                     lower_inc=True, upper_inc=True)
+sequence_from_points = TGeogPointSeq(
+    instant_list=[
+        TGeogPointInst(string="Point(10.0 10.0)@2019-09-01 00:00:00+01"),
+        TGeogPointInst(string="Point(20.0 20.0)@2019-09-02 00:00:00+01"),
+        TGeogPointInst(string="Point(10.0 10.0)@2019-09-03 00:00:00+01"),
+    ],
+    lower_inc=True,
+    upper_inc=True,
+)
 speed = sequence_from_points.speed()
-print(f'Speeds: {speed}')
+print(f"Speeds: {speed}")
 
 # Call finish at the end of your code
 pymeos_finalize()
