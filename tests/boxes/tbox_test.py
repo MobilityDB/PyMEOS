@@ -1123,3 +1123,15 @@ class TestTBoxComparisons(TestTBox):
 
     def test_ge(self):
         _ = self.tbfxt >= self.other
+
+
+class TestTBoxTiling(TestTBox):
+    # Mirrors #test_value_time_split of the temporal split tests, on the value-time tiles
+    def test_tile(self):
+        box = TBox("TBOXFLOAT XT([0, 33.35670867892772],[2020-06-01 08:00:15.533+02, 2020-06-06 01:53:54.08198+02])")
+        tiles = box.tile(10, "1 day", 0.0, "2020-06-01 00:00:00+02")
+        assert tiles == [
+            TBox(f"TBOXFLOAT XT([{v}, {v + 10}),[2020-06-0{d} 00:00:00+02, 2020-06-0{d + 1} 00:00:00+02))")
+            for d in range(1, 7)
+            for v in (0, 10, 20, 30)
+        ]
