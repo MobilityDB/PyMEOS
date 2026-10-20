@@ -44,9 +44,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
             self._inner = as_tinstant(self.__class__._parse_function(string))
         else:
             ts = (
-                datetime_to_timestamptz(timestamp)
-                if isinstance(timestamp, datetime)
-                else pg_timestamptz_in(timestamp, -1)
+                datetime_to_timestamptz(timestamp) if isinstance(timestamp, datetime) else timestamptz_in(timestamp, -1)
             )
             self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 

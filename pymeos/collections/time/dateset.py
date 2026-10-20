@@ -8,6 +8,7 @@ from pymeos_cffi import (
     before_set_date,
     contains_set_date,
     date_adt_to_date,
+    date_in,
     date_to_date_adt,
     dateset_end_value,
     dateset_in,
@@ -26,7 +27,6 @@ from pymeos_cffi import (
     minus_set_set,
     overafter_set_date,
     overbefore_set_date,
-    pg_date_in,
     union_set_date,
     union_set_set,
 )
@@ -63,7 +63,7 @@ class DateSet(Set[date], TimeCollection[date]):
     _mobilitydb_name = "dateset"
 
     _parse_function = dateset_in
-    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
+    _parse_value_function = lambda x: date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = dateset_make
 
     # ------------------------- Constructors ----------------------------------
@@ -162,7 +162,7 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             dateset_values
         """
-        tss = dateset_values(self._inner)
+        tss = dateset_values(self._inner)[0]
         return [date_adt_to_date(tss[i]) for i in range(self.num_elements())]
 
     # ------------------------- Transformations -------------------------------

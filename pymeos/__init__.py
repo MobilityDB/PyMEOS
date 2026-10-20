@@ -30,7 +30,7 @@ from .main import *
 from .meos_init import *
 from .temporal import *
 
-__version__ = "1.3.0"
+__version__ = "1.4.0-alpha-1"
 __all__ = [
     # initialization
     "pymeos_initialize",

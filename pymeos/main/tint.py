@@ -833,7 +833,7 @@ class TInt(
         MEOS Functions:
             tint_value_split
         """
-        fragments, values, count = tint_value_split(self._inner, size, start)
+        fragments, values, count = tint_value_split(self._inner, size, start, border_inc=True)
         return [Temporal._factory(fragments[i]) for i in range(count)]
 
     def value_time_split(
@@ -861,15 +861,15 @@ class TInt(
             tint_value_time_split
         """
         if time_start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
+            st = timestamptz_in("2000-01-03", -1)
         else:
             st = (
                 datetime_to_timestamptz(time_start)
                 if isinstance(time_start, datetime)
-                else pg_timestamptz_in(time_start, -1)
+                else timestamptz_in(time_start, -1)
             )
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt, value_start, st)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
+        tiles, _, _, count = tint_value_time_split(self._inner, value_size, dt, value_start, st, border_inc=True)
         return [Temporal._factory(tiles[i]) for i in range(count)]
 
     # ------------------------- Database Operations ---------------------------

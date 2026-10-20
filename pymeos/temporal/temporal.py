@@ -167,7 +167,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_merge_array
         """
         _temporals = [temp._inner for temp in temporals if temp is not None]
-        result = temporal_merge_array(_temporals, len(_temporals))
+        result = temporal_merge_array(_temporals)
         return Temporal._factory(result)
 
     @classmethod
@@ -184,7 +184,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             objects.
         """
         _temporals = [temp._inner for temp in temporals if temp is not None]
-        result = temporal_merge_array(_temporals, len(_temporals))
+        result = temporal_merge_array(_temporals)
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
@@ -592,15 +592,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_tsample
         """
         if start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
+            st = timestamptz_in("2000-01-03", -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
-            st = pg_timestamptz_in(start, -1)
+            st = timestamptz_in(start, -1)
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            dt = pg_interval_in(duration, -1)
+            dt = interval_in(duration, -1)
         if interpolation is None:
             intrp = self.interpolation()
         else:
@@ -627,15 +627,15 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_tprecision
         """
         if start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
+            st = timestamptz_in("2000-01-03", -1)
         elif isinstance(start, datetime):
             st = datetime_to_timestamptz(start)
         else:
-            st = pg_timestamptz_in(start, -1)
+            st = timestamptz_in(start, -1)
         if isinstance(duration, timedelta):
             dt = timedelta_to_interval(duration)
         else:
-            dt = pg_interval_in(duration, -1)
+            dt = interval_in(duration, -1)
         result = temporal_tprecision(self._inner, dt, st)
         return Temporal._factory(result)
 
@@ -644,9 +644,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         Returns `self` as a :class:`TInstant`.
 
         MEOS Functions:
-            temporal_to_tinstant
+            temporal_as_tinstant
         """
-        inst = temporal_to_tinstant(self._inner)
+        inst = temporal_as_tinstant(self._inner)
         return Temporal._factory(inst)
 
     def to_sequence(self, interpolation: TInterpolation) -> TS:
@@ -656,7 +656,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_to_sequence
         """
-        seq = temporal_to_tsequence(self._inner, interpolation)
+        seq = temporal_as_tsequence(self._inner, interpolation)
         return Temporal._factory(seq)
 
     def to_sequenceset(self, interpolation: TInterpolation) -> TSS:
@@ -664,9 +664,9 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         Returns `self` as a :class:`TSequenceSet`.
 
         MEOS Functions:
-            temporal_to_tsequenceset
+            temporal_as_tsequenceset
         """
-        ss = temporal_to_tsequenceset(self._inner, interpolation)
+        ss = temporal_as_tsequenceset(self._inner, interpolation)
         return Temporal._factory(ss)
 
     def to_dataframe(self) -> pd.DataFrame:
@@ -737,7 +737,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         elif isinstance(other, Temporal):
             new_temp = temporal_merge(self._inner, other._inner)
         elif isinstance(other, list):
-            new_temp = temporal_merge_array([self._inner, *(o._inner for o in other)], len(other) + 1)
+            new_temp = temporal_merge_array([self._inner, *(o._inner for o in other)])
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(new_temp)
@@ -1160,7 +1160,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_frechet_distance
         """
-        return temporal_frechet_distance(self._inner, other._inner)
+        return temporal_frechet_distance(self._inner, other._inner, spheroid=True)
 
     def dyntimewarp_distance(self, other: Temporal) -> float:
         """
@@ -1175,7 +1175,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_dyntimewarp_distance
         """
-        return temporal_dyntimewarp_distance(self._inner, other._inner)
+        return temporal_dyntimewarp_distance(self._inner, other._inner, spheroid=True)
 
     def hausdorff_distance(self, other: Temporal) -> float:
         """
@@ -1190,7 +1190,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_hausdorff_distance
         """
-        return temporal_hausdorff_distance(self._inner, other._inner)
+        return temporal_hausdorff_distance(self._inner, other._inner, spheroid=True)
 
     # ------------------------- Split Operations ------------------------------
     def time_split(
@@ -1217,11 +1217,11 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             temporal_time_split
         """
         if start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
+            st = timestamptz_in("2000-01-03", -1)
         else:
-            st = datetime_to_timestamptz(start) if isinstance(start, datetime) else pg_timestamptz_in(start, -1)
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
-        fragments, times, count = temporal_time_split(self._inner, dt, st)
+            st = datetime_to_timestamptz(start) if isinstance(start, datetime) else timestamptz_in(start, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
+        fragments, times, count = temporal_time_split(self._inner, dt, st, border_inc=True)
         from ..factory import _TemporalFactory
 
         return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]
@@ -1230,7 +1230,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         Returns a list of temporal objects of the same subtype as `self` with
         the same values as `self` but split in n temporal tiles of equal
-        duration.
+        duration. When `self` includes its end timestamp, that timestamp
+        starts an (n+1)th tile, which holds only the end value.
 
         Args:
             n: An :class:`int` with the number of temporal tiles.
@@ -1245,7 +1246,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             return [self]
         st = temporal_start_timestamptz(self._inner)
         dt = timedelta_to_interval((self.end_timestamp() - self.start_timestamp()) / n)
-        fragments, times, count = temporal_time_split(self._inner, dt, st)
+        fragments, times, count = temporal_time_split(self._inner, dt, st, border_inc=True)
         from ..factory import _TemporalFactory
 
         return [_TemporalFactory.create_temporal(fragments[i]) for i in range(count)]

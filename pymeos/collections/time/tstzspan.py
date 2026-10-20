@@ -41,7 +41,7 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzspan"
 
     _parse_function = tstzspan_in
-    _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
+    _parse_value_function = lambda x: timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     _make_function = tstzspan_make
 
     # ------------------------- Constructors ----------------------------------
@@ -505,13 +505,13 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
         from .tstzspanset import TsTzSpanSet
 
         if isinstance(other, datetime):
-            return timedelta(seconds=distance_span_timestamptz(self._inner, datetime_to_timestamptz(other)))
+            return interval_to_timedelta(distance_span_timestamptz(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TsTzSet):
             return self.distance(other.to_spanset())
         elif isinstance(other, TsTzSpan):
-            return timedelta(seconds=distance_tstzspan_tstzspan(self._inner, other._inner))
+            return interval_to_timedelta(distance_tstzspan_tstzspan(self._inner, other._inner))
         elif isinstance(other, TsTzSpanSet):
-            return timedelta(seconds=distance_tstzspanset_tstzspan(other._inner, self._inner))
+            return interval_to_timedelta(distance_tstzspanset_tstzspan(other._inner, self._inner))
         elif isinstance(other, Temporal):
             return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):
