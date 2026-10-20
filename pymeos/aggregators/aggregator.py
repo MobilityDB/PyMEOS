@@ -243,12 +243,12 @@ class BaseGranularAggregator(Generic[SourceType, ResultType, IntervalType, Origi
         interval_converted = (
             timedelta_to_interval(interval)
             if isinstance(interval, timedelta)
-            else pg_interval_in(interval, -1)
+            else interval_in(interval, -1)
             if isinstance(interval, str)
             else None
         )
         origin_converted = (
-            datetime_to_timestamptz(origin) if isinstance(origin, datetime) else pg_timestamptz_in(origin, -1)
+            datetime_to_timestamptz(origin) if isinstance(origin, datetime) else timestamptz_in(origin, -1)
         )
         return cls._add_function(state, temporal._inner, interval_converted, origin_converted)
 

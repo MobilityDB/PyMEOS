@@ -46,10 +46,8 @@ class TSequence(Temporal[TBase, TG, TI, TS, TSS], ABC):
                 (x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x))
                 for x in instant_list
             ]
-            count = len(self._instants)
             self._inner = tsequence_make(
                 self._instants,
-                count,
                 lower_inc,
                 upper_inc,
                 interpolation.value,

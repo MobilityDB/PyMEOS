@@ -39,7 +39,7 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
     _mobilitydb_name = "tstzset"
 
     _parse_function = tstzset_in
-    _parse_value_function = lambda x: pg_timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
+    _parse_value_function = lambda x: timestamptz_in(x, -1) if isinstance(x, str) else datetime_to_timestamptz(x)
     _make_function = tstzset_make
 
     # ------------------------- Constructors ----------------------------------
@@ -116,7 +116,7 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
         MEOS Functions:
             set_timestamptzs
         """
-        tss = tstzset_values(self._inner)
+        tss = tstzset_values(self._inner)[0]
         return [timestamptz_to_datetime(tss[i]) for i in range(self.num_elements())]
 
     # ------------------------- Transformations -------------------------------
@@ -512,9 +512,9 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
         from .tstzspanset import TsTzSpanSet
 
         if isinstance(other, datetime):
-            return timedelta(seconds=distance_set_timestamptz(self._inner, datetime_to_timestamptz(other)))
+            return interval_to_timedelta(distance_set_timestamptz(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TsTzSet):
-            return timedelta(seconds=distance_tstzset_tstzset(self._inner, other._inner))
+            return interval_to_timedelta(distance_tstzset_tstzset(self._inner, other._inner))
         elif isinstance(other, (TsTzSpan, TsTzSpanSet)):
             return self.to_spanset().distance(other)
         elif isinstance(other, (Temporal, get_args(Box))):
