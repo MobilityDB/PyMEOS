@@ -23,8 +23,51 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Derive the MEOS catalog once from the MobilityDB branch the package version
+  # maps to, through the shared provision-meos action. PyMEOS-CFFI projects its
+  # cdef header from this catalog, so every test job builds the same surface.
+  # The catalog parses the headers a libmeos build installs, as PyMEOS-CFFI's
+  # pr_build does, so it declares no internal header the extension cannot include.
+  catalog:
+    name: Derive the MEOS catalog
+    runs-on: ubuntu-latest
+    outputs:
+      meos_branch: ${{ steps.meos_branch.outputs.meos_branch }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Derive MEOS branch from package version
+        id: meos_branch
+        shell: bash
+        run: |
+          pymeos_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos/__init__.py)
+          major_minor=$(echo "$pymeos_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
+          candidate="stable-${major_minor}"
+          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
+            meos_branch=$candidate
+          else
+            meos_branch="master"
+          fi
+          echo "Package version $pymeos_version => MEOS branch $meos_branch"
+          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+
+      - name: Provision the MEOS catalog
+        id: provision
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
+        with:
+          mobilitydb-ref: ${{ steps.meos_branch.outputs.meos_branch }}
+          build-libmeos: "true"
+
+      - name: Upload the catalog
+        uses: actions/upload-artifact@v4
+        with:
+          name: meos-idl
+          path: ${{ steps.provision.outputs.catalog-path }}
+
   test:
     name: Test PyMEOS - Python ${{ matrix.python-version }} on ${{ matrix.os }}
+    needs: catalog
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -44,44 +87,69 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Get dependencies from apt (cache)
-        uses: awalsh128/cache-apt-pkgs-action@v1.4.3
+      # The CFFI cdef covers every optional MEOS family, so libmeos is built
+      # with all of them: on Linux by the provision-meos action, from the same
+      # MobilityDB branch as the catalog.
+      - name: Build and install the all-families MEOS (Linux)
         if: runner.os == 'Linux'
+        uses: MobilityDB/MEOS-API/.github/actions/provision-meos@master
         with:
-          packages: build-essential cmake postgresql-server-dev-16 libproj-dev libjson-c-dev libgsl-dev libgeos-dev
-          version: 1.1
+          mobilitydb-ref: ${{ needs.catalog.outputs.meos_branch }}
+          build-libmeos: "true"
 
       - name: Get dependencies from homebrew (cache)
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq proj json-c gsl geos
+          tools: cmake libpq proj json-c gsl geos h3
 
-      - name: Derive MEOS branch from package version
-        id: meos_branch
-        shell: bash
+      # The raster family links GDAL. Homebrew's GDAL links Apache Arrow for its Arrow and
+      # Parquet drivers, and pyarrow's bundled Arrow then binds to that copy and fails to load,
+      # so GDAL is built here without Arrow or Parquet, as MobilityDuck builds its own: core
+      # drivers only, against Homebrew's PROJ. Its install names are absolute, so libmeos finds
+      # it without a library path.
+      - name: Key the GDAL build (macOS)
+        id: gdal
+        if: runner.os == 'macOS'
         run: |
-          pymeos_version=$(sed -nE 's/^__version__ = "([^"]+)".*/\1/p' pymeos/__init__.py)
-          major_minor=$(echo "$pymeos_version" | sed -nE 's/^([0-9]+\.[0-9]+).*/\1/p')
-          candidate="stable-${major_minor}"
-          if git ls-remote --exit-code https://github.com/MobilityDB/MobilityDB "$candidate" >/dev/null 2>&1; then
-            meos_branch=$candidate
-          else
-            meos_branch="master"
-          fi
-          echo "Package version $pymeos_version => MEOS branch $meos_branch"
-          echo "meos_branch=$meos_branch" >> "$GITHUB_OUTPUT"
+          echo "version=3.11.4" >> "$GITHUB_OUTPUT"
+          echo "prefix=$HOME/gdal" >> "$GITHUB_OUTPUT"
+          echo "proj=$(brew list --versions proj | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
 
-      - name: Fetch MEOS sources
-        run: |
-          git clone --branch ${{ steps.meos_branch.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
+      - name: Restore the GDAL build (macOS)
+        id: gdal-cache
+        if: runner.os == 'macOS'
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.gdal.outputs.prefix }}
+          key: gdal-${{ steps.gdal.outputs.version }}-proj-${{ steps.gdal.outputs.proj }}-${{ matrix.os }}
 
-      - name: Install MEOS
+      - name: Build GDAL without Arrow (macOS)
+        if: runner.os == 'macOS' && steps.gdal-cache.outputs.cache-hit != 'true'
         run: |
+          curl -sSL -o gdal.tar.gz \
+            https://github.com/OSGeo/gdal/releases/download/v${{ steps.gdal.outputs.version }}/gdal-${{ steps.gdal.outputs.version }}.tar.gz
+          tar xzf gdal.tar.gz
+          cmake -S gdal-${{ steps.gdal.outputs.version }} -B gdal-build -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=${{ steps.gdal.outputs.prefix }} \
+            -DCMAKE_INSTALL_NAME_DIR=${{ steps.gdal.outputs.prefix }}/lib \
+            -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
+            -DBUILD_APPS=OFF -DBUILD_TESTING=OFF -DBUILD_DOCS=OFF -DBUILD_PYTHON_BINDINGS=OFF \
+            -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF -DOGR_BUILD_OPTIONAL_DRIVERS=OFF \
+            -DGDAL_USE_ARROW=OFF -DGDAL_USE_PARQUET=OFF \
+            -DCMAKE_DISABLE_FIND_PACKAGE_Arrow=ON -DCMAKE_DISABLE_FIND_PACKAGE_Parquet=ON
+          cmake --build gdal-build -j"$(sysctl -n hw.ncpu)"
+          cmake --install gdal-build
+
+      - name: Build and install the all-families MEOS (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          git clone --branch ${{ needs.catalog.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
           mkdir MobilityDB/build
           cd MobilityDB/build
-          cmake .. -DMEOS=on -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }}
-          make -j
+          cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }} \
+            -DCMAKE_PREFIX_PATH=${{ steps.gdal.outputs.prefix }}
+          make -j"$(sysctl -n hw.ncpu)"
           sudo make install
 
       - name: Set up Python ${{ matrix.python-version }}
@@ -97,6 +165,12 @@ jobs:
           git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI \
             || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
 
+      - name: Download the catalog
+        uses: actions/download-artifact@v4
+        with:
+          name: meos-idl
+          path: PyMEOS-CFFI/builder
+
       - name: Install python dependencies
         run: |
           python -m pip install --upgrade pip
@@ -104,9 +178,11 @@ jobs:
           pip install -r dev-requirements.txt
 
       - name: Install pymeos_cffi
+        shell: bash
         run: |
           cd PyMEOS-CFFI
-          python ./builder/build_header.py
+          python ./builder/build_header.py builder/meos-idl.json \
+            ${{ matrix.ld_prefix }}/lib/${{ runner.os == 'macOS' && 'libmeos.dylib' || 'libmeos.so' }} builder/meos.h
           python ./builder/build_pymeos_functions.py
           pip install .
 
