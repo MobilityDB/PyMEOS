@@ -12,6 +12,7 @@ from pymeos import (
     TIntSeqSet,
     TsTzSet,
     TsTzSpan,
+    TsTzSpanSet,
     TTextSeq,
     TTextSeqSet,
 )
@@ -32,6 +33,7 @@ from pymeos.aggregators import (
     TemporalPointExtentAggregator,
     TemporalTextMaxAggregator,
     TemporalTextMinAggregator,
+    TimeContinuousUnionAggregator,
     TimeInstantaneousUnionAggregator,
 )
 from tests.conftest import TestPyMEOS
@@ -122,6 +124,11 @@ class TestAggregators(TestPyMEOS):
                 sets,
                 TsTzSet("{2000-01-01, 2000-01-02, 2000-01-03}"),
             ),
+            (
+                TimeContinuousUnionAggregator,
+                spans,
+                TsTzSpanSet("{[2000-01-01, 2000-01-04]}"),
+            ),
         ],
         ids=[
             "And",
@@ -138,6 +145,7 @@ class TestAggregators(TestPyMEOS):
             "InstantCount",
             "PeriodCount",
             "InstantaneousUnion",
+            "ContinuousUnion",
         ],
     )
     def test_aggregate(self, aggregator, inputs, expected):

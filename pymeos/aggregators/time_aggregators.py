@@ -4,9 +4,10 @@ from pymeos_cffi import (
     datetime_to_timestamptz,
     set_union_finalfn,
     set_union_transfn,
+    span_union_transfn,
+    spanset_union_finalfn,
+    spanset_union_transfn,
     timestamptz_union_transfn,
-    union_spanset_span,
-    union_spanset_spanset,
 )
 
 from ..collections import TsTzSet, TsTzSpan, TsTzSpanSet
@@ -43,20 +44,24 @@ class TimeContinuousUnionAggregator(BaseAggregator[TsTzSpan | TsTzSpanSet, TsTzS
     Temporal union of continuous time objects (:class:`~pymeos.time.tstzspan.TsTzSpan` and
     :class:`~pymeos.time.tstzspanset.TsTzSpanSet`).
 
+    Aggregates as #TimeInstantaneousUnionAggregator does, through the transition and final
+    functions MEOS provides for the union of spans.
+
     MEOS Functions:
-        union_spanset_span, union_spanset_spanset
+        span_union_transfn, spanset_union_transfn, spanset_union_finalfn
     """
 
     @classmethod
     def _add(cls, state, temporal):
         if isinstance(temporal, TsTzSpan):
-            state = union_spanset_span(state, temporal._inner)
+            state = span_union_transfn(state, temporal._inner)
         elif isinstance(temporal, TsTzSpanSet):
-            state = union_spanset_spanset(state, temporal._inner)
+            state = spanset_union_transfn(state, temporal._inner)
         else:
             cls._error(temporal)
         return state
 
     @classmethod
     def _finish(cls, state) -> TsTzSpanSet:
-        return TsTzSpanSet(_inner=state)
+        result = spanset_union_finalfn(state)
+        return TsTzSpanSet(_inner=result)
