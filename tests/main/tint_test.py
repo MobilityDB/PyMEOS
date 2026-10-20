@@ -355,8 +355,8 @@ class TestTIntOutputs(TestTInt):
                 "    1\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -364,7 +364,7 @@ class TestTIntOutputs(TestTInt):
                 "    1\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -378,8 +378,8 @@ class TestTIntOutputs(TestTInt):
                 "    2\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -388,8 +388,8 @@ class TestTIntOutputs(TestTInt):
                 "    2\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -405,8 +405,8 @@ class TestTIntOutputs(TestTInt):
                 "    2\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -415,8 +415,8 @@ class TestTIntOutputs(TestTInt):
                 "    2\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -432,8 +432,8 @@ class TestTIntOutputs(TestTInt):
                 "    2\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -444,8 +444,8 @@ class TestTIntOutputs(TestTInt):
                 "        2\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -456,8 +456,8 @@ class TestTIntOutputs(TestTInt):
                 "        1\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -882,7 +882,7 @@ class TestTIntAccessors(TestTInt):
 
     @pytest.mark.parametrize(
         "temporal, expected",
-        [(tii, 440045287), (tids, 3589664982), (tis, 3589664982), (tiss, 205124107)],
+        [(tii, 440045318), (tids, 523775680), (tis, 523775680), (tiss, 2660990281)],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_hash(self, temporal, expected):
@@ -2196,7 +2196,7 @@ class TestTIntTopologicalFunctions(TestTInt):
         "temporal, argument, expected",
         [
             (tii, TIntInst("1@2019-09-02"), False),
-            (tii, TIntInst("2@2019-09-02"), True),
+            (tii, TIntInst("2@2019-09-01"), True),
             (tids, TIntInst("1@2019-09-03"), False),
             (tids, TIntInst("3@2019-09-02"), True),
             (tis, TIntInst("1@2019-09-03"), False),
@@ -2573,8 +2573,9 @@ class TestTIntSplitOperations(TestTInt):
             (
                 tiss,
                 [
-                    TIntSeq("[1@2019-09-01,2@2019-09-02]"),
-                    TIntSeq("[1@2019-09-03, 1@2019-09-05]"),
+                    TIntSeqSet("{[1@2019-09-01, 2@2019-09-02]}"),
+                    TIntSeqSet("{[1@2019-09-03, 1@2019-09-05)}"),
+                    TIntSeqSet("{[1@2019-09-05]}"),
                 ],
             ),
         ],
@@ -2592,9 +2593,10 @@ class TestTIntSplitOperations(TestTInt):
             (
                 tiss,
                 [
-                    TIntSeq("{[1@2019-09-01, 1@2019-09-02)}"),
-                    TIntSeq("{[1@2019-09-03, 1@2019-09-05]}"),
-                    TIntSeq("{[2@2019-09-02]}"),
+                    TIntSeqSet("{[1@2019-09-01, 1@2019-09-02)}"),
+                    TIntSeqSet("{[1@2019-09-03, 1@2019-09-05)}"),
+                    TIntSeqSet("{[1@2019-09-05]}"),
+                    TIntSeqSet("{[2@2019-09-02]}"),
                 ],
             ),
         ],
