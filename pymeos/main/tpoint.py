@@ -235,7 +235,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tpoint_length
         """
-        return tpoint_length(self._inner)
+        return tpoint_length(self._inner, spheroid=True)
 
     def cumulative_length(self) -> TFloat:
         """
@@ -247,7 +247,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tpoint_cumulative_length
         """
-        result = tpoint_cumulative_length(self._inner)
+        result = tpoint_cumulative_length(self._inner, spheroid=True)
         return Temporal._factory(result)
 
     def speed(self) -> TFloat:
@@ -260,7 +260,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tpoint_speed
         """
-        result = tpoint_speed(self._inner)
+        result = tpoint_speed(self._inner, spheroid=True)
         return Temporal._factory(result)
 
     def x(self) -> TF:
@@ -787,11 +787,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = edwithin_tgeo_geo(self._inner, gs, distance)
+            result = edwithin_tgeo_geo(self._inner, gs, distance, spheroid=True)
         elif isinstance(other, STBox):
-            result = edwithin_tgeo_geo(self._inner, stbox_to_geo(other._inner), distance)
+            result = edwithin_tgeo_geo(self._inner, stbox_to_geo(other._inner), distance, spheroid=True)
         elif isinstance(other, TPoint):
-            result = edwithin_tgeo_tgeo(self._inner, other._inner, distance)
+            result = edwithin_tgeo_tgeo(self._inner, other._inner, distance, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return result == 1
@@ -866,10 +866,10 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         if isinstance(container, shpb.BaseGeometry):
             gs = geo_to_gserialized(container, isinstance(self, TGeogPoint))
-            result = tcontains_geo_tgeo(gs, self._inner, False, False)
+            result = tcontains_geo_tgeo(gs, self._inner)
         elif isinstance(container, STBox):
             gs = stbox_to_geo(container._inner)
-            result = tcontains_geo_tgeo(gs, self._inner, False, False)
+            result = tcontains_geo_tgeo(gs, self._inner)
         else:
             raise TypeError(f"Operation not supported with type {container.__class__}")
         return Temporal._factory(result)
@@ -892,11 +892,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdistance_tgeo_geo(self._inner, gs)
+            result = tdistance_tgeo_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, STBox):
-            result = tdistance_tgeo_geo(self._inner, stbox_to_geo(other._inner))
+            result = tdistance_tgeo_geo(self._inner, stbox_to_geo(other._inner), spheroid=True)
         elif isinstance(other, TPoint):
-            result = tdistance_tgeo_tgeo(self._inner, other._inner)
+            result = tdistance_tgeo_tgeo(self._inner, other._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -918,11 +918,11 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            return nad_tgeo_geo(self._inner, gs)
+            return nad_tgeo_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, STBox):
-            return nad_tgeo_stbox(self._inner, other._inner)
+            return nad_tgeo_stbox(self._inner, other._inner, spheroid=True)
         elif isinstance(other, TPoint):
-            return nad_tgeo_tgeo(self._inner, other._inner)
+            return nad_tgeo_tgeo(self._inner, other._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
@@ -941,9 +941,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = nai_tgeo_geo(self._inner, gs)
+            result = nai_tgeo_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, TPoint):
-            result = nai_tgeo_tgeo(self._inner, other._inner)
+            result = nai_tgeo_tgeo(self._inner, other._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -964,9 +964,9 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = shortestline_tgeo_geo(self._inner, gs)
+            result = shortestline_tgeo_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, TPoint):
-            result = shortestline_tgeo_tgeo(self._inner, other._inner)
+            result = shortestline_tgeo_tgeo(self._inner, other._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return gserialized_to_shapely_geometry(result, 10)
@@ -1086,19 +1086,19 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         """
         ysz = ysize if ysize is not None else xsize
         zsz = zsize if zsize is not None else xsize
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
         gs = (
             geo_to_gserialized(origin, isinstance(self, TGeogPoint))
             if origin is not None
             else (geog_in("Point(0 0 0)", -1) if isinstance(self, TGeogPoint) else geom_in("Point(0 0 0)", -1))
         )
         if time_start is None:
-            st = pg_timestamptz_in("2000-01-03", -1)
+            st = timestamptz_in("2000-01-03", -1)
         else:
             st = (
                 datetime_to_timestamptz(time_start)
                 if isinstance(time_start, datetime)
-                else pg_timestamptz_in(time_start, -1)
+                else timestamptz_in(time_start, -1)
             )
         fragments, points, times, count = tgeo_space_time_split(
             self._inner, xsize, ysz, zsz, dt, gs, st, bitmatrix, include_border
@@ -1365,11 +1365,11 @@ class TGeomPoint(TPoint["TGeomPoint", "TGeomPointInst", "TGeomPointSeq", "TGeomP
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdisjoint_tgeo_geo(self._inner, gs, False, False)
+            result = tdisjoint_tgeo_geo(self._inner, gs)
         elif isinstance(other, STBox):
-            result = tdisjoint_tgeo_geo(self._inner, stbox_to_geo(other._inner), False, False)
+            result = tdisjoint_tgeo_geo(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TPoint):
-            result = tdisjoint_tgeo_tgeo(self._inner, other._inner, False, False)
+            result = tdisjoint_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -1391,11 +1391,11 @@ class TGeomPoint(TPoint["TGeomPoint", "TGeomPointInst", "TGeomPointSeq", "TGeomP
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tintersects_tgeo_geo(self._inner, gs, False, False)
+            result = tintersects_tgeo_geo(self._inner, gs)
         elif isinstance(other, STBox):
-            result = tintersects_tgeo_geo(self._inner, stbox_to_geo(other._inner), False, False)
+            result = tintersects_tgeo_geo(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TPoint):
-            result = tintersects_tgeo_tgeo(self._inner, other._inner, False, False)
+            result = tintersects_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -1417,11 +1417,11 @@ class TGeomPoint(TPoint["TGeomPoint", "TGeomPointInst", "TGeomPointSeq", "TGeomP
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = ttouches_tgeo_geo(self._inner, gs, False, False)
+            result = ttouches_tgeo_geo(self._inner, gs)
         elif isinstance(other, STBox):
-            result = ttouches_tgeo_geo(self._inner, stbox_to_geo(other._inner), False, False)
+            result = ttouches_tgeo_geo(self._inner, stbox_to_geo(other._inner))
         elif isinstance(other, TGeomPoint):
-            result = ttouches_tgeo_tgeo(self._inner, other._inner, False, False)
+            result = ttouches_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -1444,11 +1444,11 @@ class TGeomPoint(TPoint["TGeomPoint", "TGeomPointInst", "TGeomPointSeq", "TGeomP
 
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = tdwithin_tgeo_geo(self._inner, gs, distance, False, False)
+            result = tdwithin_tgeo_geo(self._inner, gs, distance, spheroid=True)
         elif isinstance(other, STBox):
-            result = tdwithin_tgeo_geo(self._inner, stbox_to_geo(other._inner), distance, False, False)
+            result = tdwithin_tgeo_geo(self._inner, stbox_to_geo(other._inner), distance, spheroid=True)
         elif isinstance(other, TGeomPoint):
-            result = tdwithin_tgeo_tgeo(self._inner, other._inner, distance, False, False)
+            result = tdwithin_tgeo_tgeo(self._inner, other._inner, distance, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)

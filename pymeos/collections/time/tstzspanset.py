@@ -631,13 +631,13 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
         from .tstzspan import TsTzSpan
 
         if isinstance(other, datetime):
-            return timedelta(seconds=distance_spanset_timestamptz(self._inner, datetime_to_timestamptz(other)))
+            return interval_to_timedelta(distance_spanset_timestamptz(self._inner, datetime_to_timestamptz(other)))
         elif isinstance(other, TsTzSet):
             return self.distance(other.to_spanset())
         elif isinstance(other, TsTzSpan):
-            return timedelta(seconds=distance_tstzspanset_tstzspan(self._inner, other._inner))
+            return interval_to_timedelta(distance_tstzspanset_tstzspan(self._inner, other._inner))
         elif isinstance(other, TsTzSpanSet):
-            return timedelta(seconds=distance_tstzspanset_tstzspanset(self._inner, other._inner))
+            return interval_to_timedelta(distance_tstzspanset_tstzspanset(self._inner, other._inner))
         if isinstance(other, Temporal):
             return self.distance(other.tstzspan())
         elif isinstance(other, get_args(Box)):

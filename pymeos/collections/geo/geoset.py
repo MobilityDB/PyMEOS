@@ -161,7 +161,7 @@ class GeoSet(Set[shp.Geometry], ABC):
         MEOS Functions:
             geoset_values
         """
-        elems = geoset_values(self._inner)
+        elems = geoset_values(self._inner)[0]
         return [gserialized_to_shapely_geometry(elems[i]) for i in range(self.num_elements())]
 
     def srid(self) -> int:

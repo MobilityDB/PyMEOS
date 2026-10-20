@@ -178,7 +178,7 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            pgis_geometry_in, geo_to_stbox
+            geom_in, geog_in, geo_to_stbox
         """
         gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
@@ -1157,15 +1157,15 @@ class STBox:
             ``self`` and ``other``.
 
         MEOS Functions:
-            nad_stbox_geo, nad_stbox_stbox
+            nad_stbox_geo, nad_stbox_stbox, nad_tgeo_stbox
         """
         if isinstance(other, shp.BaseGeometry):
             gs = geo_to_gserialized(other, self.geodetic())
-            return nad_stbox_geo(self._inner, gs)
+            return nad_stbox_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, STBox):
-            return nad_stbox_stbox(self._inner, other._inner)
+            return nad_stbox_stbox(self._inner, other._inner, spheroid=True)
         elif isinstance(other, TPoint):
-            return nad_tpoint_stbox(other._inner, self._inner)
+            return nad_tgeo_stbox(other._inner, self._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
@@ -1285,7 +1285,7 @@ class STBox:
         dt = (
             timedelta_to_interval(duration)
             if isinstance(duration, timedelta)
-            else pg_interval_in(duration, -1)
+            else interval_in(duration, -1)
             if isinstance(duration, str)
             else None
         )
@@ -1293,9 +1293,9 @@ class STBox:
             datetime_to_timestamptz(start)
             if isinstance(start, datetime)
             else (
-                pg_timestamptz_in(start, -1)
+                timestamptz_in(start, -1)
                 if isinstance(start, str)
-                else pg_timestamptz_in("2000-01-03", -1)
+                else timestamptz_in("2000-01-03", -1)
                 if self.has_t()
                 else 0
             )
@@ -1303,7 +1303,7 @@ class STBox:
         gs = (
             geo_to_gserialized(origin, self.geodetic())
             if origin is not None
-            else (pgis_geography_in("Point(0 0 0)", -1) if self.geodetic() else pgis_geometry_in("Point(0 0 0)", -1))
+            else (geog_in("Point(0 0 0)", -1) if self.geodetic() else geom_in("Point(0 0 0)", -1))
         )
         tiles, count = stbox_space_time_tiles(self._inner, sz, sz, sz, dt, gs, st, border_inc)
         return [STBox(_inner=tiles + i) for i in range(count)]

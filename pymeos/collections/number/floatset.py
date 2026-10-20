@@ -141,7 +141,7 @@ class FloatSet(Set[float]):
         MEOS Functions:
             floattset_values
         """
-        elems = floatset_values(self._inner)
+        elems = floatset_values(self._inner)[0]
         return [elems[i] for i in range(self.num_elements())]
 
     # ------------------------- Transformations ------------------------------------
