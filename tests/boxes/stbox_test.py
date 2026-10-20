@@ -1261,3 +1261,26 @@ class TestSTBoxComparisons(TestSTBox):
 
     def test_ge(self):
         _ = self.stbxt >= self.other
+
+
+class TestSTBoxTiling(TestSTBox):
+    # Mirrors #test_time_split of the temporal split tests, on the space tiles
+    trip = TGeomPointSeq(
+        "SRID=3857;[Point(481000 6586000)@2020-06-01 08:00:00+00, Point(487000 6588000)@2020-06-01 08:30:00+00]"
+    )
+
+    # The space tiles of the box, as #test_time_split reads the time bins
+    def test_space_tiles(self):
+        tiles = STBox.from_tpoint(self.trip).space_tiles(5e3, 0, 0, Point(0, 0), True)
+        assert [str(tile) for tile in tiles] == [
+            "SRID=3857;STBOX X((480000,6585000),(485000,6590000))",
+            "SRID=3857;STBOX X((485000,6585000),(490000,6590000))",
+        ]
+
+    # The fragments of the trip in those tiles, as #test_time_split reads the time fragments
+    def test_tpoint_space_split(self):
+        pieces = self.trip.space_split(5e3)
+        assert [str(piece) for piece in pieces] == [
+            "{[POINT(481000 6586000)@2020-06-01 08:00:00+00, POINT(485000 6587333.333333333)@2020-06-01 08:20:00+00)}",
+            "{[POINT(485000 6587333.333333333)@2020-06-01 08:20:00+00, POINT(487000 6588000)@2020-06-01 08:30:00+00]}",
+        ]
