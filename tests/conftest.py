@@ -1,4 +1,4 @@
-from pymeos import pymeos_initialize, pymeos_finalize
+from pymeos import pymeos_finalize, pymeos_initialize
 
 
 def pytest_configure(config):

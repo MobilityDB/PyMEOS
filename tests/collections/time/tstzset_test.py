@@ -1,24 +1,21 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
-from typing import List
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from pymeos import (
+    TsTzSet,
     TsTzSpan,
     TsTzSpanSet,
-    TsTzSet,
 )
 from tests.conftest import TestPyMEOS
 
 
 class TestTsTzSet(TestPyMEOS):
-    ts_set = TsTzSet(
-        "{2019-09-01 00:00:00+0, 2019-09-02 00:00:00+0, 2019-09-03 00:00:00+0}"
-    )
+    ts_set = TsTzSet("{2019-09-01 00:00:00+0, 2019-09-02 00:00:00+0, 2019-09-03 00:00:00+0}")
 
     @staticmethod
-    def assert_tstzset_equality(ts_set: TsTzSet, timestamps: List[datetime]):
+    def assert_tstzset_equality(ts_set: TsTzSet, timestamps: list[datetime]):
         assert ts_set.num_elements() == len(timestamps)
         assert ts_set.elements() == timestamps
 
@@ -83,10 +80,7 @@ class TestTsTzSetConstructors(TestTsTzSet):
 
 class TestTsTzSetOutputs(TestTsTzSet):
     def test_str(self):
-        assert (
-            str(self.ts_set)
-            == '{"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"}'
-        )
+        assert str(self.ts_set) == '{"2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"}'
 
     def test_repr(self):
         assert (
@@ -112,28 +106,20 @@ class TestTsTzSetAccessors(TestTsTzSet):
         assert self.ts_set.duration() == timedelta(days=2)
 
     def test_tstzspan(self):
-        assert self.ts_set.to_span() == TsTzSpan(
-            "[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]"
-        )
+        assert self.ts_set.to_span() == TsTzSpan("[2019-09-01 00:00:00+00, 2019-09-03 00:00:00+00]")
 
     def test_num_timestamps(self):
         assert self.ts_set.num_elements() == 3
         assert len(self.ts_set) == 3
 
     def test_start_timestamp(self):
-        assert self.ts_set.start_element() == datetime(
-            2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc
-        )
+        assert self.ts_set.start_element() == datetime(2019, 9, 1, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_end_timestamp(self):
-        assert self.ts_set.end_element() == datetime(
-            2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc
-        )
+        assert self.ts_set.end_element() == datetime(2019, 9, 3, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n(self):
-        assert self.ts_set.element_n(1) == datetime(
-            2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc
-        )
+        assert self.ts_set.element_n(1) == datetime(2019, 9, 2, 0, 0, 0, tzinfo=timezone.utc)
 
     def test_timestamp_n_out_of_range(self):
         with pytest.raises(IndexError):
@@ -158,9 +144,7 @@ class TestTsTzSetPositionFunctions(TestTsTzSet):
     def test_is_contained_in(self, other, expected):
         assert self.ts_set.is_contained_in(other) == expected
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_contains(self, other):
         self.ts_set.contains(other)
         _ = other in self.tstzset
@@ -169,33 +153,23 @@ class TestTsTzSetPositionFunctions(TestTsTzSet):
     def test_overlaps(self, other):
         self.ts_set.overlaps(other)
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_is_before(self, other):
         self.ts_set.is_before(other)
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_is_over_or_before(self, other):
         self.ts_set.is_over_or_before(other)
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_is_after(self, other):
         self.ts_set.is_after(other)
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_is_over_or_after(self, other):
         self.ts_set.is_over_or_after(other)
 
-    @pytest.mark.parametrize(
-        "other", [timestamp, tstzset], ids=["timestamp", "tstzset"]
-    )
+    @pytest.mark.parametrize("other", [timestamp, tstzset], ids=["timestamp", "tstzset"])
     def test_distance(self, other):
         self.ts_set.distance(other)
 
@@ -260,9 +234,7 @@ class TestTsTzSetComparisons(TestTsTzSet):
 
 
 class TestTsTzSetFunctionsFunctions(TestTsTzSet):
-    tstzset = TsTzSet(
-        "{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}"
-    )
+    tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}")
 
     @pytest.mark.parametrize(
         "delta,result",
@@ -345,9 +317,7 @@ class TestTsTzSetFunctionsFunctions(TestTsTzSet):
 
 
 class TestTsTzSetMiscFunctions(TestTsTzSet):
-    tstzset = TsTzSet(
-        "{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}"
-    )
+    tstzset = TsTzSet("{2020-01-01 00:00:00+0, 2020-01-02 00:00:00+0, 2020-01-04 00:00:00+0}")
 
     def test_hash(self):
         hash(self.tstzset)

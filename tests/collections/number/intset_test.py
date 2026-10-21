@@ -1,9 +1,8 @@
 from copy import copy
-from typing import List
 
 import pytest
 
-from pymeos import IntSet, IntSpan, IntSpanSet
+from pymeos import IntSet, IntSpan
 from tests.conftest import TestPyMEOS
 
 
@@ -11,7 +10,7 @@ class TestIntSet(TestPyMEOS):
     intset = IntSet("{1, 2, 3}")
 
     @staticmethod
-    def assert_intset_equality(intset: IntSet, values: List[int]):
+    def assert_intset_equality(intset: IntSet, values: list[int]):
         assert intset.num_elements() == len(values)
         assert intset.elements() == values
 

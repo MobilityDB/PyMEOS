@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Optional, List, Union, Any, TypeVar, Type, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import *
 
@@ -28,26 +28,22 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
     # ------------------------- Constructors ----------------------------------
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        sequence_list: Optional[List[Union[str, Any]]] = None,
+        sequence_list: list[str | Any] | None = None,
         normalize: bool = True,
         _inner=None,
     ):
-        assert (_inner is not None) or (
-            (string is not None) != (sequence_list is not None)
-        ), "Either string must be not None or sequence_list must be not"
+        assert (_inner is not None) or ((string is not None) != (sequence_list is not None)), (
+            "Either string must be not None or sequence_list must be not"
+        )
         if _inner is not None:
             self._inner = as_tsequenceset(_inner)
         elif string is not None:
             self._inner = as_tsequenceset(self.__class__._parse_function(string))
         else:
             sequences = [
-                (
-                    x._inner
-                    if isinstance(x, self.ComponentClass)
-                    else self.__class__._parse_function(x)
-                )
+                (x._inner if isinstance(x, self.ComponentClass) else self.__class__._parse_function(x))
                 for x in sequence_list
             ]
             count = len(sequences)
@@ -55,8 +51,8 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     @classmethod
     def from_sequences(
-        cls: Type[Self],
-        sequence_list: Optional[List[Union[str, Any]]] = None,
+        cls: type[Self],
+        sequence_list: list[str | Any] | None = None,
         normalize: bool = True,
     ) -> Self:
         """
@@ -96,7 +92,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         """
         return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n + 1))
 
-    def sequences(self) -> List[TS]:
+    def sequences(self) -> list[TS]:
         """
         Returns the list of sequences in ``self``.
         """
@@ -111,9 +107,7 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
         pd = import_pandas()
         sequences = self.sequences()
         data = {
-            "sequence": [
-                i for i, seq in enumerate(sequences) for _ in range(seq.num_instants())
-            ],
+            "sequence": [i for i, seq in enumerate(sequences) for _ in range(seq.num_instants())],
             "time": [t for seq in sequences for t in seq.timestamps()],
             "value": [v for seq in sequences for v in seq.values()],
         }

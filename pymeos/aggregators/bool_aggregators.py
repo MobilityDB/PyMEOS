@@ -1,7 +1,7 @@
 from pymeos_cffi import *
 
-from .aggregator import BaseAggregator
 from ..main import TBool
+from .aggregator import BaseAggregator
 
 
 class TemporalAndAggregator(BaseAggregator[TBool, TBool]):

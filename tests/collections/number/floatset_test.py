@@ -1,9 +1,8 @@
 from copy import copy
-from typing import List
 
 import pytest
 
-from pymeos import FloatSet, FloatSpan, FloatSpanSet
+from pymeos import FloatSet, FloatSpan
 from tests.conftest import TestPyMEOS
 
 
@@ -11,7 +10,7 @@ class TestFloatSet(TestPyMEOS):
     floatset = FloatSet("{1, 2, 3}")
 
     @staticmethod
-    def assert_intset_equality(floatset: FloatSet, values: List[int]):
+    def assert_intset_equality(floatset: FloatSet, values: list[int]):
         assert floatset.num_elements() == len(values)
         assert floatset.elements() == values
 

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
-from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING, List
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import *
 
@@ -22,29 +22,29 @@ class SpanSet(Collection[T], ABC):
 
     __slots__ = ["_inner"]
 
-    _parse_function: Callable[[str], "CData"] = None
-    _parse_value_function: Callable[[Union[str, T]], Any] = None
+    _parse_function: Callable[[str], CData] = None
+    _parse_value_function: Callable[[str | T], Any] = None
 
     # ------------------------- Constructors ----------------------------------
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        span_list: Optional[List[Union[str, Span]]] = None,
+        span_list: list[str | Span] | None = None,
         normalize: bool = True,
         _inner=None,
     ):
         super().__init__()
-        assert (_inner is not None) or (
-            (string is not None) != (span_list is not None)
-        ), "Either string must be not None or span_list must be not"
+        assert (_inner is not None) or ((string is not None) != (span_list is not None)), (
+            "Either string must be not None or span_list must be not"
+        )
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
             self._inner = self.__class__._parse_function(string)
         else:
             spans = [self.__class__._parse_value_function(p) for p in span_list]
-            self._inner = spanset_make(spans, normalize, True)
+            self._inner = spanset_make(spans)
 
     def __copy__(self: Self) -> Self:
         """
@@ -60,7 +60,7 @@ class SpanSet(Collection[T], ABC):
         return self.__class__(_inner=inner_copy)
 
     @classmethod
-    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+    def from_wkb(cls: type[Self], wkb: bytes) -> Self:
         """
         Returns a `SpanSet` from its WKB representation.
 
@@ -77,7 +77,7 @@ class SpanSet(Collection[T], ABC):
         return cls(_inner=result)
 
     @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
+    def from_hexwkb(cls: type[Self], hexwkb: str) -> Self:
         """
         Returns a `SpanSet` from its WKB representation in hex-encoded ASCII.
         Args:
@@ -113,7 +113,7 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             tstzspanset_out
         """
-        return f"{self.__class__.__name__}" f"({self})"
+        return f"{self.__class__.__name__}({self})"
 
     def as_wkb(self) -> bytes:
         """
@@ -202,7 +202,7 @@ class SpanSet(Collection[T], ABC):
         return spanset_span_n(self._inner, n + 1)
 
     @abstractmethod
-    def spans(self) -> List[Span]:
+    def spans(self) -> list[Span]:
         """
         Returns the list of tstzspans in ``self``.
         Returns:

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from abc import ABC
 from datetime import datetime
-from typing import Optional, Union, TypeVar, List
+from typing import TypeVar
 
 from pymeos_cffi import *
 
@@ -29,15 +29,15 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
 
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        value: Optional[Union[str, TBase]] = None,
-        timestamp: Optional[Union[str, datetime]] = None,
+        value: str | TBase | None = None,
+        timestamp: str | datetime | None = None,
         _inner=None,
     ):
-        assert (_inner is not None) or (
-            (string is not None) != (value is not None and timestamp is not None)
-        ), "Either string must be not None or both point and timestamp must be not"
+        assert (_inner is not None) or ((string is not None) != (value is not None and timestamp is not None)), (
+            "Either string must be not None or both point and timestamp must be not"
+        )
         if _inner is not None:
             self._inner = as_tinstant(_inner)
         elif string is not None:
@@ -48,9 +48,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
                 if isinstance(timestamp, datetime)
                 else pg_timestamptz_in(timestamp, -1)
             )
-            self._inner = self.__class__._make_function(
-                self.__class__._cast_function(value), ts
-            )
+            self._inner = self.__class__._make_function(self.__class__._cast_function(value), ts)
 
     def value(self) -> TBase:
         """
@@ -87,7 +85,7 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         else:
             raise Exception("ERROR: Out of range")
 
-    def instants(self: Self) -> List[Self]:
+    def instants(self: Self) -> list[Self]:
         return [self]
 
     def start_timestamp(self) -> datetime:
@@ -102,5 +100,5 @@ class TInstant(Temporal[TBase, TG, TI, TS, TSS], ABC):
         else:
             raise Exception("ERROR: Out of range")
 
-    def timestamps(self) -> List[datetime]:
+    def timestamps(self) -> list[datetime]:
         return [self.timestamp()]

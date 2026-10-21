@@ -1,6 +1,7 @@
+import pytest
+
 from pymeos import TInterpolation
 from tests.conftest import TestPyMEOS
-import pytest
 
 
 class TestTInterpolation(TestPyMEOS):
