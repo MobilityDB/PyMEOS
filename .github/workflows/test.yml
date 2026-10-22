@@ -90,12 +90,15 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
 
+      # A PyMEOS-CFFI branch named as this one carries a matching CFFI change; otherwise the
+      # CFFI of the MEOS line the package version maps to: stable-X.Y on a released line,
+      # master on the next one.
       - name: Fetch PyMEOS CFFI sources
         env:
           BRANCH_NAME: ${{ github.head_ref || github.ref_name }}
         run: |
           git clone --branch ${{ env.BRANCH_NAME }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI \
-            || git clone --branch ${{ github.base_ref || 'master' }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
+            || git clone --branch ${{ steps.meos_branch.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/PyMEOS-CFFI
 
       - name: Install python dependencies
         run: |
