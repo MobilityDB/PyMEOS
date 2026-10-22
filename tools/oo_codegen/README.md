@@ -105,3 +105,22 @@ back and re-run:
 cp ../PyMEOS-CFFI/builder/meos-idl.json tools/oo_codegen/meos-idl.json
 python3 tools/oo_codegen/codegen.py && black tools/oo_codegen
 ```
+
+### Provenance: regenerate directly from MEOS-API
+
+`PyMEOS-CFFI/builder/meos-idl.json` is itself a snapshot of the
+[MEOS-API](https://github.com/MobilityDB/MEOS-API) parser's output
+(`run.py`), byte-schema-identical: `functions[].{file,name,params,
+returnType{c,canonical}}`, `params[].{name,cType,canonical}`,
+`structs[].fields[].offset_bits`, `enums`. The generator therefore
+consumes the canonical MEOS-API catalog with no transformation — it runs
+unchanged on a fresh `run.py` output. To reproduce the catalog directly
+from MEOS-API against a chosen MEOS ref (no PyMEOS-CFFI intermediary):
+
+```
+tools/oo_codegen/regen-from-meos-api.sh <MEOS_INCLUDE_DIR> [MEOS_API_REF]
+```
+
+The only schema differences a fresh `run.py` shows are additive and
+irrelevant to this generator: a top-level `portableAliases` block (used
+by PR #87, not here) and a denser `meta/meos-meta.json` enrichment merge.
