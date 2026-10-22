@@ -1,0 +1,60 @@
+{
+  "_comment": "Canonical portable bare-name dialect — the single codegen source of truth (RFC #920). Every binding/engine generates the SAME bare names from this mapping so users learn one reference and assume the rest. Operators are SQL operator symbols; bareName is the portable function name. The mapping is type-agnostic: it applies to EVERY temporal type family.",
+  "provenance": {
+    "discussion": "MobilityDB#861",
+    "rfc": "MobilityDB RFC #920 (doc/rfc/sql-portability/README.md, branch rfc/sql-portability)",
+    "nativePR": "MobilityDB#1075 (1303 operator-overload aliases, each reusing the operator's own C symbol — identical by construction; CI-gated by tools/portable_aliases/generate.py --check)",
+    "manualChapter": "MobilityDB#1078"
+  },
+  "families": {
+    "topology":           [{"operator": "&&",  "bareName": "overlaps"},
+                           {"operator": "@>",  "bareName": "contains"},
+                           {"operator": "<@",  "bareName": "contained"},
+                           {"operator": "-|-", "bareName": "adjacent"}],
+    "timePosition":       [{"operator": "<<#", "bareName": "before"},
+                           {"operator": "#>>", "bareName": "after"},
+                           {"operator": "&<#", "bareName": "overbefore"},
+                           {"operator": "#&>", "bareName": "overafter"}],
+    "spaceX":             [{"operator": "<<",  "bareName": "left"},
+                           {"operator": ">>",  "bareName": "right"},
+                           {"operator": "&<",  "bareName": "overleft"},
+                           {"operator": "&>",  "bareName": "overright"}],
+    "spaceY":             [{"operator": "<<|", "bareName": "below"},
+                           {"operator": "|>>", "bareName": "above"},
+                           {"operator": "&<|", "bareName": "overbelow"},
+                           {"operator": "|&>", "bareName": "overabove"}],
+    "spaceZ":             [{"operator": "<</", "bareName": "front"},
+                           {"operator": "/>>", "bareName": "back"},
+                           {"operator": "&</", "bareName": "overfront"},
+                           {"operator": "/&>", "bareName": "overback"}],
+    "temporalComparison": [{"operator": "#=",  "bareName": "teq"},
+                           {"operator": "#<>", "bareName": "tne"},
+                           {"operator": "#<",  "bareName": "tlt"},
+                           {"operator": "#<=", "bareName": "tle"},
+                           {"operator": "#>",  "bareName": "tgt"},
+                           {"operator": "#>=", "bareName": "tge"}],
+    "distance":           [{"operator": "<->", "bareName": "tdistance"},
+                           {"operator": "|=|", "bareName": "nearestApproachDistance"}],
+    "same":               [{"operator": "~=",  "bareName": "same"}]
+  },
+  "alreadyCanonical": [
+    {"family": "ever",   "operators": ["?="], "pattern": "ever_*"},
+    {"family": "always", "operators": ["%="], "pattern": "always_*"},
+    {"functions": ["eIntersects", "atTime", "restriction functions",
+                   "spatial-relationship functions"]}
+  ],
+  "_explicitBackingComment": "Bare names whose MEOS C family prefix differs from the bare name itself. Verified against the catalog (not guessed): `nearestApproachDistance` is backed by the `nad_*` family (35 functions). Lets the parity audit resolve 100% honestly instead of false-flagging a real, present family.",
+  "explicitBacking": {
+    "nearestApproachDistance": ["nad"]
+  },
+  "scope": {
+    "inScopeTypeFamilies": ["temporal", "geo", "cbuffer", "npoint", "pose",
+                            "rgeo"],
+    "note": "cbuffer / npoint / pose / rgeo are FULL user-facing temporal types and ARE in scope — covered like every other type. PR #1075 already aliases all six families (1303 aliases). They must NOT be excluded from any parity headline; an upstream/audit note that 'defers' or 'jointly excludes' them is a known error being corrected — where another engine defers them, that is incomplete work to close (a gap with a plan), never an accepted exclusion."
+  },
+  "notes": [
+    "Generate aliases by reusing each operator's own backing C function (equivalence by construction), never by reimplementing; mirror MobilityDB tools/portable_aliases/generate.py + its 100%-coverage audit.",
+    "User-facing API uses the full name `trgeometry`; internal functions keep the `trgeo_` prefix — do NOT normalize the internal prefix.",
+    "Goal: 100% parity ecosystem-wide — every operator has its bare name on every engine, no gaps, no headline exclusions."
+  ]
+}
