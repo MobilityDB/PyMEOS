@@ -1,15 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC
+from datetime import timedelta
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import *
 
-from .temporal import Temporal, import_pandas
+from .temporal import Temporal, TInterpolation, import_pandas
 
 if TYPE_CHECKING:
     import pandas as pd
-
 
 TBase = TypeVar("TBase")
 TG = TypeVar("TG", bound="Temporal[Any]")
@@ -66,6 +66,18 @@ class TSequenceSet(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A temporal sequence set.
         """
         return cls(sequence_list=sequence_list, normalize=normalize)
+
+    @classmethod
+    def from_instants_with_gaps(
+        cls,
+        instants: list[TI],
+        interpolation: TInterpolation,
+        max_time: timedelta = None,
+        max_distance: float = 0.0,
+    ):
+        instant_inners = [x._inner for x in instants]
+        interval = timedelta_to_interval(max_time) if max_time is not None else None
+        return cls(_inner=tsequenceset_make_gaps(instant_inners, interpolation, interval, max_distance))
 
     # ------------------------- Accessors -------------------------------------
     def num_sequences(self) -> int:

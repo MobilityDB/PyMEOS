@@ -5,7 +5,7 @@ from operator import not_
 
 import numpy as np
 import pytest
-from pymeos_cffi import MeosInvalidArgValueError
+from pymeos_cffi import MeosException, MeosInvalidArgValueError
 from shapely import GeometryCollection, LineString, MultiPoint, Point, Polygon
 
 from pymeos import (
@@ -279,6 +279,148 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         tps2 = TGeomPointSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tps2) == expected
         assert tps2.interpolation() == interpolation
+
+    @pytest.mark.parametrize(
+        "params, result",
+        [
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                ),
+                TGeomPointSeqSet("Interp=Step;{[POINT(1 1)@2000-01-01, POINT(5 5)@2000-01-02, POINT(6 6)@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    None,
+                    2.0,
+                ),
+                TGeomPointSeqSet(
+                    "Interp=Step;{[POINT(1 1)@2000-01-01], [POINT(5 5)@2000-01-02, POINT(6 6)@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                ),
+                TGeomPointSeqSet(
+                    "Interp=Step;{[POINT(1 1)@2000-01-01, POINT(5 5)@2000-01-02], [POINT(6 6)@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.STEPWISE,
+                    timedelta(days=2),
+                    2.0,
+                ),
+                TGeomPointSeqSet(
+                    "Interp=Step;{[POINT(1 1)@2000-01-01], [POINT(5 5)@2000-01-02], [POINT(6 6)@2000-01-05]}"
+                ),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    None,
+                ),
+                TGeomPointSeqSet("{[POINT(1 1)@2000-01-01, POINT(5 5)@2000-01-02, POINT(6 6)@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    None,
+                    2.0,
+                ),
+                TGeomPointSeqSet("{[POINT(1 1)@2000-01-01], [POINT(5 5)@2000-01-02, POINT(6 6)@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    timedelta(days=2),
+                ),
+                TGeomPointSeqSet("{[POINT(1 1)@2000-01-01, POINT(5 5)@2000-01-02], [POINT(6 6)@2000-01-05]}"),
+            ),
+            (
+                (
+                    [
+                        TGeomPointInst("POINT(1 1)@2000-01-01"),
+                        TGeomPointInst("POINT(5 5)@2000-01-02"),
+                        TGeomPointInst("POINT(6 6)@2000-01-05"),
+                    ],
+                    TInterpolation.LINEAR,
+                    timedelta(days=2),
+                    2.0,
+                ),
+                TGeomPointSeqSet("{[POINT(1 1)@2000-01-01], [POINT(5 5)@2000-01-02], [POINT(6 6)@2000-01-05]}"),
+            ),
+        ],
+        ids=[
+            "No Gaps Stepwise",
+            "Value Gaps Stepwise",
+            "Time Gaps Stepwise",
+            "Value and Time Gaps Stepwise",
+            "No Gaps Linear",
+            "Value Gaps Linear",
+            "Time Gaps Linear",
+            "Value and Time Gaps Linear",
+        ],
+    )
+    def test_gaps_constructor(self, params, result):
+        assert TGeomPointSeqSet.from_instants_with_gaps(*params) == result
+
+    @pytest.mark.parametrize(
+        "params",
+        [
+            {"interpolation": TInterpolation.DISCRETE},
+        ],
+        ids=[
+            "Discrete Interpolation",
+        ],
+    )
+    def test_gaps_constructor_with_invalid_parameters_raises(self, params):
+        instants = [
+            TGeomPointInst(point="POINT(1 1)", timestamp="2000-01-01"),
+            TGeomPointInst(point="POINT(5 5)", timestamp="2000-01-02"),
+            TGeomPointInst(point="POINT(6 6)", timestamp="2000-01-03"),
+        ]
+        with pytest.raises(MeosException):
+            TGeomPointSeqSet.from_instants_with_gaps(instants, **params)
 
     @pytest.mark.parametrize(
         "temporal",
