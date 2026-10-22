@@ -1,17 +1,17 @@
-from typing import Optional, Union, Tuple, Any
+from typing import Any
 
 from pymeos_cffi import (
-    meos_initialize,
     meos_finalize,
+    meos_initialize,
     meos_set_datestyle,
     meos_set_intervalstyle,
 )
 
 
 def pymeos_initialize(
-    timezone: Optional[str] = None,
-    date_style: Union[None, str, Tuple[str, Any]] = None,
-    interval_style: Union[None, str, Tuple[str, int]] = None,
+    timezone: str | None = None,
+    date_style: None | str | tuple[str, Any] = None,
+    interval_style: None | str | tuple[str, int] = None,
 ) -> None:
     """
     Initializes the underlying MEOS platform.

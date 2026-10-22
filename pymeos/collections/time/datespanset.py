@@ -1,47 +1,45 @@
 from __future__ import annotations
 
-from datetime import timedelta, date
-from typing import Optional, Union, List, overload
-from typing import TYPE_CHECKING
+from datetime import date, timedelta
+from typing import TYPE_CHECKING, overload
 
 from _meos_cffi.lib import (
     distance_datespanset_datespan,
     distance_datespanset_datespanset,
 )
 from pymeos_cffi import (
-    datespanset_in,
-    datespan_in,
-    datespanset_out,
-    datespanset_to_tstzspanset,
-    interval_to_timedelta,
-    datespanset_duration,
-    datespanset_num_dates,
+    after_spanset_date,
+    before_spanset_date,
+    contains_spanset_date,
     date_adt_to_date,
-    datespanset_start_date,
-    datespanset_end_date,
+    date_to_date_adt,
+    datespan_in,
     datespanset_date_n,
     datespanset_dates,
+    datespanset_duration,
+    datespanset_end_date,
+    datespanset_in,
+    datespanset_num_dates,
+    datespanset_out,
     datespanset_shift_scale,
-    date_to_date_adt,
-    contains_spanset_date,
-    before_spanset_date,
-    overbefore_spanset_date,
-    overafter_spanset_date,
-    after_spanset_date,
+    datespanset_start_date,
+    datespanset_to_tstzspanset,
     distance_spanset_date,
     intersection_spanset_date,
+    interval_to_timedelta,
     minus_spanset_date,
+    overafter_spanset_date,
+    overbefore_spanset_date,
     union_spanset_date,
 )
 
-from .timecollection import TimeCollection
 from ..base.spanset import SpanSet
+from .timecollection import TimeCollection
 
 if TYPE_CHECKING:
-    from .tstzspan import TsTzSpan
-    from .tstzspanset import TsTzSpanSet
     from .datespan import DateSpan
     from .time import TimeDate
+    from .tstzspanset import TsTzSpanSet
 
 
 class DateSpanSet(SpanSet[date], TimeCollection[date]):
@@ -115,7 +113,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         return TsTzSpanSet(_inner=datespanset_to_tstzspanset(self._inner))
 
     # ------------------------- Accessors -------------------------------------
-    def duration(self, ignore_gaps: Optional[bool] = False) -> timedelta:
+    def duration(self, ignore_gaps: bool | None = False) -> timedelta:
         """
         Returns the duration of ``self``. By default, i.e., when ``ignore_gaps`` is
         ``False``, the function takes into account the gaps between the
@@ -183,7 +181,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
             raise IndexError(f"Index {n} out of bounds")
         return date_adt_to_date(datespanset_date_n(self._inner, n + 1))
 
-    def dates(self) -> List[date]:
+    def dates(self) -> list[date]:
         """
         Returns the list of distinct dates in ``self``.
         Returns:
@@ -234,7 +232,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
 
         return DateSpan(_inner=super().span_n(n))
 
-    def spans(self) -> List[DateSpan]:
+    def spans(self) -> list[DateSpan]:
         """
         Returns the list of :class:`DateSpan` in ``self``.
         Returns:
@@ -249,7 +247,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         return [DateSpan(_inner=ps[i]) for i in range(self.num_spans())]
 
     # ------------------------- Transformations -------------------------------
-    def shift(self, delta: Union[timedelta, int]) -> DateSpanSet:
+    def shift(self, delta: timedelta | int) -> DateSpanSet:
         """
         Returns a new :class:`DateSpanSet` that is the result of shifting ``self`` by
         ``delta``
@@ -269,7 +267,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         """
         return self.shift_scale(shift=delta)
 
-    def scale(self, duration: Union[timedelta, int]) -> DateSpanSet:
+    def scale(self, duration: timedelta | int) -> DateSpanSet:
         """
         Returns a new :class:`DateSpanSet` that starts as ``self`` but has duration
         ``duration``
@@ -292,8 +290,8 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
 
     def shift_scale(
         self,
-        shift: Union[timedelta, int, None] = None,
-        duration: Union[timedelta, int, None] = None,
+        shift: timedelta | int | None = None,
+        duration: timedelta | int | None = None,
     ) -> DateSpanSet:
         """
         Returns a new :class:`DateSpanSet` that starts at ``self`` shifted by ``shift``
@@ -314,29 +312,17 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         MEOS Functions:
             datespanset_shift_scale
         """
-        assert (
-            shift is not None or duration is not None
-        ), "shift and scale deltas must not be both None"
+        assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
 
-        shift = (
-            shift.days
-            if isinstance(shift, timedelta)
-            else int(shift) if shift is not None else 0
-        )
-        duration = (
-            duration.days
-            if isinstance(duration, timedelta)
-            else int(duration) if duration is not None else 0
-        )
+        shift = shift.days if isinstance(shift, timedelta) else int(shift) if shift is not None else 0
+        duration = duration.days if isinstance(duration, timedelta) else int(duration) if duration is not None else 0
 
-        modified = datespanset_shift_scale(
-            self._inner, shift, duration, shift != 0, duration != 0
-        )
+        modified = datespanset_shift_scale(self._inner, shift, duration, shift != 0, duration != 0)
         return DateSpanSet(_inner=modified)
 
     # ------------------------- Topological Operations ------------------------
 
-    def contains(self, content: Union[TimeDate]) -> bool:
+    def contains(self, content: TimeDate) -> bool:
         """
         Returns whether ``self`` temporally contains ``content``.
 
@@ -364,7 +350,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         else:
             return super().contains(content)
 
-    def overlaps(self, other: Union[TimeDate]) -> bool:
+    def overlaps(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` temporally overlaps ``other``. That is, both
         share at least an instant
@@ -392,7 +378,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
             return super().overlaps(other)
 
     # ------------------------- Position Operations ---------------------------
-    def is_left(self, other: Union[TimeDate]) -> bool:
+    def is_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly before ``other``. That is,
         ``self`` ends before ``other`` starts.
@@ -419,7 +405,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         else:
             return super().is_left(other)
 
-    def is_over_or_left(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_left(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is before ``other`` allowing overlap. That is,
         ``self`` ends before ``other`` ends (or at the same time).
@@ -447,7 +433,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         else:
             return super().is_over_or_left(other)
 
-    def is_over_or_right(self, other: Union[TimeDate]) -> bool:
+    def is_over_or_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is after ``other`` allowing overlap. That is,
         ``self`` starts after ``other`` starts (or at the same time).
@@ -475,7 +461,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         else:
             return super().is_over_or_right(other)
 
-    def is_right(self, other: Union[TimeDate]) -> bool:
+    def is_right(self, other: TimeDate) -> bool:
         """
         Returns whether ``self`` is strictly after ``other``.That is, ``self``
         starts after ``other`` ends.
@@ -522,19 +508,13 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         from .datespan import DateSpan
 
         if isinstance(other, date):
-            return timedelta(
-                days=distance_spanset_date(self._inner, date_to_date_adt(other))
-            )
+            return timedelta(days=distance_spanset_date(self._inner, date_to_date_adt(other)))
         elif isinstance(other, DateSet):
             return self.distance(other.to_spanset())
         elif isinstance(other, DateSpan):
-            return timedelta(
-                days=distance_datespanset_datespan(self._inner, other._inner)
-            )
+            return timedelta(days=distance_datespanset_datespan(self._inner, other._inner))
         elif isinstance(other, DateSpanSet):
-            return timedelta(
-                days=distance_datespanset_datespanset(self._inner, other._inner)
-            )
+            return timedelta(days=distance_datespanset_datespanset(self._inner, other._inner))
         else:
             return super().distance(other)
 
@@ -544,9 +524,9 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
     def intersection(self, other: date) -> date: ...
 
     @overload
-    def intersection(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet: ...
+    def intersection(self, other: DateSpan | DateSpanSet) -> DateSpanSet: ...
 
-    def intersection(self, other: TimeDate) -> Union[date, DateSpanSet]:
+    def intersection(self, other: TimeDate) -> date | DateSpanSet:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 

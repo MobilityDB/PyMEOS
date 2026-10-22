@@ -1,26 +1,24 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pytest
 from pymeos_cffi import MeosException
 
 from pymeos import (
-    TBool,
     TBoolInst,
     TBoolSeq,
     TBoolSeqSet,
+    TInterpolation,
+    TIntInst,
+    TIntSeq,
+    TIntSeqSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
     TText,
     TTextInst,
     TTextSeq,
     TTextSeqSet,
-    TInt,
-    TIntInst,
-    TIntSeq,
-    TIntSeqSet,
-    TInterpolation,
-    TsTzSet,
-    TsTzSpan,
-    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -33,9 +31,7 @@ class TestTTextConstructors(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "source, type, interpolation",
@@ -52,9 +48,7 @@ class TestTTextConstructors(TestTText):
                 TInterpolation.STEPWISE,
             ),
             (
-                TIntSeqSet(
-                    "{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"
-                ),
+                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"),
                 TTextSeqSet,
                 TInterpolation.STEPWISE,
             ),
@@ -235,9 +229,7 @@ class TestTTextConstructors(TestTText):
             "Mixed Stepwise Normalized",
         ],
     )
-    def test_instant_list_sequence_constructor(
-        self, list, interpolation, normalize, expected
-    ):
+    def test_instant_list_sequence_constructor(self, list, interpolation, normalize, expected):
         tts = TTextSeq(
             instant_list=list,
             interpolation=interpolation,
@@ -247,9 +239,7 @@ class TestTTextConstructors(TestTText):
         assert str(tts) == expected
         assert tts.interpolation() == interpolation
 
-        tts2 = TTextSeq.from_instants(
-            list, interpolation=interpolation, normalize=normalize, upper_inc=True
-        )
+        tts2 = TTextSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tts2) == expected
         assert tts2.interpolation() == interpolation
 
@@ -330,9 +320,7 @@ class TestTTextOutputs(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -532,9 +520,7 @@ class TestTTextAccessors(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -912,9 +898,7 @@ class TestTTextAccessors(TestTText):
 
     def test_value_timestamp(self):
         assert self.tti.value() == "AAA"
-        assert self.tti.timestamp() == datetime(
-            year=2019, month=9, day=1, tzinfo=timezone.utc
-        )
+        assert self.tti.timestamp() == datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -929,10 +913,7 @@ class TestTTextAccessors(TestTText):
         assert temporal.upper_inc() == expected
 
     def test_sequenceset_sequence_functions(self):
-        ttss1 = TTextSeqSet(
-            "{[AAA@2019-09-01, BBB@2019-09-02],"
-            "[AAA@2019-09-03, AAA@2019-09-05], [CCC@2019-09-06]}"
-        )
+        ttss1 = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05], [CCC@2019-09-06]}")
         assert ttss1.num_sequences() == 3
         assert ttss1.start_sequence() == TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
         assert ttss1.end_sequence() == TTextSeq("[CCC@2019-09-06]")
@@ -948,9 +929,7 @@ class TestTTextTransformations(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1063,16 +1042,12 @@ class TestTTextTransformations(TestTText):
             (
                 ttss,
                 timedelta(days=4),
-                TTextSeqSet(
-                    "{[AAA@2019-09-05, BBB@2019-09-06],[AAA@2019-09-07, AAA@2019-09-09]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-05, BBB@2019-09-06],[AAA@2019-09-07, AAA@2019-09-09]}"),
             ),
             (
                 ttss,
                 timedelta(days=-4),
-                TTextSeqSet(
-                    "{[AAA@2019-08-28, BBB@2019-08-29],[AAA@2019-08-30, AAA@2019-09-01]}"
-                ),
+                TTextSeqSet("{[AAA@2019-08-28, BBB@2019-08-29],[AAA@2019-08-30, AAA@2019-09-01]}"),
             ),
             (
                 ttss,
@@ -1133,9 +1108,7 @@ class TestTTextTransformations(TestTText):
             (
                 ttss,
                 timedelta(days=4),
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (
                 ttss,
@@ -1161,11 +1134,8 @@ class TestTTextTransformations(TestTText):
         assert ttext.scale_time(delta) == expected
 
     def test_shift_scale(self):
-        assert self.ttss.shift_scale_time(
-            timedelta(days=4), timedelta(hours=2)
-        ) == TTextSeqSet(
-            "{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],"
-            "[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}"
+        assert self.ttss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == TTextSeqSet(
+            "{[AAA@2019-09-05 00:00:00, BBB@2019-09-05 00:30:00],[AAA@2019-09-05 01:00:00, AAA@2019-09-05 02:00:00]}"
         )
 
     @pytest.mark.parametrize(
@@ -1175,20 +1145,19 @@ class TestTTextTransformations(TestTText):
             (tti, timedelta(hours=12), TTextInst("AAA@2019-09-01")),
             (ttds, timedelta(days=4), TTextSeq("{AAA@2019-09-01}")),
             (ttds, timedelta(hours=12), TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")),
-            (tts, timedelta(days=4), TTextSeq("{AAA@2019-09-01}")),
+            (tts, timedelta(days=4), TTextSeq("[AAA@2019-09-01]")),
             (
                 tts,
                 timedelta(hours=12),
-                TTextSeq("{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02}"),
+                TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]"),
             ),
             (ttss, timedelta(days=4), TTextSeq("{AAA@2019-09-01,AAA@2019-09-05}")),
             (
                 ttss,
                 timedelta(hours=12),
                 TTextSeq(
-                    "{AAA@2019-09-01, AAA@2019-09-01 12:00:00, BBB@2019-09-02,"
-                    "AAA@2019-09-03, AAA@2019-09-03 12:00:00, AAA@2019-09-04, "
-                    "AAA@2019-09-04 12:00:00, AAA@2019-09-05}"
+                    "{[AAA@2019-09-01 00:00:00+00, BBB@2019-09-02 00:00:00+00], "
+                    "[AAA@2019-09-03 00:00:00+00, AAA@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],
@@ -1211,9 +1180,7 @@ class TestTTextModifications(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, sequence, expected",
@@ -1236,9 +1203,7 @@ class TestTTextModifications(TestTText):
             (
                 ttss,
                 TTextSeq("[AAA@2019-09-06]"),
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1263,9 +1228,7 @@ class TestTTextModifications(TestTText):
             (
                 ttss,
                 TTextInst("BBB@2019-09-01"),
-                TTextSeqSet(
-                    "{[BBB@2019-09-01], (AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[BBB@2019-09-01], (AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1291,9 +1254,7 @@ class TestTTextModifications(TestTText):
             (
                 ttss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TTextSeqSet(
-                    "{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1328,9 +1289,7 @@ class TestTTextModifications(TestTText):
             (
                 ttss,
                 TTextInst("AAA@2019-09-06"),
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-06]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1354,9 +1313,7 @@ class TestTTextModifications(TestTText):
             (
                 ttss,
                 TTextSeq("[AAA@2019-09-06]"),
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05],[AAA@2019-09-06]}"),
             ),
         ],
         ids=["Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1369,9 +1326,7 @@ class TestTTextTextOperations(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
     argument = TTextSeq("[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]")
 
     @pytest.mark.parametrize(
@@ -1382,9 +1337,7 @@ class TestTTextTextOperations(TestTText):
             (tts, TTextSeq("[AAABBB@2019-09-01, BBBAAA@2019-09-02]")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[AAABBB@2019-09-01, BBBAAA@2019-09-02],[AAAAAA@2019-09-03]}"
-                ),
+                TTextSeqSet("{[AAABBB@2019-09-01, BBBAAA@2019-09-02],[AAAAAA@2019-09-03]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1401,9 +1354,7 @@ class TestTTextTextOperations(TestTText):
             (tts, TTextSeq("[AAABBB@2019-09-01, BBBBBB@2019-09-02]")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[AAABBB@2019-09-01, BBBBBB@2019-09-02],[AAABBB@2019-09-03, AAABBB@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAABBB@2019-09-01, BBBBBB@2019-09-02],[AAABBB@2019-09-03, AAABBB@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1420,9 +1371,7 @@ class TestTTextTextOperations(TestTText):
             (tts, TTextSeq("[BBBAAA@2019-09-01, BBBBBB@2019-09-02]")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[BBBAAA@2019-09-01, BBBBBB@2019-09-02],[BBBAAA@2019-09-03, BBBAAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[BBBAAA@2019-09-01, BBBBBB@2019-09-02],[BBBAAA@2019-09-03, BBBAAA@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1438,9 +1387,7 @@ class TestTTextTextOperations(TestTText):
             (tts, TTextSeq("[aaa@2019-09-01, bbb@2019-09-02]")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[aaa@2019-09-01, bbb@2019-09-02],[aaa@2019-09-03, aaa@2019-09-05]}"
-                ),
+                TTextSeqSet("{[aaa@2019-09-01, bbb@2019-09-02],[aaa@2019-09-03, aaa@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1461,9 +1408,7 @@ class TestTTextRestrictors(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     timestamp = datetime(2019, 9, 1)
     timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
@@ -1500,16 +1445,12 @@ class TestTTextRestrictors(TestTText):
             (
                 ttss,
                 tstzspan_set,
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (
                 ttss,
                 "AAA",
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (ttss, "BBB", TTextSeqSet("{[BBB@2019-09-02]}")),
             (ttss, ["AAA", "BBB"], ttss),
@@ -1569,9 +1510,7 @@ class TestTTextRestrictors(TestTText):
             (tts, TTextSeq("{[AAA@2019-09-01, AAA@2019-09-02)}")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1606,16 +1545,12 @@ class TestTTextRestrictors(TestTText):
             (
                 ttss,
                 timestamp,
-                TTextSeqSet(
-                    "{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (
                 ttss,
                 timestamp_set,
-                TTextSeqSet(
-                    "{(AAA@2019-09-01, BBB@2019-09-02],(AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02],(AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (ttss, tstzspan, TTextSeqSet("{[AAA@2019-09-03, AAA@2019-09-05]}")),
             (ttss, tstzspan_set, None),
@@ -1623,9 +1558,7 @@ class TestTTextRestrictors(TestTText):
             (
                 ttss,
                 "BBB",
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, AAA@2019-09-02),[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
             (ttss, ["AAA", "BBB"], None),
         ],
@@ -1687,9 +1620,7 @@ class TestTTextRestrictors(TestTText):
             (tts, TTextSeq("{[AAA@2019-09-01, AAA@2019-09-02)}")),
             (
                 ttss,
-                TTextSeqSet(
-                    "{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}"
-                ),
+                TTextSeqSet("{[AAA@2019-09-01, AAA@2019-09-02), [AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1761,10 +1692,7 @@ class TestTTextRestrictors(TestTText):
         ],
     )
     def test_at_minus(self, temporal, restrictor):
-        assert (
-            TText.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
-            == temporal
-        )
+        assert TText.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
 
     @pytest.mark.parametrize(
         "temporal",
@@ -1780,9 +1708,7 @@ class TestTTextTopologicalFunctions(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, argument, expected",
@@ -1872,9 +1798,7 @@ class TestTTextPositionFunctions(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02], [AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, argument, expected",
@@ -1958,9 +1882,7 @@ class TestTTextPositionFunctions(TestTText):
 
 class TestTTextComparisons(TestTText):
     tt = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    other = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    other = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     def test_eq(self):
         _ = self.tt == self.other
@@ -1985,9 +1907,7 @@ class TestTTextEverAlwaysComparisons(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -2042,9 +1962,7 @@ class TestTTextTemporalComparisons(TestTText):
     tti = TTextInst("AAA@2019-09-01")
     ttds = TTextSeq("{AAA@2019-09-01, BBB@2019-09-02}")
     tts = TTextSeq("[AAA@2019-09-01, BBB@2019-09-02]")
-    ttss = TTextSeqSet(
-        "{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"
-    )
+    ttss = TTextSeqSet("{[AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}")
     argument = TTextSeq("[BBB@2019-09-01, AAA@2019-09-02, AAA@2019-09-03]")
 
     @pytest.mark.parametrize(
@@ -2071,9 +1989,7 @@ class TestTTextTemporalComparisons(TestTText):
             (tts, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
             (
                 ttss,
-                TBoolSeqSet(
-                    "{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
-                ),
+                TBoolSeqSet("{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2107,9 +2023,7 @@ class TestTTextTemporalComparisons(TestTText):
             (tts, TBoolSeq("[False@2019-09-01, True@2019-09-02]")),
             (
                 ttss,
-                TBoolSeqSet(
-                    "{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"
-                ),
+                TBoolSeqSet("{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

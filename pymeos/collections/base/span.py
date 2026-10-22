@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Optional, Union
-from typing import TypeVar, Type, Callable, Any, TYPE_CHECKING
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pymeos_cffi import *
 
@@ -22,25 +22,25 @@ class Span(Collection[T], ABC):
 
     __slots__ = ["_inner"]
 
-    _parse_function: Callable[[str], "CData"] = None
-    _parse_value_function: Callable[[Union[str, T]], Any] = None
-    _make_function: Callable[[Any, Any, bool, bool], "CData"] = None
+    _parse_function: Callable[[str], CData] = None
+    _parse_value_function: Callable[[str | T], Any] = None
+    _make_function: Callable[[Any, Any, bool, bool], CData] = None
 
     # ------------------------- Constructors ----------------------------------
     def __init__(
         self,
-        string: Optional[str] = None,
+        string: str | None = None,
         *,
-        lower: Optional[Union[str, T]] = None,
-        upper: Optional[Union[str, T]] = None,
-        lower_inc: Optional[bool] = True,
-        upper_inc: Optional[bool] = False,
+        lower: str | T | None = None,
+        upper: str | T | None = None,
+        lower_inc: bool | None = True,
+        upper_inc: bool | None = False,
         _inner=None,
     ):
         super().__init__()
-        assert (_inner is not None) or (
-            (string is not None) != (lower is not None and upper is not None)
-        ), "Either string must be not None or both lower and upper must be not"
+        assert (_inner is not None) or ((string is not None) != (lower is not None and upper is not None)), (
+            "Either string must be not None or both lower and upper must be not"
+        )
         if _inner is not None:
             self._inner = _inner
         elif string is not None:
@@ -48,9 +48,7 @@ class Span(Collection[T], ABC):
         else:
             lower_converted = self.__class__._parse_value_function(lower)
             upper_converted = self.__class__._parse_value_function(upper)
-            self._inner = self.__class__._make_function(
-                lower_converted, upper_converted, lower_inc, upper_inc
-            )
+            self._inner = self.__class__._make_function(lower_converted, upper_converted, lower_inc, upper_inc)
 
     def __copy__(self: Self) -> Self:
         """
@@ -66,7 +64,7 @@ class Span(Collection[T], ABC):
         return self.__class__(_inner=inner_copy)
 
     @classmethod
-    def from_wkb(cls: Type[Self], wkb: bytes) -> Self:
+    def from_wkb(cls: type[Self], wkb: bytes) -> Self:
         """
         Returns a `TsTzSpan` from its WKB representation.
 
@@ -82,7 +80,7 @@ class Span(Collection[T], ABC):
         return cls(_inner=(span_from_wkb(wkb)))
 
     @classmethod
-    def from_hexwkb(cls: Type[Self], hexwkb: str) -> Self:
+    def from_hexwkb(cls: type[Self], hexwkb: str) -> Self:
         """
         Returns a `TsTzSpan` from its WKB representation in hex-encoded ASCII.
 
@@ -116,7 +114,7 @@ class Span(Collection[T], ABC):
         Returns:
             A new :class:`str` instance
         """
-        return f"{self.__class__.__name__}" f"({self})"
+        return f"{self.__class__.__name__}({self})"
 
     def as_wkb(self) -> bytes:
         """

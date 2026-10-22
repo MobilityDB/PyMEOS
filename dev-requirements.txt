@@ -2,3 +2,5 @@ python-dateutil
 shapely
 geopandas
 pytest
+ruff
+pyarrow

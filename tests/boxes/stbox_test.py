@@ -1,25 +1,23 @@
+import math
 from copy import copy
-from datetime import datetime, timezone, timedelta
-from shapely import Point, LineString, Polygon
-import shapely.geometry
+from datetime import datetime, timedelta, timezone
 
 import pytest
-import math
+import shapely.geometry
+from shapely import LineString, Point, Polygon
 
 from pymeos import (
     STBox,
-    TInterpolation,
-    TsTzSet,
-    TsTzSpan,
-    TsTzSpanSet,
-    TGeomPointInst,
-    TGeomPointSeq,
-    TGeomPointSeqSet,
     TGeogPointInst,
     TGeogPointSeq,
     TGeogPointSeqSet,
+    TGeomPointInst,
+    TGeomPointSeq,
+    TGeomPointSeqSet,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
-
 from tests.conftest import TestPyMEOS
 
 
@@ -352,53 +350,25 @@ class TestSTBoxConstructors(TestSTBox):
                 ],
             ),
             (
-                STBox(
-                    "STBOX XT(((1,1),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                ),
+                STBox("STBOX XT(((1,1),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
                 [
-                    STBox(
-                        "STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX XT(((2,1),(3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX XT(((1,2),(2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX XT(((2,2),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
+                    STBox("STBOX XT(((1,1),(2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX XT(((2,1),(3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX XT(((1,2),(2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX XT(((2,2),(3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
                 ],
             ),
             (
-                STBox(
-                    "STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                ),
+                STBox("STBOX ZT(((1,1,1),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
                 [
-                    STBox(
-                        "STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((2,1,1),(3,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((1,2,1),(2,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((2,2,1),(3,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((1,1,2),(2,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((2,1,2),(3,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((1,2,2),(2,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
-                    STBox(
-                        "STBOX ZT(((2,2,2),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"
-                    ),
+                    STBox("STBOX ZT(((1,1,1),(2,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((2,1,1),(3,2,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((1,2,1),(2,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((2,2,1),(3,3,2)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((1,1,2),(2,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((2,1,2),(3,2,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((1,2,2),(2,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
+                    STBox("STBOX ZT(((2,2,2),(3,3,3)),[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00])"),
                 ],
             ),
         ],
@@ -790,9 +760,9 @@ class TestSTBoxTransformations(TestSTBox):
         assert stbox.scale_time(delta) == expected
 
     def test_shift_scale_time(self):
-        assert self.stbt.shift_scale_time(
-            timedelta(days=4), timedelta(hours=4)
-        ) == STBox("STBOX T([2019-09-05,2019-09-05 04:00:00])")
+        assert self.stbt.shift_scale_time(timedelta(days=4), timedelta(hours=4)) == STBox(
+            "STBOX T([2019-09-05,2019-09-05 04:00:00])"
+        )
 
     @pytest.mark.parametrize(
         "stbox, expected",
@@ -802,15 +772,11 @@ class TestSTBoxTransformations(TestSTBox):
                 STBox("STBOX X((1.12,1.12),(2.12,2.12))"),
             ),
             (
-                STBox(
-                    "STBOX Z((1.123456789,1.123456789,1.123456789),(2.123456789,2.123456789,2.123456789))"
-                ),
+                STBox("STBOX Z((1.123456789,1.123456789,1.123456789),(2.123456789,2.123456789,2.123456789))"),
                 STBox("STBOX Z((1.12,1.12,1.12),(2.12,2.12,2.12))"),
             ),
             (
-                STBox(
-                    "STBOX XT(((1.123456789,1.123456789),(2.123456789,2.123456789)),[2019-09-01, 2019-09-02])"
-                ),
+                STBox("STBOX XT(((1.123456789,1.123456789),(2.123456789,2.123456789)),[2019-09-01, 2019-09-02])"),
                 STBox("STBOX XT(((1.12,1.12),(2.12,2.12)),[2019-09-01, 2019-09-03])"),
             ),
             (
@@ -818,9 +784,7 @@ class TestSTBoxTransformations(TestSTBox):
                     "STBOX ZT(((1.123456789,1.123456789,1.123456789),(2.123456789,2.123456789,2.123456789)),"
                     "[2019-09-01, 2019-09-02])"
                 ),
-                STBox(
-                    "STBOX ZT(((1.12,1.12,1.12),(2.12,2.12,2.12)),[2019-09-01, 2019-09-02])"
-                ),
+                STBox("STBOX ZT(((1.12,1.12,1.12),(2.12,2.12,2.12)),[2019-09-01, 2019-09-02])"),
             ),
         ],
         ids=["STBox X", "STBox Z", "STBox XT", "STBox ZT"],

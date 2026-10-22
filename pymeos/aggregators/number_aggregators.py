@@ -1,8 +1,8 @@
 from pymeos_cffi import *
 
-from .aggregator import BaseAggregator
 from ..boxes import TBox
-from ..main import TInt, TFloat, TNumber
+from ..main import TFloat, TInt, TNumber
+from .aggregator import BaseAggregator
 
 
 class TemporalAverageAggregator(BaseAggregator[TNumber, TNumber]):

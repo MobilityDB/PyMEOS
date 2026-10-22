@@ -1,9 +1,8 @@
 from .base import *
+from .geo import *
 from .number import *
 from .text import *
 from .time import *
-from .text import *
-from .geo import *
 
 __all__ = [
     "Set",

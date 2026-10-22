@@ -1,8 +1,8 @@
-from pymeos_cffi import *
+from pymeos_cffi import tspatial_extent_transfn
 
-from .aggregator import BaseAggregator
 from ..boxes import STBox
 from ..main import TPoint
+from .aggregator import BaseAggregator
 
 
 class TemporalPointExtentAggregator(BaseAggregator[TPoint, STBox]):
@@ -11,10 +11,10 @@ class TemporalPointExtentAggregator(BaseAggregator[TPoint, STBox]):
     includes all aggregated temporal numbers.
 
     MEOS Functions:
-        tpoint_extent_transfn, temporal_tagg_finalfn
+        tspatial_extent_transfn, temporal_tagg_finalfn
     """
 
-    _add_function = tpoint_extent_transfn
+    _add_function = tspatial_extent_transfn
 
     @classmethod
     def _finish(cls, state) -> STBox:

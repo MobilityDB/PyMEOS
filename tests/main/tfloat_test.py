@@ -1,30 +1,30 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from operator import not_
 
 import pytest
-from pymeos_cffi import MeosInvalidArgValueError, MeosException
+from pymeos_cffi import MeosException, MeosInvalidArgValueError
 
 from pymeos import (
+    FloatSet,
+    FloatSpan,
+    FloatSpanSet,
     TBoolInst,
     TBoolSeq,
     TBoolSeqSet,
+    TBox,
     TFloat,
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
     TInt,
+    TInterpolation,
     TIntInst,
     TIntSeq,
     TIntSeqSet,
-    TInterpolation,
-    TBox,
     TsTzSet,
     TsTzSpan,
     TsTzSpanSet,
-    FloatSpan,
-    FloatSpanSet,
-    FloatSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -37,13 +37,9 @@ class TestTFloatConstructors(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tfsts = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfstss = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfstss = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "source, type, interpolation",
@@ -56,9 +52,7 @@ class TestTFloatConstructors(TestTFloat):
             ),
             (TIntSeq("[1@2019-09-01, 2@2019-09-02]"), TFloatSeq, TInterpolation.LINEAR),
             (
-                TIntSeqSet(
-                    "{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"
-                ),
+                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"),
                 TFloatSeqSet,
                 TInterpolation.LINEAR,
             ),
@@ -241,9 +235,7 @@ class TestTFloatConstructors(TestTFloat):
             "Mixed Linear Normalized",
         ],
     )
-    def test_instant_list_sequence_constructor(
-        self, list, interpolation, normalize, expected
-    ):
+    def test_instant_list_sequence_constructor(self, list, interpolation, normalize, expected):
         tfs = TFloatSeq(
             instant_list=list,
             interpolation=interpolation,
@@ -253,9 +245,7 @@ class TestTFloatConstructors(TestTFloat):
         assert str(tfs) == expected
         assert tfs.interpolation() == interpolation
 
-        tfs2 = TFloatSeq.from_instants(
-            list, interpolation=interpolation, normalize=normalize, upper_inc=True
-        )
+        tfs2 = TFloatSeq.from_instants(list, interpolation=interpolation, normalize=normalize, upper_inc=True)
         assert str(tfs2) == expected
         assert tfs2.interpolation() == interpolation
 
@@ -272,9 +262,7 @@ class TestTFloatConstructors(TestTFloat):
                     TInterpolation.STEPWISE,
                     None,
                 ),
-                TFloatSeqSet(
-                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2000-01-01, 5@2000-01-02, 6@2000-01-05]}"),
             ),
             (
                 (
@@ -287,9 +275,7 @@ class TestTFloatConstructors(TestTFloat):
                     None,
                     2.0,
                 ),
-                TFloatSeqSet(
-                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2000-01-01], [5@2000-01-02, 6@2000-01-05]}"),
             ),
             (
                 (
@@ -301,9 +287,7 @@ class TestTFloatConstructors(TestTFloat):
                     TInterpolation.STEPWISE,
                     timedelta(days=2),
                 ),
-                TFloatSeqSet(
-                    "Interp=Step;{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2000-01-01, 5@2000-01-02], [6@2000-01-05]}"),
             ),
             (
                 (
@@ -316,9 +300,7 @@ class TestTFloatConstructors(TestTFloat):
                     timedelta(days=2),
                     2.0,
                 ),
-                TFloatSeqSet(
-                    "Interp=Step;{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2000-01-01], [5@2000-01-02], [6@2000-01-05]}"),
             ),
             (
                 (
@@ -443,13 +425,9 @@ class TestTFloatOutputs(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tfsts = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfstss = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfstss = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -681,13 +659,9 @@ class TestTFloatConversions(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tfsts = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfstss = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfstss = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -712,13 +686,9 @@ class TestTFloatAccessors(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tfsts = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfstss = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfstss = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1145,9 +1115,7 @@ class TestTFloatAccessors(TestTFloat):
 
     def test_value_timestamp(self):
         assert self.tfi.value() == 1.5
-        assert self.tfi.timestamp() == datetime(
-            year=2019, month=9, day=1, tzinfo=timezone.utc
-        )
+        assert self.tfi.timestamp() == datetime(year=2019, month=9, day=1, tzinfo=timezone.utc)
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1163,10 +1131,7 @@ class TestTFloatAccessors(TestTFloat):
         assert temporal.upper_inc() == expected
 
     def test_sequenceset_sequence_functions(self):
-        tfss1 = TFloatSeqSet(
-            "{[1@2019-09-01, 2@2019-09-02],"
-            "[1@2019-09-03, 1@2019-09-05], [3@2019-09-06]}"
-        )
+        tfss1 = TFloatSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05], [3@2019-09-06]}")
         assert tfss1.num_sequences() == 3
         assert tfss1.start_sequence() == TFloatSeq("[1@2019-09-01, 2@2019-09-02]")
         assert tfss1.end_sequence() == TFloatSeq("[3@2019-09-06]")
@@ -1209,24 +1174,15 @@ class TestTFloatTransformations(TestTFloat):
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
     tfsts = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
-    tfstss = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
+    tfstss = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     tfs_d = TFloatSeq("[1.5@2019-09-01]")
     tfss_d = TFloatSeqSet("{[1.5@2019-09-01],[2.5@2019-09-03]}")
     tfs_s = TFloatSeq("[1.5@2019-09-01, 1.5@2019-09-02]")
-    tfss_s = TFloatSeqSet(
-        "{[1.5@2019-09-01, 1.5@2019-09-02]," "[2.5@2019-09-03, 2.5@2019-09-05]}"
-    )
+    tfss_s = TFloatSeqSet("{[1.5@2019-09-01, 1.5@2019-09-02],[2.5@2019-09-03, 2.5@2019-09-05]}")
     tfs_l = TFloatSeq("Interp=Step;[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss_l = TFloatSeqSet(
-        "Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],"
-        "[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss_l = TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1330,10 +1286,7 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss_s,
                 TInterpolation.STEPWISE,
-                TFloatSeqSet(
-                    "Interp=Step;{[1.5@2019-09-01, 1.5@2019-09-02],"
-                    "[2.5@2019-09-03, 2.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1.5@2019-09-01, 1.5@2019-09-02],[2.5@2019-09-03, 2.5@2019-09-05]}"),
             ),
             (tfi, TInterpolation.LINEAR, TFloatSeq("[1.5@2019-09-01]")),
             (
@@ -1349,10 +1302,7 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss_l,
                 TInterpolation.LINEAR,
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 1.5@2019-09-02),"
-                    "[2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 1.5@2019-09-02),[2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1385,18 +1335,12 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss,
                 2,
-                TFloatSeqSet(
-                    "{[3.5@2019-09-01, 4.5@2019-09-02],"
-                    "[3.5@2019-09-03, 3.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[3.5@2019-09-01, 4.5@2019-09-02],[3.5@2019-09-03, 3.5@2019-09-05]}"),
             ),
             (
                 tfss,
                 -2,
-                TFloatSeqSet(
-                    "{[-0.5@2019-09-01, 0.5@2019-09-02],"
-                    "[-0.5@2019-09-03, -0.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[-0.5@2019-09-01, 0.5@2019-09-02],[-0.5@2019-09-03, -0.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1422,10 +1366,7 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss,
                 4,
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 5.5@2019-09-02],"
-                    "[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 5.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1451,19 +1392,13 @@ class TestTFloatTransformations(TestTFloat):
                 tfss,
                 2,
                 3,
-                TFloatSeqSet(
-                    "{[3.5@2019-09-01, 6.5@2019-09-02],"
-                    "[3.5@2019-09-03, 3.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[3.5@2019-09-01, 6.5@2019-09-02],[3.5@2019-09-03, 3.5@2019-09-05]}"),
             ),
             (
                 tfss,
                 -2,
                 3,
-                TFloatSeqSet(
-                    "{[-0.5@2019-09-01, 2.5@2019-09-02],"
-                    "[-0.5@2019-09-03, -0.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[-0.5@2019-09-01, 2.5@2019-09-02],[-0.5@2019-09-03, -0.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1514,16 +1449,12 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss,
                 timedelta(days=4),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-05, 2.5@2019-09-06],[1.5@2019-09-07, 1.5@2019-09-09]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-05, 2.5@2019-09-06],[1.5@2019-09-07, 1.5@2019-09-09]}"),
             ),
             (
                 tfss,
                 timedelta(days=-4),
-                TFloatSeqSet(
-                    "{[1.5@2019-08-28, 2.5@2019-08-29],[1.5@2019-08-30, 1.5@2019-09-01]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-08-28, 2.5@2019-08-29],[1.5@2019-08-30, 1.5@2019-09-01]}"),
             ),
             (
                 tfss,
@@ -1584,9 +1515,7 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfss,
                 timedelta(days=4),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
             (
                 tfss,
@@ -1612,11 +1541,8 @@ class TestTFloatTransformations(TestTFloat):
         assert tfloat.scale_time(delta) == expected
 
     def test_shift_scale_time(self):
-        assert self.tfss.shift_scale_time(
-            timedelta(days=4), timedelta(hours=2)
-        ) == TFloatSeqSet(
-            "{[1.5@2019-09-05 00:00:00, 2.5@2019-09-05 00:30:00],"
-            "[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}"
+        assert self.tfss.shift_scale_time(timedelta(days=4), timedelta(hours=2)) == TFloatSeqSet(
+            "{[1.5@2019-09-05 00:00:00, 2.5@2019-09-05 00:30:00],[1.5@2019-09-05 01:00:00, 1.5@2019-09-05 02:00:00]}"
         )
 
     @pytest.mark.parametrize(
@@ -1626,20 +1552,19 @@ class TestTFloatTransformations(TestTFloat):
             (tfi, timedelta(hours=12), TFloatInst("1.5@2019-09-01")),
             (tfds, timedelta(days=4), TFloatSeq("{1.5@2019-09-01}")),
             (tfds, timedelta(hours=12), TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")),
-            (tfs, timedelta(days=4), TFloatSeq("{1.5@2019-09-01}")),
+            (tfs, timedelta(days=4), TFloatSeq("[1.5@2019-09-01]")),
             (
                 tfs,
                 timedelta(hours=12),
-                TFloatSeq("{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02}"),
+                TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]"),
             ),
             (tfss, timedelta(days=4), TFloatSeq("{1.5@2019-09-01,1.5@2019-09-05}")),
             (
                 tfss,
                 timedelta(hours=12),
-                TFloatSeq(
-                    "{1.5@2019-09-01, 2@2019-09-01 12:00:00, 2.5@2019-09-02,"
-                    "1.5@2019-09-03, 1.5@2019-09-03 12:00:00, 1.5@2019-09-04, "
-                    "1.5@2019-09-04 12:00:00, 1.5@2019-09-05}"
+                TFloatSeqSet(
+                    "{[1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00], "
+                    "[1.5@2019-09-03 00:00:00+00, 1.5@2019-09-05 00:00:00+00]}"
                 ),
             ),
         ],
@@ -1666,23 +1591,20 @@ class TestTFloatTransformations(TestTFloat):
             (
                 tfds,
                 timedelta(hours=12),
-                TFloatSeq("{1.5@2019-09-01, 2@2019-09-01 12:00:00+00, 2@2019-09-02}"),
+                TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}"),
             ),
             (tfs, timedelta(days=4), TFloatSeq("{[2@2019-08-31]}")),
             (
                 tfs,
                 timedelta(hours=12),
-                TFloatSeq(
-                    "{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00+00, 2.5@2019-09-02]}"
-                ),
+                TFloatSeq("{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00+00, 2.5@2019-09-02]}"),
             ),
             (tfss, timedelta(days=4), TFloatSeq("{[1.75@2019-08-31, 1.5@2019-09-04]}")),
             (
                 tfss,
                 timedelta(hours=12),
                 TFloatSeq(
-                    "{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00, 2.5@2019-09-02],"
-                    "[1.5@2019-09-03, 1.5@2019-09-05]}"
+                    "{[1.75@2019-09-01, 2.25@2019-09-01 12:00:00, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
                 ),
             ),
         ],
@@ -1723,7 +1645,7 @@ class TestTFloatTransformations(TestTFloat):
         [
             (TFloatInst("1.123456789@2019-09-01"), TFloatInst("1.12@2019-09-01")),
             (
-                TFloatSeq("{1.123456789@2019-09-01," "2.123456789@2019-09-02}"),
+                TFloatSeq("{1.123456789@2019-09-01,2.123456789@2019-09-02}"),
                 TFloatSeq("{1.12@2019-09-01, 2.12@2019-09-02}"),
             ),
             (
@@ -1735,10 +1657,7 @@ class TestTFloatTransformations(TestTFloat):
                     "{[1.123456789@2019-09-01, 2.123456789@2019-09-02],"
                     "[1.123456789@2019-09-03, 1.123456789@2019-09-05]}"
                 ),
-                TFloatSeq(
-                    "{[1.12@2019-09-01, 2.12@2019-09-02],"
-                    "[1.12@2019-09-03, 1.12@2019-09-05]}"
-                ),
+                TFloatSeq("{[1.12@2019-09-01, 2.12@2019-09-02],[1.12@2019-09-03, 1.12@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1751,9 +1670,7 @@ class TestTFloatModifications(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, sequence, expected",
@@ -1776,9 +1693,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 TFloatSeq("[1.5@2019-09-06]"),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1803,9 +1718,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 TFloatInst("2.5@2019-09-01"),
-                TFloatSeqSet(
-                    "{[2.5@2019-09-01], (1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[2.5@2019-09-01], (1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1831,9 +1744,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TFloatSeqSet(
-                    "{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -1868,9 +1779,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 TFloatInst("1.5@2019-09-06"),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-06]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1894,9 +1803,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 TFloatSeq("[1.5@2019-09-06]"),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}"),
             ),
         ],
         ids=["Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1909,9 +1816,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tfloatarg = TFloatSeq("[2.5@2019-09-01, 1.5@2019-09-02, 1.5@2019-09-03]")
 
     @pytest.mark.parametrize(
@@ -1941,9 +1846,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfss,
                 1,
-                TFloatSeqSet(
-                    "{[2.5@2019-09-01, 3.5@2019-09-02],[2.5@2019-09-03, 2.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[2.5@2019-09-01, 3.5@2019-09-02],[2.5@2019-09-03, 2.5@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1981,9 +1884,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfss,
                 1,
-                TFloatSeqSet(
-                    "{[0.5@2019-09-01, 1.5@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[0.5@2019-09-01, 1.5@2019-09-02],[0.5@2019-09-03, 0.5@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2002,16 +1903,12 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfs,
                 tfloatarg,
-                TFloatSeqSet(
-                    "{[3.75@2019-09-01, 4@2019-09-01 12:00:00+00, 3.75@2019-09-02]}"
-                ),
+                TFloatSeqSet("{[3.75@2019-09-01, 4@2019-09-01 12:00:00+00, 3.75@2019-09-02]}"),
             ),
             (
                 tfss,
                 tfloatarg,
-                TFloatSeqSet(
-                    "{[3.75@2019-09-01, 4@2019-09-01 12:00:00+00, 3.75@2019-09-02], [2.25@2019-09-03]}"
-                ),
+                TFloatSeqSet("{[3.75@2019-09-01, 4@2019-09-01 12:00:00+00, 3.75@2019-09-02], [2.25@2019-09-03]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2037,9 +1934,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfss,
                 2,
-                TFloatSeqSet(
-                    "{[3@2019-09-01, 5@2019-09-02],[3@2019-09-03, 3@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[3@2019-09-01, 5@2019-09-02],[3@2019-09-03, 3@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -2071,16 +1966,12 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfs,
                 tfloatarg,
-                TFloatSeqSet(
-                    "{[0.6@2019-09-01, 1@2019-09-01 12:00:00+00, 1.667@2019-09-02]}"
-                ),
+                TFloatSeqSet("{[0.6@2019-09-01, 1@2019-09-01 12:00:00+00, 1.667@2019-09-02]}"),
             ),
             (
                 tfss,
                 tfloatarg,
-                TFloatSeqSet(
-                    "{[0.6@2019-09-01, 1@2019-09-01 12:00:00+00, 1.667@2019-09-02], [1@2019-09-03]}"
-                ),
+                TFloatSeqSet("{[0.6@2019-09-01, 1@2019-09-01 12:00:00+00, 1.667@2019-09-02], [1@2019-09-03]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2102,9 +1993,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (
                 tfss,
                 2,
-                TFloatSeqSet(
-                    "{[0.75@2019-09-01, 1.25@2019-09-02],[0.75@2019-09-03, 0.75@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[0.75@2019-09-01, 1.25@2019-09-02],[0.75@2019-09-03, 0.75@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -2139,9 +2028,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (tfs, TFloatSeq("Interp=Step;[1@2019-09-01, 1@2019-09-02)")),
             (
                 tfss,
-                TFloatSeqSet(
-                    "Interp=Step;{[1@2019-09-01, 1@2019-09-02),[0@2019-09-03, 0@2019-09-05)}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2019-09-01, 1@2019-09-02),[0@2019-09-03, 0@2019-09-05)}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2160,9 +2047,7 @@ class TestTFloatMathematicalOperations(TestTFloat):
             (tfs, TFloatSeq("[0.0262@2019-09-01, 0.0436@2019-09-02]")),
             (
                 tfss,
-                TFloatSeqSet(
-                    "{[0.0262@2019-09-01, 0.0436@2019-09-02],[0.0262@2019-09-03, 0.0262@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[0.0262@2019-09-01, 0.0436@2019-09-02],[0.0262@2019-09-03, 0.0262@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2181,12 +2066,10 @@ class TestTFloatMathematicalOperations(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfs, TFloatSeq("Interp=Step;[-1@2019-09-01, -1@2019-09-02]")),
+            (tfs, TFloatSeq("Interp=Step;[1@2019-09-01, 1@2019-09-02]")),
             (
                 tfss,
-                TFloatSeqSet(
-                    "Interp=Step;{[-1@2019-09-01, -1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}"
-                ),
+                TFloatSeqSet("Interp=Step;{[1@2019-09-01, 1@2019-09-02],[0@2019-09-03, 0@2019-09-05]}"),
             ),
         ],
         ids=["Sequence", "SequenceSet"],
@@ -2208,9 +2091,7 @@ class TestTFloatRestrictors(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     timestamp = datetime(2019, 9, 1)
     timestamp_set = TsTzSet("{2019-09-01, 2019-09-03}")
@@ -2238,9 +2119,7 @@ class TestTFloatRestrictors(TestTFloat):
             (
                 tfss,
                 tstzspan_set,
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -2306,9 +2185,7 @@ class TestTFloatRestrictors(TestTFloat):
                         FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True),
                     ]
                 ),
-                TFloatSeqSet(
-                    "{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}"
-                ),
+                TFloatSeqSet("{1.5@2019-09-01 00:00:00+00, 2.5@2019-09-02 00:00:00+00}"),
             ),
             (tfs, 1.5, TFloatSeq("[1.5@2019-09-01]")),
             (tfs, 2.5, TFloatSeq("[2.5@2019-09-02]")),
@@ -2330,9 +2207,7 @@ class TestTFloatRestrictors(TestTFloat):
                         FloatSpan(lower=2.5, upper=2.5, lower_inc=True, upper_inc=True),
                     ]
                 ),
-                TFloatSeq(
-                    "{[1.5@2019-09-01 00:00:00+00], [2.5@2019-09-02 00:00:00+00]}"
-                ),
+                TFloatSeq("{[1.5@2019-09-01 00:00:00+00], [2.5@2019-09-02 00:00:00+00]}"),
             ),
             (
                 tfss,
@@ -2343,10 +2218,7 @@ class TestTFloatRestrictors(TestTFloat):
             (
                 tfss,
                 FloatSet(elements=[1.5, 2.5]),
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01], [2.5@2019-09-02],"
-                    "[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01], [2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
             (
                 tfss,
@@ -2436,16 +2308,12 @@ class TestTFloatRestrictors(TestTFloat):
             (
                 tfss,
                 timestamp,
-                TFloatSeqSet(
-                    "{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
             (
                 tfss,
                 timestamp_set,
-                TFloatSeqSet(
-                    "{(1.5@2019-09-01, 2.5@2019-09-02],(1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02],(1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
             (tfss, tstzspan, TFloatSeqSet("{[1.5@2019-09-03, 1.5@2019-09-05]}")),
             (tfss, tstzspan_set, None),
@@ -2512,9 +2380,7 @@ class TestTFloatRestrictors(TestTFloat):
             (
                 tfss,
                 2.5,
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02),[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
             (
                 tfs,
@@ -2573,9 +2439,7 @@ class TestTFloatRestrictors(TestTFloat):
             (tfs, TFloatSeq("{[1.5@2019-09-01, 2.5@2019-09-02)}")),
             (
                 tfss,
-                TFloatSeqSet(
-                    "{[1.5@2019-09-01, 2.5@2019-09-02), [1.5@2019-09-03, 1.5@2019-09-05]}"
-                ),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02), [1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -2623,10 +2487,7 @@ class TestTFloatRestrictors(TestTFloat):
         ],
     )
     def test_at_minus_time(self, temporal, restrictor):
-        assert (
-            TFloat.merge(temporal.at(restrictor), temporal.minus(restrictor))
-            == temporal
-        )
+        assert TFloat.merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
 
     @pytest.mark.parametrize(
         "temporal, restrictor",
@@ -2708,10 +2569,7 @@ class TestTFloatRestrictors(TestTFloat):
         ],
     )
     def test_at_minus_values(self, temporal, restrictor):
-        assert (
-            TFloat.from_merge(temporal.at(restrictor), temporal.minus(restrictor))
-            == temporal
-        )
+        assert TFloat.from_merge(temporal.at(restrictor), temporal.minus(restrictor)) == temporal
 
     @pytest.mark.parametrize(
         "temporal",
@@ -3095,9 +2953,7 @@ class TestTFloatSplitOperations(TestTFloat):
             (
                 tfss,
                 [
-                    TFloatSeqSet(
-                        "{[1@2019-09-01, 2@2019-09-02),[1@2019-09-03, 1@2019-09-05]}"
-                    ),
+                    TFloatSeqSet("{[1@2019-09-01, 2@2019-09-02),[1@2019-09-03, 1@2019-09-05]}"),
                     TFloatSeqSet("{[2@2019-09-02]}"),
                 ],
             ),
@@ -3175,17 +3031,12 @@ class TestTFloatSplitOperations(TestTFloat):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_value_time_split(self, temporal, expected):
-        assert (
-            temporal.value_time_split(2.0, timedelta(days=2), 0.0, "2019-09-01")
-            == expected
-        )
+        assert temporal.value_time_split(2.0, timedelta(days=2), 0.0, "2019-09-01") == expected
 
 
 class TestTFloatComparisons(TestTFloat):
     tf = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    other = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    other = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     def test_eq(self):
         _ = self.tf == self.other
@@ -3210,9 +3061,7 @@ class TestTFloatEverAlwaysComparisons(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01,2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01,2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01,2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01,2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
 
     @pytest.mark.parametrize(
         "temporal, argument, expected",
@@ -3387,9 +3236,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
     tfi = TFloatInst("1.5@2019-09-01")
     tfds = TFloatSeq("{1.5@2019-09-01, 2.5@2019-09-02}")
     tfs = TFloatSeq("[1.5@2019-09-01, 2.5@2019-09-02]")
-    tfss = TFloatSeqSet(
-        "{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"
-    )
+    tfss = TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}")
     tintarg = TIntSeq("[2@2019-09-01, 1@2019-09-02, 1@2019-09-03]")
     tfloatarg = TFloatSeq("[2.5@2019-09-01, 1.5@2019-09-02, 1.5@2019-09-03]")
 
@@ -3401,8 +3248,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (
                 tfs,
                 TBoolSeqSet(
-                    "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
-                    "(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
+                    "{[False@2019-09-01, True@2019-09-01 12:00:00+00],(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
                 ),
             ),
             (
@@ -3423,12 +3269,10 @@ class TestTFloatTemporalComparisons(TestTFloat):
         [
             (tfi, TBoolInst("False@2019-09-01")),
             (tfds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
-            (tfs, TBoolSeq("[True@2019-09-01, False@2019-09-02]")),
+            (tfs, TBoolSeqSet("{[False@2019-09-01, False@2019-09-02]}")),
             (
                 tfss,
-                TBoolSeqSet(
-                    "{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
-                ),
+                TBoolSeqSet("{[False@2019-09-01, False@2019-09-02],[False@2019-09-03, False@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -3457,7 +3301,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_equal_int(self, temporal, expected):
+    def test_temporal_equal_int_2(self, temporal, expected):
         assert temporal.temporal_equal(2) == expected
 
     @pytest.mark.parametrize(
@@ -3467,18 +3311,18 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (tfds, TBoolSeq("{True@2019-09-01, False@2019-09-02}")),
             (
                 tfs,
-                TBoolSeq("{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"),
+                TBoolSeqSet("{[True@2019-09-01], (False@2019-09-01, False@2019-09-02]}"),
             ),
             (
                 tfss,
                 TBoolSeqSet(
-                    "{[True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
+                    "{[True@2019-09-01], (False@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"
                 ),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_equal_float(self, temporal, expected):
+    def test_temporal_equal_float_1_5(self, temporal, expected):
         assert temporal.temporal_equal(1.5) == expected
 
     @pytest.mark.parametrize(
@@ -3489,14 +3333,12 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (tfs, TBoolSeq("[False@2019-09-01, True@2019-09-02]")),
             (
                 tfss,
-                TBoolSeqSet(
-                    "{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"
-                ),
+                TBoolSeqSet("{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_equal_float(self, temporal, expected):
+    def test_temporal_equal_float_2_5(self, temporal, expected):
         assert temporal.temporal_equal(2.5) == expected
 
     @pytest.mark.parametrize(
@@ -3507,8 +3349,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (
                 tfs,
                 TBoolSeqSet(
-                    "{[True@2019-09-01, False@2019-09-01 12:00:00+00],"
-                    "(True@2019-09-01 12:00:00+00, True@2019-09-02]}"
+                    "{[True@2019-09-01, False@2019-09-01 12:00:00+00],(True@2019-09-01 12:00:00+00, True@2019-09-02]}"
                 ),
             ),
             (
@@ -3527,19 +3368,17 @@ class TestTFloatTemporalComparisons(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, TBoolInst("False@2019-09-01")),
-            (tfds, TBoolSeq("{False@2019-09-01, True@2019-09-02}")),
-            (tfs, TBoolSeq("[False@2019-09-01, True@2019-09-02]")),
+            (tfi, TBoolInst("True@2019-09-01")),
+            (tfds, TBoolSeq("{True@2019-09-01, True@2019-09-02}")),
+            (tfs, TBoolSeqSet("{[True@2019-09-01, True@2019-09-02]}")),
             (
                 tfss,
-                TBoolSeqSet(
-                    "{[False@2019-09-01, True@2019-09-02],[False@2019-09-03, False@2019-09-05]}"
-                ),
+                TBoolSeqSet("{[True@2019-09-01, True@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_not_equal_int(self, temporal, expected):
+    def test_temporal_not_equal_int_1(self, temporal, expected):
         assert temporal.temporal_not_equal(1) == expected
 
     @pytest.mark.parametrize(
@@ -3550,8 +3389,7 @@ class TestTFloatTemporalComparisons(TestTFloat):
             (
                 tfs,
                 TBoolSeqSet(
-                    "{[True@2019-09-01, False@2019-09-01 12:00:00],"
-                    "(True@2019-09-01 12:00:00, True@2019-09-02]}"
+                    "{[True@2019-09-01, False@2019-09-01 12:00:00],(True@2019-09-01 12:00:00, True@2019-09-02]}"
                 ),
             ),
             (
@@ -3564,5 +3402,5 @@ class TestTFloatTemporalComparisons(TestTFloat):
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_temporal_not_equal_int(self, temporal, expected):
+    def test_temporal_not_equal_int_2(self, temporal, expected):
         assert temporal.temporal_not_equal(2) == expected

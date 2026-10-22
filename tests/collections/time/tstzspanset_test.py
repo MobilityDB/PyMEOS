@@ -1,18 +1,17 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
-from typing import List
+from datetime import datetime, timedelta, timezone
 
 import pytest
 
 from pymeos import (
-    TsTzSpan,
-    TsTzSet,
-    TsTzSpanSet,
+    STBox,
+    TBox,
     TFloatInst,
     TFloatSeq,
-    STBox,
     TFloatSeqSet,
-    TBox,
+    TsTzSet,
+    TsTzSpan,
+    TsTzSpanSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -21,9 +20,7 @@ class TestTsTzSpanSet(TestPyMEOS):
     tstzspanset = TsTzSpanSet("{[2019-09-01, 2019-09-02], [2019-09-03, 2019-09-04]}")
 
     @staticmethod
-    def assert_tstzspanset_equality(
-        tstzspanset: TsTzSpanSet, tstzspans: List[TsTzSpan]
-    ):
+    def assert_tstzspanset_equality(tstzspanset: TsTzSpanSet, tstzspans: list[TsTzSpan]):
         assert tstzspanset.num_spans() == len(tstzspans)
         assert tstzspanset.spans() == tstzspans
 
@@ -67,15 +64,13 @@ class TestTsTzSpanSetConstructors(TestTsTzSpanSet):
 class TestTsTzSpanSetOutputs(TestTsTzSpanSet):
     def test_str(self):
         assert (
-            str(self.tstzspanset)
-            == "{[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], "
+            str(self.tstzspanset) == "{[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], "
             "[2019-09-03 00:00:00+00, 2019-09-04 00:00:00+00]}"
         )
 
     def test_repr(self):
         assert (
-            repr(self.tstzspanset)
-            == "TsTzSpanSet({[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], "
+            repr(self.tstzspanset) == "TsTzSpanSet({[2019-09-01 00:00:00+00, 2019-09-02 00:00:00+00], "
             "[2019-09-03 00:00:00+00, 2019-09-04 00:00:00+00]})"
         )
 
@@ -100,28 +95,16 @@ class TestTsTzSpanSetAccessors(TestTsTzSpanSet):
         assert self.tstzspanset2.num_timestamps() == 3
 
     def test_start_timestamp(self):
-        assert self.tstzspanset.start_timestamp() == datetime(
-            2019, 9, 1, tzinfo=timezone.utc
-        )
+        assert self.tstzspanset.start_timestamp() == datetime(2019, 9, 1, tzinfo=timezone.utc)
 
     def test_end_timestamp(self):
-        assert self.tstzspanset.end_timestamp() == datetime(
-            2019, 9, 4, tzinfo=timezone.utc
-        )
+        assert self.tstzspanset.end_timestamp() == datetime(2019, 9, 4, tzinfo=timezone.utc)
 
     def test_timestamp_n(self):
-        assert self.tstzspanset.timestamp_n(0) == datetime(
-            2019, 9, 1, tzinfo=timezone.utc
-        )
-        assert self.tstzspanset.timestamp_n(1) == datetime(
-            2019, 9, 2, tzinfo=timezone.utc
-        )
-        assert self.tstzspanset.timestamp_n(2) == datetime(
-            2019, 9, 3, tzinfo=timezone.utc
-        )
-        assert self.tstzspanset.timestamp_n(3) == datetime(
-            2019, 9, 4, tzinfo=timezone.utc
-        )
+        assert self.tstzspanset.timestamp_n(0) == datetime(2019, 9, 1, tzinfo=timezone.utc)
+        assert self.tstzspanset.timestamp_n(1) == datetime(2019, 9, 2, tzinfo=timezone.utc)
+        assert self.tstzspanset.timestamp_n(2) == datetime(2019, 9, 3, tzinfo=timezone.utc)
+        assert self.tstzspanset.timestamp_n(3) == datetime(2019, 9, 4, tzinfo=timezone.utc)
 
     def test_timestamps(self):
         assert self.tstzspanset.timestamps() == TsTzSet(
@@ -220,9 +203,7 @@ class TestTsTzSpanSetTransformations(TestTsTzSpanSet):
         self.assert_tstzspanset_equality(scaled, result)
 
     def test_shift_scale(self):
-        shifted_scaled = self.tstzspanset.shift_scale(
-            timedelta(days=4), timedelta(hours=6)
-        )
+        shifted_scaled = self.tstzspanset.shift_scale(timedelta(days=4), timedelta(hours=6))
         self.assert_tstzspanset_equality(
             shifted_scaled,
             [
@@ -239,15 +220,9 @@ class TestTsTzSpanSetTopologicalPositionFunctions(TestTsTzSpanSet):
     )
     timestamp = datetime(year=2020, month=1, day=1)
     instant = TFloatInst("1.0@2020-01-01")
-    discrete_sequence = TFloatSeq(
-        "{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}"
-    )
-    stepwise_sequence = TFloatSeq(
-        "Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]"
-    )
-    continuous_sequence = TFloatSeq(
-        "(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]"
-    )
+    discrete_sequence = TFloatSeq("{1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31}")
+    stepwise_sequence = TFloatSeq("Interp=Step;(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]")
+    continuous_sequence = TFloatSeq("(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31]")
     sequence_set = TFloatSeqSet(
         "{(1.0@2020-01-01, 3.0@2020-01-10, 10.0@2020-01-20, 0.0@2020-01-31], "
         "(1.0@2021-01-01, 3.0@2021-01-10, 10.0@2021-01-20, 0.0@2021-01-31]}"

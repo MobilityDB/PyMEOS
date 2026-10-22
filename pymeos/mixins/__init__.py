@@ -1,3 +1,10 @@
-from .simplify import TSimplifiable
 from .comparison import TComparable
-from .temporal_comparison import TTemporallyEquatable, TTemporallyComparable
+from .simplify import TSimplifiable
+from .temporal_comparison import TTemporallyComparable, TTemporallyEquatable
+
+__all__ = [
+    "TComparable",
+    "TSimplifiable",
+    "TTemporallyComparable",
+    "TTemporallyEquatable",
+]

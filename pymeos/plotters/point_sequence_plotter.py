@@ -1,8 +1,6 @@
-from typing import Union, List
-
 import matplotlib.pyplot as plt
 
-from ..main import TPointSeq, TPointInst
+from ..main import TPointInst, TPointSeq
 from ..temporal import TInterpolation
 
 
@@ -13,7 +11,7 @@ class TemporalPointSequencePlotter:
 
     @staticmethod
     def plot_xy(
-        sequence: Union[TPointSeq, List[TPointInst]],
+        sequence: TPointSeq | list[TPointInst],
         *args,
         axes=None,
         show_markers=True,
@@ -46,9 +44,7 @@ class TemporalPointSequencePlotter:
         else:
             plot_func = base.scatter
 
-        ins: list[TPointInst] = (
-            sequence.instants() if isinstance(sequence, TPointSeq) else sequence
-        )
+        ins: list[TPointInst] = sequence.instants() if isinstance(sequence, TPointSeq) else sequence
         x = [i.x().value() for i in ins]
         y = [i.y().value() for i in ins]
 
@@ -88,7 +84,7 @@ class TemporalPointSequencePlotter:
         return plots
 
     @staticmethod
-    def plot_sequences_xy(sequences: List[TPointSeq], *args, **kwargs):
+    def plot_sequences_xy(sequences: list[TPointSeq], *args, **kwargs):
         """
         Plot a list of TPointSeq on the given axes. Every sequence will be plotted in a different color.
 

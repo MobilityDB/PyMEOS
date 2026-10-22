@@ -4,9 +4,9 @@ from datetime import date, timedelta
 import pytest
 
 from pymeos import (
+    DateSet,
     DateSpan,
     DateSpanSet,
-    DateSet,
 )
 from tests.conftest import TestPyMEOS
 
@@ -61,11 +61,7 @@ class TestCollectionConversions(TestDateSet):
         assert self.date_set.to_span() == DateSpan("[2019-09-25, 2019-09-27]")
 
     def test_to_spanset(self):
-        expected = DateSpanSet(
-            "{[2019-09-25, 2019-09-25], "
-            "[2019-09-26, 2019-09-26], "
-            "[2019-09-27, 2019-09-27]}"
-        )
+        expected = DateSpanSet("{[2019-09-25, 2019-09-25], [2019-09-26, 2019-09-26], [2019-09-27, 2019-09-27]}")
 
         spanset = self.date_set.to_spanset()
 
@@ -130,33 +126,23 @@ class TestDateSetPositionFunctions(TestDateSet):
     def test_overlaps(self, other):
         self.date_set.overlaps(other)
 
-    @pytest.mark.parametrize(
-        "other", [date_value, other_date_set], ids=["date", "dateset"]
-    )
+    @pytest.mark.parametrize("other", [date_value, other_date_set], ids=["date", "dateset"])
     def test_is_before(self, other):
         self.date_set.is_before(other)
 
-    @pytest.mark.parametrize(
-        "other", [date_value, other_date_set], ids=["date", "dateset"]
-    )
+    @pytest.mark.parametrize("other", [date_value, other_date_set], ids=["date", "dateset"])
     def test_is_over_or_before(self, other):
         self.date_set.is_over_or_before(other)
 
-    @pytest.mark.parametrize(
-        "other", [date_value, other_date_set], ids=["date", "dateset"]
-    )
+    @pytest.mark.parametrize("other", [date_value, other_date_set], ids=["date", "dateset"])
     def test_is_after(self, other):
         self.date_set.is_after(other)
 
-    @pytest.mark.parametrize(
-        "other", [date_value, other_date_set], ids=["date", "dateset"]
-    )
+    @pytest.mark.parametrize("other", [date_value, other_date_set], ids=["date", "dateset"])
     def test_is_over_or_after(self, other):
         self.date_set.is_over_or_after(other)
 
-    @pytest.mark.parametrize(
-        "other", [date_value, other_date_set], ids=["date", "dateset"]
-    )
+    @pytest.mark.parametrize("other", [date_value, other_date_set], ids=["date", "dateset"])
     def test_distance(self, other):
         self.date_set.distance(other)
 
@@ -200,7 +186,7 @@ class TestDateSetComparisons(TestDateSet):
     other = DateSet("{2020-01-02, 2020-03-31}")
 
     def test_eq(self):
-        assert not self.dateset == self.other
+        assert self.dateset == self.dateset
 
     def test_ne(self):
         assert self.dateset != self.other

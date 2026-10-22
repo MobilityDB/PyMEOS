@@ -1,35 +1,36 @@
-from .aggregators import *
-from .boxes import *
-from .main import *
-from .meos_init import *
-from .temporal import *
-from .collections import *
 from pymeos_cffi import (
-    MeosException,
-    MeosInternalError,
-    MeosArgumentError,
-    MeosIoError,
-    MeosInternalTypeError,
-    MeosValueOutOfRangeError,
-    MeosDivisionByZeroError,
-    MeosMemoryAllocError,
     MeosAggregationError,
+    MeosArgumentError,
     MeosDirectoryError,
+    MeosDivisionByZeroError,
+    MeosException,
     MeosFileError,
+    MeosGeoJsonInputError,
+    MeosGeoJsonOutputError,
+    MeosInternalError,
+    MeosInternalTypeError,
     MeosInvalidArgError,
     MeosInvalidArgTypeError,
     MeosInvalidArgValueError,
+    MeosIoError,
+    MeosMemoryAllocError,
     MeosMfJsonInputError,
     MeosMfJsonOutputError,
     MeosTextInputError,
     MeosTextOutputError,
+    MeosValueOutOfRangeError,
     MeosWkbInputError,
     MeosWkbOutputError,
-    MeosGeoJsonInputError,
-    MeosGeoJsonOutputError,
 )
 
-__version__ = "1.1.3"
+from .aggregators import *
+from .boxes import *
+from .collections import *
+from .main import *
+from .meos_init import *
+from .temporal import *
+
+__version__ = "1.3.0"
 __all__ = [
     # initialization
     "pymeos_initialize",

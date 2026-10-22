@@ -1,46 +1,42 @@
 from __future__ import annotations
 
-from datetime import date, timedelta, datetime
-from typing import TYPE_CHECKING, List, Optional, Union, overload
+from datetime import date, datetime, timedelta
+from typing import TYPE_CHECKING, overload
 
-from dateutil.parser import parse
 from pymeos_cffi import (
-    dateset_in,
-    pg_date_in,
+    after_set_date,
+    before_set_date,
+    contains_set_date,
+    date_adt_to_date,
     date_to_date_adt,
+    dateset_end_value,
+    dateset_in,
     dateset_make,
     dateset_out,
+    dateset_shift_scale,
     dateset_start_value,
-    date_adt_to_date,
-    dateset_end_value,
     dateset_value_n,
     dateset_values,
-    dateset_shift_scale,
-    contains_set_date,
-    before_set_date,
-    overbefore_set_date,
-    overafter_set_date,
-    after_set_date,
+    distance_dateset_dateset,
     distance_set_date,
     intersection_set_date,
     intersection_set_set,
+    minus_date_set,
     minus_set_date,
     minus_set_set,
-    minus_date_set,
+    overafter_set_date,
+    overbefore_set_date,
+    pg_date_in,
     union_set_date,
     union_set_set,
-    distance_dateset_dateset,
 )
 
-from .timecollection import TimeCollection
 from ..base import Set
+from .timecollection import TimeCollection
 
 if TYPE_CHECKING:
     from .datespan import DateSpan
     from .datespanset import DateSpanSet
-    from .tstzspanset import TsTzSpanSet
-    from .tstzspan import TsTzSpan
-    from .tstzspanset import TsTzSpanSet
     from .time import TimeDate
 
 
@@ -67,9 +63,7 @@ class DateSet(Set[date], TimeCollection[date]):
     _mobilitydb_name = "dateset"
 
     _parse_function = dateset_in
-    _parse_value_function = lambda x: (
-        pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
-    )
+    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = dateset_make
 
     # ------------------------- Constructors ----------------------------------
@@ -159,7 +153,7 @@ class DateSet(Set[date], TimeCollection[date]):
         super().element_n(n)
         return date_adt_to_date(dateset_value_n(self._inner, n + 1)[0])
 
-    def elements(self) -> List[date]:
+    def elements(self) -> list[date]:
         """
         Returns the list of distinct dates in ``self``.
         Returns:
@@ -172,7 +166,7 @@ class DateSet(Set[date], TimeCollection[date]):
         return [date_adt_to_date(tss[i]) for i in range(self.num_elements())]
 
     # ------------------------- Transformations -------------------------------
-    def shift(self, delta: Union[timedelta, int]) -> DateSet:
+    def shift(self, delta: timedelta | int) -> DateSet:
         """
         Returns a new :class:`DateSpanSet` that is the result of shifting ``self`` by
         ``delta``
@@ -192,7 +186,7 @@ class DateSet(Set[date], TimeCollection[date]):
         """
         return self.shift_scale(shift=delta)
 
-    def scale(self, duration: Union[timedelta, int]) -> DateSet:
+    def scale(self, duration: timedelta | int) -> DateSet:
         """
         Returns a new :class:`DateSet` that with the scaled so that the span of
         ``self`` is ``duration``.
@@ -215,8 +209,8 @@ class DateSet(Set[date], TimeCollection[date]):
 
     def shift_scale(
         self,
-        shift: Union[int, timedelta, None] = None,
-        duration: Union[int, timedelta, None] = None,
+        shift: int | timedelta | None = None,
+        duration: int | timedelta | None = None,
     ) -> DateSet:
         """
         Returns a new :class:`DateSet` that is the result of shifting and scaling
@@ -237,27 +231,15 @@ class DateSet(Set[date], TimeCollection[date]):
         MEOS Functions:
             dateset_shift_scale
         """
-        assert (
-            shift is not None or duration is not None
-        ), "shift and scale deltas must not be both None"
-        shift = (
-            shift.days
-            if isinstance(shift, timedelta)
-            else int(shift) if shift is not None else 0
-        )
-        duration = (
-            duration.days
-            if isinstance(duration, timedelta)
-            else int(duration) if duration is not None else 0
-        )
-        tss = dateset_shift_scale(
-            self._inner, shift, duration, shift != 0, duration != 0
-        )
+        assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
+        shift = shift.days if isinstance(shift, timedelta) else int(shift) if shift is not None else 0
+        duration = duration.days if isinstance(duration, timedelta) else int(duration) if duration is not None else 0
+        tss = dateset_shift_scale(self._inner, shift, duration, shift != 0, duration != 0)
         return DateSet(_inner=tss)
 
     # ------------------------- Topological Operations ------------------------
 
-    def contains(self, content: Union[date, datetime, DateSet]) -> bool:
+    def contains(self, content: date | datetime | DateSet) -> bool:
         """
         Returns whether ``self`` temporally contains ``content``.
 
@@ -309,7 +291,7 @@ class DateSet(Set[date], TimeCollection[date]):
         """
         return self.contains(item)
 
-    def overlaps(self, other: Union[date, DateSet, DateSpan, DateSpanSet]) -> bool:
+    def overlaps(self, other: date | DateSet | DateSpan | DateSpanSet) -> bool:
         """
         Returns whether ``self`` temporally overlaps ``other``. That is, both
         share at least an instant
@@ -371,9 +353,7 @@ class DateSet(Set[date], TimeCollection[date]):
 
         if isinstance(other, date):
             return before_set_date(self._inner, date_to_date_adt(other))
-        elif isinstance(other, DateSpan):
-            return self.to_span().is_left(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_span().is_left(other)
         else:
             return super().is_left(other)
@@ -405,9 +385,7 @@ class DateSet(Set[date], TimeCollection[date]):
 
         if isinstance(other, date):
             return overbefore_set_date(self._inner, date_to_date_adt(other))
-        elif isinstance(other, DateSpan):
-            return self.to_span().is_over_or_left(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_span().is_over_or_left(other)
         else:
             return super().is_over_or_left(other)
@@ -439,9 +417,7 @@ class DateSet(Set[date], TimeCollection[date]):
 
         if isinstance(other, date):
             return overafter_set_date(self._inner, date_to_date_adt(other))
-        elif isinstance(other, DateSpan):
-            return self.to_span().is_over_or_after(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_span().is_over_or_after(other)
         else:
             return super().is_over_or_left(other)
@@ -473,9 +449,7 @@ class DateSet(Set[date], TimeCollection[date]):
 
         if isinstance(other, date):
             return after_set_date(self._inner, date_to_date_adt(other))
-        elif isinstance(other, DateSpan):
-            return self.to_span().is_after(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_span().is_after(other)
         else:
             return super().is_over_or_left(other)
@@ -499,14 +473,10 @@ class DateSet(Set[date], TimeCollection[date]):
         from .datespanset import DateSpanSet
 
         if isinstance(other, date):
-            return timedelta(
-                days=distance_set_date(self._inner, date_to_date_adt(other))
-            )
+            return timedelta(days=distance_set_date(self._inner, date_to_date_adt(other)))
         elif isinstance(other, DateSet):
             return timedelta(days=distance_dateset_dateset(self._inner, other._inner))
-        elif isinstance(other, DateSpan):
-            return self.to_spanset().distance(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_spanset().distance(other)
         else:
             return super().distance(other)
@@ -514,14 +484,12 @@ class DateSet(Set[date], TimeCollection[date]):
     # ------------------------- Set Operations --------------------------------
 
     @overload
-    def intersection(self, other: Union[date, DateSet]) -> Optional[DateSet]: ...
+    def intersection(self, other: date | DateSet) -> DateSet | None: ...
 
     @overload
-    def intersection(
-        self, other: Union[DateSpan, DateSpanSet]
-    ) -> Optional[DateSpanSet]: ...
+    def intersection(self, other: DateSpan | DateSpanSet) -> DateSpanSet | None: ...
 
-    def intersection(self, other: TimeDate) -> Optional[TimeDate]:
+    def intersection(self, other: TimeDate) -> TimeDate | None:
         """
         Returns the temporal intersection of ``self`` and ``other``.
 
@@ -544,20 +512,18 @@ class DateSet(Set[date], TimeCollection[date]):
         elif isinstance(other, DateSet):
             result = intersection_set_set(self._inner, other._inner)
             return DateSet(_inner=result) if result is not None else None
-        elif isinstance(other, DateSpan):
-            return self.to_spanset().intersection(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_spanset().intersection(other)
         else:
             return super().intersection(other)
 
     @overload
-    def minus(self, other: Union[date, DateSet]) -> Optional[DateSet]: ...
+    def minus(self, other: date | DateSet) -> DateSet | None: ...
 
     @overload
-    def minus(self, other: Union[DateSpan, DateSpanSet]) -> Optional[DateSpanSet]: ...
+    def minus(self, other: DateSpan | DateSpanSet) -> DateSpanSet | None: ...
 
-    def minus(self, other: TimeDate) -> Optional[TimeDate]:
+    def minus(self, other: TimeDate) -> TimeDate | None:
         """
         Returns the temporal difference of ``self`` and ``other``.
 
@@ -580,14 +546,12 @@ class DateSet(Set[date], TimeCollection[date]):
         elif isinstance(other, DateSet):
             result = minus_set_set(self._inner, other._inner)
             return DateSet(_inner=result) if result is not None else None
-        elif isinstance(other, DateSpan):
-            return self.to_spanset().minus(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_spanset().minus(other)
         else:
             return super().minus(other)
 
-    def subtract_from(self, other: date) -> Optional[date]:
+    def subtract_from(self, other: date) -> date | None:
         """
         Returns the difference of ``other`` and ``self``.
 
@@ -606,12 +570,12 @@ class DateSet(Set[date], TimeCollection[date]):
         return date_adt_to_date(minus_date_set(date_to_date_adt(other), self._inner))
 
     @overload
-    def union(self, other: Union[date, DateSet]) -> DateSet: ...
+    def union(self, other: date | DateSet) -> DateSet: ...
 
     @overload
-    def union(self, other: Union[DateSpan, DateSpanSet]) -> DateSpanSet: ...
+    def union(self, other: DateSpan | DateSpanSet) -> DateSpanSet: ...
 
-    def union(self, other: TimeDate) -> Union[DateSpanSet, DateSet]:
+    def union(self, other: TimeDate) -> DateSpanSet | DateSet:
         """
         Returns the temporal union of ``self`` and ``other``.
 
@@ -632,9 +596,7 @@ class DateSet(Set[date], TimeCollection[date]):
             return DateSet(_inner=union_set_date(self._inner, date_to_date_adt(other)))
         elif isinstance(other, DateSet):
             return DateSet(_inner=union_set_set(self._inner, other._inner))
-        elif isinstance(other, DateSpan):
-            return self.to_spanset().union(other)
-        elif isinstance(other, DateSpanSet):
+        elif isinstance(other, (DateSpan, DateSpanSet)):
             return self.to_spanset().union(other)
         else:
             return super().union(other)
@@ -645,6 +607,4 @@ class DateSet(Set[date], TimeCollection[date]):
     def plot(self, *args, **kwargs):
         from ...plotters import TimePlotter
 
-        return TimePlotter.plot_tstzspanset(
-            self.to_spanset().to_tstzspanset(), *args, **kwargs
-        )
+        return TimePlotter.plot_tstzspanset(self.to_spanset().to_tstzspanset(), *args, **kwargs)

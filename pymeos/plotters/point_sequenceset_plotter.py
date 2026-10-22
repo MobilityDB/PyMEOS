@@ -1,8 +1,6 @@
-from typing import Union, List
-
-from .point_sequence_plotter import TemporalPointSequencePlotter
 from .. import TPointSeq
 from ..main import TPointSeqSet
+from .point_sequence_plotter import TemporalPointSequencePlotter
 
 
 class TemporalPointSequenceSetPlotter:
@@ -11,7 +9,7 @@ class TemporalPointSequenceSetPlotter:
     """
 
     @staticmethod
-    def plot_xy(sequence_set: Union[TPointSeqSet, List[TPointSeq]], *args, **kwargs):
+    def plot_xy(sequence_set: TPointSeqSet | list[TPointSeq], *args, **kwargs):
         """
         Plot a TPointSeqSet or a list of TPointSeq on the given axes. Every sequence in the set will be plotted with the
         same color.
@@ -28,11 +26,7 @@ class TemporalPointSequenceSetPlotter:
             :func:`~pymeos.plotters.point_sequence_plotter.TemporalPointSequencePlotter.plot_xy`,
             :func:`~pymeos.plotters.point_sequence_plotter.TemporalPointSequencePlotter.plot_sequences_xy`
         """
-        seqs = (
-            sequence_set.sequences()
-            if isinstance(sequence_set, TPointSeqSet)
-            else sequence_set
-        )
+        seqs = sequence_set.sequences() if isinstance(sequence_set, TPointSeqSet) else sequence_set
         plots = [TemporalPointSequencePlotter.plot_xy(seqs[0], *args, **kwargs)]
         if "color" not in kwargs:
             kwargs["color"] = plots[0][0][0].get_color()

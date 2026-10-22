@@ -2,7 +2,6 @@
 
 [![pypi](https://img.shields.io/pypi/v/pymeos.svg)](https://pypi.python.org/pypi/pymeos/)
 [![docs status](https://readthedocs.org/projects/pymeos/badge/?version=latest)](https://pymeos.readthedocs.io/en/latest/)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 [MEOS (Mobility Engine, Open Source)](https://www.libmeos.org/) is a C library which enables the manipulation of
 temporal and spatio-temporal data based on [MobilityDB](https://mobilitydb.com/)'s data types and functions.
@@ -60,15 +59,21 @@ from pymeos import pymeos_initialize, pymeos_finalize, TGeogPointInst, TGeogPoin
 pymeos_initialize()
 
 sequence_from_string = TGeogPointSeq(
-    string='[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]')
-print(f'Output: {sequence_from_string}')
+    string="[Point(10.0 10.0)@2019-09-01 00:00:00+01, Point(20.0 20.0)@2019-09-02 00:00:00+01, Point(10.0 10.0)@2019-09-03 00:00:00+01]"
+)
+print(f"Output: {sequence_from_string}")
 
-sequence_from_points = TGeogPointSeq(instant_list=[TGeogPointInst(string='Point(10.0 10.0)@2019-09-01 00:00:00+01'),
-                                                   TGeogPointInst(string='Point(20.0 20.0)@2019-09-02 00:00:00+01'),
-                                                   TGeogPointInst(string='Point(10.0 10.0)@2019-09-03 00:00:00+01')],
-                                     lower_inc=True, upper_inc=True)
+sequence_from_points = TGeogPointSeq(
+    instant_list=[
+        TGeogPointInst(string="Point(10.0 10.0)@2019-09-01 00:00:00+01"),
+        TGeogPointInst(string="Point(20.0 20.0)@2019-09-02 00:00:00+01"),
+        TGeogPointInst(string="Point(10.0 10.0)@2019-09-03 00:00:00+01"),
+    ],
+    lower_inc=True,
+    upper_inc=True,
+)
 speed = sequence_from_points.speed()
-print(f'Speeds: {speed}')
+print(f"Speeds: {speed}")
 
 # Call finish at the end of your code
 pymeos_finalize()

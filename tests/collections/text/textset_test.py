@@ -1,6 +1,4 @@
 from copy import copy
-from datetime import datetime, timezone, timedelta
-from typing import List
 
 import pytest
 
@@ -12,7 +10,7 @@ class TestTextSet(TestPyMEOS):
     tset = TextSet("{A, BB, ccc}")
 
     @staticmethod
-    def assert_textset_equality(tset: TextSet, elements: List[str]):
+    def assert_textset_equality(tset: TextSet, elements: list[str]):
         assert tset.num_elements() == len(elements)
         assert tset.elements() == elements
 

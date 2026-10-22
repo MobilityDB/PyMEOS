@@ -1,8 +1,6 @@
-from typing import List, Union
-
-from .sequence_plotter import TemporalSequencePlotter
 from .. import TSequence
 from ..temporal import TSequenceSet
+from .sequence_plotter import TemporalSequencePlotter
 
 
 class TemporalSequenceSetPlotter:
@@ -11,7 +9,7 @@ class TemporalSequenceSetPlotter:
     """
 
     @staticmethod
-    def plot(sequence_set: Union[TSequenceSet, List[TSequence]], *args, **kwargs):
+    def plot(sequence_set: TSequenceSet | list[TSequence], *args, **kwargs):
         """
         Plot a :class:`TSequenceSet` or a list of :class:`TSequence` on the given axes. Every sequence in the set will be
         plotted with the same color.
@@ -28,11 +26,7 @@ class TemporalSequenceSetPlotter:
             :func:`~pymeos.plotters.sequence_plotter.TemporalSequencePlotter.plot`
 
         """
-        seqs = (
-            sequence_set.sequences()
-            if isinstance(sequence_set, TSequenceSet)
-            else sequence_set
-        )
+        seqs = sequence_set.sequences() if isinstance(sequence_set, TSequenceSet) else sequence_set
         plots = [TemporalSequencePlotter.plot(seqs[0], *args, **kwargs)]
         if "color" not in kwargs:
             pl = plots[0]

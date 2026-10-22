@@ -1,9 +1,8 @@
 from functools import partial
-from typing import Union, List
 
 import matplotlib.pyplot as plt
 
-from ..temporal import TSequence, TInterpolation, TInstant
+from ..temporal import TInstant, TInterpolation, TSequence
 
 
 class TemporalSequencePlotter:
@@ -13,7 +12,7 @@ class TemporalSequencePlotter:
 
     @staticmethod
     def plot(
-        sequence: Union[TSequence, List[TInstant]],
+        sequence: TSequence | list[TInstant],
         *args,
         axes=None,
         show_markers=True,
@@ -92,7 +91,7 @@ class TemporalSequencePlotter:
         return plots
 
     @staticmethod
-    def plot_sequences(sequences: List[TSequence], *args, **kwargs):
+    def plot_sequences(sequences: list[TSequence], *args, **kwargs):
         """
         Plot a list of :class:`TSequence` on the given axes. Every sequence will be plotted in a different color.
 
