@@ -140,7 +140,7 @@ class IntSet(Set[int]):
         MEOS Functions:
             inttset_values
         """
-        elems = intset_values(self._inner)
+        elems = intset_values(self._inner)[0]
         return [elems[i] for i in range(self.num_elements())]
 
     # ------------------------- Transformations ------------------------------------

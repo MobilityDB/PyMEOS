@@ -1086,16 +1086,16 @@ class TBox:
         MEOS Functions:
             tintbox_tile_list, tfloabox_tile_list
         """
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
         st = (
             datetime_to_timestamptz(start)
             if isinstance(start, datetime)
-            else (pg_timestamptz_in(start, -1) if isinstance(start, str) else pg_timestamptz_in("2000-01-03", -1))
+            else (timestamptz_in(start, -1) if isinstance(start, str) else timestamptz_in("2000-01-03", -1))
         )
         if self._is_float():
-            tiles, count = tfloatbox_value_time_tiles(self._inner, size, dt, origin, st)
+            tiles, count = tfloatbox_value_time_tiles(self._inner, size, dt, origin, st, border_inc=True)
         else:
-            tiles, count = tintbox_value_time_tiles(self._inner, int(size), dt, int(origin), st)
+            tiles, count = tintbox_value_time_tiles(self._inner, int(size), dt, int(origin), st, border_inc=True)
         return [TBox(_inner=tiles + c) for c in range(count)]
 
     # ------------------------- Comparisons -----------------------------------

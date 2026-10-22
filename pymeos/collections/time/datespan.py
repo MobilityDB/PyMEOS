@@ -9,6 +9,7 @@ from pymeos_cffi import (
     before_span_date,
     contains_span_date,
     date_adt_to_date,
+    date_in,
     date_to_date_adt,
     datespan_duration,
     datespan_in,
@@ -30,7 +31,6 @@ from pymeos_cffi import (
     minus_span_spanset,
     overafter_span_date,
     overbefore_span_date,
-    pg_date_in,
     union_span_date,
 )
 
@@ -69,7 +69,7 @@ class DateSpan(Span[date], TimeCollection[date]):
     _mobilitydb_name = "datespan"
 
     _parse_function = datespan_in
-    _parse_value_function = lambda x: pg_date_in(x) if isinstance(x, str) else date_to_date_adt(x)
+    _parse_value_function = lambda x: date_in(x) if isinstance(x, str) else date_to_date_adt(x)
     _make_function = datespan_make
 
     # ------------------------- Constructors ----------------------------------

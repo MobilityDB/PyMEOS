@@ -401,8 +401,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    1.5\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -410,7 +410,7 @@ class TestTFloatOutputs(TestTFloat):
                 "    1.5\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -424,8 +424,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    2.5\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -434,8 +434,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    2.5\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -451,8 +451,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    2.5\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -461,8 +461,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    2.5\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -478,8 +478,8 @@ class TestTFloatOutputs(TestTFloat):
                 "    2.5\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -490,8 +490,8 @@ class TestTFloatOutputs(TestTFloat):
                 "        2.5\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -502,8 +502,8 @@ class TestTFloatOutputs(TestTFloat):
                 "        1.5\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -958,12 +958,12 @@ class TestTFloatAccessors(TestTFloat):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tfi, 1307112078),
-            (tfds, 1935376725),
-            (tfs, 1935376725),
-            (tfss, 4247071962),
-            (tfs, 1935376725),
-            (tfss, 4247071962),
+            (tfi, 1307112109),
+            (tfds, 3164454719),
+            (tfs, 3164454719),
+            (tfss, 1518183798),
+            (tfs, 3164454719),
+            (tfss, 1518183798),
         ],
         ids=[
             "Instant",
@@ -2836,8 +2836,9 @@ class TestTFloatSplitOperations(TestTFloat):
             (
                 tfss,
                 [
-                    TFloatSeq("[1@2019-09-01,2@2019-09-02]"),
-                    TFloatSeq("[1@2019-09-03, 1@2019-09-05]"),
+                    TFloatSeqSet("{[1@2019-09-01, 2@2019-09-02]}"),
+                    TFloatSeqSet("{[1@2019-09-03, 1@2019-09-05)}"),
+                    TFloatSeqSet("{[1@2019-09-05]}"),
                 ],
             ),
         ],
@@ -2854,15 +2855,17 @@ class TestTFloatSplitOperations(TestTFloat):
             (
                 tfs,
                 [
-                    TFloatSeq("[1@2019-09-01, 1.5@2019-09-01 12:00:00+00)"),
-                    TFloatSeq("[1.5@2019-09-01 12:00:00+00, 2@2019-09-02]"),
+                    TFloatSeq("[1@2019-09-01, 1.5@2019-09-01 12:00)"),
+                    TFloatSeq("[1.5@2019-09-01 12:00, 2@2019-09-02)"),
+                    TFloatSeq("[2@2019-09-02]"),
                 ],
             ),
             (
                 tfss,
                 [
-                    TFloatSeq("[1@2019-09-01,2@2019-09-02]"),
-                    TFloatSeq("[1@2019-09-03, 1@2019-09-05]"),
+                    TFloatSeqSet("{[1@2019-09-01, 2@2019-09-02]}"),
+                    TFloatSeqSet("{[1@2019-09-03, 1@2019-09-05)}"),
+                    TFloatSeqSet("{[1@2019-09-05]}"),
                 ],
             ),
         ],
@@ -2886,9 +2889,10 @@ class TestTFloatSplitOperations(TestTFloat):
             (
                 tfss,
                 [
-                    TFloatSeq("{[1@2019-09-01, 2@2019-09-02)}"),
-                    TFloatSeq("{[1@2019-09-03, 1@2019-09-05]}"),
-                    TFloatSeq("{[2@2019-09-02]}"),
+                    TFloatSeqSet("{[1@2019-09-01, 2@2019-09-02)}"),
+                    TFloatSeqSet("{[1@2019-09-03, 1@2019-09-05)}"),
+                    TFloatSeqSet("{[1@2019-09-05]}"),
+                    TFloatSeqSet("{[2@2019-09-02]}"),
                 ],
             ),
         ],
