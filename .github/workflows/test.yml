@@ -16,6 +16,12 @@ on:
       - "README.md"
       - ".github/ISSUE_TEMPLATE/**"
 
+# A new push to a pull request cancels the run of its previous head; a push to a branch runs on
+# its own commit, so every commit of master and of a stable branch keeps its run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
     name: Test PyMEOS - Python ${{ matrix.python-version }} on ${{ matrix.os }}
