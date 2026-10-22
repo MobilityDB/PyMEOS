@@ -51,15 +51,6 @@ jobs:
         with:
           tools: cmake libpq proj json-c gsl geos
 
-      - name: Update brew
-        if: matrix.os == 'macos-15-intel'
-        # Necessary to avoid issue with macOS runners. See
-        # https://github.com/actions/runner-images/issues/4020
-        run: |
-          brew reinstall python@3.12 || brew link --overwrite python@3.12
-          brew reinstall python@3.11 || brew link --overwrite python@3.11
-          brew update
-
       - name: Derive MEOS branch from package version
         id: meos_branch
         shell: bash
