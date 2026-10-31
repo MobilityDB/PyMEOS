@@ -186,30 +186,134 @@ class Pose:
         """
         return pose_as_ewkt(self._inner, max_decimals)
 
-    def as_wkb(self) -> bytes:
+    def as_wkb(self, endian: str = "") -> bytes:
         """
         Returns the WKB representation of ``self``.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`bytes` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            pose_as_wkb
+            pose_as_wkb, wkb_variant_from_endian
         """
-        return pose_as_wkb(self._inner, 4)
+        return pose_as_wkb(self._inner, wkb_variant_from_endian(endian))
 
-    def as_hexwkb(self) -> str:
+    def as_hexwkb(self, endian: str = "") -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in
             hex-encoded ASCII.
 
         MEOS Functions:
-            pose_as_hexwkb
+            pose_as_hexwkb, wkb_variant_from_endian
         """
-        return pose_as_hexwkb(self._inner, -1)[0]
+        return pose_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+
+    @staticmethod
+    def from_text(string: str) -> Pose:
+        """
+        Returns a :class:`Pose` from its text, the inverse of :meth:`as_text`.
+
+        Args:
+            string: The text representation.
+
+        Returns:
+            A new :class:`Pose` instance.
+
+        MEOS Functions:
+            pose_from_text
+        """
+        return Pose(_inner=pose_from_text(string))
+
+    @staticmethod
+    def from_ewkt(ewkt: str) -> Pose:
+        """
+        Returns a :class:`Pose` from its EWKT, the inverse of :meth:`as_ewkt`.
+
+        Args:
+            ewkt: The EWKT representation.
+
+        Returns:
+            A new :class:`Pose` instance.
+
+        MEOS Functions:
+            pose_from_text
+        """
+        return Pose(_inner=pose_from_text(ewkt))
+
+    @staticmethod
+    def from_ewkb(ewkb: bytes) -> Pose:
+        """
+        Returns a :class:`Pose` from its EWKB, the inverse of :meth:`as_ewkb`.
+
+        Args:
+            ewkb: The EWKB representation.
+
+        Returns:
+            A new :class:`Pose` instance.
+
+        MEOS Functions:
+            pose_from_wkb
+        """
+        return Pose(_inner=pose_from_wkb(ewkb))
+
+    @staticmethod
+    def from_hexewkb(hexewkb: str) -> Pose:
+        """
+        Returns a :class:`Pose` from its hex-encoded EWKB, the inverse of :meth:`as_hexewkb`.
+
+        Args:
+            hexewkb: The HEXEWKB representation.
+
+        Returns:
+            A new :class:`Pose` instance.
+
+        MEOS Functions:
+            pose_from_hexwkb
+        """
+        return Pose(_inner=pose_from_hexwkb(hexewkb))
+
+    def as_ewkb(self, endian: str = "") -> bytes:
+        """
+        Returns its Extended Well-Known Binary, its WKB carrying its SRID.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`bytes` instance.
+
+        MEOS Functions:
+            pose_as_ewkb, wkb_variant_from_endian
+        """
+        return pose_as_ewkb(self._inner, wkb_variant_from_endian(endian))
+
+    def as_hexewkb(self, endian: str = "") -> str:
+        """
+        Returns its Extended Well-Known Binary as a hex-encoded string.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            pose_as_hexewkb, wkb_variant_from_endian
+        """
+        return pose_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Conversions -----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

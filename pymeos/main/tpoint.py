@@ -12,7 +12,7 @@ import shapely.geometry.base as shpb
 from pymeos_cffi import *
 
 from ..collections import *
-from ..mixins import TSimplifiable
+from ..mixins import TSimplifiable, TSpatialIO
 from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
 from .tbool import TBool
 from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
@@ -41,7 +41,7 @@ Self = TypeVar("Self", bound="TPoint")
 TF = TypeVar("TF", bound="TFloat", covariant=True)
 
 
-class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
+class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, TSpatialIO, ABC):
     """
     Abstract class for temporal points.
     """
@@ -58,7 +58,13 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         return result.set_srid(srid) if srid is not None else result
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns the string representation of the temporal point.
 
@@ -68,7 +74,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, ABC):
         MEOS Functions:
             tspatial_as_text
         """
-        return tspatial_as_text(self._inner, 15)
+        return tspatial_as_text(self._inner, max_decimals)
 
     def as_wkt(self, precision: int = 15) -> str:
         """

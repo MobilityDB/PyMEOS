@@ -47,9 +47,15 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
     # ------------------------- Constructors ----------------------------------
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
         """
-        Return the string representation of the content of ``self``.
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self) -> str:
+        """
+        Return the text representation of the content of ``self``.
 
         Returns:
             A new :class:`str` instance

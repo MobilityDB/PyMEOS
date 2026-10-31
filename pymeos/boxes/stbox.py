@@ -288,8 +288,94 @@ class STBox:
             raise TypeError(f"Operation not supported with type {value.__class__}")
         return STBox(_inner=stbox_expand_space(box, expansion))
 
+    @staticmethod
+    def from_text(text: str) -> STBox:
+        """
+        Returns a :class:`STBox` from its text, the inverse of :meth:`as_text`.
+
+        Args:
+            text: The text representation.
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_in
+        """
+        return STBox(string=text)
+
+    @staticmethod
+    def from_ewkb(ewkb: bytes) -> STBox:
+        """
+        Returns a :class:`STBox` from its EWKB, the inverse of :meth:`as_ewkb`.
+
+        Args:
+            ewkb: The EWKB representation.
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_from_wkb
+        """
+        return STBox(_inner=stbox_from_wkb(ewkb))
+
+    @staticmethod
+    def from_hexewkb(hexewkb: str) -> STBox:
+        """
+        Returns a :class:`STBox` from its HEXEWKB, the inverse of :meth:`as_hexewkb`.
+
+        Args:
+            hexewkb: The HEXEWKB representation.
+
+        Returns:
+            A new :class:`STBox` instance.
+
+        MEOS Functions:
+            stbox_from_hexwkb
+        """
+        return STBox(_inner=stbox_from_hexwkb(hexewkb))
+
+    def as_ewkb(self, endian: str = "") -> bytes:
+        """
+        Returns the EWKB representation of ``self``, carrying its SRID.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`bytes` instance.
+
+        MEOS Functions:
+            stbox_as_ewkb, wkb_variant_from_endian
+        """
+        return stbox_as_ewkb(self._inner, wkb_variant_from_endian(endian))
+
+    def as_hexewkb(self, endian: str = "") -> str:
+        """
+        Returns the HEXEWKB representation of ``self``, carrying its SRID.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            stbox_as_hexewkb, wkb_variant_from_endian
+        """
+        return stbox_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+
     # ------------------------- Output ----------------------------------------
-    def __str__(self, max_decimals: int = 15):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns a string representation of ``self``.
 
@@ -313,30 +399,38 @@ class STBox:
         """
         return f"{self.__class__.__name__}({self})"
 
-    def as_wkb(self) -> bytes:
+    def as_wkb(self, endian: str = "") -> bytes:
         """
         Returns the WKB representation of ``self``.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            stbox_as_wkb
+            stbox_as_wkb, wkb_variant_from_endian
         """
-        return stbox_as_wkb(self._inner, 4)
+        return stbox_as_wkb(self._inner, wkb_variant_from_endian(endian))
 
-    def as_hexwkb(self) -> str:
+    def as_hexwkb(self, endian: str = "") -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in
             hex-encoded ASCII.
 
         MEOS Functions:
-            stbox_as_hexwkb
+            stbox_as_hexwkb, wkb_variant_from_endian
         """
-        return stbox_as_hexwkb(self._inner, -1)[0]
+        return stbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Conversions ----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

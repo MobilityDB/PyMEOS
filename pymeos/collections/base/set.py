@@ -96,6 +96,22 @@ class Set(Collection[T], ABC):
 
         return _CollectionFactory.create_collection(set_from_hexwkb(hexwkb))
 
+    @classmethod
+    def from_text(cls: type[Self], text: str) -> Self:
+        """
+        Returns a :class:`Set` from its text, the inverse of :meth:`as_text`.
+
+        Args:
+            text: The text representation.
+
+        Returns:
+            A new :class:`Set` instance.
+
+        MEOS Functions:
+            <type>_in
+        """
+        return cls(string=text)
+
     # ------------------------- Output ----------------------------------------
     @abstractmethod
     def __str__(self) -> str:
@@ -119,27 +135,35 @@ class Set(Collection[T], ABC):
         """
         return f"{self.__class__.__name__}({self})"
 
-    def as_wkb(self) -> bytes:
+    def as_wkb(self, endian: str = "") -> bytes:
         """
         Returns the WKB representation of ``self``.
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
         Returns:
             A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            set_as_wkb
+            set_as_wkb, wkb_variant_from_endian
         """
-        return set_as_wkb(self._inner, 4)
+        return set_as_wkb(self._inner, wkb_variant_from_endian(endian))
 
-    def as_hexwkb(self) -> str:
+    def as_hexwkb(self, endian: str = "") -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in hex-encoded ASCII.
 
         MEOS Functions:
-            set_as_hexwkb
+            set_as_hexwkb, wkb_variant_from_endian
         """
-        return set_as_hexwkb(self._inner, -1)[0]
+        return set_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Conversions -----------------------------------
     @overload

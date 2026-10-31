@@ -96,6 +96,22 @@ class Span(Collection[T], ABC):
         result = span_from_hexwkb(hexwkb)
         return cls(_inner=result)
 
+    @classmethod
+    def from_text(cls: type[Self], text: str) -> Self:
+        """
+        Returns a :class:`Span` from its text, the inverse of :meth:`as_text`.
+
+        Args:
+            text: The text representation.
+
+        Returns:
+            A new :class:`Span` instance.
+
+        MEOS Functions:
+            <type>_in
+        """
+        return cls(string=text)
+
     # ------------------------- Output ----------------------------------------
     @abstractmethod
     def __str__(self) -> str:
@@ -116,30 +132,38 @@ class Span(Collection[T], ABC):
         """
         return f"{self.__class__.__name__}({self})"
 
-    def as_wkb(self) -> bytes:
+    def as_wkb(self, endian: str = "") -> bytes:
         """
         Returns the WKB representation of ``self``.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            span_as_wkb
+            span_as_wkb, wkb_variant_from_endian
         """
-        return span_as_wkb(self._inner, 4)
+        return span_as_wkb(self._inner, wkb_variant_from_endian(endian))
 
-    def as_hexwkb(self) -> str:
+    def as_hexwkb(self, endian: str = "") -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in
             hex-encoded ASCII.
 
         MEOS Functions:
-            span_as_hexwkb
+            span_as_hexwkb, wkb_variant_from_endian
         """
-        return span_as_hexwkb(self._inner, -1)[0]
+        return span_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Conversions -----------------------------------
     @abstractmethod

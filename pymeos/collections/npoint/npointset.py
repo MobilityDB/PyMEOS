@@ -34,6 +34,90 @@ class NpointSet(Set[Npoint]):
 
     # ------------------------- Constructors ----------------------------------
 
+    @classmethod
+    def from_ewkb(cls: type[Self], ewkb: bytes) -> Self:
+        """
+        Returns a :class:`NpointSet` from its EWKB, the inverse of :meth:`as_ewkb`.
+
+        Args:
+            ewkb: The EWKB representation.
+
+        Returns:
+            A new :class:`NpointSet` instance.
+
+        MEOS Functions:
+            set_from_wkb
+        """
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection(set_from_wkb(ewkb))
+
+    @classmethod
+    def from_hexewkb(cls: type[Self], hexewkb: str) -> Self:
+        """
+        Returns a :class:`NpointSet` from its HEXEWKB, the inverse of :meth:`as_hexewkb`.
+
+        Args:
+            hexewkb: The HEXEWKB representation.
+
+        Returns:
+            A new :class:`NpointSet` instance.
+
+        MEOS Functions:
+            set_from_hexwkb
+        """
+        from ...factory import _CollectionFactory
+
+        return _CollectionFactory.create_collection(set_from_hexwkb(hexewkb))
+
+    @classmethod
+    def from_ewkt(cls: type[Self], ewkt: str) -> Self:
+        """
+        Returns a :class:`NpointSet` from its EWKT, the inverse of :meth:`as_ewkt`.
+
+        Args:
+            ewkt: The EWKT representation.
+
+        Returns:
+            A new :class:`NpointSet` instance.
+
+        MEOS Functions:
+            <type>_in
+        """
+        return cls.from_text(ewkt)
+
+    def as_ewkb(self, endian: str = "") -> bytes:
+        """
+        Returns the EWKB representation of ``self``, carrying its SRID.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`bytes` instance.
+
+        MEOS Functions:
+            spatialset_as_ewkb, wkb_variant_from_endian
+        """
+        return spatialset_as_ewkb(self._inner, wkb_variant_from_endian(endian))
+
+    def as_hexewkb(self, endian: str = "") -> str:
+        """
+        Returns the HEXEWKB representation of ``self``, carrying its SRID.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            A :class:`str` instance.
+
+        MEOS Functions:
+            spatialset_as_hexewkb, wkb_variant_from_endian
+        """
+        return spatialset_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):
         """

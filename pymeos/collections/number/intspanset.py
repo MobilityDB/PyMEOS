@@ -58,9 +58,15 @@ class IntSpanSet(SpanSet[int]):
     _parse_value_function = lambda span: intspanset_in(span)[0] if isinstance(span, str) else span._inner[0]
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
         """
-        Return the string representation of the content of ``self``.
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self) -> str:
+        """
+        Return the text representation of the content of ``self``.
 
         Returns:
             A new :class:`str` instance
