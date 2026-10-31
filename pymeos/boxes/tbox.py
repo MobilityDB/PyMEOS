@@ -237,8 +237,30 @@ class TBox:
         """
         return TBox(_inner=tnumber_to_tbox(temporal._inner))
 
+    @staticmethod
+    def from_text(text: str) -> TBox:
+        """
+        Returns a :class:`TBox` from its text, the inverse of :meth:`as_text`.
+
+        Args:
+            text: The text representation.
+
+        Returns:
+            A new :class:`TBox` instance.
+
+        MEOS Functions:
+            tbox_in
+        """
+        return TBox(string=text)
+
     # ------------------------- Output ----------------------------------------
-    def __str__(self, max_decimals: int = 15):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns a string representation of ``self``.
 
@@ -262,30 +284,38 @@ class TBox:
         """
         return f"{self.__class__.__name__}({self})"
 
-    def as_wkb(self) -> bytes:
+    def as_wkb(self, endian: str = "") -> bytes:
         """
         Returns the WKB representation of ``self``.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self``.
 
         MEOS Functions:
-            tbox_as_wkb
+            tbox_as_wkb, wkb_variant_from_endian
         """
-        return tbox_as_wkb(self._inner, 4)
+        return tbox_as_wkb(self._inner, wkb_variant_from_endian(endian))
 
-    def as_hexwkb(self) -> str:
+    def as_hexwkb(self, endian: str = "") -> str:
         """
         Returns the WKB representation of ``self`` in hex-encoded ASCII.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             A :class:`str` object with the WKB representation of ``self`` in
             hex-encoded ASCII.
 
         MEOS Functions:
-            tbox_as_hexwkb
+            tbox_as_hexwkb, wkb_variant_from_endian
         """
-        return tbox_as_hexwkb(self._inner, -1)[0]
+        return tbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Conversions ----------------------------------
     def to_floatspan(self) -> FloatSpan:

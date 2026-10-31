@@ -8,7 +8,7 @@ from pymeos_cffi import *
 
 from ..collections import *
 from ..collections.npoint import Npoint, NpointSet, Nsegment
-from ..mixins import TTemporallyComparable
+from ..mixins import TSpatialIO, TTemporallyComparable
 from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
 
 if TYPE_CHECKING:
@@ -24,6 +24,7 @@ Self = TypeVar("Self", bound="TNpoint")
 class TNpoint(
     Temporal[Npoint, "TNpoint", "TNpointInst", "TNpointSeq", "TNpointSeqSet"],
     TTemporallyComparable,
+    TSpatialIO,
     ABC,
 ):
     """
@@ -120,7 +121,13 @@ class TNpoint(
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self, max_decimals: int = 15) -> str:
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns the string representation of `self`.
 
@@ -128,9 +135,9 @@ class TNpoint(
             A string with the string representation of `self`.
 
         MEOS Functions:
-            tnpoint_out
+            tspatial_as_text
         """
-        return tnpoint_out(self._inner, max_decimals)
+        return tspatial_as_text(self._inner, max_decimals)
 
     def as_wkt(self, max_decimals: int = 15) -> str:
         """
@@ -140,9 +147,9 @@ class TNpoint(
             A string with the Well-Known Text representation of `self`.
 
         MEOS Functions:
-            tnpoint_out
+            tspatial_as_text
         """
-        return tnpoint_out(self._inner, max_decimals)
+        return tspatial_as_text(self._inner, max_decimals)
 
     # ------------------------- Value Accessors -------------------------------
     def start_value(self) -> Npoint:

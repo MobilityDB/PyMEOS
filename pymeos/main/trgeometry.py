@@ -8,7 +8,7 @@ from pymeos_cffi import *
 
 from ..collections import *
 from ..collections.pose import Pose
-from ..mixins import TTemporallyComparable
+from ..mixins import TSpatialIO, TTemporallyComparable
 from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
 from .tbool import TBool
 from .tfloat import TFloat
@@ -30,6 +30,7 @@ class TRgeometry(
         "TRgeometrySeqSet",
     ],
     TTemporallyComparable,
+    TSpatialIO,
     ABC,
 ):
     """
@@ -109,7 +110,13 @@ class TRgeometry(
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns the string representation of `self`.
 
@@ -119,7 +126,7 @@ class TRgeometry(
         MEOS Functions:
             trgeometry_as_text
         """
-        return trgeometry_as_text(self._inner, 15)
+        return trgeometry_as_text(self._inner, max_decimals)
 
     def as_wkt(self, precision: int = 15) -> str:
         """

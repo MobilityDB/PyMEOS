@@ -151,6 +151,23 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         return Temporal._factory(result)
 
     @classmethod
+    def from_text(cls: type[Self], text: str) -> Self:
+        """
+        Returns a temporal object from its text representation, the inverse
+        of :meth:`as_text`.
+
+        Args:
+            text: The text representation.
+
+        Returns:
+            A temporal object.
+
+        MEOS Functions:
+            <type>_in
+        """
+        return Temporal._factory(cls._parse_function(text))
+
+    @classmethod
     def from_merge(cls: type[Self], *temporals: TG) -> Self:
         """
         Returns a temporal object that is the result of merging the given
@@ -222,29 +239,49 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         """
         return temporal_as_mfjson(self._inner, with_bbox, flags, precision, srs)
 
-    def as_wkb(self) -> bytes:
+    def as_text(self) -> str:
         """
-        Returns the temporal object as a hex-encoded WKB string.
+        Returns the text representation of the temporal object, its WKT for
+        a spatial one.
+
+        Returns:
+            The text representation of the temporal object.
+        """
+        return self.as_wkt()
+
+    def as_wkb(self, endian: str = "") -> bytes:
+        """
+        Returns the temporal object as WKB bytes, plain WKB for a spatial one,
+        as the SQL ``asBinary`` writes it.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
+
+        Returns:
+            The temporal object as WKB bytes.
+
+        MEOS Functions:
+            temporal_as_wkb, wkb_variant_from_endian
+        """
+        return temporal_as_wkb(self._inner, wkb_variant_from_endian(endian))
+
+    def as_hexwkb(self, endian: str = "") -> str:
+        """
+        Returns the temporal object as a hex-encoded WKB string, plain WKB for
+        a spatial one, as the SQL ``asHexWKB`` writes it.
+
+        Args:
+            endian: The byte order, ``"NDR"``, ``"XDR"`` or ``""`` for the
+                machine's own.
 
         Returns:
             The temporal object as a hex-encoded WKB string.
 
         MEOS Functions:
-            temporal_as_hexwkb
+            temporal_as_hexwkb, wkb_variant_from_endian
         """
-        return temporal_as_wkb(self._inner, 4)
-
-    def as_hexwkb(self) -> str:
-        """
-        Returns the temporal object as a hex-encoded WKB string.
-
-        Returns:
-            The temporal object as a hex-encoded WKB string.
-
-        MEOS Functions:
-            temporal_as_hexwkb
-        """
-        return temporal_as_hexwkb(self._inner, 4)[0]
+        return temporal_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
 
     # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> TsTzSpan | Box:

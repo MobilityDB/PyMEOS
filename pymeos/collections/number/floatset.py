@@ -64,9 +64,15 @@ class FloatSet(Set[float]):
 
     # ------------------------- Output ----------------------------------------
 
-    def __str__(self, max_decimals: int = 15):
+    def __str__(self) -> str:
         """
-        Return the string representation of the content of ``self``.
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
+        """
+        Return the text representation of the content of ``self``.
 
         Returns:
             A new :class:`str` instance

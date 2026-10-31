@@ -107,7 +107,13 @@ class TInt(
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self) -> str:
         """
         Returns a string representation of `self`.
 

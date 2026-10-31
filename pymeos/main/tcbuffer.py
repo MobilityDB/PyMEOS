@@ -8,7 +8,7 @@ from pymeos_cffi import *
 
 from ..collections import *
 from ..collections.cbuffer import Cbuffer, CbufferSet
-from ..mixins import TTemporallyComparable
+from ..mixins import TSpatialIO, TTemporallyComparable
 from ..temporal import Temporal, TInstant, TInterpolation, TSequence, TSequenceSet
 from .tfloat import TFloat
 from .tpoint import TPoint
@@ -23,6 +23,7 @@ Self = TypeVar("Self", bound="TCbuffer")
 class TCbuffer(
     Temporal[Cbuffer, "TCbuffer", "TCbufferInst", "TCbufferSeq", "TCbufferSeqSet"],
     TTemporallyComparable,
+    TSpatialIO,
     ABC,
 ):
     """
@@ -59,7 +60,13 @@ class TCbuffer(
         return Temporal._factory(result)
 
     # ------------------------- Output ----------------------------------------
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        Returns the text representation of ``self``, its :meth:`as_text`.
+        """
+        return self.as_text()
+
+    def as_text(self, max_decimals: int = 15) -> str:
         """
         Returns the string representation of `self`.
 
@@ -69,7 +76,7 @@ class TCbuffer(
         MEOS Functions:
             tspatial_as_text
         """
-        return tspatial_as_text(self._inner, 15)
+        return tspatial_as_text(self._inner, max_decimals)
 
     def as_wkt(self, precision: int = 15) -> str:
         """
