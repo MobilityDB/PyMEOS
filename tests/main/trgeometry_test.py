@@ -13,6 +13,7 @@ from pymeos import (
     TRgeometryInst,
     TRgeometrySeq,
     TRgeometrySeqSet,
+    TsTzSpan,
 )
 from tests.conftest import TestPyMEOS
 
@@ -198,6 +199,33 @@ class TestTRgeometryRestrictions(TestTRgeometry):
     geometry = Polygon([(0, 0), (1, 0), (1, 1), (0, 1)])
     tps = TPoseSeq("[Pose(Point(1 1), 0.5)@2019-09-01, Pose(Point(2 2), 0.3)@2019-09-02]")
     trs = TRgeometry.from_geometry_tpose(geometry, tps)
+    moving = TRgeometrySeq("Polygon((0 0,1 0,0 1,0 0));[Pose(Point(1 1),0)@2001-01-01, Pose(Point(3 1),0)@2001-01-03]")
+
+    def test_at_timestamptz_value(self):
+        assert str(self.moving.at(datetime(2001, 1, 2, tzinfo=timezone.utc))) == (
+            "POLYGON((0 0,1 0,0 1,0 0));Pose(POINT(2 1),0)@2001-01-02 00:00:00+00"
+        )
+
+    def test_at_minus_tstzspan(self):
+        span = TsTzSpan("[2001-01-01, 2001-01-02]")
+        assert str(self.moving.at(span)) == (
+            "POLYGON((0 0,1 0,0 1,0 0));[Pose(POINT(1 1),0)@2001-01-01 00:00:00+00, "
+            "Pose(POINT(2 1),0)@2001-01-02 00:00:00+00]"
+        )
+        assert str(self.moving.minus(span)) == (
+            "POLYGON((0 0,1 0,0 1,0 0));{(Pose(POINT(2 1),0)@2001-01-02 00:00:00+00, "
+            "Pose(POINT(3 1),0)@2001-01-03 00:00:00+00]}"
+        )
+
+    def test_at_pose(self):
+        assert str(self.moving.at(Pose("Pose(Point(1 1),0)"))) == (
+            "POLYGON((0 0,1 0,0 1,0 0));{[Pose(POINT(1 1),0)@2001-01-01 00:00:00+00]}"
+        )
+
+    def test_within_distance(self):
+        assert str(self.moving.within_distance(self.moving, 1.0)) == (
+            "{[t@2001-01-01 00:00:00+00, t@2001-01-03 00:00:00+00]}"
+        )
 
     def test_at_timestamp(self):
         result = self.trs.at(datetime(2019, 9, 1, tzinfo=timezone.utc))
