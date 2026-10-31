@@ -161,6 +161,12 @@ class Method:
     # the faithful-mixin emitter to detect the trailing `distance` arg and
     # the restriction `*_stbox` border flag).
     params: dict[str, list[str]] = field(default_factory=dict)
+    # backing C function name -> its IDL parameter names (a trailing
+    # `spheroid` flag is passed as True, the default of the SQL function)
+    pnames: dict[str, list[str]] = field(default_factory=dict)
+    # backing C function name -> the SQL type of the first operand of each
+    # SQL signature it backs
+    sqlfirst: dict[str, set[str]] = field(default_factory=dict)
 
 
 @dataclass
@@ -211,6 +217,8 @@ def collect(idl: dict) -> tuple[dict[str, dict[str, Method]], Stats]:
         meth.overloads.setdefault(token or fam, cname)
         meth.c_names.append(cname)
         meth.params[cname] = [p.get("canonical", p.get("cType", "")) for p in entry["params"]]
+        meth.pnames[cname] = [p.get("name", "") for p in entry["params"]]
+        meth.sqlfirst[cname] = {sig["args"][0] for sig in entry.get("sqlSignatures") or [] if sig.get("args")}
         st.emitted_overloads += 1
         st.by_family[fam] += 1
     return fams, st
@@ -323,6 +331,50 @@ FAMILY_MODEL = {
         },
         "stbox_lazy": "from ...boxes import STBox",
     },
+    # The temporal points take one mixin per class, each holding the
+    # overloads whose SQL signatures take the class's SQL type as first
+    # operand: tgeompoint and tgeogpoint declare different relationships,
+    # and neither declares the containment and covering a surface answers.
+    "geompoint": {
+        "catalog_family": "geo",
+        "sql_types": ("tgeompoint",),
+        "mixin_class": "TGeomPointRegularMixin",
+        "base_class": "TGeomPoint",
+        "base_import": "import shapely.geometry as shp\n\nfrom ...collections import FloatSpan",
+        "temporal_class": "TGeomPoint",
+        "temporal_import": "from ..tpoint import TGeomPoint",
+        "temporal_token": ("tpoint", "tgeo"),
+        "tokens": {
+            "geo": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            "geom": ("shpb.BaseGeometry", "geo_to_gserialized($o, False)"),
+            # atValue and minusValue take a geometry(Point)
+            "value": ("shp.Point", "geo_to_gserialized($o, False)"),
+            "elevation": ("FloatSpan", "$o._inner"),
+            "tgeo": ("TGeomPoint", "$o._inner"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+    },
+    "geogpoint": {
+        "catalog_family": "geo",
+        "sql_types": ("tgeogpoint",),
+        "mixin_class": "TGeogPointRegularMixin",
+        "base_class": "TGeogPoint",
+        "base_import": "import shapely.geometry as shp\n\nfrom ...collections import FloatSpan",
+        "temporal_class": "TGeogPoint",
+        "temporal_import": "from ..tpoint import TGeogPoint",
+        "temporal_token": ("tpoint", "tgeo"),
+        "tokens": {
+            "geo": ("shpb.BaseGeometry", "geo_to_gserialized($o, True)"),
+            "geom": ("shpb.BaseGeometry", "geo_to_gserialized($o, True)"),
+            # atValue and minusValue take a geometry(Point)
+            "value": ("shp.Point", "geo_to_gserialized($o, True)"),
+            "elevation": ("FloatSpan", "$o._inner"),
+            "tgeo": ("TGeogPoint", "$o._inner"),
+            "stbox": ("STBox", "$o._inner"),
+        },
+        "stbox_lazy": "from ...boxes import STBox",
+    },
 }
 
 # Result post-processing, derived verbatim from the hand-written oracle.
@@ -363,10 +415,12 @@ _WITHIN_DISTANCE = {
 }
 
 _ORDER = [
+    "value",
     "geo",
     "geom",
     "point",
     "tpoint",
+    "tgeo",
     "trgeo",
     "cbuffer",
     "tcbuffer",
@@ -377,7 +431,6 @@ _ORDER = [
     "tpose",
     "rgeometry",
     "trgeometry",
-    "value",
     "values",
     "elevation",
     "stbox",
@@ -391,22 +444,25 @@ _ORDER = [
 _OO_TO_CPREFIX = {oo: pfx for pfx, (oo, _k) in MEMBER_SPEC.items()}
 
 
-def _faithful_overloads(oo_name: str, m: Method, ttok: str) -> dict[str, str]:
+def _faithful_overloads(
+    oo_name: str, m: Method, ttoks: tuple[str, ...], sql_types: tuple[str, ...] | None = None
+) -> dict[str, str]:
     """Rebuild the dispatch table for a temporal-type mixin: keep only the
     overloads whose C name is ``<member>_<ttok>_<arg>`` (or, for
     restriction, ``<ttok>_(at|minus)_<arg>``) and key on ``<arg>``.  This
     discards reversed-operand / base-class forms so the generated method
     calls exactly the backing the hand-written method called."""
     out: dict[str, str] = {}
-    if oo_name in ("at", "minus"):
-        pat = re.compile(rf"^{re.escape(ttok)}_{oo_name}_(.+)$")
-    else:
-        cpre = _OO_TO_CPREFIX[oo_name]
-        pat = re.compile(rf"^{re.escape(cpre)}_{re.escape(ttok)}_(.+)$")
-    for cn in m.c_names:
-        mm = pat.match(cn)
-        if mm:
-            out.setdefault(mm.group(1), cn)
+    for ttok in ttoks:
+        if oo_name in ("at", "minus"):
+            pat = re.compile(rf"^{re.escape(ttok)}_{oo_name}_(.+)$")
+        else:
+            cpre = _OO_TO_CPREFIX[oo_name]
+            pat = re.compile(rf"^{re.escape(cpre)}_{re.escape(ttok)}_(.+)$")
+        for cn in m.c_names:
+            mm = pat.match(cn)
+            if mm and (sql_types is None or m.sqlfirst.get(cn, set()) & set(sql_types)):
+                out.setdefault(mm.group(1), cn)
     return out
 
 
@@ -495,7 +551,9 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
     (so a coverage gap is loud, never silent)."""
     model = FAMILY_MODEL[family]
     tokens = model["tokens"]
-    ttok = model["temporal_token"]
+    ttoks = model["temporal_token"]
+    if isinstance(ttoks, str):
+        ttoks = (ttoks,)
     out = [
         _MIXIN_HEADER.format(
             family=family,
@@ -509,7 +567,7 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
 
     # Faithful dispatch tables (temporal operand first); reversed/base forms
     # discarded.  Any arg token without a model mapping is loud, not silent.
-    faithful = {oo: _faithful_overloads(oo, m, ttok) for oo, m in methods.items()}
+    faithful = {oo: _faithful_overloads(oo, m, ttoks, model.get("sql_types")) for oo, m in methods.items()}
     unmodelled = sorted({tok for tbl in faithful.values() for tok in tbl if tok not in tokens})
     if unmodelled:
         raise SystemExit(
@@ -552,6 +610,8 @@ def emit_faithful_mixin(family: str, methods: dict[str, Method]) -> str:
             if has_dist:
                 call_args.append("distance")
             elif oo_name in ("at", "minus") and tok == "stbox" and nparams == 3:
+                call_args.append("True")
+            if m.pnames.get(cfn, [])[-1:] == ["spheroid"]:
                 call_args.append("True")
             kw = "if" if i == 0 else "elif"
             body.append(
@@ -615,14 +675,15 @@ def main() -> int:
         if args.mixin not in FAMILY_MODEL:
             raise SystemExit(f"--mixin {args.mixin!r}: no FAMILY_MODEL (modelled: {sorted(FAMILY_MODEL)})")
         out = Path(args.mixin_out) if args.mixin_out else mixin_path(args.mixin)
-        src = format_mixin(emit_faithful_mixin(args.mixin, fams[args.mixin]), out)
+        methods = fams[FAMILY_MODEL[args.mixin].get("catalog_family", args.mixin)]
+        src = format_mixin(emit_faithful_mixin(args.mixin, methods), out)
         if args.mixin_out:
             Path(args.mixin_out).parent.mkdir(parents=True, exist_ok=True)
             Path(args.mixin_out).write_text(src)
             print(
                 f"[oo-codegen] wrote faithful mixin "
                 f"{FAMILY_MODEL[args.mixin]['mixin_class']} -> "
-                f"{args.mixin_out} ({len(fams[args.mixin])} methods)"
+                f"{args.mixin_out} ({len(methods)} methods)"
             )
         else:
             print(src)

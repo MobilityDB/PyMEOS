@@ -103,10 +103,10 @@ class TRgeometryRegularMixin:
         """
         from ...boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
-            result = trgeometry_at_geom(self._inner, geometry_to_gserialized(other))
-        elif isinstance(other, Pose):
+        if isinstance(other, Pose):
             result = trgeometry_at_value(self._inner, other._inner)
+        elif isinstance(other, shpb.BaseGeometry):
+            result = trgeometry_at_geom(self._inner, geometry_to_gserialized(other))
         elif isinstance(other, PoseSet):
             result = trgeometry_at_values(self._inner, other._inner)
         elif isinstance(other, STBox):
@@ -297,10 +297,10 @@ class TRgeometryRegularMixin:
         """
         from ...boxes import STBox
 
-        if isinstance(other, shpb.BaseGeometry):
-            result = trgeometry_minus_geom(self._inner, geometry_to_gserialized(other))
-        elif isinstance(other, Pose):
+        if isinstance(other, Pose):
             result = trgeometry_minus_value(self._inner, other._inner)
+        elif isinstance(other, shpb.BaseGeometry):
+            result = trgeometry_minus_geom(self._inner, geometry_to_gserialized(other))
         elif isinstance(other, PoseSet):
             result = trgeometry_minus_values(self._inner, other._inner)
         elif isinstance(other, STBox):
