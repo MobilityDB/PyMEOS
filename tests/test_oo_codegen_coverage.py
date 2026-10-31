@@ -72,7 +72,9 @@ class BackingValidity(unittest.TestCase):
         for family in cg.FAMILY_MODEL:
             path = cg.mixin_path(family)
             with self.subTest(family=family):
-                generated = cg.format_mixin(cg.emit_faithful_mixin(family, fams[family]), path)
+                generated = cg.format_mixin(
+                    cg.emit_faithful_mixin(family, fams[cg.FAMILY_MODEL[family].get("catalog_family", family)]), path
+                )
                 self.assertEqual(
                     path.read_text(),
                     generated,

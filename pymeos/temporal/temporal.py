@@ -856,7 +856,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
         MEOS Functions:
             temporal_at_timestamp, temporal_at_tstzset,
-            temporal_at_tstzspan, temporal_at_tstzspanset
+            temporal_at_tstzspan, temporal_at_tstzspanset, temporal_at_values
         """
         if isinstance(other, datetime):
             result = temporal_at_timestamptz(self._inner, datetime_to_timestamptz(other))
@@ -866,6 +866,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             result = temporal_at_tstzspan(self._inner, other._inner)
         elif isinstance(other, TsTzSpanSet):
             result = temporal_at_tstzspanset(self._inner, other._inner)
+        elif isinstance(other, Set):
+            result = temporal_at_values(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -911,7 +913,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
 
         MEOS Functions:
             temporal_minus_timestamp, temporal_minus_tstzset,
-            temporal_minus_tstzspan, temporal_minus_tstzspanset
+            temporal_minus_tstzspan, temporal_minus_tstzspanset, temporal_minus_values
         """
         if isinstance(other, TsTzSpan):
             result = temporal_minus_tstzspan(self._inner, other._inner)
@@ -921,6 +923,8 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
             result = temporal_minus_timestamptz(self._inner, datetime_to_timestamptz(other))
         elif isinstance(other, TsTzSet):
             result = temporal_minus_tstzset(self._inner, other._inner)
+        elif isinstance(other, Set):
+            result = temporal_minus_values(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)

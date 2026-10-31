@@ -9,6 +9,8 @@ from pymeos_cffi import MeosException, MeosInvalidArgTypeError, MeosInvalidArgVa
 from shapely import GeometryCollection, LineString, MultiPoint, Point, Polygon
 
 from pymeos import (
+    FloatSpan,
+    GeometrySet,
     STBox,
     TBoolInst,
     TBoolSeq,
@@ -16,6 +18,7 @@ from pymeos import (
     TFloatInst,
     TFloatSeq,
     TFloatSeqSet,
+    TGeogPoint,
     TGeogPointInst,
     TGeogPointSeq,
     TGeogPointSeqSet,
@@ -2922,14 +2925,16 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
         assert temporal.ever_intersects(Point(1, 1)) == expected
         assert temporal.ever_intersects(TGeomPointInst("Point(1 1)@2019-09-01")) == expected
 
-    # Verify that these results are correct wrt lifting the 9DEM definition of touches
+    # etouches_tpoint_geo, the function of eTouches(tgeompoint, geometry): the
+    # boundary of the trajectory of a sequence starting at Point(1 1) holds
+    # Point(1 1), and a trajectory of points has an empty boundary
     @pytest.mark.parametrize(
         "temporal, expected",
         [
             (tpi, False),
             (tpds, False),
-            (tps, False),
-            (tpss, False),
+            (tps, True),
+            (tpss, True),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -3083,20 +3088,20 @@ class TestTGeomPointDistanceOperations(TestTGeomPoint):
                 Point(1, 1),
                 TFloatSeqSet("{[0@2019-09-01, 1.414@2019-09-02],[0@2019-09-03, 0@2019-09-05]}"),
             ),
-            (tpi, STBox("STBOX X((1,1),(1,1))"), TFloatInst("0@2019-09-01")),
+            (tpi, STBox("STBOX X((1,1),(1,1))").to_geometry(), TFloatInst("0@2019-09-01")),
             (
                 tpds,
-                STBox("STBOX X((1,1),(1,1))"),
+                STBox("STBOX X((1,1),(1,1))").to_geometry(),
                 TFloatSeq("{0@2019-09-01, 1.414@2019-09-02}"),
             ),
             (
                 tps,
-                STBox("STBOX X((1,1),(1,1))"),
+                STBox("STBOX X((1,1),(1,1))").to_geometry(),
                 TFloatSeq("[0@2019-09-01, 1.414@2019-09-02]"),
             ),
             (
                 tpss,
-                STBox("STBOX X((1,1),(1,1))"),
+                STBox("STBOX X((1,1),(1,1))").to_geometry(),
                 TFloatSeqSet("{[0@2019-09-01, 1.414@2019-09-02],[0@2019-09-03, 0@2019-09-05]}"),
             ),
             (tpi, TGeomPointInst("Point(1 1)@2019-09-01"), TFloatInst("0@2019-09-01")),
@@ -3493,3 +3498,34 @@ class TestTGeomPointTemporalComparisons(TestTGeomPoint):
     def test_temporal_equal_point(self, temporal, argument, expected):
         assert temporal.temporal_equal(argument) == expected
         assert temporal.temporal_not_equal(argument) == expected.temporal_not()
+
+
+class TestTGeomPointGeneratedSurface(TestTGeomPoint):
+    tps3d = TGeomPointSeq("[Point(1 1 1)@2019-09-01, Point(1 1 3)@2019-09-03]")
+
+    def test_at_minus_elevation(self):
+        assert self.tps3d.at(FloatSpan("[1.5, 2]")) == TGeomPointSeqSet(
+            "{[Point(1 1 1.5)@2019-09-01 12:00:00+00, Point(1 1 2)@2019-09-02]}"
+        )
+        assert self.tps3d.minus(FloatSpan("[1.5, 2]")) == TGeomPointSeqSet(
+            "{[Point(1 1 1)@2019-09-01, Point(1 1 1.5)@2019-09-01 12:00:00+00),"
+            "(Point(1 1 2)@2019-09-02, Point(1 1 3)@2019-09-03]}"
+        )
+
+    def test_at_minus_geometry_set(self):
+        assert self.tps3d.at(GeometrySet("{Point(1 1 2)}")) == TGeomPointSeqSet("{[Point(1 1 2)@2019-09-02]}")
+        assert self.tps3d.minus(GeometrySet("{Point(1 1 2)}")) == TGeomPointSeqSet(
+            "{[Point(1 1 1)@2019-09-01, Point(1 1 2)@2019-09-02), (Point(1 1 2)@2019-09-02, Point(1 1 3)@2019-09-03]}"
+        )
+
+    @pytest.mark.parametrize(
+        "method",
+        ["is_ever_contains", "is_always_contains", "is_ever_covers", "is_always_covers", "covers"],
+    )
+    def test_no_containment_or_covering_on_points(self, method):
+        assert not hasattr(TGeomPoint, method)
+        assert not hasattr(TGeogPoint, method)
+
+    def test_geography_point_has_no_touches(self):
+        assert not hasattr(TGeogPoint, "touches")
+        assert not hasattr(TGeogPoint, "ever_touches")
