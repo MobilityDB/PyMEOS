@@ -237,9 +237,9 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             A new :class:`TsTzSpanSet` instance
 
         MEOS Functions:
-            tstzspanset_shift_scale
+            tstzspanset_shift
         """
-        return self.shift_scale(shift=delta)
+        return TsTzSpanSet(_inner=tstzspanset_shift(self._inner, timedelta_to_interval(delta)))
 
     def scale(self, duration: timedelta) -> TsTzSpanSet:
         """
@@ -258,9 +258,9 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            tstzspanset_shift_scale
+            tstzspanset_scale
         """
-        return self.shift_scale(duration=duration)
+        return TsTzSpanSet(_inner=tstzspanset_scale(self._inner, timedelta_to_interval(duration)))
 
     def shift_scale(self, shift: timedelta | None = None, duration: timedelta | None = None) -> TsTzSpanSet:
         """
@@ -280,14 +280,15 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             A new :class:`PeriodSet` instance
 
         MEOS Functions:
-            tstzspanset_shift_scale
+            tstzspanset_shift, tstzspanset_scale, tstzspanset_shift_scale
         """
         assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
-        ps = tstzspanset_shift_scale(
-            self._inner,
-            timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
-        )
+        if shift is None:
+            ps = tstzspanset_scale(self._inner, timedelta_to_interval(duration))
+        elif duration is None:
+            ps = tstzspanset_shift(self._inner, timedelta_to_interval(shift))
+        else:
+            ps = tstzspanset_shift_scale(self._inner, timedelta_to_interval(shift), timedelta_to_interval(duration))
         return TsTzSpanSet(_inner=ps)
 
     # ------------------------- Topological Operations ------------------------

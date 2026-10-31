@@ -619,12 +619,12 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_scale_time
+            stbox_shift_time
 
         See Also:
             :meth:`STBox.shift`
         """
-        return self.shift_scale_time(shift=delta)
+        return STBox(_inner=stbox_shift_time(self._inner, timedelta_to_interval(delta)))
 
     def scale_time(self, duration: timedelta) -> STBox:
         """
@@ -638,12 +638,12 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            tstzspan_shift_scale
+            stbox_scale_time
 
         See Also:
             :meth:`STBox.scale`
         """
-        return self.shift_scale_time(duration=duration)
+        return STBox(_inner=stbox_scale_time(self._inner, timedelta_to_interval(duration)))
 
     def shift_scale_time(self, shift: timedelta | None = None, duration: timedelta | None = None) -> STBox:
         """
@@ -658,17 +658,18 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_scale_time
+            stbox_shift_time, stbox_scale_time, stbox_shift_scale_time
 
         See Also:
             :meth:`TsTzSpan.shift_scale`
         """
         assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
-        result = stbox_shift_scale_time(
-            self._inner,
-            timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
-        )
+        if shift is None:
+            result = stbox_scale_time(self._inner, timedelta_to_interval(duration))
+        elif duration is None:
+            result = stbox_shift_time(self._inner, timedelta_to_interval(shift))
+        else:
+            result = stbox_shift_scale_time(self._inner, timedelta_to_interval(shift), timedelta_to_interval(duration))
         return STBox(_inner=result)
 
     def round(self, max_decimals: int | None = 0) -> STBox:
