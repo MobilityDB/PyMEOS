@@ -6,6 +6,7 @@ from pymeos_cffi import (
     meos_set_datestyle,
     meos_set_intervalstyle,
 )
+from pymeos_cffi.functions import _ffi
 
 
 def pymeos_initialize(
@@ -29,13 +30,13 @@ def pymeos_initialize(
 
     if date_style is not None:
         if isinstance(date_style, str):
-            meos_set_datestyle(date_style, None)
+            meos_set_datestyle(date_style, _ffi.NULL)
         else:
             meos_set_datestyle(*date_style)
 
     if interval_style is not None:
         if isinstance(interval_style, str):
-            meos_set_intervalstyle(interval_style, None)
+            meos_set_intervalstyle(interval_style, 0)
         else:
             meos_set_intervalstyle(*interval_style)
 
