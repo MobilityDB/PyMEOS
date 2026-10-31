@@ -4,6 +4,7 @@ from datetime import datetime, timezone
 import pytest
 
 from pymeos import (
+    FloatSpan,
     Pose,
     PoseSet,
     TInterpolation,
@@ -117,6 +118,21 @@ class TestTPoseEverAlways(TestTPose):
 
 class TestTPoseRestrictions(TestTPose):
     tps = TPoseSeq("[Pose(Point(1 1), 0.5)@2019-09-01, Pose(Point(2 2), 0.3)@2019-09-02]")
+    tps3d = TPoseSeq("[Pose(Point(1 1 1),0.0,0.0,0.0,1.0)@2001-01-01, Pose(Point(1 1 3),0.0,0.0,0.0,1.0)@2001-01-03]")
+
+    def test_at_elevation(self):
+        assert str(self.tps3d.at(FloatSpan("[1.5, 2]"))) == (
+            "{[Pose(POINT Z (1 1 1.5),0,0,0,1)@2001-01-01 12:00:00+00, "
+            "Pose(POINT Z (1 1 2),0,0,0,1)@2001-01-02 00:00:00+00]}"
+        )
+
+    def test_minus_elevation(self):
+        assert str(self.tps3d.minus(FloatSpan("[1.5, 2]"))) == (
+            "{[Pose(POINT Z (1 1 1),0,0,0,1)@2001-01-01 00:00:00+00, "
+            "Pose(POINT Z (1 1 1.5),0,0,0,1)@2001-01-01 12:00:00+00), "
+            "(Pose(POINT Z (1 1 2),0,0,0,1)@2001-01-02 00:00:00+00, "
+            "Pose(POINT Z (1 1 3),0,0,0,1)@2001-01-03 00:00:00+00]}"
+        )
 
     def test_at_pose(self):
         result = self.tps.at(Pose("Pose(Point(1 1), 0.5)"))

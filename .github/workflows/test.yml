@@ -193,6 +193,8 @@ jobs:
           pip install .
 
       - name: Test PyMEOS with pytest
+        env:
+          MEOS_IDL: ${{ github.workspace }}/PyMEOS-CFFI/builder/meos-idl.json
         run: |
           export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
           export DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH:${{ matrix.ld_prefix }}/lib
