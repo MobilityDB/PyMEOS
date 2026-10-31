@@ -101,18 +101,19 @@ jobs:
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq proj json-c gsl geos h3
+          tools: cmake libpq proj json-c h3
 
       # The raster family links GDAL. Homebrew's GDAL links Apache Arrow for its Arrow and
       # Parquet drivers, and pyarrow's bundled Arrow then binds to that copy and fails to load,
-      # so GDAL is built here without Arrow or Parquet, as MobilityDuck builds its own: core
-      # drivers only, against Homebrew's PROJ. Its install names are absolute, so libmeos finds
-      # it without a library path.
+      # so GDAL is built here without Arrow or Parquet, as MobilityDuck builds its own: GDAL
+      # 3.12.0, core drivers only, without GEOS, against Homebrew's PROJ. MEOS calls neither GEOS
+      # nor GSL, so neither is installed. Its install names are absolute, so libmeos finds it
+      # without a library path.
       - name: Key the GDAL build (macOS)
         id: gdal
         if: runner.os == 'macOS'
         run: |
-          echo "version=3.11.4" >> "$GITHUB_OUTPUT"
+          echo "version=3.12.0" >> "$GITHUB_OUTPUT"
           echo "prefix=$HOME/gdal" >> "$GITHUB_OUTPUT"
           echo "proj=$(brew list --versions proj | cut -d' ' -f2)" >> "$GITHUB_OUTPUT"
 
@@ -124,9 +125,11 @@ jobs:
           path: ${{ steps.gdal.outputs.prefix }}
           key: gdal-${{ steps.gdal.outputs.version }}-proj-${{ steps.gdal.outputs.proj }}-${{ matrix.os }}
 
-      - name: Build GDAL without Arrow (macOS)
+      - name: Build GDAL without Arrow and GEOS (macOS)
         if: runner.os == 'macOS' && steps.gdal-cache.outputs.cache-hit != 'true'
         run: |
+          # The source and the build stay outside the checkout, so pytest collects neither.
+          cd "$RUNNER_TEMP"
           curl -sSL -o gdal.tar.gz \
             https://github.com/OSGeo/gdal/releases/download/v${{ steps.gdal.outputs.version }}/gdal-${{ steps.gdal.outputs.version }}.tar.gz
           tar xzf gdal.tar.gz
@@ -136,7 +139,7 @@ jobs:
             -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
             -DBUILD_APPS=OFF -DBUILD_TESTING=OFF -DBUILD_DOCS=OFF -DBUILD_PYTHON_BINDINGS=OFF \
             -DGDAL_BUILD_OPTIONAL_DRIVERS=OFF -DOGR_BUILD_OPTIONAL_DRIVERS=OFF \
-            -DGDAL_USE_ARROW=OFF -DGDAL_USE_PARQUET=OFF \
+            -DGDAL_USE_ARROW=OFF -DGDAL_USE_PARQUET=OFF -DGDAL_USE_GEOS=OFF \
             -DCMAKE_DISABLE_FIND_PACKAGE_Arrow=ON -DCMAKE_DISABLE_FIND_PACKAGE_Parquet=ON
           cmake --build gdal-build -j"$(sysctl -n hw.ncpu)"
           cmake --install gdal-build
