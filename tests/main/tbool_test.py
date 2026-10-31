@@ -2,7 +2,7 @@ from copy import copy
 from datetime import datetime, timedelta, timezone
 
 import pytest
-from pymeos_cffi import MeosException
+from pymeos_cffi import MeosException, MeosInvalidArgTypeError
 
 from pymeos import (
     TBool,
@@ -401,8 +401,8 @@ class TestTBoolOutputs(TestTBool):
                 "{\n"
                 '  "type": "MovingBoolean",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -410,7 +410,7 @@ class TestTBoolOutputs(TestTBool):
                 "    true\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -420,8 +420,8 @@ class TestTBoolOutputs(TestTBool):
                 "{\n"
                 '  "type": "MovingBoolean",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -430,8 +430,8 @@ class TestTBoolOutputs(TestTBool):
                 "    false\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -443,8 +443,8 @@ class TestTBoolOutputs(TestTBool):
                 "{\n"
                 '  "type": "MovingBoolean",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -453,8 +453,8 @@ class TestTBoolOutputs(TestTBool):
                 "    false\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -466,8 +466,8 @@ class TestTBoolOutputs(TestTBool):
                 "{\n"
                 '  "type": "MovingBoolean",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -478,8 +478,8 @@ class TestTBoolOutputs(TestTBool):
                 "        false\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -490,8 +490,8 @@ class TestTBoolOutputs(TestTBool):
                 "        true\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -878,7 +878,7 @@ class TestTBoolAccessors(TestTBool):
 
     @pytest.mark.parametrize(
         "temporal, expected",
-        [(tbi, 440045287), (tbds, 2385901957), (tbs, 2385901957), (tbss, 1543175996)],
+        [(tbi, 440045318), (tbds, 3614979951), (tbs, 3614979951), (tbss, 1190925880)],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_hash(self, temporal, expected):
@@ -1547,35 +1547,6 @@ class TestTBoolRestrictors(TestTBool):
         assert temporal.at(restrictor) == expected
 
     @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tbi, TBoolInst("True@2019-09-01")),
-            (tbds, TBoolSeq("{True@2019-09-01}")),
-            (tbs, TBoolSeq("[True@2019-09-01, True@2019-09-02)")),
-            (
-                tbss,
-                TBoolSeqSet("{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}"),
-            ),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_at_max(self, temporal, expected):
-        assert temporal.at_max() == expected
-
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tbi, TBoolInst("True@2019-09-01")),
-            (tbds, TBoolSeq("{False@2019-09-02}")),
-            (tbs, TBoolSeq("[False@2019-09-02]")),
-            (tbss, TBoolSeqSet("{[False@2019-09-02]}")),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_at_min(self, temporal, expected):
-        assert temporal.at_min() == expected
-
-    @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tbi, timestamp, None),
@@ -1646,35 +1617,6 @@ class TestTBoolRestrictors(TestTBool):
         assert temporal.minus(restrictor) == expected
 
     @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tbi, None),
-            (tbds, TBoolSeq("{False@2019-09-02}")),
-            (tbs, TBoolSeq("[False@2019-09-02]")),
-            (tbss, TBoolSeqSet("{[False@2019-09-02]}")),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_minus_max(self, temporal, expected):
-        assert temporal.minus_max() == expected
-
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tbi, None),
-            (tbds, TBoolSeq("{True@2019-09-01}")),
-            (tbs, TBoolSeq("[True@2019-09-01, True@2019-09-02)")),
-            (
-                tbss,
-                TBoolSeqSet("{[True@2019-09-01, True@2019-09-02),[True@2019-09-03, True@2019-09-05]}"),
-            ),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_minus_min(self, temporal, expected):
-        assert temporal.minus_min() == expected
-
-    @pytest.mark.parametrize(
         "temporal, restrictor",
         [
             (tbi, timestamp),
@@ -1737,9 +1679,10 @@ class TestTBoolRestrictors(TestTBool):
         [tbi, tbds, tbs, tbss],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_at_minus_min_max(self, temporal):
-        assert TBool.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TBool.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+    def test_min_max_restrictors_raise(self, temporal):
+        for restrict in (temporal.at_min, temporal.at_max, temporal.minus_min, temporal.minus_max):
+            with pytest.raises(MeosInvalidArgTypeError):
+                restrict()
 
 
 class TestTBoolComparisons(TestTBool):

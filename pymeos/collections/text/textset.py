@@ -95,7 +95,7 @@ class TextSet(Set[str]):
             textset_value_n
         """
         super().element_n(n)
-        return text2cstring(textset_value_n(self._inner, n + 1)[0])
+        return text_to_cstring(textset_value_n(self._inner, n + 1)[0])
 
     def elements(self):
         """
@@ -107,8 +107,8 @@ class TextSet(Set[str]):
         MEOS Functions:
             textset_values
         """
-        elems = textset_values(self._inner)
-        return [text2cstring(elems[i]) for i in range(self.num_elements())]
+        elems = textset_values(self._inner)[0]
+        return [text_to_cstring(elems[i]) for i in range(self.num_elements())]
 
     # ------------------------- Topological Operations --------------------------------
 
@@ -224,7 +224,7 @@ class TextSet(Set[str]):
             :meth:`minus`
         """
         result = minus_text_set(other, self._inner)
-        return text2cstring(result[0]) if result is not None else None
+        return text_to_cstring(result[0]) if result is not None else None
 
     def union(self, other: TextSet | str) -> TextSet:
         """

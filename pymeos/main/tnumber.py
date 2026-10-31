@@ -401,17 +401,17 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            mult_tint_int, mult_tfloat_float, mult_tnumber_tnumber
+            mul_tint_int, mul_tfloat_float, mul_tnumber_tnumber
         """
         from .tfloat import TFloat
         from .tint import TInt
 
         if isinstance(self, TInt) and isinstance(other, int):
-            result = mult_tint_int(self._inner, other)
+            result = mul_tint_int(self._inner, other)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
-            result = mult_tfloat_float(self._inner, float(other))
+            result = mul_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
-            result = mult_tnumber_tnumber(self._inner, other._inner)
+            result = mul_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -428,15 +428,15 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            mult_int_tint, mult_float_tfloat
+            mul_int_tint, mul_float_tfloat
         """
         from .tfloat import TFloat
         from .tint import TInt
 
         if isinstance(self, TInt) and isinstance(other, int):
-            result = mult_int_tint(other, self._inner)
+            result = mul_int_tint(other, self._inner)
         elif isinstance(self, TFloat) and isinstance(other, (int, float)):
-            result = mult_float_tfloat(float(other), self._inner)
+            result = mul_float_tfloat(float(other), self._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
@@ -566,7 +566,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            mult_tint_int, mult_tfloat_float, mult_tnumber_tnumber
+            mul_tint_int, mul_tfloat_float, mul_tnumber_tnumber
         """
         return self.mul(other)
 
@@ -582,7 +582,7 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A new temporal object of the same subtype as `self`.
 
         MEOS Functions:
-            mult_int_tint, mult_float_tfloat
+            mul_int_tint, mul_float_tfloat
         """
         return self.rmul(other)
 
@@ -660,14 +660,17 @@ class TNumber(Temporal[TBase, TG, TI, TS, TSS], ABC):
             A :class:`TFloat` with the distance between `self` and `other`.
 
         MEOS Functions:
-            distance_tfloat_float, distance_tnumber_tnumber
+            tdistance_tint_int, tdistance_tfloat_float, tdistance_tnumber_tnumber
         """
-        if isinstance(other, int):
-            result = distance_tfloat_float(self._inner, float(other))
-        elif isinstance(other, float):
-            result = distance_tfloat_float(self._inner, other)
+        from .tfloat import TFloat
+        from .tint import TInt
+
+        if isinstance(self, TInt) and isinstance(other, int):
+            result = tdistance_tint_int(self._inner, other)
+        elif isinstance(self, TFloat) and isinstance(other, (int, float)):
+            result = tdistance_tfloat_float(self._inner, float(other))
         elif isinstance(other, TNumber):
-            result = distance_tnumber_tnumber(self._inner, other._inner)
+            result = tdistance_tnumber_tnumber(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)

@@ -410,8 +410,8 @@ class TestTTextOutputs(TestTText):
                 "{\n"
                 '  "type": "MovingText",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -419,7 +419,7 @@ class TestTTextOutputs(TestTText):
                 '    "AAA"\n'
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -429,8 +429,8 @@ class TestTTextOutputs(TestTText):
                 "{\n"
                 '  "type": "MovingText",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -439,8 +439,8 @@ class TestTTextOutputs(TestTText):
                 '    "BBB"\n'
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -452,8 +452,8 @@ class TestTTextOutputs(TestTText):
                 "{\n"
                 '  "type": "MovingText",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -462,8 +462,8 @@ class TestTTextOutputs(TestTText):
                 '    "BBB"\n'
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -475,8 +475,8 @@ class TestTTextOutputs(TestTText):
                 "{\n"
                 '  "type": "MovingText",\n'
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -487,8 +487,8 @@ class TestTTextOutputs(TestTText):
                 '        "BBB"\n'
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -499,8 +499,8 @@ class TestTTextOutputs(TestTText):
                 '        "AAA"\n'
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -890,7 +890,7 @@ class TestTTextAccessors(TestTText):
 
     @pytest.mark.parametrize(
         "temporal, expected",
-        [(tti, 1893808825), (ttds, 1223816819), (tts, 1223816819), (ttss, 2199213310)],
+        [(tti, 1893808856), (ttds, 2452894813), (tts, 2452894813), (ttss, 3439543446)],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_hash(self, temporal, expected):

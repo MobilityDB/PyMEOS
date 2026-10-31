@@ -143,7 +143,7 @@ class TText(
             ttext_values
         """
         values, count = ttext_values(self._inner)
-        return {text2cstring(values[i]) for i in range(count)}
+        return {text_to_cstring(values[i]) for i in range(count)}
 
     def min_value(self) -> str:
         """
@@ -233,7 +233,7 @@ class TText(
             ttext_value_at_timestamp
         """
         result = ttext_value_at_timestamptz(self._inner, datetime_to_timestamptz(timestamp), True)
-        return text2cstring(result[0])
+        return text_to_cstring(result[0])
 
     # ------------------------- Ever and Always Comparisons -------------------
     def always_less(self, value: str | TText) -> bool:

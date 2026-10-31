@@ -5,7 +5,7 @@ from operator import not_
 
 import numpy as np
 import pytest
-from pymeos_cffi import MeosException, MeosInvalidArgValueError
+from pymeos_cffi import MeosException, MeosInvalidArgTypeError, MeosInvalidArgValueError
 from shapely import GeometryCollection, LineString, MultiPoint, Point, Polygon
 
 from pymeos import (
@@ -608,8 +608,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -620,7 +620,7 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -640,8 +640,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -656,8 +656,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -679,8 +679,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -695,8 +695,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -718,8 +718,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -736,8 +736,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "        ]\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -754,8 +754,8 @@ class TestTGeomPointOutputs(TestTGeomPoint):
                 "        ]\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -1152,10 +1152,10 @@ class TestTGeomPointTemporalAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, 382694564),
-            (tpds, 1664033448),
-            (tps, 1664033448),
-            (tpss, 2878566103),
+            (tpi, 382694595),
+            (tpds, 2893111442),
+            (tps, 2893111442),
+            (tpss, 1203500793),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -2273,35 +2273,6 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         assert temporal.at(restrictor) == expected
 
     @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, TGeomPointSeqSet("{[Point(1 1)@2019-09-01]}")),
-            (tpds, TGeomPointSeqSet("{[Point(1 1)@2019-09-01]}")),
-            (tps, TGeomPointSeqSet("{[Point(1 1)@2019-09-01]}")),
-            (
-                tpss,
-                TGeomPointSeqSet("{[Point(1 1)@2019-09-01],[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}"),
-            ),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_at_min(self, temporal, expected):
-        assert temporal.at_min() == expected
-
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, TGeomPointSeqSet("{[Point(1 1)@2019-09-01]}")),
-            (tpds, TGeomPointSeqSet("{[Point(2 2)@2019-09-02]}")),
-            (tps, TGeomPointSeqSet("{[Point(2 2)@2019-09-02]}")),
-            (tpss, TGeomPointSeqSet("{[Point(2 2)@2019-09-02]}")),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_at_max(self, temporal, expected):
-        assert temporal.at_max() == expected
-
-    @pytest.mark.parametrize(
         "temporal, restrictor, expected",
         [
             (tpi, timestamp, None),
@@ -2402,43 +2373,6 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         assert temporal.minus(restrictor) == expected
 
     @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, None),
-            (tpds, TGeomPointSeqSet("{[Point(2 2)@2019-09-02]}")),
-            (tps, TGeomPointSeqSet("{(Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]}")),
-            (tpss, TGeomPointSeqSet("{(Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]}")),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_minus_min(self, temporal, expected):
-        if expected is None:
-            assert temporal.minus_min() is None
-        else:
-            assert temporal.minus_min() == expected
-
-    @pytest.mark.parametrize(
-        "temporal, expected",
-        [
-            (tpi, None),
-            (tpds, TGeomPointSeqSet("{[Point(1 1)@2019-09-01]}")),
-            (tps, TGeomPointSeqSet("{[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02)}")),
-            (
-                tpss,
-                TGeomPointSeqSet(
-                    "{[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02),[Point(1 1)@2019-09-03,Point(1 1)@2019-09-05]}"
-                ),
-            ),
-        ],
-        ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
-    )
-    def test_minus_max(self, temporal, expected):
-        if expected is None:
-            assert temporal.minus_max() is None
-        else:
-            assert temporal.minus_max() == expected
-
-    @pytest.mark.parametrize(
         "temporal, restrictor",
         [
             (tpi, timestamp),
@@ -2501,9 +2435,10 @@ class TestTGeomPointRestrictors(TestTGeomPoint):
         [tpi, tpds, tps, tpss],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_at_minus_min_max(self, temporal):
-        assert TGeomPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeomPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+    def test_min_max_restrictors_raise(self, temporal):
+        for restrict in (temporal.at_min, temporal.at_max, temporal.minus_min, temporal.minus_max):
+            with pytest.raises(MeosInvalidArgTypeError):
+                restrict()
 
 
 class TestTGeomPointTopologicalFunctions(TestTGeomPoint):
@@ -3282,8 +3217,9 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
             (
                 tpss,
                 [
-                    TGeomPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                    TGeomPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02]}"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05)}"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-05]}"),
                 ],
             ),
         ],
@@ -3306,15 +3242,17 @@ class TestTGeomPointSplitOperations(TestTGeomPoint):
             (
                 tps,
                 [
-                    TGeomPointSeq("[Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00+00)"),
-                    TGeomPointSeq("[Point(1.5 1.5)@2019-09-01 12:00:00+00, Point(2 2)@2019-09-02]"),
+                    TGeomPointSeq("[POINT(1 1)@2019-09-01, POINT(1.5 1.5)@2019-09-01 12:00)"),
+                    TGeomPointSeq("[POINT(1.5 1.5)@2019-09-01 12:00, POINT(2 2)@2019-09-02)"),
+                    TGeomPointSeq("[POINT(2 2)@2019-09-02]"),
                 ],
             ),
             (
                 tpss,
                 [
-                    TGeomPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                    TGeomPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02]}"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05)}"),
+                    TGeomPointSeqSet("{[POINT(1 1)@2019-09-05]}"),
                 ],
             ),
         ],

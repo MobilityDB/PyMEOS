@@ -1,3 +1,4 @@
+import platform
 from copy import copy
 from datetime import datetime, timedelta, timezone
 from operator import not_
@@ -5,7 +6,7 @@ from operator import not_
 import numpy as np
 import pytest
 import shapely.geometry
-from pymeos_cffi import MeosException, MeosInvalidArgValueError
+from pymeos_cffi import MeosException, MeosInvalidArgTypeError, MeosInvalidArgValueError
 from shapely import LineString, Point, set_srid
 
 from pymeos import (
@@ -578,6 +579,12 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 tpi,
                 "{\n"
                 '  "type": "MovingPoint",\n'
+                '  "crs": {\n'
+                '    "type": "Name",\n'
+                '    "properties": {\n'
+                '      "name": "EPSG:4326"\n'
+                "    }\n"
+                "  },\n"
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -589,8 +596,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-01T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-01T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -601,7 +608,7 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "interpolation": "None"\n'
                 "}",
@@ -610,6 +617,12 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 tpds,
                 "{\n"
                 '  "type": "MovingPoint",\n'
+                '  "crs": {\n'
+                '    "type": "Name",\n'
+                '    "properties": {\n'
+                '      "name": "EPSG:4326"\n'
+                "    }\n"
+                "  },\n"
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -621,8 +634,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -637,8 +650,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -649,6 +662,12 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 tps,
                 "{\n"
                 '  "type": "MovingPoint",\n'
+                '  "crs": {\n'
+                '    "type": "Name",\n'
+                '    "properties": {\n'
+                '      "name": "EPSG:4326"\n'
+                "    }\n"
+                "  },\n"
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -660,8 +679,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-02T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-02T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -676,8 +695,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "datetimes": [\n'
-                '    "2019-09-01T00:00:00+00",\n'
-                '    "2019-09-02T00:00:00+00"\n'
+                '    "2019-09-01T00:00:00+00:00",\n'
+                '    "2019-09-02T00:00:00+00:00"\n'
                 "  ],\n"
                 '  "lower_inc": true,\n'
                 '  "upper_inc": true,\n'
@@ -688,6 +707,12 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 tpss,
                 "{\n"
                 '  "type": "MovingPoint",\n'
+                '  "crs": {\n'
+                '    "type": "Name",\n'
+                '    "properties": {\n'
+                '      "name": "EPSG:4326"\n'
+                "    }\n"
+                "  },\n"
                 '  "bbox": [\n'
                 "    [\n"
                 "      1,\n"
@@ -699,8 +724,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "    ]\n"
                 "  ],\n"
                 '  "period": {\n'
-                '    "begin": "2019-09-01T00:00:00+00",\n'
-                '    "end": "2019-09-05T00:00:00+00",\n'
+                '    "begin": "2019-09-01T00:00:00+00:00",\n'
+                '    "end": "2019-09-05T00:00:00+00:00",\n'
                 '    "lower_inc": true,\n'
                 '    "upper_inc": true\n'
                 "  },\n"
@@ -717,8 +742,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "        ]\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-01T00:00:00+00",\n'
-                '        "2019-09-02T00:00:00+00"\n'
+                '        "2019-09-01T00:00:00+00:00",\n'
+                '        "2019-09-02T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -735,8 +760,8 @@ class TestTGeogPointOutputs(TestTGeogPoint):
                 "        ]\n"
                 "      ],\n"
                 '      "datetimes": [\n'
-                '        "2019-09-03T00:00:00+00",\n'
-                '        "2019-09-05T00:00:00+00"\n'
+                '        "2019-09-03T00:00:00+00:00",\n'
+                '        "2019-09-05T00:00:00+00:00"\n'
                 "      ],\n"
                 '      "lower_inc": true,\n'
                 '      "upper_inc": true\n'
@@ -1126,7 +1151,7 @@ class TestTGeogPointAccessors(TestTGeogPoint):
 
     @pytest.mark.parametrize(
         "temporal, expected",
-        [(tpi, 1181779687), (tpds, 1545137628), (tps, 1545137628), (tpss, 1008965061)],
+        [(tpi, 1181779718), (tpds, 2774215622), (tps, 2774215622), (tpss, 429936847)],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_hash(self, temporal, expected):
@@ -2377,9 +2402,10 @@ class TestTGeogPointRestrictors(TestTGeogPoint):
         [tpi, tpds, tps, tpss],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
-    def test_at_minus_min_max(self, temporal):
-        assert TGeogPoint.from_merge(temporal.at_min(), temporal.minus_min()) == temporal
-        assert TGeogPoint.from_merge(temporal.at_max(), temporal.minus_max()) == temporal
+    def test_min_max_restrictors_raise(self, temporal):
+        for restrict in (temporal.at_min, temporal.at_max, temporal.minus_min, temporal.minus_max):
+            with pytest.raises(MeosInvalidArgTypeError):
+                restrict()
 
 
 class TestTGeogPointEverSpatialOperations(TestTGeogPoint):
@@ -2612,8 +2638,9 @@ class TestTGeogPointSplitOperations(TestTGeogPoint):
             (
                 tpss,
                 [
-                    TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02]}"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05)}"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-05]}"),
                 ],
             ),
         ],
@@ -2636,15 +2663,17 @@ class TestTGeogPointSplitOperations(TestTGeogPoint):
             (
                 tps,
                 [
-                    TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00+00)"),
-                    TGeogPointSeq("[Point(1.5 1.5)@2019-09-01 12:00:00+00, Point(2 2)@2019-09-02]"),
+                    TGeogPointSeq("[POINT(1 1)@2019-09-01, POINT(1.5 1.5)@2019-09-01 12:00)"),
+                    TGeogPointSeq("[POINT(1.5 1.5)@2019-09-01 12:00, POINT(2 2)@2019-09-02)"),
+                    TGeogPointSeq("[POINT(2 2)@2019-09-02]"),
                 ],
             ),
             (
                 tpss,
                 [
-                    TGeogPointSeq("[Point(1 1)@2019-09-01,Point(2 2)@2019-09-02]"),
-                    TGeogPointSeq("[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02]}"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05)}"),
+                    TGeogPointSeqSet("{[POINT(1 1)@2019-09-05]}"),
                 ],
             ),
         ],
@@ -2746,6 +2775,18 @@ class TestTGeogPointEverAlwaysComparisons(TestTGeogPoint):
         assert temporal.never_equal(argument) == not_(expected)
 
 
+# MEOS dates the meeting of two geodetic segments with the Cartesian fraction of
+# tgeogpointsegm_distance_turnpt and tests the two great-circle points it interpolates there
+# for exact equality, so the meeting at 12:00 is found only where the two roundings agree: on
+# x86 they do, on arm64 they do not. Strict, so the mark fails the run once MEOS dates the
+# meeting exactly on every platform.
+GEODETIC_CROSSING_ON_ARM64 = pytest.mark.xfail(
+    platform.machine() in ("arm64", "aarch64"),
+    reason="MEOS dates a geodetic crossing by a Cartesian fraction and exact point equality",
+    strict=True,
+)
+
+
 class TestTGeogPointTemporalComparisons(TestTGeogPoint):
     tpi = TGeogPointInst("Point(1 1)@2019-09-01")
     tpds = TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}")
@@ -2760,18 +2801,20 @@ class TestTGeogPointTemporalComparisons(TestTGeogPoint):
         [
             (tpi, TBoolInst("False@2019-09-01")),
             (tpds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
-            (
+            pytest.param(
                 tps,
                 TBoolSeqSet(
                     "{[False@2019-09-01, True@2019-09-01 12:00:00+00],(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
                 ),
+                marks=GEODETIC_CROSSING_ON_ARM64,
             ),
-            (
+            pytest.param(
                 tpss,
                 TBoolSeqSet(
                     "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
                     "(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}"
                 ),
+                marks=GEODETIC_CROSSING_ON_ARM64,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

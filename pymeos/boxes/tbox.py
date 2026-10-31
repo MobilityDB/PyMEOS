@@ -499,12 +499,12 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            tstzspan_shift_scale
+            tbox_shift_time
 
         See Also:
             :meth:`TsTzSpan.shift`
         """
-        return self.shift_scale_time(shift=delta)
+        return TBox(_inner=tbox_shift_time(self._inner, timedelta_to_interval(delta)))
 
     def scale_value(self, width: int | float) -> TBox:
         """
@@ -535,12 +535,12 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            tstzspan_shift_scale
+            tbox_scale_time
 
         See Also:
             :meth:`TsTzSpan.scale`
         """
-        return self.shift_scale_time(duration=duration)
+        return TBox(_inner=tbox_scale_time(self._inner, timedelta_to_interval(duration)))
 
     def shift_scale_value(
         self,
@@ -612,17 +612,18 @@ class TBox:
             A new :class:`TBox` instance
 
         MEOS Functions:
-            tstzspan_shift_scale
+            tbox_shift_time, tbox_scale_time, tbox_shift_scale_time
 
         See Also:
             :meth:`TsTzSpan.shift_scale`
         """
         assert shift is not None or duration is not None, "shift and duration deltas must not be both None"
-        result = tbox_shift_scale_time(
-            self._inner,
-            timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
-        )
+        if shift is None:
+            result = tbox_scale_time(self._inner, timedelta_to_interval(duration))
+        elif duration is None:
+            result = tbox_shift_time(self._inner, timedelta_to_interval(shift))
+        else:
+            result = tbox_shift_scale_time(self._inner, timedelta_to_interval(shift), timedelta_to_interval(duration))
         return TBox(_inner=result)
 
     def round(self, max_decimals: int = 0) -> TBox:
@@ -1086,16 +1087,16 @@ class TBox:
         MEOS Functions:
             tintbox_tile_list, tfloabox_tile_list
         """
-        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else pg_interval_in(duration, -1)
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
         st = (
             datetime_to_timestamptz(start)
             if isinstance(start, datetime)
-            else (pg_timestamptz_in(start, -1) if isinstance(start, str) else pg_timestamptz_in("2000-01-03", -1))
+            else (timestamptz_in(start, -1) if isinstance(start, str) else timestamptz_in("2000-01-03", -1))
         )
         if self._is_float():
-            tiles, count = tfloatbox_value_time_tiles(self._inner, size, dt, origin, st)
+            tiles, count = tfloatbox_value_time_tiles(self._inner, size, dt, origin, st, border_inc=True)
         else:
-            tiles, count = tintbox_value_time_tiles(self._inner, int(size), dt, int(origin), st)
+            tiles, count = tintbox_value_time_tiles(self._inner, int(size), dt, int(origin), st, border_inc=True)
         return [TBox(_inner=tiles + c) for c in range(count)]
 
     # ------------------------- Comparisons -----------------------------------

@@ -178,7 +178,7 @@ class STBox:
             A new :class:`STBox` instance.
 
         MEOS Functions:
-            pgis_geometry_in, geo_to_stbox
+            geom_in, geog_in, geo_to_stbox
         """
         gs = geo_to_gserialized(geom, geodetic)
         return STBox(_inner=geo_to_stbox(gs))
@@ -619,12 +619,12 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_scale_time
+            stbox_shift_time
 
         See Also:
             :meth:`STBox.shift`
         """
-        return self.shift_scale_time(shift=delta)
+        return STBox(_inner=stbox_shift_time(self._inner, timedelta_to_interval(delta)))
 
     def scale_time(self, duration: timedelta) -> STBox:
         """
@@ -638,12 +638,12 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            tstzspan_shift_scale
+            stbox_scale_time
 
         See Also:
             :meth:`STBox.scale`
         """
-        return self.shift_scale_time(duration=duration)
+        return STBox(_inner=stbox_scale_time(self._inner, timedelta_to_interval(duration)))
 
     def shift_scale_time(self, shift: timedelta | None = None, duration: timedelta | None = None) -> STBox:
         """
@@ -658,17 +658,18 @@ class STBox:
             A new :class:`STBox` instance
 
         MEOS Functions:
-            stbox_shift_scale_time
+            stbox_shift_time, stbox_scale_time, stbox_shift_scale_time
 
         See Also:
             :meth:`TsTzSpan.shift_scale`
         """
         assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
-        result = stbox_shift_scale_time(
-            self._inner,
-            timedelta_to_interval(shift) if shift else None,
-            timedelta_to_interval(duration) if duration else None,
-        )
+        if shift is None:
+            result = stbox_scale_time(self._inner, timedelta_to_interval(duration))
+        elif duration is None:
+            result = stbox_shift_time(self._inner, timedelta_to_interval(shift))
+        else:
+            result = stbox_shift_scale_time(self._inner, timedelta_to_interval(shift), timedelta_to_interval(duration))
         return STBox(_inner=result)
 
     def round(self, max_decimals: int | None = 0) -> STBox:
@@ -1157,15 +1158,15 @@ class STBox:
             ``self`` and ``other``.
 
         MEOS Functions:
-            nad_stbox_geo, nad_stbox_stbox
+            nad_stbox_geo, nad_stbox_stbox, nad_tgeo_stbox
         """
         if isinstance(other, shp.BaseGeometry):
             gs = geo_to_gserialized(other, self.geodetic())
-            return nad_stbox_geo(self._inner, gs)
+            return nad_stbox_geo(self._inner, gs, spheroid=True)
         elif isinstance(other, STBox):
-            return nad_stbox_stbox(self._inner, other._inner)
+            return nad_stbox_stbox(self._inner, other._inner, spheroid=True)
         elif isinstance(other, TPoint):
-            return nad_tpoint_stbox(other._inner, self._inner)
+            return nad_tgeo_stbox(other._inner, self._inner, spheroid=True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
 
@@ -1243,69 +1244,102 @@ class STBox:
                 [STBox(_inner=boxes + i) for i in range(2, 4)],
             ]
 
-    def tile(
+    def space_tiles(
         self,
-        size: float | None = None,
-        duration: timedelta | str | None = None,
-        origin: shp.BaseGeometry | None = None,
-        start: datetime | str | None = None,
-        border_inc: bool = True,
+        xsize: float,
+        ysize: float,
+        zsize: float,
+        origin: shp.BaseGeometry,
+        border_inc: bool,
     ) -> list[STBox]:
         """
-        Returns a list of `STBox` instances representing the tiles of
-        ``self``.
+        Returns the spatial tiles of ``self``.
+
+        The arguments are those of the MEOS function, marshalled as
+        #TPoint.space_split marshals the origin.
 
         Args:
-            size: The size of the spatial tiles. If the `STBox` instance has a
-                spatial dimension and this argument is not provided, the tiling
-                will be only temporal.
-            duration: The duration of the temporal tiles. If the `STBox`
-                instance has a time dimension and this argument is not
-                provided, the tiling will be only spatial.
-            origin: The origin of the spatial tiling. If not provided, the
-                origin will be (0, 0, 0).
-            start: The start time of the temporal tiling. If not provided,
-                the start time used by default is Monday, January 3, 2000.
-            border_inc: Whether the border is inclusive or not.
+            xsize: The size of the tiles along the x dimension.
+            ysize: The size of the tiles along the y dimension; 0 takes ``xsize``.
+            zsize: The size of the tiles along the z dimension, read only for a
+                box with Z; 0 takes ``xsize``.
+            origin: The origin of the spatial tiling.
+            border_inc: Whether a tile contains its upper border.
 
         Returns:
             A list of `STBox` instances.
 
         MEOS Functions:
-            stbox_tile_list
+            stbox_space_tiles
         """
-        sz = size or (
-            max(
-                self.xmax() - self.xmin(),
-                self.ymax() - self.ymin(),
-                (self.zmax() - self.zmin() if self.has_z() else 0),
-            )
-            + 1
-        )
-        dt = (
-            timedelta_to_interval(duration)
-            if isinstance(duration, timedelta)
-            else pg_interval_in(duration, -1)
-            if isinstance(duration, str)
-            else None
-        )
-        st = (
-            datetime_to_timestamptz(start)
-            if isinstance(start, datetime)
-            else (
-                pg_timestamptz_in(start, -1)
-                if isinstance(start, str)
-                else pg_timestamptz_in("2000-01-03", -1)
-                if self.has_t()
-                else 0
-            )
-        )
-        gs = (
-            geo_to_gserialized(origin, self.geodetic())
-            if origin is not None
-            else (pgis_geography_in("Point(0 0 0)", -1) if self.geodetic() else pgis_geometry_in("Point(0 0 0)", -1))
-        )
-        tiles, count = stbox_space_time_tiles(self._inner, sz, sz, sz, dt, gs, st, border_inc)
+        gs = geo_to_gserialized(origin, self.geodetic())
+        tiles, count = stbox_space_tiles(self._inner, xsize, ysize, zsize, gs, border_inc)
+        return [STBox(_inner=tiles + i) for i in range(count)]
+
+    def space_time_tiles(
+        self,
+        xsize: float,
+        ysize: float,
+        zsize: float,
+        duration: timedelta | str,
+        origin: shp.BaseGeometry,
+        start: datetime | str,
+        border_inc: bool,
+    ) -> list[STBox]:
+        """
+        Returns the spatiotemporal tiles of ``self``.
+
+        The arguments are those of the MEOS function, marshalled as
+        #TPoint.space_time_split marshals the duration, the origin and the start.
+
+        Args:
+            xsize: The size of the tiles along the x dimension.
+            ysize: The size of the tiles along the y dimension; 0 takes ``xsize``.
+            zsize: The size of the tiles along the z dimension, read only for a
+                box with Z; 0 takes ``xsize``.
+            duration: The duration of the tiles.
+            origin: The origin of the spatial tiling.
+            start: The origin of the temporal tiling.
+            border_inc: Whether a tile contains its upper border.
+
+        Returns:
+            A list of `STBox` instances.
+
+        MEOS Functions:
+            stbox_space_time_tiles
+        """
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
+        gs = geo_to_gserialized(origin, self.geodetic())
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) else timestamptz_in(start, -1)
+        tiles, count = stbox_space_time_tiles(self._inner, xsize, ysize, zsize, dt, gs, st, border_inc)
+        return [STBox(_inner=tiles + i) for i in range(count)]
+
+    def time_tiles(
+        self,
+        duration: timedelta | str,
+        start: datetime | str,
+        border_inc: bool,
+    ) -> list[STBox]:
+        """
+        Returns the temporal tiles of ``self``.
+
+        The arguments are those of the MEOS function, marshalled as
+        #TPoint.space_time_split marshals the duration and the start.
+
+        Args:
+            duration: The duration of the tiles.
+            start: The origin of the temporal tiling.
+            border_inc: Whether a tile contains its upper border.
+
+        Returns:
+            A list of `STBox` instances.
+
+        MEOS Functions:
+            stbox_time_tiles
+        """
+        dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
+        st = datetime_to_timestamptz(start) if isinstance(start, datetime) else timestamptz_in(start, -1)
+        tiles, count = stbox_time_tiles(self._inner, dt, st, border_inc)
         return [STBox(_inner=tiles + i) for i in range(count)]
 
     # ------------------------- Comparisons -----------------------------------
