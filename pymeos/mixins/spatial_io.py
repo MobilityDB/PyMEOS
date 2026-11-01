@@ -73,7 +73,7 @@ class TSpatialIO:
         MEOS Functions:
             tspatial_as_hexewkb, wkb_variant_from_endian
         """
-        return tspatial_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return tspatial_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     @classmethod
     def from_ewkt(cls: type[Self], ewkt: str) -> Self:

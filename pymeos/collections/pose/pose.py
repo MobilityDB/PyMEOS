@@ -217,7 +217,7 @@ class Pose:
         MEOS Functions:
             pose_as_hexwkb, wkb_variant_from_endian
         """
-        return pose_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return pose_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     @staticmethod
     def from_text(string: str) -> Pose:
@@ -313,7 +313,7 @@ class Pose:
         MEOS Functions:
             pose_as_hexewkb, wkb_variant_from_endian
         """
-        return pose_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return pose_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

@@ -255,7 +255,7 @@ class Nsegment:
         MEOS Functions:
             nsegment_as_hexwkb, wkb_variant_from_endian
         """
-        return nsegment_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return nsegment_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     def as_ewkb(self, endian: str = "") -> bytes:
         """
@@ -287,7 +287,7 @@ class Nsegment:
         MEOS Functions:
             nsegment_as_hexewkb, wkb_variant_from_endian
         """
-        return nsegment_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return nsegment_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

@@ -116,7 +116,7 @@ class NpointSet(Set[Npoint]):
         MEOS Functions:
             spatialset_as_hexewkb, wkb_variant_from_endian
         """
-        return spatialset_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return spatialset_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Output ----------------------------------------
     def __str__(self, max_decimals: int = 15):

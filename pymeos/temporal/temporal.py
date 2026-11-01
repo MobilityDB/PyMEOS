@@ -281,7 +281,7 @@ class Temporal(Generic[TBase, TG, TI, TS, TSS], TComparable, TTemporallyEquatabl
         MEOS Functions:
             temporal_as_hexwkb, wkb_variant_from_endian
         """
-        return temporal_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return temporal_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Accessors -------------------------------------
     def bounding_box(self) -> TsTzSpan | Box:
