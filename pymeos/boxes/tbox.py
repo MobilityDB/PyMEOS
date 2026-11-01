@@ -315,7 +315,7 @@ class TBox:
         MEOS Functions:
             tbox_as_hexwkb, wkb_variant_from_endian
         """
-        return tbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return tbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions ----------------------------------
     def to_floatspan(self) -> FloatSpan:

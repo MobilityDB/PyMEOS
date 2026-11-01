@@ -366,7 +366,7 @@ class STBox:
         MEOS Functions:
             stbox_as_hexewkb, wkb_variant_from_endian
         """
-        return stbox_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return stbox_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Output ----------------------------------------
     def __str__(self) -> str:
@@ -430,7 +430,7 @@ class STBox:
         MEOS Functions:
             stbox_as_hexwkb, wkb_variant_from_endian
         """
-        return stbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return stbox_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions ----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:

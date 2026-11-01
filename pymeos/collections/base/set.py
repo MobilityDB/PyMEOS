@@ -163,7 +163,7 @@ class Set(Collection[T], ABC):
         MEOS Functions:
             set_as_hexwkb, wkb_variant_from_endian
         """
-        return set_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return set_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     @overload

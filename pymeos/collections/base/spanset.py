@@ -160,7 +160,7 @@ class SpanSet(Collection[T], ABC):
         MEOS Functions:
             spanset_as_hexwkb, wkb_variant_from_endian
         """
-        return spanset_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return spanset_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     @abstractmethod

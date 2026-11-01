@@ -163,7 +163,7 @@ class Span(Collection[T], ABC):
         MEOS Functions:
             span_as_hexwkb, wkb_variant_from_endian
         """
-        return span_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return span_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     @abstractmethod

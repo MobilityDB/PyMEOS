@@ -129,7 +129,7 @@ class GeoSet(Set[shp.Geometry], ABC):
         MEOS Functions:
             spatialset_as_hexewkb, wkb_variant_from_endian
         """
-        return spatialset_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return spatialset_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Output ----------------------------------------
 

@@ -169,7 +169,7 @@ class Npoint:
         MEOS Functions:
             npoint_as_hexwkb, wkb_variant_from_endian
         """
-        return npoint_as_hexwkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return npoint_as_hexwkb(self._inner, wkb_variant_from_endian(endian))
 
     def as_ewkt(self, max_decimals: int = 15) -> str:
         """
@@ -297,7 +297,7 @@ class Npoint:
         MEOS Functions:
             npoint_as_hexewkb, wkb_variant_from_endian
         """
-        return npoint_as_hexewkb(self._inner, wkb_variant_from_endian(endian))[0]
+        return npoint_as_hexewkb(self._inner, wkb_variant_from_endian(endian))
 
     # ------------------------- Conversions -----------------------------------
     def to_geometry(self, precision: int = 15) -> shp.BaseGeometry:
