@@ -857,6 +857,60 @@ class TPointSeq(TSequence[shpb.BaseGeometry, TG, TI, TS, TSS], TPoint[TG, TI, TS
     def z(self) -> TFloatSeq:
         return super().z()
 
+    @classmethod
+    def from_arrays(
+        cls: type[Self],
+        t: list[datetime | str],
+        x: list[float],
+        y: list[float],
+        z: list[float] | None = None,
+        srid: int = 0,
+        lower_inc: bool = True,
+        upper_inc: bool = False,
+        interpolation: TInterpolation = TInterpolation.LINEAR,
+        normalize: bool = True,
+    ) -> Self:
+        """
+        Returns a temporal point sequence from the arrays of its timestamps and
+        coordinates, the i-th point at the i-th timestamp. Like
+        #TGeomPoint.from_base_time, it builds the value with one MEOS
+        constructor and hands it to the factory.
+
+        Args:
+            t: The timestamps, each a :class:`datetime` or its text.
+            x: The x coordinates.
+            y: The y coordinates.
+            z: The z coordinates, or ``None`` for a 2D sequence.
+            srid: The SRID of the points.
+            lower_inc: Whether the lower bound is inclusive.
+            upper_inc: Whether the upper bound is inclusive.
+            interpolation: The interpolation of the sequence.
+            normalize: Whether to normalize the sequence.
+
+        Returns:
+            A :class:`TGeogPointSeq` when called on :class:`TGeogPointSeq`, a
+            :class:`TGeomPointSeq` otherwise.
+
+        MEOS Functions:
+            tpointseq_make_coords
+        """
+        from ..factory import _TemporalFactory
+
+        times = [datetime_to_timestamptz(ti) if isinstance(ti, datetime) else timestamptz_in(ti, -1) for ti in t]
+        result = tpointseq_make_coords(
+            [float(v) for v in x],
+            [float(v) for v in y],
+            None if z is None else [float(v) for v in z],
+            times,
+            srid,
+            issubclass(cls, TGeogPoint),
+            lower_inc,
+            upper_inc,
+            interpolation,
+            normalize,
+        )
+        return _TemporalFactory.create_temporal(result)
+
     def plot(self, *args, **kwargs):
         """
         Plots the temporal point sequence.

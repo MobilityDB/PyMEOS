@@ -468,6 +468,17 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         assert temporal == other
         assert temporal is not other
 
+    # Called on the geography class, from_arrays builds a geodetic sequence, the
+    # sibling of #test_from_arrays_constructor in tgeompoint_test.py.
+    def test_from_arrays_constructor(self):
+        tp = TGeogPointSeq.from_arrays(
+            t=["2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00"],
+            x=[1, 2],
+            y=[1, 2],
+        )
+        assert isinstance(tp, TGeogPointSeq)
+        assert tp == TGeogPointSeq("[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-02 00:00:00+00)")
+
 
 class TestTGeogPointOutputs(TestTGeogPoint):
     tpi = TGeogPointInst("Point(1 1)@2019-09-01")
