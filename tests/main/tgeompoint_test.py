@@ -464,6 +464,39 @@ class TestTGeomPointConstructors(TestTGeomPoint):
         assert temporal == other
         assert temporal is not other
 
+    # The from_arrays tests check the constructor against the text form, as
+    # #test_from_as_constructor checks the other constructors.
+    def test_from_arrays_constructor(self):
+        tp = TGeomPointSeq.from_arrays(
+            t=["2019-09-01 00:00:00+00", "2019-09-02 00:00:00+00", "2019-09-03 00:00:00+00"],
+            x=np.array([0.1, 0.2, 0.3]),
+            y=np.array([1, 2, 3]),
+            upper_inc=True,
+        )
+        assert isinstance(tp, TGeomPointSeq)
+        assert tp == TGeomPointSeq(
+            "[POINT(0.1 1)@2019-09-01 00:00:00+00, POINT(0.2 2)@2019-09-02 00:00:00+00, "
+            "POINT(0.3 3)@2019-09-03 00:00:00+00]"
+        )
+
+    def test_from_arrays_constructor_3d_stepwise(self):
+        tp = TGeomPointSeq.from_arrays(
+            t=[datetime(2019, 9, 1, tzinfo=timezone.utc), datetime(2019, 9, 2, tzinfo=timezone.utc)],
+            x=[1, 2],
+            y=[1, 2],
+            z=[1, 2],
+            srid=5676,
+            upper_inc=True,
+            interpolation=TInterpolation.STEPWISE,
+        )
+        assert tp == TGeomPointSeq(
+            "SRID=5676;Interp=Step;[POINT Z(1 1 1)@2019-09-01 00:00:00+00, POINT Z(2 2 2)@2019-09-02 00:00:00+00]"
+        )
+
+    def test_from_arrays_constructor_unequal_lengths(self):
+        with pytest.raises(ValueError):
+            TGeomPointSeq.from_arrays(t=["2019-09-01 00:00:00+00"], x=[1, 2], y=[1, 2])
+
 
 class TestTGeomPointOutputs(TestTGeomPoint):
     tpi = TGeomPointInst("Point(1 1)@2019-09-01")
