@@ -21,3 +21,8 @@ class TestDateSpanSetAccessors(TestDateSpanSet):
             date(2019, 9, 12),
             date(2019, 9, 15),
         ]
+
+    # The n-th date answers what #test_dates lists, as
+    # #TestDateSetAccessors.test_element_n checks a date set
+    def test_date_n(self):
+        assert [self.date_spanset.date_n(i) for i in range(4)] == self.date_spanset.dates()
