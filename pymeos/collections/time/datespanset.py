@@ -196,8 +196,11 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         MEOS Functions:
             datespanset_dates
         """
-        ds, count = datespanset_dates(self._inner)
-        return [date_adt_to_date(ds[i]) for i in range(count)]
+        # MEOS answers the dates as a date set, as #TsTzSpanSet.timestamps
+        # reads its timestamps
+        from .dateset import DateSet
+
+        return DateSet(_inner=datespanset_dates(self._inner)).elements()
 
     def start_span(self) -> DateSpan:
         """
