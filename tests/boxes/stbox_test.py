@@ -1277,6 +1277,22 @@ class TestSTBoxTiling(TestSTBox):
             "SRID=3857;STBOX X((485000,6585000),(490000,6590000))",
         ]
 
+    # The defaults of the space tiles are those of #TPoint.space_split: the y and z sizes of the
+    # x size, the origin (0, 0, 0) and the upper border included
+    def test_space_tiles_defaults(self):
+        box = STBox.from_tpoint(self.trip)
+        assert [str(tile) for tile in box.space_tiles(5e3)] == [
+            str(tile) for tile in box.space_tiles(5e3, 5e3, 5e3, Point(0, 0), True)
+        ]
+
+    # The defaults of the time tiles are those of #TPoint.space_time_split: the start of Monday,
+    # January 3, 2000 and the upper border included
+    def test_time_tiles_defaults(self):
+        box = STBox.from_tpoint(self.trip)
+        assert [str(tile) for tile in box.time_tiles("1 hour")] == [
+            str(tile) for tile in box.time_tiles("1 hour", "2000-01-03", True)
+        ]
+
     # The fragments of the trip in those tiles, as #test_time_split reads the time fragments
     def test_tpoint_space_split(self):
         pieces = self.trip.space_split(5e3)

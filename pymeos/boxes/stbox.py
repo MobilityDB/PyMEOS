@@ -1341,24 +1341,27 @@ class STBox:
     def space_tiles(
         self,
         xsize: float,
-        ysize: float,
-        zsize: float,
-        origin: shp.BaseGeometry,
-        border_inc: bool,
+        ysize: float | None = None,
+        zsize: float | None = None,
+        origin: shp.BaseGeometry | None = None,
+        border_inc: bool = True,
     ) -> list[STBox]:
         """
         Returns the spatial tiles of ``self``.
 
-        The arguments are those of the MEOS function, marshalled as
-        #TPoint.space_split marshals the origin.
+        The arguments are those of the MEOS function, marshalled and given
+        their defaults as #TPoint.space_split marshals them.
 
         Args:
             xsize: The size of the tiles along the x dimension.
-            ysize: The size of the tiles along the y dimension; 0 takes ``xsize``.
+            ysize: The size of the tiles along the y dimension. If not
+                provided, ``xsize``; 0 also takes ``xsize``.
             zsize: The size of the tiles along the z dimension, read only for a
-                box with Z; 0 takes ``xsize``.
-            origin: The origin of the spatial tiling.
-            border_inc: Whether a tile contains its upper border.
+                box with Z. If not provided, ``xsize``; 0 also takes ``xsize``.
+            origin: The origin of the spatial tiling. If not provided, the
+                origin will be (0, 0, 0).
+            border_inc: Whether a tile contains its upper border. If not
+                provided, True.
 
         Returns:
             A list of `STBox` instances.
@@ -1366,8 +1369,14 @@ class STBox:
         MEOS Functions:
             stbox_space_tiles
         """
-        gs = geo_to_gserialized(origin, self.geodetic())
-        tiles, count = stbox_space_tiles(self._inner, xsize, ysize, zsize, gs, border_inc)
+        ysz = ysize if ysize is not None else xsize
+        zsz = zsize if zsize is not None else xsize
+        gs = (
+            geo_to_gserialized(origin, self.geodetic())
+            if origin is not None
+            else (geog_in("Point(0 0 0)", -1) if self.geodetic() else geom_in("Point(0 0 0)", -1))
+        )
+        tiles, count = stbox_space_tiles(self._inner, xsize, ysz, zsz, gs, border_inc)
         return [STBox(_inner=tiles + i) for i in range(count)]
 
     def space_time_tiles(
@@ -1411,19 +1420,21 @@ class STBox:
     def time_tiles(
         self,
         duration: timedelta | str,
-        start: datetime | str,
-        border_inc: bool,
+        start: datetime | str | None = None,
+        border_inc: bool = True,
     ) -> list[STBox]:
         """
         Returns the temporal tiles of ``self``.
 
-        The arguments are those of the MEOS function, marshalled as
-        #TPoint.space_time_split marshals the duration and the start.
+        The arguments are those of the MEOS function, marshalled and given
+        their defaults as #TPoint.space_time_split marshals them.
 
         Args:
             duration: The duration of the tiles.
-            start: The origin of the temporal tiling.
-            border_inc: Whether a tile contains its upper border.
+            start: The origin of the temporal tiling. If not provided, the
+                start time used by default is Monday, January 3, 2000.
+            border_inc: Whether a tile contains its upper border. If not
+                provided, True.
 
         Returns:
             A list of `STBox` instances.
@@ -1432,7 +1443,10 @@ class STBox:
             stbox_time_tiles
         """
         dt = timedelta_to_interval(duration) if isinstance(duration, timedelta) else interval_in(duration, -1)
-        st = datetime_to_timestamptz(start) if isinstance(start, datetime) else timestamptz_in(start, -1)
+        if start is None:
+            st = timestamptz_in("2000-01-03", -1)
+        else:
+            st = datetime_to_timestamptz(start) if isinstance(start, datetime) else timestamptz_in(start, -1)
         tiles, count = stbox_time_tiles(self._inner, dt, st, border_inc)
         return [STBox(_inner=tiles + i) for i in range(count)]
 
