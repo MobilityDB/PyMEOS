@@ -85,7 +85,7 @@ class TGeogPointRegularMixin:
         """Generated regular ``at``.
 
         MEOS Functions:
-            tgeo_at_geom, tgeo_at_stbox, tgeo_at_value, tpoint_at_elevation, tpoint_at_geom, tpoint_at_value
+            tgeo_at_geom, tgeo_at_stbox, tgeo_at_value, tpoint_at_elevation
         """
         from ...boxes import STBox
 
@@ -109,7 +109,9 @@ class TGeogPointRegularMixin:
         """
         from ..tpoint import TGeogPoint
 
-        if isinstance(other, TGeogPoint):
+        if isinstance(other, shpb.BaseGeometry):
+            result = tdisjoint_tgeo_geo(self._inner, geo_to_gserialized(other, True))
+        elif isinstance(other, TGeogPoint):
             result = tdisjoint_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
@@ -187,7 +189,9 @@ class TGeogPointRegularMixin:
         """
         from ..tpoint import TGeogPoint
 
-        if isinstance(other, TGeogPoint):
+        if isinstance(other, shpb.BaseGeometry):
+            result = tintersects_tgeo_geo(self._inner, geo_to_gserialized(other, True))
+        elif isinstance(other, TGeogPoint):
             result = tintersects_tgeo_tgeo(self._inner, other._inner)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
@@ -217,7 +221,9 @@ class TGeogPointRegularMixin:
         """
         from ..tpoint import TGeogPoint
 
-        if isinstance(other, TGeogPoint):
+        if isinstance(other, shpb.BaseGeometry):
+            result = adwithin_tgeo_geo(self._inner, geo_to_gserialized(other, True), distance, True)
+        elif isinstance(other, TGeogPoint):
             result = adwithin_tgeo_tgeo(self._inner, other._inner, distance, True)
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
@@ -259,7 +265,7 @@ class TGeogPointRegularMixin:
         """Generated regular ``minus``.
 
         MEOS Functions:
-            tgeo_minus_geom, tgeo_minus_stbox, tgeo_minus_value, tpoint_minus_elevation, tpoint_minus_geom, tpoint_minus_value
+            tgeo_minus_geom, tgeo_minus_stbox, tgeo_minus_value, tpoint_minus_elevation
         """
         from ...boxes import STBox
 

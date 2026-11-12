@@ -364,7 +364,7 @@ class TPoint(Temporal[shp.Point, TG, TI, TS, TSS], TSimplifiable, TSpatialIO, AB
         """
         if isinstance(other, shpb.BaseGeometry):
             gs = geo_to_gserialized(other, isinstance(self, TGeogPoint))
-            result = bearing_tpoint_point(self._inner, gs, False)
+            result = bearing_tpoint_point(self._inner, gs)
         elif isinstance(other, TPoint):
             result = bearing_tpoint_tpoint(self._inner, other._inner)
         else:

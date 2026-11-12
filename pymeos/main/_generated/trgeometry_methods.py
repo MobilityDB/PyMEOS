@@ -16,14 +16,12 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import TYPE_CHECKING
 
 import shapely.geometry.base as shpb
 from pymeos_cffi import *
 
-from ...collections import TsTzSet, TsTzSpan, TsTzSpanSet
-from ...collections.pose import Pose, PoseSet
+from ...collections.pose import Pose
 from ...temporal import Temporal
 from ..tpoint import TPoint
 
@@ -99,7 +97,7 @@ class TRgeometryRegularMixin:
         """Generated regular ``at``.
 
         MEOS Functions:
-            trgeometry_at_geom, trgeometry_at_stbox, trgeometry_at_timestamptz, trgeometry_at_tstzset, trgeometry_at_tstzspan, trgeometry_at_tstzspanset, trgeometry_at_value, trgeometry_at_values
+            trgeometry_at_geom, trgeometry_at_stbox, trgeometry_at_value
         """
         from ...boxes import STBox
 
@@ -107,20 +105,26 @@ class TRgeometryRegularMixin:
             result = trgeometry_at_value(self._inner, other._inner)
         elif isinstance(other, shpb.BaseGeometry):
             result = trgeometry_at_geom(self._inner, geometry_to_gserialized(other))
-        elif isinstance(other, PoseSet):
-            result = trgeometry_at_values(self._inner, other._inner)
         elif isinstance(other, STBox):
             result = trgeometry_at_stbox(self._inner, other._inner, True)
-        elif isinstance(other, datetime):
-            result = trgeometry_at_timestamptz(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TsTzSet):
-            result = trgeometry_at_tstzset(self._inner, other._inner)
-        elif isinstance(other, TsTzSpan):
-            result = trgeometry_at_tstzspan(self._inner, other._inner)
-        elif isinstance(other, TsTzSpanSet):
-            result = trgeometry_at_tstzspanset(self._inner, other._inner)
         else:
             return super().at(other)
+        return Temporal._factory(result)
+
+    def disjoint(self, other):
+        """Generated regular ``disjoint``.
+
+        MEOS Functions:
+            tdisjoint_geo_trgeometry, tdisjoint_trgeometry_geo, tdisjoint_trgeometry_trgeometry
+        """
+        from ..trgeometry import TRgeometry
+
+        if isinstance(other, shpb.BaseGeometry):
+            result = tdisjoint_trgeometry_geo(self._inner, geometry_to_gserialized(other))
+        elif isinstance(other, TRgeometry):
+            result = tdisjoint_trgeometry_trgeometry(self._inner, other._inner)
+        else:
+            raise TypeError(f"Operation not supported with type {other.__class__}")
         return Temporal._factory(result)
 
     def distance(self, other):
@@ -200,6 +204,22 @@ class TRgeometryRegularMixin:
         else:
             raise TypeError(f"Operation not supported with type {other.__class__}")
         return result == 1
+
+    def intersects(self, other):
+        """Generated regular ``intersects``.
+
+        MEOS Functions:
+            tintersects_geo_trgeometry, tintersects_trgeometry_geo, tintersects_trgeometry_trgeometry
+        """
+        from ..trgeometry import TRgeometry
+
+        if isinstance(other, shpb.BaseGeometry):
+            result = tintersects_trgeometry_geo(self._inner, geometry_to_gserialized(other))
+        elif isinstance(other, TRgeometry):
+            result = tintersects_trgeometry_trgeometry(self._inner, other._inner)
+        else:
+            raise TypeError(f"Operation not supported with type {other.__class__}")
+        return Temporal._factory(result)
 
     def is_always_covers(self, other):
         """Generated regular ``is_always_covers``.
@@ -293,7 +313,7 @@ class TRgeometryRegularMixin:
         """Generated regular ``minus``.
 
         MEOS Functions:
-            trgeometry_minus_geom, trgeometry_minus_stbox, trgeometry_minus_timestamptz, trgeometry_minus_tstzset, trgeometry_minus_tstzspan, trgeometry_minus_tstzspanset, trgeometry_minus_value, trgeometry_minus_values
+            trgeometry_minus_geom, trgeometry_minus_stbox, trgeometry_minus_value
         """
         from ...boxes import STBox
 
@@ -301,18 +321,8 @@ class TRgeometryRegularMixin:
             result = trgeometry_minus_value(self._inner, other._inner)
         elif isinstance(other, shpb.BaseGeometry):
             result = trgeometry_minus_geom(self._inner, geometry_to_gserialized(other))
-        elif isinstance(other, PoseSet):
-            result = trgeometry_minus_values(self._inner, other._inner)
         elif isinstance(other, STBox):
             result = trgeometry_minus_stbox(self._inner, other._inner, True)
-        elif isinstance(other, datetime):
-            result = trgeometry_minus_timestamptz(self._inner, datetime_to_timestamptz(other))
-        elif isinstance(other, TsTzSet):
-            result = trgeometry_minus_tstzset(self._inner, other._inner)
-        elif isinstance(other, TsTzSpan):
-            result = trgeometry_minus_tstzspan(self._inner, other._inner)
-        elif isinstance(other, TsTzSpanSet):
-            result = trgeometry_minus_tstzspanset(self._inner, other._inner)
         else:
             return super().minus(other)
         return Temporal._factory(result)

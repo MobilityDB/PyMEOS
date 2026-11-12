@@ -121,9 +121,9 @@ class TText(
             A string with the string representation of `self`.
 
         MEOS Functions:
-            ttext_out
+            temporal_out
         """
-        return ttext_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     def as_wkt(self) -> str:
         """
@@ -135,7 +135,7 @@ class TText(
         MEOS Functions:
             ttext_as_wkt
         """
-        return ttext_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     # ------------------------- Accessors -------------------------------------
     def value_set(self) -> set[str]:

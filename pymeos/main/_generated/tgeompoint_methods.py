@@ -97,7 +97,7 @@ class TGeomPointRegularMixin:
         """Generated regular ``at``.
 
         MEOS Functions:
-            tgeo_at_geom, tgeo_at_stbox, tgeo_at_value, tpoint_at_elevation, tpoint_at_geom, tpoint_at_value
+            tgeo_at_geom, tgeo_at_stbox, tgeo_at_value, tpoint_at_elevation
         """
         from ...boxes import STBox
 
@@ -289,7 +289,7 @@ class TGeomPointRegularMixin:
         """Generated regular ``minus``.
 
         MEOS Functions:
-            tgeo_minus_geom, tgeo_minus_stbox, tgeo_minus_value, tpoint_minus_elevation, tpoint_minus_geom, tpoint_minus_value
+            tgeo_minus_geom, tgeo_minus_stbox, tgeo_minus_value, tpoint_minus_elevation
         """
         from ...boxes import STBox
 

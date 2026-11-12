@@ -13,7 +13,6 @@ from pymeos_cffi import (
     dateset_end_value,
     dateset_in,
     dateset_make,
-    dateset_out,
     dateset_shift_scale,
     dateset_start_value,
     dateset_value_n,
@@ -27,6 +26,7 @@ from pymeos_cffi import (
     minus_set_set,
     overafter_set_date,
     overbefore_set_date,
+    set_out,
     union_set_date,
     union_set_set,
 )
@@ -83,9 +83,9 @@ class DateSet(Set[date], TimeCollection[date]):
             A new :class:`str` instance
 
         MEOS Functions:
-            dateset_out
+            set_out
         """
-        return dateset_out(self._inner)
+        return set_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

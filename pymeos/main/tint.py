@@ -121,9 +121,9 @@ class TInt(
             A string representation of `self`.
 
         MEOS Functions:
-            tint_out
+            temporal_out
         """
-        return tint_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     def as_wkt(self):
         """
@@ -135,7 +135,7 @@ class TInt(
         MEOS Functions:
             tint_as_wkt
         """
-        return tint_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     # ------------------------- Conversions ----------------------------------
     def to_tfloat(self) -> TFloat:

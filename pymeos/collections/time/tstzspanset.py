@@ -59,9 +59,9 @@ class TsTzSpanSet(SpanSet[datetime], TimeCollection[datetime]):
             A new :class:`str` instance
 
         MEOS Functions:
-            tstzspanset_out
+            spanset_out
         """
-        return tstzspanset_out(self._inner)
+        return spanset_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

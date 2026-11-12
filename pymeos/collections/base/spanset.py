@@ -127,7 +127,7 @@ class SpanSet(Collection[T], ABC):
             A new :class:`str` instance
 
         MEOS Functions:
-            tstzspanset_out
+            spanset_out
         """
         return f"{self.__class__.__name__}({self})"
 

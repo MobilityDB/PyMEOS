@@ -133,9 +133,9 @@ class TFloat(
             A string representation of `self`.
 
         MEOS Functions:
-            tfloat_out
+            temporal_out
         """
-        return tfloat_out(self._inner, max_decimals)
+        return temporal_out(self._inner, max_decimals)
 
     def as_wkt(self, max_decimals: int = 15) -> str:
         """
@@ -148,9 +148,9 @@ class TFloat(
             A WKT representation of `self`.
 
         MEOS Functions:
-            tfloat_out
+            temporal_out
         """
-        return tfloat_out(self._inner, max_decimals)
+        return temporal_out(self._inner, max_decimals)
 
     # ------------------------- Conversions ----------------------------------
     def to_tint(self) -> TInt:

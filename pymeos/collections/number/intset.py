@@ -11,7 +11,6 @@ from pymeos_cffi import (
     intset_end_value,
     intset_in,
     intset_make,
-    intset_out,
     intset_shift_scale,
     intset_start_value,
     intset_value_n,
@@ -23,6 +22,7 @@ from pymeos_cffi import (
     overleft_set_int,
     overright_set_int,
     right_set_int,
+    set_out,
     union_set_int,
     union_set_set,
 )
@@ -77,9 +77,9 @@ class IntSet(Set[int]):
             A new :class:`str` instance
 
         MEOS Functions:
-            intset_out
+            set_out
         """
-        return intset_out(self._inner)
+        return set_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

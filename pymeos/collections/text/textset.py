@@ -49,9 +49,9 @@ class TextSet(Set[str]):
             A new :class:`str` instance
 
         MEOS Functions:
-            textset_out
+            set_out
         """
-        return textset_out(self._inner)
+        return set_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

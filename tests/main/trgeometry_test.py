@@ -2,6 +2,7 @@ from copy import copy
 from datetime import datetime, timezone
 
 import pytest
+from pymeos_cffi import MeosInvalidArgValueError
 from shapely import Point, Polygon
 
 from pymeos import (
@@ -167,32 +168,44 @@ class TestTRgeometrySpatialRelationships(TestTRgeometry):
     far_trs = TRgeometry.from_geometry_tpose(
         geometry, TPoseSeq("[Pose(Point(100 100), 0)@2019-09-01, Pose(Point(101 101), 0)@2019-09-02]")
     )
+    # A body in linear motion moves and turns between its poses: intersects,
+    # disjoint and within distance read that motion, while contains, covers and
+    # touches refuse it and read the body at the same poses held with step
+    # interpolation; the assertions are those of #TestTCbufferSpatialRelationships.
+    trs_step = TRgeometry.from_geometry_tpose(
+        geometry, TPoseSeq("Interp=Step;[Pose(Point(1 1), 0.5)@2019-09-01, Pose(Point(2 2), 0.3)@2019-09-02]")
+    )
 
     def test_ever_relationships(self):
-        assert self.trs.is_ever_contained_in(self.around) is True
-        assert self.trs.is_ever_coveredby(self.around) is True
-        assert self.trs.is_ever_coveredby(self.far) is False
-        assert self.trs.is_ever_covers(self.far) is False
+        assert self.trs_step.is_ever_contained_in(self.around) is True
+        assert self.trs_step.is_ever_coveredby(self.around) is True
+        assert self.trs_step.is_ever_coveredby(self.far) is False
+        assert self.trs_step.is_ever_covers(self.far) is False
+        with pytest.raises(MeosInvalidArgValueError):
+            self.trs.is_ever_contained_in(self.around)
         assert self.trs.is_ever_disjoint(self.far) is True
         assert self.trs.is_ever_disjoint(self.far_trs) is True
         assert self.trs.is_ever_within_distance(self.far, 1.0) is False
         assert self.trs.is_ever_within_distance(self.far_trs, 1000.0) is True
         assert self.trs.ever_intersects(self.around) is True
         assert self.trs.ever_intersects(self.far_trs) is False
-        assert self.trs.ever_touches(self.far) is False
+        assert self.trs_step.ever_touches(self.far) is False
 
+    # The always twin of #test_ever_relationships.
     def test_always_relationships(self):
-        assert self.trs.is_always_contained_in(self.around) is True
-        assert self.trs.is_always_coveredby(self.around) is True
-        assert self.trs.is_always_coveredby(self.far) is False
-        assert self.trs.is_always_covers(self.far) is False
+        assert self.trs_step.is_always_contained_in(self.around) is True
+        assert self.trs_step.is_always_coveredby(self.around) is True
+        assert self.trs_step.is_always_coveredby(self.far) is False
+        assert self.trs_step.is_always_covers(self.far) is False
+        with pytest.raises(MeosInvalidArgValueError):
+            self.trs.is_always_contained_in(self.around)
         assert self.trs.is_always_disjoint(self.far) is True
         assert self.trs.is_always_disjoint(self.far_trs) is True
         assert self.trs.is_always_within_distance(self.far, 1.0) is False
         assert self.trs.is_always_within_distance(self.far_trs, 1000.0) is True
         assert self.trs.always_intersects(self.around) is True
         assert self.trs.always_intersects(self.far_trs) is False
-        assert self.trs.always_touches(self.far) is False
+        assert self.trs_step.always_touches(self.far) is False
 
 
 class TestTRgeometryRestrictions(TestTRgeometry):

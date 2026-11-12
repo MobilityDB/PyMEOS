@@ -112,18 +112,18 @@ class TBool(Temporal[bool, "TBool", "TBoolInst", "TBoolSeq", "TBoolSeqSet"], ABC
         Returns the string representation of `self`.
 
         MEOS Function:
-            tbool_out
+            temporal_out
         """
-        return tbool_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     def as_wkt(self):
         """
         Returns the string representation of `self` in WKT format.
 
         MEOS Function:
-            tbool_out
+            temporal_out
         """
-        return tbool_out(self._inner)
+        return temporal_out(self._inner, 0)
 
     # ------------------------- Accessors -------------------------------------
     def value_set(self) -> set[bool]:

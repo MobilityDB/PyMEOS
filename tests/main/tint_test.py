@@ -1440,7 +1440,7 @@ class TestTIntModifications(TestTInt):
             (
                 tiss,
                 TIntSeq("[1@2019-09-06]"),
-                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05],[1@2019-09-06]}"),
+                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
@@ -1482,12 +1482,12 @@ class TestTIntModifications(TestTInt):
             (
                 tis,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TIntSeqSet("{(1@2019-09-01, 2@2019-09-02]}"),
+                TIntSeq("[2@2019-09-02]"),
             ),
             (
                 tiss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TIntSeqSet("{(1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"),
+                TIntSeqSet("{[2@2019-09-02],[1@2019-09-03, 1@2019-09-05]}"),
             ),
         ],
         ids=[

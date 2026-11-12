@@ -11,7 +11,6 @@ from pymeos_cffi import (
     int_to_spanset,
     intersection_spanset_int,
     intspanset_in,
-    intspanset_out,
     intspanset_shift_scale,
     intspanset_to_floatspanset,
     intspanset_width,
@@ -21,6 +20,7 @@ from pymeos_cffi import (
     overright_spanset_int,
     right_spanset_int,
     spanset_eq,
+    spanset_out,
     union_spanset_int,
 )
 
@@ -72,9 +72,9 @@ class IntSpanSet(SpanSet[int]):
             A new :class:`str` instance
 
         MEOS Functions:
-            intspanset_out
+            spanset_out
         """
-        return intspanset_out(self._inner)
+        return spanset_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

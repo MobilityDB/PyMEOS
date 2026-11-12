@@ -1,4 +1,3 @@
-import platform
 from copy import copy
 from datetime import datetime, timedelta, timezone
 from operator import not_
@@ -1977,7 +1976,7 @@ class TestTGeogPointModifications(TestTGeogPoint):
                 tpss,
                 TGeogPointSeq("[Point(1 1)@2019-09-06]"),
                 TGeogPointSeqSet(
-                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-06]}"
                 ),
             ),
         ],
@@ -2030,14 +2029,12 @@ class TestTGeogPointModifications(TestTGeogPoint):
             (
                 tps,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TGeogPointSeq("[Point(2 2)@2019-09-02]"),
             ),
             (
                 tpss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeogPointSeqSet(
-                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                ),
+                TGeogPointSeqSet("{[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -2786,18 +2783,6 @@ class TestTGeogPointEverAlwaysComparisons(TestTGeogPoint):
         assert temporal.never_equal(argument) == not_(expected)
 
 
-# MEOS dates the meeting of two geodetic segments with the Cartesian fraction of
-# tgeogpointsegm_distance_turnpt and tests the two great-circle points it interpolates there
-# for exact equality, so the meeting at 12:00 is found only where the two roundings agree: on
-# x86 they do, on arm64 they do not. Strict, so the mark fails the run once MEOS dates the
-# meeting exactly on every platform.
-GEODETIC_CROSSING_ON_ARM64 = pytest.mark.xfail(
-    platform.machine() in ("arm64", "aarch64"),
-    reason="MEOS dates a geodetic crossing by a Cartesian fraction and exact point equality",
-    strict=True,
-)
-
-
 class TestTGeogPointTemporalComparisons(TestTGeogPoint):
     tpi = TGeogPointInst("Point(1 1)@2019-09-01")
     tpds = TGeogPointSeq("{Point(1 1)@2019-09-01, Point(2 2)@2019-09-02}")
@@ -2812,20 +2797,18 @@ class TestTGeogPointTemporalComparisons(TestTGeogPoint):
         [
             (tpi, TBoolInst("False@2019-09-01")),
             (tpds, TBoolSeq("{False@2019-09-01, False@2019-09-02}")),
-            pytest.param(
+            (
                 tps,
                 TBoolSeqSet(
                     "{[False@2019-09-01, True@2019-09-01 12:00:00+00],(False@2019-09-01 12:00:00+00, False@2019-09-02]}"
                 ),
-                marks=GEODETIC_CROSSING_ON_ARM64,
             ),
-            pytest.param(
+            (
                 tpss,
                 TBoolSeqSet(
                     "{[False@2019-09-01, True@2019-09-01 12:00:00+00],"
                     "(False@2019-09-01 12:00:00+00, False@2019-09-02],[True@2019-09-03]}"
                 ),
-                marks=GEODETIC_CROSSING_ON_ARM64,
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

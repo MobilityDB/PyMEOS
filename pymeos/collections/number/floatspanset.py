@@ -10,7 +10,6 @@ from pymeos_cffi import (
     distance_spanset_float,
     float_to_spanset,
     floatspanset_in,
-    floatspanset_out,
     floatspanset_shift_scale,
     floatspanset_to_intspanset,
     floatspanset_width,
@@ -21,6 +20,7 @@ from pymeos_cffi import (
     overright_spanset_float,
     right_spanset_float,
     spanset_eq,
+    spanset_out,
     union_spanset_float,
 )
 
@@ -72,9 +72,9 @@ class FloatSpanSet(SpanSet[float]):
             A new :class:`str` instance
 
         MEOS Functions:
-            floatspanset_out
+            spanset_out
         """
-        return floatspanset_out(self._inner, max_decimals)
+        return spanset_out(self._inner, max_decimals)
 
     # ------------------------- Conversions -----------------------------------
 
