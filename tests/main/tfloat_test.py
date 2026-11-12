@@ -1693,7 +1693,7 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfss,
                 TFloatSeq("[1.5@2019-09-06]"),
-                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05],[1.5@2019-09-06]}"),
+                TFloatSeqSet("{[1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

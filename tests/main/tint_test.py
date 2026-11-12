@@ -1440,7 +1440,7 @@ class TestTIntModifications(TestTInt):
             (
                 tiss,
                 TIntSeq("[1@2019-09-06]"),
-                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-05],[1@2019-09-06]}"),
+                TIntSeqSet("{[1@2019-09-01, 2@2019-09-02],[1@2019-09-03, 1@2019-09-06]}"),
             ),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],

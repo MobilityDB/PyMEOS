@@ -1977,7 +1977,7 @@ class TestTGeogPointModifications(TestTGeogPoint):
                 tpss,
                 TGeogPointSeq("[Point(1 1)@2019-09-06]"),
                 TGeogPointSeqSet(
-                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05],[Point(1 1)@2019-09-06]}"
+                    "{[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-06]}"
                 ),
             ),
         ],
