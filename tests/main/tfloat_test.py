@@ -1739,12 +1739,12 @@ class TestTFloatModifications(TestTFloat):
             (
                 tfs,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02]}"),
+                TFloatSeq("[2.5@2019-09-02]"),
             ),
             (
                 tfss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TFloatSeqSet("{(1.5@2019-09-01, 2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
+                TFloatSeqSet("{[2.5@2019-09-02],[1.5@2019-09-03, 1.5@2019-09-05]}"),
             ),
         ],
         ids=[

@@ -2124,14 +2124,12 @@ class TestTGeomPointModifications(TestTGeomPoint):
             (
                 tps,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeomPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TGeomPointSeq("[Point(2 2)@2019-09-02]"),
             ),
             (
                 tpss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeomPointSeqSet(
-                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                ),
+                TGeomPointSeqSet("{[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
         ],
         ids=[
@@ -2958,21 +2956,24 @@ class TestTGeomPointEverSpatialOperations(TestTGeomPoint):
         assert temporal.ever_intersects(Point(1, 1)) == expected
         assert temporal.ever_intersects(TGeomPointInst("Point(1 1)@2019-09-01")) == expected
 
-    # etouches_tpoint_geo, the function of eTouches(tgeompoint, geometry): the
-    # boundary of the trajectory of a sequence starting at Point(1 1) holds
-    # Point(1 1), and a trajectory of points has an empty boundary
+    # etouches_tpoint_geo, the function of eTouches(tgeompoint, geometry): a
+    # point touches a geometry where it lies on the boundary of the geometry,
+    # and Point(1 1) has an empty boundary, so no temporal point touches it,
+    # while every value below stands at Point(1 1), a corner of the unit square;
+    # two geometries per value, as #test_temporal_ever_contained_withindist_intersects
     @pytest.mark.parametrize(
         "temporal, expected",
         [
             (tpi, False),
             (tpds, False),
-            (tps, True),
-            (tpss, True),
+            (tps, False),
+            (tpss, False),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_temporal_ever_touches(self, temporal, expected):
         assert temporal.ever_touches(Point(1, 1)) == expected
+        assert temporal.ever_touches(Polygon([(0, 0), (1, 0), (1, 1), (0, 1), (0, 0)])) is True
 
     @pytest.mark.parametrize(
         "temporal, expected",

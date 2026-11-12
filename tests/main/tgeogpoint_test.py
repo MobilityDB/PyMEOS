@@ -2030,14 +2030,12 @@ class TestTGeogPointModifications(TestTGeogPoint):
             (
                 tps,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeogPointSeqSet("{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]}"),
+                TGeogPointSeq("[Point(2 2)@2019-09-02]"),
             ),
             (
                 tpss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TGeogPointSeqSet(
-                    "{(Point(1 1)@2019-09-01, Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"
-                ),
+                TGeogPointSeqSet("{[Point(2 2)@2019-09-02],[Point(1 1)@2019-09-03, Point(1 1)@2019-09-05]}"),
             ),
         ],
         ids=[

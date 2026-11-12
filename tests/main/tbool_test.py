@@ -1248,12 +1248,12 @@ class TestTBoolModifications(TestTBool):
             (
                 tbs,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TBoolSeqSet("{(True@2019-09-01, False@2019-09-02]}"),
+                TBoolSeq("[False@2019-09-02]"),
             ),
             (
                 tbss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TBoolSeqSet("{(True@2019-09-01, False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
+                TBoolSeqSet("{[False@2019-09-02],[True@2019-09-03, True@2019-09-05]}"),
             ),
         ],
         ids=[

@@ -1249,12 +1249,12 @@ class TestTTextModifications(TestTText):
             (
                 tts,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02]}"),
+                TTextSeq("[BBB@2019-09-02]"),
             ),
             (
                 ttss,
                 datetime(year=2019, month=9, day=1, tzinfo=timezone.utc),
-                TTextSeqSet("{(AAA@2019-09-01, BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
+                TTextSeqSet("{[BBB@2019-09-02],[AAA@2019-09-03, AAA@2019-09-05]}"),
             ),
         ],
         ids=[
