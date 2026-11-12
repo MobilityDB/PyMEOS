@@ -61,9 +61,9 @@ class TsTzSpan(Span[datetime], TimeCollection[datetime]):
             A new :class:`str` instance
 
         MEOS Functions:
-            tstzspan_out
+            span_out
         """
-        return tstzspan_out(self._inner)
+        return span_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

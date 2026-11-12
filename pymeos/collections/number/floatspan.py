@@ -12,7 +12,6 @@ from pymeos_cffi import (
     floatspan_in,
     floatspan_lower,
     floatspan_make,
-    floatspan_out,
     floatspan_shift_scale,
     floatspan_to_intspan,
     floatspan_upper,
@@ -28,6 +27,7 @@ from pymeos_cffi import (
     overright_span_float,
     right_span_float,
     span_eq,
+    span_out,
     union_span_float,
     union_span_span,
     union_spanset_span,
@@ -84,9 +84,9 @@ class FloatSpan(Span[float]):
             A new :class:`str` instance
 
         MEOS Functions:
-            floatspan_out
+            span_out
         """
-        return floatspan_out(self._inner, max_decimals)
+        return span_out(self._inner, max_decimals)
 
     # ------------------------- Conversions -----------------------------------
 

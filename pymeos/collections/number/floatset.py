@@ -9,7 +9,6 @@ from pymeos_cffi import (
     floatset_end_value,
     floatset_in,
     floatset_make,
-    floatset_out,
     floatset_shift_scale,
     floatset_start_value,
     floatset_value_n,
@@ -23,6 +22,7 @@ from pymeos_cffi import (
     overleft_set_float,
     overright_set_float,
     right_set_float,
+    set_out,
     union_set_float,
     union_set_set,
 )
@@ -78,9 +78,9 @@ class FloatSet(Set[float]):
             A new :class:`str` instance
 
         MEOS Functions:
-            floatset_out
+            set_out
         """
-        return floatset_out(self._inner, max_decimals)
+        return set_out(self._inner, max_decimals)
 
     # ------------------------- Conversions -----------------------------------
 

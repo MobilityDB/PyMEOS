@@ -20,7 +20,6 @@ from pymeos_cffi import (
     datespanset_end_date,
     datespanset_in,
     datespanset_num_dates,
-    datespanset_out,
     datespanset_shift_scale,
     datespanset_start_date,
     datespanset_to_tstzspanset,
@@ -30,6 +29,7 @@ from pymeos_cffi import (
     minus_spanset_date,
     overafter_spanset_date,
     overbefore_spanset_date,
+    spanset_out,
     union_spanset_date,
 )
 
@@ -84,9 +84,9 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
             A new :class:`str` instance
 
         MEOS Functions:
-            datespanset_out
+            spanset_out
         """
-        return datespanset_out(self._inner)
+        return spanset_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
 

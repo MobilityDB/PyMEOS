@@ -59,9 +59,9 @@ class TsTzSet(Set[datetime], TimeCollection[datetime]):
             A new :class:`str` instance
 
         MEOS Functions:
-            tstzset_out
+            set_out
         """
-        return tstzset_out(self._inner)
+        return set_out(self._inner, 0)
 
     # ------------------------- Conversions -----------------------------------
     # ------------------------- Accessors -------------------------------------
