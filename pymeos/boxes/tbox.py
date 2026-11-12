@@ -1082,10 +1082,7 @@ class TBox:
             nad_tbox_tbox
         """
         if isinstance(other, TBox):
-            if self._is_float():
-                return nad_tboxfloat_tboxfloat(self._inner, other._inner)
-            else:
-                return nad_tboxint_tboxint(self._inner, other._inner)
+            return nad_tbox_tbox(self._inner, other._inner)
         elif isinstance(other, TInt):
             return nad_tint_tbox(other._inner, self._inner)
         elif isinstance(other, TFloat):

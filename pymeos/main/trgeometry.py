@@ -323,9 +323,9 @@ class TRgeometry(
             A new :class:`TRgeometryInst` object.
 
         MEOS Functions:
-            trgeometry_start_instant
+            temporal_start_instant
         """
-        return Temporal._factory(trgeometry_start_instant(self._inner))
+        return Temporal._factory(temporal_start_instant(self._inner))
 
     def end_instant(self: Self) -> TRgeometryInst:
         """
@@ -335,9 +335,9 @@ class TRgeometry(
             A new :class:`TRgeometryInst` object.
 
         MEOS Functions:
-            trgeometry_end_instant
+            temporal_end_instant
         """
-        return Temporal._factory(trgeometry_end_instant(self._inner))
+        return Temporal._factory(temporal_end_instant(self._inner))
 
     def instant_n(self, n: int) -> TRgeometryInst:
         """
@@ -350,9 +350,9 @@ class TRgeometry(
             A new :class:`TRgeometryInst` object.
 
         MEOS Functions:
-            trgeometry_instant_n
+            temporal_instant_n
         """
-        return Temporal._factory(trgeometry_instant_n(self._inner, n + 1))
+        return Temporal._factory(temporal_instant_n(self._inner, n + 1))
 
     def instants(self) -> list[TRgeometryInst]:
         """
@@ -362,9 +362,9 @@ class TRgeometry(
             A :class:`list` of :class:`TRgeometryInst` objects.
 
         MEOS Functions:
-            trgeometry_instants
+            temporal_instants
         """
-        ins, count = trgeometry_instants(self._inner)
+        ins, count = temporal_instants(self._inner)
         return [Temporal._factory(ins[i]) for i in range(count)]
 
     def points(self) -> GeometrySet:
@@ -449,9 +449,9 @@ class TRgeometry(
             A new :class:`TRgeometry` object.
 
         MEOS Functions:
-            trgeometry_round
+            temporal_round
         """
-        result = trgeometry_round(self._inner, max_decimals)
+        result = temporal_round(self._inner, max_decimals)
         return Temporal._factory(result)
 
     def transform(self: Self, srid: int) -> Self:
@@ -481,9 +481,9 @@ class TRgeometry(
             A new :class:`TRgeometry` instance.
 
         MEOS Functions:
-            trgeometry_set_interp
+            temporal_set_interp
         """
-        result = trgeometry_set_interp(self._inner, interpolation.value)
+        result = temporal_set_interp(self._inner, interpolation.value)
         return Temporal._factory(result)
 
     def append_instant(
@@ -504,11 +504,11 @@ class TRgeometry(
             A new :class:`TRgeometry` object.
 
         MEOS Functions:
-            trgeometry_append_tinstant
+            temporal_append_tinstant
         """
         interp = self.interpolation()
         mt = timedelta_to_interval(max_time) if max_time is not None else None
-        result = trgeometry_append_tinstant(self._inner, instant._inner, interp.value, max_dist, mt, False)
+        result = temporal_append_tinstant(self._inner, instant._inner, interp.value, max_dist, mt, False)
         return Temporal._factory(result)
 
     def append_sequence(self: Self, sequence: TRgeometrySeq) -> TRgeometry:
@@ -522,9 +522,9 @@ class TRgeometry(
             A new :class:`TRgeometry` object.
 
         MEOS Functions:
-            trgeometry_append_tsequence
+            temporal_append_tsequence
         """
-        result = trgeometry_append_tsequence(self._inner, sequence._inner, False)
+        result = temporal_append_tsequence(self._inner, sequence._inner, False)
         return Temporal._factory(result)
 
     # ------------------------- Ever and Always Comparisons -------------------
@@ -630,9 +630,9 @@ class TRgeometry(
         Returns the temporal segments of `self`.
 
         MEOS Functions:
-            trgeometry_segments
+            temporal_segments
         """
-        seqs, count = trgeometry_segments(self._inner)
+        seqs, count = temporal_segments(self._inner)
         return [Temporal._factory(seqs[i]) for i in range(count)]
 
     # ------------------------- Modifications ---------------------------------
@@ -646,17 +646,17 @@ class TRgeometry(
             connect: Whether to connect the resulting segments.
 
         MEOS Functions:
-            trgeometry_delete_timestamptz, trgeometry_delete_tstzset,
-            trgeometry_delete_tstzspan, trgeometry_delete_tstzspanset
+            temporal_delete_timestamptz, temporal_delete_tstzset,
+            temporal_delete_tstzspan, temporal_delete_tstzspanset
         """
         if isinstance(other, datetime):
-            result = trgeometry_delete_timestamptz(self._inner, datetime_to_timestamptz(other), connect)
+            result = temporal_delete_timestamptz(self._inner, datetime_to_timestamptz(other), connect)
         elif isinstance(other, TsTzSet):
-            result = trgeometry_delete_tstzset(self._inner, other._inner, connect)
+            result = temporal_delete_tstzset(self._inner, other._inner, connect)
         elif isinstance(other, TsTzSpan):
-            result = trgeometry_delete_tstzspan(self._inner, other._inner, connect)
+            result = temporal_delete_tstzspan(self._inner, other._inner, connect)
         elif isinstance(other, TsTzSpanSet):
-            result = trgeometry_delete_tstzspanset(self._inner, other._inner, connect)
+            result = temporal_delete_tstzspanset(self._inner, other._inner, connect)
         else:
             return super().delete(other, connect)
         return Temporal._factory(result)
@@ -671,9 +671,9 @@ class TRgeometry(
             strict: Whether the bound is strict.
 
         MEOS Functions:
-            trgeometry_before_timestamptz
+            temporal_before_timestamptz
         """
-        result = trgeometry_before_timestamptz(self._inner, datetime_to_timestamptz(timestamp), strict)
+        result = temporal_before_timestamptz(self._inner, datetime_to_timestamptz(timestamp), strict)
         return Temporal._factory(result)
 
     def after(self, timestamp: datetime, strict: bool = False) -> TRgeometry:
@@ -686,9 +686,9 @@ class TRgeometry(
             strict: Whether the bound is strict.
 
         MEOS Functions:
-            trgeometry_after_timestamptz
+            temporal_after_timestamptz
         """
-        result = trgeometry_after_timestamptz(self._inner, datetime_to_timestamptz(timestamp), strict)
+        result = temporal_after_timestamptz(self._inner, datetime_to_timestamptz(timestamp), strict)
         return Temporal._factory(result)
 
     # ------------------------- Distance Operations ---------------------------
@@ -839,34 +839,34 @@ class TRgeometrySeqSet(
         Returns the first sequence of `self`.
 
         MEOS Functions:
-            trgeometry_start_sequence
+            temporal_start_sequence
         """
-        return self.ComponentClass(_inner=trgeometry_start_sequence(self._inner))
+        return self.ComponentClass(_inner=temporal_start_sequence(self._inner))
 
     def end_sequence(self) -> TRgeometrySeq:
         """
         Returns the last sequence of `self`.
 
         MEOS Functions:
-            trgeometry_end_sequence
+            temporal_end_sequence
         """
-        return self.ComponentClass(_inner=trgeometry_end_sequence(self._inner))
+        return self.ComponentClass(_inner=temporal_end_sequence(self._inner))
 
     def sequence_n(self, n: int) -> TRgeometrySeq:
         """
         Returns the ``n``-th sequence of `self` (0-based).
 
         MEOS Functions:
-            trgeometry_sequence_n
+            temporal_sequence_n
         """
-        return self.ComponentClass(_inner=trgeometry_sequence_n(self._inner, n + 1))
+        return self.ComponentClass(_inner=temporal_sequence_n(self._inner, n + 1))
 
     def sequences(self) -> list[TRgeometrySeq]:
         """
         Returns the list of sequences of `self`.
 
         MEOS Functions:
-            trgeometry_sequences
+            temporal_sequences
         """
-        seqs, count = trgeometry_sequences(self._inner)
+        seqs, count = temporal_sequences(self._inner)
         return [self.ComponentClass(_inner=seqs[i]) for i in range(count)]
