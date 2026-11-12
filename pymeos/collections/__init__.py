@@ -1,5 +1,6 @@
 from .base import *
 from .cbuffer import *
+from .cell import *
 from .geo import *
 from .npoint import *
 from .number import *
@@ -39,4 +40,10 @@ __all__ = [
     "CbufferSet",
     "Pose",
     "PoseSet",
+    "H3Index",
+    "H3IndexSet",
+    "Quadbin",
+    "QuadbinSet",
+    "S2Cell",
+    "S2CellSet",
 ]
