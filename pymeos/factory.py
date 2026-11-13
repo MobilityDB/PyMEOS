@@ -10,11 +10,14 @@ from .collections import (
     FloatSpanSet,
     GeographySet,
     GeometrySet,
+    H3IndexSet,
     IntSet,
     IntSpan,
     IntSpanSet,
     NpointSet,
     PoseSet,
+    QuadbinSet,
+    S2CellSet,
     TextSet,
     TsTzSet,
     TsTzSpan,
@@ -36,6 +39,9 @@ from .main import (
     TGeomPointInst,
     TGeomPointSeq,
     TGeomPointSeqSet,
+    TH3IndexInst,
+    TH3IndexSeq,
+    TH3IndexSeqSet,
     TIntInst,
     TIntSeq,
     TIntSeqSet,
@@ -45,9 +51,15 @@ from .main import (
     TPoseInst,
     TPoseSeq,
     TPoseSeqSet,
+    TQuadbinInst,
+    TQuadbinSeq,
+    TQuadbinSeqSet,
     TRgeometryInst,
     TRgeometrySeq,
     TRgeometrySeqSet,
+    TS2CellInst,
+    TS2CellSeq,
+    TS2CellSeqSet,
     TTextInst,
     TTextSeq,
     TTextSeqSet,
@@ -171,7 +183,7 @@ class _CollectionFactory:
         return _CollectionFactory._mapper[collection_type](_inner=inner)
 
 
-# Extended temporal type families (cbuffer, npoint, pose, rgeo) are full
+# Extended temporal type families (cbuffer, npoint, pose, rgeo, cells) are full
 # user-facing temporal types and are wired exactly like every other type.
 # Registered post-hoc through `_meos_type` so a build whose `pymeos_cffi`
 # does not yet wrap these (valid, compiled) tags in its `MeosType` enum
@@ -181,6 +193,9 @@ for _tag, _inst, _seq, _seqset in (
     ("T_TCBUFFER", TCbufferInst, TCbufferSeq, TCbufferSeqSet),
     ("T_TPOSE", TPoseInst, TPoseSeq, TPoseSeqSet),
     ("T_TRGEOMETRY", TRgeometryInst, TRgeometrySeq, TRgeometrySeqSet),
+    ("T_TH3INDEX", TH3IndexInst, TH3IndexSeq, TH3IndexSeqSet),
+    ("T_TQUADBIN", TQuadbinInst, TQuadbinSeq, TQuadbinSeqSet),
+    ("T_TS2CELL", TS2CellInst, TS2CellSeq, TS2CellSeqSet),
 ):
     _k = _meos_type(_tag)
     if _k is not None:
@@ -192,6 +207,9 @@ for _tag, _cls in (
     ("T_NPOINTSET", NpointSet),
     ("T_CBUFFERSET", CbufferSet),
     ("T_POSESET", PoseSet),
+    ("T_H3INDEXSET", H3IndexSet),
+    ("T_QUADBINSET", QuadbinSet),
+    ("T_S2CELLSET", S2CellSet),
 ):
     _k = _meos_type(_tag)
     if _k is not None:

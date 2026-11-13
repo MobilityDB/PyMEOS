@@ -1,6 +1,8 @@
 from .tbool import TBool, TBoolInst, TBoolSeq, TBoolSeqSet
 from .tcbuffer import TCbuffer, TCbufferInst, TCbufferSeq, TCbufferSeqSet
+from .tcellindex import TCellIndex
 from .tfloat import TFloat, TFloatInst, TFloatSeq, TFloatSeqSet
+from .th3index import TH3Index, TH3IndexInst, TH3IndexSeq, TH3IndexSeqSet
 from .tint import TInt, TIntInst, TIntSeq, TIntSeqSet
 from .tnpoint import TNpoint, TNpointInst, TNpointSeq, TNpointSeqSet
 from .tnumber import TNumber
@@ -19,12 +21,14 @@ from .tpoint import (
     TPointSeqSet,
 )
 from .tpose import TPose, TPoseInst, TPoseSeq, TPoseSeqSet
+from .tquadbin import TQuadbin, TQuadbinInst, TQuadbinSeq, TQuadbinSeqSet
 from .trgeometry import (
     TRgeometry,
     TRgeometryInst,
     TRgeometrySeq,
     TRgeometrySeqSet,
 )
+from .ts2cell import TS2Cell, TS2CellInst, TS2CellSeq, TS2CellSeqSet
 from .ttext import TText, TTextInst, TTextSeq, TTextSeqSet
 
 __all__ = [
@@ -73,4 +77,17 @@ __all__ = [
     "TRgeometryInst",
     "TRgeometrySeq",
     "TRgeometrySeqSet",
+    "TCellIndex",
+    "TH3Index",
+    "TH3IndexInst",
+    "TH3IndexSeq",
+    "TH3IndexSeqSet",
+    "TQuadbin",
+    "TQuadbinInst",
+    "TQuadbinSeq",
+    "TQuadbinSeqSet",
+    "TS2Cell",
+    "TS2CellInst",
+    "TS2CellSeq",
+    "TS2CellSeqSet",
 ]

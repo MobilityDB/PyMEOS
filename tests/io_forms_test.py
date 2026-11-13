@@ -6,6 +6,8 @@ from pymeos import (
     FloatSet,
     FloatSpan,
     GeometrySet,
+    H3Index,
+    H3IndexSet,
     IntSet,
     IntSpan,
     IntSpanSet,
@@ -14,6 +16,10 @@ from pymeos import (
     Nsegment,
     Pose,
     PoseSet,
+    Quadbin,
+    QuadbinSet,
+    S2Cell,
+    S2CellSet,
     STBox,
     TBoolInst,
     TBox,
@@ -22,10 +28,13 @@ from pymeos import (
     TFloatSeq,
     TGeogPointInst,
     TGeomPointSeq,
+    TH3IndexInst,
     TIntSeq,
     TNpointInst,
     TPoseInst,
+    TQuadbinInst,
     TRgeometryInst,
+    TS2CellSeq,
     TsTzSet,
     TsTzSpan,
     TsTzSpanSet,
@@ -76,6 +85,20 @@ TEXT = [
     (Cbuffer("SRID=3812;Cbuffer(Point(1 1),0.5)"), "Cbuffer(POINT(1 1),0.5)"),
     (Npoint("NPoint(1,0.5)"), "NPoint(1,0.5)"),
     (Nsegment("NSegment(1,0.2,0.5)"), "NSegment(1,0.2,0.5)"),
+    # The cells, which carry no SRID, as MobilityDB's 350_quadbin, 600_s2cell,
+    # 250_h3index, 351_quadbinset, 352_tquadbin and 603_ts2cell write them.
+    (Quadbin("48427fffffffffff"), "48427fffffffffff"),
+    (S2Cell("47c3c444c"), "47c3c444c"),
+    (H3Index("8a2a1072b59ffff"), "8a2a1072b59ffff"),
+    (QuadbinSet("{480fffffffffffff, 48427fffffffffff}"), '{"480fffffffffffff", "48427fffffffffff"}'),
+    (S2CellSet("{47c3c444c000000c, 47c3c444c0000004}"), '{"47c3c444c0000004", "47c3c444c000000c"}'),
+    (H3IndexSet("{8a2a1072b59ffff, 831c02fffffffff}"), '{"831c02fffffffff", "8a2a1072b59ffff"}'),
+    (TQuadbinInst("480fffffffffffff@2001-01-01"), "480fffffffffffff@2001-01-01 00:00:00+00"),
+    (
+        TS2CellSeq("[47c3c3@2001-01-01, 54b5c9@2001-01-02]"),
+        "[47c3c3@2001-01-01 00:00:00+00, 54b5c9@2001-01-02 00:00:00+00]",
+    ),
+    (TH3IndexInst("880326b885fffff@2001-01-01"), "880326b885fffff@2001-01-01 00:00:00+00"),
 ]
 IDS = [type(v).__name__ for v, _ in TEXT]
 
@@ -97,6 +120,15 @@ EWKT = [
         (26, "SRID=3812;"),
         (27, "SRID=5676;"),
         (28, "SRID=5676;"),
+        # A cell set or temporal cell carries the SRID of its grid in its
+        # bounding box, as MobilityDB's 351_quadbinset, 601_s2cellset,
+        # 251_h3indexset, 352_tquadbin, 603_ts2cell and 270_th3index write it.
+        (32, "SRID=4326;"),
+        (33, "SRID=4326;"),
+        (34, "SRID=4326;"),
+        (35, "SRID=4326;"),
+        (36, "SRID=4326;"),
+        (37, "SRID=4326;"),
     )
 ]
 EWKT_IDS = [type(v).__name__ for v, _ in EWKT]

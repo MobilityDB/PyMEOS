@@ -3,7 +3,7 @@
 ``tools/oo_codegen/codegen.py`` reads the meos-idl.json catalog of the MEOS the
 package builds against (``$MEOS_IDL``, the catalog the test workflow derives)
 and accounts for every catalogued function: emitted as a regular method or
-counted under a named exclusion, none unaccounted, all six temporal type
+counted under a named exclusion, none unaccounted, all seven temporal type
 families present.  The mixins committed in ``pymeos/main/_generated/`` are the
 generator's output on that catalog as #format_mixin lays it out, and every MEOS function they call is a
 function of the catalog.  The tests call the generator's own #collect and
@@ -25,7 +25,7 @@ sys.path.insert(0, str(TOOLS))
 
 import codegen as cg  # noqa: E402  (the generator, found through the path set above)
 
-IN_SCOPE = ["cbuffer", "geo", "npoint", "pose", "rgeo", "temporal"]
+IN_SCOPE = ["cbuffer", "cell", "geo", "npoint", "pose", "rgeo", "temporal"]
 # The conversions the binding owns, which the mixins call beside MEOS.
 BINDING_CONVERSIONS = {
     "datetime_to_timestamptz",
@@ -59,7 +59,7 @@ class CoverageAccounting(unittest.TestCase):
         accounted = st.emitted_overloads + st.datum + st.irregular + st.out_of_scope
         self.assertEqual(len(idl["functions"]) - accounted, 0)
 
-    def test_all_six_families_present(self):
+    def test_all_families_present(self):
         fams, _ = cg.collect(_idl())
         self.assertEqual(sorted(fams), IN_SCOPE)
 

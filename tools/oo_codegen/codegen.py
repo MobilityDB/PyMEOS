@@ -40,10 +40,11 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 
-# The six in-scope temporal type families, witnessed on the C function name.
+# The in-scope temporal type families, witnessed on the C function name.
 # Order is significant: the most specific token wins, so `geo` does not swallow a
-# `tcbuffer`/`tnpoint`/`tpose`/`trgeometry` name.
+# `tcbuffer`/`tnpoint`/`tpose`/`trgeometry` name nor `geo_to_quadbin_cell` a cell one.
 FAMILY_PATTERNS = [
+    ("cell", r"(h3index|quadbin|s2cell|tcellindex)"),
     ("cbuffer", r"cbuffer"),
     ("npoint", r"npoint"),
     ("pose", r"(^|_)t?pose(_|$)"),
@@ -62,7 +63,7 @@ _FAMILY_RE = [(f, re.compile(p, re.I)) for f, p in FAMILY_PATTERNS]
 #   wrap      -> generic factory     (nearest-approach instant, shortest line)
 #
 # Member spec: C-name prefix -> (oo_method_name, result_kind).  These are the
-# exact prefixes observed in meos-idl.json across the six family headers; the
+# exact prefixes observed in meos-idl.json across the family headers; the
 # oo_method_name matches the hand-written method so a reviewer can diff them
 # line for line.
 MEMBER_SPEC: dict[str, tuple[str, str]] = {
@@ -375,6 +376,55 @@ FAMILY_MODEL = {
         },
         "stbox_lazy": "from ...boxes import STBox",
     },
+    # The temporal cells take one mixin per class, as the temporal points
+    # do: each grid declares its own comparisons and restrictions, and a
+    # cell is held by value, its Python class holding the integer.
+    "h3index": {
+        "catalog_family": "cell",
+        "mixin_class": "TH3IndexRegularMixin",
+        "base_class": "H3Index",
+        "base_import": "from ...collections.cell import H3Index, H3IndexSet",
+        "temporal_class": "TH3Index",
+        "temporal_import": "from ..th3index import TH3Index",
+        "temporal_token": "th3index",
+        "tokens": {
+            # th3index_at_value / th3index_minus_value take one cell
+            "value": ("H3Index", "$o._inner"),
+            "h3index": ("H3Index", "$o._inner"),
+            "h3indexset": ("H3IndexSet", "$o._inner"),
+            "th3index": ("TH3Index", "$o._inner"),
+        },
+    },
+    "quadbin": {
+        "catalog_family": "cell",
+        "mixin_class": "TQuadbinRegularMixin",
+        "base_class": "Quadbin",
+        "base_import": "from ...collections.cell import Quadbin, QuadbinSet",
+        "temporal_class": "TQuadbin",
+        "temporal_import": "from ..tquadbin import TQuadbin",
+        "temporal_token": "tquadbin",
+        "tokens": {
+            "value": ("Quadbin", "$o._inner"),
+            "quadbin": ("Quadbin", "$o._inner"),
+            "quadbinset": ("QuadbinSet", "$o._inner"),
+            "tquadbin": ("TQuadbin", "$o._inner"),
+        },
+    },
+    "s2cell": {
+        "catalog_family": "cell",
+        "mixin_class": "TS2CellRegularMixin",
+        "base_class": "S2Cell",
+        "base_import": "from ...collections.cell import S2Cell, S2CellSet",
+        "temporal_class": "TS2Cell",
+        "temporal_import": "from ..ts2cell import TS2Cell",
+        "temporal_token": "ts2cell",
+        "tokens": {
+            "value": ("S2Cell", "$o._inner"),
+            "s2cell": ("S2Cell", "$o._inner"),
+            "s2cellset": ("S2CellSet", "$o._inner"),
+            "ts2cell": ("TS2Cell", "$o._inner"),
+        },
+    },
 }
 
 # Result post-processing, derived verbatim from the hand-written oracle.
@@ -431,6 +481,15 @@ _ORDER = [
     "tpose",
     "rgeometry",
     "trgeometry",
+    "h3index",
+    "h3indexset",
+    "th3index",
+    "quadbin",
+    "quadbinset",
+    "tquadbin",
+    "s2cell",
+    "s2cellset",
+    "ts2cell",
     "values",
     "elevation",
     "stbox",
@@ -707,12 +766,12 @@ def main() -> int:
     print(f"[oo-codegen] accounted           : {accounted}/{total}")
 
     unaccounted = total - accounted
-    ok = unaccounted == 0 and len(fams) == 6
+    ok = unaccounted == 0 and len(fams) == len(FAMILY_PATTERNS)
     if args.check:
         print(
             "CHECK: "
             + (
-                "PASS - every function emitted or explicitly counted, all 6 families present"
+                f"PASS - every function emitted or explicitly counted, all {len(FAMILY_PATTERNS)} families present"
                 if ok
                 else f"FAIL - {unaccounted} unaccounted, {len(fams)} families"
             )
