@@ -67,7 +67,7 @@ class TH3IndexRegularMixin:
         """Generated regular ``at``.
 
         MEOS Functions:
-            th3index_at_value, tquadbin_at_value, ts2cell_at_value
+            tcellindex_at_stbox, th3index_at_value, tquadbin_at_value, ts2cell_at_value
         """
         if isinstance(other, H3Index):
             result = th3index_at_value(self._inner, other._inner)
@@ -113,7 +113,7 @@ class TH3IndexRegularMixin:
         """Generated regular ``minus``.
 
         MEOS Functions:
-            th3index_minus_value, tquadbin_minus_value, ts2cell_minus_value
+            tcellindex_minus_stbox, th3index_minus_value, tquadbin_minus_value, ts2cell_minus_value
         """
         if isinstance(other, H3Index):
             result = th3index_minus_value(self._inner, other._inner)
