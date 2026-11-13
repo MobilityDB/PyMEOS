@@ -32,7 +32,7 @@ from pymeos_cffi import (
 )
 
 from ..base import Set
-from .timecollection import TimeCollection
+from .timecollection import TimeCollection, whole_days
 
 if TYPE_CHECKING:
     from .datespan import DateSpan
@@ -238,9 +238,9 @@ class DateSet(Set[date], TimeCollection[date]):
             dateset_shift_scale
         """
         assert shift is not None or duration is not None, "shift and scale deltas must not be both None"
-        shift = shift.days if isinstance(shift, timedelta) else int(shift) if shift is not None else 0
-        duration = duration.days if isinstance(duration, timedelta) else int(duration) if duration is not None else 0
-        tss = dateset_shift_scale(self._inner, shift, duration, shift != 0, duration != 0)
+        shift_days = whole_days(shift) if shift is not None else 0
+        width_days = whole_days(duration) if duration is not None else 0
+        tss = dateset_shift_scale(self._inner, shift_days, width_days, shift is not None, duration is not None)
         return DateSet(_inner=tss)
 
     # ------------------------- Topological Operations ------------------------
