@@ -100,7 +100,7 @@ class DateSpanSet(SpanSet[date], TimeCollection[date]):
         MEOS Functions:
             spanset_span
         """
-        from .dateset import DateSpan
+        from .datespan import DateSpan
 
         return DateSpan(_inner=super().to_span())
 
