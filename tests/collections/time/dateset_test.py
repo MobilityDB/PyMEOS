@@ -269,6 +269,23 @@ class TestDateSetFunctionsFunctions(TestDateSet):
         shifted_scaled = self.dateset.shift_scale(shift, scale)
         assert shifted_scaled == DateSet("{2020-01-05, 2020-01-06, 2020-01-10}")
 
+    # A shift of no days, as #test_shift shifts by a number of days
+    @pytest.mark.parametrize("delta", [timedelta(0), 0], ids=["timedelta", "int"])
+    def test_shift_zero(self, delta):
+        assert self.dateset.shift(delta) == self.dateset
+
+    # A timedelta with a part below a day, which #test_shift and #test_scale take in whole days
+    @pytest.mark.parametrize(
+        "delta",
+        [timedelta(hours=12), timedelta(hours=-1), timedelta(days=1, hours=23)],
+        ids=["half a day", "minus one hour", "one day and 23 hours"],
+    )
+    def test_shift_scale_below_a_day(self, delta):
+        with pytest.raises(ValueError):
+            self.dateset.shift(delta)
+        with pytest.raises(ValueError):
+            self.dateset.scale(delta)
+
 
 class TestDateSetMiscFunctions(TestDateSet):
     dateset = DateSet("{2020-01-01, 2020-01-02, 2020-01-04}")
