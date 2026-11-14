@@ -34,6 +34,13 @@ class TestDateSpanSetTransformations(TestDateSpanSet):
                 value.scale(delta)
 
 
+class TestDateSpanSetConversions(TestDateSpanSet):
+    # The span of a date span set, as #TestCollectionConversions.test_to_span of
+    # dateset_test.py checks the span of a date set
+    def test_to_span(self):
+        assert self.date_spanset.to_span() == DateSpan("[2019-09-08, 2019-09-14]")
+
+
 class TestDateSpanSetAccessors(TestDateSpanSet):
     # The dates of a date span set are the bounds of its spans, answered as a
     # list as #TestDateSetAccessors.test_elements answers the elements of a set
