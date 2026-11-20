@@ -28,6 +28,8 @@ from .boxes import *
 from .collections import *
 from .main import *
 from .meos_init import *
+from .raster import *
+from .raster import __all__ as _raster_all
 from .temporal import *
 
 __version__ = "1.4.0-alpha-1"
@@ -174,3 +176,5 @@ __all__ = [
     "MeosGeoJsonInputError",
     "MeosGeoJsonOutputError",
 ]
+# The classes classgen.py generates, by the names their module exports.
+__all__ += _raster_all
