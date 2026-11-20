@@ -1188,10 +1188,10 @@ class TestTGeomPointTemporalAccessors(TestTGeomPoint):
     @pytest.mark.parametrize(
         "temporal, expected",
         [
-            (tpi, 382694595),
-            (tpds, 2893111442),
-            (tps, 2893111442),
-            (tpss, 1203500793),
+            (tpi, 1946086145),
+            (tpds, 3487914108),
+            (tps, 3487914108),
+            (tpss, 3231770531),
         ],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
@@ -1274,7 +1274,8 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_cumulative_length(self, temporal, expected):
-        assert temporal.cumulative_length() == expected
+        # A derived double, compared at 12 decimals, as MobilityDB's tests bound one.
+        assert temporal.cumulative_length().round(12) == expected.round(12)
 
     @pytest.mark.parametrize(
         "temporal, expected",
@@ -1296,7 +1297,8 @@ class TestTGeomPointTPointAccessors(TestTGeomPoint):
         ids=["Sequence", "SequenceSet"],
     )
     def test_speed(self, temporal, expected):
-        assert temporal.speed() == expected
+        # A derived double, compared at 12 decimals, as MobilityDB's tests bound one.
+        assert temporal.speed().round(12) == expected.round(12)
 
     @pytest.mark.parametrize(
         "temporal",

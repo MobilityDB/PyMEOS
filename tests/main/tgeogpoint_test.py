@@ -151,15 +151,15 @@ class TestTGeogPointConstructors(TestTGeogPoint):
         "source, type, expected",
         [
             (
-                "[Point(1 1)@2019-09-01, Point(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05]",
+                "[Point(0 0)@2019-09-01, Point(0.25 0)@2019-09-02, Point(1 0)@2019-09-05]",
                 TGeogPointSeq,
-                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00]",
+                "[POINT(0 0)@2019-09-01 00:00:00+00, POINT(1 0)@2019-09-05 00:00:00+00]",
             ),
             (
-                "{[Point(1 1)@2019-09-01, POINT(1.249919068145015 1.250040436011492)@2019-09-02, Point(2 2)@2019-09-05],"
+                "{[Point(0 0)@2019-09-01, Point(0.25 0)@2019-09-02, Point(1 0)@2019-09-05],"
                 "[Point(1 1)@2019-09-07, Point(1 1)@2019-09-08, Point(1 1)@2019-09-09]}",
                 TGeogPointSeqSet,
-                "{[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-05 00:00:00+00], "
+                "{[POINT(0 0)@2019-09-01 00:00:00+00, POINT(1 0)@2019-09-05 00:00:00+00], "
                 "[POINT(1 1)@2019-09-07 00:00:00+00, POINT(1 1)@2019-09-09 00:00:00+00]}",
             ),
         ],
@@ -231,33 +231,33 @@ class TestTGeogPointConstructors(TestTGeogPoint):
             ),
             (
                 [
-                    "Point(1 1)@2019-09-01",
-                    "Point(1.499885736561676 1.500057091479197)@2019-09-02",
-                    "Point(2 2)@2019-09-03",
+                    "Point(0 0)@2019-09-01",
+                    "Point(0.5 0)@2019-09-02",
+                    "Point(1 0)@2019-09-03",
                 ],
                 TInterpolation.LINEAR,
                 True,
-                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                "[POINT(0 0)@2019-09-01 00:00:00+00, POINT(1 0)@2019-09-03 00:00:00+00]",
             ),
             (
                 [
-                    TGeogPointInst("Point(1 1)@2019-09-01"),
-                    TGeogPointInst("Point(1.499885736561676 1.500057091479197)@2019-09-02"),
-                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                    TGeogPointInst("Point(0 0)@2019-09-01"),
+                    TGeogPointInst("Point(0.5 0)@2019-09-02"),
+                    TGeogPointInst("Point(1 0)@2019-09-03"),
                 ],
                 TInterpolation.LINEAR,
                 True,
-                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                "[POINT(0 0)@2019-09-01 00:00:00+00, POINT(1 0)@2019-09-03 00:00:00+00]",
             ),
             (
                 [
-                    "Point(1 1)@2019-09-01",
-                    "Point(1.499885736561676 1.500057091479197)@2019-09-02",
-                    TGeogPointInst("Point(2 2)@2019-09-03"),
+                    "Point(0 0)@2019-09-01",
+                    "Point(0.5 0)@2019-09-02",
+                    TGeogPointInst("Point(1 0)@2019-09-03"),
                 ],
                 TInterpolation.LINEAR,
                 True,
-                "[POINT(1 1)@2019-09-01 00:00:00+00, POINT(2 2)@2019-09-03 00:00:00+00]",
+                "[POINT(0 0)@2019-09-01 00:00:00+00, POINT(1 0)@2019-09-03 00:00:00+00]",
             ),
         ],
         ids=[
@@ -1161,7 +1161,7 @@ class TestTGeogPointAccessors(TestTGeogPoint):
 
     @pytest.mark.parametrize(
         "temporal, expected",
-        [(tpi, 1181779718), (tpds, 2774215622), (tps, 2774215622), (tpss, 429936847)],
+        [(tpi, 1946086145), (tpds, 3487914108), (tps, 3487914108), (tpss, 3231770531)],
         ids=["Instant", "Discrete Sequence", "Sequence", "SequenceSet"],
     )
     def test_hash(self, temporal, expected):
@@ -1821,7 +1821,7 @@ class TestTGeogPointTransformations(TestTGeogPoint):
             (
                 tps,
                 timedelta(hours=12),
-                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(2 2)@2019-09-02]"),
+                TGeogPointSeq("[Point(1 1)@2019-09-01, Point(1.5 1.5)@2019-09-01 12:00:00, Point(2 2)@2019-09-02]"),
             ),
             (
                 tpss,
@@ -1832,7 +1832,8 @@ class TestTGeogPointTransformations(TestTGeogPoint):
                 tpss,
                 timedelta(hours=12),
                 TGeogPointSeqSet(
-                    "{[POINT(1 1)@2019-09-01, POINT(2 2)@2019-09-02], [POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}"
+                    "{[POINT(1 1)@2019-09-01, POINT(1.5 1.5)@2019-09-01 12:00:00, POINT(2 2)@2019-09-02], "
+                    "[POINT(1 1)@2019-09-03, POINT(1 1)@2019-09-05]}"
                 ),
             ),
         ],
