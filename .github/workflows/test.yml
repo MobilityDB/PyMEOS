@@ -101,7 +101,7 @@ jobs:
         uses: tecolicom/actions-use-homebrew-tools@v1
         if: runner.os == 'macOS'
         with:
-          tools: cmake libpq proj json-c h3
+          tools: cmake libpq proj json-c
 
       # The raster family links GDAL. Homebrew's GDAL links Apache Arrow for its Arrow and
       # Parquet drivers, and pyarrow's bundled Arrow then binds to that copy and fails to load,
@@ -148,10 +148,16 @@ jobs:
         if: runner.os == 'macOS'
         run: |
           git clone --branch ${{ needs.catalog.outputs.meos_branch }} --depth 1 https://github.com/MobilityDB/MobilityDB
+          # MobilityDB supports one H3 release, H3_REQUIRED_VERSION of its CMakeLists.txt,
+          # and its configure refuses any other, so the release is the one this checkout
+          # names, built by its own install-h3.sh into the prefix MEOS is installed into.
+          prefix=${{ matrix.ld_prefix }}
+          sudo bash MobilityDB/.github/scripts/install-h3.sh "$prefix"
           mkdir MobilityDB/build
           cd MobilityDB/build
-          cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ matrix.ld_prefix }} \
-            -DCMAKE_PREFIX_PATH=${{ steps.gdal.outputs.prefix }}
+          cmake .. -DMEOS=ON -DALL=ON -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="$prefix" \
+            -DCMAKE_PREFIX_PATH=${{ steps.gdal.outputs.prefix }} \
+            -DH3_LIBRARY="$prefix/lib/libh3.dylib" -DH3_INCLUDE_DIR="$prefix/include/h3"
           make -j"$(sysctl -n hw.ncpu)"
           sudo make install
 
